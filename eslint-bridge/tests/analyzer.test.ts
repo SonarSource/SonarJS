@@ -60,12 +60,12 @@ describe('#analyzeJavaScript', () => {
     sonarlint: false,
   });
 
-  it('should report issue running eslint', () => {
+  it('should report issue running eslint', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeJavaScript({
+    const { issues } = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -75,12 +75,12 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it('should analyze test files', () => {
+  it('should analyze test files', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeJavaScript({
+    const result = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
@@ -94,7 +94,7 @@ describe('#analyzeJavaScript', () => {
     expect(result.highlights).toHaveLength(11);
   });
 
-  it('should analyze both main and test files', () => {
+  it('should analyze both main and test files', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST', 'MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
@@ -105,11 +105,11 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       fileType: 'TEST',
     };
-    let { issues } = analyzeJavaScript(testFile);
+    let { issues } = await analyzeJavaScript(testFile);
     expect(issues).toHaveLength(1);
     expect(issues).toContainEqual(noOneIterationIssue);
 
-    ({ issues } = analyzeJavaScript({
+    ({ issues } = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -118,16 +118,16 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
     expect(issues).toContainEqual(noOneIterationIssue);
 
-    ({ issues } = analyzeJavaScript(testFile));
+    ({ issues } = await analyzeJavaScript(testFile));
     expect(issues).toHaveLength(1);
     expect(issues).toContainEqual(noOneIterationIssue);
   });
 
-  it('should not report issue when not receiving corresponding rule-key', () => {
+  it('should not report issue when not receiving corresponding rule-key', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeJavaScript({
+    const { issues } = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -135,35 +135,35 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should report syntax highlights', () => {
+  it('should report syntax highlights', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const highlights = analyzeJavaScript({
+    const { highlights } = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-    }).highlights;
+    });
     expect(highlights).toHaveLength(11);
   });
 
-  it('should report cpd tokens', () => {
+  it('should report cpd tokens', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const cpdTokens = analyzeJavaScript({
+    const { cpdTokens } = await analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-    }).cpdTokens;
+    });
     expect(cpdTokens).toHaveLength(42);
   });
 
-  it('should return empty list when parse error', () => {
+  it('should return empty list when parse error', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeJavaScript({
+    const { issues } = await analyzeJavaScript({
       filePath,
       fileContent: `if()`,
       fileType: 'MAIN',
@@ -171,12 +171,12 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze shebang file', () => {
+  it('should analyze shebang file', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeJavaScript({
+    const { issues } = await analyzeJavaScript({
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
       fileContent: undefined,
       fileType: 'MAIN',
@@ -186,15 +186,15 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it('should handle BOM', () => {
+  it('should handle BOM', async () => {
     const filePath = join(__dirname, './fixtures/js-project/fileWithBom.lint.js');
 
     initLinter([]);
-    const cpdTokens = analyzeJavaScript({
+    const { cpdTokens } = await analyzeJavaScript({
       filePath,
       fileContent: undefined,
       fileType: 'MAIN',
-    }).cpdTokens;
+    });
     expect(cpdTokens).toHaveLength(17);
     const firstLineEnd = Math.max(
       ...cpdTokens
@@ -218,13 +218,13 @@ describe('#analyzeJavaScript', () => {
     }
   });
 
-  it('should report exception from TypeScript compiler as parsing error', () => {
+  it('should report exception from TypeScript compiler as parsing error', async () => {
     const filePath = join(__dirname, './fixtures/failing-typescript/sample.lint.js');
     const tsConfig = join(__dirname, './fixtures/failing-typescript/tsconfig.json');
     const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
 
     initLinter([{ key: 'arguments-order', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const { parsingError } = analyzeJavaScript({
+    const { parsingError } = await analyzeJavaScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
@@ -241,12 +241,12 @@ describe('#analyzeTypeScript', () => {
   const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
   const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  it('should report issue running eslint', () => {
+  it('should report issue running eslint', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeTypeScript({
+    const { issues } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
@@ -257,11 +257,11 @@ describe('#analyzeTypeScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it('should report issue using type-checker', () => {
+  it('should report issue using type-checker', async () => {
     initLinter([
       { key: 'no-unnecessary-type-assertion', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeTypeScript({
+    const { issues } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: `let x = 4; x as number;`,
       tsConfigs: [tsConfig],
@@ -271,12 +271,12 @@ describe('#analyzeTypeScript', () => {
     expect(issues).toContainEqual(noUnnecessaryTypeAssertionIssue);
   });
 
-  it('should read file content from fs when not provided', () => {
+  it('should read file content from fs when not provided', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeTypeScript({
+    const { issues } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: undefined,
       tsConfigs: [tsConfig],
@@ -287,11 +287,11 @@ describe('#analyzeTypeScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it('should normalize provided path', () => {
+  it('should normalize provided path', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    let result = analyzeTypeScript({
+    let result = await analyzeTypeScript({
       filePath: __dirname + '/./fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 42',
       tsConfigs: [tsConfig],
@@ -302,7 +302,7 @@ describe('#analyzeTypeScript', () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    result = analyzeTypeScript({
+    result = await analyzeTypeScript({
       filePath: __dirname + '/././fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 24',
       tsConfigs: [tsConfig],
@@ -312,53 +312,55 @@ describe('#analyzeTypeScript', () => {
     expect(result.issues).toHaveLength(0);
   });
 
-  it('should report syntax highlights', () => {
+  it('should report syntax highlights', async () => {
     initLinter([]);
-    const highlights = analyzeTypeScript({
+    const { highlights } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
       fileType: 'MAIN',
-    }).highlights;
+    });
     expect(highlights).toHaveLength(10);
   });
 
-  it('should report symbol highlighting', () => {
+  it('should report symbol highlighting', async () => {
     initLinter([]);
-    const highlightedSymbols = analyzeTypeScript({
+    const { highlightedSymbols } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
       fileType: 'MAIN',
-    }).highlightedSymbols;
+    });
     expect(highlightedSymbols).toHaveLength(3);
   });
 
-  it('should report cpd tokens', () => {
+  it('should report cpd tokens', async () => {
     initLinter([]);
-    const cpdTokens = analyzeTypeScript({
+    const { cpdTokens } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
       fileType: 'MAIN',
-    }).cpdTokens;
+    });
     expect(cpdTokens).toHaveLength(42);
   });
 
-  it('should report cognitive complexity', () => {
+  it('should report cognitive complexity', async () => {
     initLinter([]);
-    const cognitiveComplexity = analyzeTypeScript({
+    const {
+      metrics: { cognitiveComplexity },
+    } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
       fileType: 'MAIN',
-    }).metrics.cognitiveComplexity;
+    });
     expect(cognitiveComplexity).toEqual(1);
   });
 
-  it('should not report issue when not receiving corresponding rule-key', () => {
+  it('should not report issue when not receiving corresponding rule-key', async () => {
     initLinter([]);
-    const { issues } = analyzeTypeScript({
+    const { issues } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
@@ -367,11 +369,11 @@ describe('#analyzeTypeScript', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should return empty issues list when parse error', () => {
+  it('should return empty issues list when parse error', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues, parsingError } = analyzeTypeScript({
+    const { issues, parsingError } = await analyzeTypeScript({
       filePath: filePath,
       fileContent: `if()`,
       tsConfigs: [],
@@ -382,11 +384,11 @@ describe('#analyzeTypeScript', () => {
     expect(parsingError.message).toBe('Expression expected.');
   });
 
-  it('should analyze JavaScript code in Vue.js file', () => {
+  it('should analyze JavaScript code in Vue.js file', async () => {
     const filePath = join(__dirname, './fixtures/js-vue-project/sample.lint.vue');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     initLinter([{ key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const { issues } = analyzeJavaScript({
+    const { issues } = await analyzeJavaScript({
       filePath,
       fileContent,
       fileType: 'MAIN',
@@ -394,7 +396,7 @@ describe('#analyzeTypeScript', () => {
     expect(issues).toHaveLength(1);
   });
 
-  it('should analyze TypeScript code in Vue.js file', () => {
+  it('should analyze TypeScript code in Vue.js file', async () => {
     const filePath = join(__dirname, './fixtures/ts-vue-project/sample.lint.vue');
     const tsConfig = join(__dirname, './fixtures/ts-vue-project/tsconfig.json');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
@@ -402,7 +404,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-return-type-any', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeTypeScript({
+    const { issues } = await analyzeTypeScript({
       filePath,
       fileContent,
       tsConfigs: [tsConfig],

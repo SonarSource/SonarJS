@@ -19,16 +19,17 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
@@ -43,6 +44,8 @@ public interface EslintBridgeServer extends Startable {
   AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
+
+  AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -68,7 +71,18 @@ public interface EslintBridgeServer extends Startable {
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
     }
+  }
 
+  class CssAnalysisRequest {
+    public String filePath;
+    public String fileContent;
+    String configFile;
+
+    public CssAnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
+      this.filePath = filePath;
+      this.fileContent = fileContent;
+      this.configFile = configFile;
+    }
   }
 
   class Rule {
@@ -90,7 +104,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    Issue[] issues = {};
+    public Issue[] issues = {};
     Highlight[] highlights = {};
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
@@ -113,12 +127,12 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Issue {
-    Integer line;
+    public Integer line;
     Integer column;
     Integer endLine;
     Integer endColumn;
-    String message;
-    String ruleId;
+    public String message;
+    public String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
   }

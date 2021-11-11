@@ -1,0 +1,16 @@
+{
+  "title": "Units should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-4653",
+  "sqKey": "S4653",
+  "scope": "Main"
+}

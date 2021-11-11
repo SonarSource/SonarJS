@@ -1,0 +1,114 @@
+.date-input-control {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.date-input-control-input {
+  width: 130px;
+  padding-left: var(--controlHeight) !important;
+  cursor: pointer;
+}
+
+.date-input-control-input.is-filled {
+  padding-right: 16px !important;
+}
+
+.date-input-control-icon {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+}
+
+.date-input-control-icon path {
+  fill: var(--gray80);
+  transition: fill 0.3s ease;
+}
+
+.date-input-control-input:focus + .date-input-control-icon path {
+  fill: var(--blue);
+}
+
+.date-input-control-reset {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
+}
+
+.date-input-calendar {
+  position: absolute;
+  z-index: var(--dropdownMenuZIndex);
+  top: 100%;
+  left: 0;
+  border: 1px solid var(--barBorderColor);
+  background-color: #fff;
+  box-shadow: var(--defaultShadow);
+}
+
+.date-input-calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--gridSize);
+  padding-left: var(--gridSize);
+  padding-right: var(--gridSize);
+}
+
+.date-input-calender-month {
+}
+
+.date-input-calender-month-select {
+  width: 70px;
+}
+
+.button.boolean-toggle {
+  display: inline-block;
+  vertical-align: middle;
+  width: 48px;
+  height: var(--controlHeight);
+  padding: 1px;
+  border: 1px solid var(--gray80);
+  border-radius: var(--controlHeight);
+  box-sizing: border-box;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button.boolean-toggle:hover {
+  background-color: #fff;
+}
+
+.button.boolean-toggle:focus {
+  border-color: var(--blue);
+  background-color: #f6f6f6;
+}
+
+.boolean-toggle-handle {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--gray80);
+  border-radius: 22px;
+  box-sizing: border-box;
+  background-color: #f6f6f6;
+  transition: transform 0.3s cubic-bezier(0.87, -0.41, 0.19, 1.44), border 0.3s ease;
+}
+
+.button.boolean-toggle-on {
+  border-color: var(--darkBlue);
+  background-color: var(--darkBlue);
+}
+
+.button.boolean-toggle-on:hover {
+  background-color: var(--darkBlue);
+}
+
+.button.boolean-toggle-on:focus {
+  background-color: var(--darkBlue);
+}
+
+.button.boolean-toggle-on .boolean-toggle-handle {
+  border-color: #f6f6f6;
+  transform: translateX(var(--controlHeight));
+}

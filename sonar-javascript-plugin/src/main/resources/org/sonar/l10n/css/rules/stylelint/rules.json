@@ -1,0 +1,866 @@
+[
+  {
+    "key": "color-no-invalid-hex",
+    "url": "https://stylelint.io/user-guide/rules/color-no-invalid-hex/",
+    "name": "Disallow invalid hex colors",
+    "type": "BUG"
+  },
+  {
+    "key": "font-family-no-duplicate-names",
+    "url": "https://stylelint.io/user-guide/rules/font-family-no-duplicate-names/",
+    "name": "Disallow duplicate font family names"
+  },
+  {
+    "key": "font-family-no-missing-generic-family-keyword",
+    "url": "https://stylelint.io/user-guide/rules/font-family-no-missing-generic-family-keyword/",
+    "name": "Disallow missing generic families in lists of font family names",
+    "type": "BUG"
+  },
+  {
+    "key": "function-calc-no-unspaced-operator",
+    "url": "https://stylelint.io/user-guide/rules/function-calc-no-unspaced-operator/",
+    "name": "Disallow an unspaced operator within `calc` functions",
+    "type": "BUG"
+  },
+  {
+    "key": "function-linear-gradient-no-nonstandard-direction",
+    "url": "https://stylelint.io/user-guide/rules/function-linear-gradient-no-nonstandard-direction/",
+    "name": "Disallow direction values in `linear-gradient()` calls that are not valid according to the [standard syntax](https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient#Syntax)",
+    "type": "BUG"
+  },
+  {
+    "key": "string-no-newline",
+    "url": "https://stylelint.io/user-guide/rules/string-no-newline/",
+    "name": "Disallow (unescaped) newlines in strings"
+  },
+  {
+    "key": "unit-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/unit-no-unknown/",
+    "name": "Disallow unknown units",
+    "type": "BUG"
+  },
+  {
+    "key": "property-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/property-no-unknown/",
+    "name": "Disallow unknown properties",
+    "type": "BUG"
+  },
+  {
+    "key": "keyframe-declaration-no-important",
+    "url": "https://stylelint.io/user-guide/rules/keyframe-declaration-no-important/",
+    "name": "Disallow `!important` within keyframe declarations",
+    "type": "BUG"
+  },
+  {
+    "key": "declaration-block-no-duplicate-properties",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-no-duplicate-properties/",
+    "name": "Disallow duplicate properties within declaration blocks",
+    "type": "BUG"
+  },
+  {
+    "key": "declaration-block-no-shorthand-property-overrides",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-no-shorthand-property-overrides/",
+    "name": "Disallow shorthand properties that override related longhand properties within declaration blocks",
+    "type": "BUG"
+  },
+  {
+    "key": "block-no-empty",
+    "url": "https://stylelint.io/user-guide/rules/block-no-empty/",
+    "name": "Disallow empty blocks"
+  },
+  {
+    "key": "selector-pseudo-class-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-no-unknown/",
+    "name": "Disallow unknown pseudo-class selectors",
+    "type": "BUG"
+  },
+  {
+    "key": "selector-pseudo-element-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-element-no-unknown/",
+    "name": "Disallow unknown pseudo-element selectors",
+    "type": "BUG"
+  },
+  {
+    "key": "selector-type-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/selector-type-no-unknown/",
+    "name": "Disallow unknown type selectors",
+    "type": "BUG"
+  },
+  {
+    "key": "media-feature-name-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-no-unknown/",
+    "name": "Disallow unknown media feature names"
+  },
+  {
+    "key": "at-rule-no-unknown",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-no-unknown/",
+    "name": "Disallow unknown at-rules",
+    "type": "BUG"
+  },
+  {
+    "key": "comment-no-empty",
+    "url": "https://stylelint.io/user-guide/rules/comment-no-empty/",
+    "name": " Disallow empty comments"
+  },
+  {
+    "key": "no-descending-specificity",
+    "url": "https://stylelint.io/user-guide/rules/no-descending-specificity/",
+    "name": "Disallow selectors of lower specificity from coming after overriding selectors of higher specificity"
+  },
+  {
+    "key": "no-duplicate-at-import-rules",
+    "url": "https://stylelint.io/user-guide/rules/no-duplicate-at-import-rules/",
+    "name": "Disallow duplicate `@import` rules within a stylesheet"
+  },
+  {
+    "key": "no-duplicate-selectors",
+    "url": "https://stylelint.io/user-guide/rules/no-duplicate-selectors/",
+    "name": "Disallow duplicate selectors"
+  },
+  {
+    "key": "no-empty-source",
+    "url": "https://stylelint.io/user-guide/rules/no-empty-source/",
+    "name": "Disallow empty sources"
+  },
+  {
+    "key": "no-extra-semicolons",
+    "url": "https://stylelint.io/user-guide/rules/no-extra-semicolons/",
+    "name": "Disallow extra semicolons"
+  },
+  {
+    "key": "no-invalid-double-slash-comments",
+    "url": "https://stylelint.io/user-guide/rules/no-invalid-double-slash-comments/",
+    "name": "Disallow double-slash comments (`//...`) which are not supported by CSS",
+    "type": "BUG"
+  },
+  {
+    "key": "color-named",
+    "url": "https://stylelint.io/user-guide/rules/color-named/",
+    "name": "Require (where possible) or disallow named colors"
+  },
+  {
+    "key": "color-no-hex",
+    "url": "https://stylelint.io/user-guide/rules/color-no-hex/",
+    "name": "Disallow hex colors"
+  },
+  {
+    "key": "function-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/function-blacklist/",
+    "name": "Specify a blacklist of disallowed functions"
+  },
+  {
+    "key": "function-url-no-scheme-relative",
+    "url": "https://stylelint.io/user-guide/rules/function-url-no-scheme-relative/",
+    "name": "Disallow scheme-relative urls"
+  },
+  {
+    "key": "function-url-scheme-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/function-url-scheme-blacklist/",
+    "name": "Specify a blacklist of disallowed url schemes"
+  },
+  {
+    "key": "function-url-scheme-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/function-url-scheme-whitelist/",
+    "name": "Specify a whitelist of allowed url schemes"
+  },
+  {
+    "key": "function-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/function-whitelist/",
+    "name": "Specify a whitelist of allowed functions"
+  },
+  {
+    "key": "keyframes-name-pattern",
+    "url": "https://stylelint.io/user-guide/rules/keyframes-name-pattern/",
+    "name": "Specify a pattern for keyframe names"
+  },
+  {
+    "key": "number-max-precision",
+    "url": "https://stylelint.io/user-guide/rules/number-max-precision/",
+    "name": "Limit the number of decimal places allowed in numbers"
+  },
+  {
+    "key": "time-min-milliseconds",
+    "url": "https://stylelint.io/user-guide/rules/time-min-milliseconds/",
+    "name": "Specify the minimum number of milliseconds for time values"
+  },
+  {
+    "key": "unit-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/unit-blacklist/",
+    "name": "Specify a blacklist of disallowed units"
+  },
+  {
+    "key": "unit-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/unit-whitelist/",
+    "name": "Specify a whitelist of allowed units"
+  },
+  {
+    "key": "shorthand-property-no-redundant-values",
+    "url": "https://stylelint.io/user-guide/rules/shorthand-property-no-redundant-values/",
+    "name": "Disallow redundant values in shorthand properties"
+  },
+  {
+    "key": "value-no-vendor-prefix",
+    "url": "https://stylelint.io/user-guide/rules/value-no-vendor-prefix/",
+    "name": "Disallow vendor prefixes for values"
+  },
+  {
+    "key": "custom-property-pattern",
+    "url": "https://stylelint.io/user-guide/rules/custom-property-pattern/",
+    "name": "Specify a pattern for custom properties"
+  },
+  {
+    "key": "property-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/property-blacklist/",
+    "name": "Specify a blacklist of disallowed properties"
+  },
+  {
+    "key": "property-no-vendor-prefix",
+    "url": "https://stylelint.io/user-guide/rules/property-no-vendor-prefix/",
+    "name": "Disallow vendor prefixes for properties"
+  },
+  {
+    "key": "property-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/property-whitelist/",
+    "name": "Specify a whitelist of allowed properties"
+  },
+  {
+    "key": "declaration-block-no-redundant-longhand-properties",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-no-redundant-longhand-properties/",
+    "name": "Disallow longhand properties that can be combined into one shorthand property"
+  },
+  {
+    "key": "declaration-no-important",
+    "url": "https://stylelint.io/user-guide/rules/declaration-no-important/",
+    "name": "Disallow `!important` within declarations"
+  },
+  {
+    "key": "declaration-property-unit-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/declaration-property-unit-blacklist/",
+    "name": "Specify a blacklist of disallowed property and unit pairs within declarations"
+  },
+  {
+    "key": "declaration-property-unit-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/declaration-property-unit-whitelist/",
+    "name": "Specify a whitelist of allowed property and unit pairs within declarations"
+  },
+  {
+    "key": "declaration-property-value-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/declaration-property-value-blacklist/",
+    "name": "Specify a blacklist of disallowed property and value pairs within declarations"
+  },
+  {
+    "key": "declaration-property-value-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/declaration-property-value-whitelist/",
+    "name": "Specify a whitelist of allowed property and value pairs within declarations"
+  },
+  {
+    "key": "declaration-block-single-line-max-declarations",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-single-line-max-declarations/",
+    "name": "Limit the number of declaration within single line declaration blocks"
+  },
+  {
+    "key": "selector-attribute-operator-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-operator-blacklist/",
+    "name": "Specify a blacklist of disallowed attribute operators"
+  },
+  {
+    "key": "selector-attribute-operator-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-operator-whitelist/",
+    "name": "Specify a whitelist of allowed attribute operators"
+  },
+  {
+    "key": "selector-class-pattern",
+    "url": "https://stylelint.io/user-guide/rules/selector-class-pattern/",
+    "name": "Specify a pattern for class selectors"
+  },
+  {
+    "key": "selector-combinator-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/selector-combinator-blacklist/",
+    "name": "Specify a blacklist of disallowed combinators"
+  },
+  {
+    "key": "selector-combinator-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/selector-combinator-whitelist/",
+    "name": "Specify a whitelist of allowed combinators"
+  },
+  {
+    "key": "selector-id-pattern",
+    "url": "https://stylelint.io/user-guide/rules/selector-id-pattern/",
+    "name": "Specify a pattern for id selectors"
+  },
+  {
+    "key": "selector-max-attribute",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-attribute/",
+    "name": "Limit the number of attribute selectors in a selector"
+  },
+  {
+    "key": "selector-max-class",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-class/",
+    "name": "Limit the number of classes in a selector"
+  },
+  {
+    "key": "selector-max-combinators",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-combinators/",
+    "name": "Limit the number of combinators in a selector"
+  },
+  {
+    "key": "selector-max-compound-selectors",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-compound-selectors/",
+    "name": "Limit the number of compound selectors in a selector"
+  },
+  {
+    "key": "selector-max-empty-lines",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-empty-lines/",
+    "name": "Limit the number of adjacent empty lines within selectors"
+  },
+  {
+    "key": "selector-max-id",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-id/",
+    "name": "Limit the number of id selectors in a selector"
+  },
+  {
+    "key": "selector-max-pseudo-class",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-pseudo-class/",
+    "name": "Limit the number of pseudo-classes in a selector"
+  },
+  {
+    "key": "selector-max-specificity",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-specificity/",
+    "name": "Limit the specificity of selectors"
+  },
+  {
+    "key": "selector-max-type",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-type/",
+    "name": "Limit the number of type in a selector"
+  },
+  {
+    "key": "selector-max-universal",
+    "url": "https://stylelint.io/user-guide/rules/selector-max-universal/",
+    "name": "Limit the number of universal selectors in a selector"
+  },
+  {
+    "key": "selector-nested-pattern",
+    "url": "https://stylelint.io/user-guide/rules/selector-nested-pattern/",
+    "name": "Specify a pattern for the selectors of rules nested within rules"
+  },
+  {
+    "key": "selector-no-qualifying-type",
+    "url": "https://stylelint.io/user-guide/rules/selector-no-qualifying-type/",
+    "name": "Disallow qualifying a selector by type"
+  },
+  {
+    "key": "selector-no-vendor-prefix",
+    "url": "https://stylelint.io/user-guide/rules/selector-no-vendor-prefix/",
+    "name": "Disallow vendor prefixes for selectors"
+  },
+  {
+    "key": "selector-pseudo-class-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-blacklist/",
+    "name": "Specify a blacklist of disallowed pseudo-class selectors"
+  },
+  {
+    "key": "selector-pseudo-class-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-whitelist/",
+    "name": "Specify a whitelist of allowed pseudo-class selectors"
+  },
+  {
+    "key": "selector-pseudo-element-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-element-blacklist/",
+    "name": "Specify a blacklist of disallowed pseudo-element selectors"
+  },
+  {
+    "key": "selector-pseudo-element-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-element-whitelist/",
+    "name": "Specify a whitelist of allowed pseudo-element selectors"
+  },
+  {
+    "key": "media-feature-name-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-blacklist/",
+    "name": "Specify a blacklist of disallowed media feature names"
+  },
+  {
+    "key": "media-feature-name-no-vendor-prefix",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-no-vendor-prefix/",
+    "name": "Disallow vendor prefixes for media feature names"
+  },
+  {
+    "key": "media-feature-name-value-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-value-whitelist/",
+    "name": "Specify a whitelist of allowed media feature name and value pairs"
+  },
+  {
+    "key": "media-feature-name-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-whitelist/",
+    "name": "Specify a whitelist of allowed media feature names"
+  },
+  {
+    "key": "custom-media-pattern",
+    "url": "https://stylelint.io/user-guide/rules/custom-media-pattern/",
+    "name": "Specify a pattern for custom media query names"
+  },
+  {
+    "key": "at-rule-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-blacklist/",
+    "name": "Specify a blacklist of disallowed at-rules"
+  },
+  {
+    "key": "at-rule-no-vendor-prefix",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-no-vendor-prefix/",
+    "name": "Disallow vendor prefixes for at-rules"
+  },
+  {
+    "key": "at-rule-whitelist",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-whitelist/",
+    "name": "Specify a whitelist of allowed at-rules"
+  },
+  {
+    "key": "comment-word-blacklist",
+    "url": "https://stylelint.io/user-guide/rules/comment-word-blacklist/",
+    "name": "Specify a blacklist of disallowed words within comments"
+  },
+  {
+    "key": "max-nesting-depth",
+    "url": "https://stylelint.io/user-guide/rules/max-nesting-depth/",
+    "name": "Limit the depth of nesting"
+  },
+  {
+    "key": "no-unknown-animations",
+    "url": "https://stylelint.io/user-guide/rules/no-unknown-animations/",
+    "name": "Disallow unknown animations"
+  },
+  {
+    "key": "color-hex-case",
+    "url": "https://stylelint.io/user-guide/rules/color-hex-case/",
+    "name": "Specify lowercase or uppercase for hex colors"
+  },
+  {
+    "key": "color-hex-length",
+    "url": "https://stylelint.io/user-guide/rules/color-hex-length/",
+    "name": "Specify short or long notation for hex colors"
+  },
+  {
+    "key": "font-family-name-quotes",
+    "url": "https://stylelint.io/user-guide/rules/font-family-name-quotes/",
+    "name": "Specify whether or not quotation marks should be used around font family names"
+  },
+  {
+    "key": "font-weight-notation",
+    "url": "https://stylelint.io/user-guide/rules/font-weight-notation/",
+    "name": "Require numeric or named (where possible) `font-weight` values"
+  },
+  {
+    "key": "function-comma-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/function-comma-newline-after/",
+    "name": "Require a newline or disallow whitespace after the commas of functions"
+  },
+  {
+    "key": "function-comma-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/function-comma-newline-before/",
+    "name": "Require a newline or disallow whitespace before the commas of functions"
+  },
+  {
+    "key": "function-comma-space-after",
+    "url": "https://stylelint.io/user-guide/rules/function-comma-space-after/",
+    "name": "Require a single space or disallow whitespace after the commas of functions"
+  },
+  {
+    "key": "function-comma-space-before",
+    "url": "https://stylelint.io/user-guide/rules/function-comma-space-before/",
+    "name": "Require a single space or disallow whitespace before the commas of functions"
+  },
+  {
+    "key": "function-max-empty-lines",
+    "url": "https://stylelint.io/user-guide/rules/function-max-empty-lines/",
+    "name": "Limit the number of adjacent empty lines within functions"
+  },
+  {
+    "key": "function-name-case",
+    "url": "https://stylelint.io/user-guide/rules/function-name-case/",
+    "name": "Specify lowercase or uppercase for function names"
+  },
+  {
+    "key": "function-parentheses-newline-inside",
+    "url": "https://stylelint.io/user-guide/rules/function-parentheses-newline-inside/",
+    "name": "Require a newline or disallow whitespace on the inside of the parentheses of functions"
+  },
+  {
+    "key": "function-parentheses-space-inside",
+    "url": "https://stylelint.io/user-guide/rules/function-parentheses-space-inside/",
+    "name": "Require a single space or disallow whitespace on the inside of the parentheses of functions"
+  },
+  {
+    "key": "function-url-quotes",
+    "url": "https://stylelint.io/user-guide/rules/function-url-quotes/",
+    "name": "Require or disallow quotes for urls"
+  },
+  {
+    "key": "function-whitespace-after",
+    "url": "https://stylelint.io/user-guide/rules/function-whitespace-after/",
+    "name": "Require or disallow whitespace after functions"
+  },
+  {
+    "key": "number-leading-zero",
+    "url": "https://stylelint.io/user-guide/rules/number-leading-zero/",
+    "name": "Require or disallow a leading zero for fractional numbers less than 1"
+  },
+  {
+    "key": "number-no-trailing-zeros",
+    "url": "https://stylelint.io/user-guide/rules/number-no-trailing-zeros/",
+    "name": "Disallow trailing zeros in numbers"
+  },
+  {
+    "key": "string-quotes",
+    "url": "https://stylelint.io/user-guide/rules/string-quotes/",
+    "name": "Specify single or double quotes around strings"
+  },
+  {
+    "key": "length-zero-no-unit",
+    "url": "https://stylelint.io/user-guide/rules/length-zero-no-unit/",
+    "name": "Disallow units for zero lengths"
+  },
+  {
+    "key": "unit-case",
+    "url": "https://stylelint.io/user-guide/rules/unit-case/",
+    "name": "Specify lowercase or uppercase for units"
+  },
+  {
+    "key": "value-keyword-case",
+    "url": "https://stylelint.io/user-guide/rules/value-keyword-case/",
+    "name": "Specify lowercase or uppercase for keywords values"
+  },
+  {
+    "key": "value-list-comma-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/value-list-comma-newline-after/",
+    "name": "Require a newline or disallow whitespace after the commas of value lists"
+  },
+  {
+    "key": "value-list-comma-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/value-list-comma-newline-before/",
+    "name": "Require a newline or disallow whitespace before the commas of value lists"
+  },
+  {
+    "key": "value-list-comma-space-after",
+    "url": "https://stylelint.io/user-guide/rules/value-list-comma-space-after/",
+    "name": "Require a single space or disallow whitespace after the commas of value lists"
+  },
+  {
+    "key": "value-list-comma-space-before",
+    "url": "https://stylelint.io/user-guide/rules/value-list-comma-space-before/",
+    "name": "Require a single space or disallow whitespace before the commas of value lists"
+  },
+  {
+    "key": "value-list-max-empty-lines",
+    "url": "https://stylelint.io/user-guide/rules/value-list-max-empty-lines/",
+    "name": "Limit the number of adjacent empty lines within value lists"
+  },
+  {
+    "key": "custom-property-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/custom-property-empty-line-before/",
+    "name": "Require or disallow an empty line before custom properties"
+  },
+  {
+    "key": "property-case",
+    "url": "https://stylelint.io/user-guide/rules/property-case/",
+    "name": "Specify lowercase or uppercase for properties"
+  },
+  {
+    "key": "declaration-bang-space-after",
+    "url": "https://stylelint.io/user-guide/rules/declaration-bang-space-after/",
+    "name": "Require a single space or disallow whitespace after the bang of declarations"
+  },
+  {
+    "key": "declaration-bang-space-before",
+    "url": "https://stylelint.io/user-guide/rules/declaration-bang-space-before/",
+    "name": "Require a single space or disallow whitespace before the bang of declarations"
+  },
+  {
+    "key": "declaration-colon-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/declaration-colon-newline-after/",
+    "name": "Require a newline or disallow whitespace after the colon of declarations"
+  },
+  {
+    "key": "declaration-colon-space-after",
+    "url": "https://stylelint.io/user-guide/rules/declaration-colon-space-after/",
+    "name": "Require a single space or disallow whitespace after the colon of declarations"
+  },
+  {
+    "key": "declaration-colon-space-before",
+    "url": "https://stylelint.io/user-guide/rules/declaration-colon-space-before/",
+    "name": "Require a single space or disallow whitespace before the colon of declarations"
+  },
+  {
+    "key": "declaration-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/declaration-empty-line-before/",
+    "name": "Require or disallow an empty line before declarations"
+  },
+  {
+    "key": "declaration-block-semicolon-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-semicolon-newline-after/",
+    "name": "Require a newline or disallow whitespace after the semicolons of declaration blocks"
+  },
+  {
+    "key": "declaration-block-semicolon-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-semicolon-newline-before/",
+    "name": "Require a newline or disallow whitespace before the semicolons of declaration blocks"
+  },
+  {
+    "key": "declaration-block-semicolon-space-after",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-semicolon-space-after/",
+    "name": "Require a single space or disallow whitespace after the semicolons of declaration blocks"
+  },
+  {
+    "key": "declaration-block-semicolon-space-before",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-semicolon-space-before/",
+    "name": "Require a single space or disallow whitespace before the semicolons of declaration blocks"
+  },
+  {
+    "key": "declaration-block-trailing-semicolon",
+    "url": "https://stylelint.io/user-guide/rules/declaration-block-trailing-semicolon/",
+    "name": "Require or disallow a trailing semicolon within declaration blocks"
+  },
+  {
+    "key": "block-closing-brace-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/block-closing-brace-empty-line-before/",
+    "name": "Require or disallow an empty line before the closing brace of blocks"
+  },
+  {
+    "key": "block-closing-brace-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/block-closing-brace-newline-after/",
+    "name": "Require a newline or disallow whitespace after the closing brace of blocks"
+  },
+  {
+    "key": "block-closing-brace-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/block-closing-brace-newline-before/",
+    "name": "Require a newline or disallow whitespace before the closing brace of blocks"
+  },
+  {
+    "key": "block-closing-brace-space-after",
+    "url": "https://stylelint.io/user-guide/rules/block-closing-brace-space-after/",
+    "name": "Require a single space or disallow whitespace after the closing brace of blocks"
+  },
+  {
+    "key": "block-closing-brace-space-before",
+    "url": "https://stylelint.io/user-guide/rules/block-closing-brace-space-before/",
+    "name": "Require a single space or disallow whitespace before the closing brace of blocks"
+  },
+  {
+    "key": "block-opening-brace-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/block-opening-brace-newline-after/",
+    "name": "Require a newline after the opening brace of blocks"
+  },
+  {
+    "key": "block-opening-brace-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/block-opening-brace-newline-before/",
+    "name": "Require a newline or disallow whitespace before the opening brace of blocks"
+  },
+  {
+    "key": "block-opening-brace-space-after",
+    "url": "https://stylelint.io/user-guide/rules/block-opening-brace-space-after/",
+    "name": "Require a single space or disallow whitespace after the opening brace of blocks"
+  },
+  {
+    "key": "block-opening-brace-space-before",
+    "url": "https://stylelint.io/user-guide/rules/block-opening-brace-space-before/",
+    "name": "Require a single space or disallow whitespace before the opening brace of blocks"
+  },
+  {
+    "key": "selector-attribute-brackets-space-inside",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-brackets-space-inside/",
+    "name": "Require a single space or disallow whitespace on the inside of the brackets within attribute selectors"
+  },
+  {
+    "key": "selector-attribute-operator-space-after",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-operator-space-after/",
+    "name": "Require a single space or disallow whitespace after operators within attribute selectors"
+  },
+  {
+    "key": "selector-attribute-operator-space-before",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-operator-space-before/",
+    "name": "Require a single space or disallow whitespace before operators within attribute selectors"
+  },
+  {
+    "key": "selector-attribute-quotes",
+    "url": "https://stylelint.io/user-guide/rules/selector-attribute-quotes/",
+    "name": "Require or disallow quotes for attribute values"
+  },
+  {
+    "key": "selector-combinator-space-after",
+    "url": "https://stylelint.io/user-guide/rules/selector-combinator-space-after/",
+    "name": "Require a single space or disallow whitespace after the combinators of selectors"
+  },
+  {
+    "key": "selector-combinator-space-before",
+    "url": "https://stylelint.io/user-guide/rules/selector-combinator-space-before/",
+    "name": "Require a single space or disallow whitespace before the combinators of selectors"
+  },
+  {
+    "key": "selector-descendant-combinator-no-non-space",
+    "url": "https://stylelint.io/user-guide/rules/selector-descendant-combinator-no-non-space/",
+    "name": "Disallow non-space characters for descendant combinators of selectors"
+  },
+  {
+    "key": "selector-pseudo-class-case",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-case/",
+    "name": "Specify lowercase or uppercase for pseudo-class selectors"
+  },
+  {
+    "key": "selector-pseudo-class-parentheses-space-inside",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-parentheses-space-inside/",
+    "name": "Require a single space or disallow whitespace on the inside of the parentheses within pseudo-class selectors"
+  },
+  {
+    "key": "selector-pseudo-element-case",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-element-case/",
+    "name": "Specify lowercase or uppercase for pseudo-element selectors"
+  },
+  {
+    "key": "selector-pseudo-element-colon-notation",
+    "url": "https://stylelint.io/user-guide/rules/selector-pseudo-element-colon-notation/",
+    "name": "Specify single or double colon notation for applicable pseudo-elements"
+  },
+  {
+    "key": "selector-type-case",
+    "url": "https://stylelint.io/user-guide/rules/selector-type-case/",
+    "name": "Specify lowercase or uppercase for type selector"
+  },
+  {
+    "key": "selector-list-comma-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/selector-list-comma-newline-after/",
+    "name": "Require a newline or disallow whitespace after the commas of selector lists"
+  },
+  {
+    "key": "selector-list-comma-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/selector-list-comma-newline-before/",
+    "name": "Require a newline or disallow whitespace before the commas of selector lists"
+  },
+  {
+    "key": "selector-list-comma-space-after",
+    "url": "https://stylelint.io/user-guide/rules/selector-list-comma-space-after/",
+    "name": "Require a single space or disallow whitespace after the commas of selector lists"
+  },
+  {
+    "key": "selector-list-comma-space-before",
+    "url": "https://stylelint.io/user-guide/rules/selector-list-comma-space-before/",
+    "name": "Require a single space or disallow whitespace before the commas of selector lists"
+  },
+  {
+    "key": "rule-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/rule-empty-line-before/",
+    "name": "Require or disallow an empty line before rules"
+  },
+  {
+    "key": "media-feature-colon-space-after",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-colon-space-after/",
+    "name": "Require a single space or disallow whitespace after the colon in media features"
+  },
+  {
+    "key": "media-feature-colon-space-before",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-colon-space-before/",
+    "name": "Require a single space or disallow whitespace before the colon in media features"
+  },
+  {
+    "key": "media-feature-name-case",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-name-case/",
+    "name": "Specify lowercase or uppercase for media feature names"
+  },
+  {
+    "key": "media-feature-parentheses-space-inside",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-parentheses-space-inside/",
+    "name": "Require a single space or disallow whitespace on the inside of the parentheses within media features"
+  },
+  {
+    "key": "media-feature-range-operator-space-after",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-range-operator-space-after/",
+    "name": "Require a single space or disallow whitespace after the range operator in media features"
+  },
+  {
+    "key": "media-feature-range-operator-space-before",
+    "url": "https://stylelint.io/user-guide/rules/media-feature-range-operator-space-before/",
+    "name": "Require a single space or disallow whitespace before the range operator in media features"
+  },
+  {
+    "key": "media-query-list-comma-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/media-query-list-comma-newline-after/",
+    "name": "Require a newline or disallow whitespace after the commas of media query lists"
+  },
+  {
+    "key": "media-query-list-comma-newline-before",
+    "url": "https://stylelint.io/user-guide/rules/media-query-list-comma-newline-before/",
+    "name": "Require a newline or disallow whitespace before the commas of media query lists"
+  },
+  {
+    "key": "media-query-list-comma-space-after",
+    "url": "https://stylelint.io/user-guide/rules/media-query-list-comma-space-after/",
+    "name": "Require a single space or disallow whitespace after the commas of media query lists"
+  },
+  {
+    "key": "media-query-list-comma-space-before",
+    "url": "https://stylelint.io/user-guide/rules/media-query-list-comma-space-before/",
+    "name": "Require a single space or disallow whitespace before the commas of media query lists"
+  },
+  {
+    "key": "at-rule-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-empty-line-before/",
+    "name": "Require or disallow an empty line before at-rules"
+  },
+  {
+    "key": "at-rule-name-case",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-name-case/",
+    "name": "Specify lowercase or uppercase for at-rules names"
+  },
+  {
+    "key": "at-rule-name-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-name-newline-after/",
+    "name": "Require a newline after at-rule names"
+  },
+  {
+    "key": "at-rule-name-space-after",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-name-space-after/",
+    "name": "Require a single space after at-rule names"
+  },
+  {
+    "key": "at-rule-semicolon-newline-after",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-semicolon-newline-after/",
+    "name": "Require a newline after the semicolon of at-rules"
+  },
+  {
+    "key": "at-rule-semicolon-space-before",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-semicolon-space-before/",
+    "name": "Require a single space or disallow whitespace before the semicolons of at rules"
+  },
+  {
+    "key": "comment-empty-line-before",
+    "url": "https://stylelint.io/user-guide/rules/comment-empty-line-before/",
+    "name": "Require or disallow an empty line before comments"
+  },
+  {
+    "key": "comment-whitespace-inside",
+    "url": "https://stylelint.io/user-guide/rules/comment-whitespace-inside/",
+    "name": "Require or disallow whitespace on the inside of comment markers"
+  },
+  {
+    "key": "indentation",
+    "url": "https://stylelint.io/user-guide/rules/indentation/",
+    "name": "Specify indentation"
+  },
+  {
+    "key": "max-empty-lines",
+    "url": "https://stylelint.io/user-guide/rules/max-empty-lines/",
+    "name": "Limit the number of adjacent empty lines"
+  },
+  {
+    "key": "max-line-length",
+    "url": "https://stylelint.io/user-guide/rules/max-line-length/",
+    "name": "Limit the length of a line"
+  },
+  {
+    "key": "no-eol-whitespace",
+    "url": "https://stylelint.io/user-guide/rules/no-eol-whitespace/",
+    "name": "Disallow end-of-line whitespace"
+  },
+  {
+    "key": "no-missing-end-of-source-newline",
+    "url": "https://stylelint.io/user-guide/rules/no-missing-end-of-source-newline/",
+    "name": "Disallow missing end-of-source newlines"
+  }
+]

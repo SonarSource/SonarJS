@@ -1,0 +1,10 @@
+{
+  "rules-metadata-path": "sonar-javascript-plugin/src/main/resources/org/sonar/l10n/css/rules/css",
+  "languages": [
+    "CSS"
+  ],
+  "latest-update": "2021-03-02T17:22:27.244283200Z",
+  "options": {
+    "no-language-in-filenames": true
+  }
+}

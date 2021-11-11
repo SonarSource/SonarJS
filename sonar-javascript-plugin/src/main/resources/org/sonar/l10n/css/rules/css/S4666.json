@@ -1,0 +1,16 @@
+{
+  "title": "Selectors should not be duplicated",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4666",
+  "sqKey": "S4666",
+  "scope": "Main"
+}

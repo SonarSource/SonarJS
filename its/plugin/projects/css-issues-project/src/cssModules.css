@@ -1,0 +1,32 @@
+/* Adding one standard issue to make sure we analyze this file */
+@unknown {                                                    /* S4662 | at-rule-no-unknown */
+  width: 1px;
+}
+
+/* ignored by S4662 | at-rule-no-unknown */
+@value colors: "./colors.css";
+@value blue, red, green from colors;
+
+.className {
+  color: green;
+  background: red;
+}
+.otherClassName {
+  /* ignored by S4654 | property-no-unknown */
+  composes: className;
+  color: yellow;
+}
+
+/* ignored by S4659 | selector-pseudo-class-no-unknown */
+:export {
+  /* ignored by S4654 | property-no-unknown */
+  exportedKey: exportedValue;
+	/* ... */
+}
+
+/* ignored by S4659 | selector-pseudo-class-no-unknown */
+:import("path/to/dep.css") {
+  /* ignored by S4654 | property-no-unknown */
+  localAlias: keyFromDep;
+  /* ... */
+}

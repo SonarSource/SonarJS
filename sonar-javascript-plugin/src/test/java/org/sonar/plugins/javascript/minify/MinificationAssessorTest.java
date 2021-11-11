@@ -41,6 +41,8 @@ public class MinificationAssessorTest {
     getAssert("file.min.js").isTrue();
     getAssert("file-min.js").isTrue();
     getAssert("file.not-js").isFalse();
+    getAssert("file.min.css").isTrue();
+    getAssert("file-min.css").isTrue();
   }
 
   @Test
@@ -49,6 +51,8 @@ public class MinificationAssessorTest {
     getAssert("file2.js").isTrue();
     getAssert("file4.js").isFalse();
     getAssert("file5.js").isTrue();
+    getAssert("file1.css").isFalse();
+    getAssert("file2.css").isTrue();
   }
 
   @Test

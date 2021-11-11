@@ -1,0 +1,17 @@
+﻿[
+  {
+    "source": "file.css",
+    "warnings": [
+      {
+        "line": 1,
+        "rule": "color-no-invalid-hex",
+        "text": "external issue message (color-no-invalid-hex)"
+      },
+      {
+        "line": 1,
+        "rule": "comment-no-empty",
+        "text": "external issue message (comment-no-empty)"
+      }
+    ]
+  }
+]

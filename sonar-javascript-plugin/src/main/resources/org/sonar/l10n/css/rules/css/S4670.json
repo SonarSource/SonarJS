@@ -1,0 +1,16 @@
+{
+  "title": "Selectors should be known",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4670",
+  "sqKey": "S4670",
+  "scope": "Main"
+}

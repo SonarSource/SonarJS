@@ -1,0 +1,16 @@
+{
+  "title": "Multi-line comments should not be empty",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4663",
+  "sqKey": "S4663",
+  "scope": "Main"
+}

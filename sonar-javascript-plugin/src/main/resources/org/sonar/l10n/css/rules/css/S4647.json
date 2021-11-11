@@ -1,0 +1,16 @@
+{
+  "title": "Color definitions should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-4647",
+  "sqKey": "S4647",
+  "scope": "All"
+}

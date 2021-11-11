@@ -49,17 +49,17 @@ public class MinificationAssessor {
   }
 
   public boolean isMinified(InputFile file) {
-    return isJavaScriptFile(file) &&
+    return isMinifiableFile(file) &&
       (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file));
   }
 
   private static boolean hasMinifiedFileName(InputFile file) {
     String fileName = file.filename();
-    return fileName.endsWith("-min.js") || fileName.endsWith(".min.js");
+    return fileName.endsWith("-min.js") || fileName.endsWith(".min.js") || fileName.endsWith("-min.css") || fileName.endsWith(".min.css");
   }
 
-  private static boolean isJavaScriptFile(InputFile file) {
-    return file.filename().endsWith(".js");
+  private static boolean isMinifiableFile(InputFile file) {
+    return file.filename().endsWith(".js") || file.filename().endsWith(".css");
   }
 
   private boolean hasExcessiveAverageLineLength(InputFile file) {

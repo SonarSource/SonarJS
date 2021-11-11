@@ -1,0 +1,16 @@
+{
+  "title": "Duplicate imports should be removed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "unused"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1128",
+  "sqKey": "S1128",
+  "scope": "All"
+}

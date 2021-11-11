@@ -1,0 +1,16 @@
+{
+  "title": "CSS properties should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-4654",
+  "sqKey": "S4654",
+  "scope": "Main"
+}

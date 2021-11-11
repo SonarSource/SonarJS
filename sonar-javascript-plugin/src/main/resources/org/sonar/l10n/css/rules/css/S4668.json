@@ -1,0 +1,16 @@
+{
+  "title": "Single line comment syntax should not be used",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-4668",
+  "sqKey": "S4668",
+  "scope": "Main"
+}

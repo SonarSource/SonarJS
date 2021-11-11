@@ -19,17 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -44,6 +36,14 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonarsource.analyzer.commons.ProgressReport;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
@@ -64,7 +64,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
   }
 

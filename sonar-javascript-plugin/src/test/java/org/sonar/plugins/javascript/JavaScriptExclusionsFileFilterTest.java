@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.css.CssLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -117,6 +118,9 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("file.js"))).isTrue();
     assertThat(filter.accept(inputFile("file-min.js"))).isFalse();
     assertThat(filter.accept(inputFile("file.min.js"))).isFalse();
+    assertThat(filter.accept(inputFile("file.css"))).isTrue();
+    assertThat(filter.accept(inputFile("file-min.css"))).isFalse();
+    assertThat(filter.accept(inputFile("file.min.css"))).isFalse();
   }
 
   @Test
@@ -271,6 +275,8 @@ public class JavaScriptExclusionsFileFilterTest {
       return JavaScriptLanguage.KEY;
     } else if (TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
       return TypeScriptLanguage.KEY;
+    } else if (CssLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+      return CssLanguage.KEY;
     } else if ("java".contains(ending)) {
       return ending;
     } else {

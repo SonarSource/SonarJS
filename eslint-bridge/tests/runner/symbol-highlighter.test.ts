@@ -29,8 +29,8 @@ setContext({
   sonarlint: false,
 });
 
-it('should highlight variable references', () => {
-  const result = actual(
+it('should highlight variable references', async () => {
+  const result = await actual(
     `let x = 32;
 foo(x);
 var x = 0;
@@ -45,8 +45,8 @@ x = 42;
   expect(result[0].references[2]).toEqual(location(4, 0, 4, 1));
 });
 
-it('should highlight parameter references', () => {
-  const result = actual(`function foo(p: number) { return p; }`);
+it('should highlight parameter references', async () => {
+  const result = await actual(`function foo(p: number) { return p; }`);
   expect(result).toHaveLength(3);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 12));
   expect(result[0].references).toHaveLength(0);
@@ -56,35 +56,35 @@ it('should highlight parameter references', () => {
   expect(result[1].references[0]).toEqual(location(1, 33, 1, 34));
 });
 
-it('should highlight variable declared with type', () => {
-  const result = actual(`let x: number = 42;`);
+it('should highlight variable declared with type', async () => {
+  const result = await actual(`let x: number = 42;`);
   expect(result).toHaveLength(1);
   expect(result[0].declaration).toEqual(location(1, 4, 1, 5));
   expect(result[0].references).toHaveLength(0);
 });
 
-it('should highlight unused variable', () => {
-  const result = actual(`let x;`);
+it('should highlight unused variable', async () => {
+  const result = await actual(`let x;`);
   expect(result).toHaveLength(1);
   expect(result[0].declaration).toEqual(location(1, 4, 1, 5));
   expect(result[0].references).toHaveLength(0);
 });
 
-it('should not highlight variable without declaration', () => {
-  const result = actual(`foo(x);`);
+it('should not highlight variable without declaration', async () => {
+  const result = await actual(`foo(x);`);
   expect(result).toHaveLength(0);
 });
 
-it('should highlight imported symbol', () => {
-  const result = actual(`import { x } from "hello"; \nx();`);
+it('should highlight imported symbol', async () => {
+  const result = await actual(`import { x } from "hello"; \nx();`);
   expect(result).toHaveLength(2);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 10));
   expect(result[0].references).toHaveLength(1);
   expect(result[0].references[0]).toEqual(location(2, 0, 2, 1));
 });
 
-it('should highlight curly brackets', () => {
-  const result = actual(`
+it('should highlight curly brackets', async () => {
+  const result = await actual(`
 (function () {
   if (true) {
     return {};
@@ -104,9 +104,9 @@ it('should highlight curly brackets', () => {
   expect(result[2].references[0]).toEqual(location(4, 12, 4, 13));
 });
 
-it('should highlight constructor', () => {
+it('should highlight constructor', async () => {
   expect(
-    actual(`
+    await actual(`
     var XMLHttpRequest: {
       new(): XMLHttpRequest;
     };
@@ -121,9 +121,9 @@ it('should highlight constructor', () => {
   });
 });
 
-it('should highlight TS enums', () => {
+it('should highlight TS enums', async () => {
   expect(
-    actual(`
+    await actual(`
     enum PublishSettingsType {
       'enterprise',
       'dotcom',
@@ -134,7 +134,7 @@ it('should highlight TS enums', () => {
   });
 });
 
-it('should highlight Vue templates', () => {
+it('should highlight Vue templates', async () => {
   const filePath = '/some/path/file.vue';
   const fileContent = `
   <template>
@@ -144,7 +144,7 @@ it('should highlight Vue templates', () => {
   </template>`;
 
   initLinter([]);
-  const { highlightedSymbols } = analyzeJavaScript({
+  const { highlightedSymbols } = await analyzeJavaScript({
     filePath,
     fileContent,
     tsConfigs: [],
@@ -162,7 +162,7 @@ it('should highlight Vue templates', () => {
   ]);
 });
 
-it('should highlight inconsistent Vue templates', () => {
+it('should highlight inconsistent Vue templates', async () => {
   const filePath = '/some/path/file.vue';
   const fileContent = `
   <template>
@@ -170,7 +170,7 @@ it('should highlight inconsistent Vue templates', () => {
   </template> <!-- ignored: inconsistency -->`;
 
   initLinter([]);
-  const { highlightedSymbols } = analyzeJavaScript({
+  const { highlightedSymbols } = await analyzeJavaScript({
     filePath,
     fileContent,
     tsConfigs: [],
@@ -193,16 +193,16 @@ function location(startLine: number, startCol: number, endLine: number, endCol: 
   };
 }
 
-function actual(code: string): HighlightedSymbol[] {
+async function actual(code: string): Promise<HighlightedSymbol[]> {
   const filePath = join(__dirname, '/../fixtures/ts-project/sample.lint.ts');
   const tsConfig = join(__dirname, '/../fixtures/ts-project/tsconfig.json');
   initLinter([]);
-  const result = analyzeTypeScript({
+  const { highlightedSymbols } = await analyzeTypeScript({
     filePath,
     fileContent: code,
     tsConfigs: [tsConfig],
     fileType: 'MAIN',
   });
 
-  return result.highlightedSymbols;
+  return highlightedSymbols;
 }

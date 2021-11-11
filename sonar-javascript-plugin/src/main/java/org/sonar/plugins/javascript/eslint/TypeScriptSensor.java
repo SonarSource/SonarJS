@@ -33,7 +33,6 @@ import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -88,7 +87,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     boolean success = false;
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     eslintBridgeServer.initLinter(rules, environments, globals);

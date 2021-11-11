@@ -148,7 +148,7 @@ export function buildParsingOptions(
   return options;
 }
 
-function getFileContent(filePath: string) {
+export function getFileContent(filePath: string) {
   const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   return stripBom(fileContent);
 }

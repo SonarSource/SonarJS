@@ -1,0 +1,55 @@
+[
+  {
+    "source": "src/file1.css",
+    "deprecations": [],
+    "invalidOptionWarnings": [],
+    "parseErrors": [],
+    "errored": true,
+    "warnings": [
+      {
+        "line": 111,
+        "column": 1,
+        "rule": "no-missing-end-of-source-newline",
+        "severity": "error",
+        "text": "Unexpected missing end-of-source newline (no-missing-end-of-source-newline)"
+      },
+      {
+        "line": 81,
+        "column": 1,
+        "rule": "rule-empty-line-before",
+        "severity": "error",
+        "text": "Expected empty line before rule (rule-empty-line-before)"
+      },
+      {
+        "line": 55,
+        "column": 20,
+        "rule": "selector-pseudo-element-colon-notation",
+        "severity": "error",
+        "text": "Expected double colon pseudo-element notation (selector-pseudo-element-colon-notation)"
+      }
+    ]
+  },
+  {
+    "source": "src/file2.css",
+    "deprecations": [],
+    "invalidOptionWarnings": [],
+    "parseErrors": [],
+    "errored": true,
+    "warnings": [
+      {
+        "line": 58,
+        "column": 28,
+        "rule": "block-no-empty",
+        "severity": "error",
+        "text": "Unexpected empty block (block-no-empty)"
+      },
+      {
+        "line": 114,
+        "column": 1,
+        "rule": "no-missing-end-of-source-newline",
+        "severity": "error",
+        "text": "Unexpected missing end-of-source newline (no-missing-end-of-source-newline)"
+      }
+    ]
+  }
+]

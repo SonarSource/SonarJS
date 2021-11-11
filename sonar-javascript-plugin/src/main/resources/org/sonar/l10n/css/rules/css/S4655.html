@@ -1,0 +1,24 @@
+<p><code>!important</code> within keyframes declarations is completely ignored in some browsers and therefore it should not be used to be consistent
+among all browsers.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+@keyframes kf {
+  from { margin-top: 50px; }
+  50%  { margin-top: 150px !important; } /* Noncompliant; ignored */
+  to   { margin-top: 100px; }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+@keyframes kf {
+  from { margin-top: 50px; }
+  50%  { margin-top: 150px; }
+  to   { margin-top: 100px; }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes#!important_in_a_keyframe">Mozilla Web Technology for Developers</a> -
+  <code>!important</code> in a keyframe </li>
+</ul>
+

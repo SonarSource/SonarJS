@@ -70,7 +70,8 @@ public class TypeScriptRuleTest {
       .restoreProfile(FileLocation.of(jsProfile))
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/ts-rules-project-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
   }
 
   @AfterAll
@@ -86,6 +87,7 @@ public class TypeScriptRuleTest {
 
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "ts-rules-project-profile");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "empty-profile");
 
     SonarScanner build = SonarScanner.create()
       .setProjectDir(PROJECT_DIR)

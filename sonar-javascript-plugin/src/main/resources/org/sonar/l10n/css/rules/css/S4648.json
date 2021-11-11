@@ -1,0 +1,16 @@
+{
+  "title": "Duplicated font names should be removed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4648",
+  "sqKey": "S4648",
+  "scope": "All"
+}

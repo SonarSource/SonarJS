@@ -62,6 +62,10 @@
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.sslr</groupId>
+      <artifactId>sslr-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
     </dependency>
@@ -158,8 +162,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>19000000</minsize>
-                  <maxsize>21000000</maxsize>
+                  <minsize>20000000</minsize>
+                  <maxsize>23000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

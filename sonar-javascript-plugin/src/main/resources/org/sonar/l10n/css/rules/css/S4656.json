@@ -1,0 +1,16 @@
+{
+  "title": "Properties should not be duplicated",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4656",
+  "sqKey": "S4656",
+  "scope": "Main"
+}
