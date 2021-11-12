@@ -90,6 +90,13 @@ ruleTester.run('Disallow unused expressions', rule, {
         expect(foo).to.have.property('bar').with.empty;
       `,
     },
+    {
+      code: `
+        ({
+          onClick: function(){/* ... */}
+        });
+      `,
+    },
   ],
   invalid: [
     {
@@ -123,6 +130,35 @@ ruleTester.run('Disallow unused expressions', rule, {
           endLine: 4,
           column: 9,
           endColumn: 44,
+        },
+      ],
+    },
+    {
+      code: `({})`,
+      errors: [
+        {
+          message: `Expected an assignment or function call and instead saw an expression.`,
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      code: `
+        while (true) {
+          ({
+            onClick: function(){/* ... */}
+          });
+        }`,
+      errors: [
+        {
+          message: `Expected an assignment or function call and instead saw an expression.`,
+          line: 3,
+          endLine: 5,
+          column: 11,
+          endColumn: 14,
         },
       ],
     },
