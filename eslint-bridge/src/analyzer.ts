@@ -38,15 +38,19 @@ export const EMPTY_RESPONSE: AnalysisResponse = {
 
 export interface AnalysisInput {
   filePath: string;
-  fileType: FileType;
   fileContent: string | undefined;
+
+  // specific for js-ts
+  fileType?: FileType;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
+
+  // specific for css
   configFile?: string;
 }
 
-// eslint rule key
 export interface Rule {
+  // eslint rule key
   key: string;
   // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
   configurations: any[];
