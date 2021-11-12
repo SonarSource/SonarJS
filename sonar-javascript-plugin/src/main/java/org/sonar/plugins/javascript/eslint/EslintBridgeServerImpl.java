@@ -234,7 +234,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeCss(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath);
   }

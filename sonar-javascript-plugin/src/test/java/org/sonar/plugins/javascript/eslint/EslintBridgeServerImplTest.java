@@ -44,7 +44,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -195,7 +194,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
       .setContents("a { }")
       .build();
-    CssAnalysisRequest request = new CssAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), "config.file");
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), "config.file");
     assertThat(eslintBridgeServer.analyzeCss(request).issues).isEmpty();
   }
 

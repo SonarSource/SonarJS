@@ -45,7 +45,7 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeCss(AnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -58,11 +58,16 @@ public interface EslintBridgeServer extends Startable {
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
   class AnalysisRequest {
-    String filePath;
-    String fileType;
-    String fileContent;
-    boolean ignoreHeaderComments;
-    List<String> tsConfigs;
+    final String filePath;
+    final String fileContent;
+
+    // specific for js-ts
+    final String fileType;
+    final boolean ignoreHeaderComments;
+    final List<String> tsConfigs;
+
+    // specific for css
+    final String configFile;
 
     AnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
@@ -70,18 +75,18 @@ public interface EslintBridgeServer extends Startable {
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
+
+      this.configFile = null;
     }
-  }
 
-  class CssAnalysisRequest {
-    String filePath;
-    String fileContent;
-    String configFile;
-
-    public CssAnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
+    AnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
       this.filePath = filePath;
       this.fileContent = fileContent;
       this.configFile = configFile;
+
+      this.fileType = null;
+      this.ignoreHeaderComments = false;
+      this.tsConfigs = null;
     }
   }
 

@@ -54,8 +54,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.TestActiveRules;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -280,7 +280,7 @@ class CssRuleSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
-    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    ArgumentCaptor<AnalysisRequest> capturedRequest = ArgumentCaptor.forClass(AnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isNull();
@@ -296,7 +296,7 @@ class CssRuleSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
-    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    ArgumentCaptor<AnalysisRequest> capturedRequest = ArgumentCaptor.forClass(AnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content");
@@ -307,7 +307,7 @@ class CssRuleSensorTest {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
     addInputFile("file.css");
     sensor.execute(context);
-    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    ArgumentCaptor<AnalysisRequest> capturedRequest = ArgumentCaptor.forClass(AnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isNotNull();
