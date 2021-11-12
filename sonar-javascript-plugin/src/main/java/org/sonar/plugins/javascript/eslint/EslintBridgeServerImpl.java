@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 
 public class EslintBridgeServerImpl implements EslintBridgeServer {
@@ -96,6 +98,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
     this.client = new OkHttpClient.Builder()
+      .connectionSpecs(singletonList(ConnectionSpec.CLEARTEXT))
       .callTimeout(Duration.ofSeconds(timeoutSeconds))
       .readTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
