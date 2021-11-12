@@ -147,8 +147,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   private void saveIssues(SensorContext context, InputFile inputFile, EslintBridgeServer.Issue[] issues) {
     for (EslintBridgeServer.Issue issue : issues) {
-      NewIssue sonarIssue = context.newIssue();
-
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
 
       if (ruleKey == null) {
@@ -160,6 +158,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         }
 
       } else {
+        NewIssue sonarIssue = context.newIssue();
         NewIssueLocation location = sonarIssue.newLocation()
           .on(inputFile)
           .at(inputFile.selectLine(issue.line))
