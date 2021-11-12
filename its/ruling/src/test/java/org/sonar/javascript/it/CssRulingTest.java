@@ -27,31 +27,32 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.it.JavaScriptRulingTest.LITS_VERSION;
 
 public class CssRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
-  public static final String PROJECT_KEY = "project";
+  private static final String PROJECT_KEY = "project";
 
-  @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
-    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"))
+    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .build();
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare_quality_profile() throws IOException {
+    ORCHESTRATOR.start();
     ProfileGenerator.RulesConfiguration parameters = new ProfileGenerator.RulesConfiguration();
     String serverUrl = ORCHESTRATOR.getServer().getUrl();
     File profileFile = ProfileGenerator.generateProfile(serverUrl, "css", "css", parameters, Collections.emptySet());
@@ -60,6 +61,11 @@ public class CssRulingTest {
     loadEmptyProfile("web");
     loadEmptyProfile("js");
     loadEmptyProfile("ts");
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    ORCHESTRATOR.stop();
   }
 
   private static void loadEmptyProfile(String language) throws IOException {
@@ -79,7 +85,7 @@ public class CssRulingTest {
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "rules");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "php", "rules");
@@ -94,7 +100,7 @@ public class CssRulingTest {
       .setLanguage("css")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProperty("dump.old", FileLocation.of("src/test/resources/expected").getFile().getAbsolutePath())
+      .setProperty("dump.old", FileLocation.of("src/test/expected/css").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
