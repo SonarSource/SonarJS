@@ -148,7 +148,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
   private void saveIssues(SensorContext context, InputFile inputFile, EslintBridgeServer.Issue[] issues) {
     for (EslintBridgeServer.Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
-
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId)) {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();

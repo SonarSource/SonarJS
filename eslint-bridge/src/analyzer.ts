@@ -111,11 +111,13 @@ export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
     codeFilename: filePath,
     configFile,
   };
-  return stylelint.lint(options).then(result => ({ issues: toIssues(result.results, filePath) }));
+  return stylelint
+    .lint(options)
+    .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));
 }
 
-function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
-  const analysisResponse: Issue[] = [];
+function fromStylelintToSonarIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
+  const issues: Issue[] = [];
   // we should have only one element in 'results' as we are analyzing only 1 file
   results.forEach(result => {
     // to avoid reporting on "fake" source like <input ccs 1>
@@ -126,7 +128,7 @@ function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
       return;
     }
     result.warnings.forEach(warning =>
-      analysisResponse.push({
+      issues.push({
         line: warning.line,
         column: warning.column,
         message: warning.text,
@@ -135,7 +137,7 @@ function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
       }),
     );
   });
-  return analysisResponse;
+  return issues;
 }
 
 let linter: LinterWrapper;
