@@ -97,7 +97,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    File configFile = createLinterConfig(context);
+    File stylelintConfig = createLinterConfig(context);
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
 
@@ -111,7 +111,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
 
-        analyzeFile(inputFile, context, configFile);
+        analyzeFile(inputFile, context, stylelintConfig);
         progressReport.nextFile();
       }
       success = true;
@@ -125,7 +125,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, File configFile) {
+  void analyzeFile(InputFile inputFile, SensorContext context, File stylelintConfig) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
@@ -133,7 +133,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         return;
       }
       String fileContent = shouldSendFileContent(inputFile) ? inputFile.contents() : null;
-      EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(new File(uri).getAbsolutePath(), fileContent, configFile.toString());
+      EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(new File(uri).getAbsolutePath(), fileContent, stylelintConfig.toString());
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.length);
@@ -218,10 +218,10 @@ public class CssRuleSensor extends AbstractEslintSensor {
     gsonBuilder.registerTypeAdapter(StylelintConfig.class, config);
     final Gson gson = gsonBuilder.create();
     String configAsJson = gson.toJson(config);
-    File configFile = new File(context.fileSystem().workDir(), CONFIG_PATH).getAbsoluteFile();
-    Files.createDirectories(configFile.toPath().getParent());
-    Files.write(configFile.toPath(), Collections.singletonList(configAsJson), StandardCharsets.UTF_8);
-    return configFile;
+    File stylelintConfig = new File(context.fileSystem().workDir(), CONFIG_PATH).getAbsoluteFile();
+    Files.createDirectories(stylelintConfig.toPath().getParent());
+    Files.write(stylelintConfig.toPath(), Collections.singletonList(configAsJson), StandardCharsets.UTF_8);
+    return stylelintConfig;
   }
 
   private static String normalizeMessage(String message) {

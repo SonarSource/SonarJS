@@ -46,7 +46,7 @@ export interface AnalysisInput {
   tsConfigs?: string[];
 
   // specific for css
-  configFile?: string;
+  stylelintConfig?: string;
 }
 
 export interface Rule {
@@ -108,12 +108,12 @@ export function analyzeTypeScript(input: AnalysisInput): Promise<AnalysisRespons
 }
 
 export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
-  const { filePath, fileContent, configFile } = input;
+  const { filePath, fileContent, stylelintConfig } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
   const options = {
     code,
     codeFilename: filePath,
-    configFile,
+    configFile: stylelintConfig,
   };
   return stylelint
     .lint(options)

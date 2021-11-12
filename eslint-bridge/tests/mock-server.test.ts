@@ -32,7 +32,7 @@ describe('mock server', () => {
 
   const request = JSON.stringify({
     filePath,
-    configFile: join(__dirname, 'fixtures', 'css', 'stylelintconfig.json'),
+    stylelintConfig: join(__dirname, 'fixtures', 'css', 'stylelintconfig.json'),
   });
 
   let server: http.Server;

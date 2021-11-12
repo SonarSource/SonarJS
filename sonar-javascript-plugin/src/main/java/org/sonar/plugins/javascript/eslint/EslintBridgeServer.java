@@ -67,7 +67,7 @@ public interface EslintBridgeServer extends Startable {
     final List<String> tsConfigs;
 
     // specific for css
-    final String configFile;
+    final String stylelintConfig;
 
     AnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
@@ -76,13 +76,13 @@ public interface EslintBridgeServer extends Startable {
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
 
-      this.configFile = null;
+      this.stylelintConfig = null;
     }
 
-    AnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
+    AnalysisRequest(String filePath, @Nullable String fileContent, String stylelintConfig) {
       this.filePath = filePath;
       this.fileContent = fileContent;
-      this.configFile = configFile;
+      this.stylelintConfig = stylelintConfig;
 
       this.fileType = null;
       this.ignoreHeaderComments = false;
