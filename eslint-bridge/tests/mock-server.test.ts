@@ -62,7 +62,7 @@ describe('mock server', () => {
   });
 
   it('should not return issues when failed promise returned', async () => {
-    (stylelint.lint as any).mockRejectedValue('some reason');
+    (stylelint.lint as any).mockRejectedValue(new Error('some reason'));
     const response = await postToServer(request, '/analyze-css', server);
     expect(JSON.parse(response).parsingError).toEqual({
       message: 'some reason',

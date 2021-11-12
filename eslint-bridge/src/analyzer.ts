@@ -111,12 +111,7 @@ export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
     codeFilename: filePath,
     configFile,
   };
-  return stylelint
-    .lint(options)
-    .then(result => ({ issues: toIssues(result.results, filePath) }))
-    .catch(e => {
-      throw Error(e);
-    });
+  return stylelint.lint(options).then(result => ({ issues: toIssues(result.results, filePath) }));
 }
 
 function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
