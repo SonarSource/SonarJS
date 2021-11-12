@@ -24,6 +24,7 @@
   "engines": {
     "node": ">=10"
   },
+  "type": "commonjs",
   "devDependencies": {
     "@types/bytes": "3.1.0",
     "@types/eslint": "7.28.0",
