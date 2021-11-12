@@ -189,6 +189,7 @@ ruling_task:
     matrix:
       - RULING: JavaScriptRulingTest
       - RULING: TypeScriptRulingTest
+      - RULING: CssRulingTest
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   submodules_script:
