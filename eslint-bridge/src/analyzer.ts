@@ -39,14 +39,18 @@ export const EMPTY_RESPONSE: AnalysisResponse = {
 export interface AnalysisInput {
   filePath: string;
   fileContent: string | undefined;
+}
 
-  // specific for js-ts
-  fileType?: FileType;
-  ignoreHeaderComments?: boolean;
-  tsConfigs?: string[];
-
+export interface CssAnalysisInput extends AnalysisInput {
   // specific for css
-  stylelintConfig?: string;
+  stylelintConfig: string;
+}
+
+export interface JsAnalysisInput extends AnalysisInput {
+  // specific for js-ts
+  fileType: FileType;
+  ignoreHeaderComments?: boolean;
+  tsConfigs: string[];
 }
 
 export interface Rule {
@@ -99,15 +103,15 @@ export interface Perf {
   analysisTime: number;
 }
 
-export function analyzeJavaScript(input: AnalysisInput): Promise<AnalysisResponse> {
+export function analyzeJavaScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'js'));
 }
 
-export function analyzeTypeScript(input: AnalysisInput): Promise<AnalysisResponse> {
+export function analyzeTypeScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'ts'));
 }
 
-export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
+export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
   const { filePath, fileContent, stylelintConfig } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
   const options = {
@@ -158,7 +162,7 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
   return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
-function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
+function analyze(input: JsAnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
@@ -183,7 +187,7 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
   return { result, duration };
 }
 
-function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
+function analyzeFile(sourceCode: SourceCode, input: JsAnalysisInput) {
   try {
     const { issues, highlightedSymbols, cognitiveComplexity } = linter.analyze(
       sourceCode,

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
+import { JsAnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
@@ -69,6 +69,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
@@ -84,6 +85,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
+      tsConfigs: [],
     });
     expect(result.issues).toHaveLength(1);
     expect(result.issues).toContainEqual(noOneIterationIssue);
@@ -100,10 +102,11 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
 
-    const testFile: AnalysisInput = {
+    const testFile: JsAnalysisInput = {
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
+      tsConfigs: [],
     };
     let { issues } = await analyzeJavaScript(testFile);
     expect(issues).toHaveLength(1);
@@ -113,6 +116,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
+      tsConfigs: [],
     }));
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noDuplicateStringIssue);
@@ -131,6 +135,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
   });
@@ -143,6 +148,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(highlights).toHaveLength(11);
   });
@@ -155,6 +161,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(cpdTokens).toHaveLength(42);
   });
@@ -167,6 +174,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: `if()`,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
   });
@@ -180,6 +188,7 @@ describe('#analyzeJavaScript', () => {
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
       fileContent: undefined,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
@@ -194,6 +203,7 @@ describe('#analyzeJavaScript', () => {
       filePath,
       fileContent: undefined,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(cpdTokens).toHaveLength(17);
     const firstLineEnd = Math.max(
@@ -392,6 +402,7 @@ describe('#analyzeTypeScript', () => {
       filePath,
       fileContent,
       fileType: 'MAIN',
+      tsConfigs: [],
     });
     expect(issues).toHaveLength(1);
   });

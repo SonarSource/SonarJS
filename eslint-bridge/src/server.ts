@@ -20,7 +20,6 @@
 import { Server } from 'http';
 import express from 'express';
 import {
-  AnalysisInput,
   analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
@@ -51,7 +50,7 @@ export function start(
   );
 }
 
-type AnalysisFunction = (input: AnalysisInput) => Promise<AnalysisResponse>;
+type AnalysisFunction = (input: any) => Promise<AnalysisResponse>;
 
 // exported for test
 export function startServer(
@@ -123,8 +122,7 @@ export function startServer(
 function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
   return async (request: express.Request, response: express.Response) => {
     try {
-      const parsedRequest = request.body as AnalysisInput;
-      const analysisResult = await analysisFunction(parsedRequest);
+      const analysisResult = await analysisFunction(request.body);
       response.json(analysisResult);
     } catch (e) {
       console.error(e.stack);

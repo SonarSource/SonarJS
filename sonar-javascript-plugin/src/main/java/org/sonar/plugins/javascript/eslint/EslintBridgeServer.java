@@ -41,11 +41,11 @@ public interface EslintBridgeServer extends Startable {
 
   void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException;
 
-  AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeCss(AnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -57,36 +57,31 @@ public interface EslintBridgeServer extends Startable {
 
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
-  class AnalysisRequest {
+  class JsAnalysisRequest {
     final String filePath;
     final String fileContent;
-
-    // specific for js-ts
     final String fileType;
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
 
-    // specific for css
-    final String stylelintConfig;
-
-    AnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
-
-      this.stylelintConfig = null;
     }
+  }
 
-    AnalysisRequest(String filePath, @Nullable String fileContent, String stylelintConfig) {
+  class CssAnalysisRequest {
+    final String filePath;
+    final String fileContent;
+    final String stylelintConfig;
+
+    CssAnalysisRequest(String filePath, @Nullable String fileContent, String stylelintConfig) {
       this.filePath = filePath;
       this.fileContent = fileContent;
       this.stylelintConfig = stylelintConfig;
-
-      this.fileType = null;
-      this.ignoreHeaderComments = false;
-      this.tsConfigs = null;
     }
   }
 

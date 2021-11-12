@@ -222,19 +222,19 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-js"), request.filePath);
   }
 
   @Override
-  public AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath);
   }
 
   @Override
-  public AnalysisResponse analyzeCss(AnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath);
   }
