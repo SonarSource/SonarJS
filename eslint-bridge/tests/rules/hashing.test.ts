@@ -18,108 +18,84 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 import { rule } from 'rules/hashing';
 
-ruleTester.run('Hashing data is security-sensitive: client side', rule, {
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+ruleTester.run('Using weak hashing algorithms is security-sensitive', rule, {
   valid: [
     {
-      // no call
-      code: `crypto.subtle.digest`,
+      code: `
+        crypto.createHash();
+        `,
     },
     {
-      // not "digest"
-      code: `crypto.subtle.encrypt()`,
+      code: `
+        crypto.createHash(unknown);
+        `,
     },
     {
-      // no "crypto.subtle"
-      code: `foo.digest()`,
+      code: `
+        crypto.createHash('sha1');
+        `,
+    },
+    {
+      code: `
+        const crypto = require('crypto');
+        crypto.createHash('sha512');`,
+    },
+    {
+      code: `
+        const crypto = require('crypto');
+        crypto.createHsah('sha1');`,
+    },
+    {
+      code: `
+        const otpyrc = require('otpyrc');
+        otpyrc.createHash('sha1');
+      `,
     },
   ],
   invalid: [
     {
-      code: `crypto.subtle.digest("SHA-256", buffer);`,
-      errors: [
-        {
-          message: 'Make sure that hashing data is safe here.',
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 21,
-        },
-      ],
-    },
-    {
-      code: `let subtle = crypto.subtle; subtle.digest();`,
+      code: `
+        const crypto = require('crypto');
+        crypto.createHash('sha1');
+      `,
       errors: 1,
     },
     {
-      code: `let digest = crypto.subtle.digest; digest();`,
+      code: `
+        const crypto = require('crypto');
+        crypto.createHash('SHA1');
+      `,
       errors: 1,
     },
     {
-      code: `let subtle = window.crypto.subtle; subtle.digest();`,
-      errors: 1,
-    },
-  ],
-});
-
-ruleTester.run('Hashing data is security-sensitive: server side', rule, {
-  valid: [
-    {
-      code: `const crypto = require('foo'); crypto.digest();`,
-    },
-    {
-      code: `const crypto = require('crypto'); crypto.digest();`,
-    },
-    {
-      code: `import * as bar from 'crypto'; foo.digest();`,
-    },
-    {
-      code: `import * as crypto from 'foo'; crypto.digest();`,
-    },
-    {
-      code: `import * as crypto from 'crypto'; crypto.encrypt();`,
-    },
-    {
-      code: `import { encrypt } from 'crypto'; crypto.encrypt();`,
-    },
-    {
-      code: `const digest = require('foo').digest; digest();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `const crypto = require('crypto'); crypto.createHash();`,
-      errors: [
-        {
-          message: 'Make sure that hashing data is safe here.',
-          line: 1,
-          endLine: 1,
-          column: 35,
-          endColumn: 52,
-        },
-      ],
-    },
-    {
-      code: `const createHash = require('crypto').createHash; createHash();`,
+      code: `
+        const foo = require('crypto');
+        foo.createHash('sha1');
+      `,
       errors: 1,
     },
     {
-      code: `import * as foo from 'crypto'; foo.createHash();`,
+      code: `
+        const createHash = require('crypto').createHash;
+        createHash('sha1');
+      `,
       errors: 1,
     },
     {
-      code: `import { createHash } from 'crypto'; createHash();`,
+      code: `
+        import * as crypto from 'crypto';
+        crypto.createHash('sha1');
+      `,
       errors: 1,
     },
     {
-      code: `import { scrypt } from 'crypto'; scrypt();`,
-      errors: 1,
-    },
-    {
-      code: `import { scryptSync } from 'crypto'; scryptSync();`,
+      code: `
+        import {createHash} from 'crypto';
+        createHash('sha1');
+      `,
       errors: 1,
     },
   ],

@@ -17,18 +17,64 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4790
+// https://sonarsource.github.io/rspec/#/rspec/S4790/javascript
 
 import { Rule } from 'eslint';
-import { getEncryptionRuleModule } from './encryption';
+import * as estree from 'estree';
+import {
+  getModuleAndCalledMethod,
+  getUniqueWriteUsageOrNode,
+  isIdentifier,
+  isStringLiteral,
+} from '../utils';
 
-const message = `Make sure that hashing data is safe here.`;
+const MESSAGE = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
+const UNSECURE_HASH_ALGORITHMS = new Set([
+  'md4',
+  'rsa-md4',
+  'md4withrsaencryption',
+  'md5',
+  'rsa-md5',
+  'md5withrsaencryption',
+  'ssl2-md5',
+  'ssl3-md5',
+  'dsa',
+  'dsa-sha1',
+  'dsa-sha1-old',
+  'dss1',
+  'dsawithsha1',
+  'dss1',
+  'ripemd',
+  'ripemd160withrsa',
+  'ripemd160',
+  'rsa-ripemd160',
+  'rmd160',
+  'rsa-sha1',
+  'rsa-sha1-2',
+  'sha1',
+  'sha1withrsaencryption',
+  'ssl3-sha1',
+]);
 
-const clientSideHashMethod = ['digest'];
-const serverSideHashMethods = ['createHash', 'scrypt', 'scryptSync'];
-
-export const rule: Rule.RuleModule = getEncryptionRuleModule(
-  clientSideHashMethod,
-  serverSideHashMethods,
-  message,
-);
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      'CallExpression[arguments.length > 0]': (node: estree.Node) => {
+        const { callee, arguments: args } = node as estree.CallExpression;
+        const hashAlgorithm = getUniqueWriteUsageOrNode(context, args[0]);
+        if (
+          isStringLiteral(hashAlgorithm) &&
+          UNSECURE_HASH_ALGORITHMS.has(hashAlgorithm.value.toLocaleLowerCase())
+        ) {
+          const { module, method } = getModuleAndCalledMethod(callee, context);
+          if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
+            context.report({
+              message: MESSAGE,
+              node: method,
+            });
+          }
+        }
+      },
+    };
+  },
+};

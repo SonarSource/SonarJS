@@ -176,3 +176,18 @@ export function isCallToFQN(
   const module = getModuleNameOfNode(context, callee.object);
   return module?.value === moduleName && isIdentifier(callee.property, functionName);
 }
+
+export function getModuleAndCalledMethod(callee: estree.Node, context: Rule.RuleContext) {
+  let module;
+  let method: estree.Expression | estree.PrivateIdentifier | undefined;
+
+  if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
+    module = getModuleNameOfIdentifier(context, callee.object);
+    method = callee.property;
+  }
+  if (callee.type === 'Identifier') {
+    module = getModuleNameOfImportedIdentifier(context, callee);
+    method = callee;
+  }
+  return { module, method };
+}
