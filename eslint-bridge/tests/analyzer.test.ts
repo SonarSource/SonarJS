@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { JsAnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
+import { JsAnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter, analyzeCss } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
+import * as stylelint from 'stylelint';
 
 const noOneIterationIssue = {
   line: 3,
@@ -422,5 +423,42 @@ describe('#analyzeTypeScript', () => {
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(2);
+  });
+});
+
+jest.mock('stylelint');
+
+describe('#analyzeCss', () => {
+  const filePath = join(__dirname, 'fixtures', 'css', 'file.css');
+  const request = {
+    fileContent: undefined,
+    filePath,
+    stylelintConfig: join(__dirname, 'fixtures', 'css', 'stylelintconfig.json'),
+  };
+
+  const logSpy = jest.fn();
+
+  beforeAll(async () => {
+    console.log = logSpy;
+  });
+
+  afterAll(async () => {
+    jest.restoreAllMocks();
+  });
+
+  it('should not return issues for not original file', async () => {
+    (stylelint.lint as jest.Mock).mockResolvedValue({
+      results: [{ source: 'foo.bar' }],
+    });
+    const { issues } = await analyzeCss(request);
+    expect(issues).toHaveLength(0);
+    expect(logSpy).toHaveBeenCalledWith(
+      `DEBUG For file [${filePath}] received issues with [foo.bar] as a source. They will not be reported.`,
+    );
+  });
+
+  it('should throw when failed promise returned', async () => {
+   (stylelint.lint as jest.Mock).mockRejectedValue(new Error('some reason'));
+    await expect(analyzeCss(request)).rejects.toEqual(new Error('some reason'));
   });
 });
