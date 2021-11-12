@@ -74,8 +74,8 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class CssAnalysisRequest {
-    public String filePath;
-    public String fileContent;
+    String filePath;
+    String fileContent;
     String configFile;
 
     public CssAnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
@@ -104,7 +104,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    public Issue[] issues = {};
+    Issue[] issues = {};
     Highlight[] highlights = {};
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
@@ -127,12 +127,12 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Issue {
-    public Integer line;
+    Integer line;
     Integer column;
     Integer endLine;
     Integer endColumn;
-    public String message;
-    public String ruleId;
+    String message;
+    String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.css;
+package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,11 +36,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
-import org.sonar.plugins.javascript.eslint.AbstractEslintSensor;
-import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
-import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.io.File;

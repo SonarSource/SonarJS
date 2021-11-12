@@ -26,7 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.css.CssRuleSensor;
+import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
 import org.sonar.plugins.javascript.css.StylelintReportSensor;
 import org.sonar.plugins.javascript.css.metrics.MetricSensor;
