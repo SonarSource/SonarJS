@@ -19,6 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport } from '../utils';
 
 export function decorateTypescriptEslint(rule: Rule.RuleModule): Rule.RuleModule {
@@ -29,6 +30,7 @@ export function decorateTypescriptEslint(rule: Rule.RuleModule): Rule.RuleModule
         isNegatedIife(expr) ||
         containsChaiExpect(expr) ||
         containsValidChaiShould(expr) ||
+        isAuraLightningComponent(expr) ||
         isSequenceWithSideEffects(expr),
     ),
   );
@@ -97,5 +99,13 @@ function isSequenceWithSideEffects(node: estree.Node): boolean {
   return (
     node.type === 'SequenceExpression' &&
     node.expressions[node.expressions.length - 1].type === 'AssignmentExpression'
+  );
+}
+
+function isAuraLightningComponent(node: estree.Node): boolean {
+  return (
+    node.type === 'ObjectExpression' &&
+    node.properties.length > 0 &&
+    (node as TSESTree.Node).parent?.parent?.type === 'Program'
   );
 }
