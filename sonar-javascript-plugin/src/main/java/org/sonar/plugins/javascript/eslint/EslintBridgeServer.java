@@ -19,17 +19,16 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
@@ -41,9 +40,9 @@ public interface EslintBridgeServer extends Startable {
 
   void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException;
 
-  AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
@@ -57,14 +56,14 @@ public interface EslintBridgeServer extends Startable {
 
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
-  class AnalysisRequest {
-    String filePath;
-    String fileType;
-    String fileContent;
-    boolean ignoreHeaderComments;
-    List<String> tsConfigs;
+  class JsAnalysisRequest {
+    final String filePath;
+    final String fileContent;
+    final String fileType;
+    final boolean ignoreHeaderComments;
+    final List<String> tsConfigs;
 
-    AnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
@@ -74,14 +73,14 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class CssAnalysisRequest {
-    public String filePath;
-    public String fileContent;
-    String configFile;
+    final String filePath;
+    final String fileContent;
+    final String stylelintConfig;
 
-    public CssAnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {
+    CssAnalysisRequest(String filePath, @Nullable String fileContent, String stylelintConfig) {
       this.filePath = filePath;
       this.fileContent = fileContent;
-      this.configFile = configFile;
+      this.stylelintConfig = stylelintConfig;
     }
   }
 
@@ -104,7 +103,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    public Issue[] issues = {};
+    Issue[] issues = {};
     Highlight[] highlights = {};
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
@@ -127,12 +126,12 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Issue {
-    public Integer line;
+    Integer line;
     Integer column;
     Integer endLine;
     Integer endColumn;
-    public String message;
-    public String ruleId;
+    String message;
+    String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
   }

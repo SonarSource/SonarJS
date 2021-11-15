@@ -21,6 +21,15 @@ package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.InetAddress;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -37,16 +46,6 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
-
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.InetAddress;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -222,13 +221,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-js"), request.filePath);
   }
 
   @Override
-  public AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath);
   }

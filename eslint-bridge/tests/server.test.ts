@@ -444,12 +444,12 @@ describe('sonarlint context', () => {
   });
 
   describe('css analysis endpoint', () => {
-    const configFile = join(__dirname, 'fixtures', 'css', 'stylelintconfig.json');
+    const stylelintConfig = join(__dirname, 'fixtures', 'css', 'stylelintconfig.json');
 
     it('should respond to analysis request for css', async () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
-        configFile,
+        stylelintConfig,
       });
       const response = await post(request, '/analyze-css');
       expect(JSON.parse(response)).toEqual({
@@ -468,7 +468,7 @@ describe('sonarlint context', () => {
     it('should respond to analysis request for php', async () => {
       const requestPhp = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.php'),
-        configFile,
+        stylelintConfig,
       });
       const responsePhp = await post(requestPhp, '/analyze-css');
       expect(JSON.parse(responsePhp)).toEqual({
@@ -487,7 +487,7 @@ describe('sonarlint context', () => {
     it('should respond to analysis request for html', async () => {
       const requestHtml = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.html'),
-        configFile,
+        stylelintConfig,
       });
       const responseHtml = await post(requestHtml, '/analyze-css');
       expect(JSON.parse(responseHtml)).toEqual({
@@ -507,7 +507,7 @@ describe('sonarlint context', () => {
       const response = await post(
         JSON.stringify({
           filePath: join(__dirname, 'fixtures', 'css', 'file-bom.css'),
-          configFile,
+          stylelintConfig,
         }),
         '/analyze-css',
       );
@@ -524,33 +524,11 @@ describe('sonarlint context', () => {
       });
     });
 
-    it('should respond OK! when started', done => {
-      const req = http.request(
-        {
-          host: 'localhost',
-          port: (<AddressInfo>server.address()).port,
-          path: '/status',
-          method: 'GET',
-        },
-        res => {
-          let data = '';
-          res.on('data', chunk => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            expect(data).toEqual('OK!');
-            done();
-          });
-        },
-      );
-      req.end();
-    });
-
     it('should use fileContent from the request and not from the filesystem', async () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
         fileContent: '\n\n a { }', // move the issue on line 3
-        configFile,
+        stylelintConfig,
       });
       const response = await post(request, '/analyze-css');
       expect(JSON.parse(response)).toEqual({

@@ -17,10 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.css;
+package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,25 +48,10 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
-import org.sonar.plugins.javascript.eslint.AbstractEslintSensor;
-import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
-import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonarsource.analyzer.commons.ProgressReport;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CssRuleSensor extends AbstractEslintSensor {
 
@@ -99,7 +96,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    File configFile = createLinterConfig(context);
+    File stylelintConfig = createLinterConfig(context);
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
 
@@ -113,7 +110,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
 
-        analyzeFile(inputFile, context, configFile);
+        analyzeFile(inputFile, context, stylelintConfig);
         progressReport.nextFile();
       }
       success = true;
@@ -127,7 +124,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, File configFile) {
+  void analyzeFile(InputFile inputFile, SensorContext context, File stylelintConfig) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
@@ -135,7 +132,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         return;
       }
       String fileContent = shouldSendFileContent(inputFile) ? inputFile.contents() : null;
-      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, configFile.toString());
+      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, stylelintConfig.toString());
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.length);
@@ -147,10 +144,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   private void saveIssues(SensorContext context, InputFile inputFile, EslintBridgeServer.Issue[] issues) {
     for (EslintBridgeServer.Issue issue : issues) {
-      NewIssue sonarIssue = context.newIssue();
-
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
-
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId)) {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
@@ -160,6 +154,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         }
 
       } else {
+        NewIssue sonarIssue = context.newIssue();
         NewIssueLocation location = sonarIssue.newLocation()
           .on(inputFile)
           .at(inputFile.selectLine(issue.line))
@@ -222,10 +217,10 @@ public class CssRuleSensor extends AbstractEslintSensor {
     gsonBuilder.registerTypeAdapter(StylelintConfig.class, config);
     final Gson gson = gsonBuilder.create();
     String configAsJson = gson.toJson(config);
-    File configFile = new File(context.fileSystem().workDir(), CONFIG_PATH).getAbsoluteFile();
-    Files.createDirectories(configFile.toPath().getParent());
-    Files.write(configFile.toPath(), Collections.singletonList(configAsJson), StandardCharsets.UTF_8);
-    return configFile;
+    File stylelintConfig = new File(context.fileSystem().workDir(), CONFIG_PATH).getAbsoluteFile();
+    Files.createDirectories(stylelintConfig.toPath().getParent());
+    Files.write(stylelintConfig.toPath(), Collections.singletonList(configAsJson), StandardCharsets.UTF_8);
+    return stylelintConfig;
   }
 
   private static String normalizeMessage(String message) {

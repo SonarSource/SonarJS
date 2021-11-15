@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class MetricSensorTest {
+class CssMetricSensorTest {
 
   private DefaultInputFile inputFile;
   private SensorContextTester sensorContext;
@@ -49,7 +49,7 @@ class MetricSensorTest {
   @Test
   void should_describe() {
     DefaultSensorDescriptor desc = new DefaultSensorDescriptor();
-    new MetricSensor(null).describe(desc);
+    new CssMetricSensor(null).describe(desc);
 
     assertThat(desc.languages()).containsOnly("css");
   }
@@ -197,7 +197,7 @@ class MetricSensorTest {
     FileLinesContext linesContext = mock(FileLinesContext.class);
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
-    new MetricSensor(linesContextFactory).execute(sensorContext);
+    new CssMetricSensor(linesContextFactory).execute(sensorContext);
   }
 
   private void assertHighlighting(int line, int column, int length, TypeOfText type) {

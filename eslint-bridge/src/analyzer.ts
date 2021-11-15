@@ -38,15 +38,21 @@ export const EMPTY_RESPONSE: AnalysisResponse = {
 
 export interface AnalysisInput {
   filePath: string;
-  fileType: FileType;
   fileContent: string | undefined;
-  ignoreHeaderComments?: boolean;
-  tsConfigs?: string[];
-  configFile?: string;
 }
 
-// eslint rule key
+export interface CssAnalysisInput extends AnalysisInput {
+  stylelintConfig: string;
+}
+
+export interface JsAnalysisInput extends AnalysisInput {
+  fileType: FileType;
+  ignoreHeaderComments?: boolean;
+  tsConfigs: string[];
+}
+
 export interface Rule {
+  // eslint rule key
   key: string;
   // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
   configurations: any[];
@@ -95,32 +101,29 @@ export interface Perf {
   analysisTime: number;
 }
 
-export function analyzeJavaScript(input: AnalysisInput): Promise<AnalysisResponse> {
+export function analyzeJavaScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'js'));
 }
 
-export function analyzeTypeScript(input: AnalysisInput): Promise<AnalysisResponse> {
+export function analyzeTypeScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'ts'));
 }
 
-export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
-  const { filePath, fileContent, configFile } = input;
+export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
+  const { filePath, fileContent, stylelintConfig } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
   const options = {
     code,
     codeFilename: filePath,
-    configFile,
+    configFile: stylelintConfig,
   };
   return stylelint
     .lint(options)
-    .then(result => ({ issues: toIssues(result.results, filePath) }))
-    .catch(e => {
-      throw Error(e);
-    });
+    .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));
 }
 
-function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
-  const analysisResponse: Issue[] = [];
+function fromStylelintToSonarIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
+  const issues: Issue[] = [];
   // we should have only one element in 'results' as we are analyzing only 1 file
   results.forEach(result => {
     // to avoid reporting on "fake" source like <input ccs 1>
@@ -131,7 +134,7 @@ function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
       return;
     }
     result.warnings.forEach(warning =>
-      analysisResponse.push({
+      issues.push({
         line: warning.line,
         column: warning.column,
         message: warning.text,
@@ -140,7 +143,7 @@ function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
       }),
     );
   });
-  return analysisResponse;
+  return issues;
 }
 
 let linter: LinterWrapper;
@@ -157,7 +160,7 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
   return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
-function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
+function analyze(input: JsAnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
@@ -182,7 +185,7 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
   return { result, duration };
 }
 
-function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
+function analyzeFile(sourceCode: SourceCode, input: JsAnalysisInput) {
   try {
     const { issues, highlightedSymbols, cognitiveComplexity } = linter.analyze(
       sourceCode,

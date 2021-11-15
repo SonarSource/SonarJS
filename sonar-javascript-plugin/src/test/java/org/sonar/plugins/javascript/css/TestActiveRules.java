@@ -65,7 +65,7 @@ public class TestActiveRules implements ActiveRules {
     return null;
   }
 
-  class TestActiveRule implements ActiveRule {
+  static class TestActiveRule implements ActiveRule {
 
     final RuleKey ruleKey;
 

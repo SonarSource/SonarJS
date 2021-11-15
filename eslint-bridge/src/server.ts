@@ -20,7 +20,6 @@
 import { Server } from 'http';
 import express from 'express';
 import {
-  AnalysisInput,
   analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
@@ -51,7 +50,7 @@ export function start(
   );
 }
 
-type AnalysisFunction = (input: AnalysisInput) => Promise<AnalysisResponse>;
+type AnalysisFunction = (input: any) => Promise<AnalysisResponse>;
 
 // exported for test
 export function startServer(
@@ -121,8 +120,11 @@ export function startServer(
 }
 
 function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
-  return (request: express.Request, response: express.Response) => {
-    function processError(e: any) {
+  return async (request: express.Request, response: express.Response) => {
+    try {
+      const analysisResult = await analysisFunction(request.body);
+      response.json(analysisResult);
+    } catch (e) {
       console.error(e.stack);
       response.json({
         ...EMPTY_RESPONSE,
@@ -131,14 +133,6 @@ function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
           code: ParseExceptionCode.GeneralError,
         },
       });
-    }
-    try {
-      const parsedRequest = request.body as AnalysisInput;
-      analysisFunction(parsedRequest)
-        .then(analysisResponse => response.json(analysisResponse))
-        .catch(processError);
-    } catch (e) {
-      processError(e);
     }
   };
 }

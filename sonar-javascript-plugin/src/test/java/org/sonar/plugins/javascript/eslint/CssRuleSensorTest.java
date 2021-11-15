@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.css;
+package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -52,11 +52,10 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptChecks;
-import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.css.TestActiveRules;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
-import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;

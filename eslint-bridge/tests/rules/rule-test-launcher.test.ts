@@ -80,7 +80,7 @@ export function parseForESLint(
 ) {
   const { filePath } = options;
   return buildSourceCode(
-    { filePath, fileContent, fileType },
+    { filePath, fileContent, fileType, tsConfigs: [] },
     filePath.endsWith('.ts') ? 'ts' : 'js',
   );
 }
