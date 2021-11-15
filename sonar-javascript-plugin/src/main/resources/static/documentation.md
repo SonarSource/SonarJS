@@ -1,5 +1,5 @@
 ---
-title: JavaScript / TypeScript / CSS
+title: JavaScript/TypeScript/CSS
 key: javascript
 ---
 
@@ -18,13 +18,13 @@ is deprecated.
 If `node` is not available in the PATH, you can use property `sonar.nodejs.executable` to set an absolute path to
 Node.js executable.
 
-If you have a community plugin that handles CSS installed on your SonarQube instance it will conflict with analysis of CSS, so it should be removed.
+If you have a community plugin for CSS analysis installed on your SonarQube instance it will conflict with analysis of CSS, so it should be removed.
  
 ## Language-Specific Properties
 
-Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript / TypeScript](/#sonarqube-admin#/admin/settings?category=javascript+%2F+typescript)**.
+Discover and update the JavaScript / TypeScript [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript / TypeScript](/#sonarqube-admin#/admin/settings?category=javascript+%2F+typescript)**.
 
-Discover and update the CSS [properties](/analysis/analysis-parameters/) in: <!-- sonarcloud -->Project <!-- /sonarcloud -->**[Administration > General Settings > CSS](/#sonarqube-admin#/admin/settings?category=css)**
+Discover and update the CSS [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > CSS](/#sonarqube-admin#/admin/settings?category=css)**.
 
 ## Supported Frameworks, Versions and Languages
 * ECMAScript 3, 5, 2015, 2016, 2017, 2018, 2019, and 2020
@@ -59,7 +59,7 @@ preferred to configure general exclusions for the project.
 Custom rules are not supported by the analyzer. As an alternative we suggest you to have a look at [ESLint](https://eslint.org/docs/developer-guide/), it provides custom rules that you can then import thanks to the [External Issues](/analysis/external-issues/) feature.
 
 ## Related Pages
-* [Importing External Issues](/analysis/external-issues/) (ESLint, TSLint, StyleLint.io)
+* [Importing External Issues](/analysis/external-issues/) (ESLint, TSLint, StyleLint)
 * [Test Coverage & Execution](/analysis/coverage/) (LCOV format)
 * [SonarJS Plugin for ESLint](https://github.com/SonarSource/eslint-plugin-sonarjs)
 <!-- sonarqube -->
