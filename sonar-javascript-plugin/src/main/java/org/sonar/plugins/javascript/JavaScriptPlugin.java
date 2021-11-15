@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.css.CssProfileDefinition;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
 import org.sonar.plugins.javascript.css.StylelintReportSensor;
-import org.sonar.plugins.javascript.css.metrics.MetricSensor;
+import org.sonar.plugins.javascript.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
@@ -229,13 +229,15 @@ public class JavaScriptPlugin implements Plugin {
           .build());
 
       context.addExtensions(
-        MetricSensor.class,
+        CssMetricSensor.class,
         CssLanguage.class,
         CssProfileDefinition.class,
         CssRulesDefinition.class,
         CssRuleSensor.class,
-        StylelintReportSensor.class,
+        StylelintReportSensor.class
+      );
 
+      context.addExtension(
         PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
           .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
           .name("File Suffixes")
@@ -244,8 +246,7 @@ public class JavaScriptPlugin implements Plugin {
           .category(CSS_CATEGORY)
           .onQualifiers(Qualifiers.PROJECT)
           .multiValues(true)
-          .build()
-      );
+          .build());
 
       context.addExtension(
         PropertyDefinition.builder(STYLELINT_REPORT_PATHS)

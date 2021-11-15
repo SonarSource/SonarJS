@@ -524,28 +524,6 @@ describe('sonarlint context', () => {
       });
     });
 
-    it('should respond OK! when started', done => {
-      const req = http.request(
-        {
-          host: 'localhost',
-          port: (<AddressInfo>server.address()).port,
-          path: '/status',
-          method: 'GET',
-        },
-        res => {
-          let data = '';
-          res.on('data', chunk => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            expect(data).toEqual('OK!');
-            done();
-          });
-        },
-      );
-      req.end();
-    });
-
     it('should use fileContent from the request and not from the filesystem', async () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),

@@ -37,13 +37,13 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.css.CssLanguage;
 
-public class MetricSensor implements Sensor {
+public class CssMetricSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(MetricSensor.class);
+  private static final Logger LOG = Loggers.get(CssMetricSensor.class);
 
   private final FileLinesContextFactory fileLinesContextFactory;
 
-  public MetricSensor(FileLinesContextFactory fileLinesContextFactory) {
+  public CssMetricSensor(FileLinesContextFactory fileLinesContextFactory) {
     this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
