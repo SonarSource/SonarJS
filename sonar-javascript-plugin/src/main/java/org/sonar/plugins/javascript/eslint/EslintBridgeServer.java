@@ -19,17 +19,16 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
