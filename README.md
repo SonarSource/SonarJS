@@ -1,6 +1,6 @@
 [![Quality Gate](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=alert_status)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.javascript%3Ajavascript) [![Coverage](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=coverage)](https://next.sonarqube.com/sonarqube/component_measures/domain/Coverage?id=org.sonarsource.javascript%3Ajavascript)
 
-This SonarSource project is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for JavaScript and TypeScript projects.
+This SonarSource project is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for JavaScript, TypeScript and CSS languages.
 
 :arrow_right: [Have some feedback?](#support)
 
@@ -9,12 +9,14 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 # Features
 
 * Advanced rules based on pattern matching and control flow analysis
-* [~250 rules for JavaScript](https://rules.sonarsource.com/javascript) and [~240 rules for TypeScript](https://rules.sonarsource.com/typescript)
-* Compatible with ECMAScript 2015-2019
+* ~280 rules for [JavaScript](https://rules.sonarsource.com/javascript) and [TypeScript](https://rules.sonarsource.com/typescript)
+* ~30 rules for [CSS](https://rules.sonarsource.com/css)
+* Compatible with ECMAScript 2015-2020
 * React JSX, Flow and Vue support for JavaScript and TypeScript
+* CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
 * Metrics (complexity, number of lines etc.)
 * Import of test coverage reports
-* Import of ESLint and TSLint issues
+* Import of ESLint, TSLint and Stylelint issues
 
 # Documentation
 You can find [documentation here](https://docs.sonarqube.org/latest/analysis/languages/javascript/)
@@ -36,6 +38,6 @@ Would you like to work on this project full-time? We are hiring! Check out https
 
 ## License
 
-Copyright 2011-2020 SonarSource.
+Copyright 2011-2021 SonarSource.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](http://www.gnu.org/licenses/lgpl.txt)
