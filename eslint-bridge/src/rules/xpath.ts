@@ -22,11 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfIdentifier,
   isMemberExpression,
   isMemberWithProperty,
-  getModuleNameOfImportedIdentifier,
   isLiteral,
+  getModuleAndCalledMethod,
 } from '../utils';
 
 const xpathModule = 'xpath';
@@ -79,28 +78,14 @@ function checkCallExpression(
   }
 
   // "xpath" module
-  const { moduleName, expression } = getModuleAndCalledMethod(callee, context);
+  const { module, method } = getModuleAndCalledMethod(callee, context);
   if (
-    expression &&
-    moduleName &&
-    moduleName.value === xpathModule &&
-    expression.type === 'Identifier' &&
-    xpathEvalMethods.includes(expression.name)
+    method &&
+    module &&
+    module.value === xpathModule &&
+    method.type === 'Identifier' &&
+    xpathEvalMethods.includes(method.name)
   ) {
     context.report({ message, node: callee });
   }
-}
-function getModuleAndCalledMethod(callee: estree.Node, context: Rule.RuleContext) {
-  let moduleName;
-  let expression: estree.Expression | estree.PrivateIdentifier | undefined;
-
-  if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
-    moduleName = getModuleNameOfIdentifier(context, callee.object);
-    expression = callee.property;
-  }
-  if (callee.type === 'Identifier') {
-    moduleName = getModuleNameOfImportedIdentifier(context, callee);
-    expression = callee;
-  }
-  return { moduleName, expression };
 }

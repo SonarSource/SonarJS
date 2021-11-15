@@ -47,9 +47,13 @@ export const functionLike = new Set([
   'MethodDefinition',
 ]);
 
-export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
+export function isIdentifier(
+  node: estree.Node | undefined,
+  ...values: string[]
+): node is estree.Identifier {
   return (
-    node.type === 'Identifier' && (values.length === 0 || values.some(value => value === node.name))
+    node?.type === 'Identifier' &&
+    (values.length === 0 || values.some(value => value === node.name))
   );
 }
 

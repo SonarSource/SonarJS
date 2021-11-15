@@ -28,7 +28,7 @@ import {
   getModuleNameOfImportedIdentifier,
 } from '../utils';
 
-export const getEncryptionRuleModule = (
+const getEncryptionRuleModule = (
   clientSideMethods: string[],
   serverSideMethods: string[],
   message: string,
