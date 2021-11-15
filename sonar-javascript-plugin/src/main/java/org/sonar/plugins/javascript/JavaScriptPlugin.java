@@ -254,8 +254,8 @@ public class JavaScriptPlugin implements Plugin {
           .name("Stylelint Report Files")
           .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
           .onQualifiers(Qualifiers.PROJECT)
-          .subCategory(LINTER_SUBCATEGORY)
-          .category(CSS_CATEGORY)
+          .category(EXTERNAL_ANALYZERS_CATEGORY)
+          .subCategory("CSS")
           .multiValues(true)
           .build());
     }
