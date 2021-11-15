@@ -61,13 +61,13 @@ export const rule: Rule.RuleModule = {
     return {
       'CallExpression[arguments.length > 0]': (node: estree.Node) => {
         const { callee, arguments: args } = node as estree.CallExpression;
-        const hashAlgorithm = getUniqueWriteUsageOrNode(context, args[0]);
-        if (
-          isStringLiteral(hashAlgorithm) &&
-          UNSECURE_HASH_ALGORITHMS.has(hashAlgorithm.value.toLocaleLowerCase())
-        ) {
-          const { module, method } = getModuleAndCalledMethod(callee, context);
-          if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
+        const { module, method } = getModuleAndCalledMethod(callee, context);
+        if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
+          const hashAlgorithm = getUniqueWriteUsageOrNode(context, args[0]);
+          if (
+            isStringLiteral(hashAlgorithm) &&
+            UNSECURE_HASH_ALGORITHMS.has(hashAlgorithm.value.toLocaleLowerCase())
+          ) {
             context.report({
               message: MESSAGE,
               node: method,
