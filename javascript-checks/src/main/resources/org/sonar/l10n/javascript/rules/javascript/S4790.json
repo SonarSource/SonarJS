@@ -16,9 +16,7 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      916,
-      327,
-      328
+      1240
     ],
     "OWASP": [
       "A3",
@@ -29,6 +27,9 @@
     ],
     "MASVS": [
       "MSTG-CRYPTO-4"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
     ]
   },
   "compatibleLanguages": [

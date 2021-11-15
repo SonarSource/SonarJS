@@ -20,8 +20,7 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      297,
-      295
+      297
     ],
     "OWASP": [
       "A3",
@@ -32,6 +31,11 @@
     ],
     "MASVS": [
       "MSTG-NETWORK-3"
+    ],
+    "OWASP Top 10 2021": [
+      "A2",
+      "A5",
+      "A7"
     ]
   },
   "quickfix": "unknown",

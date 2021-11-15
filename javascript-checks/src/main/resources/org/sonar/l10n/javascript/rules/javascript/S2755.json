@@ -21,6 +21,9 @@
     ],
     "OWASP": [
       "A4"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
     ]
   },
   "quickfix": "unknown",

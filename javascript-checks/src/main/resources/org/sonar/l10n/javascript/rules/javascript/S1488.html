@@ -4,15 +4,15 @@ variable is an internal implementation detail that is not exposed to the callers
 know exactly what will be returned.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function computeDurationInMilliseconds() {
-  var duration = (((hours * 60) + minutes) * 60 + seconds ) * 1000 ;
+function computeDurationInMilliseconds(hours, minutes, seconds) {
+  let duration = (((hours * 60) + minutes) * 60 + seconds ) * 1000;
   return duration;
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-function computeDurationInMilliseconds() {
-  return (((hours * 60) + minutes) * 60 + seconds ) * 1000 ;
+function computeDurationInMilliseconds(hours, minutes, seconds) {
+  return (((hours * 60) + minutes) * 60 + seconds ) * 1000;
 }
 </pre>
 

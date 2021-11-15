@@ -9,7 +9,7 @@ expected exception from an unexpected one. They should instead validate the exce
   message. </li>
   <li> When Chai assertions are used to test if a function does not throw an exception of type <code>Error</code> without checking the message. </li>
 </ul>
-<p>Rule doesn't raise an issue when assertion is negated using <code>not</code>, it such case the exception doesn't need to be specific.</p>
+<p>Rule doesn’t raise an issue when assertion is negated using <code>not</code>, it such case the exception doesn’t need to be specific.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 const expect = require("chai").expect;
