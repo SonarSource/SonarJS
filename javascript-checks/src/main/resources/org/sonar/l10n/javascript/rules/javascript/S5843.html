@@ -26,10 +26,10 @@ if (dateString.match(datePattern)) {
 <pre>
 const datePattern = /^\d{1,2}([-/.])\d{1,2}\1\d{1,4}$/;
 if (dateString.match(datePattern)) {
-    const dateParts[] = dateString.split("[-/.]");
-    int day = parseInt(dateParts[0]);
-    int month = parseInt(dateParts[1]);
-    int year = parseInt(dateParts[2]);
+    const dateParts = dateString.split('[-/.]');
+    const day = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]);
+    const year = parseInt(dateParts[2]);
     // Put logic to validate and process the date based on its integer parts here
 }
 </pre>

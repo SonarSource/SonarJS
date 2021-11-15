@@ -21,7 +21,7 @@ strings, and for variable names that match any of the patterns from the provided
   <li> Store the credentials in a configuration file that is not pushed to the code repository. </li>
   <li> Store the credentials in a database. </li>
   <li> Use your cloud provider’s service for managing secrets. </li>
-  <li> If the a password has been disclosed through the source code: change it. </li>
+  <li> If a password has been disclosed through the source code: change it. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -52,9 +52,11 @@ connection.connect();
 </pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
+  Authentication Failures </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A2-Broken_Authentication">OWASP Top 10 2017 Category A2</a> - Broken Authentication </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/798">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/259">MITRE, CWE-259</a> - Use of Hard-coded Password </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/798.html">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/259.html">MITRE, CWE-259</a> - Use of Hard-coded Password </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#HARD_CODE_PASSWORD">Hard Coded Password</a> </li>
 </ul>

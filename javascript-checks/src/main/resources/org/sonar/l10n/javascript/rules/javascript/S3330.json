@@ -19,11 +19,13 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      79,
       1004
     ],
     "OWASP": [
       "A7"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
     ]
   },
   "compatibleLanguages": [

@@ -21,6 +21,10 @@
     ],
     "OWASP": [
       "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A4",
+      "A5"
     ]
   },
   "compatibleLanguages": [
