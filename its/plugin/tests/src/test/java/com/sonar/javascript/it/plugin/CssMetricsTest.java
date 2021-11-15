@@ -20,40 +20,41 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
-import static com.sonar.javascript.it.plugin.CssTests.getMeasure;
-import static com.sonar.javascript.it.plugin.CssTests.getProjectMeasureAsDouble;
 
-public class CssMetricsTest {
+@ExtendWith(OrchestratorStarter.class)
+class CssMetricsTest {
 
-  private static String PROJECT_KEY = "css-metrics-project";
+  private static final String PROJECT_KEY = "css-metrics-project";
 
-  @ClassRule
-  public static Orchestrator orchestrator = CssTests.ORCHESTRATOR;
 
-  @BeforeClass
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+
+  @BeforeAll
   public static void prepare() {
-    orchestrator.executeBuild(CssTests.createScanner(PROJECT_KEY));
+    orchestrator.executeBuild(CssTestsUtils.createScanner(PROJECT_KEY));
   }
 
   @Test
-  public void test() {
-    assertThat(getProjectMeasureAsDouble("lines", PROJECT_KEY)).isEqualTo(43);
-    assertThat(getProjectMeasureAsDouble("ncloc", PROJECT_KEY)).isEqualTo(32);
-    assertThat(getMeasure("ncloc_language_distribution", PROJECT_KEY).getValue()).isEqualTo("css=22;web=10");
-    assertThat(getProjectMeasureAsDouble("comment_lines", PROJECT_KEY)).isEqualTo(4);
+  void test() {
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "lines")).isEqualTo(43);
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(32);
+    assertThat(getMeasure(PROJECT_KEY, "ncloc_language_distribution").getValue()).isEqualTo("css=22;web=10");
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "comment_lines")).isEqualTo(4);
 
-    assertThat(getMeasure("ncloc_data", PROJECT_KEY + ":src/file1.css").getValue())
+    assertThat(getMeasure(PROJECT_KEY + ":src/file1.css", "ncloc_data").getValue())
         .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1");
 
-    assertThat(getMeasure("ncloc_data", PROJECT_KEY + ":src/file2.less").getValue())
+    assertThat(getMeasure(PROJECT_KEY + ":src/file2.less", "ncloc_data").getValue())
         .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1;", "8=1;", "9=1");
 
-    assertThat(getMeasure("ncloc_data", PROJECT_KEY + ":src/file3.scss").getValue())
+    assertThat(getMeasure(PROJECT_KEY + ":src/file3.scss", "ncloc_data").getValue())
         .contains("1=1;", "3=1;", "5=1;", "6=1;", "7=1;", "8=1");
   }
 

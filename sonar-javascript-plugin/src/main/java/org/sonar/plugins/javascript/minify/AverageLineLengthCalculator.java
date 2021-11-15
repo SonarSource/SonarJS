@@ -76,7 +76,7 @@ class AverageLineLengthCalculator {
   }
 
   private boolean isFirstLineInHeaderComment(String line) {
-    if (line.startsWith("/*")) {
+    if (line.startsWith("/*") && (!line.contains("*/") || line.endsWith("*/"))) {
       isClike = true;
       isInHeaderComment = !line.endsWith("*/");
       return true;

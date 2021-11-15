@@ -19,30 +19,20 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import com.sonar.orchestrator.Orchestrator;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
-import static org.assertj.core.api.Assertions.assertThat;
-
-@ExtendWith(OrchestratorStarter.class)
-class CssMinifiedTest {
-
-  private static final String PROJECT_KEY = "css-minified-project";
+import com.sonar.orchestrator.build.SonarScanner;
 
 
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+class CssTestsUtils {
 
-  @BeforeAll
-  public static void prepare() {
-    orchestrator.executeBuild(CssTestsUtils.createScanner(PROJECT_KEY));
-  }
-
-  @Test
-  void test() {
-    assertThat(getMeasureAsDouble(PROJECT_KEY, "files")).isEqualTo(1);
+  static SonarScanner createScanner(String projectKey) {
+    return SonarScanner.create()
+      .setSourceEncoding("UTF-8")
+      .setProjectDir(TestUtils.projectDir(projectKey))
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setDebugLogs(true)
+      .setSourceDirs("src");
   }
 
 }

@@ -37,6 +37,7 @@ public class AverageLineLengthCalculatorTest {
     check("average1.js", 10);
   }
 
+
   @Test
   public void noHeaderComment2() {
     check("average2.js", 7);
@@ -65,6 +66,11 @@ public class AverageLineLengthCalculatorTest {
   @Test
   public void headerCommentWithCplusplusStyle() {
     check("average7.js", 13);
+  }
+
+  @Test
+  public void oneline() {
+    check("oneline.css", 474);
   }
 
   private void check(String fileName, int expectedAverage) {
