@@ -72,8 +72,8 @@ export const rule: Rule.RuleModule = {
     function checkUnsecureDigest(
       method: estree.Node,
       hash: estree.Node,
-      unsecureAlgorithms: Set<String>,
-      caseSensitive: boolean = false,
+      unsecureAlgorithms: Set<string>,
+      caseSensitive = false,
     ) {
       const hashAlgorithm = getUniqueWriteUsageOrNode(context, hash);
       if (
