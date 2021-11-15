@@ -21,6 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices } from '../utils';
 
@@ -34,6 +35,7 @@ export const rule: Rule.RuleModule = {
         .getAllComments()
         .findIndex(comment => comment.value.includes('@jsx jsx')) > -1;
     const unusedImports: estree.Identifier[] = [];
+    const vueIdentifiers: Set<string> = new Set();
     const tsTypeIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
 
@@ -64,7 +66,7 @@ export const rule: Rule.RuleModule = {
       return factories;
     }
 
-    return {
+    const ruleListener = {
       ImportDeclaration: (node: estree.Node) => {
         const variables = context.getDeclaredVariables(node);
         for (const variable of variables) {
@@ -99,6 +101,7 @@ export const rule: Rule.RuleModule = {
             unused =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
+              !vueIdentifiers.has(unused.name) &&
               !jsxFactories.has(unused.name),
           )
           .forEach(unused =>
@@ -109,5 +112,42 @@ export const rule: Rule.RuleModule = {
           );
       },
     };
+
+    // @ts-ignore
+    if (context.parserServices.defineTemplateBodyVisitor) {
+      return context.parserServices.defineTemplateBodyVisitor(
+        {
+          VElement: (node: AST.VElement) => {
+            const { rawName } = node;
+            if (startsWithUpper(rawName)) {
+              vueIdentifiers.add(rawName);
+            } else if (isKebabCase(rawName)) {
+              vueIdentifiers.add(toPascalCase(rawName));
+            }
+          },
+          Identifier: (node: AST.ESLintIdentifier) => {
+            vueIdentifiers.add(node.name);
+          },
+        },
+        ruleListener,
+        { templateBodyTriggerSelector: 'Program' },
+      );
+    }
+
+    return ruleListener;
   },
 };
+
+function startsWithUpper(str: string) {
+  return str.charAt(0) === str.charAt(0).toUpperCase();
+}
+
+function isKebabCase(str: string) {
+  return str.includes('-');
+}
+
+function toPascalCase(str: string) {
+  return str
+    .replace(/\w+/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .replace('-', '');
+}

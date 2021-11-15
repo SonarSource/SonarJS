@@ -338,3 +338,66 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
     },
   ],
 });
+
+const ruleTesterVue = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  parser: require.resolve('vue-eslint-parser'),
+});
+
+ruleTesterVue.run('Unnecessary imports should be removed', rule, {
+  valid: [
+    {
+      code: `
+      <script setup>
+        import Foo from './Foo.vue'
+      </script>      
+      <template>
+        <Foo />
+      </template>
+      `,
+    },
+    {
+      code: `
+      <script setup>
+        import MyFoo from './MyFoo.vue'
+      </script>      
+      <template>
+        <my-foo />
+      </template>
+      `,
+    },
+    {
+      code: `
+      <script setup>
+        import {foo} from './foo'
+      </script>      
+      <template>
+        <div @click="foo()" />
+      </template>
+      `,
+    },
+    {
+      code: `
+      <script setup>
+        import {isFoo} from './foo'
+      </script>      
+      <template>
+        <div v-if="isFoo" />
+      </template>
+      `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+      <script setup>
+        import Foo from './Foo.vue'
+      </script>      
+      <template>
+        <div />
+      </template>
+      `,
+      errors: 1,
+    },
+  ],
+});
