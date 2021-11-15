@@ -42,12 +42,10 @@ export interface AnalysisInput {
 }
 
 export interface CssAnalysisInput extends AnalysisInput {
-  // specific for css
   stylelintConfig: string;
 }
 
 export interface JsAnalysisInput extends AnalysisInput {
-  // specific for js-ts
   fileType: FileType;
   ignoreHeaderComments?: boolean;
   tsConfigs: string[];

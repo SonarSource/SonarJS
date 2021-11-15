@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { JsAnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter, analyzeCss } from 'analyzer';
+import {
+  JsAnalysisInput,
+  analyzeJavaScript,
+  analyzeTypeScript,
+  initLinter,
+  analyzeCss,
+} from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
@@ -458,7 +464,7 @@ describe('#analyzeCss', () => {
   });
 
   it('should throw when failed promise returned', async () => {
-   (stylelint.lint as jest.Mock).mockRejectedValue(new Error('some reason'));
+    (stylelint.lint as jest.Mock).mockRejectedValue(new Error('some reason'));
     await expect(analyzeCss(request)).rejects.toEqual(new Error('some reason'));
   });
 });
