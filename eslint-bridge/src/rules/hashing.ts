@@ -28,7 +28,7 @@ import {
   isStringLiteral,
 } from '../utils';
 
-const MESSAGE = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
+const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
   'md2',
   'md4',
@@ -43,19 +43,21 @@ const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
   'hmacripemd160',
   'sha1',
 ]);
-const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['SHA-1']);
+const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['sha-1']);
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function checkNodejsCrypto(node: estree.CallExpression) {
+      // crypto#createHash
       const { callee, arguments: args } = node;
       const { module, method } = getModuleAndCalledMethod(callee, context);
       if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
-        checkUnsecureDigest(method, args[0], CRYPTO_UNSECURE_HASH_ALGORITHMS);
+        checkUnsecureAlgorithm(method, args[0], CRYPTO_UNSECURE_HASH_ALGORITHMS);
       }
     }
 
     function checkSubtleCrypto(node: estree.CallExpression) {
+      // crypto.subtle#digest
       const { callee, arguments: args } = node;
       if (callee.type === 'MemberExpression' && isIdentifier(callee.property, 'digest')) {
         const { object, property: method } = callee;
@@ -64,26 +66,23 @@ export const rule: Rule.RuleModule = {
           isIdentifier(object.object, 'crypto') &&
           isIdentifier(object.property, 'subtle')
         ) {
-          checkUnsecureDigest(method, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS, true);
+          checkUnsecureAlgorithm(method, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS);
         }
       }
     }
 
-    function checkUnsecureDigest(
+    function checkUnsecureAlgorithm(
       method: estree.Node,
       hash: estree.Node,
       unsecureAlgorithms: Set<string>,
-      caseSensitive = false,
     ) {
       const hashAlgorithm = getUniqueWriteUsageOrNode(context, hash);
       if (
         isStringLiteral(hashAlgorithm) &&
-        unsecureAlgorithms.has(
-          caseSensitive ? hashAlgorithm.value : hashAlgorithm.value.toLocaleLowerCase(),
-        )
+        unsecureAlgorithms.has(hashAlgorithm.value.toLocaleLowerCase())
       ) {
         context.report({
-          message: MESSAGE,
+          message,
           node: method,
         });
       }
