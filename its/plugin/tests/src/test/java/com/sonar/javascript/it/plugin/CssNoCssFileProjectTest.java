@@ -24,35 +24,35 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static com.sonar.javascript.it.plugin.CssTests.newWsClient;
 
-public class CssNoCssFileProjectTest {
+@ExtendWith(OrchestratorStarter.class)
+class CssNoCssFileProjectTest {
 
-  private static String PROJECT_KEY = "css-php-project";
+  private static final String PROJECT_KEY = "css-php-project";
 
-  @ClassRule
-  public static Orchestrator orchestrator = CssTests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare() {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    SonarScanner scanner = CssTests.createScanner(PROJECT_KEY);
+    SonarScanner scanner = CssTestsUtils.createScanner(PROJECT_KEY);
     orchestrator.executeBuild(scanner);
   }
 
   @Test
-  public void test() {
+  void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-    List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList().stream()
+    List<Issues.Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList().stream()
       .filter(i -> i.getRule().startsWith("css:"))
       .collect(Collectors.toList());
 

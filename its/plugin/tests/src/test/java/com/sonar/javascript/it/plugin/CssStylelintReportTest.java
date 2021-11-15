@@ -22,25 +22,25 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Collections;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
-import static com.sonar.javascript.it.plugin.CssTests.newWsClient;
 
+@ExtendWith(OrchestratorStarter.class)
 public class CssStylelintReportTest {
 
-  private static String PROJECT_KEY = "external-report-project";
+  private static final String PROJECT_KEY = "css-external-report-project";
 
-  @ClassRule
-  public static Orchestrator orchestrator = CssTests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare() {
-    orchestrator.executeBuild(CssTests.createScanner(PROJECT_KEY).setProperty("sonar.css.stylelint.reportPaths", "report.json"));
+    orchestrator.executeBuild(CssTestsUtils.createScanner(PROJECT_KEY).setProperty("sonar.css.stylelint.reportPaths", "report.json"));
   }
 
   @Test
@@ -48,7 +48,7 @@ public class CssStylelintReportTest {
     if (orchestrator.getServer().version().isGreaterThanOrEquals(7, 2)) {
       SearchRequest request = new SearchRequest();
       request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-      List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+      List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
 
       assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(111, 81, 55, 58, 114);
       assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(

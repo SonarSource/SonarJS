@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.minify;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * An object to assess if a .js file is a minified file or not.
@@ -31,6 +33,8 @@ import org.sonar.api.batch.fs.InputFile;
  */
 public class MinificationAssessor {
 
+  private static final Logger LOG = Loggers.get(MinificationAssessor.class);
+
   private static final int DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
   /**
@@ -38,7 +42,7 @@ public class MinificationAssessor {
    * (= number of chars in the file / number of lines in the file)
    * below which a file is not assessed as being a minified file.   
    */
-  private int averageLineLengthThreshold;
+  private final int averageLineLengthThreshold;
 
   public MinificationAssessor() {
     this(DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD);
@@ -64,6 +68,7 @@ public class MinificationAssessor {
 
   private boolean hasExcessiveAverageLineLength(InputFile file) {
     int averageLineLength = new AverageLineLengthCalculator(file).getAverageLineLength();
+    LOG.debug("Average line length for {} is {}", file, averageLineLength);
     return averageLineLength > averageLineLengthThreshold;
   }
 

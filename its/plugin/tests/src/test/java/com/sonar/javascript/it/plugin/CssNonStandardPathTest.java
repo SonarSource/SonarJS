@@ -26,26 +26,26 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 import org.sonarsource.analyzer.commons.ProfileGenerator.RulesConfiguration;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static com.sonar.javascript.it.plugin.CssTests.newWsClient;
 
+@ExtendWith(OrchestratorStarter.class)
 public class CssNonStandardPathTest {
 
-  private static String PROJECT_KEY = "css-dir-with-paren";
+  private static final String PROJECT_KEY = "css-dir-with-paren";
 
-  @ClassRule
-  public static Orchestrator orchestrator = CssTests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare() {
     RulesConfiguration rulesConfiguration = new RulesConfiguration();
     File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "css", "css", rulesConfiguration, Collections.emptySet());
@@ -54,8 +54,12 @@ public class CssNonStandardPathTest {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "rules");
 
-    File projectDir = FileLocation.of("projects" + File.separator + "css-(dir with paren)").getFile();
-    SonarScanner scanner = CssTests.createScanner(PROJECT_KEY, projectDir);
+    SonarScanner scanner = SonarScanner.create()
+      .setSourceEncoding("UTF-8")
+      .setProjectDir(TestUtils.projectDir("css-(dir with paren)"))
+      .setProjectKey(PROJECT_KEY)
+      .setProjectName(PROJECT_KEY)
+      .setSourceDirs("src");
     orchestrator.executeBuild(scanner);
   }
 
@@ -63,7 +67,7 @@ public class CssNonStandardPathTest {
   public void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList().stream()
+    List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList().stream()
       .filter(i -> i.getRule().startsWith("css:"))
       .collect(Collectors.toList());
 
