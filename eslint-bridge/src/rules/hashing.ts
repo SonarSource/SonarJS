@@ -30,30 +30,18 @@ import {
 
 const MESSAGE = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const UNSECURE_HASH_ALGORITHMS = new Set([
+  'md2',
   'md4',
-  'rsa-md4',
-  'md4withrsaencryption',
   'md5',
-  'rsa-md5',
-  'md5withrsaencryption',
-  'ssl2-md5',
-  'ssl3-md5',
+  'md6',
+  'haval128',
+  'hmacmd5',
   'dsa',
-  'dsa-sha1',
-  'dsa-sha1-old',
-  'dss1',
-  'dsawithsha1',
-  'dss1',
   'ripemd',
-  'ripemd160withrsa',
+  'ripemd128',
   'ripemd160',
-  'rsa-ripemd160',
-  'rmd160',
-  'rsa-sha1',
-  'rsa-sha1-2',
+  'hmacripemd160',
   'sha1',
-  'sha1withrsaencryption',
-  'ssl3-sha1',
 ]);
 
 export const rule: Rule.RuleModule = {
