@@ -29,3 +29,10 @@ crypto.createHash('sha1'); // Noncompliant
 
 const otpyrc = require('otpyrc');
 otpyrc.createHash('sha1');
+
+crypto.subtle.digest('SHA-512', data);
+crypto.subtle.digest('SHA-1', data); // Noncompliant
+//            ^^^^^^
+notCrypto.subtle.digest('SHA-1', data);
+crypto.notSubtle.digest('SHA-1', data);
+crypto.subtle.notDigest('SHA-1', data);

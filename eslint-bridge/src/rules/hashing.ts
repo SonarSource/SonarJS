@@ -29,7 +29,7 @@ import {
 } from '../utils';
 
 const MESSAGE = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
-const UNSECURE_HASH_ALGORITHMS = new Set([
+const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
   'md2',
   'md4',
   'md5',
@@ -43,25 +43,57 @@ const UNSECURE_HASH_ALGORITHMS = new Set([
   'hmacripemd160',
   'sha1',
 ]);
+const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['SHA-1']);
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    function checkNodejsCrypto(node: estree.CallExpression) {
+      const { callee, arguments: args } = node;
+      const { module, method } = getModuleAndCalledMethod(callee, context);
+      if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
+        checkUnsecureDigest(method, args[0], CRYPTO_UNSECURE_HASH_ALGORITHMS);
+      }
+    }
+
+    function checkSubtleCrypto(node: estree.CallExpression) {
+      const { callee, arguments: args } = node;
+      if (callee.type === 'MemberExpression' && isIdentifier(callee.property, 'digest')) {
+        const { object, property: method } = callee;
+        if (
+          object.type === 'MemberExpression' &&
+          isIdentifier(object.object, 'crypto') &&
+          isIdentifier(object.property, 'subtle')
+        ) {
+          checkUnsecureDigest(method, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS, true);
+        }
+      }
+    }
+
+    function checkUnsecureDigest(
+      method: estree.Node,
+      hash: estree.Node,
+      unsecureAlgorithms: Set<String>,
+      caseSensitive: boolean = false,
+    ) {
+      const hashAlgorithm = getUniqueWriteUsageOrNode(context, hash);
+      if (
+        isStringLiteral(hashAlgorithm) &&
+        unsecureAlgorithms.has(
+          caseSensitive ? hashAlgorithm.value : hashAlgorithm.value.toLocaleLowerCase(),
+        )
+      ) {
+        context.report({
+          message: MESSAGE,
+          node: method,
+        });
+      }
+    }
+
     return {
       'CallExpression[arguments.length > 0]': (node: estree.Node) => {
-        const { callee, arguments: args } = node as estree.CallExpression;
-        const { module, method } = getModuleAndCalledMethod(callee, context);
-        if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
-          const hashAlgorithm = getUniqueWriteUsageOrNode(context, args[0]);
-          if (
-            isStringLiteral(hashAlgorithm) &&
-            UNSECURE_HASH_ALGORITHMS.has(hashAlgorithm.value.toLocaleLowerCase())
-          ) {
-            context.report({
-              message: MESSAGE,
-              node: method,
-            });
-          }
-        }
+        const callExpr = node as estree.CallExpression;
+        checkNodejsCrypto(callExpr);
+        checkSubtleCrypto(callExpr);
       },
     };
   },
