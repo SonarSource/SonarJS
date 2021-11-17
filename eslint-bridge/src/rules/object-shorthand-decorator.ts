@@ -20,6 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3498/javascript
 
 import { Rule } from 'eslint';
+import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport } from '../utils';
 
@@ -34,7 +35,7 @@ function reportExempting(
     if ('node' in reportDescriptor) {
       const property = reportDescriptor['node'] as TSESTree.Property;
       if (!exemptionCondition(property)) {
-        context.report(reportDescriptor);
+        context.report({ ...reportDescriptor, node: property.key as estree.Node });
       }
     }
   };

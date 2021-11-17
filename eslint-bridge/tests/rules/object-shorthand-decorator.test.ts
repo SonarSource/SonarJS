@@ -43,7 +43,14 @@ ruleTester.run(`Object literal shorthand syntax should be used`, rule, {
     {
       code: `const obj = { foo: foo };`,
       output: `const obj = { foo };`,
-      errors: 1,
+      errors: [
+        {
+          line: 1,
+          column: 15,
+          endLine: 1,
+          endColumn: 18,
+        },
+      ],
     },
     {
       code: `({ foo: foo });`,
