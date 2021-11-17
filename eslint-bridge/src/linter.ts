@@ -35,6 +35,7 @@ import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
+import { decorateObjectShorthand } from './rules/object-shorthand-decorator';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -120,6 +121,13 @@ export class LinterWrapper {
     this.linter.defineRule(
       NO_REDECLARE,
       decorateNoRedeclare(this.linter.getRules().get(NO_REDECLARE)!),
+    );
+
+    // core implementation of this rule raises issues on aura lightning components
+    const OBJECT_SHORTHAND = 'object-shorthand';
+    this.linter.defineRule(
+      OBJECT_SHORTHAND,
+      decorateObjectShorthand(this.linter.getRules().get(OBJECT_SHORTHAND)!),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.
