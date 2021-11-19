@@ -68,6 +68,8 @@
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+    <maven.compiler.release>11</maven.compiler.release>
+    <jdk.min.version>11</jdk.min.version>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
@@ -206,16 +208,6 @@
       <modules>
         <module>its</module>
       </modules>
-    </profile>
-    <profile>
-      <!-- Use javac's release flag for Java 9 and higher -->
-      <id>java9+</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <properties>
-        <maven.compiler.release>8</maven.compiler.release>
-      </properties>
     </profile>
   </profiles>
 
