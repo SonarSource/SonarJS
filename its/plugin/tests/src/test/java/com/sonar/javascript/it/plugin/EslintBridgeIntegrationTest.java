@@ -25,9 +25,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -36,12 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -60,7 +58,7 @@ import static org.awaitility.Awaitility.await;
  * Java plugin).
  * One optimization for SonarLint is, that we don't compute metrics when running under SonarLint.
  */
-public class EslintBridgeIntegrationTest {
+class EslintBridgeIntegrationTest {
 
   @TempDir
   Path temp;
@@ -69,10 +67,10 @@ public class EslintBridgeIntegrationTest {
   static final Gson gson = new Gson();
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
 
     String filename = "eslint-bridge-1.0.0.tgz";
-      EslintBridge eslintBridge = new EslintBridge();
+    EslintBridge eslintBridge = new EslintBridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
       Path fileToExtract = fileSystem.getPath(filename);
       extractArchive(fileToExtract, temp);
@@ -85,7 +83,7 @@ public class EslintBridgeIntegrationTest {
     }
   }
 
-  private void assertAnalyzeJs(EslintBridge eslintBridge) throws IOException {
+  private void assertAnalyzeJs(EslintBridge eslintBridge) throws IOException, InterruptedException {
     AnalysisRequest r = new AnalysisRequest();
     r.fileContent = "function foo() { \n"
       + "  var a; \n"
@@ -110,7 +108,7 @@ public class EslintBridgeIntegrationTest {
       try {
         response[0] = eslintBridge.status();
         return response[0].equals("OK!");
-      } catch (Exception e) {
+      } catch (IOException e) {
         Thread.sleep(100);
         return false;
       }
@@ -151,12 +149,11 @@ public class EslintBridgeIntegrationTest {
 
   class EslintBridge {
     int port;
-    final OkHttpClient client;
+    final HttpClient client;
     private Process process;
 
     EslintBridge() {
-      this.client = new OkHttpClient.Builder()
-        .build();
+      this.client = HttpClient.newHttpClient();
     }
 
     void start(Path dest) throws IOException {
@@ -168,36 +165,27 @@ public class EslintBridgeIntegrationTest {
       process = pb.start();
     }
 
-    String request(String json, String endpoint) throws IOException {
-      Request request = new Request.Builder()
-        .url(url(endpoint))
-        .post(RequestBody.create(MediaType.get("application/json"), json))
+    String request(String json, String endpoint) throws IOException, InterruptedException {
+      var request = HttpRequest.newBuilder(url(endpoint))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
 
-      try (Response response = client.newCall(request).execute()) {
-        // in this case response.body() is never null (according to docs)
-        return response.body().string();
-      } catch (InterruptedIOException e) {
-        throw new IllegalStateException("eslint-bridge is unresponsive", e);
+      var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      return response.body();
+    }
+
+    String status() throws IOException, InterruptedException {
+      var request = HttpRequest.newBuilder(url("status")).GET().build();
+      return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+    }
+
+    private URI url(String endpoint) {
+      try {
+        return new URI("http", null, "127.0.0.1", port, "/" + endpoint, null, null);
+      } catch (URISyntaxException e) {
+        throw new IllegalStateException(e);
       }
-    }
-
-    String status() throws IOException {
-      Request request = new Request.Builder()
-        .url(url("status"))
-        .get()
-        .build();
-      return client.newCall(request).execute().body().string();
-    }
-
-    private HttpUrl url(String endpoint) {
-      HttpUrl.Builder builder = new HttpUrl.Builder();
-      return builder
-        .scheme("http")
-        .host("127.0.0.1")
-        .port(port)
-        .addPathSegment(endpoint)
-        .build();
     }
 
     int findOpenPort() throws IOException {
