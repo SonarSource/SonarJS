@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
             areEquivalent(
               updatedExpr as TSESTree.Node,
               testedExpr as TSESTree.Node,
-              ((context as unknown) as Rule1.RuleContext).getSourceCode(),
+              (context as unknown as Rule1.RuleContext).getSourceCode(),
             ),
           ),
         );

@@ -113,11 +113,8 @@ export const rule: Rule.RuleModule = {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
         const currentScope = context.getScope();
         if (currentScope && currentScope.type === 'function') {
-          const {
-            referencesByIdentifier,
-            variablesToCheck,
-            variablesToCheckInCurrentScope,
-          } = computeNewContextInfo(variableUsageContext, context, node);
+          const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
+            computeNewContextInfo(variableUsageContext, context, node);
 
           const functionName = getFunctionName(node as estree.FunctionExpression);
           if (functionName) {
@@ -157,11 +154,8 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const currentScope = context.getSourceCode().scopeManager.acquire(parent.body);
-        const {
-          referencesByIdentifier,
-          variablesToCheck,
-          variablesToCheckInCurrentScope,
-        } = computeNewContextInfo(variableUsageContext, context, parent.left);
+        const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
+          computeNewContextInfo(variableUsageContext, context, parent.left);
 
         if (currentScope) {
           for (const ref of currentScope.references) {
@@ -195,11 +189,8 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const {
-          referencesByIdentifier,
-          variablesToCheck,
-          variablesToCheckInCurrentScope,
-        } = computeNewContextInfo(variableUsageContext, context, node);
+        const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
+          computeNewContextInfo(variableUsageContext, context, node);
 
         variableUsageContext = {
           type: 'catch',

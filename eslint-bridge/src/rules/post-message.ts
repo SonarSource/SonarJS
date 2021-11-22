@@ -41,11 +41,10 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      [`CallExpression:matches([callee.name="${POST_MESSAGE}"], [callee.property.name="${POST_MESSAGE}"])`]: (
-        node: estree.Node,
-      ) => {
-        checkPostMessageCall(node as estree.CallExpression, context);
-      },
+      [`CallExpression:matches([callee.name="${POST_MESSAGE}"], [callee.property.name="${POST_MESSAGE}"])`]:
+        (node: estree.Node) => {
+          checkPostMessageCall(node as estree.CallExpression, context);
+        },
       [`CallExpression[callee.property.name="${ADD_EVENT_LISTENER}"]`]: (node: estree.Node) => {
         checkAddEventListenerCall(node as estree.CallExpression, context);
       },

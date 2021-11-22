@@ -40,9 +40,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkProperty(node: estree.Node) {
-      const tsNode = (node as TSESTree.Node) as
-        | TSESTree.ClassProperty
-        | TSESTree.TSPropertySignature;
+      const tsNode = node as TSESTree.Node as TSESTree.ClassProperty | TSESTree.TSPropertySignature;
       const optionalToken = context
         .getSourceCode()
         .getFirstToken(node, token => token.value === '?');
