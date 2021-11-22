@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionLike,
               getParent(context) as TSESTree.Node,
-              (context as unknown) as Rule1.RuleContext,
+              context as unknown as Rule1.RuleContext,
             ),
           });
         }

@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
     if (isRequiredParserServices(services)) {
       return {
         TSIntersectionType: (node: estree.Node) => {
-          const intersection = (node as unknown) as TSESTree.TSIntersectionType;
+          const intersection = node as unknown as TSESTree.TSIntersectionType;
           const anyOrNever = intersection.types.find(typeNode =>
             ['TSAnyKeyword', 'TSNeverKeyword'].includes(typeNode.type),
           );
@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
               if (isTypeWithoutMembers(tp)) {
                 context.report({
                   message: 'Remove this type without members or change this type intersection.',
-                  node: (typeNode as unknown) as estree.Node,
+                  node: typeNode as unknown as estree.Node,
                 });
               }
             });

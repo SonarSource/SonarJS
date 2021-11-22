@@ -36,9 +36,8 @@ export const rule: Rule.RuleModule = {
       ForStatement: (node: estree.Node) => {
         const forStatement: estree.ForStatement = node as estree.ForStatement;
         const test = forStatement.test;
-        const loopIncrement: ForLoopIncrement | null = ForLoopIncrement.findInLoopUpdate(
-          forStatement,
-        );
+        const loopIncrement: ForLoopIncrement | null =
+          ForLoopIncrement.findInLoopUpdate(forStatement);
         if (test == null || loopIncrement == null || forStatement.update == null) {
           return;
         }

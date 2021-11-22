@@ -31,18 +31,17 @@ const message = 'Do not use function declarations within blocks.';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      ':not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration': (
-        node: estree.Node,
-      ) => {
-        context.report({
-          message,
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionDeclaration,
-            getParent(context) as TSESTree.Node,
-            (context as unknown) as Rule1.RuleContext,
-          ),
-        });
-      },
+      ':not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration':
+        (node: estree.Node) => {
+          context.report({
+            message,
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionDeclaration,
+              getParent(context) as TSESTree.Node,
+              context as unknown as Rule1.RuleContext,
+            ),
+          });
+        },
     };
   },
 };

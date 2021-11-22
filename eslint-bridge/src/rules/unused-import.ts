@@ -75,21 +75,19 @@ export const rule: Rule.RuleModule = {
           }
         }
       },
-      'TSTypeReference > Identifier, TSClassImplements > Identifier, TSInterfaceHeritage > Identifier': (
-        node: estree.Node,
-      ) => {
-        saveTypeIdentifier(node as estree.Identifier);
-      },
+      'TSTypeReference > Identifier, TSClassImplements > Identifier, TSInterfaceHeritage > Identifier':
+        (node: estree.Node) => {
+          saveTypeIdentifier(node as estree.Identifier);
+        },
       "TSQualifiedName[left.type = 'Identifier']": (node: estree.Node) => {
-        saveTypeIdentifier(((node as any) as TSESTree.TSQualifiedName).left as estree.Identifier);
+        saveTypeIdentifier((node as any as TSESTree.TSQualifiedName).left as estree.Identifier);
       },
-      "TSInterfaceHeritage > MemberExpression[object.type = 'Identifier'], TSClassImplements > MemberExpression[object.type = 'Identifier']": (
-        node: estree.Node,
-      ) => {
-        saveTypeIdentifier(
-          ((node as any) as TSESTree.MemberExpression).object as estree.Identifier,
-        );
-      },
+      "TSInterfaceHeritage > MemberExpression[object.type = 'Identifier'], TSClassImplements > MemberExpression[object.type = 'Identifier']":
+        (node: estree.Node) => {
+          saveTypeIdentifier(
+            (node as any as TSESTree.MemberExpression).object as estree.Identifier,
+          );
+        },
       'Program:exit': () => {
         const jsxFactories = getJsxFactories();
         const jsxIdentifiers = context

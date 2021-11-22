@@ -134,9 +134,7 @@ export function isFunctionCall(
   return node.type === 'CallExpression' && node.callee.type === 'Identifier';
 }
 
-export function isMethodCall(
-  callExpr: estree.CallExpression,
-): callExpr is estree.CallExpression & {
+export function isMethodCall(callExpr: estree.CallExpression): callExpr is estree.CallExpression & {
   callee: estree.MemberExpression & { property: estree.Identifier };
 } {
   return (

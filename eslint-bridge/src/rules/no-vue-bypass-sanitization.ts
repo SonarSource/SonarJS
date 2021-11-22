@@ -35,7 +35,7 @@ export const rule: Rule.RuleModule = {
 
     const ruleListener: Rule.RuleListener = {
       ["JSXAttribute[name.name='domPropsInnerHTML']," +
-      "Property[key.name='domProps'] > ObjectExpression.value > Property[key.name='innerHTML']"](
+        "Property[key.name='domProps'] > ObjectExpression.value > Property[key.name='innerHTML']"](
         node: estree.Node,
       ) {
         context.report({ node, message });
@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
       // analyze <template> in .vue file
       const templateBodyVisitor = context.parserServices.defineTemplateBodyVisitor({
         ["VAttribute[directive=true][key.name.name='html']," +
-        "VAttribute[directive=true][key.argument.name='href']"](node: AST.VAttribute) {
+          "VAttribute[directive=true][key.argument.name='href']"](node: AST.VAttribute) {
           context.report({
             loc: node.loc,
             message,

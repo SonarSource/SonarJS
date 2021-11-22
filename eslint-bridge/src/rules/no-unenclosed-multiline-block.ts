@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
       BlockStatement: (node: estree.Node) =>
         checkStatements((node as estree.BlockStatement).body, context),
       TSModuleBlock: (node: estree.Node) =>
-        checkStatements(((node as unknown) as TSESTree.TSModuleBlock).body as Statement[], context),
+        checkStatements((node as unknown as TSESTree.TSModuleBlock).body as Statement[], context),
     };
   },
 };

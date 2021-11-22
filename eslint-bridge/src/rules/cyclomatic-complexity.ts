@@ -67,9 +67,9 @@ export const rule: Rule.RuleModule = {
       "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
         node: estree.Node,
       ) => functionsDefiningModule.push(node),
-      "NewExpression[callee.type='FunctionExpression'], CallExpression[callee.type='FunctionExpression']": (
-        node: estree.Node,
-      ) => functionsImmediatelyInvoked.push((node as estree.NewExpression).callee),
+      "NewExpression[callee.type='FunctionExpression'], CallExpression[callee.type='FunctionExpression']":
+        (node: estree.Node) =>
+          functionsImmediatelyInvoked.push((node as estree.NewExpression).callee),
     };
   },
 };
@@ -88,7 +88,7 @@ function raiseOnUnauthorizedComplexity(
       loc: getMainFunctionTokenLocation(
         node as TSESTree.FunctionLike,
         parent as TSESTree.Node,
-        (context as unknown) as Rule1.RuleContext,
+        context as unknown as Rule1.RuleContext,
       ),
     });
   }
@@ -152,7 +152,7 @@ class FunctionComplexityVisitor {
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionLike,
               this.parent as TSESTree.Node,
-              (this.context as unknown) as Rule1.RuleContext,
+              this.context as unknown as Rule1.RuleContext,
             ),
           };
         }

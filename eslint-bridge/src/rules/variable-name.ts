@@ -34,11 +34,10 @@ export const rule: Rule.RuleModule = {
     return {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
-      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression': (
-        node: estree.Node,
-      ) => checkFunction(node as FunctionLike, context),
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression':
+        (node: estree.Node) => checkFunction(node as FunctionLike, context),
       ClassProperty: (node: estree.Node) =>
-        checkProperty((node as unknown) as TSESTree.ClassProperty, context),
+        checkProperty(node as unknown as TSESTree.ClassProperty, context),
       CatchClause: (node: estree.Node) => checkCatch(node as TSESTree.CatchClause, context),
     };
   },
