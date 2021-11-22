@@ -23,20 +23,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import okhttp3.ConnectionSpec;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
@@ -48,7 +45,6 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 
 public class EslintBridgeServerImpl implements EslintBridgeServer {
@@ -70,7 +66,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
 
-  private final OkHttpClient client;
+  private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
   private final Bundle bundle;
@@ -89,17 +85,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
-    int timeoutSeconds,
-    Bundle bundle,
-    RulesBundles rulesBundles,
-    NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
+                         int timeoutSeconds,
+                         Bundle bundle,
+                         RulesBundles rulesBundles,
+                         NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
-    this.client = new OkHttpClient.Builder()
-      .connectionSpecs(singletonList(ConnectionSpec.CLEARTEXT))
-      .callTimeout(Duration.ofSeconds(timeoutSeconds))
-      .readTimeout(Duration.ofSeconds(timeoutSeconds))
+    this.client = HttpClient.newBuilder()
+      .connectTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
@@ -239,20 +233,30 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private String request(String json, String endpoint) throws IOException {
-    Request request = new Request.Builder()
-      .url(url(endpoint))
-      .post(RequestBody.create(MediaType.get("application/json"), json))
+    var request = HttpRequest.newBuilder()
+      .uri(url(endpoint))
+      .timeout(Duration.ofSeconds(timeoutSeconds))
+      .header("Content-Type", "application/json")
+      .POST(HttpRequest.BodyPublishers.ofString(json))
       .build();
 
-    try (Response response = client.newCall(request).execute()) {
-      // in this case response.body() is never null (according to docs)
-      return response.body().string();
-    } catch (InterruptedIOException e) {
+    try {
+      var response = client.send(request, BodyHandlers.ofString());
+      return response.body();
+    } catch (InterruptedException e) {
+      throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
+    } catch (IOException e) {
       String msg = "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
         " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
       LOG.error(msg);
       throw new IllegalStateException("eslint-bridge is unresponsive", e);
     }
+  }
+
+  private IllegalStateException handleInterruptedException(InterruptedException e, String msg) {
+    LOG.error(msg, e);
+    Thread.currentThread().interrupt();
+    return new IllegalStateException(msg, e);
   }
 
   private static AnalysisResponse response(String result, String filePath) {
@@ -269,15 +273,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (nodeCommand == null) {
       return false;
     }
-    Request request = new Request.Builder()
-      .url(url("status"))
-      .get()
-      .build();
-
-    try (Response response = client.newCall(request).execute()) {
-      String body = response.body().string();
-      // in this case response.body() is never null (according to docs)
+    var request = HttpRequest.newBuilder(url("status")).GET().build();
+    try {
+      var response = client.send(request, BodyHandlers.ofString());
+      String body = response.body();
       return "OK!".equals(body);
+    } catch (InterruptedException e) {
+      throw handleInterruptedException(e, "isAlive was interrupted");
     } catch (IOException e) {
       return false;
     }
@@ -285,13 +287,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public boolean newTsConfig() {
-    Request request = new Request.Builder()
-      .url(url("new-tsconfig"))
-      .post(RequestBody.create(null, ""))
-      .build();
-    try (Response response = client.newCall(request).execute()) {
-      String body = response.body().string();
-      return "OK!".equals(body);
+    try {
+      var response = request("", "new-tsconfig");
+      return "OK!".equals(response);
     } catch (IOException e) {
       LOG.error("Failed to post new-tsconfig", e);
     }
@@ -364,14 +362,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     clean();
   }
 
-  private HttpUrl url(String endpoint) {
-    HttpUrl.Builder builder = new HttpUrl.Builder();
-    return builder
-      .scheme("http")
-      .host(hostAddress)
-      .port(port)
-      .addPathSegment(endpoint)
-      .build();
+  private URI url(String endpoint) {
+    try {
+      return new URI("http", null, hostAddress, port, "/" + endpoint, null, null);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
+    }
   }
 
   static class TsConfigRequest {
