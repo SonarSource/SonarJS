@@ -183,6 +183,7 @@ public class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
+      tuple(3, "typescript:S3923", "tsproject-implicit-import:lib.ts"),
       tuple(5, "typescript:S3923",  "tsproject-implicit-import:main.ts")
     );
   }
