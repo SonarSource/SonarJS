@@ -166,4 +166,24 @@ public class TypeScriptAnalysisTest {
 
     assertThat(result.getLogsLines(l -> l.contains("Skipped files: src/unlisted.ts"))).hasSize(1);
   }
+
+  @Test
+  void implicit_import_test() throws Exception {
+    String projectKey = "tsproject-implicit-import";
+    File projectDir = TestUtils.projectDir(projectKey);
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(projectDir);
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+
+    assertThat(result.isSuccess()).isTrue();
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
+      tuple(5, "typescript:S3923",  "tsproject-implicit-import:main.ts")
+    );
+  }
 }
