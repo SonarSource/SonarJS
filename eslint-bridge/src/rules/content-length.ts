@@ -42,10 +42,8 @@ const FILE_SIZE_OPTION = 'fileSize';
 const BODY_PARSER_MODULE = 'body-parser';
 const BODY_PARSER_DEFAULT_SIZE = parse('100kb');
 
-const formidableObjects: Map<
-  Scope.Variable,
-  { maxFileSize: number; nodeToReport: estree.Node }
-> = new Map();
+const formidableObjects: Map<Scope.Variable, { maxFileSize: number; nodeToReport: estree.Node }> =
+  new Map();
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

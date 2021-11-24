@@ -27,7 +27,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       TSUnionType: (node: estree.Node) => {
-        const union = (node as unknown) as TSESTree.TSUnionType;
+        const union = node as unknown as TSESTree.TSUnionType;
         const [threshold] = context.options;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({

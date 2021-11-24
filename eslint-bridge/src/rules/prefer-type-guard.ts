@@ -110,7 +110,7 @@ function checkCastedType(
         loc: getMainFunctionTokenLocation(
           node as TSESTree.FunctionLike,
           getParent(context) as TSESTree.Node,
-          (context as unknown) as Rule1.RuleContext,
+          context as unknown as Rule1.RuleContext,
         ),
       });
     }
@@ -123,7 +123,7 @@ function getCastTupleFromMemberExpression(
   if (node.type === 'MemberExpression') {
     const object = node.object as TSESTree.Node;
     if (object.type === 'TSAsExpression' || object.type === 'TSTypeAssertion') {
-      return [object.expression as estree.Node, (object.typeAnnotation as unknown) as estree.Node];
+      return [object.expression as estree.Node, object.typeAnnotation as unknown as estree.Node];
     }
   }
   return undefined;

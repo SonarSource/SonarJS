@@ -21,9 +21,10 @@
 import { SourceCode } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 
-export function extractTokensAndComments(
-  sourceCode: SourceCode,
-): { tokens: AST.Token[]; comments: AST.Token[] } {
+export function extractTokensAndComments(sourceCode: SourceCode): {
+  tokens: AST.Token[];
+  comments: AST.Token[];
+} {
   const ast = sourceCode.ast as AST.ESLintProgram;
   const tokens = [...(ast.tokens || [])];
   const comments = [...(ast.comments || [])];

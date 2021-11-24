@@ -108,7 +108,7 @@ function getNodeToReport(node: estree.Node, parent: estree.Node, context: Rule.R
       loc: getMainFunctionTokenLocation(
         node as TSESTree.FunctionLike,
         parent as TSESTree.Node,
-        (context as unknown) as Rule1.RuleContext,
+        context as unknown as Rule1.RuleContext,
       ),
     };
   }

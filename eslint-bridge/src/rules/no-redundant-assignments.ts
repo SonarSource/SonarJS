@@ -205,10 +205,7 @@ export const rule: Rule.RuleModule = {
       if (variableUsages.has(variable)) {
         variableUsages.get(variable)!.add(codePathId);
       } else {
-        variableUsages.set(
-          variable,
-          new Set<string>([codePathId]),
-        );
+        variableUsages.set(variable, new Set<string>([codePathId]));
       }
     }
 
