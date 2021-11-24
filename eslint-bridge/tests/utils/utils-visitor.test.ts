@@ -30,7 +30,6 @@ it('should visit a node and its children', () => {
       return n * factorial(n - 1);
     }`,
     'foo.ts',
-    [],
   ) as SourceCode;
   const visited = [];
   visit(sourceCode, node => visited.push(node.type + ' ' + node.loc.start.line));

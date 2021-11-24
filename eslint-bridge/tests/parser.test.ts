@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode, ParseExceptionCode, parseExceptionCodeOf } from 'parser';
+import { ParseExceptionCode, parseExceptionCodeOf } from 'parser';
 import { SourceCode } from 'eslint';
 import { ParsingError } from 'analyzer';
 import { visit } from '../src/utils';
-import * as path from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
@@ -127,7 +126,7 @@ import { ParseExceptionCode } from '../src/parser';
     const filePath = dirPath + '/sample.lint.js';
     const tsConfig = dirPath + '/tsconfig.json';
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, tsConfig) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeDefined();
     expect(sourceCode.parserServices.program.getTypeChecker()).toBeDefined();
@@ -139,7 +138,7 @@ import { ParseExceptionCode } from '../src/parser';
     const tsConfig = dirPath + '/tsconfig.json';
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
-    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, tsConfig) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeUndefined();
   });
@@ -161,10 +160,7 @@ import { ParseExceptionCode } from '../src/parser';
   it(`should parse experimental class properties with Babel parser`, () => {
     const code = ` class C { #f = 42; #m() {} }`;
     setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
-    const sourceCode = buildSourceCode(
-      { filePath: '/some/path', fileContent: code, fileType: 'MAIN', tsConfigs: [] },
-      'js',
-    ) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(code, '/some/path') as SourceCode;
     expect(sourceCode.ast).toBeDefined();
   });
 });
@@ -184,7 +180,7 @@ describe('parseTypeScriptSourceFile', () => {
       }
     `,
       file,
-      [__dirname + '/fixtures/ts-project/tsconfig.json'],
+      __dirname + '/fixtures/ts-project/tsconfig.json',
     ) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeDefined();
@@ -194,23 +190,11 @@ describe('parseTypeScriptSourceFile', () => {
 
   it('should log parse error with typescript', () => {
     const file = __dirname + '/fixtures/ts-project/sample.error.lint.ts';
-    const parsingError = parseTypeScriptSourceFile(`if (b == 0) {`, file, []) as ParsingError;
+    const parsingError = parseTypeScriptSourceFile(`if (b == 0) {`, file) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(1);
     expect(parsingError.message).toEqual("'}' expected.");
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
-  });
-
-  it('should return ParsingError with undefined line when file is not part of typescript project', () => {
-    const file = path.join(path.basename(__dirname), '/fixtures/ts-project/excluded.ts');
-    const parsingError = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
-      __dirname + '/fixtures/ts-project/tsconfig.json',
-    ]) as ParsingError;
-    expect(parsingError).toBeDefined();
-    expect(parsingError.line).toBeUndefined();
-    expect(parsingError.message).toEqual(
-      `\"parserOptions.project\" has been set for @typescript-eslint/parser.\nThe file does not match your project config: ${file}.\nThe file must be included in at least one of the projects provided.`,
-    );
   });
 
   it('should return correct parsing exception code from exception message', () => {
@@ -256,7 +240,7 @@ describe('parseVueSourceFile', () => {
       </style>
     `,
       filePath,
-      [tsConfig],
+      tsConfig,
     ) as SourceCode;
 
     const expected = [],
@@ -273,7 +257,7 @@ describe('parseVueSourceFile', () => {
     module.exports = {
     </script>`,
       filePath,
-      [tsConfig],
+      tsConfig,
     ) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
@@ -293,7 +277,7 @@ describe('parseVueSourceFile', () => {
       let assertion = something as number;
       </script>
       <style></style>`;
-    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, [tsConfig]);
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfig);
     expect(sourceCode).toBeDefined();
     expect(sourceCode).toBeInstanceOf(SourceCode);
   });
@@ -309,7 +293,7 @@ describe('parseVueSourceFile', () => {
       module.exports = {
       </script>`,
       filePath,
-      [tsConfig],
+      tsConfig,
     ) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
@@ -320,7 +304,7 @@ describe('parseVueSourceFile', () => {
   it('should not parse .vue with TypeScript compiler when analysis parameter is set to False', () => {
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
-    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, tsConfig) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeUndefined();
   });
@@ -329,11 +313,11 @@ describe('parseVueSourceFile', () => {
 it('should parse TS Vue file after regular TS file', () => {
   const dirName = __dirname + '/fixtures/ts-vue-project';
   const tsConfig = dirName + '/tsconfig.json';
-  const tsResult = parseTypeScriptSourceFile(``, dirName + '/main.ts', [tsConfig]);
+  const tsResult = parseTypeScriptSourceFile(``, dirName + '/main.ts', tsConfig);
   const vueResult = parseTypeScriptSourceFile(
     `<script lang="ts"></script>`,
     dirName + '/sample.lint.vue',
-    [tsConfig],
+    tsConfig,
   );
   expect(tsResult).toBeInstanceOf(SourceCode);
   expect(vueResult).toBeInstanceOf(SourceCode);
@@ -346,7 +330,7 @@ describe('parse import expression', () => {
   });
 
   it('should parse Vue.js with import expression', () => {
-    const dirName = __dirname + '/fixtures/vue-project';
+    const dirName = __dirname + '/fixtures/js-vue-project';
     const filePath = dirName + '/sample.lint.vue';
     const tsConfig = dirName + '/tsconfig.json';
     const sourceCode = parseJavaScriptSourceFile(
@@ -355,7 +339,7 @@ describe('parse import expression', () => {
     import("moduleName");
     </script>`,
       filePath,
-      [tsConfig],
+      tsConfig,
     ) as SourceCode;
     expect(sourceCode).toBeDefined();
     expect(sourceCode).toBeInstanceOf(SourceCode);

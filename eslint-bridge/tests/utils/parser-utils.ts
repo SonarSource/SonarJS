@@ -18,23 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import path from 'path';
 import { FileType } from '../../src/analyzer';
 import { buildSourceCode } from '../../src/parser';
+import { Programs } from '../../src/programs';
+
+const DEFAULT_JS_TSCONFIG = path.join(__dirname, '../fixtures/js-project/tsconfig.json');
+const DEFAULT_TS_TSCONFIG = path.join(__dirname, '../fixtures/ts-project/tsconfig.json');
 
 export function parseTypeScriptSourceFile(
   fileContent: string,
   filePath: string,
-  tsConfigs: string[],
+  tsConfig: string = DEFAULT_TS_TSCONFIG,
   fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+  return buildSourceCode(
+    { program: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
+    'ts',
+  );
 }
 
 export function parseJavaScriptSourceFile(
   fileContent: string,
   filePath: string,
-  tsConfigs: string[] = [],
+  tsConfig: string = DEFAULT_JS_TSCONFIG,
   fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
+  return buildSourceCode(
+    { program: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
+    'js',
+  );
+}
+
+function programFromTsConfig(tsConfig: string): number {
+  return Programs.getInstance().create(tsConfig).id;
 }

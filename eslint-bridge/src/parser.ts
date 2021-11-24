@@ -24,6 +24,7 @@ import * as VueJS from 'vue-eslint-parser';
 import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
 import { JsAnalysisInput } from './analyzer';
+import { Programs } from './programs';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
@@ -113,7 +114,7 @@ function parseForEslint(
 }
 
 export function buildParsingOptions(
-  { filePath, tsConfigs }: JsAnalysisInput,
+  { filePath, program }: JsAnalysisInput,
   usingBabel = false,
   parserOption?: string,
   sourceType: 'script' | 'module' = 'module',
@@ -131,6 +132,7 @@ export function buildParsingOptions(
       globalReturn: false,
       legacyDecorators: true,
     },
+    program: Programs.getInstance().get(program),
 
     // for Vue parser
     extraFileExtensions: ['.vue'],
@@ -138,7 +140,6 @@ export function buildParsingOptions(
 
     // for TS parser
     filePath,
-    project: tsConfigs,
   };
 
   if (usingBabel) {
