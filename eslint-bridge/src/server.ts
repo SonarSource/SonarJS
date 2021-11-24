@@ -32,6 +32,7 @@ import {
 import { AddressInfo } from 'net';
 import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
 import { getFilesForTsConfig } from './tsconfig';
+import { Programs } from './programs';
 
 const MAX_REQUEST_SIZE = '50mb';
 
@@ -77,6 +78,21 @@ export function startServer(
         req.body.globals as string[],
       );
       resp.send('OK!');
+    });
+
+    app.post('/programs', (req, res) => {
+      try {
+        const { tsconfig } = req.body;
+        res.json(Programs.getInstance().create(tsconfig));
+      } catch (e) {
+        console.error(e.stack);
+        res.json({ error: e.message });
+      }
+    });
+
+    app.delete('/programs/:id', (req, res) => {
+      Programs.getInstance().delete(req.params.id);
+      res.send('OK!');
     });
 
     app.post('/analyze-js', analyze(analyzeJS));
