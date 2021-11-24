@@ -46,7 +46,7 @@ build_task:
     cpu: 6
     memory: 8G
   env:
-    GITHUB_TOKEN: ENCRYPTED[!f272985ea5b49b3cf9c414b98de6a8e9096be47bfcee52f33311ba3131a2af637c1b956f49585b7757dd84b7c030233a!]
+    GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
     # analysis on next
     SONAR_TOKEN: ENCRYPTED[!5ba7cbb5bf9d168de69bcd444d9e884c9cf664be1115640cc64e49df6d241c309a87fc527cab533c08f289b167187017!]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
