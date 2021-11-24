@@ -46,9 +46,9 @@ export interface CssAnalysisInput extends AnalysisInput {
 }
 
 export interface JsAnalysisInput extends AnalysisInput {
+  program: string;
   fileType: FileType;
   ignoreHeaderComments?: boolean;
-  tsConfigs: string[];
 }
 
 export interface Rule {

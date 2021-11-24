@@ -24,10 +24,11 @@ import {
   initLinter,
   analyzeCss,
 } from 'analyzer';
-import { join } from 'path';
+import path, { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
 import * as stylelint from 'stylelint';
+import { Programs } from '../src/programs';
 
 const noOneIterationIssue = {
   line: 3,
@@ -73,10 +74,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
@@ -89,10 +90,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const result = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
-      tsConfigs: [],
     });
     expect(result.issues).toHaveLength(1);
     expect(result.issues).toContainEqual(noOneIterationIssue);
@@ -110,20 +111,20 @@ describe('#analyzeJavaScript', () => {
     ]);
 
     const testFile: JsAnalysisInput = {
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
-      tsConfigs: [],
     };
     let { issues } = await analyzeJavaScript(testFile);
     expect(issues).toHaveLength(1);
     expect(issues).toContainEqual(noOneIterationIssue);
 
     ({ issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-      tsConfigs: [],
     }));
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noDuplicateStringIssue);
@@ -139,10 +140,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
   });
@@ -152,10 +153,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { highlights } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(highlights).toHaveLength(11);
   });
@@ -165,10 +166,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { cpdTokens } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(cpdTokens).toHaveLength(42);
   });
@@ -178,10 +179,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: `if()`,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
   });
@@ -192,10 +193,10 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
       fileContent: undefined,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
@@ -207,10 +208,10 @@ describe('#analyzeJavaScript', () => {
 
     initLinter([]);
     const { cpdTokens } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent: undefined,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(cpdTokens).toHaveLength(17);
     const firstLineEnd = Math.max(
@@ -242,9 +243,9 @@ describe('#analyzeJavaScript', () => {
 
     initLinter([{ key: 'arguments-order', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { parsingError } = await analyzeJavaScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     // this test used to handle typescript exception which was fixed in some version prior 4.1
@@ -264,9 +265,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(2);
@@ -279,9 +280,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-unnecessary-type-assertion', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: `let x = 4; x as number;`,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(1);
@@ -294,9 +295,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: undefined,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(2);
@@ -309,9 +310,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     let result = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: __dirname + '/./fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 42',
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(result.issues).toHaveLength(1);
@@ -320,9 +321,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     result = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: __dirname + '/././fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 24',
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     // fileContent doesn't have the issue anymore, without path normalization we receive the AST from the first request
@@ -332,9 +333,9 @@ describe('#analyzeTypeScript', () => {
   it('should report syntax highlights', async () => {
     initLinter([]);
     const { highlights } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(highlights).toHaveLength(10);
@@ -343,9 +344,9 @@ describe('#analyzeTypeScript', () => {
   it('should report symbol highlighting', async () => {
     initLinter([]);
     const { highlightedSymbols } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(highlightedSymbols).toHaveLength(3);
@@ -354,9 +355,9 @@ describe('#analyzeTypeScript', () => {
   it('should report cpd tokens', async () => {
     initLinter([]);
     const { cpdTokens } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(cpdTokens).toHaveLength(42);
@@ -367,9 +368,9 @@ describe('#analyzeTypeScript', () => {
     const {
       metrics: { cognitiveComplexity },
     } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(cognitiveComplexity).toEqual(1);
@@ -378,9 +379,9 @@ describe('#analyzeTypeScript', () => {
   it('should not report issue when not receiving corresponding rule-key', async () => {
     initLinter([]);
     const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(0);
@@ -391,9 +392,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues, parsingError } = await analyzeTypeScript({
+      program: createProgram(),
       filePath: filePath,
       fileContent: `if()`,
-      tsConfigs: [],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(0);
@@ -406,10 +407,10 @@ describe('#analyzeTypeScript', () => {
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     initLinter([{ key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { issues } = await analyzeJavaScript({
+      program: createProgram(),
       filePath,
       fileContent,
       fileType: 'MAIN',
-      tsConfigs: [],
     });
     expect(issues).toHaveLength(1);
   });
@@ -423,9 +424,9 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-return-type-any', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
       filePath,
       fileContent,
-      tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
     expect(issues).toHaveLength(2);
@@ -468,3 +469,9 @@ describe('#analyzeCss', () => {
     await expect(analyzeCss(request)).rejects.toEqual(new Error('some reason'));
   });
 });
+
+function createProgram(tsConfig?: string): string {
+  return Programs.getInstance().create(
+    tsConfig ?? path.join(__dirname, 'fixtures/js-project/tsconfig.json'),
+  ).id;
+}
