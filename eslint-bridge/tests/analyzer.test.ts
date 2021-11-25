@@ -236,6 +236,22 @@ describe('#analyzeJavaScript', () => {
     }
   });
 
+  it('should analyze JavaScript code with type information', async () => {
+    const filePath = join(__dirname, './fixtures/js-type-information/file.js');
+    const tsConfig = join(__dirname, './fixtures/js-type-information/tsconfig.json');
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    initLinter([
+      { key: 'argument-type', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    const { issues } = await analyzeTypeScript({
+      program: createProgram(tsConfig),
+      filePath,
+      fileContent,
+      fileType: 'MAIN',
+    });
+    expect(issues).toHaveLength(1);
+  });
+
   it('should report exception from TypeScript compiler as parsing error', async () => {
     const filePath = join(__dirname, './fixtures/failing-typescript/sample.lint.js');
     const tsConfig = join(__dirname, './fixtures/failing-typescript/tsconfig.json');
