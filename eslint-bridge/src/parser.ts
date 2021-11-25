@@ -114,14 +114,12 @@ function parseForEslint(
 }
 
 export function buildParsingOptions(
-  { filePath, program: programId }: JsAnalysisInput,
+  { filePath, program }: JsAnalysisInput,
   usingBabel = false,
   parserOption?: string,
   sourceType: 'script' | 'module' = 'module',
 ) {
-  const program = Programs.getInstance().get(programId);
-  // @ts-ignore
-  const tsConfig = program.getCompilerOptions().configFilePath;
+  const programs = [Programs.getInstance().get(program)];
   const options: Linter.ParserOptions = {
     tokens: true,
     comment: true,
@@ -135,7 +133,7 @@ export function buildParsingOptions(
       globalReturn: false,
       legacyDecorators: true,
     },
-    program,
+    programs,
 
     // for Vue parser
     extraFileExtensions: ['.vue'],
@@ -143,7 +141,6 @@ export function buildParsingOptions(
 
     // for TS parser
     filePath,
-    project: [tsConfig]
   };
 
   if (usingBabel) {
