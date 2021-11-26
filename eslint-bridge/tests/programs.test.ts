@@ -32,7 +32,7 @@ describe('programs', () => {
   it('should create a program', () => {
     const tsConfig = path.join(fixtures, 'default.tsconfig.json');
     const { id } = programs.create(tsConfig);
-    expect(id).toEqual(0);
+    expect(id).toEqual('0');
   });
 
   // FIXME: should we just catch the exception or preprocess it first in Programs#create ?
@@ -56,7 +56,7 @@ describe('programs', () => {
   });
 
   it('should fail to retrieve a non existing program', () => {
-    expect(() => programs.get(NaN)).toThrowError('failed to find program NaN');
+    expect(() => programs.get('na')).toThrowError('failed to find program na');
   });
 
   it('should return program files', () => {
@@ -71,20 +71,16 @@ describe('programs', () => {
     expect(files).toContain(path.join(fixtures, 'lib.ts'));
   });
 
-  // FIXME: not working; we used to explicitly tell TypeScript to consider
-  // Vue files when resolving tsconfig `include` patterns
-  // it('should return implicitly included Vue files', () => {
-  //   const tsConfig = path.join(fixtures, 'vue.tsconfig.json');
-  //   const { files } = programs.create(tsConfig);
-  //   expect(files).toContain(path.join(fixtures, 'file.vue'));
-  // });
+  it('should return implicitly included Vue files', () => {
+    const tsConfig = path.join(fixtures, 'vue.tsconfig.json');
+    const { files } = programs.create(tsConfig);
+    expect(files).toContain(path.join(fixtures, 'file.vue'));
+  });
 
-  //FIXME: not working for some reason
   it('should return project references', () => {
     const tsConfig = path.join(fixtures, 'reference.tsconfig.json');
-    const { files /*, projectReferences */ } = programs.create(tsConfig);
-    expect(files).toContain(path.join(fixtures, 'file.ts'));
-    expect(files).toContain(path.join(fixtures, 'lib.ts'));
+    const { projectReferences } = programs.create(tsConfig);
+    expect(projectReferences).toContain(path.join(fixtures, 'unlisted.tsconfig.json'));
   });
 
   it('should delete a program', () => {

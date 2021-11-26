@@ -50,6 +50,6 @@ export function parseJavaScriptSourceFile(
   );
 }
 
-function programFromTsConfig(tsConfig: string): number {
+function programFromTsConfig(tsConfig: string): string {
   return Programs.getInstance().create(tsConfig).id;
 }

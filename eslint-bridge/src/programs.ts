@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createProgram } from '@typescript-eslint/parser';
+import path from 'path';
 import ts from 'typescript';
+import { ParseExceptionCode } from './parser';
 
 export class Programs {
   private static readonly instance = new Programs();
@@ -30,13 +31,57 @@ export class Programs {
   }
 
   public create(tsConfig: string): { id: string; files: string[]; projectReferences: string[] } {
-    const program = createProgram(tsConfig);
+    const parseConfigHost: ts.ParseConfigHost = {
+      useCaseSensitiveFileNames: true,
+      readDirectory: ts.sys.readDirectory,
+      fileExists: ts.sys.fileExists,
+      readFile: ts.sys.readFile,
+    };
+    const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
+    if (config.error !== undefined) {
+      console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
+      throw { error: Programs.diagnosticToString(config.error) };
+    }
+
+    const parsed = ts.parseJsonConfigFileContent(
+      config.config,
+      parseConfigHost,
+      path.resolve(path.dirname(tsConfig)),
+      {
+        noEmit: true,
+      },
+      undefined,
+      undefined,
+      [
+        {
+          extension: '.vue',
+          scriptKind: ts.ScriptKind.Deferred,
+          isMixedContent: true,
+        },
+      ],
+    );
+
+    if (parsed.errors.length > 0) {
+      let error = '';
+      parsed.errors.forEach(d => {
+        error += Programs.diagnosticToString(d);
+      });
+      throw { error, errorCode: ParseExceptionCode.GeneralError };
+    }
+
+    const createProgramOptions: ts.CreateProgramOptions = {
+      rootNames: parsed.fileNames,
+      options: parsed.options,
+      projectReferences: parsed.projectReferences,
+    };
+    const program = ts.createProgram(createProgramOptions);
     const maybeProjectReferences = program.getProjectReferences();
-    const projectReferences = maybeProjectReferences
-      ? maybeProjectReferences?.map(ref => ref.path)
-      : [];
-    const files = program.getSourceFiles().map(source => source.fileName);
+    const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
+    const sourceFiles = program.getSourceFiles().map(sourceFile => sourceFile.fileName);;
+    const files = [...sourceFiles];
+    /* for some reason, `.vue` files are not part of the program source files; therefore, we need to include them manually */
+    program.getRootFileNames().filter(fileName => fileName.endsWith('.vue')).map(fileName => files.push(fileName));
 
     const id = (this.programCount++).toString();
     this.programs.set(id, program);
@@ -60,4 +105,13 @@ export class Programs {
     this.programCount = 0;
     this.programs.clear();
   }
+
+  private static diagnosticToString(diagnostic: ts.Diagnostic): string {
+    if (typeof diagnostic.messageText === 'string') {
+      return diagnostic.messageText;
+    } else {
+      return diagnostic.messageText.messageText;
+    }
+  }
 }
+
