@@ -27,6 +27,7 @@ import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
+import { ProgramId } from './programs';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -46,7 +47,7 @@ export interface CssAnalysisInput extends AnalysisInput {
 }
 
 export interface JsAnalysisInput extends AnalysisInput {
-  program: string;
+  programId: ProgramId;
   fileType: FileType;
   ignoreHeaderComments?: boolean;
 }

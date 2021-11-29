@@ -74,7 +74,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -90,7 +90,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const result = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
@@ -111,7 +111,7 @@ describe('#analyzeJavaScript', () => {
     ]);
 
     const testFile: JsAnalysisInput = {
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',
@@ -121,7 +121,7 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toContainEqual(noOneIterationIssue);
 
     ({ issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -140,7 +140,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -153,7 +153,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { highlights } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -166,7 +166,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { cpdTokens } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -179,7 +179,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: `if()`,
       fileType: 'MAIN',
@@ -193,7 +193,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
       fileContent: undefined,
       fileType: 'MAIN',
@@ -208,7 +208,7 @@ describe('#analyzeJavaScript', () => {
 
     initLinter([]);
     const { cpdTokens } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent: undefined,
       fileType: 'MAIN',
@@ -240,11 +240,9 @@ describe('#analyzeJavaScript', () => {
     const filePath = join(__dirname, './fixtures/js-type-information/file.js');
     const tsConfig = join(__dirname, './fixtures/js-type-information/tsconfig.json');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    initLinter([
-      { key: 'argument-type', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initLinter([{ key: 'argument-type', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath,
       fileContent,
       fileType: 'MAIN',
@@ -259,7 +257,7 @@ describe('#analyzeJavaScript', () => {
 
     initLinter([{ key: 'arguments-order', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { parsingError } = await analyzeJavaScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -281,7 +279,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -296,7 +294,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-unnecessary-type-assertion', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: `let x = 4; x as number;`,
       fileType: 'MAIN',
@@ -311,7 +309,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: undefined,
       fileType: 'MAIN',
@@ -326,7 +324,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     let result = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: __dirname + '/./fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 42',
       fileType: 'MAIN',
@@ -337,7 +335,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     result = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: __dirname + '/././fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 24',
       fileType: 'MAIN',
@@ -349,7 +347,7 @@ describe('#analyzeTypeScript', () => {
   it('should report syntax highlights', async () => {
     initLinter([]);
     const { highlights } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -360,7 +358,7 @@ describe('#analyzeTypeScript', () => {
   it('should report symbol highlighting', async () => {
     initLinter([]);
     const { highlightedSymbols } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -371,7 +369,7 @@ describe('#analyzeTypeScript', () => {
   it('should report cpd tokens', async () => {
     initLinter([]);
     const { cpdTokens } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -384,7 +382,7 @@ describe('#analyzeTypeScript', () => {
     const {
       metrics: { cognitiveComplexity },
     } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -395,7 +393,7 @@ describe('#analyzeTypeScript', () => {
   it('should not report issue when not receiving corresponding rule-key', async () => {
     initLinter([]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: codeToTest,
       fileType: 'MAIN',
@@ -408,7 +406,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues, parsingError } = await analyzeTypeScript({
-      program: createProgram(),
+      programId: createProgram(tsConfig),
       filePath: filePath,
       fileContent: `if()`,
       fileType: 'MAIN',
@@ -423,7 +421,7 @@ describe('#analyzeTypeScript', () => {
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     initLinter([{ key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { issues } = await analyzeJavaScript({
-      program: createProgram(),
+      programId: createProgram(),
       filePath,
       fileContent,
       fileType: 'MAIN',
@@ -440,7 +438,7 @@ describe('#analyzeTypeScript', () => {
       { key: 'no-return-type-any', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
-      program: createProgram(tsConfig),
+      programId: createProgram(tsConfig),
       filePath,
       fileContent,
       fileType: 'MAIN',

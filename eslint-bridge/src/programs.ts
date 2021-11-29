@@ -21,9 +21,11 @@ import path from 'path';
 import ts from 'typescript';
 import { ParseExceptionCode } from './parser';
 
+export type ProgramId = string;
+
 export class Programs {
   private static readonly instance = new Programs();
-  private readonly programs = new Map<string, ts.Program>();
+  private readonly programs = new Map<ProgramId, ts.Program>();
   private programCount = 0;
 
   public static getInstance() {

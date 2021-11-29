@@ -33,7 +33,7 @@ export function parseTypeScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   return buildSourceCode(
-    { program: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
+    { programId: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
     'ts',
   );
 }
@@ -45,7 +45,7 @@ export function parseJavaScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   return buildSourceCode(
-    { program: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
+    { programId: programFromTsConfig(tsConfig), fileContent, filePath, fileType },
     'js',
   );
 }
