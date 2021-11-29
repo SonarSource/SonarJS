@@ -44,7 +44,7 @@ export class Programs {
       throw { error: Programs.diagnosticToString(config.error) };
     }
 
-    const parsed = ts.parseJsonConfigFileContent(
+    const parsedCommandLine = ts.parseJsonConfigFileContent(
       config.config,
       parseConfigHost,
       path.resolve(path.dirname(tsConfig)),
@@ -62,26 +62,23 @@ export class Programs {
       ],
     );
 
-    if (parsed.errors.length > 0) {
+    if (parsedCommandLine.errors.length > 0) {
       let error = '';
-      parsed.errors.forEach(d => {
+      parsedCommandLine.errors.forEach(d => {
         error += Programs.diagnosticToString(d);
       });
       throw { error, errorCode: ParseExceptionCode.GeneralError };
     }
 
     const createProgramOptions: ts.CreateProgramOptions = {
-      rootNames: parsed.fileNames,
-      options: parsed.options,
-      projectReferences: parsed.projectReferences,
+      rootNames: parsedCommandLine.fileNames,
+      options: {...parsedCommandLine.options, allowNonTsExtensions: true},
+      projectReferences: parsedCommandLine.projectReferences,
     };
     const program = ts.createProgram(createProgramOptions);
     const maybeProjectReferences = program.getProjectReferences();
     const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
-    const sourceFiles = program.getSourceFiles().map(sourceFile => sourceFile.fileName);;
-    const files = [...sourceFiles];
-    /* for some reason, `.vue` files are not part of the program source files; therefore, we need to include them manually */
-    program.getRootFileNames().filter(fileName => fileName.endsWith('.vue')).map(fileName => files.push(fileName));
+    const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
     const id = (this.programCount++).toString();
     this.programs.set(id, program);
