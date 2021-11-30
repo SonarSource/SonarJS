@@ -39,6 +39,7 @@ export class Programs {
       fileExists: ts.sys.fileExists,
       readFile: ts.sys.readFile,
     };
+    console.log(`DEBUG creating program from ${tsConfig}`);
     const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
     if (config.error !== undefined) {
@@ -74,7 +75,7 @@ export class Programs {
 
     const createProgramOptions: ts.CreateProgramOptions = {
       rootNames: parsedCommandLine.fileNames,
-      options: {...parsedCommandLine.options, allowNonTsExtensions: true},
+      options: { ...parsedCommandLine.options, allowNonTsExtensions: true },
       projectReferences: parsedCommandLine.projectReferences,
     };
     const program = ts.createProgram(createProgramOptions);
@@ -113,4 +114,3 @@ export class Programs {
     }
   }
 }
-

@@ -141,7 +141,8 @@ public class TypeScriptAnalysisTest {
       tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped files: dir/file.excluded.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 files because they were not part of any tsconfig"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig: dir/file.excluded.ts"))).hasSize(1);
   }
 
   @Test
@@ -164,7 +165,7 @@ public class TypeScriptAnalysisTest {
       tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped files: src/unlisted.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 0 files because they were not part of any tsconfig"))).hasSize(1);
   }
 
   @Test
@@ -175,6 +176,7 @@ public class TypeScriptAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(projectDir);
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
@@ -183,6 +185,7 @@ public class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
+      tuple(3, "typescript:S3923", "tsproject-implicit-import:lib.ts"),
       tuple(5, "typescript:S3923",  "tsproject-implicit-import:main.ts")
     );
   }

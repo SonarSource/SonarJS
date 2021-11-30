@@ -82,8 +82,8 @@ export function startServer(
 
     app.post('/programs', (req, res) => {
       try {
-        const { tsconfig } = req.body;
-        res.json(Programs.getInstance().create(tsconfig));
+        const { tsConfig } = req.body;
+        res.json(Programs.getInstance().create(tsConfig));
       } catch (e) {
         console.error(e.stack);
         res.json({ error: e.message });

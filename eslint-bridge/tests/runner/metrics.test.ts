@@ -216,7 +216,7 @@ function comments(code: string, ignoreHeader: boolean): number[] {
 }
 
 function parseTS(code: string) {
-  const sourceCode = parseTypeScriptSourceFile(code, 'foo.ts', []);
+  const sourceCode = parseTypeScriptSourceFile(code, 'foo.ts');
   if (!(sourceCode instanceof SourceCode)) {
     throw new Error('Failed to parse ' + sourceCode);
   }

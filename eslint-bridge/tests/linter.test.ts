@@ -319,13 +319,13 @@ describe('TypeScript ESLint rule sanitization', () => {
   const fileContent = `class C { private static f = 5; }`;
 
   it('when type information is available', () => {
-    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfig) as SourceCode;
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
   });
 
   it('when type information is missing', () => {
-    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath) as SourceCode;
     const linter = new LinterWrapper(
       [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],

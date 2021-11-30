@@ -233,6 +233,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private String request(String json, String endpoint) throws IOException {
+    LOG.debug(json);
     var request = HttpRequest.newBuilder()
       .uri(url(endpoint))
       .timeout(Duration.ofSeconds(timeoutSeconds))
@@ -242,7 +243,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     try {
       var response = client.send(request, BodyHandlers.ofString());
-      return response.body();
+      var body = response.body();
+      LOG.debug(body);
+      return body;
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
@@ -317,6 +320,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.error(tsConfigResponse.error);
     }
     return new TsConfigFile(filename, emptyListIfNull(tsConfigResponse.files), emptyListIfNull(tsConfigResponse.projectReferences));
+  }
+
+  @Override
+  public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
+    var response = request(GSON.toJson(tsProgramRequest), "programs");
+    return GSON.fromJson(response, TsProgram.class);
   }
 
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {

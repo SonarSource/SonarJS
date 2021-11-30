@@ -57,7 +57,7 @@ describe('Secondary location support', () => {
         );
       }
       const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-      const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
+      const sourceCode = parseTypeScriptSourceFile(fileContent, filePath) as SourceCode;
       const issues = linter.verify(sourceCode, { rules: { 'secondary-location': 'error' } });
       if (issues.length > 0) {
         rulesMissingSecondaryLocationEnabling.push(rule);

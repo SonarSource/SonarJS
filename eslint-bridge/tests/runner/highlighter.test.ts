@@ -91,7 +91,7 @@ it('should highlight regex literals', () => {
 
 it('should highlight Vue templates', () => {
   function highlights(code: string): Highlight[] {
-    const sourceCode = parseJavaScriptSourceFile(code, '/some/path/file.vue', []) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(code, '/some/path/file.vue') as SourceCode;
     return getHighlighting(sourceCode).highlights;
   }
   expect(highlights('<template></template>')).toEqual(
@@ -151,6 +151,6 @@ function token(
 function actual(code: string): Highlight[] {
   const fileUri = join(__dirname, '/../fixtures/ts-project/sample.lint.ts');
   const tsConfig = join(__dirname, '/../fixtures/ts-project/tsconfig.json');
-  const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]) as SourceCode;
+  const sourceCode = parseTypeScriptSourceFile(code, fileUri, tsConfig) as SourceCode;
   return getHighlighting(sourceCode).highlights;
 }

@@ -21,13 +21,11 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -39,20 +37,24 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 
-import static java.util.Collections.singletonList;
+import static java.util.Collections.emptyList;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
+  private static final Profiler PROFILER = Profiler.create(LOG);
+
   private final TempFolder tempFolder;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
@@ -88,83 +90,61 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    boolean success = false;
-    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     eslintBridgeServer.initLinter(rules, environments, globals);
-    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+    var tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
       // See also https://github.com/SonarSource/SonarJS/issues/2506
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
       return;
     }
-    Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
-    try {
-      progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
-      for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
-        TsConfigFile tsConfigFile = entry.getKey();
-        List<InputFile> files = entry.getValue();
-        if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
-          LOG.info("Skipping {} files with no tsconfig.json", files.size());
-          LOG.debug("Skipped files: " + files.stream().map(InputFile::toString).collect(Collectors.joining("\n")));
+    var fs = context.fileSystem();
+    Deque<String> workList = new ArrayDeque<>(tsConfigs);
+    Set<String> analyzedProjects = new HashSet<>();
+    Set<InputFile> analyzedFiles = new HashSet<>();
+    while (!workList.isEmpty()) {
+      var tsConfig = workList.pop();
+      if (!analyzedProjects.add(tsConfig)) {
+        continue;
+      }
+      PROFILER.startInfo("Creating program from tsconfig " + tsConfig);
+      var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
+      PROFILER.stopInfo();
+      for (var file : program.files) {
+        var inputFile = fs.inputFile(fs.predicates().hasAbsolutePath(file));
+        if (inputFile == null) {
+          LOG.debug("File not part of the project: '{}'", file);
           continue;
         }
-        LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
-        analyzeFilesWithTsConfig(files, tsConfigFile, progressReport);
-        eslintBridgeServer.newTsConfig();
+        if (analyzedFiles.add(inputFile)) {
+          analyze(inputFile, program);
+        } else {
+          LOG.debug("File already analyzed: '{}'", file);
+        }
       }
-      success = true;
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
+      workList.addAll(program.projectReferences);
     }
+    Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
+    skippedFiles.removeAll(analyzedFiles);
+    LOG.debug("Skipped {} files because they were not part of any tsconfig", skippedFiles.size());
+    skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
   }
 
-  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile, ProgressReport progressReport) throws IOException {
-    for (InputFile inputFile : files) {
-      if (context.isCancelled()) {
-        throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
-      }
-      if (eslintBridgeServer.isAlive()) {
-        monitoring.startFile(inputFile);
-        analyze(inputFile, tsConfigFile);
-        progressReport.nextFile();
-      } else {
-        throw new IllegalStateException("eslint-bridge server is not answering");
-      }
+  private void analyze(InputFile file, TsProgram tsProgram) throws IOException {
+    if (context.isCancelled()) {
+      throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
     }
-  }
-
-  private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
     try {
+      LOG.debug("Analyzing {}", file);
+      monitoring.startFile(file);
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
+      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
+        ignoreHeaderComments(), emptyList(), tsProgram.id);
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;
     }
-  }
-
-  private List<TsConfigFile> loadTsConfigs(List<String> tsConfigPaths) {
-    List<TsConfigFile> tsConfigFiles = new ArrayList<>();
-    Deque<String> workList = new ArrayDeque<>(tsConfigPaths);
-    Set<String> processed = new HashSet<>();
-    while (!workList.isEmpty()) {
-      String path = workList.pop();
-      if (processed.add(path)) {
-        TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(path);
-        tsConfigFiles.add(tsConfigFile);
-        if (!tsConfigFile.projectReferences.isEmpty()) {
-          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.projectReferences);
-        }
-        workList.addAll(tsConfigFile.projectReferences);
-      }
-    }
-    return tsConfigFiles;
   }
 }

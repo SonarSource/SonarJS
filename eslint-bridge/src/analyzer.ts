@@ -47,9 +47,10 @@ export interface CssAnalysisInput extends AnalysisInput {
 }
 
 export interface JsAnalysisInput extends AnalysisInput {
-  programId: ProgramId;
+  programId?: ProgramId;
   fileType: FileType;
   ignoreHeaderComments?: boolean;
+  tsConfigs?: any;
 }
 
 export interface Rule {

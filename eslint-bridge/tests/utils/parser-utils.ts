@@ -19,9 +19,9 @@
  */
 
 import path from 'path';
-import { FileType } from '../../src/analyzer';
-import { buildSourceCode } from '../../src/parser';
-import { Programs } from '../../src/programs';
+import { FileType } from 'analyzer';
+import { buildSourceCode } from 'parser';
+import { Programs } from 'programs';
 
 const DEFAULT_JS_TSCONFIG = path.join(__dirname, '../fixtures/js-project/tsconfig.json');
 const DEFAULT_TS_TSCONFIG = path.join(__dirname, '../fixtures/ts-project/tsconfig.json');
