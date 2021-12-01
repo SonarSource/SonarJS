@@ -19,32 +19,20 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import com.google.gson.Gson;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static java.lang.String.format;
@@ -61,11 +49,10 @@ class TsConfigProvider {
 
   private final List<Provider> providers;
 
-  TsConfigProvider(TempFolder folder) {
+  TsConfigProvider() {
     providers = Arrays.asList(
       new PropertyTsConfigProvider(),
-      new LookupTsConfigProvider(),
-      new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate));
+      new LookupTsConfigProvider());
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -117,55 +104,6 @@ class TsConfigProvider {
     private static boolean isNodeModulesPath(Path p) {
       Path nodeModules = Paths.get("node_modules");
       return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
-    }
-  }
-
-  static class DefaultTsConfigProvider implements Provider {
-
-    private final TempFolder folder;
-    private final Function<FileSystem, FilePredicate> filePredicateProvider;
-    private final Map<String, Object> compilerOptions;
-
-    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
-      this(folder, filePredicate, new HashMap<>());
-    }
-
-    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate, Map<String, Object> compilerOptions) {
-      this.folder = folder;
-      this.filePredicateProvider = filePredicate;
-      this.compilerOptions = compilerOptions;
-    }
-
-    @Override
-    public List<String> tsconfigs(SensorContext context) throws IOException {
-      if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-        // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
-        LOG.warn("Generating temporary tsconfig is not supported in SonarLint context.");
-        return emptyList();
-      }
-      Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
-      TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
-      File tsconfigFile = writeToJsonFile(tsConfig);
-      LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
-      return singletonList(tsconfigFile.getAbsolutePath());
-    }
-
-    private File writeToJsonFile(TsConfig tsConfig) throws IOException {
-      String json = new Gson().toJson(tsConfig);
-      File tsconfigFile = folder.newFile();
-      Files.write(tsconfigFile.toPath(), json.getBytes(StandardCharsets.UTF_8));
-      return tsconfigFile;
-    }
-
-    private static class TsConfig {
-      List<String> files;
-      Map<String, Object> compilerOptions;
-
-      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
-        files = new ArrayList<>();
-        inputFiles.forEach(f -> files.add(f.absolutePath()));
-        this.compilerOptions = compilerOptions;
-      }
     }
   }
 }

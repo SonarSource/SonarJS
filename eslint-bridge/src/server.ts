@@ -82,8 +82,12 @@ export function startServer(
 
     app.post('/programs', (req, res) => {
       try {
-        const { tsConfig } = req.body;
-        res.json(Programs.getInstance().create(tsConfig));
+        const { tsConfig, files } = req.body;
+        if (tsConfig) {
+          res.json(Programs.getInstance().create(tsConfig));
+        } else {
+          res.json(Programs.getInstance().createDefault(files));
+        }
       } catch (e) {
         console.error(e.stack);
         res.json({ error: e.message });

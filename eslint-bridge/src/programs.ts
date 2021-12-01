@@ -23,6 +23,12 @@ import { ParseExceptionCode } from './parser';
 
 export type ProgramId = string;
 
+interface Program {
+  id: string;
+  files: string[];
+  projectReferences: string[];
+}
+
 export class Programs {
   private static readonly instance = new Programs();
   private readonly programs = new Map<ProgramId, ts.Program>();
@@ -32,7 +38,7 @@ export class Programs {
     return this.instance;
   }
 
-  public create(tsConfig: string): { id: string; files: string[]; projectReferences: string[] } {
+  public create(tsConfig: string): Program {
     const parseConfigHost: ts.ParseConfigHost = {
       useCaseSensitiveFileNames: true,
       readDirectory: ts.sys.readDirectory,
@@ -78,12 +84,25 @@ export class Programs {
       options: { ...parsedCommandLine.options, allowNonTsExtensions: true },
       projectReferences: parsedCommandLine.projectReferences,
     };
-    const program = ts.createProgram(createProgramOptions);
+
+    return this.createProgram(createProgramOptions);
+  }
+
+  public createDefault(files: string[]): Program {
+    const createProgramOptions: ts.CreateProgramOptions = {
+      rootNames: files,
+      options: { allowNonTsExtensions: true, allowJs: true, noImplicitAny: true },
+    };
+    return this.createProgram(createProgramOptions);
+  }
+
+  private createProgram(options: ts.CreateProgramOptions): Program {
+    const program = ts.createProgram(options);
     const maybeProjectReferences = program.getProjectReferences();
     const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
     const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
-    const id = (this.programCount++).toString();
+    const id = this.nextId();
     this.programs.set(id, program);
 
     return { id, files, projectReferences };
@@ -104,6 +123,10 @@ export class Programs {
   public clear() {
     this.programCount = 0;
     this.programs.clear();
+  }
+
+  private nextId(): string {
+    return (this.programCount++).toString();
   }
 
   private static diagnosticToString(diagnostic: ts.Diagnostic): string {

@@ -507,7 +507,6 @@ public class TypeScriptSensorTest {
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder,
       new Monitoring(new MapSettings().asConfig()));
   }
 

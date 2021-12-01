@@ -71,7 +71,7 @@ public class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = new TsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).containsExactlyInAnyOrder(tsconfig1.toAbsolutePath().toString(), tsconfig2.toAbsolutePath().toString());
   }
 
@@ -83,7 +83,7 @@ public class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = new TsConfigProvider().tsconfigs(ctx);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
@@ -95,7 +95,7 @@ public class TsConfigProviderTest {
     createInputFile(ctx, "file.ts");
 
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
-    assertThatThrownBy(() -> new TsConfigProvider(tempFolder).tsconfigs(ctx))
+    assertThatThrownBy(() -> new TsConfigProvider().tsconfigs(ctx))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Provided tsconfig.json path doesn't exist. Path: '" + absolutePath + "'");
   }
@@ -109,7 +109,7 @@ public class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", absolutePath));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = new TsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
 
@@ -119,7 +119,7 @@ public class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = new TsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
     assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{}}");
@@ -132,7 +132,7 @@ public class TsConfigProviderTest {
     createInputFile(ctx, "file2.ts");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4,4)));
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = new TsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).isEmpty();
   }
 

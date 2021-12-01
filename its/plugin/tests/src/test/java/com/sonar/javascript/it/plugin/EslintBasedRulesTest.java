@@ -109,6 +109,7 @@ public class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(TestUtils.projectDir("js-with-ts-eslint-project"));
 
     OrchestratorStarter.setProfile(projectKey, "js-with-ts-eslint-profile", "js");

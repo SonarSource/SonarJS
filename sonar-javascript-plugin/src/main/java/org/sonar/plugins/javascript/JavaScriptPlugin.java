@@ -33,7 +33,6 @@ import org.sonar.plugins.javascript.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
-import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
@@ -105,7 +104,6 @@ public class JavaScriptPlugin implements Plugin {
       EslintBridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
-      JavaScriptEslintBasedSensor.class,
       TypeScriptSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,
