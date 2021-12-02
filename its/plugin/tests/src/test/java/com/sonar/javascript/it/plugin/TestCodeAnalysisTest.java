@@ -68,6 +68,7 @@ public class TestCodeAnalysisTest {
       .setProjectKey(project)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(sourceDir)
+      .setDebugLogs(true)
       .setTestDirs(testDir)
       .setProjectDir(TestUtils.projectDir(project));
 
@@ -84,7 +85,7 @@ public class TestCodeAnalysisTest {
     List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getComponent()).endsWith("src/file.js");
-    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed"))).hasSize(1);
+    assertThat(buildResult.getLogsLines(l -> l.contains("No tsconfig file found, will create default program with 2 files"))).hasSize(1);
   }
 
   @Test

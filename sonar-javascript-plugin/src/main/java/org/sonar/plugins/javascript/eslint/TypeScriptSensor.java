@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -29,14 +31,29 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.plugins.javascript.AbstractChecks;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
@@ -51,19 +68,35 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
 
+  private final NoSonarFilter noSonarFilter;
+  private final FileLinesContextFactory fileLinesContextFactory;
+  private final AbstractChecks checks;
+
+  // Visible for testing
+  final List<EslintBridgeServer.Rule> rules;
+
+  // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
+  private RuleKey parsingErrorRuleKey;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings,
                           Monitoring monitoring) {
-    super(typeScriptChecks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
+    super(eslintBridgeServer,
       analysisWarnings,
       monitoring
     );
+    this.checks = typeScriptChecks;
+    this.rules = checks.eslintBasedChecks()
+      .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations(), check.targets()))
+      .collect(Collectors.toList());
+    this.noSonarFilter = noSonarFilter;
+    this.fileLinesContextFactory = fileLinesContextFactory;
+    this.parsingErrorRuleKey = checks.all()
+      .filter(ParsingErrorCheck.class::isInstance)
+      .findFirst()
+      .flatMap(checks::ruleKeyFor).orElse(null);
   }
 
   @Override
@@ -151,5 +184,152 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;
     }
+  }
+
+
+  private void processResponse(InputFile file, AnalysisResponse response) {
+    if (response.parsingError != null) {
+      processParsingError(context, file, response.parsingError);
+      return;
+    }
+
+    // it's important to have an order here:
+    // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
+    saveMetrics(file, response.metrics);
+    saveIssues(file, response.issues);
+    saveHighlights(file, response.highlights);
+    saveHighlightedSymbols(file, response.highlightedSymbols);
+    saveCpd(file, response.cpdTokens);
+    monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
+  }
+
+  private void saveIssues(InputFile file, EslintBridgeServer.Issue[] issues) {
+    for (EslintBridgeServer.Issue issue : issues) {
+      LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
+      new EslintBasedIssue(issue).saveIssue(context, file, checks);
+    }
+  }
+
+  private void saveHighlights(InputFile file, EslintBridgeServer.Highlight[] highlights) {
+    NewHighlighting highlighting = context.newHighlighting().onFile(file);
+    for (EslintBridgeServer.Highlight highlight : highlights) {
+      highlighting.highlight(highlight.location.toTextRange(file), TypeOfText.valueOf(highlight.textType));
+    }
+    highlighting.save();
+  }
+
+  private void saveHighlightedSymbols(InputFile file, EslintBridgeServer.HighlightedSymbol[] highlightedSymbols) {
+    NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
+    for (EslintBridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
+      EslintBridgeServer.Location declaration = highlightedSymbol.declaration;
+      NewSymbol newSymbol = symbolTable.newSymbol(declaration.startLine, declaration.startCol, declaration.endLine, declaration.endCol);
+      for (EslintBridgeServer.Location reference : highlightedSymbol.references) {
+        newSymbol.newReference(reference.startLine, reference.startCol, reference.endLine, reference.endCol);
+      }
+    }
+    symbolTable.save();
+  }
+
+  private void saveMetrics(InputFile file, EslintBridgeServer.Metrics metrics) {
+    if (file.type() == InputFile.Type.TEST || isSonarLint()) {
+      noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
+      return;
+    }
+
+    saveMetric(file, CoreMetrics.FUNCTIONS, metrics.functions);
+    saveMetric(file, CoreMetrics.STATEMENTS, metrics.statements);
+    saveMetric(file, CoreMetrics.CLASSES, metrics.classes);
+    saveMetric(file, CoreMetrics.NCLOC, metrics.ncloc.length);
+    saveMetric(file, CoreMetrics.COMMENT_LINES, metrics.commentLines.length);
+    saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity);
+    saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity);
+
+    noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
+
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
+    for (int line : metrics.ncloc) {
+      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
+    }
+
+    for (int line : metrics.executableLines) {
+      fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
+    }
+
+    fileLinesContext.save();
+  }
+
+
+  private <T extends Serializable> void saveMetric(InputFile file, Metric<T> metric, T value) {
+    context.<T>newMeasure()
+      .withValue(value)
+      .forMetric(metric)
+      .on(file)
+      .save();
+  }
+
+  private void saveCpd(InputFile file, EslintBridgeServer.CpdToken[] cpdTokens) {
+    if (file.type().equals(InputFile.Type.TEST) || isSonarLint()) {
+      // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
+      return;
+    }
+    NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
+    for (EslintBridgeServer.CpdToken cpdToken : cpdTokens) {
+      newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
+    }
+    newCpdTokens.save();
+  }
+
+  private boolean ignoreHeaderComments() {
+    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
+  }
+
+  private void processParsingError(SensorContext sensorContext, InputFile inputFile, EslintBridgeServer.ParsingError parsingError) {
+    Integer line = parsingError.line;
+    String message = parsingError.message;
+
+    if (line != null) {
+      LOG.error("Failed to parse file [{}] at line {}: {}", inputFile.toString(), line, message);
+    } else if (parsingError.code == EslintBridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
+      LOG.error("Failed to analyze file [{}] from TypeScript: {}", inputFile.toString(), message);
+    } else {
+      if (parsingError.code == EslintBridgeServer.ParsingErrorCode.MISSING_TYPESCRIPT) {
+        // effectively this is dead code, because missing typescript should be detected at the time we load tsconfig file
+        LOG.error(message);
+        logMissingTypescript();
+        throw new MissingTypeScriptException();
+      } else if (parsingError.code == EslintBridgeServer.ParsingErrorCode.UNSUPPORTED_TYPESCRIPT) {
+        LOG.error(message);
+        LOG.error("If it's not possible to upgrade version of TypeScript used by the project, " +
+          "consider installing supported TypeScript version just for the time of analysis");
+        throw new IllegalStateException("Unsupported TypeScript version");
+      }
+      LOG.error("Failed to analyze file [{}]: {}", inputFile.toString(), message);
+      if (failFast) {
+        throw new IllegalStateException("Failed to analyze file " + inputFile);
+      }
+    }
+
+    if (parsingErrorRuleKey != null) {
+      NewIssue newIssue = sensorContext.newIssue();
+
+      NewIssueLocation primaryLocation = newIssue.newLocation()
+        .message(message)
+        .on(inputFile);
+
+      if (line != null) {
+        primaryLocation.at(inputFile.selectLine(line));
+      }
+
+      newIssue
+        .forRule(parsingErrorRuleKey)
+        .at(primaryLocation)
+        .save();
+    }
+
+    sensorContext.newAnalysisError()
+      .onFile(inputFile)
+      .at(inputFile.newPointer(line != null ? line : 1, 0))
+      .message(message)
+      .save();
   }
 }

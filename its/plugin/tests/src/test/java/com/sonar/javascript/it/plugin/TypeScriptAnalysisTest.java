@@ -118,7 +118,7 @@ public class TypeScriptAnalysisTest {
       tuple(2, "typescript:S4325", "missing-tsconfig:src/main.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Creating default program"))).hasSize(2);
   }
 
   @Test

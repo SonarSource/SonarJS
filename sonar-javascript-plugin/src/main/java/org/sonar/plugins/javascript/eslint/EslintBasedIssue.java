@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.Objects;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.javascript.AbstractChecks;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.api.CustomRuleRepository.Language;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
@@ -62,11 +65,19 @@ class EslintBasedIssue {
       newIssue.gap(issue.cost);
     }
 
-    RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
+    RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId, languageForFile(file));
     if (ruleKey != null) {
       newIssue.at(location)
         .forRule(ruleKey)
         .save();
+    }
+  }
+
+  private static Language languageForFile(InputFile file) {
+    if (Objects.equals(file.language(), TypeScriptLanguage.KEY)) {
+      return Language.TYPESCRIPT;
+    } else {
+      return Language.JAVASCRIPT;
     }
   }
 

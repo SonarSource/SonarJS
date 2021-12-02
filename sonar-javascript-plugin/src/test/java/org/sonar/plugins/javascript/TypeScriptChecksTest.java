@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.checkFactory;
+import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
 
 public class TypeScriptChecksTest {
 
@@ -41,8 +42,8 @@ public class TypeScriptChecksTest {
   public void test() {
     TypeScriptChecks checks = new TypeScriptChecks(checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923"));
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("typescript", "S3923"));
-    assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
+    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches", TYPESCRIPT)).isEqualTo(RuleKey.of("typescript", "S3923"));
+    assertThat(checks.ruleKeyByEslintKey("unknown-rule-key", TYPESCRIPT)).isNull();
   }
 
   @Test
@@ -50,14 +51,14 @@ public class TypeScriptChecksTest {
     TypeScriptChecks checks = new TypeScriptChecks(checkFactory("repo", "customcheck"),
       new CustomRuleRepository[]{new TsRepository(), new JsRepository()});
     assertThat(checks.eslintBasedChecks()).hasSize(1);
-    assertThat(checks.ruleKeyByEslintKey("key")).isEqualTo(RuleKey.parse("repo:customcheck"));
+    assertThat(checks.ruleKeyByEslintKey("key", TYPESCRIPT)).isEqualTo(RuleKey.parse("repo:customcheck"));
   }
 
   public static class TsRepository implements CustomRuleRepository {
 
     @Override
     public Set<Language> languages() {
-      return EnumSet.of(Language.TYPESCRIPT);
+      return EnumSet.of(TYPESCRIPT);
     }
 
     @Override

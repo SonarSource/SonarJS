@@ -26,12 +26,12 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
 import org.sonar.plugins.javascript.css.StylelintReportSensor;
 import org.sonar.plugins.javascript.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
+import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
@@ -108,7 +108,6 @@ public class JavaScriptPlugin implements Plugin {
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,
       RulesBundles.class,
-      JavaScriptChecks.class,
       TypeScriptChecks.class,
       AnalysisWarningsWrapper.class,
       Monitoring.class

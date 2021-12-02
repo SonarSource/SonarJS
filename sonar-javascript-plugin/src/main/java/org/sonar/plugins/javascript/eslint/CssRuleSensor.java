@@ -41,13 +41,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
@@ -60,16 +57,11 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   private final CssRules cssRules;
 
-  public CssRuleSensor(
-    JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-    FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+  public CssRuleSensor(EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
     CheckFactory checkFactory
   ) {
-    super(checks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
+    super(eslintBridgeServer,
       analysisWarnings,
       monitoring
     );
