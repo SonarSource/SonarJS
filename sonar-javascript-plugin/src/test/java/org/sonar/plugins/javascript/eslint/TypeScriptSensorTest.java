@@ -67,7 +67,6 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
@@ -113,6 +112,8 @@ public class TypeScriptSensorTest {
 
   @TempDir
   Path workDir;
+  private Monitoring monitoring;
+  private ProcessAnalysis processAnalysis;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -137,6 +138,8 @@ public class TypeScriptSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
+    monitoring = new Monitoring(new MapSettings().asConfig());
+    processAnalysis = new ProcessAnalysis(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
   }
 
   @Test
@@ -503,12 +506,14 @@ public class TypeScriptSensorTest {
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
-      new DefaultNoSonarFilter(),
-      fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarnings,
       tempFolder,
-      new Monitoring(new MapSettings().asConfig()));
+      monitoring, analysisWithProgram(), processAnalysis);
+  }
+
+  private AnalysisWithProgram analysisWithProgram() {
+    return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis);
   }
 
   private AnalysisResponse createResponse() {

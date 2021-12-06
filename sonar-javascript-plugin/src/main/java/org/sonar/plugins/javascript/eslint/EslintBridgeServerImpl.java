@@ -205,7 +205,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException {
+  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
     InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
@@ -319,6 +319,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return new TsConfigFile(filename, emptyListIfNull(tsConfigResponse.files), emptyListIfNull(tsConfigResponse.projectReferences));
   }
 
+  @Override
+  public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
+    var response = request(GSON.toJson(tsProgramRequest), "programs");
+    return GSON.fromJson(response, TsProgram.class);
+  }
+
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
     return list == null ? emptyList() : list;
   }
@@ -379,11 +385,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   static class InitLinterRequest {
-    List<Rule> rules;
+    List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
 
-    public InitLinterRequest(List<Rule> rules, List<String> environments, List<String> globals) {
+    public InitLinterRequest(List<EslintRule> rules, List<String> environments, List<String> globals) {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;

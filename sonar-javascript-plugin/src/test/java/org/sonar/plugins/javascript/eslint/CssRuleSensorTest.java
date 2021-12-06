@@ -41,7 +41,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -51,7 +50,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.TestActiveRules;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
@@ -108,8 +106,7 @@ class CssRuleSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    sensor = new CssRuleSensor(new JavaScriptChecks(CHECK_FACTORY), new DefaultNoSonarFilter(), fileLinesContextFactory,
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
+    sensor = new CssRuleSensor(eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
   }
 
   @Test

@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.eslint;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -39,6 +40,8 @@ public class AbstractChecks {
   private final CheckFactory checkFactory;
   private final CustomRuleRepository[] customRuleRepositories;
   private final Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
+  private static final RuleKey NOT_SET = RuleKey.of("not-set", "not-set");
+  private RuleKey parseErrorRuleKey = NOT_SET;
 
   public AbstractChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
     this.checkFactory = checkFactory;
@@ -71,21 +74,15 @@ public class AbstractChecks {
 
   }
 
-  public List<JavaScriptCheck> all() {
-    List<JavaScriptCheck> allVisitors = new ArrayList<>();
-
-    for (Checks<JavaScriptCheck> checks : checksByRepository) {
-      allVisitors.addAll(checks.all());
-    }
-
-    return allVisitors;
+  private Stream<JavaScriptCheck> all() {
+    return checksByRepository.stream()
+      .flatMap(checks -> checks.all().stream());
   }
 
-  public List<EslintBasedCheck> eslintBasedChecks() {
-    return all().stream()
+  Stream<EslintBasedCheck> eslintBasedChecks() {
+    return all()
       .filter(EslintBasedCheck.class::isInstance)
-      .map(check -> (EslintBasedCheck) check)
-      .collect(Collectors.toList());
+      .map(EslintBasedCheck.class::cast);
   }
 
   @Nullable
@@ -118,5 +115,27 @@ public class AbstractChecks {
 
     }
     return null;
+  }
+
+  /**
+   * parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
+   *
+   * @return rule key for parse error
+   */
+  @Nullable
+  RuleKey parsingErrorRuleKey() {
+    if (parseErrorRuleKey == NOT_SET) {
+      parseErrorRuleKey = all()
+        .filter(ParsingErrorCheck.class::isInstance)
+        .findFirst()
+        .map(this::ruleKeyFor).orElse(null);
+    }
+    return parseErrorRuleKey;
+  }
+
+  List<EslintRule> eslintRules() {
+    return eslintBasedChecks()
+      .map(check -> new EslintRule(check.eslintKey(), check.configurations(), check.targets()))
+      .collect(Collectors.toList());
   }
 }

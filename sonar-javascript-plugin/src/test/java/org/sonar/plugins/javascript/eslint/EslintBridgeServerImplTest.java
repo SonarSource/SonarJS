@@ -155,7 +155,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -165,7 +165,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    List<EslintBridgeServer.Rule> rules = Collections.singletonList(new EslintBridgeServer.Rule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
+    List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
     eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList());
     eslintBridgeServer.stop();
     assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
@@ -184,7 +184,7 @@ class EslintBridgeServerImplTest {
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
-      singletonList(tsConfig.absolutePath()));
+      singletonList(tsConfig.absolutePath()), null);
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
 
@@ -324,7 +324,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
@@ -411,7 +411,7 @@ class EslintBridgeServerImplTest {
 
   @Test
   void test_rule_tostring() {
-    EslintBridgeServer.Rule rule = new EslintBridgeServer.Rule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
+    EslintRule rule = new EslintRule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
     assertThat(rule).hasToString("key");
   }
 

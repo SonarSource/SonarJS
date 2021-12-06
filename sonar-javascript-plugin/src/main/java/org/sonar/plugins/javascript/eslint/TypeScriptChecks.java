@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.eslint;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.rule.RuleKey;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptChecksTest {
+/**
+ * Wrapper around Checks Object to ease the manipulation of the different JavaScript rule repositories.
+ */
+@ScannerSide
+@SonarLintSide
+public class TypeScriptChecks extends AbstractChecks {
 
-  @Test
-  public void should_detect_unknown_rule_key() throws Exception {
-    JavaScriptChecks checks = new JavaScriptChecks(TestUtils.checkFactory(CheckList.JS_REPOSITORY_KEY, "S3923"));
+  public TypeScriptChecks(CheckFactory checkFactory) {
+    this(checkFactory, null);
+  }
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
-    assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
+  public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
+    super(checkFactory, customRuleRepositories);
+    addChecks(CustomRuleRepository.Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
   }
 
 }

@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,7 +37,7 @@ public interface EslintBridgeServer extends Startable {
 
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -56,19 +55,23 @@ public interface EslintBridgeServer extends Startable {
 
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
+  TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;
+
   class JsAnalysisRequest {
     final String filePath;
     final String fileContent;
     final String fileType;
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
+    final String programId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
+      this.programId = programId;
     }
   }
 
@@ -81,23 +84,6 @@ public interface EslintBridgeServer extends Startable {
       this.filePath = filePath;
       this.fileContent = fileContent;
       this.stylelintConfig = stylelintConfig;
-    }
-  }
-
-  class Rule {
-    String key;
-    List<String> fileTypeTarget;
-    List<Object> configurations;
-
-    Rule(String key, List<Object> configurations, List<InputFile.Type> fileTypeTarget) {
-      this.key = key;
-      this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
-      this.configurations = configurations;
-    }
-
-    @Override
-    public String toString() {
-      return key;
     }
   }
 
@@ -198,6 +184,27 @@ public interface EslintBridgeServer extends Startable {
       this.projectReferences = projectReferences;
       this.error = error;
       this.errorCode = errorCode;
+    }
+  }
+
+  class TsProgram {
+    String id;
+    List<String> files;
+    List<String> projectReferences;
+  }
+
+  class TsProgramRequest {
+    final String tsConfig;
+    final List<String> files;
+
+    public TsProgramRequest(String tsConfig) {
+      this.tsConfig = tsConfig;
+      this.files = null;
+    }
+
+    public TsProgramRequest(List<String> files) {
+      this.files = files;
+      this.tsConfig = null;
     }
   }
 }

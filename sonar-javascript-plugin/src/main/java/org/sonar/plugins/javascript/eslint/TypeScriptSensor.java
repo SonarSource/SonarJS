@@ -34,18 +34,15 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static java.util.Collections.singletonList;
@@ -54,20 +51,18 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private final TempFolder tempFolder;
+  private final AnalysisWithProgram analysisWithProgram;
+  private final ProcessAnalysis processAnalysis;
+  private final TypeScriptChecks checks;
 
-  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
-                          FileLinesContextFactory fileLinesContextFactory,
-                          EslintBridgeServer eslintBridgeServer,
-                          AnalysisWarningsWrapper analysisWarnings,
-                          TempFolder tempFolder, Monitoring monitoring) {
-    super(typeScriptChecks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
-      analysisWarnings,
-      monitoring
-    );
+  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
+                          AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
+                          AnalysisWithProgram analysisWithProgram, ProcessAnalysis processAnalysis) {
+    super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
+    this.analysisWithProgram = analysisWithProgram;
+    this.processAnalysis = processAnalysis;
+    checks = typeScriptChecks;
   }
 
   @Override
@@ -88,9 +83,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    boolean success = false;
-    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
-    eslintBridgeServer.initLinter(rules, environments, globals);
+    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
@@ -98,6 +91,12 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
       return;
     }
+    if (shouldAnalyzeWithProgram(inputFiles)) {
+      analysisWithProgram.analyzeFiles(context, checks, tsConfigs, inputFiles);
+      return;
+    }
+    boolean success = false;
+    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
       progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
@@ -123,6 +122,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
+  private boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
+    return inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) && !contextUtils.isSonarLint();
+  }
+
   private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile, ProgressReport progressReport) throws IOException {
     for (InputFile inputFile : files) {
       if (context.isCancelled()) {
@@ -140,10 +143,11 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
     try {
-      String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
+      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
+        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null);
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
-      processResponse(file, response);
+      processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;
