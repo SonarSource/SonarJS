@@ -70,13 +70,13 @@ export function startServer(
     // for parsing application/json requests
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
 
-    app.post('/init-linter', (req, resp) => {
+    app.post('/init-linter', (req, res) => {
       initLinter(
         req.body.rules as Rule[],
         req.body.environments as string[],
         req.body.globals as string[],
       );
-      resp.send('OK!');
+      res.send('OK!');
     });
 
     app.post('/analyze-js', analyze(analyzeJS));
@@ -84,6 +84,21 @@ export function startServer(
     app.post('/analyze-ts', analyze(analyzeTS));
 
     app.post('/analyze-css', analyze(analyzeCSS));
+
+    app.post('/create-program', (req, res) => {
+      try {
+        const { tsConfig } = req.body;
+        res.json(/*Programs.getInstance().create(tsConfig)*/tsConfig);
+      } catch (e) {
+        console.error(e.stack);
+        res.json({ error: e.message });
+      }
+    });
+
+    app.post('/delete-program/:programId', (req, res) => {
+      deleteProgram(req.params.id);
+      res.send('OK!');
+    });
 
     app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();

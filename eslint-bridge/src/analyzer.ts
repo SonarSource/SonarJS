@@ -51,6 +51,12 @@ export interface JsAnalysisInput extends AnalysisInput {
   tsConfigs: string[];
 }
 
+export interface ProgramBasedAnalysisInput extends AnalysisInput {
+  programId: string;
+  fileType: FileType;
+  ignoreHeaderComments?: boolean;
+}
+
 export interface Rule {
   // eslint rule key
   key: string;
