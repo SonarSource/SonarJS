@@ -166,7 +166,10 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
   return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
-function analyze(input: JsAnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
+function analyze(
+  input: JsAnalysisInput | ProgramBasedAnalysisInput,
+  language: 'ts' | 'js',
+): AnalysisResponse {
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
@@ -191,7 +194,7 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
   return { result, duration };
 }
 
-function analyzeFile(sourceCode: SourceCode, input: JsAnalysisInput) {
+function analyzeFile(sourceCode: SourceCode, input: JsAnalysisInput | ProgramBasedAnalysisInput) {
   try {
     const { issues, highlightedSymbols, cognitiveComplexity } = linter.analyze(
       sourceCode,

@@ -32,6 +32,7 @@ import {
 import { AddressInfo } from 'net';
 import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
 import { getFilesForTsConfig } from './tsconfig';
+import { createProgram, deleteProgram } from './programManager';
 
 const MAX_REQUEST_SIZE = '50mb';
 
@@ -88,15 +89,17 @@ export function startServer(
     app.post('/create-program', (req, res) => {
       try {
         const { tsConfig } = req.body;
-        res.json(/*Programs.getInstance().create(tsConfig)*/tsConfig);
+        res.json(createProgram(tsConfig));
       } catch (e) {
         console.error(e.stack);
         res.json({ error: e.message });
       }
     });
 
+    app.post('/analyze-with-program', analyze(analyzeTS));
+
     app.post('/delete-program/:programId', (req, res) => {
-      deleteProgram(req.params.id);
+      deleteProgram(req.params.programId);
       res.send('OK!');
     });
 
