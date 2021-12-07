@@ -37,13 +37,17 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
 
+@ScannerSide
+@SonarLintSide
 public class ProcessAnalysis {
 
   private static final Logger LOG = Loggers.get(ProcessAnalysis.class);
@@ -56,7 +60,7 @@ public class ProcessAnalysis {
   private InputFile file;
   private AbstractChecks checks;
 
-  ProcessAnalysis(NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, Monitoring monitoring) {
+  public ProcessAnalysis(NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, Monitoring monitoring) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;

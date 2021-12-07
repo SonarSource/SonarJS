@@ -84,15 +84,15 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
+    if (shouldAnalyzeWithProgram(inputFiles)) {
+      analysisWithProgram.analyzeFiles(context, checks, inputFiles);
+      return;
+    }
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
       // See also https://github.com/SonarSource/SonarJS/issues/2506
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
-      return;
-    }
-    if (shouldAnalyzeWithProgram(inputFiles)) {
-      analysisWithProgram.analyzeFiles(context, checks, tsConfigs, inputFiles);
       return;
     }
     boolean success = false;

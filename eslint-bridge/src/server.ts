@@ -98,8 +98,9 @@ export function startServer(
 
     app.post('/analyze-with-program', analyze(analyzeTS));
 
-    app.post('/delete-program/:programId', (req, res) => {
-      deleteProgram(req.params.programId);
+    app.post('/delete-program', (req, res) => {
+      const { id } = req.body;
+      deleteProgram(id);
       res.send('OK!');
     });
 

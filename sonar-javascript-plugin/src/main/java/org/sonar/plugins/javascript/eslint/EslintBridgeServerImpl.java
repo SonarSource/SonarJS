@@ -227,6 +227,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
+  public AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException {
+    return response(request(GSON.toJson(request), "analyze-with-program"), request.filePath);
+  }
+
+  @Override
   public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath);
@@ -321,8 +326,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
-    var response = request(GSON.toJson(tsProgramRequest), "programs");
+    var response = request(GSON.toJson(tsProgramRequest), "create-program");
     return GSON.fromJson(response, TsProgram.class);
+  }
+
+  @Override
+  public boolean deleteProgram(TsProgram tsProgram) throws IOException {
+    var response = request(GSON.toJson(tsProgram), "delete-program");
+    return "OK!".equals(response);
   }
 
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {

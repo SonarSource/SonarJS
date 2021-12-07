@@ -27,15 +27,19 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.util.Collections.emptyList;
 
+@ScannerSide
+@SonarLintSide
 public class AnalysisWithProgram {
 
   private static final Logger LOG = Loggers.get(AnalysisWithProgram.class);
@@ -47,16 +51,20 @@ public class AnalysisWithProgram {
   private ContextUtils contextUtils;
   private AbstractChecks checks;
 
-  AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, ProcessAnalysis processAnalysis) {
+  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, ProcessAnalysis processAnalysis) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.monitoring = monitoring;
     this.processAnalysis = processAnalysis;
   }
 
-  void analyzeFiles(SensorContext context, AbstractChecks checks, List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
+  void analyzeFiles(SensorContext context, AbstractChecks checks, List<InputFile> inputFiles) throws IOException {
     this.context = context;
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
+    var tsConfigs = new TsConfigProvider().tsconfigs(context);
+    if (tsConfigs.isEmpty()) {
+      LOG.info("No tsconfig.json file found");
+    }
     Deque<String> workList = new ArrayDeque<>(tsConfigs);
     Set<String> analyzedProjects = new HashSet<>();
     Set<InputFile> analyzedFiles = new HashSet<>();
@@ -70,6 +78,7 @@ public class AnalysisWithProgram {
       PROFILER.stopInfo();
       analyzeProgram(program, analyzedFiles);
       workList.addAll(program.projectReferences);
+      eslintBridgeServer.deleteProgram(program);
     }
     Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
     skippedFiles.removeAll(analyzedFiles);
@@ -100,10 +109,9 @@ public class AnalysisWithProgram {
     try {
       LOG.debug("Analyzing {}", file);
       monitoring.startFile(file);
-      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), emptyList(), tsProgram.id);
-      EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
+      EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
+        file.type().toString(), null, contextUtils.ignoreHeaderComments(), emptyList(), tsProgram.id);
+      EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);

@@ -43,6 +43,8 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
+  AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException;
+
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   void clean();
@@ -56,6 +58,8 @@ public interface EslintBridgeServer extends Startable {
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
   TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;
+
+  boolean deleteProgram(TsProgram tsProgram) throws IOException;
 
   class JsAnalysisRequest {
     final String filePath;

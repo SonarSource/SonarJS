@@ -68,6 +68,10 @@ class TsConfigProvider {
       new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate));
   }
 
+  TsConfigProvider() {
+    providers = List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider());
+  }
+
   List<String> tsconfigs(SensorContext context) throws IOException {
     for (Provider provider : providers) {
       List<String> tsconfigs = provider.tsconfigs(context);
