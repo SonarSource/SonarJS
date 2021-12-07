@@ -19,7 +19,6 @@
  */
 import path from 'path';
 import ts from 'typescript';
-import { ParseExceptionCode } from './parser';
 
 const programs = new Map<string, ts.Program>();
 let programCount = 0;
@@ -51,34 +50,30 @@ export function createProgram(tsConfig: string): {
   console.log(`DEBUG creating program from ${tsConfig}`);
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
-  if (config.error !== undefined) {
-    console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
-    throw { error: diagnosticToString(config.error) };
+  if (config.error) {
+    console.error(`Failed to parse tsconfig: ${tsConfig} (${JSON.stringify(config.error)})`);
+    throw Error(diagnosticToString(config.error));
   }
 
-  const parsedCommandLine = ts.parseJsonConfigFileContent(
+  const parsedConfigFile = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
     path.resolve(path.dirname(tsConfig)),
     {
       noEmit: true,
     },
-    // to include .vue files we can provide additional options here
+    // to include .vue files we can provide additional options here (parameter 'extraFileExtensions')
   );
 
-  if (parsedCommandLine.errors.length > 0) {
-    let error = '';
-    parsedCommandLine.errors.forEach(d => {
-      error += diagnosticToString(d);
-    });
-    // fixme
-    throw { error, errorCode: ParseExceptionCode.GeneralError };
+  if (parsedConfigFile.errors.length > 0) {
+    const message = parsedConfigFile.errors.map(diagnosticToString).join('; ');
+    throw Error(message);
   }
 
   const programOptions: ts.CreateProgramOptions = {
-    rootNames: parsedCommandLine.fileNames,
-    options: { ...parsedCommandLine.options, allowNonTsExtensions: true },
-    projectReferences: parsedCommandLine.projectReferences,
+    rootNames: parsedConfigFile.fileNames,
+    options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
+    projectReferences: parsedConfigFile.projectReferences,
   };
 
   const program = ts.createProgram(programOptions);
@@ -88,6 +83,7 @@ export function createProgram(tsConfig: string): {
 
   const programId = nextId();
   programs.set(programId, program);
+  console.log(`DEBUG program from ${tsConfig} with id ${programId} is created`);
 
   return { programId, files, projectReferences };
 }

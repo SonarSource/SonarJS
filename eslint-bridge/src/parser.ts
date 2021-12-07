@@ -122,7 +122,7 @@ export function buildParsingOptions(
   sourceType: 'script' | 'module' = 'module',
 ) {
   const project = 'tsConfigs' in input ? input.tsConfigs : undefined;
-  const programs = 'programId' in input ? getProgramById(input.programId) : undefined;
+  const programs = 'programId' in input ? [getProgramById(input.programId)] : undefined;
 
   const options: Linter.ParserOptions = {
     tokens: true,
