@@ -77,6 +77,8 @@ export function createProgram(tsConfig: string): {
   };
 
   const program = ts.createProgram(programOptions);
+  program.getGlobalDiagnostics().forEach(d => console.log(`DEBUG ${diagnosticToString(d)}`));
+  program.getSemanticDiagnostics().forEach(d => console.log(`DEBUG ${diagnosticToString(d)}`));
   const maybeProjectReferences = program.getProjectReferences();
   const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
@@ -94,9 +96,9 @@ function nextId() {
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
-  if (typeof diagnostic.messageText === 'string') {
-    return diagnostic.messageText;
-  } else {
-    return diagnostic.messageText.messageText;
-  }
+  let text =
+    typeof diagnostic.messageText === 'string'
+      ? diagnostic.messageText
+      : diagnostic.messageText.messageText;
+  return `${text}  ${diagnostic.file?.fileName}:${diagnostic.start}`;
 }
