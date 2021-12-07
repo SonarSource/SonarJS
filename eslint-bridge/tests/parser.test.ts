@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildParsingOptions, buildSourceCode, ParseExceptionCode, parseExceptionCodeOf } from 'parser';
+import {
+  buildParsingOptions,
+  buildSourceCode,
+  ParseExceptionCode,
+  parseExceptionCodeOf,
+} from 'parser';
 import { SourceCode } from 'eslint';
 import { ParsingError, ProgramBasedAnalysisInput } from 'analyzer';
 import { visit } from '../src/utils';
@@ -369,7 +374,12 @@ describe('program based analysis', () => {
   it('should create options with programs', () => {
     const { programId } = createProgram(join(__dirname, './fixtures/ts-project/tsconfig.json'));
     const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
-    const analysisInput: ProgramBasedAnalysisInput = { programId, filePath, fileType: 'MAIN', fileContent: undefined };
+    const analysisInput: ProgramBasedAnalysisInput = {
+      programId,
+      filePath,
+      fileType: 'MAIN',
+      fileContent: undefined,
+    };
     const parsingOptions = buildParsingOptions(analysisInput);
     expect(parsingOptions.programs).toHaveLength(1);
     expect(parsingOptions.project).toBeUndefined();
