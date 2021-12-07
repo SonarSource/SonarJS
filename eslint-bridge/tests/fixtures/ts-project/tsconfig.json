@@ -3,5 +3,6 @@
     "target": "es6",
     "allowJs": true
   },
-  "exclude": ["excluded.ts"]
+  "exclude": ["excluded.ts"],
+  "references": [ { "path": "../ts-vue-project" }]
 }

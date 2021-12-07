@@ -23,6 +23,8 @@ import { promisify } from 'util';
 import { join } from 'path';
 import { AddressInfo } from 'net';
 import { setContext } from 'context';
+import { getProgramById } from '../src/programManager';
+import { ProgramBasedAnalysisInput } from '../src/analyzer';
 
 const expectedResponse = {
   issues: [
@@ -543,6 +545,116 @@ describe('sonarlint context', () => {
         ],
       });
     });
+  });
+
+  function post(data, endpoint) {
+    return postToServer(data, endpoint, server);
+  }
+});
+
+describe.only('program based analysis', () => {
+  let server: http.Server;
+  let close;
+
+  const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+  const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
+
+  beforeAll(async () => {
+    server = await start();
+    close = promisify(server.close.bind(server));
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+    });
+
+    await post(
+      JSON.stringify({
+        rules: [
+          { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' },
+          { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
+        ],
+      }),
+      '/init-linter',
+    );
+  });
+
+  afterAll(async () => {
+    await close();
+  });
+
+  it('should create Program based on tsConfig', async () => {
+    const programResponse = JSON.parse(await post(JSON.stringify({ tsConfig }), '/create-program'));
+
+    const { programId, files, projectReferences } = programResponse;
+
+    expect(programId).toBeDefined();
+    expect(files).toContain(filePath);
+    expect(projectReferences).toEqual([join(__dirname, './fixtures/ts-vue-project')]);
+
+    const analysisRequest: ProgramBasedAnalysisInput = {
+      filePath,
+      fileContent: 'if (true) 42; else 42;',
+      programId,
+      fileType: 'MAIN',
+    };
+
+    const analysisResponse = JSON.parse(
+      await post(JSON.stringify(analysisRequest), '/analyze-with-program'),
+    );
+
+    // we have issue for 'no-one-iteration-loop' and not 'no-all-duplicated-branches' rule
+    // as 'fileContent' is ignored, because we rely on Program for analysis (AST is created from FS)
+    expect(analysisResponse.issues.length).toEqual(1);
+    expect(analysisResponse.issues[0].ruleId).toEqual('no-one-iteration-loop');
+  }, 10_000);
+
+  it('should still support regular analysis', async () => {
+    const responseJs = JSON.parse(
+      await post(
+        JSON.stringify({
+          filePath: 'dir/file.js',
+          fileContent: 'if (true) 42; else 42;',
+          fileType: 'MAIN',
+        }),
+        '/analyze-js',
+      ),
+    );
+    delete responseJs.perf;
+    expect(responseJs).toEqual(expectedResponse);
+
+    const responseTs = JSON.parse(
+      await post(
+        JSON.stringify({
+          filePath,
+          fileContent: 'if (true) 42; else 42;',
+          tsConfigs: [tsConfig],
+          fileType: 'MAIN',
+        }),
+        '/analyze-ts',
+      ),
+    );
+    delete responseTs.perf;
+    expect(responseTs).toEqual(expectedResponse);
+  }, 10_000);
+
+  it('should delete program', async () => {
+    const response = JSON.parse(await post(JSON.stringify({ tsConfig }), '/create-program'));
+    expect(getProgramById(response.programId)).toBeDefined();
+
+    await post('', '/delete-program/' + response.programId);
+    expect(() => getProgramById(response.programId)).toThrow(
+      `Failed to find program ${response.programId}`,
+    );
+  });
+
+  it('should return error when invalid tsconfig', async () => {
+    const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
+    );
+    expect(response.error).toBeDefined();
+    expect(response.files).toBeUndefined();
   });
 
   function post(data, endpoint) {

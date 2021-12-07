@@ -33,7 +33,7 @@ const parseConfigHost: ts.ParseConfigHost = {
 export function getProgramById(programId: string): ts.Program {
   const program = programs.get(programId);
   if (!program) {
-    throw new Error(`failed to find program ${programId}`);
+    throw Error(`Failed to find program ${programId}`);
   }
   return program;
 }
