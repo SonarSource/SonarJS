@@ -552,14 +552,14 @@ describe('sonarlint context', () => {
   }
 });
 
-describe.only('program based analysis', () => {
+describe('program based analysis', () => {
   let server: http.Server;
   let close;
 
   const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
   const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     server = await start();
     close = promisify(server.close.bind(server));
     setContext({
@@ -579,7 +579,7 @@ describe.only('program based analysis', () => {
     );
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await close();
   });
 
