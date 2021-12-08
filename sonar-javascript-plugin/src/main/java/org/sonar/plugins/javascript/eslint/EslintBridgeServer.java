@@ -192,9 +192,24 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class TsProgram {
-    String programId;
-    List<String> files;
-    List<String> projectReferences;
+    final String programId;
+    final List<String> files;
+    final List<String> projectReferences;
+
+    TsProgram(String programId, List<String> files, List<String> projectReferences) {
+      this.programId = programId;
+      this.files = files;
+      this.projectReferences = projectReferences;
+    }
+
+    @Override
+    public String toString() {
+      return "TsProgram{" +
+        "programId='" + programId + '\'' +
+        ", files=" + files +
+        ", projectReferences=" + projectReferences +
+        '}';
+    }
   }
 
   class TsProgramRequest {

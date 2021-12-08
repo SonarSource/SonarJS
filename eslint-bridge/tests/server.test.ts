@@ -642,7 +642,7 @@ describe('program based analysis', () => {
     const response = JSON.parse(await post(JSON.stringify({ tsConfig }), '/create-program'));
     expect(getProgramById(response.programId)).toBeDefined();
 
-    await post(JSON.stringify({ id: response.programId }), '/delete-program');
+    await post(JSON.stringify({ programId: response.programId }), '/delete-program');
     expect(() => getProgramById(response.programId)).toThrow(
       `Failed to find program ${response.programId}`,
     );

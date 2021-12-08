@@ -67,9 +67,10 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
@@ -78,7 +79,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -158,7 +158,8 @@ public class TypeScriptSensorTest {
 
     TypeScriptSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
-    createTSConfigFile(context);
+    createVueInputFile();
+    createTsConfigFile();
 
     sensor.execute(context);
     verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any());
@@ -204,6 +205,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_not_explode_if_no_response() throws Exception {
+    createVueInputFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
 
     TypeScriptSensor sensor = createSensor();
@@ -236,6 +238,8 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_raise_a_parsing_error() throws IOException {
+    setSonarLintRuntime(context);
+    createTsConfigFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
@@ -251,6 +255,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_raise_a_parsing_error_without_line() throws IOException {
+    createVueInputFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class));
     createInputFile(context);
@@ -267,7 +272,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
     SensorContextTester ctx = createSensorContext(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    setSonarLintRuntime(ctx);
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
     when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList()));
@@ -278,18 +283,29 @@ public class TypeScriptSensorTest {
       "doFoo(); \n" +
       "else \n" +
       "doFoo();");
+  }
 
-    clearInvocations(eslintBridgeServerMock);
-    ctx = createSensorContext(baseDir);
-    createInputFile(ctx);
+  @Test
+  void should_not_send_content() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(eslintBridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    createTsConfigFile();
     createSensor().execute(ctx);
-    verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeWithProgram(captor.capture());
     assertThat(captor.getValue().fileContent).isNull();
+    var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
+    verify(eslintBridgeServerMock).deleteProgram(deleteCaptor.capture());
+    assertThat(deleteCaptor.getValue().programId).isEqualTo(tsProgram.programId);
   }
 
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
     SensorContextTester ctx = createSensorContext(baseDir);
+    createVueInputFile(ctx);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
       .setLanguage("ts")
@@ -307,23 +323,6 @@ public class TypeScriptSensorTest {
   }
 
   @Test
-  public void should_abort_when_missing_typescript() throws Exception {
-    AnalysisResponse parseError = new AnalysisResponse();
-    parseError.parsingError = new EslintBridgeServer.ParsingError();
-    parseError.parsingError.message = "Cannot find module 'typescript'";
-    parseError.parsingError.code = ParsingErrorCode.MISSING_TYPESCRIPT;
-    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
-    createInputFile(context, "dir/file1.ts");
-    createInputFile(context, "dir/file2.ts");
-    createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce("Cannot find module 'typescript'");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain("Failed to analyze file [dir/file1.ts]: Cannot find module 'typescript'");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
-    // assert that analysis was interrupted after first file
-    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
-  }
-
-  @Test
   public void should_log_when_failing_typescript() throws Exception {
     AnalysisResponse parseError = new AnalysisResponse();
     parseError.parsingError = new EslintBridgeServer.ParsingError();
@@ -332,44 +331,17 @@ public class TypeScriptSensorTest {
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
+    createVueInputFile();
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file1.ts] from TypeScript: Debug Failure. False expression.");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file2.ts] from TypeScript: Debug Failure. False expression.");
   }
 
   @Test
-  public void should_create_ui_warning_missing_typescript() throws Exception {
-    when(eslintBridgeServerMock.loadTsConfig(any())).thenThrow(new MissingTypeScriptException());
-    createInputFile(context, "dir/file1.ts");
-    createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Missing TypeScript dependency");
-    assertThat(analysisWarnings.warnings).containsExactly("JavaScript/TypeScript/CSS rules were not executed. Missing TypeScript dependency");
-  }
-
-  @Test
-  public void should_abort_when_unsupported_typescript() throws Exception {
-    AnalysisResponse parseError = new AnalysisResponse();
-    parseError.parsingError = new EslintBridgeServer.ParsingError();
-    parseError.parsingError.message = "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6";
-    parseError.parsingError.code = ParsingErrorCode.UNSUPPORTED_TYPESCRIPT;
-    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
-    createInputFile(context, "dir/file1.ts");
-    createInputFile(context, "dir/file2.ts");
-    createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
-      "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
-      "If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain(
-      "Failed to analyze file [dir/file1.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
-    // assert that analysis was interrupted after first file
-    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
-  }
-
-  @Test
   public void should_analyze_by_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/multi-tsconfig");
     SensorContextTester context = createSensorContext(baseDir);
+    setSonarLintRuntime(context);
 
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
     DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
@@ -401,6 +373,7 @@ public class TypeScriptSensorTest {
   public void should_resolve_project_references_from_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
     SensorContextTester context = createSensorContext(baseDir);
+    setSonarLintRuntime(context);
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
 
     String tsconfig = absolutePath(baseDir, "tsconfig.json");
@@ -445,7 +418,7 @@ public class TypeScriptSensorTest {
     SensorContextTester context = createSensorContext(tempDir);
     inputFileFromResource(context, baseDir, "src/file.ts");
 
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    setSonarLintRuntime(context);
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("No tsconfig.json file found, analysis will be skipped.");
   }
@@ -459,7 +432,8 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_fail_fast() throws Exception {
-    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
+    createTsConfigFile();
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenThrow(new IOException("error"));
     TypeScriptSensor sensor = createSensor();
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -472,6 +446,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_fail_fast_with_parsing_error_without_line() throws IOException {
+    createVueInputFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class));
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
@@ -487,6 +462,8 @@ public class TypeScriptSensorTest {
   public void stop_analysis_if_server_is_not_responding() throws Exception {
     when(eslintBridgeServerMock.isAlive()).thenReturn(false);
     TypeScriptSensor sensor = createSensor();
+    createTsConfigFile();
+    createVueInputFile();
     createInputFile(context);
     sensor.execute(context);
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
@@ -498,6 +475,8 @@ public class TypeScriptSensorTest {
   public void stop_analysis_if_cancelled() throws Exception {
     TypeScriptSensor sensor = createSensor();
     createInputFile(context);
+    setSonarLintRuntime(context);
+    createTsConfigFile();
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
@@ -568,12 +547,12 @@ public class TypeScriptSensorTest {
       + "]";
   }
 
-  private static DefaultInputFile createInputFile(SensorContextTester context) {
+  private DefaultInputFile createInputFile(SensorContextTester context) {
     return createInputFile(context, "dir/file.ts");
   }
 
-  private static DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
+  private DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", baseDir.toFile(), baseDir.resolve(relativePath).toFile())
       .setLanguage("ts")
       .setCharset(StandardCharsets.UTF_8)
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
@@ -582,11 +561,25 @@ public class TypeScriptSensorTest {
     return inputFile;
   }
 
-  private static void createTSConfigFile(SensorContextTester context) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "tsconfig.json")
-      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
+  private void createTsConfigFile() throws IOException {
+    Files.writeString(baseDir.resolve("tsconfig.json"), "{}");
+  }
+
+  private void createVueInputFile() {
+    createVueInputFile(context);
+  }
+
+  private void createVueInputFile(SensorContextTester context) {
+    var vueFile = new TestInputFileBuilder("moduleKey", baseDir.toFile(), baseDir.resolve("file.vue").toFile())
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("<script lang=\"ts\"></script>")
       .build();
-    context.fileSystem().add(inputFile);
+    context.fileSystem().add(vueFile);
+  }
+
+  private void setSonarLintRuntime(SensorContextTester context) {
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
   }
 
   private static TypeScriptChecks checks(String... ruleKeys) {

@@ -332,7 +332,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public boolean deleteProgram(TsProgram tsProgram) throws IOException {
-    var response = request(GSON.toJson(tsProgram), "delete-program");
+    var programToDelete = new TsProgram(tsProgram.programId, null, null);
+    var response = request(GSON.toJson(programToDelete), "delete-program");
     return "OK!".equals(response);
   }
 
