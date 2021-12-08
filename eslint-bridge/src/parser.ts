@@ -148,6 +148,8 @@ export function buildParsingOptions(
     filePath: input.filePath,
     project,
     programs,
+    // enable logs for @typescripteslint
+    // debugLevel: true,
   };
 
   if (usingBabel) {

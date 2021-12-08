@@ -192,7 +192,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class TsProgram {
-    String id;
+    String programId;
     List<String> files;
     List<String> projectReferences;
   }

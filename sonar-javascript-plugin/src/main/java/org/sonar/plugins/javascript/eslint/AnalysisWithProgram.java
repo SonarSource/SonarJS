@@ -110,7 +110,7 @@ public class AnalysisWithProgram {
       LOG.debug("Analyzing {}", file);
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-        file.type().toString(), null, contextUtils.ignoreHeaderComments(), emptyList(), tsProgram.id);
+        file.type().toString(), null, contextUtils.ignoreHeaderComments(), emptyList(), tsProgram.programId);
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {
