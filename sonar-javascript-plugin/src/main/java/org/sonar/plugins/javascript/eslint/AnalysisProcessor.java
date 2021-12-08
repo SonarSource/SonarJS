@@ -48,9 +48,9 @@ import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocati
 
 @ScannerSide
 @SonarLintSide
-public class ProcessAnalysis {
+public class AnalysisProcessor {
 
-  private static final Logger LOG = Loggers.get(ProcessAnalysis.class);
+  private static final Logger LOG = Loggers.get(AnalysisProcessor.class);
 
   private final Monitoring monitoring;
   private final NoSonarFilter noSonarFilter;
@@ -60,7 +60,7 @@ public class ProcessAnalysis {
   private InputFile file;
   private AbstractChecks checks;
 
-  public ProcessAnalysis(NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, Monitoring monitoring) {
+  public AnalysisProcessor(NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, Monitoring monitoring) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;

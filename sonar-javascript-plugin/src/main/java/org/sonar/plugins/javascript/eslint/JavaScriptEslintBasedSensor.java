@@ -46,11 +46,11 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
-  private final ProcessAnalysis processAnalysis;
+  private final AnalysisProcessor processAnalysis;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     ProcessAnalysis processAnalysis) {
+                                     AnalysisProcessor processAnalysis) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;

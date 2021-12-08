@@ -41,6 +41,7 @@ public class TypeScriptChecks extends AbstractChecks {
   public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
     super(checkFactory, customRuleRepositories);
     addChecks(CustomRuleRepository.Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
+    initParsingErrorRuleKey();
   }
 
 }

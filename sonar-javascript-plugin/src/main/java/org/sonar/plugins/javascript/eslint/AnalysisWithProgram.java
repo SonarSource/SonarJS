@@ -37,8 +37,6 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static java.util.Collections.emptyList;
-
 @ScannerSide
 @SonarLintSide
 public class AnalysisWithProgram {
@@ -47,12 +45,12 @@ public class AnalysisWithProgram {
   private static final Profiler PROFILER = Profiler.create(LOG);
   private final EslintBridgeServer eslintBridgeServer;
   private final Monitoring monitoring;
-  private final ProcessAnalysis processAnalysis;
+  private final AnalysisProcessor processAnalysis;
   private SensorContext context;
   private ContextUtils contextUtils;
   private AbstractChecks checks;
 
-  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, ProcessAnalysis processAnalysis) {
+  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.monitoring = monitoring;
     this.processAnalysis = processAnalysis;
@@ -102,7 +100,7 @@ public class AnalysisWithProgram {
       if (analyzedFiles.add(inputFile)) {
         analyze(inputFile, program);
       } else {
-        LOG.debug("File already analyzed: '{}'", file);
+        LOG.info("File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.", file);
       }
     }
   }
@@ -115,7 +113,7 @@ public class AnalysisWithProgram {
       LOG.debug("Analyzing {}", file);
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-        file.type().toString(), null, contextUtils.ignoreHeaderComments(), emptyList(), tsProgram.programId);
+        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId);
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {

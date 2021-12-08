@@ -40,8 +40,7 @@ public class AbstractChecks {
   private final CheckFactory checkFactory;
   private final CustomRuleRepository[] customRuleRepositories;
   private final Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
-  private static final RuleKey NOT_SET = RuleKey.of("not-set", "not-set");
-  private RuleKey parseErrorRuleKey = NOT_SET;
+  private RuleKey parseErrorRuleKey;
 
   public AbstractChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
     this.checkFactory = checkFactory;
@@ -124,13 +123,14 @@ public class AbstractChecks {
    */
   @Nullable
   RuleKey parsingErrorRuleKey() {
-    if (parseErrorRuleKey == NOT_SET) {
-      parseErrorRuleKey = all()
-        .filter(ParsingErrorCheck.class::isInstance)
-        .findFirst()
-        .map(this::ruleKeyFor).orElse(null);
-    }
     return parseErrorRuleKey;
+  }
+
+  protected void initParsingErrorRuleKey() {
+    this.parseErrorRuleKey = all()
+      .filter(ParsingErrorCheck.class::isInstance)
+      .findFirst()
+      .map(this::ruleKeyFor).orElse(null);
   }
 
   List<EslintRule> eslintRules() {

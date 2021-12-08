@@ -113,7 +113,7 @@ public class TypeScriptSensorTest {
   @TempDir
   Path workDir;
   private Monitoring monitoring;
-  private ProcessAnalysis processAnalysis;
+  private AnalysisProcessor processAnalysis;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -139,7 +139,7 @@ public class TypeScriptSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     monitoring = new Monitoring(new MapSettings().asConfig());
-    processAnalysis = new ProcessAnalysis(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
   }
 
   @Test

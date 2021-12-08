@@ -103,7 +103,7 @@ public class JavaScriptEslintBasedSensorTest {
   Path workDir;
 
   private Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
-  private ProcessAnalysis processAnalysis;
+  private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -117,7 +117,7 @@ public class JavaScriptEslintBasedSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    processAnalysis = new ProcessAnalysis(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
   }
 
   @Test
@@ -390,7 +390,7 @@ public class JavaScriptEslintBasedSensorTest {
       new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
-      processAnalysis
+      analysisProcessor
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -406,7 +406,7 @@ public class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      processAnalysis
+      analysisProcessor
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
@@ -456,7 +456,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), eslintBridgeServerMock, null, tempFolder, monitoring, processAnalysis).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -569,7 +569,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   private JavaScriptEslintBasedSensor createSensor() {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, processAnalysis
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor
     );
   }
 

@@ -52,12 +52,12 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
-  private final ProcessAnalysis processAnalysis;
+  private final AnalysisProcessor processAnalysis;
   private final TypeScriptChecks checks;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
-                          AnalysisWithProgram analysisWithProgram, ProcessAnalysis processAnalysis) {
+                          AnalysisWithProgram analysisWithProgram, AnalysisProcessor processAnalysis) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;

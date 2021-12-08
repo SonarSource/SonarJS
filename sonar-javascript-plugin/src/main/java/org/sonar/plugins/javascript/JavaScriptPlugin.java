@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptChecks;
-import org.sonar.plugins.javascript.eslint.ProcessAnalysis;
+import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
@@ -119,7 +119,7 @@ public class JavaScriptPlugin implements Plugin {
       AnalysisWarningsWrapper.class,
       Monitoring.class,
       AnalysisWithProgram.class,
-      ProcessAnalysis.class
+      AnalysisProcessor.class
     );
 
     context.addExtensions(
