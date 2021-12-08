@@ -77,8 +77,6 @@ export function createProgram(tsConfig: string): {
   };
 
   const program = ts.createProgram(programOptions);
-  program.getGlobalDiagnostics().forEach(d => console.log(`DEBUG ${diagnosticToString(d)}`));
-  program.getSemanticDiagnostics().forEach(d => console.log(`DEBUG ${diagnosticToString(d)}`));
   const maybeProjectReferences = program.getProjectReferences();
   const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
