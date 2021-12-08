@@ -56,6 +56,13 @@
 13,
 15,
 ],
+'TypeScript:src/harness/virtualFileSystem.ts':[
+55,
+95,
+],
+'TypeScript:src/server/builder.ts':[
+89,
+],
 'TypeScript:src/server/client.ts':[
 37,
 38,

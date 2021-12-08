@@ -90,6 +90,9 @@
 2216,
 4125,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+636,
+],
 'TypeScript:src/compiler/parser.ts':[
 661,
 662,
@@ -289,6 +292,10 @@
 ],
 'TypeScript:src/harness/test262Runner.ts':[
 66,
+],
+'TypeScript:src/server/builder.ts':[
+98,
+249,
 ],
 'TypeScript:src/server/cancellationToken/cancellationToken.ts':[
 58,

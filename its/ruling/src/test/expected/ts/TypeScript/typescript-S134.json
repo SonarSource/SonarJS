@@ -237,6 +237,10 @@
 4207,
 4228,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+269,
+752,
+],
 'TypeScript:src/compiler/parser.ts':[
 3153,
 4043,
@@ -367,6 +371,9 @@
 ],
 'TypeScript:src/harness/rwcRunner.ts':[
 118,
+],
+'TypeScript:src/server/builder.ts':[
+363,
 ],
 'TypeScript:src/server/editorServices.ts':[
 695,
