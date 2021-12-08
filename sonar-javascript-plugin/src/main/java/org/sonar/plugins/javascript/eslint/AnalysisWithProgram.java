@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -89,7 +90,11 @@ public class AnalysisWithProgram {
   private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles) throws IOException {
     var fs = context.fileSystem();
     for (var file : program.files) {
-      var inputFile = fs.inputFile(fs.predicates().hasAbsolutePath(file));
+      var inputFile = fs.inputFile(fs.predicates().and(
+        fs.predicates().hasAbsolutePath(file),
+        // we need to check the language, because project might contain files which were already analyzed with JS sensor
+        // this should be removed once we unify the two sensors
+        fs.predicates().hasLanguage(TypeScriptLanguage.KEY)));
       if (inputFile == null) {
         LOG.debug("File not part of the project: '{}'", file);
         continue;
