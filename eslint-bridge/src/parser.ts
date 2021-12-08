@@ -25,7 +25,6 @@ import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
 import { JsAnalysisInput, ProgramBasedAnalysisInput } from './analyzer';
 import { getProgramById } from './programManager';
-import { isRequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
@@ -102,7 +101,6 @@ function parseForEslint(
   try {
     const text = fileContent || getFileContent(filePath);
     const result = parse(text, options);
-    console.log(`DEBUG isRequiredParserServices: ${isRequiredParserServices(result.services)}`);
     return new SourceCode({
       ...result,
       text,

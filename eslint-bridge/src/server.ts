@@ -20,17 +20,17 @@
 import { Server } from 'http';
 import express from 'express';
 import {
+  AnalysisResponse,
   analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
   EMPTY_RESPONSE,
-  AnalysisResponse,
   initLinter,
-  Rule,
   loadCustomRuleBundle,
+  Rule,
 } from './analyzer';
 import { AddressInfo } from 'net';
-import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
+import { ParseExceptionCode, unloadTypeScriptEslint } from './parser';
 import { getFilesForTsConfig } from './tsconfig';
 import { createProgram, deleteProgram } from './programManager';
 

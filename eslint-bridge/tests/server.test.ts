@@ -589,8 +589,10 @@ describe('program based analysis', () => {
     const { programId, files, projectReferences } = programResponse;
 
     expect(programId).toBeDefined();
-    expect(files).toContain(filePath);
-    expect(projectReferences).toEqual([join(__dirname, './fixtures/ts-vue-project')]);
+    expect(files).toContain(normalizePath(filePath));
+    expect(projectReferences).toEqual([
+      normalizePath(join(__dirname, './fixtures/ts-vue-project')),
+    ]);
 
     const analysisRequest: ProgramBasedAnalysisInput = {
       filePath,
@@ -689,4 +691,8 @@ function postToServer(data, endpoint, server: http.Server): Promise<string> {
     req.write(data);
     req.end();
   });
+}
+
+function normalizePath(path: any): string {
+  return path.toString().replace(/\\/g, '/');
 }
