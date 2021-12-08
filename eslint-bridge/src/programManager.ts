@@ -51,7 +51,7 @@ export function createProgram(tsConfig: string): {
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
-    console.error(`Failed to parse tsconfig: ${tsConfig} (${JSON.stringify(config.error)})`);
+    console.error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
     throw Error(diagnosticToString(config.error));
   }
 
