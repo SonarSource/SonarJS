@@ -35,7 +35,11 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import static org.sonar.plugins.javascript.eslint.TypeScriptSensor.PROGRESS_REPORT_PERIOD;
+import static org.sonar.plugins.javascript.eslint.TypeScriptSensor.PROGRESS_REPORT_TITLE;
 
 @ScannerSide
 @SonarLintSide
@@ -49,6 +53,7 @@ public class AnalysisWithProgram {
   private SensorContext context;
   private ContextUtils contextUtils;
   private AbstractChecks checks;
+  private ProgressReport progressReport;
 
   public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis) {
     this.eslintBridgeServer = eslintBridgeServer;
@@ -64,25 +69,37 @@ public class AnalysisWithProgram {
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
-    Deque<String> workList = new ArrayDeque<>(tsConfigs);
-    Set<String> analyzedProjects = new HashSet<>();
-    Set<InputFile> analyzedFiles = new HashSet<>();
-    while (!workList.isEmpty()) {
-      var tsConfig = workList.pop();
-      if (!analyzedProjects.add(tsConfig)) {
-        continue;
+    progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
+    progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+    boolean success = false;
+    try {
+      Deque<String> workList = new ArrayDeque<>(tsConfigs);
+      Set<String> analyzedProjects = new HashSet<>();
+      Set<InputFile> analyzedFiles = new HashSet<>();
+      while (!workList.isEmpty()) {
+        var tsConfig = workList.pop();
+        if (!analyzedProjects.add(tsConfig)) {
+          continue;
+        }
+        PROFILER.startInfo("Creating program from tsconfig " + tsConfig);
+        var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
+        PROFILER.stopInfo();
+        analyzeProgram(program, analyzedFiles);
+        workList.addAll(program.projectReferences);
+        eslintBridgeServer.deleteProgram(program);
       }
-      PROFILER.startInfo("Creating program from tsconfig " + tsConfig);
-      var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
-      PROFILER.stopInfo();
-      analyzeProgram(program, analyzedFiles);
-      workList.addAll(program.projectReferences);
-      eslintBridgeServer.deleteProgram(program);
+      Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
+      skippedFiles.removeAll(analyzedFiles);
+      LOG.info("Skipped {} files because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
+      skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
+      success = true;
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
     }
-    Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
-    skippedFiles.removeAll(analyzedFiles);
-    LOG.info("Skipped {} files because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
-    skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
   }
 
   private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles) throws IOException {
@@ -111,6 +128,7 @@ public class AnalysisWithProgram {
     }
     try {
       LOG.debug("Analyzing {}", file);
+      progressReport.nextFile(file.absolutePath());
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
         file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId);

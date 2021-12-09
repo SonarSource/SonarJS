@@ -43,13 +43,15 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
-import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 import static java.util.Collections.singletonList;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
+  static final String PROGRESS_REPORT_TITLE = "Progress of TypeScript analysis";
+  static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
   private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisProcessor analysisProcessor;
@@ -96,7 +98,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       return;
     }
     boolean success = false;
-    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
+    ProgressReport progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
       progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
