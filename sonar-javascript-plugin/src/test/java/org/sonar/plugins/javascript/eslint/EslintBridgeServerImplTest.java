@@ -43,8 +43,8 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -165,7 +165,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    List<EslintBridgeServer.Rule> rules = Collections.singletonList(new EslintBridgeServer.Rule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
+    List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
     eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList());
     eslintBridgeServer.stop();
     assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
@@ -411,7 +411,7 @@ class EslintBridgeServerImplTest {
 
   @Test
   void test_rule_tostring() {
-    EslintBridgeServer.Rule rule = new EslintBridgeServer.Rule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
+    EslintRule rule = new EslintRule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
     assertThat(rule).hasToString("key");
   }
 

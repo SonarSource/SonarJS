@@ -50,7 +50,7 @@ public class TestUtils {
     return context.repository(repositoryKey);
   }
 
-  static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
+  public static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(repositoryKey, ruleKey)).build());

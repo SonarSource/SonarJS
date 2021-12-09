@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.eslint;
 
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -41,6 +41,7 @@ public class JavaScriptChecks extends AbstractChecks {
   public JavaScriptChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
     super(checkFactory, customRuleRepositories);
     addChecks(CustomRuleRepository.Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
+    initParsingErrorRuleKey();
   }
 
 }

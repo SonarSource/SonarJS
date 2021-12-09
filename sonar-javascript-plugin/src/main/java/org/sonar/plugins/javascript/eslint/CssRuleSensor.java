@@ -41,13 +41,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
@@ -60,19 +57,10 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   private final CssRules cssRules;
 
-  public CssRuleSensor(
-    JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-    FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-    AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
-    CheckFactory checkFactory
+  public CssRuleSensor(EslintBridgeServer eslintBridgeServer, AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
+                       CheckFactory checkFactory
   ) {
-    super(checks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
-      analysisWarnings,
-      monitoring
-    );
+    super(eslintBridgeServer, analysisWarnings, monitoring);
     this.cssRules = new CssRules(checkFactory);
   }
 
@@ -131,7 +119,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         LOG.debug("Skipping {} as it has not 'file' scheme", uri);
         return;
       }
-      String fileContent = shouldSendFileContent(inputFile) ? inputFile.contents() : null;
+      String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
       EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, stylelintConfig.toString());
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
@@ -150,7 +138,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
           logErrorOrDebug(inputFile, "Failed to parse {}, line {}, {}", inputFile.uri(), issue.line, errorMessage);
         } else {
-          logErrorOrDebug(inputFile,"Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'");
+          logErrorOrDebug(inputFile, "Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'");
         }
 
       } else {
@@ -168,7 +156,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  private static void logErrorOrDebug(InputFile file, String msg, Object ... arguments) {
+  private static void logErrorOrDebug(InputFile file, String msg, Object... arguments) {
     if (CssLanguage.KEY.equals(file.language())) {
       LOG.error(msg, arguments);
     } else {

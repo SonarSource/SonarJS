@@ -19,9 +19,34 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-class MissingTypeScriptException extends RuntimeException {
+import java.nio.charset.StandardCharsets;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-  public MissingTypeScriptException() {
-    super("Missing TypeScript dependency");
+class ContextUtils {
+
+  private final SensorContext context;
+
+  ContextUtils(SensorContext context) {
+    this.context = context;
+  }
+
+  boolean isSonarLint() {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
+  }
+
+  boolean ignoreHeaderComments() {
+    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+      .orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
+  }
+
+  boolean shouldSendFileContent(InputFile file) {
+    return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
+  }
+
+  boolean failFast() {
+    return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 }
