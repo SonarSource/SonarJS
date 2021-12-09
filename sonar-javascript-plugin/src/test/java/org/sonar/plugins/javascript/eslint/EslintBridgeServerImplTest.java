@@ -481,6 +481,12 @@ class EslintBridgeServerImplTest {
     assertThat(timeToInterrupt).isLessThan(20);
   }
 
+  @Test
+  void test_tsProgram_toString() {
+    TsProgram tsProgram = new TsProgram("42", singletonList("path/file.ts"), singletonList("path/tsconfig.json"));
+    assertThat(tsProgram).hasToString("TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}");
+  }
+
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder);
   }
