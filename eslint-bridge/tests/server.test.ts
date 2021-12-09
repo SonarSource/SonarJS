@@ -650,13 +650,32 @@ describe('program based analysis', () => {
     );
   });
 
-  it('should return error when invalid tsconfig', async () => {
+  it('should return error when invalid tsconfig (syntax error)', async () => {
     const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig.json');
     const response = JSON.parse(
       await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
     );
-    expect(response.error).toBeDefined();
+    expect(response.error).toBe(`',' expected.  ${invalidTsConfig}:49`);
     expect(response.files).toBeUndefined();
+  });
+
+  it('should return error when invalid tsconfig (semantic error)', async () => {
+    const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig2.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
+    );
+    expect(response.error).toBe(
+      "Unknown compiler option 'targetSomething'.; Unknown compiler option 'allowJsSomething'.",
+    );
+    expect(response.files).toBeUndefined();
+  });
+
+  it('should return empty project references if none', async () => {
+    const tsConfigNoRef = join(__dirname, './fixtures/ts-vue-project/tsconfig.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: tsConfigNoRef }), '/create-program'),
+    );
+    expect(response.projectReferences).toEqual([]);
   });
 
   function post(data, endpoint) {

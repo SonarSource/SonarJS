@@ -62,6 +62,7 @@ export function createProgram(tsConfig: string): {
     {
       noEmit: true,
     },
+    tsConfig,
     // to include .vue files we can provide additional options here (parameter 'extraFileExtensions')
   );
 
@@ -94,9 +95,13 @@ function nextId() {
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
-  let text =
+  const text =
     typeof diagnostic.messageText === 'string'
       ? diagnostic.messageText
       : diagnostic.messageText.messageText;
-  return `${text}  ${diagnostic.file?.fileName}:${diagnostic.start}`;
+  if (diagnostic.file) {
+    return `${text}  ${diagnostic.file?.fileName}:${diagnostic.start}`;
+  } else {
+    return text;
+  }
 }
