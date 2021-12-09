@@ -61,6 +61,12 @@ class TsConfigProvider {
 
   private final List<Provider> providers;
 
+  /**
+   * Relying on (in order of priority)
+   * 1. Property sonar.typescript.tsconfigPath
+   * 2. Looking up file system
+   * 3. Creating a tmp tsconfig.json listing all files
+   */
   TsConfigProvider(TempFolder folder) {
     providers = Arrays.asList(
       new PropertyTsConfigProvider(),
@@ -68,6 +74,11 @@ class TsConfigProvider {
       new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate));
   }
 
+  /**
+   * Relying on (in order of priority)
+   * 1. Property sonar.typescript.tsconfigPath
+   * 2. Looking up file system
+   */
   TsConfigProvider() {
     providers = List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider());
   }

@@ -26,7 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -369,6 +371,52 @@ public class TypeScriptSensorTest {
       file3.absolutePath()
     );
     verify(eslintBridgeServerMock, times(3)).newTsConfig();
+  }
+
+  @Test
+  void should_analyze_by_program() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
+    SensorContextTester context = createSensorContext(baseDir);
+
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
+    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
+    DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
+    inputFileFromResource(context, baseDir, "noconfig.ts");
+
+    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
+
+    when(eslintBridgeServerMock.createProgram(any()))
+      .thenReturn(
+        new TsProgram("1", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList()),
+        new TsProgram("2", singletonList(file2.absolutePath()), emptyList()),
+        new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), Collections.singletonList(tsconfig1)));
+
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(3)).analyzeWithProgram(captor.capture());
+    assertThat(captor.getAllValues()).extracting(req -> req.filePath).containsExactlyInAnyOrder(
+      file1.absolutePath(),
+      file2.absolutePath(),
+      file3.absolutePath()
+    );
+
+    verify(eslintBridgeServerMock, times(3)).deleteProgram(any());
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("File already analyzed: '" + file2.absolutePath() +
+      "'. Check your project configuration to avoid files being part of multiple projects.");
+  }
+
+  @Test
+  void should_do_nothing_when_no_tsconfig_when_analysis_with_program() {
+    var ctx = createSensorContext(baseDir);
+    createInputFile(ctx);
+    createSensor().execute(ctx);
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 files because they were not part of any tsconfig (enable debug logs to see the full list)");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig: dir/file.ts");
   }
 
   @Test
