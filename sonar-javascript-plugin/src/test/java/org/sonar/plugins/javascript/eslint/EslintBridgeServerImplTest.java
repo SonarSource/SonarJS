@@ -45,6 +45,8 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -194,15 +196,18 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
-      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
-      .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
-      singletonList(tsConfig.absolutePath()), null);
-    assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
+    TsProgram programCreated = eslintBridgeServer.createProgram(new TsProgramRequest("/absolute/path/tsconfig.json"));
+
+    // values from 'startServer.js'
+    assertThat(programCreated.programId).isEqualTo("42");
+    assertThat(programCreated.projectReferences).isEmpty();
+    assertThat(programCreated.files.size()).isEqualTo(3);
+
+    JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
+      null, true, null, programCreated.programId);
+    assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
+
+    assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
   }
 
   @Test

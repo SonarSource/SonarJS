@@ -27,7 +27,7 @@ const requestHandler = (request, response) => {
     response.end();
     server.close();
   } else if (request.url === "/create-program") {
-    response.end("{programId: '1', projectReferences: [], files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
+    response.end("{programId: '42', projectReferences: [], files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
   } else if (request.url === "/delete-program") {
     response.end("OK!");
   } else {
