@@ -189,6 +189,23 @@ class EslintBridgeServerImplTest {
   }
 
   @Test
+  void should_get_answer_from_server_for_program_based_requests() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
+      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
+      .build();
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
+      singletonList(tsConfig.absolutePath()), null);
+    assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
+  }
+
+  @Test
   void should_get_answer_from_server_for_css_request() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();

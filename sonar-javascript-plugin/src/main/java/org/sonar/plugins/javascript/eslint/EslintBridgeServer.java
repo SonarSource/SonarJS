@@ -214,16 +214,9 @@ public interface EslintBridgeServer extends Startable {
 
   class TsProgramRequest {
     final String tsConfig;
-    final List<String> files;
 
     public TsProgramRequest(String tsConfig) {
       this.tsConfig = tsConfig;
-      this.files = null;
-    }
-
-    public TsProgramRequest(List<String> files) {
-      this.files = files;
-      this.tsConfig = null;
     }
   }
 }

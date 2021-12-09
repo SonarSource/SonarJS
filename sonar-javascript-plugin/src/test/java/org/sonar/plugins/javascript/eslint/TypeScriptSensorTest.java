@@ -226,6 +226,7 @@ public class TypeScriptSensorTest {
     typeScriptSensor.execute(ctx);
 
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
+    verify(eslintBridgeServerMock, never()).analyzeWithProgram(any());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
   }
@@ -297,6 +298,7 @@ public class TypeScriptSensorTest {
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeWithProgram(captor.capture());
     assertThat(captor.getValue().fileContent).isNull();
+
     var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
     verify(eslintBridgeServerMock).deleteProgram(deleteCaptor.capture());
     assertThat(deleteCaptor.getValue().programId).isEqualTo(tsProgram.programId);
