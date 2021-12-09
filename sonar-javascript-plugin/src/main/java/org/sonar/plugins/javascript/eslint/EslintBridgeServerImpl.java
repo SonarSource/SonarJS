@@ -205,7 +205,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException {
+  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
     InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
@@ -348,7 +348,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (nodeCommand == null) {
       return "Node.js command to start eslint-bridge server was not built yet.";
     } else {
-      return "Node.js command to start eslint-bridge was: " + nodeCommand.toString();
+      return "Node.js command to start eslint-bridge was: " + nodeCommand;
     }
   }
 
@@ -379,11 +379,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   static class InitLinterRequest {
-    List<Rule> rules;
+    List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
 
-    public InitLinterRequest(List<Rule> rules, List<String> environments, List<String> globals) {
+    public InitLinterRequest(List<EslintRule> rules, List<String> environments, List<String> globals) {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.eslint;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -35,10 +35,10 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.checkFactory;
 
-public class TypeScriptChecksTest {
+class TypeScriptChecksTest {
 
   @Test
-  public void test() {
+  void test() {
     TypeScriptChecks checks = new TypeScriptChecks(checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923"));
 
     assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("typescript", "S3923"));
@@ -46,7 +46,7 @@ public class TypeScriptChecksTest {
   }
 
   @Test
-  public void should_add_custom_checks() {
+  void should_add_custom_checks() {
     TypeScriptChecks checks = new TypeScriptChecks(checkFactory("repo", "customcheck"),
       new CustomRuleRepository[]{new TsRepository(), new JsRepository()});
     assertThat(checks.eslintBasedChecks()).hasSize(1);

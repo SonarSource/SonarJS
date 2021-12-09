@@ -30,13 +30,10 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
@@ -48,18 +45,16 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
   private final TempFolder tempFolder;
+  private final JavaScriptChecks checks;
+  private final AnalysisProcessor processAnalysis;
 
-  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring) {
-    super(checks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
-      analysisWarnings,
-      monitoring
-    );
+  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
+                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
+                                     AnalysisProcessor processAnalysis) {
+    super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
+    this.checks = checks;
+    this.processAnalysis = processAnalysis;
   }
 
   @Override
@@ -82,7 +77,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     boolean success = false;
     try {
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
-      eslintBridgeServer.initLinter(rules, environments, globals);
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
         if (context.isCancelled()) {
@@ -107,10 +102,11 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
     try {
-      String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), tsConfigs);
+      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+      JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
-      processResponse(file, response);
+      processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;

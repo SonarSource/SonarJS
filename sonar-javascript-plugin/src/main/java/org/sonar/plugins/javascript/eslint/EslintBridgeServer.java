@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,7 +37,7 @@ public interface EslintBridgeServer extends Startable {
 
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(List<Rule> rules, List<String> environments, List<String> globals) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -81,23 +80,6 @@ public interface EslintBridgeServer extends Startable {
       this.filePath = filePath;
       this.fileContent = fileContent;
       this.stylelintConfig = stylelintConfig;
-    }
-  }
-
-  class Rule {
-    String key;
-    List<String> fileTypeTarget;
-    List<Object> configurations;
-
-    Rule(String key, List<Object> configurations, List<InputFile.Type> fileTypeTarget) {
-      this.key = key;
-      this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
-      this.configurations = configurations;
-    }
-
-    @Override
-    public String toString() {
-      return key;
     }
   }
 
