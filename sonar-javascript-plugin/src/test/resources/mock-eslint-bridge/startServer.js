@@ -26,7 +26,15 @@ const requestHandler = (request, response) => {
   } else if (request.url === "/close") {
     response.end();
     server.close();
+  } else if (request.url === "/create-program") {
+    response.end("{programId: '42', projectReferences: [], files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
+  } else if (request.url === "/delete-program") {
+    response.end("OK!");
   } else {
+    // /analyze-with-program
+    // /analyze-js
+    // /analyze-ts
+    // /analyze-css
     response.end("{ issues: [] }");
   }
 };

@@ -43,6 +43,8 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
+  AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException;
+
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   void clean();
@@ -55,19 +57,25 @@ public interface EslintBridgeServer extends Startable {
 
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
+  TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;
+
+  boolean deleteProgram(TsProgram tsProgram) throws IOException;
+
   class JsAnalysisRequest {
     final String filePath;
     final String fileContent;
     final String fileType;
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
+    final String programId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
+      this.programId = programId;
     }
   }
 
@@ -180,6 +188,35 @@ public interface EslintBridgeServer extends Startable {
       this.projectReferences = projectReferences;
       this.error = error;
       this.errorCode = errorCode;
+    }
+  }
+
+  class TsProgram {
+    final String programId;
+    final List<String> files;
+    final List<String> projectReferences;
+
+    TsProgram(String programId, List<String> files, List<String> projectReferences) {
+      this.programId = programId;
+      this.files = files;
+      this.projectReferences = projectReferences;
+    }
+
+    @Override
+    public String toString() {
+      return "TsProgram{" +
+        "programId='" + programId + '\'' +
+        ", files=" + files +
+        ", projectReferences=" + projectReferences +
+        '}';
+    }
+  }
+
+  class TsProgramRequest {
+    final String tsConfig;
+
+    public TsProgramRequest(String tsConfig) {
+      this.tsConfig = tsConfig;
     }
   }
 }

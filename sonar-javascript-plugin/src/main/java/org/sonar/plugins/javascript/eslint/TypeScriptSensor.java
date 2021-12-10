@@ -51,14 +51,16 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private final TempFolder tempFolder;
+  private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisProcessor analysisProcessor;
   private final TypeScriptChecks checks;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
-                          AnalysisProcessor analysisProcessor) {
+                          AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
+    this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
   }
@@ -81,9 +83,11 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    boolean success = false;
-    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
+    if (shouldAnalyzeWithProgram(inputFiles)) {
+      analysisWithProgram.analyzeFiles(context, checks, inputFiles);
+      return;
+    }
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
@@ -91,6 +95,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
       return;
     }
+    boolean success = false;
+    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
       progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
@@ -116,6 +122,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
+  private boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
+    return inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) && !contextUtils.isSonarLint();
+  }
+
   private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile, ProgressReport progressReport) throws IOException {
     for (InputFile inputFile : files) {
       if (context.isCancelled()) {
@@ -135,7 +145,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename));
+        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null);
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {
