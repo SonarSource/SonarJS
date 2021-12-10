@@ -188,9 +188,10 @@ public class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts")
+      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
+      tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped files: src/unlisted.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 0 files because they were not part of any tsconfig"))).hasSize(1);
   }
 }
