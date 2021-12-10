@@ -407,6 +407,7 @@ class TypeScriptSensorTest {
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File already analyzed: '" + file2.absolutePath() +
       "'. Check your project configuration to avoid files being part of multiple projects.");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to create program: something went wrong");
   }
 
   @Test

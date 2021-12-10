@@ -96,8 +96,10 @@ public class AnalysisWithProgram {
       }
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
-      LOG.info("Skipped {} file(s) because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
-      skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
+      if (!skippedFiles.isEmpty()) {
+        LOG.info("Skipped {} file(s) because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
+        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
+      }
       success = true;
     } finally {
       if (success) {
