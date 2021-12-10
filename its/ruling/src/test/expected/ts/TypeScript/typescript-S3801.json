@@ -129,6 +129,12 @@
 4006,
 4059,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+906,
+938,
+989,
+1008,
+],
 'TypeScript:src/compiler/parser.ts':[
 26,
 32,
@@ -221,6 +227,9 @@
 'TypeScript:src/harness/sourceMapRecorder.ts':[
 64,
 80,
+],
+'TypeScript:src/harness/virtualFileSystem.ts':[
+212,
 ],
 'TypeScript:src/server/editorServices.ts':[
 206,

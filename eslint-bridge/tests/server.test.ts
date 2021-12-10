@@ -23,6 +23,8 @@ import { promisify } from 'util';
 import { join } from 'path';
 import { AddressInfo } from 'net';
 import { setContext } from 'context';
+import { getProgramById } from '../src/programManager';
+import { ProgramBasedAnalysisInput } from '../src/analyzer';
 
 const expectedResponse = {
   issues: [
@@ -550,6 +552,137 @@ describe('sonarlint context', () => {
   }
 });
 
+describe('program based analysis', () => {
+  let server: http.Server;
+  let close;
+
+  const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+  const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
+
+  beforeEach(async () => {
+    server = await start();
+    close = promisify(server.close.bind(server));
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+    });
+
+    await post(
+      JSON.stringify({
+        rules: [
+          { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' },
+          { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
+        ],
+      }),
+      '/init-linter',
+    );
+  });
+
+  afterEach(async () => {
+    await close();
+  });
+
+  it('should create Program based on tsConfig', async () => {
+    const programResponse = JSON.parse(await post(JSON.stringify({ tsConfig }), '/create-program'));
+
+    const { programId, files, projectReferences } = programResponse;
+
+    expect(programId).toBeDefined();
+    expect(files).toContain(normalizePath(filePath));
+    expect(projectReferences).toEqual([
+      normalizePath(join(__dirname, './fixtures/ts-vue-project')),
+    ]);
+
+    const analysisRequest: ProgramBasedAnalysisInput = {
+      filePath,
+      fileContent: 'if (true) 42; else 42;',
+      programId,
+      fileType: 'MAIN',
+    };
+
+    const analysisResponse = JSON.parse(
+      await post(JSON.stringify(analysisRequest), '/analyze-with-program'),
+    );
+
+    // we have issue for 'no-one-iteration-loop' and not 'no-all-duplicated-branches' rule
+    // as 'fileContent' is ignored, because we rely on Program for analysis (AST is created from FS)
+    expect(analysisResponse.issues.length).toEqual(1);
+    expect(analysisResponse.issues[0].ruleId).toEqual('no-one-iteration-loop');
+  }, 10_000);
+
+  it('should still support regular analysis', async () => {
+    const responseJs = JSON.parse(
+      await post(
+        JSON.stringify({
+          filePath: 'dir/file.js',
+          fileContent: 'if (true) 42; else 42;',
+          fileType: 'MAIN',
+        }),
+        '/analyze-js',
+      ),
+    );
+    delete responseJs.perf;
+    expect(responseJs).toEqual(expectedResponse);
+
+    const responseTs = JSON.parse(
+      await post(
+        JSON.stringify({
+          filePath,
+          fileContent: 'if (true) 42; else 42;',
+          tsConfigs: [tsConfig],
+          fileType: 'MAIN',
+        }),
+        '/analyze-ts',
+      ),
+    );
+    delete responseTs.perf;
+    expect(responseTs).toEqual(expectedResponse);
+  }, 10_000);
+
+  it('should delete program', async () => {
+    const response = JSON.parse(await post(JSON.stringify({ tsConfig }), '/create-program'));
+    expect(getProgramById(response.programId)).toBeDefined();
+
+    await post(JSON.stringify({ programId: response.programId }), '/delete-program');
+    expect(() => getProgramById(response.programId)).toThrow(
+      `Failed to find program ${response.programId}`,
+    );
+  });
+
+  it('should return error when invalid tsconfig (syntax error)', async () => {
+    const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
+    );
+    expect(response.error).toBeDefined();
+    expect(response.files).toBeUndefined();
+  });
+
+  it('should return error when invalid tsconfig (semantic error)', async () => {
+    const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig2.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
+    );
+    expect(response.error).toBe(
+      "Unknown compiler option 'targetSomething'.; Unknown compiler option 'allowJsSomething'.",
+    );
+    expect(response.files).toBeUndefined();
+  });
+
+  it('should return empty project references if none', async () => {
+    const tsConfigNoRef = join(__dirname, './fixtures/ts-vue-project/tsconfig.json');
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsConfig: tsConfigNoRef }), '/create-program'),
+    );
+    expect(response.projectReferences).toEqual([]);
+  });
+
+  function post(data, endpoint) {
+    return postToServer(data, endpoint, server);
+  }
+});
+
 function postToServer(data, endpoint, server: http.Server): Promise<string> {
   const options = {
     host: 'localhost',
@@ -577,4 +710,8 @@ function postToServer(data, endpoint, server: http.Server): Promise<string> {
     req.write(data);
     req.end();
   });
+}
+
+function normalizePath(path: any): string {
+  return path.toString().replace(/\\/g, '/');
 }

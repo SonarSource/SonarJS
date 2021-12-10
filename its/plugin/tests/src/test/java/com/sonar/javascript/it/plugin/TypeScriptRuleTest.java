@@ -41,6 +41,7 @@ public class TypeScriptRuleTest {
 
   private static final String PROJECT_KEY = "ts-rule-project";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
+  static final String LITS_VERSION = "0.9.0.1682";
 
   private static Orchestrator orchestrator;
 
@@ -49,7 +50,7 @@ public class TypeScriptRuleTest {
     orchestrator = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-      .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"))
+      .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
       .build();
 
     orchestrator.start();
@@ -93,6 +94,7 @@ public class TypeScriptRuleTest {
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(PROJECT_KEY)
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProperty("dump.old", FileLocation.of("target/expected/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())

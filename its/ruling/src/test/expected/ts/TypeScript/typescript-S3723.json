@@ -190,6 +190,10 @@
 4090,
 4092,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+53,
+157,
+],
 'TypeScript:src/compiler/parser.ts':[
 5904,
 7448,
@@ -1074,6 +1078,9 @@
 ],
 'TypeScript:src/harness/typeWriter.ts':[
 73,
+],
+'TypeScript:src/harness/virtualFileSystem.ts':[
+173,
 ],
 'TypeScript:src/server/cancellationToken/cancellationToken.ts':[
 33,

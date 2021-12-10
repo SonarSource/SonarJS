@@ -256,6 +256,10 @@
 3958,
 4118,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+408,
+550,
+],
 'TypeScript:src/compiler/parser.ts':[
 53,
 1278,
@@ -434,6 +438,9 @@
 'TypeScript:src/harness/sourceMapRecorder.ts':[
 64,
 259,
+],
+'TypeScript:src/server/builder.ts':[
+333,
 ],
 'TypeScript:src/server/editorServices.ts':[
 658,

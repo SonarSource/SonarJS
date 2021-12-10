@@ -45,6 +45,8 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -155,7 +157,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -184,8 +186,28 @@ class EslintBridgeServerImplTest {
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
-      singletonList(tsConfig.absolutePath()));
+      singletonList(tsConfig.absolutePath()), null);
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
+  }
+
+  @Test
+  void should_get_answer_from_server_for_program_based_requests() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    TsProgram programCreated = eslintBridgeServer.createProgram(new TsProgramRequest("/absolute/path/tsconfig.json"));
+
+    // values from 'startServer.js'
+    assertThat(programCreated.programId).isEqualTo("42");
+    assertThat(programCreated.projectReferences).isEmpty();
+    assertThat(programCreated.files.size()).isEqualTo(3);
+
+    JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
+      null, true, null, programCreated.programId);
+    assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
+
+    assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
   }
 
   @Test
@@ -324,7 +346,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
@@ -457,6 +479,12 @@ class EslintBridgeServerImplTest {
     worker.join();
     long timeToInterrupt = System.currentTimeMillis() - start;
     assertThat(timeToInterrupt).isLessThan(20);
+  }
+
+  @Test
+  void test_tsProgram_toString() {
+    TsProgram tsProgram = new TsProgram("42", singletonList("path/file.ts"), singletonList("path/tsconfig.json"));
+    assertThat(tsProgram).hasToString("TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

@@ -72,6 +72,9 @@
 61,
 61,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+6,
+],
 'TypeScript:src/compiler/parser.ts':[
 878,
 885,
@@ -241,6 +244,9 @@
 125,
 128,
 229,
+],
+'TypeScript:src/server/builder.ts':[
+127,
 ],
 'TypeScript:src/server/client.ts':[
 85,

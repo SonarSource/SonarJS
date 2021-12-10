@@ -17,14 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode, ParseExceptionCode, parseExceptionCodeOf } from 'parser';
+import {
+  buildParsingOptions,
+  buildSourceCode,
+  ParseExceptionCode,
+  parseExceptionCodeOf,
+} from 'parser';
 import { SourceCode } from 'eslint';
-import { ParsingError } from 'analyzer';
+import { ParsingError, ProgramBasedAnalysisInput } from 'analyzer';
 import { visit } from '../src/utils';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
+import { createProgram } from '../src/programManager';
+import { join } from 'path';
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
@@ -360,6 +367,22 @@ describe('parse import expression', () => {
     expect(sourceCode).toBeDefined();
     expect(sourceCode).toBeInstanceOf(SourceCode);
     expect(sourceCode.visitorKeys['ImportExpression']).toBeDefined();
+  });
+});
+
+describe('program based analysis', () => {
+  it('should create options with programs', () => {
+    const { programId } = createProgram(join(__dirname, './fixtures/ts-project/tsconfig.json'));
+    const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+    const analysisInput: ProgramBasedAnalysisInput = {
+      programId,
+      filePath,
+      fileType: 'MAIN',
+      fileContent: undefined,
+    };
+    const parsingOptions = buildParsingOptions(analysisInput);
+    expect(parsingOptions.programs).toHaveLength(1);
+    expect(parsingOptions.project).toBeUndefined();
   });
 });
 

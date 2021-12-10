@@ -23,18 +23,21 @@ import { Linter, SourceCode } from 'eslint';
 import * as VueJS from 'vue-eslint-parser';
 import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
-import { JsAnalysisInput } from './analyzer';
+import { JsAnalysisInput, ProgramBasedAnalysisInput } from './analyzer';
+import { getProgramById } from './programManager';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
 const tsParser = { parse: tsEslintParser.parseForESLint, parser: '@typescript-eslint/parser' };
+
+type AnalysisInputNotCss = JsAnalysisInput | ProgramBasedAnalysisInput;
 
 function shouldTryTsParser() {
   const context = getContext();
   return context ? context.shouldUseTypeScriptParserForJS : true;
 }
 
-export function buildSourceCode(input: JsAnalysisInput, language: 'ts' | 'js') {
+export function buildSourceCode(input: AnalysisInputNotCss, language: 'ts' | 'js') {
   const vue = input.filePath.endsWith('.vue');
   let options, result;
 
@@ -67,7 +70,7 @@ export function buildSourceCode(input: JsAnalysisInput, language: 'ts' | 'js') {
   return buildSourceCodeForJs(input, tryTsParser);
 }
 
-function buildSourceCodeForJs(input: JsAnalysisInput, tryTsParser: boolean) {
+function buildSourceCodeForJs(input: AnalysisInputNotCss, tryTsParser: boolean) {
   if (tryTsParser) {
     const result = parseForEslint(input, tsParser.parse, buildParsingOptions(input, false));
     if (result instanceof SourceCode) {
@@ -91,7 +94,7 @@ function buildSourceCodeForJs(input: JsAnalysisInput, tryTsParser: boolean) {
 }
 
 function parseForEslint(
-  { fileContent, filePath }: JsAnalysisInput,
+  { fileContent, filePath }: AnalysisInputNotCss,
   parse: (code: string, options: {}) => any,
   options: {},
 ) {
@@ -113,11 +116,14 @@ function parseForEslint(
 }
 
 export function buildParsingOptions(
-  { filePath, tsConfigs }: JsAnalysisInput,
+  input: AnalysisInputNotCss,
   usingBabel = false,
   parserOption?: string,
   sourceType: 'script' | 'module' = 'module',
 ) {
+  const project = 'tsConfigs' in input ? input.tsConfigs : undefined;
+  const programs = 'programId' in input ? [getProgramById(input.programId)] : undefined;
+
   const options: Linter.ParserOptions = {
     tokens: true,
     comment: true,
@@ -137,8 +143,11 @@ export function buildParsingOptions(
     parser: parserOption,
 
     // for TS parser
-    filePath,
-    project: tsConfigs,
+    filePath: input.filePath,
+    project,
+    programs,
+    // enable logs for @typescripteslint
+    // debugLevel: true,
   };
 
   if (usingBabel) {

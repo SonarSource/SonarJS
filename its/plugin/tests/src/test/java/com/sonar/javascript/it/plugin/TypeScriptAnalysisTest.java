@@ -114,8 +114,34 @@ public class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(2, "typescript:S4325", "missing-tsconfig:src/main.ts")
+    // we don't support analysis without tsconfig when using ts.Program
+    assertThat(issuesList).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).isEmpty();
+  }
+
+  /**
+   * This test is testing the analysis when vue files is present in the project without tsconfig
+   * This is legacy behavior, which we might discontinue to support, because it's not very realistic
+   */
+  @Test
+  public void should_analyze_without_tsconfig_vue() throws Exception {
+    File dir = TestUtils.projectDir("missing-tsconfig-vue");
+
+    String projectKey = "missing-tsconfig-vue";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir)
+      .setDebugLogs(true);
+
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
+      tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
     );
 
     assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
@@ -141,7 +167,8 @@ public class TypeScriptAnalysisTest {
       tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped files: dir/file.excluded.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 files because they were not part of any tsconfig"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig: dir/file.excluded.ts"))).hasSize(1);
   }
 
   @Test
@@ -161,9 +188,10 @@ public class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts")
+      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
+      tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped files: src/unlisted.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 0 files because they were not part of any tsconfig"))).hasSize(1);
   }
 }

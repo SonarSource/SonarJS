@@ -23,6 +23,12 @@
 'TypeScript:src/harness/typeWriter.ts':[
 76,
 ],
+'TypeScript:src/harness/virtualFileSystem.ts':[
+223,
+],
+'TypeScript:src/server/builder.ts':[
+389,
+],
 'TypeScript:src/server/lsHost.ts':[
 241,
 ],
