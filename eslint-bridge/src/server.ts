@@ -20,18 +20,19 @@
 import { Server } from 'http';
 import express from 'express';
 import {
+  AnalysisResponse,
   analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
   EMPTY_RESPONSE,
-  AnalysisResponse,
   initLinter,
-  Rule,
   loadCustomRuleBundle,
+  Rule,
 } from './analyzer';
 import { AddressInfo } from 'net';
-import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
+import { ParseExceptionCode, unloadTypeScriptEslint } from './parser';
 import { getFilesForTsConfig } from './tsconfig';
+import { createProgram, deleteProgram } from './programManager';
 
 const MAX_REQUEST_SIZE = '50mb';
 
@@ -70,13 +71,13 @@ export function startServer(
     // for parsing application/json requests
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
 
-    app.post('/init-linter', (req, resp) => {
+    app.post('/init-linter', (req, res) => {
       initLinter(
         req.body.rules as Rule[],
         req.body.environments as string[],
         req.body.globals as string[],
       );
-      resp.send('OK!');
+      res.send('OK!');
     });
 
     app.post('/analyze-js', analyze(analyzeJS));
@@ -84,6 +85,24 @@ export function startServer(
     app.post('/analyze-ts', analyze(analyzeTS));
 
     app.post('/analyze-css', analyze(analyzeCSS));
+
+    app.post('/create-program', (req, res) => {
+      try {
+        const { tsConfig } = req.body;
+        res.json(createProgram(tsConfig));
+      } catch (e) {
+        console.error(e.stack);
+        res.json({ error: e.message });
+      }
+    });
+
+    app.post('/analyze-with-program', analyze(analyzeTS));
+
+    app.post('/delete-program', (req, res) => {
+      const { programId } = req.body;
+      deleteProgram(programId);
+      res.send('OK!');
+    });
 
     app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();
