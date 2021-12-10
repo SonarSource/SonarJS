@@ -650,6 +650,24 @@ describe('program based analysis', () => {
     );
   });
 
+  it.only('should create program from directory', async () => {
+    let response = JSON.parse(
+      await post(
+        JSON.stringify({ tsConfig: join(__dirname, './fixtures/ts-project') }),
+        '/create-program',
+      ),
+    );
+    expect(getProgramById(response.programId)).toBeDefined();
+
+    response = JSON.parse(
+      await post(
+        JSON.stringify({ tsConfig: join(__dirname, './fixtures/ts-project/') }),
+        '/create-program',
+      ),
+    );
+    expect(getProgramById(response.programId)).toBeDefined();
+  });
+
   it('should return error when invalid tsconfig (syntax error)', async () => {
     const invalidTsConfig = join(__dirname, './fixtures/invalid-tsconfig.json');
     const response = JSON.parse(

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
+import fs from 'fs';
 import ts from 'typescript';
 
 const programs = new Map<string, ts.Program>();
@@ -42,11 +43,17 @@ export function deleteProgram(programId: string): void {
   programs.delete(programId);
 }
 
-export function createProgram(tsConfig: string): {
+export function createProgram(inputTsConfig: string): {
   programId: string;
   files: string[];
   projectReferences: string[];
 } {
+  let tsConfig = inputTsConfig;
+
+  if (fs.lstatSync(tsConfig).isDirectory()) {
+    tsConfig = path.join(tsConfig, 'tsconfig.json');
+  }
+
   console.log(`DEBUG creating program from ${tsConfig}`);
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
