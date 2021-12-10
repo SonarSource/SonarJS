@@ -39,7 +39,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
-import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
@@ -76,7 +76,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
-      progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
@@ -84,8 +84,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
+          progressReport.nextFile(inputFile.absolutePath());
           analyze(inputFile, tsConfigs);
-          progressReport.nextFile();
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
