@@ -22,6 +22,9 @@
 'TypeScript:src/compiler/factory.ts':[
 3267,
 ],
+'TypeScript:src/compiler/moduleNameResolver.ts':[
+371,
+],
 'TypeScript:src/compiler/parser.ts':[
 1508,
 1860,

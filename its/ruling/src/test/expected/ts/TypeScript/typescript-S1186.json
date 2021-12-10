@@ -27,6 +27,9 @@
 'TypeScript:src/harness/runnerbase.ts':[
 9,
 ],
+'TypeScript:src/server/builder.ts':[
+161,
+],
 'TypeScript:src/server/scriptVersionCache.ts':[
 44,
 ],
