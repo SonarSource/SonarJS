@@ -180,8 +180,7 @@ public class TypeScriptAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(dir)
-      .setDebugLogs(true);
+      .setProjectDir(dir);
 
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
@@ -206,16 +205,15 @@ public class TypeScriptAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(dir)
       // setting the property to disable automatic search for tsconfig files
-      .setProperty("sonar.typescript.tsconfigPath", "tsconfig.json")
-      .setDebugLogs(true);
+      .setProperty("sonar.typescript.tsconfigPath", "tsconfig.json");
 
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
+      tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/file.ts"),
+      tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
     );
 
     assertThat(result.getLogsLines(l -> l.contains("Skipped 0 files because they were not part of any tsconfig"))).hasSize(1);
