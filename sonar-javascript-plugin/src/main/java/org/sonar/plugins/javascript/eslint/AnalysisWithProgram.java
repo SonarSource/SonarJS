@@ -81,8 +81,14 @@ public class AnalysisWithProgram {
         if (!analyzedProjects.add(tsConfig)) {
           continue;
         }
-        PROFILER.startInfo("Creating program from tsconfig " + tsConfig);
+        PROFILER.startInfo("Creating TypeScript program");
+        LOG.info("TypeScript configuration file " + tsConfig);
         var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
+        if (program.error != null) {
+          LOG.error("Failed to create program: " + program.error);
+          PROFILER.stopInfo();
+          continue;
+        }
         PROFILER.stopInfo();
         analyzeProgram(program, analyzedFiles);
         workList.addAll(program.projectReferences);
@@ -90,7 +96,7 @@ public class AnalysisWithProgram {
       }
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
-      LOG.info("Skipped {} files because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
+      LOG.info("Skipped {} file(s) because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
       skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
       success = true;
     } finally {
@@ -103,7 +109,9 @@ public class AnalysisWithProgram {
   }
 
   private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles) throws IOException {
+    LOG.info("Starting analysis with current program");
     var fs = context.fileSystem();
+    var counter = 0;
     for (var file : program.files) {
       var inputFile = fs.inputFile(fs.predicates().and(
         fs.predicates().hasAbsolutePath(file),
@@ -116,10 +124,13 @@ public class AnalysisWithProgram {
       }
       if (analyzedFiles.add(inputFile)) {
         analyze(inputFile, program);
+        counter++;
       } else {
         LOG.debug("File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.", file);
       }
     }
+
+    LOG.info("Analyzed {} file(s) with current program", counter);
   }
 
   private void analyze(InputFile file, TsProgram tsProgram) throws IOException {

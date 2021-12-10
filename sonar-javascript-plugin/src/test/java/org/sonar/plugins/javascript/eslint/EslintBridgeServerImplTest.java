@@ -211,6 +211,18 @@ class EslintBridgeServerImplTest {
   }
 
   @Test
+  void should_not_fail_when_error_during_create_program() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    TsProgram programCreated = eslintBridgeServer.createProgram(new TsProgramRequest("/absolute/path/invalid.json"));
+
+    assertThat(programCreated.programId).isNull();
+    assertThat(programCreated.error).isEqualTo("failed to create program");
+  }
+
+  @Test
   void should_get_answer_from_server_for_css_request() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
@@ -485,6 +497,9 @@ class EslintBridgeServerImplTest {
   void test_tsProgram_toString() {
     TsProgram tsProgram = new TsProgram("42", singletonList("path/file.ts"), singletonList("path/tsconfig.json"));
     assertThat(tsProgram).hasToString("TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}");
+
+    TsProgram tsProgramError = new TsProgram("failed to create program");
+    assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

@@ -388,7 +388,8 @@ class TypeScriptSensorTest {
     when(eslintBridgeServerMock.createProgram(any()))
       .thenReturn(
         new TsProgram("1", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList()),
-        new TsProgram("2", singletonList(file2.absolutePath()), emptyList()),
+        new TsProgram("2", singletonList(file2.absolutePath()), Collections.singletonList("some-other-tsconfig.json")),
+        new TsProgram("something went wrong"),
         new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), Collections.singletonList(tsconfig1)));
 
     when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
@@ -415,7 +416,7 @@ class TypeScriptSensorTest {
     createSensor().execute(ctx);
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 files because they were not part of any tsconfig (enable debug logs to see the full list)");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig (enable debug logs to see the full list)");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig: dir/file.ts");
   }
 

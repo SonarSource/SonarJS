@@ -195,20 +195,33 @@ public interface EslintBridgeServer extends Startable {
     final String programId;
     final List<String> files;
     final List<String> projectReferences;
+    final String error;
 
     TsProgram(String programId, List<String> files, List<String> projectReferences) {
       this.programId = programId;
       this.files = files;
       this.projectReferences = projectReferences;
+      this.error = null;
+    }
+
+    TsProgram(String error) {
+      this.programId = null;
+      this.files = null;
+      this.projectReferences = null;
+      this.error = error;
     }
 
     @Override
     public String toString() {
-      return "TsProgram{" +
-        "programId='" + programId + '\'' +
-        ", files=" + files +
-        ", projectReferences=" + projectReferences +
-        '}';
+      if (error == null) {
+        return "TsProgram{" +
+          "programId='" + programId + '\'' +
+          ", files=" + files +
+          ", projectReferences=" + projectReferences +
+          '}';
+      } else {
+        return "TsProgram{ error='" + error + "'}";
+      }
     }
   }
 
