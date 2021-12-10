@@ -655,7 +655,7 @@ describe('program based analysis', () => {
     const response = JSON.parse(
       await post(JSON.stringify({ tsConfig: invalidTsConfig }), '/create-program'),
     );
-    expect(response.error).toBe(`',' expected.  ${invalidTsConfig}:49`);
+    expect(response.error).toBe(`',' expected.  ${normalizePath(invalidTsConfig)}:49`);
     expect(response.files).toBeUndefined();
   });
 
