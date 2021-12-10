@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  JsAnalysisInput,
+  TsConfigBasedAnalysisInput,
   analyzeJavaScript,
   analyzeTypeScript,
   initLinter,
@@ -109,7 +109,7 @@ describe('#analyzeJavaScript', () => {
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
 
-    const testFile: JsAnalysisInput = {
+    const testFile: TsConfigBasedAnalysisInput = {
       filePath,
       fileContent: codeToTest,
       fileType: 'TEST',

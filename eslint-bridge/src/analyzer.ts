@@ -45,7 +45,7 @@ export interface CssAnalysisInput extends AnalysisInput {
   stylelintConfig: string;
 }
 
-export interface JsAnalysisInput extends AnalysisInput {
+export interface TsConfigBasedAnalysisInput extends AnalysisInput {
   fileType: FileType;
   ignoreHeaderComments?: boolean;
   tsConfigs: string[];
@@ -56,6 +56,8 @@ export interface ProgramBasedAnalysisInput extends AnalysisInput {
   fileType: FileType;
   ignoreHeaderComments?: boolean;
 }
+
+export type JsTsAnalysisInput = TsConfigBasedAnalysisInput | ProgramBasedAnalysisInput;
 
 export interface Rule {
   // eslint rule key
@@ -107,11 +109,11 @@ export interface Perf {
   analysisTime: number;
 }
 
-export function analyzeJavaScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
+export function analyzeJavaScript(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'js'));
 }
 
-export function analyzeTypeScript(input: JsAnalysisInput): Promise<AnalysisResponse> {
+export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'ts'));
 }
 
@@ -167,7 +169,7 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
 }
 
 function analyze(
-  input: JsAnalysisInput | ProgramBasedAnalysisInput,
+  input: TsConfigBasedAnalysisInput | ProgramBasedAnalysisInput,
   language: 'ts' | 'js',
 ): AnalysisResponse {
   if (!linter) {
@@ -194,7 +196,10 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
   return { result, duration };
 }
 
-function analyzeFile(sourceCode: SourceCode, input: JsAnalysisInput | ProgramBasedAnalysisInput) {
+function analyzeFile(
+  sourceCode: SourceCode,
+  input: TsConfigBasedAnalysisInput | ProgramBasedAnalysisInput,
+) {
   try {
     const { issues, highlightedSymbols, cognitiveComplexity } = linter.analyze(
       sourceCode,
