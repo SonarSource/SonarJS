@@ -101,7 +101,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     ProgressReport progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
-      progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
         TsConfigFile tsConfigFile = entry.getKey();
         List<InputFile> files = entry.getValue();
@@ -136,7 +136,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       if (eslintBridgeServer.isAlive()) {
         monitoring.startFile(inputFile);
         analyze(inputFile, tsConfigFile);
-        progressReport.nextFile();
+        progressReport.nextFile(inputFile.absolutePath());
       } else {
         throw new IllegalStateException("eslint-bridge server is not answering");
       }

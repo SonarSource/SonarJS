@@ -19,9 +19,7 @@
  */
 package org.sonar.plugins.javascript.utils;
 
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.StreamSupport;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -32,7 +30,6 @@ public class ProgressReport implements Runnable {
   private long count;
   private long currentFileNumber = -1;
   private String currentFilename;
-  private Iterator<String> it;
   private final Thread thread;
   private final String adjective;
   private final AtomicBoolean success = new AtomicBoolean(false);
@@ -97,26 +94,10 @@ public class ProgressReport implements Runnable {
     return "have";
   }
 
-  public synchronized void start(Iterable<String> filenames) {
-    count = size(filenames);
-    it = filenames.iterator();
-
-    nextFile();
-
-    thread.start();
-  }
-
   public synchronized void start(long count, String currentFilename) {
     this.count = count;
     nextFile(currentFilename);
     thread.start();
-  }
-
-  public synchronized void nextFile() {
-    if (it.hasNext()) {
-      currentFileNumber++;
-      currentFilename = it.next();
-    }
   }
 
   public synchronized void nextFile(String currentFilename) {
@@ -150,10 +131,6 @@ public class ProgressReport implements Runnable {
       logger.info(message);
       logger.notifyAll();
     }
-  }
-
-  private static long size(Iterable<String> iterable) {
-    return StreamSupport.stream(iterable.spliterator(), false).count();
   }
 
 }

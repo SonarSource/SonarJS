@@ -48,7 +48,7 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
-import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class CssRuleSensor extends AbstractEslintSensor {
 
@@ -89,7 +89,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     boolean success = false;
 
     try {
-      progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -99,7 +99,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         }
 
         analyzeFile(inputFile, context, stylelintConfig);
-        progressReport.nextFile();
+        progressReport.nextFile(inputFile.absolutePath());
       }
       success = true;
 

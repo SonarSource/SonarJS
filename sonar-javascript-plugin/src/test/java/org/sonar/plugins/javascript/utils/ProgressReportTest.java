@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,7 +42,7 @@ class ProgressReportTest {
   void testSonarLogger() throws Exception {
     ProgressReport report = new ProgressReport(ProgressReportTest.class.getName(), 100);
 
-    report.start(Arrays.asList("foo.java", "foo.java"));
+    report.start(2, "foo.java");
     report.stop();
 
     assertThat(logTester.logs(LoggerLevel.INFO)).isNotEmpty();
@@ -54,9 +52,9 @@ class ProgressReportTest {
   void testPlural() throws Exception {
     Logger logger = mock(Logger.class);
 
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
 
-    report.start(Arrays.asList("foo1.java", "foo2.java"));
+    report.start(2, "foo1.java");
 
     // Wait for start message
     waitForMessage(logger);
@@ -82,9 +80,9 @@ class ProgressReportTest {
   void testSingular() throws Exception {
     Logger logger = mock(Logger.class);
 
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
 
-    report.start(Arrays.asList("foo.java"));
+    report.start(1, "foo.java");
 
     // Wait for start message
     waitForMessage(logger);
@@ -110,8 +108,8 @@ class ProgressReportTest {
   void testCancel() throws InterruptedException {
     Logger logger = mock(Logger.class);
 
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(org.sonarsource.analyzer.commons.ProgressReport.class.getName(), 100, logger, "analyzed");
-    report.start(Arrays.asList("foo.java"));
+    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 100, logger, "analyzed");
+    report.start(1, "foo.java");
 
     // Wait for start message
     waitForMessage(logger);
@@ -123,8 +121,8 @@ class ProgressReportTest {
   void testStopPreserveTheInterruptedFlag() throws InterruptedException {
     Logger logger = mock(Logger.class);
 
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(org.sonarsource.analyzer.commons.ProgressReport.class.getName(), 100, logger, "analyzed");
-    report.start(Arrays.asList("foo.java"));
+    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 100, logger, "analyzed");
+    report.start(1, "foo.java");
 
     // Wait for start message
     waitForMessage(logger);
@@ -158,10 +156,10 @@ class ProgressReportTest {
 
   @Test
   void interrupting_the_thread_should_never_create_a_deadlock() {
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(org.sonarsource.analyzer.commons.ProgressReport.class.getName(), 500);
+    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 500);
 
     long start = System.currentTimeMillis();
-    report.start(Collections.emptyList());
+    report.start(0, "foo");
     report.stop();
     long end = System.currentTimeMillis();
 
@@ -174,7 +172,7 @@ class ProgressReportTest {
 
   @Test
   void interrupted_thread_should_exit_immediately() throws InterruptedException {
-    org.sonarsource.analyzer.commons.ProgressReport report = new org.sonarsource.analyzer.commons.ProgressReport(ProgressReport.class.getName(), 500);
+    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 500);
     AtomicLong time = new AtomicLong(10000);
     Thread selfInterruptedThread = new Thread(() -> {
       // set the thread as interrupted
