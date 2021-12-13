@@ -26,7 +26,7 @@ if (dateString.match(datePattern)) {
 <pre>
 const datePattern = /^\d{1,2}([-/.])\d{1,2}\1\d{1,4}$/;
 if (dateString.match(datePattern)) {
-    const dateParts = dateString.split('[-/.]');
+    const dateParts = dateString.split(/[-/.]/);
     const day = parseInt(dateParts[0]);
     const month = parseInt(dateParts[1]);
     const year = parseInt(dateParts[2]);
