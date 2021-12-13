@@ -24,17 +24,26 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,12 +55,42 @@ class CssMetricSensorTest {
   @TempDir
   Path tempFolder;
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   @Test
   void should_describe() {
     DefaultSensorDescriptor desc = new DefaultSensorDescriptor();
-    new CssMetricSensor(null).describe(desc);
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(8, 9));
+    new CssMetricSensor(sonarRuntime, null).describe(desc);
 
+    assertThat(desc.name()).isEqualTo("CSS Metrics");
     assertThat(desc.languages()).containsOnly("css");
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_3() throws Exception {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+
+    final boolean[] called = {false};
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
+      public SensorDescriptor processesFilesIndependently() {
+        called[0] = true;
+        return this;
+      }
+    };
+    new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
+    assertTrue(called[0]);
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
+    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
   }
 
   @Test
@@ -197,7 +236,8 @@ class CssMetricSensorTest {
     FileLinesContext linesContext = mock(FileLinesContext.class);
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
-    new CssMetricSensor(linesContextFactory).execute(sensorContext);
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(8, 9));
+    new CssMetricSensor(sonarRuntime, linesContextFactory).execute(sensorContext);
   }
 
   private void assertHighlighting(int line, int column, int length, TypeOfText type) {
