@@ -81,6 +81,7 @@ public class AnalysisWithProgram {
         if (!analyzedProjects.add(tsConfig)) {
           continue;
         }
+        monitoring.startProgram(tsConfig);
         PROFILER.startInfo("Creating TypeScript program");
         LOG.info("TypeScript configuration file " + tsConfig);
         var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
@@ -90,6 +91,7 @@ public class AnalysisWithProgram {
           continue;
         }
         PROFILER.stopInfo();
+        monitoring.stopProgram();
         analyzeProgram(program, analyzedFiles);
         workList.addAll(program.projectReferences);
         eslintBridgeServer.deleteProgram(program);

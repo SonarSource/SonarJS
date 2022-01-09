@@ -41,11 +41,13 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.FILE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.PROGRAM;
 import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.RULE;
 import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.SENSOR;
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
 @ScannerSide
-@SonarLintSide
+@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public class Monitoring implements Startable {
 
   private static final Logger LOG = Loggers.get(Monitoring.class);
@@ -59,6 +61,7 @@ public class Monitoring implements Startable {
   private boolean enabled;
   private SensorMetric sensorMetric;
   private FileMetric fileMetric;
+  private ProgramMetric programMetric;
 
   public Monitoring(Configuration configuration) {
     this.configuration = configuration;
@@ -72,7 +75,6 @@ public class Monitoring implements Startable {
     sensorMetric = new SensorMetric();
     sensorMetric.component = sensor.getClass().getCanonicalName();
     sensorMetric.projectKey = sensorContext.project().key();
-    sensorMetric.clock = new Clock();
   }
 
   void stopSensor() {
@@ -88,8 +90,8 @@ public class Monitoring implements Startable {
       return;
     }
     fileMetric = new FileMetric();
-    fileMetric.clock = new Clock();
     fileMetric.component = inputFile.toString();
+    fileMetric.projectKey = sensorMetric.projectKey;
     fileMetric.ordinal = sensorMetric.fileCount;
     sensorMetric.fileCount++;
   }
@@ -154,10 +156,26 @@ public class Monitoring implements Startable {
     metrics.add(ruleMetric);
   }
 
+  public void startProgram(String tsConfig) {
+    if (!enabled) {
+      return;
+    }
+    programMetric = new ProgramMetric(tsConfig);
+    programMetric.projectKey = sensorMetric.projectKey;
+  }
+
+  public void stopProgram() {
+    if (!enabled) {
+      return;
+    }
+    programMetric.duration = programMetric.clock.stop();
+    metrics.add(programMetric);
+  }
+
   static class Metric implements Serializable {
 
     enum MetricType {
-      SENSOR, FILE, RULE
+      SENSOR, FILE, RULE, PROGRAM
     }
 
     final MetricType metricType;
@@ -167,7 +185,7 @@ public class Monitoring implements Startable {
     // sha of the commit
     String pluginBuild;
     // transient to exclude field from json
-    transient Clock clock;
+    transient Clock clock = new Clock();
 
     Metric(MetricType metricType) {
       pluginVersion = Metric.class.getPackage().getImplementationVersion();
@@ -224,6 +242,17 @@ public class Monitoring implements Startable {
       this.timeMs = timeMs;
       this.timeRelative = timeRelative;
       this.projectKey = projectKey;
+    }
+  }
+
+  static class ProgramMetric extends Metric {
+
+    String tsConfig;
+    long duration;
+
+    ProgramMetric(String tsConfig) {
+      super(PROGRAM);
+      this.tsConfig = tsConfig;
     }
   }
 
