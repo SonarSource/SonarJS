@@ -21,8 +21,9 @@ package org.sonarsource.nodejs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -65,14 +66,19 @@ public class NodeCommand {
    * Start external NodeJS process
    *
    * @throws NodeCommandException when start of the external process fails
+   * @param env environment for started process
    */
-  public void start() {
+  public void start(Map<String, String> env) {
     try {
       LOG.debug("Launching command {}", toString());
-      process = processWrapper.startProcess(command, new HashMap<>(), outputConsumer, errorConsumer);
+      process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }
+  }
+
+  public void start() {
+    start(Collections.emptyMap());
   }
 
   private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {

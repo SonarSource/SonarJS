@@ -66,6 +66,7 @@ class EslintBridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
   private static final int TEST_TIMEOUT_SECONDS = 1;
+  private final Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -128,7 +129,7 @@ class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning, tempFolder);
+    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
     eslintBridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
 
@@ -472,7 +473,7 @@ class EslintBridgeServerImplTest {
 
   @Test
   void should_use_default_timeout() {
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder);
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder, monitoring);
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
 
@@ -503,7 +504,7 @@ class EslintBridgeServerImplTest {
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder);
+    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
   }
 
   static class TestBundle implements Bundle {

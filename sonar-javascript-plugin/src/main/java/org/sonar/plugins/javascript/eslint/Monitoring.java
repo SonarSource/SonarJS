@@ -41,6 +41,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.FILE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.RULE;
 import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.SENSOR;
 
 @ScannerSide
@@ -139,7 +140,7 @@ public class Monitoring implements Startable {
     }
   }
 
-  private boolean isMonitoringEnabled() {
+  public boolean isMonitoringEnabled() {
     return configuration.getBoolean(MONITORING_ON).orElse(false);
   }
 
@@ -148,10 +149,15 @@ public class Monitoring implements Startable {
       .orElseThrow(() -> new IllegalStateException("Monitoring path " + MONITORING_PATH + " not configured"));
   }
 
+  public void ruleStatistics(String ruleKey, double timeMs, double relative) {
+    var ruleMetric = new RuleMetric(ruleKey, timeMs, relative, sensorMetric.projectKey);
+    metrics.add(ruleMetric);
+  }
+
   static class Metric implements Serializable {
 
     enum MetricType {
-      SENSOR, FILE
+      SENSOR, FILE, RULE
     }
 
     final MetricType metricType;
@@ -203,6 +209,21 @@ public class Monitoring implements Startable {
 
     long stop() {
       return (System.nanoTime() - start) / 1_000;
+    }
+  }
+
+  static class RuleMetric extends Metric {
+
+    String ruleKey;
+    double timeMs;
+    double timeRelative;
+
+    RuleMetric(String ruleKey, double timeMs, double timeRelative, String projectKey) {
+      super(RULE);
+      this.ruleKey = ruleKey;
+      this.timeMs = timeMs;
+      this.timeRelative = timeRelative;
+      this.projectKey = projectKey;
     }
   }
 
