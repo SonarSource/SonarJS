@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2021 SonarSource SA
+ * Copyright (C) 2012-2022 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -172,6 +172,8 @@ class JavaScriptRulingTest {
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
+      .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty("sonar.javascript.monitoring.path", FileLocation.of("target/monitoring/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);
