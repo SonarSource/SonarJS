@@ -41,7 +41,7 @@ public class TypeScriptRuleTest {
 
   private static final String PROJECT_KEY = "ts-rule-project";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
-  static final String LITS_VERSION = "0.9.0.1682";
+  static final String LITS_VERSION = "0.10.0.2181";
 
   private static Orchestrator orchestrator;
 
@@ -95,9 +95,9 @@ public class TypeScriptRuleTest {
       .setProjectKey(PROJECT_KEY)
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProperty("dump.old", FileLocation.of("target/expected/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
-      .setProperty("dump.new", FileLocation.of("target/actual/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
-      .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("target/expected/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*");
 
     orchestrator.executeBuild(build);

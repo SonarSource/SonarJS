@@ -100,10 +100,10 @@ public class CssRulingTest {
       .setLanguage("css")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProperty("dump.old", FileLocation.of("src/test/expected/css").getFile().getAbsolutePath())
-      .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/expected/css").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
+      .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2000m");
     ORCHESTRATOR.executeBuild(build);
