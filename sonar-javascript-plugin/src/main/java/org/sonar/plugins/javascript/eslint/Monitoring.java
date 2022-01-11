@@ -27,8 +27,11 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -40,10 +43,10 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.FILE;
-import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.PROGRAM;
-import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.RULE;
-import static org.sonar.plugins.javascript.eslint.Monitoring.Metric.MetricType.SENSOR;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.FILE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.PROGRAM;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.RULE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.SENSOR;
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
 @ScannerSide
@@ -62,9 +65,11 @@ public class Monitoring implements Startable {
   private SensorMetric sensorMetric;
   private FileMetric fileMetric;
   private ProgramMetric programMetric;
+  private final String executionId;
 
   public Monitoring(Configuration configuration) {
     this.configuration = configuration;
+    this.executionId = UUID.randomUUID().toString();
   }
 
   void startSensor(SensorContext sensorContext, Sensor sensor) {
@@ -172,11 +177,16 @@ public class Monitoring implements Startable {
     metrics.add(programMetric);
   }
 
-  static class Metric implements Serializable {
+  List<Metric> metrics() {
+    return metrics;
+  }
 
-    enum MetricType {
-      SENSOR, FILE, RULE, PROGRAM
-    }
+  enum MetricType {
+    SENSOR, FILE, RULE, PROGRAM
+  }
+
+
+  class Metric implements Serializable {
 
     final MetricType metricType;
     String component;
@@ -184,6 +194,8 @@ public class Monitoring implements Startable {
     String pluginVersion;
     // sha of the commit
     String pluginBuild;
+    final String executionId = Monitoring.this.executionId;
+    final String timestamp;
     // transient to exclude field from json
     transient Clock clock = new Clock();
 
@@ -191,10 +203,11 @@ public class Monitoring implements Startable {
       pluginVersion = Metric.class.getPackage().getImplementationVersion();
       pluginBuild = ManifestUtils.getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build").get(0);
       this.metricType = metricType;
+      this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
     }
   }
 
-  static class SensorMetric extends Metric {
+  class SensorMetric extends Metric {
     int fileCount;
     long duration;
 
@@ -203,7 +216,7 @@ public class Monitoring implements Startable {
     }
   }
 
-  static class FileMetric extends Metric {
+  class FileMetric extends Metric {
     // order of file in the project in which it was analyzed. 1 - first file, ....
     int ordinal;
     int ncloc;
@@ -230,7 +243,7 @@ public class Monitoring implements Startable {
     }
   }
 
-  static class RuleMetric extends Metric {
+  class RuleMetric extends Metric {
 
     String ruleKey;
     double timeMs;
@@ -245,7 +258,7 @@ public class Monitoring implements Startable {
     }
   }
 
-  static class ProgramMetric extends Metric {
+  class ProgramMetric extends Metric {
 
     String tsConfig;
     long duration;
