@@ -77,7 +77,7 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    sensorMetric = new SensorMetric();
+    sensorMetric = new SensorMetric(executionId);
     sensorMetric.component = sensor.getClass().getCanonicalName();
     sensorMetric.projectKey = sensorContext.project().key();
   }
@@ -94,7 +94,7 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    fileMetric = new FileMetric();
+    fileMetric = new FileMetric(executionId);
     fileMetric.component = inputFile.toString();
     fileMetric.projectKey = sensorMetric.projectKey;
     fileMetric.ordinal = sensorMetric.fileCount;
@@ -157,7 +157,7 @@ public class Monitoring implements Startable {
   }
 
   public void ruleStatistics(String ruleKey, double timeMs, double relative) {
-    var ruleMetric = new RuleMetric(ruleKey, timeMs, relative, sensorMetric.projectKey);
+    var ruleMetric = new RuleMetric(ruleKey, timeMs, relative, sensorMetric.projectKey, executionId);
     metrics.add(ruleMetric);
   }
 
@@ -165,7 +165,7 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    programMetric = new ProgramMetric(tsConfig);
+    programMetric = new ProgramMetric(tsConfig, executionId);
     programMetric.projectKey = sensorMetric.projectKey;
   }
 
@@ -186,7 +186,7 @@ public class Monitoring implements Startable {
   }
 
 
-  class Metric implements Serializable {
+  static class Metric implements Serializable {
 
     final MetricType metricType;
     String component;
@@ -194,12 +194,13 @@ public class Monitoring implements Startable {
     String pluginVersion;
     // sha of the commit
     String pluginBuild;
-    final String executionId = Monitoring.this.executionId;
+    final String executionId;
     final String timestamp;
     // transient to exclude field from json
     transient Clock clock = new Clock();
 
-    Metric(MetricType metricType) {
+    Metric(MetricType metricType, String executionId) {
+      this.executionId = executionId;
       pluginVersion = Metric.class.getPackage().getImplementationVersion();
       pluginBuild = ManifestUtils.getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build").get(0);
       this.metricType = metricType;
@@ -207,16 +208,16 @@ public class Monitoring implements Startable {
     }
   }
 
-  class SensorMetric extends Metric {
+  static class SensorMetric extends Metric {
     int fileCount;
     long duration;
 
-    SensorMetric() {
-      super(SENSOR);
+    SensorMetric(String executionId) {
+      super(SENSOR, executionId);
     }
   }
 
-  class FileMetric extends Metric {
+  static class FileMetric extends Metric {
     // order of file in the project in which it was analyzed. 1 - first file, ....
     int ordinal;
     int ncloc;
@@ -225,8 +226,8 @@ public class Monitoring implements Startable {
     int analysisTime;
     long duration;
 
-    FileMetric() {
-      super(FILE);
+    FileMetric(String executionId) {
+      super(FILE, executionId);
     }
   }
 
@@ -243,14 +244,14 @@ public class Monitoring implements Startable {
     }
   }
 
-  class RuleMetric extends Metric {
+  static class RuleMetric extends Metric {
 
     String ruleKey;
     double timeMs;
     double timeRelative;
 
-    RuleMetric(String ruleKey, double timeMs, double timeRelative, String projectKey) {
-      super(RULE);
+    RuleMetric(String ruleKey, double timeMs, double timeRelative, String projectKey, String executionId) {
+      super(RULE, executionId);
       this.ruleKey = ruleKey;
       this.timeMs = timeMs;
       this.timeRelative = timeRelative;
@@ -258,13 +259,13 @@ public class Monitoring implements Startable {
     }
   }
 
-  class ProgramMetric extends Metric {
+  static class ProgramMetric extends Metric {
 
     String tsConfig;
     long duration;
 
-    ProgramMetric(String tsConfig) {
-      super(PROGRAM);
+    ProgramMetric(String tsConfig, String executionId) {
+      super(PROGRAM, executionId);
       this.tsConfig = tsConfig;
     }
   }

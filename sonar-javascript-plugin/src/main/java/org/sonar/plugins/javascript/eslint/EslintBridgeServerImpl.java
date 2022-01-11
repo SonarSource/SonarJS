@@ -164,7 +164,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
     var outputConsumer = monitoring.isMonitoringEnabled() ?
-      new LogOutputConsumer().andThen(new MonitoringOutputConsumer()) : new LogOutputConsumer();
+      new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring)) : new LogOutputConsumer();
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
       .pathResolver(bundle)
@@ -408,12 +408,17 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  class MonitoringOutputConsumer implements Consumer<String> {
+  static class MonitoringOutputConsumer implements Consumer<String> {
 
     private static final String HEADER = "Rule                                 | Time (ms) | Relative";
-    private final Pattern RULE_LINE = Pattern.compile("(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%");
+    private static final Pattern RULE_LINE = Pattern.compile("(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%");
+    private final Monitoring monitoring;
 
     boolean headerDetected;
+
+    MonitoringOutputConsumer(Monitoring monitoring) {
+      this.monitoring = monitoring;
+    }
 
     @Override
     public void accept(String s) {
