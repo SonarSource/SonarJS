@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -111,6 +113,8 @@ class MonitoringTest {
       assertThat(fileMetric.parseTime).isEqualTo(3);
       assertThat(fileMetric.ncloc).isEqualTo(4);
       assertThat(fileMetric.ordinal).isZero();
+      assertThat(fileMetric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
+      assertThat(fileMetric.executionId).isNotEmpty();
     }
   }
 
@@ -125,6 +129,20 @@ class MonitoringTest {
     EslintBridgeServer.Perf perf = new EslintBridgeServer.Perf();
     assertThatThrownBy(() -> monitoring.stopFile(file1, 0, perf))
       .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void test_program_metric() {
+    monitoring.startSensor(sensorContextTester, new TestSensor());
+    monitoring.startProgram("tsconfig.json");
+    monitoring.stopProgram();
+    monitoring.startProgram("tsconfig2.json");
+    monitoring.stopProgram();
+    assertThat(monitoring.metrics()).extracting(m -> ((Monitoring.ProgramMetric) m).tsConfig)
+      .containsExactly("tsconfig.json", "tsconfig2.json");
+    var metric = monitoring.metrics().get(0);
+    assertThat(metric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
+    assertThat(metric.executionId).isNotEmpty();
   }
 
 

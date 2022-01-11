@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
@@ -501,6 +505,35 @@ class EslintBridgeServerImplTest {
 
     TsProgram tsProgramError = new TsProgram("failed to create program");
     assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
+  }
+
+  @Test
+  void enabled_monitoring() throws Exception {
+    var settings = new MapSettings();
+    settings.setProperty("sonar.javascript.monitoring", "true");
+    var monitoring = new Monitoring(settings.asConfig());
+    monitoring.startSensor(context, new Sensor() {
+      @Override
+      public void describe(SensorDescriptor descriptor) {
+
+      }
+
+      @Override
+      public void execute(SensorContext context) {
+
+      }
+    });
+    assertThat(monitoring.isMonitoringEnabled()).isTrue();
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS,
+      new TestBundle(START_SERVER_SCRIPT), emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServerLazily(context);
+    eslintBridgeServer.stop();
+    var rules = monitoring.metrics().stream()
+      .filter(m -> m.metricType == Monitoring.MetricType.RULE)
+      .map(m -> ((Monitoring.RuleMetric) m).ruleKey)
+      .collect(Collectors.toList());
+    assertThat(rules).containsExactly("no-commented-code", "arguments-order", "deprecation");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

@@ -46,7 +46,7 @@ const requestHandler = (request, response) => {
 };
 
 const server = http.createServer(requestHandler);
-server.keepAliveTimeout = 100  // this is used so server disconnects faster
+server.keepAliveTimeout = 100; // this is used so server disconnects faster
 
 server.listen(port, host, (err) => {
   if (err) {
@@ -54,4 +54,14 @@ server.listen(port, host, (err) => {
   }
 
   console.log(`server is listening on ${host} ${port}`);
+});
+
+process.on("exit", () => {
+  console.log(`
+Rule                                 | Time (ms) | Relative
+:------------------------------------|----------:|--------:
+no-commented-code                    |   633.226 |    16.8%
+arguments-order                      |   398.175 |    10.6%
+deprecation                          |   335.577 |     8.9%
+  `);
 });
