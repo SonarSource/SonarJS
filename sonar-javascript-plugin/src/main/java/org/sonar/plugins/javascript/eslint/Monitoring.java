@@ -133,7 +133,7 @@ public class Monitoring implements Startable {
     Gson gson = new GsonBuilder().create();
     try {
       Path path = monitoringPath.resolve("metrics.json");
-      LOG.info("Saving performance metrics to {}", path);
+      LOG.info("Saving performance metrics with executionId {} to {}", executionId, path);
       Files.createDirectories(monitoringPath);
       try (BufferedWriter bw = Files.newBufferedWriter(path)) {
         for (Metric metric : metrics) {
