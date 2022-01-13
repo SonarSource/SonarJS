@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
-  static final String LITS_VERSION = "0.9.0.1682";
+  static final String LITS_VERSION = "0.10.0.2181";
 
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -165,9 +165,9 @@ class JavaScriptRulingTest {
       .setSourceDirs("./")
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
-      .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
-      .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
-      .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
       .setProperty("sonar.exclusions", actualExclusions)
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
