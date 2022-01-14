@@ -148,6 +148,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-ws</artifactId>
+        <version>${sonar.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
         <version>4.0.3</version>
