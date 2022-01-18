@@ -68,7 +68,38 @@ const testCases = {
         },
       ],
     },
+    {
+      code: `
+            const f = () => { return new Promise(() => {}); };
+            void f(); // FP: should be ignored since 'f()' is a promise but we are missing type information
+            `,
+      errors: 1,
+    },
   ],
 };
 ruleTesterJs.run('"void" should not be used JS', rule, testCases);
-ruleTesterTs.run('"void" should not be used TS', rule, testCases);
+ruleTesterTs.run('"void" should not be used TS', rule, {
+  valid: [
+    {
+      code: `void 0;`,
+    },
+    {
+      code: `
+            const p = new Promise(() => {});
+            void p;
+            `,
+    },
+    {
+      code: `
+            const f = () => { return new Promise(() => {}); };
+            void f();
+            `,
+    },
+  ],
+  invalid: [
+    {
+      code: `void 42;`,
+      errors: 1,
+    },
+  ],
+});
