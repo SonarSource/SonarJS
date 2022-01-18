@@ -21,7 +21,6 @@ package org.sonarsource.nodejs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,37 +47,35 @@ public class NodeCommand {
   final Consumer<String> errorConsumer;
   private final ProcessWrapper processWrapper;
   private final int actualNodeVersion;
+  private final Map<String, String> env;
   private Process process;
   private final List<String> command;
 
   NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, int actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
-    List<String> args,
-    Consumer<String> outputConsumer,
-    Consumer<String> errorConsumer) {
+              List<String> args,
+              Consumer<String> outputConsumer,
+              Consumer<String> errorConsumer,
+              Map<String, String> env) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
     this.actualNodeVersion = actualNodeVersion;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
+    this.env = env;
   }
 
   /**
    * Start external NodeJS process
    *
    * @throws NodeCommandException when start of the external process fails
-   * @param env environment for started process
    */
-  public void start(Map<String, String> env) {
+  public void start() {
     try {
       LOG.debug("Launching command {}", toString());
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }
-  }
-
-  public void start() {
-    start(Collections.emptyMap());
   }
 
   private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {

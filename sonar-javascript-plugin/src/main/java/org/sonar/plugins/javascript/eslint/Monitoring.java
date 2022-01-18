@@ -94,9 +94,8 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    fileMetric = new FileMetric(executionId);
+    fileMetric = new FileMetric(executionId, sensorMetric.projectKey);
     fileMetric.component = inputFile.toString();
-    fileMetric.projectKey = sensorMetric.projectKey;
     fileMetric.ordinal = sensorMetric.fileCount;
     sensorMetric.fileCount++;
   }
@@ -165,8 +164,7 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    programMetric = new ProgramMetric(tsConfig, executionId);
-    programMetric.projectKey = sensorMetric.projectKey;
+    programMetric = new ProgramMetric(tsConfig, executionId, sensorMetric.projectKey);
   }
 
   public void stopProgram() {
@@ -226,8 +224,9 @@ public class Monitoring implements Startable {
     int analysisTime;
     long duration;
 
-    FileMetric(String executionId) {
+    FileMetric(String executionId, String projectKey) {
       super(FILE, executionId);
+      this.projectKey = projectKey;
     }
   }
 
@@ -264,9 +263,10 @@ public class Monitoring implements Startable {
     String tsConfig;
     long duration;
 
-    ProgramMetric(String tsConfig, String executionId) {
+    ProgramMetric(String tsConfig, String executionId, String projectKey) {
       super(PROGRAM, executionId);
       this.tsConfig = tsConfig;
+      this.projectKey = projectKey;
     }
   }
 

@@ -127,8 +127,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
 
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
-    Map<String, String> env = monitoring.isMonitoringEnabled() ? Map.of("TIMING", "all") : Map.of();
-    nodeCommand.start(env);
+    nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
       status = Status.FAILED;
@@ -165,13 +164,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
     var outputConsumer = monitoring.isMonitoringEnabled() ?
       new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring)) : new LogOutputConsumer();
+    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
+    Map<String, String> env = monitoring.isMonitoringEnabled() ? Map.of("TIMING", "all") : Map.of();
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles);
+      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles)
+      .env(env);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)

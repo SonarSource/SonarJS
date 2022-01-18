@@ -327,7 +327,7 @@ public class NodeCommandTest {
     Consumer<String> noop = s -> {
     };
     NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", 12, Collections.emptyList(), null,
-      Collections.emptyList(), noop, noop);
+      Collections.emptyList(), noop, noop, Map.of());
     assertThat(nodeCommand.getActualNodeVersion()).isEqualTo(12);
   }
 
