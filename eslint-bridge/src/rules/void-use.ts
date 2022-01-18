@@ -21,12 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isRequiredParserServices, isThenable } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const services = context.parserServices;
     function checkNode(node: estree.Node) {
       const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
-      if (isVoid0(unaryExpression) || isIIFE(unaryExpression)) {
+      if (isVoid0(unaryExpression) || isIIFE(unaryExpression) || isPromiseLike(unaryExpression)) {
         return;
       }
       const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
@@ -45,6 +47,10 @@ export const rule: Rule.RuleModule = {
         expr.argument.type === 'CallExpression' &&
         ['ArrowFunctionExpression', 'FunctionExpression'].includes(expr.argument.callee.type)
       );
+    }
+
+    function isPromiseLike(expr: estree.UnaryExpression) {
+      return isRequiredParserServices(services) && isThenable(expr.argument, services);
     }
 
     return {

@@ -57,6 +57,13 @@ export function isUndefinedOrNull(node: estree.Node, services: RequiredParserSer
   );
 }
 
+export function isThenable(node: estree.Node, services: RequiredParserServices) {
+  const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+  const tp = services.program.getTypeChecker().getTypeAtLocation(mapped);
+  const thenProperty = tp.getProperty('then');
+  return Boolean(thenProperty && thenProperty.flags & ts.SymbolFlags.Method);
+}
+
 export function isAny(type: ts.Type) {
   return type.flags === ts.TypeFlags.Any;
 }

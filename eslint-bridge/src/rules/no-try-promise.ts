@@ -22,8 +22,7 @@
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import * as ts from 'typescript';
-import { isRequiredParserServices, RequiredParserServices, toEncodedMessage } from '../utils';
+import { isRequiredParserServices, isThenable, toEncodedMessage } from '../utils';
 
 type CallLikeExpression =
   | TSESTree.CallExpression
@@ -64,7 +63,10 @@ function visitTryStatement(
 
     let hasPotentiallyThrowingCalls = false;
     CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(callLikeExpr => {
-      if (callLikeExpr.type === 'AwaitExpression' || !hasThenMethod(callLikeExpr, services)) {
+      if (
+        callLikeExpr.type === 'AwaitExpression' ||
+        !isThenable(callLikeExpr as estree.Node, services)
+      ) {
         hasPotentiallyThrowingCalls = true;
         return;
       }
@@ -150,13 +152,6 @@ function checkForUselessCatch(
       loc: token!.loc,
     });
   }
-}
-
-function hasThenMethod(node: TSESTree.Node, services: RequiredParserServices) {
-  const mapped = services.esTreeNodeToTSNodeMap.get(node);
-  const tp = services.program.getTypeChecker().getTypeAtLocation(mapped);
-  const thenProperty = tp.getProperty('then');
-  return Boolean(thenProperty && thenProperty.flags & ts.SymbolFlags.Method);
 }
 
 function isThened(callExpr: CallLikeExpression) {
