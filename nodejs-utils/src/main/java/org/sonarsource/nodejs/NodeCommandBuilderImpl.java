@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -61,6 +63,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private String scriptFilename;
   private BundlePathResolver pathResolver;
   private int actualNodeVersion;
+  private Map<String, String> env = Map.of();
 
   public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -120,6 +123,12 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return this;
   }
 
+  @Override
+  public NodeCommandBuilder env(Map<String, String> env) {
+    this.env = Map.copyOf(env);
+    return this;
+  }
+
   /**
    * Retrieves node executable from sonar.node.executable property or using default if absent.
    * Then will check Node.js version by running {@code node -v}, then
@@ -147,7 +156,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       scriptFilename,
       args,
       outputConsumer,
-      errorConsumer);
+      errorConsumer,
+      env);
   }
 
   private void checkNodeCompatibility(String nodeExecutable) throws NodeCommandException {
@@ -177,7 +187,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private String getVersion(String nodeExecutable) throws NodeCommandException {
     StringBuilder output = new StringBuilder();
-    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, actualNodeVersion, singletonList("-v"), null, emptyList(), output::append, LOG::error);
+    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, actualNodeVersion, singletonList("-v"), null, emptyList(), output::append, LOG::error, Map.of());
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {

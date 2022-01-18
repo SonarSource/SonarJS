@@ -21,8 +21,8 @@ package org.sonarsource.nodejs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -47,18 +47,21 @@ public class NodeCommand {
   final Consumer<String> errorConsumer;
   private final ProcessWrapper processWrapper;
   private final int actualNodeVersion;
+  private final Map<String, String> env;
   private Process process;
   private final List<String> command;
 
   NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, int actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
-    List<String> args,
-    Consumer<String> outputConsumer,
-    Consumer<String> errorConsumer) {
+              List<String> args,
+              Consumer<String> outputConsumer,
+              Consumer<String> errorConsumer,
+              Map<String, String> env) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
     this.actualNodeVersion = actualNodeVersion;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
+    this.env = env;
   }
 
   /**
@@ -69,7 +72,7 @@ public class NodeCommand {
   public void start() {
     try {
       LOG.debug("Launching command {}", toString());
-      process = processWrapper.startProcess(command, new HashMap<>(), outputConsumer, errorConsumer);
+      process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }

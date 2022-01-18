@@ -32,6 +32,9 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -77,18 +80,19 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final RulesBundles rulesBundles;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path deployLocation;
+  private final Monitoring monitoring;
 
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
-                                NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
-    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning, tempFolder);
+                                NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
+    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning, tempFolder, monitoring);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
                          int timeoutSeconds,
                          Bundle bundle,
                          RulesBundles rulesBundles,
-                         NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
+                         NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -99,6 +103,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
+    this.monitoring = monitoring;
   }
 
   int getTimeoutSeconds() {
@@ -157,21 +162,18 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
+    var outputConsumer = monitoring.isMonitoringEnabled() ?
+      new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring)) : new LogOutputConsumer();
+    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
+    Map<String, String> env = monitoring.isMonitoringEnabled() ? Map.of("TIMING", "all") : Map.of();
     nodeCommandBuilder
-      .outputConsumer(message -> {
-        if (message.startsWith("DEBUG")) {
-          LOG.debug(message.substring(5).trim());
-        } else if (message.startsWith("WARN")) {
-          LOG.warn(message.substring(4).trim());
-        } else {
-          LOG.info(message);
-        }
-      })
+      .outputConsumer(outputConsumer)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles);
+      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles)
+      .env(env);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
@@ -405,6 +407,54 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
+    }
+  }
+
+  static class MonitoringOutputConsumer implements Consumer<String> {
+
+    private static final String HEADER = "Rule                                 | Time (ms) | Relative";
+    private static final Pattern RULE_LINE = Pattern.compile("(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%");
+    private final Monitoring monitoring;
+
+    boolean headerDetected;
+
+    MonitoringOutputConsumer(Monitoring monitoring) {
+      this.monitoring = monitoring;
+    }
+
+    @Override
+    public void accept(String s) {
+      if (HEADER.equals(s)) {
+        headerDetected = true;
+        return;
+      }
+      if (headerDetected) {
+        try {
+          var matcher = RULE_LINE.matcher(s);
+          if (matcher.matches()) {
+            var ruleKey = matcher.group(1);
+            var timeMs = Double.parseDouble(matcher.group(2));
+            var relative = Double.parseDouble(matcher.group(3));
+            monitoring.ruleStatistics(ruleKey, timeMs, relative);
+          }
+        } catch (Exception e) {
+          LOG.error("Error parsing rule timing data", e);
+        }
+      }
+    }
+  }
+
+  static class LogOutputConsumer implements Consumer<String> {
+
+    @Override
+    public void accept(String message) {
+      if (message.startsWith("DEBUG")) {
+        LOG.debug(message.substring(5).trim());
+      } else if (message.startsWith("WARN")) {
+        LOG.warn(message.substring(4).trim());
+      } else {
+        LOG.info(message);
+      }
     }
   }
 }
