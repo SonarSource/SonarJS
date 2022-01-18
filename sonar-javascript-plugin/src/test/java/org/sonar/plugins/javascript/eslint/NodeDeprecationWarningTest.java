@@ -23,11 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -37,7 +32,8 @@ public class NodeDeprecationWarningTest {
 
   private static final String MSG = "You are using Node.js version 8, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
   private static final String MSG_10 = "You are using Node.js version 10, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
-  private static final String UNSUPPORTED_MSG = "Node.js version 15 is not supported, you might experience issues. Please use a supported version of Node.js [12, 14, 16]";
+  private static final String MSG_12 = "You are using Node.js version 12, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
+  private static final String UNSUPPORTED_MSG = "Node.js version 15 is not supported, you might experience issues. Please use a supported version of Node.js [14, 16]";
 
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -55,7 +51,7 @@ public class NodeDeprecationWarningTest {
   NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
 
   @Test
-  public void test() {
+  void test() {
     deprecationWarning.logNodeDeprecation(8);
 
     assertThat(analysisWarnings.warnings).containsExactly(MSG);
@@ -63,7 +59,7 @@ public class NodeDeprecationWarningTest {
   }
 
   @Test
-  public void test_10() {
+  void test_10() {
     deprecationWarning.logNodeDeprecation(10);
 
     assertThat(analysisWarnings.warnings).containsExactly(MSG_10);
@@ -71,15 +67,23 @@ public class NodeDeprecationWarningTest {
   }
 
   @Test
-  public void test_good_version() {
+  void test_12() {
     deprecationWarning.logNodeDeprecation(12);
+
+    assertThat(analysisWarnings.warnings).containsExactly(MSG_12);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(MSG_12);
+  }
+
+  @Test
+  void test_good_version() {
+    deprecationWarning.logNodeDeprecation(14);
 
     assertThat(analysisWarnings.warnings).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 
   @Test
-  public void test_no_warnings() {
+  void test_no_warnings() {
     // SonarLint doesn't provide AnalysisWarnings API
     NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(new AnalysisWarningsWrapper());
     deprecationWarning.logNodeDeprecation(8);
@@ -88,7 +92,7 @@ public class NodeDeprecationWarningTest {
   }
 
   @Test
-  public void test_unsupported_version() {
+  void test_unsupported_version() {
     deprecationWarning.logNodeDeprecation(15);
 
     assertThat(analysisWarnings.warnings).containsExactly(UNSUPPORTED_MSG);
