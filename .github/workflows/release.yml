@@ -32,7 +32,7 @@ jobs:
           RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
           SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
         # Put your action repo here
-        uses: SonarSource/gh-action_release/main@v3
+        uses: SonarSource/gh-action_release/main@v4
 
       - name: Check outputs
         if: always()
