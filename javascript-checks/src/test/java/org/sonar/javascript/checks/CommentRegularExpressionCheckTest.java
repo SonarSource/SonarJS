@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CommentRegularExpressionCheckTest {
+class CommentRegularExpressionCheckTest {
 
   @Test
-  public void test_configuration() {
+  void test_configuration() {
     CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());

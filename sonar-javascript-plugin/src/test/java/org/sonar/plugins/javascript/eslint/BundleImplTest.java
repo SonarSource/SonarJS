@@ -28,13 +28,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BundleImplTest {
+class BundleImplTest {
 
   @TempDir
   Path deployLocation;
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
     bundle.deploy(deployLocation);
     String script = bundle.startServerScript();
@@ -45,7 +45,7 @@ public class BundleImplTest {
   }
 
   @Test
-  public void should_not_fail_when_deployed_twice() throws Exception {
+  void should_not_fail_when_deployed_twice() throws Exception {
     BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
     bundle.deploy(deployLocation);
     bundle.deploy(deployLocation);

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class EslintReportTest {
+class EslintReportTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -44,7 +44,7 @@ public class EslintReportTest {
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
 
   @Test
-  public void should_save_issues_from_external_report_with_relative_paths() {
+  void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
 
     SonarScanner build = OrchestratorStarter.createScanner()
@@ -62,7 +62,7 @@ public class EslintReportTest {
   }
 
   @Test
-  public void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
+  void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
     String projectKey = PROJECT_KEY_PREFIX + "-absolute";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(PROJECT_DIR)

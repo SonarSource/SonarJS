@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MaxSwitchCasesCheckTest {
+class MaxSwitchCasesCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     MaxSwitchCasesCheck maxSwitchCasesCheck = new MaxSwitchCasesCheck();
     // default configuration
     assertThat(maxSwitchCasesCheck.configurations()).containsExactly(30);

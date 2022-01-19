@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExpressionComplexityCheckTest {
+class ExpressionComplexityCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     ExpressionComplexityCheck check = new ExpressionComplexityCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());

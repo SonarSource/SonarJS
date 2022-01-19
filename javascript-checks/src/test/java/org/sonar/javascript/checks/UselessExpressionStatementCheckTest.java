@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UselessExpressionStatementCheckTest {
+class UselessExpressionStatementCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     String configAsString = new Gson().toJson(new UselessExpressionStatementCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true}]");
   }

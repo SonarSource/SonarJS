@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RegexComplexityCheckTest {
+class RegexComplexityCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     RegexComplexityCheck check = new RegexComplexityCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(20);

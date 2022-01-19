@@ -40,7 +40,7 @@ import org.sonar.api.utils.Version;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TsConfigProviderTest {
+class TsConfigProviderTest {
 
   @TempDir
   Path baseDir;
@@ -56,7 +56,7 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_lookup_tsconfig_files() throws Exception {
+  void should_lookup_tsconfig_files() throws Exception {
     Path tsconfig1 = baseDir.resolve("tsconfig.json");
     Files.createFile(tsconfig1);
     Path subdir = baseDir.resolve("subdir");
@@ -76,7 +76,7 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_use_tsconfig_from_property() throws Exception {
+  void should_use_tsconfig_from_property() throws Exception {
     Path baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
@@ -89,7 +89,7 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_validate_tsconfig_from_property() throws Exception {
+  void should_validate_tsconfig_from_property() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
@@ -101,7 +101,7 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_use_absolute_path_from_property() throws Exception {
+  void should_use_absolute_path_from_property() throws Exception {
     Path baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
@@ -114,7 +114,7 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_create_tsconfig() throws Exception {
+  void should_create_tsconfig() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
@@ -126,11 +126,11 @@ public class TsConfigProviderTest {
   }
 
   @Test
-  public void should_not_create_tsconfig_in_sonarlint() throws Exception {
+  void should_not_create_tsconfig_in_sonarlint() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4,4)));
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).isEmpty();

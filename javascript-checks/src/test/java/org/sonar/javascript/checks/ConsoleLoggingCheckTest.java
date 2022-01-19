@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConsoleLoggingCheckTest {
+class ConsoleLoggingCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     String configAsString = new Gson().toJson(new ConsoleLoggingCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"allow\":[\"assert\",\"clear\",\"count\",\"group\",\"groupCollapsed\",\"groupEnd\",\"info\",\"table\",\"time\",\"timeEnd\",\"trace\"]}]");
   }

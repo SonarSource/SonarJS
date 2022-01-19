@@ -25,10 +25,10 @@ import org.sonar.api.server.rule.RulesDefinition.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EslintRulesDefinitionTest {
+class EslintRulesDefinitionTest {
 
   @Test
-  public void should_create_external_repo() {
+  void should_create_external_repo() {
     EslintRulesDefinition eslintRulesDefinition = new EslintRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     eslintRulesDefinition.define(context);

@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MaxUnionSizeCheckTest {
+class MaxUnionSizeCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     MaxUnionSizeCheck check = new MaxUnionSizeCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(3);

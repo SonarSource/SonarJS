@@ -29,7 +29,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class MinifiedFilesTest {
+class MinifiedFilesTest {
 
   private static final String PROJECT_KEY = "minifiedFilesTest";
 
@@ -48,7 +48,7 @@ public class MinifiedFilesTest {
   }
 
   @Test
-  public void test() {
+  void test() {
     assertThat(getMeasureAsInt(PROJECT_KEY, "functions")).isEqualTo(2);
     assertThat(getMeasureAsInt(PROJECT_KEY, "statements")).isEqualTo(1);
   }

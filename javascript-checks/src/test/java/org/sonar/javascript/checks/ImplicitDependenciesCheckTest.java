@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ImplicitDependenciesCheckTest {
+class ImplicitDependenciesCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     ImplicitDependenciesCheck check = new ImplicitDependenciesCheck();
 
     // default configuration

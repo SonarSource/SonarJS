@@ -38,12 +38,12 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TypeScriptRulesDefinitionTest {
+class TypeScriptRulesDefinitionTest {
 
   private static final Gson gson = new Gson();
 
   @Test
-  public void test() {
+  void test() {
     Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
 
     assertThat(repository.name()).isEqualTo("SonarQube");
@@ -55,13 +55,13 @@ public class TypeScriptRulesDefinitionTest {
   }
 
   @Test
-  public void sonarlint() {
+  void sonarlint() {
     Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
     assertThat(repository.rule("S3923").activatedByDefault()).isTrue();
   }
 
   @Test
-  public void compatibleLanguagesInJson() {
+  void compatibleLanguagesInJson() {
     List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
     CheckList.getAllChecks().forEach(c -> {
@@ -85,7 +85,7 @@ public class TypeScriptRulesDefinitionTest {
   }
 
   @Test
-  public void sqKeyInJson() {
+  void sqKeyInJson() {
     CheckList.getAllChecks().forEach(c -> {
       Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
       String key = ((org.sonar.check.Rule) ruleAnnotation).key();

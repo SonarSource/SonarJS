@@ -34,14 +34,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class TypeScriptAnalysisTest {
+class TypeScriptAnalysisTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("tsproject");
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     String projectKey = "tsproject";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -76,7 +76,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void should_use_custom_tsconfig() throws Exception {
+  void should_use_custom_tsconfig() throws Exception {
     String projectKey = "tsproject-custom";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -99,7 +99,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void should_analyze_without_tsconfig() throws Exception {
+  void should_analyze_without_tsconfig() throws Exception {
     File dir = TestUtils.projectDir("missing-tsconfig");
 
     String projectKey = "missing-tsconfig";
@@ -124,7 +124,7 @@ public class TypeScriptAnalysisTest {
    * This is legacy behavior, which we might discontinue to support, because it's not very realistic
    */
   @Test
-  public void should_analyze_without_tsconfig_vue() throws Exception {
+  void should_analyze_without_tsconfig_vue() throws Exception {
     File dir = TestUtils.projectDir("missing-tsconfig-vue");
 
     String projectKey = "missing-tsconfig-vue";
@@ -148,7 +148,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void should_exclude_from_extended_tsconfig() throws Exception {
+  void should_exclude_from_extended_tsconfig() throws Exception {
     File dir = TestUtils.projectDir("tsproject-extended");
 
     String projectKey = "tsproject-extended";
@@ -172,7 +172,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void should_support_solution_tsconfig() {
+  void should_support_solution_tsconfig() {
     String projectKey = "solution-tsconfig";
     File dir = TestUtils.projectDir(projectKey);
 
@@ -195,7 +195,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void should_support_solution_tsconfig_with_dir_reference() {
+  void should_support_solution_tsconfig_with_dir_reference() {
     String projectKey = "solution-tsconfig-custom";
     File dir = TestUtils.projectDir(projectKey);
 

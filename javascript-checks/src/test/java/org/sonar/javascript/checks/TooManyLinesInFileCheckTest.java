@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TooManyLinesInFileCheckTest {
+class TooManyLinesInFileCheckTest {
 
   @Test
-  public void test_configuration() {
+  void test_configuration() {
     TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());

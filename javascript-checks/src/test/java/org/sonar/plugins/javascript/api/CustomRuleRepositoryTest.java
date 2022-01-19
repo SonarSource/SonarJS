@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class CustomRuleRepositoryTest {
+class CustomRuleRepositoryTest {
 
   @Test
-  public void test() {
+  void test() {
     MyRepository repo = new MyRepository();
     assertThat(repo.languages()).containsExactly(CustomRuleRepository.Language.JAVASCRIPT);
   }

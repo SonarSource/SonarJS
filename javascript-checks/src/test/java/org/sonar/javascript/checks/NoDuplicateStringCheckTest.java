@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NoDuplicateStringCheckTest {
+class NoDuplicateStringCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     NoDuplicateStringCheck noDuplicateStringCheck = new NoDuplicateStringCheck();
     // default configuration
     assertThat(noDuplicateStringCheck.configurations()).containsExactly(3);

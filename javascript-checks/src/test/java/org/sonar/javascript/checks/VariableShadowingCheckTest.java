@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class VariableShadowingCheckTest {
+class VariableShadowingCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     assertThat(new Gson().toJson(new VariableShadowingCheck().configurations())).isEqualTo("[{\"hoist\":\"all\"}]");
   }
 

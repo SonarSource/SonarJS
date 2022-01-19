@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.tuple;
  * Note that in the following tests we use {@link StandaloneGlobalConfiguration.Builder#setNodeJs(Path, Version)} as that's the only way to make sonarlint-core aware of NodeJS.
  * The logic described above is specific to various SonarLint flavours and not part of sonarlint-core.
  */
-public class SonarLintTest {
+class SonarLintTest {
 
   private static final String FILE_PATH = "foo.js";
   private final static List<String> LOGS = new ArrayList<>();
@@ -80,7 +80,7 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_raise_issues() throws IOException {
+  void should_raise_issues() throws IOException {
     List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
       + "  var a; \n"
       + "  var c; // NOSONAR\n"
@@ -96,7 +96,7 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_start_node_server_once() throws Exception {
+  void should_start_node_server_once() throws Exception {
     analyze(FILE_PATH, "");
     assertThat(LOGS).doesNotContain("eslint-bridge server is up, no need to start.");
     analyze(FILE_PATH, "");
@@ -104,14 +104,14 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_analyze_typescript() throws Exception {
+  void should_analyze_typescript() throws Exception {
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
   }
 
   @Test
-  public void should_analyze_vue() throws IOException {
+  void should_analyze_vue() throws IOException {
     String fileName = "file.vue";
     Path filePath = TestUtils.projectDir("vue-js-project").toPath().resolve(fileName);
 
@@ -122,14 +122,14 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_not_analyze_ts_project_without_config() throws Exception {
+  void should_not_analyze_ts_project_without_config() throws Exception {
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).isEmpty();
     assertThat(LOGS).contains("No tsconfig.json file found, analysis will be skipped.");
   }
 
   @Test
-  public void should_log_failure_only_once() throws IOException {
+  void should_log_failure_only_once() throws IOException {
     // we need to stop engine initialized in @BeforeEach prepare() method, because we need configuration with different node
     sonarlintEngine.stop();
     // version `42` will let us pass SonarLint check of version

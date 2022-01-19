@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FileHeaderCheckTest {
+class FileHeaderCheckTest {
 
   @Test
-  public void config() {
+  void config() {
     final FileHeaderCheck check = new FileHeaderCheck();
     String configAsString = new Gson().toJson(check.configurations());
     assertThat(configAsString).isEqualTo("[{\"headerFormat\":\"\",\"isRegularExpression\":false}]");

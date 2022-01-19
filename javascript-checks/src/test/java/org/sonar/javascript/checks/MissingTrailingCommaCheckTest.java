@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MissingTrailingCommaCheckTest {
+class MissingTrailingCommaCheckTest {
 
   @Test
-  public void test_configuration() {
+  void test_configuration() {
     MissingTrailingCommaCheck check = new MissingTrailingCommaCheck();
 
     String config = new Gson().toJson(check.configurations());

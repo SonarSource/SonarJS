@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CyclomaticComplexityJavaScriptCheckTest {
+class CyclomaticComplexityJavaScriptCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     CyclomaticComplexityJavaScriptCheck check = new CyclomaticComplexityJavaScriptCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(10);

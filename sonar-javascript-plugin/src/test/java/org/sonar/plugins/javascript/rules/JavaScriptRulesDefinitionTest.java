@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
@@ -32,11 +31,11 @@ import org.sonar.plugins.javascript.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptRulesDefinitionTest {
+class JavaScriptRulesDefinitionTest {
 
   @Test
-  public void test() {
-    RulesDefinition.Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
+  void test() {
+    Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
 
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("js");
@@ -48,8 +47,8 @@ public class JavaScriptRulesDefinitionTest {
   }
 
   @Test
-  public void sonarlint() {
-    RulesDefinition.Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
+  void sonarlint() {
+    Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
     assertThat(repository.rule("S909").activatedByDefault()).isFalse();
     assertThat(repository.rule("S930").activatedByDefault()).isTrue();
   }

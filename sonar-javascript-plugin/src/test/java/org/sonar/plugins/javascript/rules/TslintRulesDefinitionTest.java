@@ -25,12 +25,12 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TslintRulesDefinitionTest {
+class TslintRulesDefinitionTest {
   private static int NUMBER_TSLINT_RULES = 144;
 
 
   @Test
-  public void test_external_repositories() {
+  void test_external_repositories() {
     TslintRulesDefinition rulesDefinition = new TslintRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
@@ -49,7 +49,7 @@ public class TslintRulesDefinitionTest {
     assertThat(tsLintRule.severity()).isEqualTo("MAJOR");
     String adjacentOverloadSignaturesDoc = "https://palantir.github.io/tslint/rules/adjacent-overload-signatures";
     assertThat(tsLintRule.htmlDescription())
-      .isEqualTo("See description of TSLint rule <code>adjacent-overload-signatures</code> at the <a href=\"" + adjacentOverloadSignaturesDoc +  "\">TSLint website</a>.");
+      .isEqualTo("See description of TSLint rule <code>adjacent-overload-signatures</code> at the <a href=\"" + adjacentOverloadSignaturesDoc + "\">TSLint website</a>.");
     assertThat(tsLintRule.tags()).isEmpty();
     assertThat(tsLintRule.debtRemediationFunction().baseEffort()).isEqualTo("5min");
 

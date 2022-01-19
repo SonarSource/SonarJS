@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MissingNewlineAtEndOfFileCheckTest {
+class MissingNewlineAtEndOfFileCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     MissingNewlineAtEndOfFileCheck check = new MissingNewlineAtEndOfFileCheck();
     assertThat(check.configurations()).containsExactly("always");
   }

@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OpenCurlyBracesAtEOLCheckTest {
+class OpenCurlyBracesAtEOLCheckTest {
 
   @Test
-  public void test_configuration() {
+  void test_configuration() {
     OpenCurlyBracesAtEOLCheck check = new OpenCurlyBracesAtEOLCheck();
     String defaultConfigAsString = new Gson().toJson(check.configurations());
     assertThat(defaultConfigAsString).isEqualTo("[\"1tbs\",{\"allowSingleLine\":true}]");

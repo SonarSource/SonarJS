@@ -43,7 +43,7 @@ import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
-public class JavaScriptProfilesDefinitionTest {
+class JavaScriptProfilesDefinitionTest {
   private final BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
   private final Set<String> deprecatedJsRules =
     TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition()).rules().stream()
@@ -63,7 +63,7 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void sonar_way_js() {
+  void sonar_way_js() {
     BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
 
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
@@ -82,7 +82,7 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void sonar_way_ts() {
+  void sonar_way_ts() {
     BuiltInQualityProfile profile = context.profile(TypeScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
 
     assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
@@ -95,7 +95,7 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void no_legacy_Key_in_profile_json() {
+  void no_legacy_Key_in_profile_json() {
     Set<String> allKeys = CheckList.getAllChecks().stream().map(c -> {
       Annotation ruleAnnotation = c.getAnnotation(Rule.class);
       return ((Rule) ruleAnnotation).key();
@@ -107,7 +107,7 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void should_contains_security_rules_if_available() {
+  void should_contains_security_rules_if_available() {
     // no security rule available
     assertThat(getSecurityRuleKeys(SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js"))
       .isEmpty();

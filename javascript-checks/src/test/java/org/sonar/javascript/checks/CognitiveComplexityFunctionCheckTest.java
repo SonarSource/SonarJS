@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CognitiveComplexityFunctionCheckTest {
+class CognitiveComplexityFunctionCheckTest {
 
   @Test
-  public void testConfig() {
+  void testConfig() {
     CognitiveComplexityFunctionCheck check = new CognitiveComplexityFunctionCheck();
     assertThat(check.configurations()).containsExactly(15);
     check.threshold = 42;

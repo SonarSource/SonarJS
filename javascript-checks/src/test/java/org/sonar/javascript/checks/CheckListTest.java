@@ -34,13 +34,13 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CheckListTest {
+class CheckListTest {
 
   /**
    * Enforces that each check declared in list.
    */
   @Test
-  public void count() throws Exception {
+  void count() throws Exception {
     long count = Files.list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
       .filter(p -> p.toString().endsWith("Check.java") && !p.toString().startsWith("Abstract"))
       .count();
@@ -51,7 +51,7 @@ public class CheckListTest {
    * Enforces that each check has test, name and description.
    */
   @Test
-  public void test() {
+  void test() {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
 
     for (Class<? extends JavaScriptCheck> cls : checks) {
@@ -88,7 +88,7 @@ public class CheckListTest {
   }
 
   @Test
-  public void test_eslint_key() throws IllegalAccessException, InstantiationException {
+  void test_eslint_key() throws IllegalAccessException, InstantiationException {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
     List<String> keys = new ArrayList<>();
 
@@ -107,7 +107,7 @@ public class CheckListTest {
   }
 
   @Test
-  public void testTypeScriptChecks() {
+  void testTypeScriptChecks() {
     List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     assertThat(typeScriptChecks).isNotEmpty();
     assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
@@ -116,14 +116,14 @@ public class CheckListTest {
   }
 
   @Test
-  public void testJavaScriptChecks() {
+  void testJavaScriptChecks() {
     List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
     assertThat(javaScriptChecks).isNotEmpty();
     assertThat(javaScriptChecks).isNotEqualTo(CheckList.getAllChecks());
   }
 
   @Test
-  public void testEveryCheckBelongsToLanguage() {
+  void testEveryCheckBelongsToLanguage() {
     Set<Class<? extends JavaScriptCheck>> allChecks = new HashSet<>(CheckList.getAllChecks());
     Set<Class<? extends JavaScriptCheck>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());

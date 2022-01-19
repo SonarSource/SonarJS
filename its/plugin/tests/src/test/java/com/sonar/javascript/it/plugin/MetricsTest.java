@@ -31,7 +31,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDou
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class MetricsTest {
+class MetricsTest {
 
   private static final String PROJECT_KEY = "MetricsTest";
 
@@ -50,7 +50,7 @@ public class MetricsTest {
   }
 
   @Test
-  public void project_level() {
+  void project_level() {
     // Size
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(20);
     assertThat(getProjectMeasureAsDouble("classes")).isEqualTo(1);
@@ -78,7 +78,7 @@ public class MetricsTest {
   }
 
   @Test
-  public void directory_level() {
+  void directory_level() {
     // Size
     assertThat(getDirectoryMeasureAsDouble("ncloc")).isEqualTo(20);
     assertThat(getDirectoryMeasureAsDouble("classes")).isEqualTo(1);
@@ -97,7 +97,7 @@ public class MetricsTest {
   }
 
   @Test
-  public void file_level() {
+  void file_level() {
     // Size
     assertThat(getFileMeasureAsDouble("functions")).isEqualTo(5);
     // Documentation
@@ -116,7 +116,7 @@ public class MetricsTest {
    * SONARPLUGINS-2183
    */
   @Test
-  public void should_be_compatible_with_DevCockpit() {
+  void should_be_compatible_with_DevCockpit() {
     // 2 header comment line
     // 4 empty line
     // 5 code line

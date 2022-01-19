@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
-public class EslintReportSensorTest {
+class EslintReportSensorTest {
 
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -60,7 +60,7 @@ public class EslintReportSensorTest {
   private DefaultInputFile parseErrorInputFile = createInputFile(context, CONTENT, "parseError.js");
 
   @Test
-  public void should_add_issues_from_report() throws Exception {
+  void should_add_issues_from_report() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
     setEslintReport("eslint-report.json");
     eslintReportSensor.execute(context);
@@ -97,7 +97,7 @@ public class EslintReportSensorTest {
   }
 
   @Test
-  public void should_log_invalid_report() throws Exception {
+  void should_log_invalid_report() throws Exception {
     setEslintReport("invalid-eslint-report.json");
     eslintReportSensor.execute(context);
 
@@ -108,7 +108,7 @@ public class EslintReportSensorTest {
   }
 
   @Test
-  public void should_log_not_existing_report() throws Exception {
+  void should_log_not_existing_report() throws Exception {
     setEslintReport("not-existing-eslint-report.json");
     eslintReportSensor.execute(context);
 
@@ -119,7 +119,7 @@ public class EslintReportSensorTest {
   }
 
   @Test
-  public void test_descriptor() throws Exception {
+  void test_descriptor() throws Exception {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     eslintReportSensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("Import of ESLint issues");

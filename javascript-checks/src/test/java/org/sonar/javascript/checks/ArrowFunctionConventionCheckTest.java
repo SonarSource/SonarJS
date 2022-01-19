@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ArrowFunctionConventionCheckTest {
+class ArrowFunctionConventionCheckTest {
 
   @Test
-  public void test_configuration() {
+  void test_configuration() {
     ArrowFunctionConventionCheck check = new ArrowFunctionConventionCheck();
 
     String config = new Gson().toJson(check.configurations());

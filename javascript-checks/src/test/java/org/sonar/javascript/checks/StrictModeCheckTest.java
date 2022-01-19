@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StrictModeCheckTest {
+class StrictModeCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     String configAsString = new Gson().toJson(new StrictModeCheck().configurations());
     assertThat(configAsString).isEqualTo("[\"never\"]");
   }

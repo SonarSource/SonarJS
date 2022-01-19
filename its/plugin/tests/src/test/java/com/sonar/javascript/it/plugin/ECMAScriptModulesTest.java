@@ -31,14 +31,14 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class ECMAScriptModulesTest {
+class ECMAScriptModulesTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("esm-project");
 
   @Test
-  public void test() {
+  void test() {
     String projectKey = "esm-project";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)

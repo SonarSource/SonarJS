@@ -42,17 +42,17 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class EslintBasedRulesTest {
+class EslintBasedRulesTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  public void test_without_ts() {
+  void test_without_ts() {
     testProject(TestUtils.projectDir("eslint_based_rules"), "eslint-based-rules-project");
   }
 
   @Test
-  public void test_with_ts() throws IOException, InterruptedException {
+  void test_with_ts() throws IOException, InterruptedException {
     // When project contains both JS and TS, ts dependency will be available, therefore @typescript-eslint/eslint-plugin
     // rules will also be available, causing potential conflicts.
     File projectDir = TestUtils.projectDir("eslint_based_rules_with_ts");
@@ -83,7 +83,7 @@ public class EslintBasedRulesTest {
   }
 
   @Test
-  public void test_directory_with_special_chars() {
+  void test_directory_with_special_chars() {
     String projectKey = "special-chars";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -103,7 +103,7 @@ public class EslintBasedRulesTest {
   }
 
   @Test
-  public void test_js_with_ts_eslint_parser() {
+  void test_js_with_ts_eslint_parser() {
     String projectKey = "js-with-ts-eslint-key";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -123,7 +123,7 @@ public class EslintBasedRulesTest {
   }
 
   @Test
-  public void test_exclusion_filter() throws Exception {
+  void test_exclusion_filter() throws Exception {
     String projectKey = "file-filter-project";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -150,7 +150,7 @@ public class EslintBasedRulesTest {
 
   @Test
   // cwd - current working directory
-  public void should_not_use_node_in_cwd() throws Exception {
+  void should_not_use_node_in_cwd() throws Exception {
     if (!System.getProperty("os.name").startsWith("Windows")) {
       // this test only makes sense on Windows
       return;
@@ -182,7 +182,7 @@ public class EslintBasedRulesTest {
   }
 
   @Test
-  public void should_record_perf_metrics() throws Exception {
+  void should_record_perf_metrics() throws Exception {
     String projectKey = "eslint_based_rules";
     File projectDir = TestUtils.projectDir(projectKey);
     SonarScanner build = SonarScanner.create()

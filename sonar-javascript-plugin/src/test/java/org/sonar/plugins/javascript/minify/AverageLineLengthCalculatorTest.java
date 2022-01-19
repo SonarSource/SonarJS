@@ -27,49 +27,49 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AverageLineLengthCalculatorTest {
+class AverageLineLengthCalculatorTest {
 
   private final static String DIR = "src/test/resources/minify/";
 
 
   @Test
-  public void noHeaderComment1() {
+  void noHeaderComment1() {
     check("average1.js", 10);
   }
 
 
   @Test
-  public void noHeaderComment2() {
+  void noHeaderComment2() {
     check("average2.js", 7);
   }
 
   @Test
-  public void headerCommentOnOneLine() {
+  void headerCommentOnOneLine() {
     check("average3.js", 10);
   }
 
   @Test
-  public void headerCommentSimple() {
+  void headerCommentSimple() {
     check("average4.js", 10);
   }
 
   @Test
-  public void headerCommentWithAppendedComment() {
+  void headerCommentWithAppendedComment() {
     check("average5.js", 13);
   }
 
   @Test
-  public void headerCommentWithAppendedInstruction() {
+  void headerCommentWithAppendedInstruction() {
     check("average6.js", 20);
   }
 
   @Test
-  public void headerCommentWithCplusplusStyle() {
+  void headerCommentWithCplusplusStyle() {
     check("average7.js", 13);
   }
 
   @Test
-  public void oneline() {
+  void oneline() {
     check("oneline.css", 474);
   }
 

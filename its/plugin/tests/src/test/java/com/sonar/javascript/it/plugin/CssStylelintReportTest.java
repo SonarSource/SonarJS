@@ -32,7 +32,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class CssStylelintReportTest {
+class CssStylelintReportTest {
 
   private static final String PROJECT_KEY = "css-external-report-project";
 
@@ -44,7 +44,7 @@ public class CssStylelintReportTest {
   }
 
   @Test
-  public void test() {
+  void test() {
     if (orchestrator.getServer().version().isGreaterThanOrEquals(7, 2)) {
       SearchRequest request = new SearchRequest();
       request.setComponentKeys(Collections.singletonList(PROJECT_KEY));

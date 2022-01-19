@@ -30,12 +30,12 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class CoverageTest {
+class CoverageTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  public void LCOV_path_can_be_relative() {
+  void LCOV_path_can_be_relative() {
     final String projectKey = "LcovPathCanBeRelative";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -55,7 +55,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void LCOV_path_can_be_absolute() {
+  void LCOV_path_can_be_absolute() {
     final String projectKey = "LcovPathCanBeAbsolute";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -75,7 +75,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void LCOV_report_paths() {
+  void LCOV_report_paths() {
     final String projectKey = "LcovReportPaths";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -95,7 +95,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void zero_coverage() {
+  void zero_coverage() {
     final String projectKey = "ZeroCoverage";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -116,7 +116,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void no_coverage_information_saved() {
+  void no_coverage_information_saved() {
     final String projectKey = "NoCoverageInfo";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -159,7 +159,7 @@ public class CoverageTest {
 
   @Test
   // SONARJS-547
-  public void wrong_line_in_report() {
+  void wrong_line_in_report() {
     final String projectKey = "WrongLineInReport";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -185,7 +185,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void conditions_on_non_executable_lines() {
+  void conditions_on_non_executable_lines() {
     final String projectKey = "ConditionsOnNonExecutableLines";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-jsx"))
@@ -205,7 +205,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void wildcard_LCOV_report_paths() {
+  void wildcard_LCOV_report_paths() {
     final String projectKey = "LcovWildcardReportPaths";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-wildcard"))
@@ -224,7 +224,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void LCOV_report_outside_module() {
+  void LCOV_report_outside_module() {
     final String projectKey = "LcovReportOutsideModule";
     SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))

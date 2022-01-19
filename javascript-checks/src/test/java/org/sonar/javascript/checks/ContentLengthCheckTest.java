@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ContentLengthCheckTest {
+class ContentLengthCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     ContentLengthCheck check = new ContentLengthCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(8_000_000L, 2_000_000L);

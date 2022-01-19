@@ -30,13 +30,13 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class MinificationAssessorTest {
+class MinificationAssessorTest {
 
   private final static String DIR = "src/test/resources/minify/";
 
 
   @Test
-  public void assessOnFileName() {
+  void assessOnFileName() {
     // the files below do not exist on the file system, as we just test their name - not their contents
     getAssert("file.min.js").isTrue();
     getAssert("file-min.js").isTrue();
@@ -46,7 +46,7 @@ public class MinificationAssessorTest {
   }
 
   @Test
-  public void assessOnFileContents() {
+  void assessOnFileContents() {
     getAssert("file1.js").isFalse();
     getAssert("file2.js").isTrue();
     getAssert("file4.js").isFalse();
@@ -56,18 +56,18 @@ public class MinificationAssessorTest {
   }
 
   @Test
-  public void assessNonExistingFile() {
-    assertThatThrownBy(() ->  getAssert("file-does-not-exist.js").isFalse())
+  void assessNonExistingFile() {
+    assertThatThrownBy(() -> getAssert("file-does-not-exist.js").isFalse())
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void assessEmptyFile() {
+  void assessEmptyFile() {
     getAssert("empty.js").isFalse();
   }
 
   @Test
-  public void assessWithDefaultConstructor() {
+  void assessWithDefaultConstructor() {
     MinificationAssessor assessor = new MinificationAssessor();
     getAssert(assessor, "file2.js").isFalse();
   }

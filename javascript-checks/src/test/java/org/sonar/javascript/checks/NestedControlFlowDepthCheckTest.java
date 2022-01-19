@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NestedControlFlowDepthCheckTest {
+class NestedControlFlowDepthCheckTest {
 
   @Test
-  public void testConfig() {
+  void testConfig() {
     NestedControlFlowDepthCheck check = new NestedControlFlowDepthCheck();
     assertThat(check.configurations()).containsExactly(3);
     check.maximumNestingLevel = 42;

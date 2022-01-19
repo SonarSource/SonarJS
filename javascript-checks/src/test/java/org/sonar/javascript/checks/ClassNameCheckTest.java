@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ClassNameCheckTest {
+class ClassNameCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     ClassNameCheck check = new ClassNameCheck();
 
     // default configuration

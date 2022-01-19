@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.css.CssLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptExclusionsFileFilterTest {
+class JavaScriptExclusionsFileFilterTest {
 
   private static final String EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
 
@@ -46,7 +46,7 @@ public class JavaScriptExclusionsFileFilterTest {
   Path tempDir;
 
   @Test
-  public void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
+  void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
     MapSettings settings = new MapSettings();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
@@ -63,7 +63,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_using_ts_property() throws Exception {
+  void should_exclude_using_ts_property() throws Exception {
     MapSettings settings = new MapSettings();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
@@ -76,7 +76,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_include_node_modules_when_property_is_overridden() throws Exception {
+  void should_include_node_modules_when_property_is_overridden() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
 
@@ -88,7 +88,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_using_custom_path_regex() throws Exception {
+  void should_exclude_using_custom_path_regex() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(
       JavaScriptPlugin.JS_EXCLUSIONS_KEY, EXCLUSIONS_DEFAULT_VALUE + "," + "**/libs/**");
@@ -101,7 +101,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_ignore_empty_path_regex() throws Exception {
+  void should_ignore_empty_path_regex() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "," + EXCLUSIONS_DEFAULT_VALUE + ",");
 
@@ -112,7 +112,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_minified_files() {
+  void should_exclude_minified_files() {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
 
     assertThat(filter.accept(inputFile("file.js"))).isTrue();
@@ -124,7 +124,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_huge_files() {
+  void should_exclude_huge_files() {
     MapSettings mapSettings = new MapSettings();
     final int MAX_SIZE_SETTING = 128;
     mapSettings.setProperty("sonar.javascript.maxFileSize", "" + MAX_SIZE_SETTING);
@@ -132,14 +132,14 @@ public class JavaScriptExclusionsFileFilterTest {
     mapSettings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
     final long K = 1000L;
-    long[] sizes = { 10, 10 * K, 100 * K, 150 * K, 200 * K, 800 * K, 2000 * K };
+    long[] sizes = {10, 10 * K, 100 * K, 150 * K, 200 * K, 800 * K, 2000 * K};
 
     // Check that our test has not become degenerate after adjusting the threshold
     assertThat(sizes[sizes.length - 1])
       .withFailMessage("All example sizes are below threshold, the test must be adjusted.")
       .isGreaterThan(MAX_SIZE_SETTING);
 
-    for (long size: sizes) {
+    for (long size : sizes) {
       for (String ending : new String[]{"js", "jsx", "ts", "tsx"}) {
         assertThat(filter.accept(inputFile("name." + ending, syntheticJsFileContent(size))))
           .withFailMessage("Wrong result for size " + size + " for file with ending " + ending)
@@ -154,7 +154,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_log_negative_max_size() throws Exception {
+  void should_log_negative_max_size() throws Exception {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "-42");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
@@ -162,7 +162,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_log_non_integer_max_size() throws Exception {
+  void should_log_non_integer_max_size() throws Exception {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "huge");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
@@ -170,7 +170,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_definitely_typed_files() {
+  void should_exclude_definitely_typed_files() {
     MapSettings settings = new MapSettings();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("foo.d.ts"))).isFalse();
@@ -179,7 +179,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_only_on_relative_path() throws Exception {
+  void should_exclude_only_on_relative_path() throws Exception {
     // **/vendor/** is excluded by default, however it should only be excluded under 'basedir', here it's above
     Path basedirUnderVendor = tempDir.resolve("vendor/basedir");
     Path file = basedirUnderVendor.resolve("file.js");
@@ -193,7 +193,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  public void should_exclude_only_jsts_files() throws Exception {
+  void should_exclude_only_jsts_files() throws Exception {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
     InputFile inputFile = new TestInputFileBuilder("key", "vendor/file.js")
       .setContents("alert('hello');")
@@ -256,7 +256,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   private DefaultInputFile inputFile(String file, String content) {
-    return new TestInputFileBuilder("test","test_node_modules/" + file)
+    return new TestInputFileBuilder("test", "test_node_modules/" + file)
       .setLanguage(language(file))
       .setContents(content)
       .setCharset(StandardCharsets.UTF_8)

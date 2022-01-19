@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptFilePredicateTest {
+class JavaScriptFilePredicateTest {
 
   @TempDir
   public static Path baseDir;
@@ -44,44 +44,44 @@ public class JavaScriptFilePredicateTest {
   private static final String newLine = System.lineSeparator();
 
   @Test
-  public void testJavaScriptPredicate() throws IOException {
+  void testJavaScriptPredicate() throws IOException {
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
     fs.add(createInputFile(baseDir, "c.vue"));
     fs.add(createInputFile(baseDir, "d.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("<script>foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("<script>foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "e.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("<script lang=\"js\">foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("<script lang=\"js\">foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "f.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("   <script  ")
-                                            .concat(newLine)
-                                            .concat("   lang='js'   ")
-                                            .concat(newLine)
-                                            .concat(">foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script  ")
+      .concat(newLine)
+      .concat("   lang='js'   ")
+      .concat(newLine)
+      .concat(">foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "g.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("   <script  ")
-                                            .concat(newLine)
-                                            .concat("   lang=\"ts\"   ")
-                                            .concat(newLine)
-                                            .concat(">foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script  ")
+      .concat(newLine)
+      .concat("   lang=\"ts\"   ")
+      .concat(newLine)
+      .concat(">foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "h.java"));
     fs.add(createInputFile(baseDir, "i.jsx"));
     fs.add(createInputFile(baseDir, "j.tsx"));
@@ -95,32 +95,32 @@ public class JavaScriptFilePredicateTest {
   }
 
   @Test
-  public void testTypeScriptPredicate() throws IOException {
+  void testTypeScriptPredicate() throws IOException {
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
     fs.add(createInputFile(baseDir, "c.vue"));
     fs.add(createInputFile(baseDir, "d.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("   <script  ")
-                                            .concat(newLine)
-                                            .concat("   lang=\"js\"   ")
-                                            .concat(newLine)
-                                            .concat(">foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script  ")
+      .concat(newLine)
+      .concat("   lang=\"js\"   ")
+      .concat(newLine)
+      .concat(">foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "e.vue", ""
-                                            .concat("<template><p>Hello, world!</p></template>")
-                                            .concat(newLine)
-                                            .concat("   <script  ")
-                                            .concat(newLine)
-                                            .concat("   lang=\"ts\"   ")
-                                            .concat(newLine)
-                                            .concat(">foo()</script>")
-                                            .concat(newLine)
-                                            .concat("<style>p{}</style>")));
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script  ")
+      .concat(newLine)
+      .concat("   lang=\"ts\"   ")
+      .concat(newLine)
+      .concat(">foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
     fs.add(createInputFile(baseDir, "f.java"));
     fs.add(createInputFile(baseDir, "g.jsx"));
     fs.add(createInputFile(baseDir, "h.tsx"));
