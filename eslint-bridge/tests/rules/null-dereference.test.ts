@@ -296,6 +296,14 @@ ruleTesterJsWithTypes.run('', rule, {
           x.foo 
         }`,
     },
+    {
+      code: `
+      var x;
+      x?.foo;
+      x?.y?.foo;
+      x?.y?.z?.foo;
+      `,
+    },
   ],
   invalid: [
     {

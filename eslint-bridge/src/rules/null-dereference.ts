@@ -76,8 +76,10 @@ export const rule: Rule.RuleModule = {
 
     return {
       MemberExpression(node: estree.Node) {
-        const { object } = node as estree.MemberExpression;
-        checkNullDereference(object);
+        const { object, optional } = node as estree.MemberExpression;
+        if (!optional) {
+          checkNullDereference(object);
+        }
       },
       ForOfStatement(node: estree.Node) {
         const { right } = node as estree.ForOfStatement;
