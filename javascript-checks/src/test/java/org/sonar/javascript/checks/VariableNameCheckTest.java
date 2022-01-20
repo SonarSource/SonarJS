@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class VariableNameCheckTest {
+class VariableNameCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     VariableNameCheck check = new VariableNameCheck();
 
     // default configuration

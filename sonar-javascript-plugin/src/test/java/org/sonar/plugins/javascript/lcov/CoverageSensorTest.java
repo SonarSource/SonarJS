@@ -43,7 +43,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CoverageSensorTest {
+class CoverageSensorTest {
 
   private static final String REPORT1 = "reports/report_1.lcov";
   private static final String REPORT2 = "reports/report_2.lcov";
@@ -87,7 +87,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void report_not_found() throws Exception {
+  void report_not_found() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "/fake/path/lcov_report.dat");
 
     coverageSensor.execute(context);
@@ -97,7 +97,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void test_coverage() {
+  void test_coverage() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
     assertTwoReportsCoverageDataPresent();
@@ -120,7 +120,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_ignore_and_log_warning_for_invalid_line() {
+  void should_ignore_and_log_warning_for_invalid_line() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/wrong_line_report.lcov");
     coverageSensor.execute(context);
 
@@ -136,7 +136,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void test_unresolved_path() {
+  void test_unresolved_path() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_with_unresolved_path.lcov");
     coverageSensor.execute(context);
     String fileName = File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
@@ -148,7 +148,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void test_unresolved_path_with_debug_log() {
+  void test_unresolved_path_with_debug_log() {
     logTester.setLevel(LoggerLevel.DEBUG);
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_with_unresolved_path.lcov");
     coverageSensor.execute(context);
@@ -157,12 +157,12 @@ public class CoverageSensorTest {
       .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .contains("Unresolved paths:\n" +
-      "unresolved/file1.js\n" +
-      "unresolved/file2.js");
+        "unresolved/file1.js\n" +
+        "unresolved/file2.js");
   }
 
   @Test
-  public void should_log_warning_when_wrong_data() throws Exception {
+  void should_log_warning_when_wrong_data() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/wrong_data_report.lcov");
     coverageSensor.execute(context);
 
@@ -180,7 +180,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_contain_sensor_descriptor() {
+  void should_contain_sensor_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     coverageSensor.describe(descriptor);
@@ -192,7 +192,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_resolve_relative_path_and_outside_base_dir() throws Exception {
+  void should_resolve_relative_path_and_outside_base_dir() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "../report_relative_path.lcov");
     inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
     inputFile("deep/nested/dir/js/file2.js", Type.MAIN);
@@ -214,7 +214,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_resolve_absolute_path() throws Exception {
+  void should_resolve_absolute_path() throws Exception {
     Path lcovFile = tempDir.resolve("lcovfile");
     String absolutePathFile1 = new File("src/test/resources/coverage/file1.js").getAbsolutePath();
     String absolutePathFile2 = new File("src/test/resources/coverage/file2.js").getAbsolutePath();
@@ -256,7 +256,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_resolve_wildcard_report_paths() throws Exception {
+  void should_resolve_wildcard_report_paths() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "**/wildcard/**/*.lcov");
     inputFile("file1.js", Type.MAIN);
     inputFile("file2.js", Type.MAIN); // not referenced in any '**/wildcard/**/*.lcov' files
@@ -274,7 +274,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_import_coverage_for_ts() throws Exception {
+  void should_import_coverage_for_ts() throws Exception {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setLanguage("ts")

@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class CssNonStandardPathTest {
+class CssNonStandardPathTest {
 
   private static final String PROJECT_KEY = "css-dir-with-paren";
 
@@ -64,7 +64,7 @@ public class CssNonStandardPathTest {
   }
 
   @Test
-  public void test() {
+  void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
     List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList().stream()

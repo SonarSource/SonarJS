@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IntrusivePermissionsCheckTest {
+class IntrusivePermissionsCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     IntrusivePermissionsCheck check = new IntrusivePermissionsCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly("geolocation");

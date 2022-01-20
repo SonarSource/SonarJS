@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UnchangedLetVariableCheckTest {
+class UnchangedLetVariableCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     String json = new Gson().toJson(new UnchangedLetVariableCheck().configurations());
     assertThat(json).isEqualTo("[{\"destructuring\":\"all\"}]");
   }

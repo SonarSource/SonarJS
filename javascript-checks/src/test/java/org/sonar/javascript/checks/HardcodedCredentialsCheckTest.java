@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HardcodedCredentialsCheckTest {
+class HardcodedCredentialsCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly("password", "pwd", "passwd");

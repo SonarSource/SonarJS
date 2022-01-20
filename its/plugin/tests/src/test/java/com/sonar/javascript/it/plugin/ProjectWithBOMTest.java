@@ -34,12 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class ProjectWithBOMTest {
+class ProjectWithBOMTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  public void test() {
+  void test() {
     String projectKey = "project-with-bom";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)

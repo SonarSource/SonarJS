@@ -50,8 +50,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class TestCodeAnalysisTest {
-  
+class TestCodeAnalysisTest {
+
   private static final String project = "test-code-project";
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
@@ -60,7 +60,7 @@ public class TestCodeAnalysisTest {
   Path sonarLintUserHome;
 
   @Test
-  public void sonarqube() {
+  void sonarqube() {
     String sourceDir = "src";
     String testDir = "test";
 
@@ -88,7 +88,7 @@ public class TestCodeAnalysisTest {
   }
 
   @Test
-  public void sonarlint() throws Exception {
+  void sonarlint() throws Exception {
     File baseDir = TestUtils.projectDir(project);
 
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
@@ -116,7 +116,7 @@ public class TestCodeAnalysisTest {
         }
       })
       .collect(Collectors.toList());
-    
+
     StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration.builder()
       .setBaseDir(baseDir.toPath())
       .addInputFiles(inputFiles)

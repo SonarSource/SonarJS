@@ -24,10 +24,10 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptLanguageTest {
+class JavaScriptLanguageTest {
 
   @Test
-  public void defaultSuffixes() {
+  void defaultSuffixes() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
@@ -35,7 +35,7 @@ public class JavaScriptLanguageTest {
   }
 
   @Test
-  public void customSuffixes() {
+  void customSuffixes() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "javascript");
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());

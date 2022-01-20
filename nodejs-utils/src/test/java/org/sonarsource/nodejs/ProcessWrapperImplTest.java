@@ -26,23 +26,23 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-public class ProcessWrapperImplTest {
+class ProcessWrapperImplTest {
 
   @Test
-  public void test_interrupt() {
+  void test_interrupt() {
     assertThat(Thread.currentThread().isInterrupted()).isFalse();
     new ProcessWrapperImpl().interrupt();
     assertThat(Thread.currentThread().isInterrupted()).isTrue();
   }
 
   @Test
-  public void test_getenv() {
+  void test_getenv() {
     String path = new ProcessWrapperImpl().getenv("PATH");
     assertThat(path).isNotEmpty();
   }
 
   @Test
-  public void test_destroyforcibly() throws Exception {
+  void test_destroyforcibly() throws Exception {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     Process ping = processWrapper.startProcess(Arrays.asList("ping", "127.0.0.1"), emptyMap(), System.out::println, System.out::println);
     processWrapper.destroyForcibly(ping);

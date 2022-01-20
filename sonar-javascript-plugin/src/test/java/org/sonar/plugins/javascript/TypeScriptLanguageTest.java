@@ -24,10 +24,10 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TypeScriptLanguageTest {
+class TypeScriptLanguageTest {
 
   @Test
-  public void should_have_correct_file_extensions() {
+  void should_have_correct_file_extensions() {
     MapSettings settings = new MapSettings();
     settings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     TypeScriptLanguage typeScriptLanguage = new TypeScriptLanguage(settings.asConfig());

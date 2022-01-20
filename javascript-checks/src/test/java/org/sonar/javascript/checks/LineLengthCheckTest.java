@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LineLengthCheckTest {
+class LineLengthCheckTest {
 
   private Map<String, Object> expectedConfigurationsMap = new HashMap<>();
 
   @Test
-  public void default_configuration() {
+  void default_configuration() {
     LineLengthCheck check = new LineLengthCheck();
     expectedConfigurationsMap.put("tabWidth", 1);
     expectedConfigurationsMap.put("code", 180);
@@ -38,7 +38,7 @@ public class LineLengthCheckTest {
   }
 
   @Test
-  public void custom_configuration() {
+  void custom_configuration() {
     LineLengthCheck check = new LineLengthCheck();
     check.maximumLineLength = 120;
     expectedConfigurationsMap.put("tabWidth", 1);

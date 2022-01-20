@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GetterSetterCheckTest {
+class GetterSetterCheckTest {
 
   @Test
-  public void configutestrations() {
+  void configutestrations() {
     GetterSetterCheck check = new GetterSetterCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(false);

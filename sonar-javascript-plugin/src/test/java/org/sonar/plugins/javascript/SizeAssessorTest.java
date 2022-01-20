@@ -45,9 +45,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-public class SizeAssessorTest {
+class SizeAssessorTest {
   @Test
-  public void testOnMisbehavedStuckInputStream() {
+  void testOnMisbehavedStuckInputStream() {
     SizeAssessor.SupplierThrowing<InputStream, IOException> brokenStreamSupplier =
       () -> new ByteArrayInputStream(new byte[0]) {
         @Override

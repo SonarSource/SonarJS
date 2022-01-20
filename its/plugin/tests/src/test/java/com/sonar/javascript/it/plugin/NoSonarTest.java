@@ -32,7 +32,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class NoSonarTest {
+class NoSonarTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -55,7 +55,7 @@ public class NoSonarTest {
   }
 
   @Test
-  public void test() {
+  void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
     assertThat(newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);

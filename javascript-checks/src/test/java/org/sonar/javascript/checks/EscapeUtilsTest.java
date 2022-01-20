@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EscapeUtilsTest {
+class EscapeUtilsTest {
 
   @Test
-  public void test() {
+  void test() {
     assertThat(EscapeUtils.unescape("foo")).isEqualTo("foo");
     assertThat(EscapeUtils.unescape("\\u000B")).isEqualTo("\u000B");
     assertThat(EscapeUtils.unescape("\\x0B")).isEqualTo("\u000B");

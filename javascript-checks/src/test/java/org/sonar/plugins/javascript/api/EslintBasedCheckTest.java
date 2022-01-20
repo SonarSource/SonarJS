@@ -25,10 +25,10 @@ import org.sonar.api.batch.fs.InputFile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class EslintBasedCheckTest {
+class EslintBasedCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     EslintBasedCheck check = () -> "key";
 
     assertThat(check.eslintKey()).isEqualTo("key");

@@ -30,13 +30,13 @@ import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RulesMetadataForSonarLintTest {
+class RulesMetadataForSonarLintTest {
 
   @TempDir
   Path tempDir;
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     Path path = tempDir.resolve("sonarlint.json");
     new RulesMetadataForSonarLint("repo", asList(StringLiteralsQuotesCheck.class)).save(path);
     assertThat(path).hasContent("[\n" +
@@ -79,7 +79,7 @@ public class RulesMetadataForSonarLintTest {
   }
 
   @Test
-  public void test_all() throws Exception {
+  void test_all() throws Exception {
     Path path = tempDir.resolve("sonarlint.json");
     RulesMetadataForSonarLint.main(new String[]{path.toString()});
     JsonArray jsonArray = new Gson().fromJson(Files.newBufferedReader(path), JsonArray.class);

@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MaxParameterCheckTest {
+class MaxParameterCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(7);

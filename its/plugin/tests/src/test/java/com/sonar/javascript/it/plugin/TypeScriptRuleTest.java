@@ -37,7 +37,7 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TypeScriptRuleTest {
+class TypeScriptRuleTest {
 
   private static final String PROJECT_KEY = "ts-rule-project";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
@@ -82,7 +82,7 @@ public class TypeScriptRuleTest {
 
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     ExpectedIssues.parseForExpectedIssues(PROJECT_KEY, PROJECT_DIR.toPath());
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 

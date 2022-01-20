@@ -49,7 +49,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
-public class TslintReportSensorTest {
+class TslintReportSensorTest {
 
   private static final String TSLINT_REPORT_FILE_NAME = "tslint-report.json";
 
@@ -76,7 +76,7 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_add_issues_from_report() {
+  void should_add_issues_from_report() {
     logTester.setLevel(LoggerLevel.DEBUG);
     setTslintReport(TSLINT_REPORT_FILE_NAME);
     tslintReportSensor.execute(context);
@@ -101,7 +101,7 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_support_absolute_ts_file_paths_in_report() throws Exception {
+  void should_support_absolute_ts_file_paths_in_report() throws Exception {
     String report = "[ " +
       " {\n" +
       "    \"endPosition\": {\n" +
@@ -132,7 +132,7 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_do_nothing_when_no_report() {
+  void should_do_nothing_when_no_report() {
     setTslintReport("");
     tslintReportSensor.execute(context);
 
@@ -140,7 +140,7 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_log_when_not_existing_report_file() {
+  void should_log_when_not_existing_report_file() {
     setTslintReport("not-exist.json");
     tslintReportSensor.execute(context);
 
@@ -149,7 +149,7 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_log_when_not_found_input_file() {
+  void should_log_when_not_found_input_file() {
     setTslintReport("invalid-tslint-report.json");
     tslintReportSensor.execute(context);
 
@@ -158,21 +158,21 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_accept_absolute_path_to_report() {
+  void should_accept_absolute_path_to_report() {
     setTslintReport(new File(BASE_DIR, TSLINT_REPORT_FILE_NAME).getAbsolutePath());
     tslintReportSensor.execute(context);
     assertThat(context.allExternalIssues()).hasSize(2);
   }
 
   @Test
-  public void should_accept_several_reports() {
+  void should_accept_several_reports() {
     setTslintReport("tslint-report.json, invalid-tslint-report.json");
     tslintReportSensor.execute(context);
     assertThat(context.allExternalIssues()).hasSize(3);
   }
 
   @Test
-  public void test_descriptor() {
+  void test_descriptor() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     tslintReportSensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("Import of TSLint issues");

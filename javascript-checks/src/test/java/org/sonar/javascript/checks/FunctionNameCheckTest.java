@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FunctionNameCheckTest {
+class FunctionNameCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     FunctionNameCheck check = new FunctionNameCheck();
 
     // default configuration

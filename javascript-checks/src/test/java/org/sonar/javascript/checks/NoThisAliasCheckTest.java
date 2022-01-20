@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NoThisAliasCheckTest {
+class NoThisAliasCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     assertThat(new Gson().toJson(new NoThisAliasCheck().configurations())).isEqualTo("[{\"allowDestructuring\":true}]");
   }
 }

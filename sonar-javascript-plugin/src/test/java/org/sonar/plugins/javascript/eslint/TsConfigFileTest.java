@@ -34,13 +34,13 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-public class TsConfigFileTest {
+class TsConfigFileTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
-  public void test() {
+  void test() {
     List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
     List<InputFile> inputFiles = files.stream().map(f -> TestInputFileBuilder.create("foo", f).build()).collect(Collectors.toList());
 
@@ -59,7 +59,7 @@ public class TsConfigFileTest {
   }
 
   @Test
-  public void failsToLoad() {
+  void failsToLoad() {
     List<TsConfigFile> tsConfigFiles = singletonList(new TsConfigFile("tsconfig/path", emptyList(), emptyList()));
     Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, emptyList());
     assertThat(result).isEmpty();

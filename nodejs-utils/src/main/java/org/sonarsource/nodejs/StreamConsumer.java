@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -42,9 +41,7 @@ class StreamConsumer {
       Thread thread = new Thread(r);
       thread.setName("nodejs-stream-consumer");
       thread.setDaemon(true);
-      thread.setUncaughtExceptionHandler((t, e) -> {
-        LOG.error("Error in thread " + t.getName(), e);
-      });
+      thread.setUncaughtExceptionHandler((t, e) -> LOG.error("Error in thread " + t.getName(), e));
       return thread;
     });
   }

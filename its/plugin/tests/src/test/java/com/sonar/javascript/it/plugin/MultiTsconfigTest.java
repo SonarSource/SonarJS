@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class MultiTsconfigTest {
+class MultiTsconfigTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -39,7 +39,7 @@ public class MultiTsconfigTest {
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT);
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     SonarScanner build = SonarScanner.create()
       .setProjectKey(PROJECT)
       .setSourceEncoding("UTF-8")
@@ -54,7 +54,7 @@ public class MultiTsconfigTest {
     orchestrator.executeBuild(build);
 
     assertThat(getIssues(PROJECT)).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4,  "multi-tsconfig-test-project:src/bar/main.ts"),
+      tuple(4, "multi-tsconfig-test-project:src/bar/main.ts"),
       tuple(3, "multi-tsconfig-test-project:src/dir1/main.ts"),
       tuple(3, "multi-tsconfig-test-project:src/dir2/main.ts"),
       tuple(3, "multi-tsconfig-test-project:src/foo/main.ts")

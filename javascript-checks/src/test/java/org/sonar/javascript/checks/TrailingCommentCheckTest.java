@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TrailingCommentCheckTest {
+class TrailingCommentCheckTest {
   @Test
-  public void configurations() {
+  void configurations() {
     TrailingCommentCheck check = new TrailingCommentCheck();
 
     // default configuration

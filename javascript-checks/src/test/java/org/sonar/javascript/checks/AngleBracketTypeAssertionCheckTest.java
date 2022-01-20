@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AngleBracketTypeAssertionCheckTest {
+class AngleBracketTypeAssertionCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     String configAsString = new Gson().toJson(new AngleBracketTypeAssertionCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"assertionStyle\":\"as\",\"objectLiteralTypeAssertions\":\"allow\"}]");
   }

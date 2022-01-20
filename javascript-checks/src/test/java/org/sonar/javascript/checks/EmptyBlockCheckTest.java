@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EmptyBlockCheckTest {
+class EmptyBlockCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     String configAsString = new Gson().toJson(new EmptyBlockCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"allowEmptyCatch\":true}]");
   }

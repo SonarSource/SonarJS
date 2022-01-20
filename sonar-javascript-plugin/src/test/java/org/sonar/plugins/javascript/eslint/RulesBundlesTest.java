@@ -28,13 +28,13 @@ import org.sonar.plugins.javascript.api.RulesBundle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class RulesBundlesTest {
+class RulesBundlesTest {
 
   @TempDir
   Path tempDir;
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
     List<Path> paths = rulesBundles.deploy(tempDir);
@@ -44,14 +44,14 @@ public class RulesBundlesTest {
   }
 
   @Test
-  public void test_not_exists() {
+  void test_not_exists() {
     RulesBundle[] missingBundle = {new TestRulesBundle("missing.tgz")};
     assertThatThrownBy(() -> new RulesBundles(missingBundle))
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void test_empty() {
+  void test_empty() {
     RulesBundles rulesBundles = new RulesBundles();
     assertThat(rulesBundles.deploy(tempDir)).isEmpty();
   }

@@ -34,12 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-public class ProjectWithDifferentEncodingTest {
+class ProjectWithDifferentEncodingTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  public void test() {
+  void test() {
     String projectKey = "project-with-different-encoding";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)

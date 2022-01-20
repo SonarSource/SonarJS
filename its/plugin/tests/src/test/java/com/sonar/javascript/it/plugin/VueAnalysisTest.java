@@ -30,13 +30,13 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-public class VueAnalysisTest {
+class VueAnalysisTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
 
   @Test
-  public void sonarqube() {
+  void sonarqube() {
     String projectKey = "vue-js-project";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -61,7 +61,7 @@ public class VueAnalysisTest {
   }
 
   @Test
-  public void jsWithinVueAsJavaScript() {
+  void jsWithinVueAsJavaScript() {
     String projectKey = "vue-js-project-with-lang-js";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -78,7 +78,7 @@ public class VueAnalysisTest {
   }
 
   @Test
-  public void tsWithinVueAsTypeScript() {
+  void tsWithinVueAsTypeScript() {
     String projectKey = "vue-js-project-with-lang-ts";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)

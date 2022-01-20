@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NewOperatorMisuseCheckTest {
+class NewOperatorMisuseCheckTest {
 
   @Test
-  public void config() {
+  void config() {
     NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
 
     // default configuration

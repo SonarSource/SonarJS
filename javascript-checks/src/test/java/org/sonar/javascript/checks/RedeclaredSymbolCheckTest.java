@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RedeclaredSymbolCheckTest {
+class RedeclaredSymbolCheckTest {
 
   @Test
-  public void configurations() {
+  void configurations() {
     String configAsString = new Gson().toJson(new RedeclaredSymbolCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"builtinGlobals\":false,\"ignoreDeclarationMerge\":true}]");
   }
