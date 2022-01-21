@@ -4,7 +4,7 @@
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-9149">CVE-2016-9149</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4837">CVE-2012-4837</a> </li>
 </ul>
-<p>User provided data such as URL parameters should always be considered as untrusted and tainted. Constructing XPath expressions directly from
+<p>User-provided data such as URL parameters should always be considered as untrusted and tainted. Constructing XPath expressions directly from
 tainted data enables attackers to inject specially crafted values that changes the initial meaning of the expression itself. Successful XPath
 injections attacks can read sensitive information from the XML document.</p>
 <h2>Ask Yourself Whether</h2>
@@ -42,4 +42,3 @@ var node = xmlDoc.SelectSingleNode(userinput); // Sensitive
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>
-

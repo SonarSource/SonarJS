@@ -5,7 +5,7 @@ malicious data will introduce an XSS vulnerability in the application and enable
 information or impersonating other users.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The value for which sanitization has been disabled is user controlled. </li>
+  <li> The value for which sanitization has been disabled is user-controlled. </li>
   <li> It’s difficult to understand how this value is constructed. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
@@ -13,7 +13,7 @@ information or impersonating other users.</p>
 <ul>
   <li> Avoid including dynamic executable code and thus disabling Angular’s built-in sanitization unless it’s absolutely necessary. Try instead to
   rely as much as possible on static templates and Angular built-in sanitization to define web page content. </li>
-  <li> Make sure to understand how the value to consider as trusted is constructed and never concatenate it with user controlled data. </li>
+  <li> Make sure to understand how the value to consider as trusted is constructed and never concatenate it with user-controlled data. </li>
   <li> Make sure to choose the correct <a href="https://angular.io/api/platform-browser/DomSanitizer">DomSanitizer</a> "bypass" method based on the
   context. For instance, only use <code>bypassSecurityTrustUrl</code> to trust urls in an <code>href</code> attribute context. </li>
 </ul>
@@ -66,4 +66,3 @@ export class HelloComponent implements OnInit {
   ('Cross-site Scripting') </li>
   <li> <a href="https://angular.io/guide/security">Angular - Best Practices - Security</a> </li>
 </ul>
-

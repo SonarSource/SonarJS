@@ -1,30 +1,30 @@
 <p>Browsers <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">allow message exchanges</a> between Window objects of
 different origins.</p>
-<p>Because any window can send / receive messages from other window it is important to verify the sender’s / receiver’s identity:</p>
+<p>Because any window can send or receive messages from another window, it is important to verify the sender’s/receiver’s identity:</p>
 <ul>
-  <li> When sending message with postMessage method, the identity’s receiver should be defined (the wildcard keyword (<code>*</code>) should not be
-  used). </li>
-  <li> When receiving message with message event, the sender’s identity should be verified using the origin and possibly source properties. </li>
+  <li> When sending a message with the postMessage method, the identity’s receiver should be defined (the wildcard keyword (<code>*</code>) should not
+  be used). </li>
+  <li> When receiving a message with a message event, the sender’s identity should be verified using the origin and possibly source properties. </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
-<p>When sending message:</p>
+<p>When sending a message:</p>
 <pre>
 var iframe = document.getElementById("testiframe");
 iframe.contentWindow.postMessage("secret", "*"); // Noncompliant: * is used
 </pre>
-<p>When receiving message:</p>
+<p>When receiving a message:</p>
 <pre>
 window.addEventListener("message", function(event) { // Noncompliant: no checks are done on the origin property.
       console.log(event.data);
  });
 </pre>
 <h2>Compliant Solution</h2>
-<p>When sending message:</p>
+<p>When sending a message:</p>
 <pre>
 var iframe = document.getElementById("testsecureiframe");
 iframe.contentWindow.postMessage("hello", "https://secure.example.com"); // Compliant
 </pre>
-<p>When receiving message:</p>
+<p>When receiving a message:</p>
 <pre>
 window.addEventListener("message", function(event) {
 
@@ -41,4 +41,3 @@ window.addEventListener("message", function(event) {
   Broken Authentication and Session Management </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">developer.mozilla.org</a> - postMessage API </li>
 </ul>
-
