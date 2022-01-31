@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -38,10 +39,15 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
+import org.sonarsource.sonarlint.plugin.api.issue.NewInputFileEdit;
+import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
+import org.sonarsource.sonarlint.plugin.api.issue.NewTextEdit;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
@@ -51,6 +57,7 @@ import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocati
 public class AnalysisProcessor {
 
   private static final Logger LOG = Loggers.get(AnalysisProcessor.class);
+  private static final Version SONARLINT_6_3 = Version.create(6, 3);
 
   private final Monitoring monitoring;
   private final NoSonarFilter noSonarFilter;
@@ -226,12 +233,32 @@ public class AnalysisProcessor {
       newIssue.gap(issue.cost);
     }
 
+    if (isQuickFixCompatible() && issue.fix != null) {
+      var sonarLintIssue = (NewSonarLintIssue) newIssue;
+      var quickFix = sonarLintIssue.newQuickFix();
+      var fileEdit = quickFix.newInputFileEdit();
+      var newTextEdit = fileEdit.newTextEdit();
+      newTextEdit.at(file.newRange(1, 1, 1, 2)).withNewText(issue.fix.text);
+      fileEdit.addTextEdit(newTextEdit);
+      quickFix.addInputFileEdit(fileEdit)
+        .message("Fix this");
+      sonarLintIssue.addQuickFix(quickFix);
+    }
+
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
     if (ruleKey != null) {
       newIssue.at(location)
         .forRule(ruleKey)
         .save();
     }
+  }
+
+  private boolean isQuickFixCompatible() {
+    return isSonarLintContext() && ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(SONARLINT_6_3);
+  }
+
+  private boolean isSonarLintContext() {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
   private static NewIssueLocation newSecondaryLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {

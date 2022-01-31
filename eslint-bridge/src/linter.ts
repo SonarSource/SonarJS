@@ -315,6 +315,8 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     endLine: eslintIssue.endLine,
     ruleId: eslintIssue.ruleId,
     message: eslintIssue.message,
+    fix: eslintIssue.fix,
+    suggestions: eslintIssue.suggestions,
     secondaryLocations: [],
   };
 }

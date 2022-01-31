@@ -21,12 +21,14 @@ import { ParseExceptionCode, buildSourceCode, getFileContent } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
-import { SourceCode } from 'eslint';
+import { Linter, Rule, SourceCode } from 'eslint';
 import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
+import Fix = Rule.Fix;
+import LintSuggestion = Linter.LintSuggestion;
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -94,6 +96,8 @@ export interface Issue {
   message: string;
   cost?: number;
   secondaryLocations: IssueLocation[];
+  fix?: Fix;
+  suggestions?: LintSuggestion[];
 }
 
 export interface IssueLocation {

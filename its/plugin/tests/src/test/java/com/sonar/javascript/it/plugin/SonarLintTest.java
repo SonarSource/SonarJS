@@ -34,6 +34,7 @@ import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.QuickFix;
 import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -143,6 +144,17 @@ class SonarLintTest {
     assertThat(LOGS)
       .doesNotContain("Provided Node.js executable file does not exist.")
       .contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore");
+  }
+
+  @Test
+  void should_apply_quick_fix() throws Exception {
+    List<Issue> issues = analyze("foo.js", "var x = 5;;");
+    assertThat(issues).hasSize(1);
+    var issue = issues.get(0);
+    assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
+    assertThat(issue.quickFixes()).hasSize(1);
+    var quickFix = issue.quickFixes().get(0);
+    assertThat(quickFix.message()).isEqualTo("Fix this");
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {

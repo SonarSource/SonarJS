@@ -124,6 +124,19 @@ public interface EslintBridgeServer extends Startable {
     String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
+    Fix fix;
+    List<Suggestion> suggestions;
+  }
+
+  class Fix {
+    Integer[] range;
+    String text;
+  }
+
+  class Suggestion {
+    String desc;
+    Fix fix;
+    String messageId;
   }
 
   class IssueLocation {
