@@ -126,20 +126,6 @@ public interface EslintBridgeServer extends Startable {
     Double cost;
     List<QuickFix> quickFixes;
 
-    @Override
-    public String toString() {
-      return "Issue{" +
-        "line=" + line +
-        ", column=" + column +
-        ", endLine=" + endLine +
-        ", endColumn=" + endColumn +
-        ", message='" + message + '\'' +
-        ", ruleId='" + ruleId + '\'' +
-        ", secondaryLocations=" + secondaryLocations +
-        ", cost=" + cost +
-        ", quickFixes=" + quickFixes +
-        '}';
-    }
   }
 
   class QuickFix {

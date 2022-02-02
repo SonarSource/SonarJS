@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  getRuleConfig,
   decodeSonarRuntimeIssue,
-  LinterWrapper,
   getCognitiveComplexity,
   getHighlightedSymbols,
+  getRuleConfig,
+  LinterWrapper,
 } from 'linter';
 import { Rule, SourceCode } from 'eslint';
 import { setContext } from 'context';
@@ -358,5 +358,35 @@ describe('Metrics computation', () => {
 
   it('should return undefined with highlighted symbols when issue is not found', () => {
     expect(getHighlightedSymbols([])).toBeUndefined();
+  });
+});
+
+describe('Quickfixes', () => {
+  it('should provide quickfix', () => {
+    const sourceCode = parseJavaScriptSourceFile(`var x = 5;;`, `foo.js`) as SourceCode;
+    const linter = new LinterWrapper(
+      [{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }],
+      [],
+      [],
+      [],
+    );
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        column: 10,
+        endColumn: 11,
+        endLine: 1,
+        line: 1,
+        message: 'Unnecessary semicolon.',
+        quickFixes: [
+          {
+            edits: [{ loc: { line: 1, column: 9, endLine: 1, endColumn: 11 }, text: ';' }],
+          },
+        ],
+        ruleId: 'no-extra-semi',
+        secondaryLocations: [],
+      },
+    ]);
   });
 });

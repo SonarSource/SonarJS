@@ -34,7 +34,6 @@ import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
-import org.sonarsource.sonarlint.core.client.api.common.QuickFix;
 import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -155,6 +154,15 @@ class SonarLintTest {
     assertThat(issue.quickFixes()).hasSize(1);
     var quickFix = issue.quickFixes().get(0);
     assertThat(quickFix.message()).isEqualTo("Fix this");
+    assertThat(quickFix.inputFileEdits()).hasSize(1);
+    var fileEdit = quickFix.inputFileEdits().get(0);
+    assertThat(fileEdit.textEdits()).hasSize(1);
+    var textEdit = fileEdit.textEdits().get(0);
+    assertThat(textEdit.newText()).isEqualTo(";");
+    assertThat(textEdit.range().start().line()).isEqualTo(1);
+    assertThat(textEdit.range().start().lineOffset()).isEqualTo(9);
+    assertThat(textEdit.range().end().line()).isEqualTo(1);
+    assertThat(textEdit.range().end().lineOffset()).isEqualTo(11);
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {

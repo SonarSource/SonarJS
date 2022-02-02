@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -245,7 +244,7 @@ public class AnalysisProcessor {
 
   private void addQuickFixes(Issue issue, NewSonarLintIssue sonarLintIssue) {
     issue.quickFixes.forEach(qf -> {
-      LOG.debug("Adding quickfix for issue {}", issue);
+      LOG.debug("Adding quickfix for issue line: {} rule: {}", issue.line, issue.ruleId);
       var quickFix = sonarLintIssue.newQuickFix();
       var fileEdit = quickFix.newInputFileEdit();
       qf.edits.forEach(e -> {
@@ -261,11 +260,8 @@ public class AnalysisProcessor {
   }
 
   private boolean isQuickFixCompatible() {
-    return isSonarLintContext() && ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(SONARLINT_6_3);
-  }
-
-  private boolean isSonarLintContext() {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT;
+    return contextUtils.isSonarLint()
+      && ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(SONARLINT_6_3);
   }
 
   private static NewIssueLocation newSecondaryLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {

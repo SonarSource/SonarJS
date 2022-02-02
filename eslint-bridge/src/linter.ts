@@ -36,6 +36,7 @@ import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
 import { decorateObjectShorthand } from './rules/object-shorthand-decorator';
+import { hasQuickFix } from './quickfix';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -321,7 +322,7 @@ function processLintMessage(source: SourceCode, eslintIssue: Linter.LintMessage)
 }
 
 function addQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessage): QuickFix[] {
-  if (!eslintIssue.fix && (!eslintIssue.suggestions || eslintIssue.suggestions.length === 0)) {
+  if (!hasQuickFix(eslintIssue)) {
     return [];
   }
   const quickFixes: QuickFix[] = [];
