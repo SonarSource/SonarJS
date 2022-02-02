@@ -45,9 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
-import org.sonarsource.sonarlint.plugin.api.issue.NewInputFileEdit;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
-import org.sonarsource.sonarlint.plugin.api.issue.NewTextEdit;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
@@ -233,16 +231,8 @@ public class AnalysisProcessor {
       newIssue.gap(issue.cost);
     }
 
-    if (isQuickFixCompatible() && issue.fix != null) {
-      var sonarLintIssue = (NewSonarLintIssue) newIssue;
-      var quickFix = sonarLintIssue.newQuickFix();
-      var fileEdit = quickFix.newInputFileEdit();
-      var newTextEdit = fileEdit.newTextEdit();
-      newTextEdit.at(file.newRange(1, 1, 1, 2)).withNewText(issue.fix.text);
-      fileEdit.addTextEdit(newTextEdit);
-      quickFix.addInputFileEdit(fileEdit)
-        .message("Fix this");
-      sonarLintIssue.addQuickFix(quickFix);
+    if (isQuickFixCompatible() && issue.quickFixes != null) {
+      addQuickFixes(issue, (NewSonarLintIssue) newIssue);
     }
 
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
@@ -251,6 +241,23 @@ public class AnalysisProcessor {
         .forRule(ruleKey)
         .save();
     }
+  }
+
+  private void addQuickFixes(Issue issue, NewSonarLintIssue sonarLintIssue) {
+    issue.quickFixes.forEach(qf -> {
+      LOG.debug("Adding quickfix for issue {}", issue);
+      var quickFix = sonarLintIssue.newQuickFix();
+      var fileEdit = quickFix.newInputFileEdit();
+      qf.edits.forEach(e -> {
+        var textEdit = fileEdit.newTextEdit();
+        textEdit.at(file.newRange(e.loc.line, e.loc.column, e.loc.endLine, e.loc.endColumn)).withNewText(e.text);
+        fileEdit.on(file).addTextEdit(textEdit);
+      });
+      quickFix
+        .addInputFileEdit(fileEdit)
+        .message(qf.message != null ? qf.message : "Fix this");
+      sonarLintIssue.addQuickFix(quickFix);
+    });
   }
 
   private boolean isQuickFixCompatible() {

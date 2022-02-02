@@ -20,12 +20,12 @@
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
 import {
-  decorateTypescriptEslint,
   decorateJavascriptEslint,
+  decorateTypescriptEslint,
 } from './rules/no-unused-expressions-decorator';
 import { rules as internalRules } from './rules/main';
-import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
-import { Rule, Issue, IssueLocation, FileType } from './analyzer';
+import { Linter, Rule as ESLintRule, SourceCode } from 'eslint';
+import { FileType, Issue, IssueLocation, QuickFix, Rule } from './analyzer';
 import {
   rule as symbolHighlightingRule,
   symbolHighlightingRuleId,
@@ -204,7 +204,7 @@ export class LinterWrapper {
           allowInlineConfig: false,
         },
       )
-      .map(removeIrrelevantProperties)
+      .map(eslintIssue => processLintMessage(sourceCode, eslintIssue))
       .map(issue => {
         if (!issue) {
           return null;
@@ -300,7 +300,7 @@ function sanitizeTypeScriptESLintRule(rule: ESLintRule.RuleModule): ESLintRule.R
   };
 }
 
-function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | null {
+function processLintMessage(source: SourceCode, eslintIssue: Linter.LintMessage): Issue | null {
   // ruleId equals 'null' for parsing error,
   // but it should not happen because we lint ready AST and not file content
   if (!eslintIssue.ruleId) {
@@ -315,10 +315,36 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     endLine: eslintIssue.endLine,
     ruleId: eslintIssue.ruleId,
     message: eslintIssue.message,
-    fix: eslintIssue.fix,
-    suggestions: eslintIssue.suggestions,
+    quickFixes: addQuickFixes(source, eslintIssue),
     secondaryLocations: [],
   };
+}
+
+function addQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessage): QuickFix[] {
+  if (!eslintIssue.fix && (!eslintIssue.suggestions || eslintIssue.suggestions.length === 0)) {
+    return [];
+  }
+  const quickFixes: QuickFix[] = [];
+  if (eslintIssue.fix) {
+    const { fix } = eslintIssue;
+    const [start, end] = fix.range;
+    const startPos = source.getLocFromIndex(start);
+    const endPos = source.getLocFromIndex(end);
+    quickFixes.push({
+      edits: [
+        {
+          loc: {
+            line: startPos.line,
+            column: startPos.column,
+            endLine: endPos.line,
+            endColumn: endPos.column,
+          },
+          text: fix.text,
+        },
+      ],
+    });
+  }
+  return quickFixes;
 }
 
 /**

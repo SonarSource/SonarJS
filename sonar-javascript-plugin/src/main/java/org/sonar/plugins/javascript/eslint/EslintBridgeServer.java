@@ -124,19 +124,32 @@ public interface EslintBridgeServer extends Startable {
     String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
-    Fix fix;
-    List<Suggestion> suggestions;
+    List<QuickFix> quickFixes;
+
+    @Override
+    public String toString() {
+      return "Issue{" +
+        "line=" + line +
+        ", column=" + column +
+        ", endLine=" + endLine +
+        ", endColumn=" + endColumn +
+        ", message='" + message + '\'' +
+        ", ruleId='" + ruleId + '\'' +
+        ", secondaryLocations=" + secondaryLocations +
+        ", cost=" + cost +
+        ", quickFixes=" + quickFixes +
+        '}';
+    }
   }
 
-  class Fix {
-    Integer[] range;
+  class QuickFix {
+    String message;
+    List<QuickFixEdit> edits;
+  }
+
+  class QuickFixEdit {
     String text;
-  }
-
-  class Suggestion {
-    String desc;
-    Fix fix;
-    String messageId;
+    IssueLocation loc;
   }
 
   class IssueLocation {
