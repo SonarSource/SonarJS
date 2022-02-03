@@ -25,7 +25,7 @@ import {
 } from './rules/no-unused-expressions-decorator';
 import { rules as internalRules } from './rules/main';
 import { Linter, Rule as ESLintRule, SourceCode } from 'eslint';
-import { FileType, Issue, IssueLocation, QuickFix, Rule } from './analyzer';
+import { FileType, Issue, IssueLocation, Rule } from './analyzer';
 import {
   rule as symbolHighlightingRule,
   symbolHighlightingRuleId,
@@ -36,7 +36,7 @@ import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
 import { decorateObjectShorthand } from './rules/object-shorthand-decorator';
-import { hasQuickFix } from './quickfix';
+import { hasQuickFix, QuickFix } from './quickfix';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -332,6 +332,7 @@ function addQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessage): Qui
     const startPos = source.getLocFromIndex(start);
     const endPos = source.getLocFromIndex(end);
     quickFixes.push({
+      message: 'Fix this issue',
       edits: [
         {
           loc: {

@@ -21,12 +21,13 @@ import { ParseExceptionCode, buildSourceCode, getFileContent } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
-import { Rule, SourceCode } from 'eslint';
+import { SourceCode } from 'eslint';
 import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
+import { QuickFix } from './quickfix';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -95,16 +96,6 @@ export interface Issue {
   cost?: number;
   secondaryLocations: IssueLocation[];
   quickFixes?: QuickFix[];
-}
-
-export interface QuickFix {
-  message?: string;
-  edits: QuickFixEdit[];
-}
-
-export interface QuickFixEdit {
-  loc: IssueLocation;
-  text: string;
 }
 
 export interface IssueLocation {

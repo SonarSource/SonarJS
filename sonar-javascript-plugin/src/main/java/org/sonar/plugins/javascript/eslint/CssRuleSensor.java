@@ -130,14 +130,14 @@ public class CssRuleSensor extends AbstractEslintSensor {
       EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, stylelintConfig.toString());
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
-      LOG.debug("Found {} issue(s)", analysisResponse.issues.length);
+      LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
       saveIssues(context, inputFile, analysisResponse.issues);
     } catch (IOException | RuntimeException e) {
       throw new IllegalStateException("Failure during analysis of " + inputFile.uri(), e);
     }
   }
 
-  private void saveIssues(SensorContext context, InputFile inputFile, EslintBridgeServer.Issue[] issues) {
+  private void saveIssues(SensorContext context, InputFile inputFile, List<EslintBridgeServer.Issue> issues) {
     for (EslintBridgeServer.Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
       if (ruleKey == null) {

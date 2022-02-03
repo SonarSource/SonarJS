@@ -19,8 +19,19 @@
  */
 
 import { Linter } from 'eslint';
+import { IssueLocation } from './analyzer';
 
 const rulesWithQuickFix = new Set(['no-extra-semi']);
+
+export interface QuickFix {
+  message: string;
+  edits: QuickFixEdit[];
+}
+
+export interface QuickFixEdit {
+  loc: IssueLocation;
+  text: string;
+}
 
 export function hasQuickFix(issue: Linter.LintMessage): boolean {
   if (!issue.fix && (!issue.suggestions || issue.suggestions.length === 0)) {

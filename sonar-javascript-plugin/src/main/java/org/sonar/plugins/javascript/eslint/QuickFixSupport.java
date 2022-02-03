@@ -48,7 +48,7 @@ class QuickFixSupport {
       });
       quickFix
         .addInputFileEdit(fileEdit)
-        .message(qf.message != null ? qf.message : "Fix this");
+        .message(qf.message);
       sonarLintIssue.addQuickFix(quickFix);
     });
   }

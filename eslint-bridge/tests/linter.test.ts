@@ -381,6 +381,7 @@ describe('Quickfixes', () => {
         message: 'Unnecessary semicolon.',
         quickFixes: [
           {
+            message: 'Fix this issue',
             edits: [{ loc: { line: 1, column: 9, endLine: 1, endColumn: 11 }, text: ';' }],
           },
         ],

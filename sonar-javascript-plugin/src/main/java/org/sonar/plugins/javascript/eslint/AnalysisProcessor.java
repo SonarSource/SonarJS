@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -131,7 +132,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private void saveIssues(Issue[] issues) {
+  private void saveIssues(List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
       saveIssue(issue);

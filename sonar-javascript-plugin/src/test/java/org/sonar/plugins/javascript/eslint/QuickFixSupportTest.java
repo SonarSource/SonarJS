@@ -57,7 +57,7 @@ class QuickFixSupportTest {
   SensorStorage sensorStorage;
   JavaScriptChecks checks;
   DefaultActiveRules activeRules;
-  private AnalysisProcessor analysisProcessor;
+  AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   void setUp() {
@@ -83,7 +83,7 @@ class QuickFixSupportTest {
     var context = createContext(Version.create(6, 3));
 
     var response = new EslintBridgeServer.AnalysisResponse();
-    response.issues = new EslintBridgeServer.Issue[]{issueWithQuickFix()};
+    response.issues = List.of(issueWithQuickFix());
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -127,7 +127,7 @@ class QuickFixSupportTest {
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
     var response = new EslintBridgeServer.AnalysisResponse();
-    response.issues = new EslintBridgeServer.Issue[]{issueWithQuickFix()};
+    response.issues = List.of(issueWithQuickFix());
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -142,7 +142,7 @@ class QuickFixSupportTest {
     var issue = issueWithQuickFix();
     issue.quickFixes = null;
     var response = new EslintBridgeServer.AnalysisResponse();
-    response.issues = new EslintBridgeServer.Issue[]{issue};
+    response.issues = List.of(issue);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());

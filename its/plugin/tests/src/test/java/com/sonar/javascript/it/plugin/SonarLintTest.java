@@ -153,7 +153,7 @@ class SonarLintTest {
     assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
     assertThat(issue.quickFixes()).hasSize(1);
     var quickFix = issue.quickFixes().get(0);
-    assertThat(quickFix.message()).isEqualTo("Fix this");
+    assertThat(quickFix.message()).isEqualTo("Fix this issue");
     assertThat(quickFix.inputFileEdits()).hasSize(1);
     var fileEdit = quickFix.inputFileEdits().get(0);
     assertThat(fileEdit.textEdits()).hasSize(1);

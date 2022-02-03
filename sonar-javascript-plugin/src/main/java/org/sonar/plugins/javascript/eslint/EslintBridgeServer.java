@@ -93,7 +93,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    Issue[] issues = {};
+    List<Issue> issues = List.of();
     Highlight[] highlights = {};
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
