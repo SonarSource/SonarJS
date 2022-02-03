@@ -86,6 +86,11 @@
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-plugin-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -48,6 +48,7 @@ import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
+import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
 
 @ScannerSide
 @SonarLintSide
@@ -231,7 +232,7 @@ public class AnalysisProcessor {
     }
 
     if (isQuickFixCompatible() && issue.quickFixes != null) {
-      addQuickFixes(issue, (NewSonarLintIssue) newIssue);
+      addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
     }
 
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
@@ -242,22 +243,6 @@ public class AnalysisProcessor {
     }
   }
 
-  private void addQuickFixes(Issue issue, NewSonarLintIssue sonarLintIssue) {
-    issue.quickFixes.forEach(qf -> {
-      LOG.debug("Adding quick fix for issue {} at line {}", issue.ruleId, issue.line);
-      var quickFix = sonarLintIssue.newQuickFix();
-      var fileEdit = quickFix.newInputFileEdit();
-      qf.edits.forEach(e -> {
-        var textEdit = fileEdit.newTextEdit();
-        textEdit.at(file.newRange(e.loc.line, e.loc.column, e.loc.endLine, e.loc.endColumn)).withNewText(e.text);
-        fileEdit.on(file).addTextEdit(textEdit);
-      });
-      quickFix
-        .addInputFileEdit(fileEdit)
-        .message(qf.message != null ? qf.message : "Fix this");
-      sonarLintIssue.addQuickFix(quickFix);
-    });
-  }
 
   private boolean isQuickFixCompatible() {
     return contextUtils.isSonarLint()
