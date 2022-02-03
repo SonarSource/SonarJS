@@ -244,7 +244,7 @@ public class AnalysisProcessor {
 
   private void addQuickFixes(Issue issue, NewSonarLintIssue sonarLintIssue) {
     issue.quickFixes.forEach(qf -> {
-      LOG.debug("Adding quickfix for issue line: {} rule: {}", issue.line, issue.ruleId);
+      LOG.debug("Adding quick fix for issue {} at line {}", issue.ruleId, issue.line);
       var quickFix = sonarLintIssue.newQuickFix();
       var fileEdit = quickFix.newInputFileEdit();
       qf.edits.forEach(e -> {
