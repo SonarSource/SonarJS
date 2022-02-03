@@ -125,7 +125,6 @@ public interface EslintBridgeServer extends Startable {
     List<IssueLocation> secondaryLocations;
     Double cost;
     List<QuickFix> quickFixes;
-
   }
 
   class QuickFix {
