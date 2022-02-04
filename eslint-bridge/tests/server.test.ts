@@ -35,6 +35,7 @@ const expectedResponse = {
       line: 1,
       message:
         "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+      quickFixes: [],
       ruleId: 'no-all-duplicated-branches',
       secondaryLocations: [],
     },
@@ -333,6 +334,7 @@ describe('support custom rules', () => {
         endLine: 1,
         line: 1,
         message: 'call',
+        quickFixes: [],
         ruleId: 'customrule',
         secondaryLocations: [],
       },

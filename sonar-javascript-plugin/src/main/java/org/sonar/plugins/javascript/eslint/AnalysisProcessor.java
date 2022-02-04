@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -38,19 +39,24 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
+import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
+import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
 
 @ScannerSide
 @SonarLintSide
 public class AnalysisProcessor {
 
   private static final Logger LOG = Loggers.get(AnalysisProcessor.class);
+  private static final Version SONARLINT_6_3 = Version.create(6, 3);
 
   private final Monitoring monitoring;
   private final NoSonarFilter noSonarFilter;
@@ -126,7 +132,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private void saveIssues(Issue[] issues) {
+  private void saveIssues(List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
       saveIssue(issue);
@@ -226,12 +232,22 @@ public class AnalysisProcessor {
       newIssue.gap(issue.cost);
     }
 
+    if (isQuickFixCompatible() && issue.quickFixes != null) {
+      addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
+    }
+
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
     if (ruleKey != null) {
       newIssue.at(location)
         .forRule(ruleKey)
         .save();
     }
+  }
+
+
+  private boolean isQuickFixCompatible() {
+    return contextUtils.isSonarLint()
+      && ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(SONARLINT_6_3);
   }
 
   private static NewIssueLocation newSecondaryLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {

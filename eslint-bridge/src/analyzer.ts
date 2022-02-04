@@ -27,6 +27,7 @@ import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
+import { QuickFix } from './quickfix';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -94,6 +95,7 @@ export interface Issue {
   message: string;
   cost?: number;
   secondaryLocations: IssueLocation[];
+  quickFixes?: QuickFix[];
 }
 
 export interface IssueLocation {

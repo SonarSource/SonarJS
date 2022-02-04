@@ -23,38 +23,42 @@ import {
   analyzeTypeScript,
   initLinter,
   analyzeCss,
+  Issue,
 } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
 import * as stylelint from 'stylelint';
 
-const noOneIterationIssue = {
+const noOneIterationIssue: Issue = {
   line: 3,
   column: 2,
   endLine: 3,
   endColumn: 5,
   message: 'Refactor this loop to do more than one iteration.',
   ruleId: 'no-one-iteration-loop',
+  quickFixes: [],
   secondaryLocations: [],
 };
 
-const noDuplicateStringIssue = {
-  line: 7,
-  column: 6,
-  endLine: 7,
-  endColumn: 20,
-  message: 'Define a constant instead of duplicating this literal 2 times.',
-  ruleId: 'no-duplicate-string',
-  secondaryLocations: [],
-};
-const noUnnecessaryTypeAssertionIssue = {
+const noUnnecessaryTypeAssertionIssue: Issue = {
   line: 1,
   column: 11,
   endLine: 1,
   endColumn: 22,
   message: 'This assertion is unnecessary since it does not change the type of the expression.',
+  quickFixes: [],
   ruleId: 'no-unnecessary-type-assertion',
+  secondaryLocations: [],
+};
+const noDuplicateStringIssue: Issue = {
+  line: 7,
+  column: 6,
+  endLine: 7,
+  endColumn: 20,
+  quickFixes: [],
+  message: 'Define a constant instead of duplicating this literal 2 times.',
+  ruleId: 'no-duplicate-string',
   secondaryLocations: [],
 };
 

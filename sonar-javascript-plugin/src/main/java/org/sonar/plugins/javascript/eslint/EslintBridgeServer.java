@@ -93,7 +93,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    Issue[] issues = {};
+    List<Issue> issues = List.of();
     Highlight[] highlights = {};
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
@@ -124,6 +124,17 @@ public interface EslintBridgeServer extends Startable {
     String ruleId;
     List<IssueLocation> secondaryLocations;
     Double cost;
+    List<QuickFix> quickFixes;
+  }
+
+  class QuickFix {
+    String message;
+    List<QuickFixEdit> edits;
+  }
+
+  class QuickFixEdit {
+    String text;
+    IssueLocation loc;
   }
 
   class IssueLocation {

@@ -145,6 +145,26 @@ class SonarLintTest {
       .contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore");
   }
 
+  @Test
+  void should_apply_quick_fix() throws Exception {
+    List<Issue> issues = analyze("foo.js", "var x = 5;;");
+    assertThat(issues).hasSize(1);
+    var issue = issues.get(0);
+    assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
+    assertThat(issue.quickFixes()).hasSize(1);
+    var quickFix = issue.quickFixes().get(0);
+    assertThat(quickFix.message()).isEqualTo("Fix this issue");
+    assertThat(quickFix.inputFileEdits()).hasSize(1);
+    var fileEdit = quickFix.inputFileEdits().get(0);
+    assertThat(fileEdit.textEdits()).hasSize(1);
+    var textEdit = fileEdit.textEdits().get(0);
+    assertThat(textEdit.newText()).isEqualTo(";");
+    assertThat(textEdit.range().start().line()).isEqualTo(1);
+    assertThat(textEdit.range().start().lineOffset()).isEqualTo(9);
+    assertThat(textEdit.range().end().line()).isEqualTo(1);
+    assertThat(textEdit.range().end().lineOffset()).isEqualTo(11);
+  }
+
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
     ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, filePath, sourceCode);
 
