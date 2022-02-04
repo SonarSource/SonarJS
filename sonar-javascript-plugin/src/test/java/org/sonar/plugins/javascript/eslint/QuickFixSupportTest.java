@@ -100,7 +100,7 @@ class QuickFixSupportTest {
       .containsExactly(1, 2, 3, 4);
   }
 
-  EslintBridgeServer.Issue issueWithQuickFix() {
+  static EslintBridgeServer.Issue issueWithQuickFix() {
     var quickFixEdit = new EslintBridgeServer.QuickFixEdit();
     quickFixEdit.text = ";";
     quickFixEdit.loc = new EslintBridgeServer.IssueLocation();
