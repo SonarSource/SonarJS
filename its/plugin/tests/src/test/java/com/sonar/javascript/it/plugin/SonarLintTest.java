@@ -34,6 +34,7 @@ import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.QuickFix;
 import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -147,22 +148,38 @@ class SonarLintTest {
 
   @Test
   void should_apply_quick_fix() throws Exception {
-    List<Issue> issues = analyze("foo.js", "var x = 5;;");
+    var issues = analyze("foo.js", "var x = 5;;");
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
     assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
     assertThat(issue.quickFixes()).hasSize(1);
     var quickFix = issue.quickFixes().get(0);
-    assertThat(quickFix.message()).isEqualTo("Fix this issue");
+    assertQuickFix(quickFix, "Fix this issue", ";", 1, 9, 1, 11);
+  }
+
+  @Test
+  void should_apply_quickfix_from_suggestions() throws Exception {
+    var issues = analyze("foo.js", "if (!5 instanceof number) f()");
+    assertThat(issues).hasSize(1);
+    var issue = issues.get(0);
+    assertThat(issue.getRuleKey()).isEqualTo("javascript:S3812");
+    assertThat(issue.quickFixes()).hasSize(2);
+    var quickFix1 = issue.quickFixes().get(0);
+    assertQuickFix(quickFix1, "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.", "(5 instanceof number)", 1, 5, 1, 24);
+    var quickFix2 = issue.quickFixes().get(1);
+    assertQuickFix(quickFix2, "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.", "(!5)", 1, 4, 1, 6);
+  }
+
+  private void assertQuickFix(QuickFix quickFix, String message, String code, int line, int column, int endLine, int endColumn) {
+    assertThat(quickFix.message()).isEqualTo(message);
     assertThat(quickFix.inputFileEdits()).hasSize(1);
     var fileEdit = quickFix.inputFileEdits().get(0);
     assertThat(fileEdit.textEdits()).hasSize(1);
     var textEdit = fileEdit.textEdits().get(0);
-    assertThat(textEdit.newText()).isEqualTo(";");
-    assertThat(textEdit.range().start().line()).isEqualTo(1);
-    assertThat(textEdit.range().start().lineOffset()).isEqualTo(9);
-    assertThat(textEdit.range().end().line()).isEqualTo(1);
-    assertThat(textEdit.range().end().lineOffset()).isEqualTo(11);
+    assertThat(textEdit.newText()).isEqualTo(code);
+    assertThat(textEdit.range())
+      .extracting(r -> r.start().line(), r -> r.start().lineOffset(), r -> r.end().line(), r -> r.end().lineOffset())
+      .containsExactly(line, column, endLine, endColumn);
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
