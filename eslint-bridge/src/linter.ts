@@ -36,7 +36,7 @@ import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
 import { decorateObjectShorthand } from './rules/object-shorthand-decorator';
-import { hasQuickFix, QuickFix } from './quickfix';
+import { getQuickFixes } from './quickfix';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -316,37 +316,9 @@ function processLintMessage(source: SourceCode, eslintIssue: Linter.LintMessage)
     endLine: eslintIssue.endLine,
     ruleId: eslintIssue.ruleId,
     message: eslintIssue.message,
-    quickFixes: addQuickFixes(source, eslintIssue),
+    quickFixes: getQuickFixes(source, eslintIssue),
     secondaryLocations: [],
   };
-}
-
-function addQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessage): QuickFix[] {
-  if (!hasQuickFix(eslintIssue)) {
-    return [];
-  }
-  const quickFixes: QuickFix[] = [];
-  if (eslintIssue.fix) {
-    const { fix } = eslintIssue;
-    const [start, end] = fix.range;
-    const startPos = source.getLocFromIndex(start);
-    const endPos = source.getLocFromIndex(end);
-    quickFixes.push({
-      message: 'Fix this issue',
-      edits: [
-        {
-          loc: {
-            line: startPos.line,
-            column: startPos.column,
-            endLine: endPos.line,
-            endColumn: endPos.column,
-          },
-          text: fix.text,
-        },
-      ],
-    });
-  }
-  return quickFixes;
 }
 
 /**

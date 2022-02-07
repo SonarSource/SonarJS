@@ -390,4 +390,47 @@ describe('Quickfixes', () => {
       },
     ]);
   });
+
+  it('should provide quickfix from suggestions', () => {
+    const sourceCode = parseJavaScriptSourceFile(
+      `if (!5 instanceof number) f()`,
+      `foo.js`,
+    ) as SourceCode;
+    const linter = new LinterWrapper(
+      [{ key: 'no-unsafe-negation', configurations: [], fileTypeTarget: ['MAIN'] }],
+      [],
+      [],
+      [],
+    );
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        column: 4,
+        endColumn: 6,
+        endLine: 1,
+        line: 1,
+        message: "Unexpected negating the left operand of 'instanceof' operator.",
+        quickFixes: [
+          {
+            message:
+              "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.",
+            edits: [
+              {
+                loc: { line: 1, column: 5, endLine: 1, endColumn: 24 },
+                text: '(5 instanceof number)',
+              },
+            ],
+          },
+          {
+            message:
+              "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.",
+            edits: [{ loc: { line: 1, column: 4, endLine: 1, endColumn: 6 }, text: '(!5)' }],
+          },
+        ],
+        ruleId: 'no-unsafe-negation',
+        secondaryLocations: [],
+      },
+    ]);
+  });
 });
