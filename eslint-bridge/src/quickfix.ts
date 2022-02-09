@@ -21,7 +21,52 @@
 import { Linter, Rule as ESLintRule, SourceCode } from 'eslint';
 import { IssueLocation } from './analyzer';
 
-const rulesWithQuickFix = new Set(['no-extra-semi', 'no-unsafe-negation']);
+const rulesWithQuickFix = new Set([
+  'comma-dangle',
+  'eol-last',
+  'no-extra-semi',
+  'no-trailing-spaces',
+  'no-var',
+  'no-unsafe-negation',
+  'object-shorthand',
+  'prefer-const',
+  'prefer-template',
+  'quotes',
+  'radix',
+  'semi',
+  'sonarjs/prefer-immediate-return',
+  'sonarjs/prefer-while',
+  '@typescript-eslint/no-empty-interface',
+  '@typescript-eslint/no-explicit-any',
+  '@typescript-eslint/no-inferrable-types',
+  '@typescript-eslint/no-unnecessary-type-arguments',
+  '@typescript-eslint/no-unnecessary-type-assertion',
+  '@typescript-eslint/prefer-namespace-keyword',
+  '@typescript-eslint/prefer-readonly',
+  '@typescript-eslint/no-non-null-assertion',
+]);
+
+const quickFixMessages = new Map<string, string>([
+  ['comma-dangle', 'Remove this trailing comma'],
+  ['eol-last', 'Add a new line at the end of file'],
+  ['no-extra-semi', 'Remove extra semicolon'],
+  ['no-trailing-spaces', 'Remove trailing space'],
+  ['no-var', "Replace 'var' with 'let'"],
+  ['object-shorthand', 'Use shorthand property'],
+  ['prefer-const', "Replace with 'const'"],
+  ['quotes', 'Fix quotes'],
+  ['radix', 'Add 10 as radix'],
+  ['semi', 'Add semicolon'],
+  ['sonarjs/prefer-immediate-return', 'Return value immediately'],
+  ['sonarjs/prefer-while', 'Use while'],
+  ['@typescript-eslint/no-empty-interface', 'Use type alias instead'],
+  ['@typescript-eslint/no-inferrable-types', 'Remove type declaration'],
+  ['@typescript-eslint/no-unnecessary-type-arguments', 'Remove type arguments'],
+  ['@typescript-eslint/no-unnecessary-type-assertion', 'Remove type assertion'],
+  ['@typescript-eslint/prefer-namespace-keyword', "Use 'namespace' keyword"],
+  ['@typescript-eslint/prefer-readonly', "Use 'readonly'"],
+  ['@typescript-eslint/no-non-null-assertion', "Use '.?' instead"],
+]);
 
 export interface QuickFix {
   message: string;
@@ -40,7 +85,7 @@ export function getQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessag
   const quickFixes: QuickFix[] = [];
   if (eslintIssue.fix) {
     quickFixes.push({
-      message: 'Fix this issue',
+      message: getMessageForFix(eslintIssue.ruleId!),
       edits: [fixToEdit(source, eslintIssue.fix)],
     });
   }
@@ -75,4 +120,12 @@ function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
     },
     text: fix.text,
   };
+}
+
+function getMessageForFix(ruleKey: string): string {
+  if (!quickFixMessages.has(ruleKey)) {
+    console.log(`DEBUG Missing message for ${ruleKey}`);
+    return 'Fix this issue';
+  }
+  return quickFixMessages.get(ruleKey)!;
 }

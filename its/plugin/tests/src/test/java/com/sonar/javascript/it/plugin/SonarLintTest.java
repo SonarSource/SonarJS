@@ -154,7 +154,7 @@ class SonarLintTest {
     assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
     assertThat(issue.quickFixes()).hasSize(1);
     var quickFix = issue.quickFixes().get(0);
-    assertQuickFix(quickFix, "Fix this issue", ";", 1, 9, 1, 11);
+    assertQuickFix(quickFix, "Remove extra semicolon", ";", 1, 9, 1, 11);
   }
 
   @Test
