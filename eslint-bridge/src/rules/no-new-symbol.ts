@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { toEncodedMessage } from '../utils';
 import { getVariableFromName } from '../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 

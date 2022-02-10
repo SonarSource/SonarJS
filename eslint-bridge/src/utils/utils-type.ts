@@ -19,8 +19,10 @@
  */
 import * as estree from 'estree';
 import ts from 'typescript';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree, TSESLint } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+
+export type RuleContext = TSESLint.RuleContext<string, string[]>;
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);

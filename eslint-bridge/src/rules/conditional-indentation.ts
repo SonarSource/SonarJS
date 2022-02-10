@@ -21,7 +21,7 @@
 
 import { Rule, AST, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { toEncodedMessage } from '../utils';
 import { getParent, LoopLike } from '../utils';
 import { TSESLint } from '@typescript-eslint/experimental-utils';
 

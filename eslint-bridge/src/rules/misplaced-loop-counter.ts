@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
-import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
-import { getParent } from '../utils';
+import { getParent, RuleContext } from '../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 class ForInfo {
@@ -83,7 +82,7 @@ export const rule: Rule.RuleModule = {
             areEquivalent(
               updatedExpr as TSESTree.Node,
               testedExpr as TSESTree.Node,
-              (context as unknown as Rule1.RuleContext).getSourceCode(),
+              (context as unknown as RuleContext).getSourceCode(),
             ),
           ),
         );
