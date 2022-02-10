@@ -21,13 +21,13 @@
 import { Linter, Rule as ESLintRule, SourceCode } from 'eslint';
 import { IssueLocation } from './analyzer';
 
-const rulesWithQuickFix = new Set([
+const quickFixRules = new Set([
   'comma-dangle',
   'eol-last',
   'no-extra-semi',
   'no-trailing-spaces',
-  'no-var',
   'no-unsafe-negation',
+  'no-var',
   'object-shorthand',
   'prefer-const',
   'prefer-template',
@@ -58,14 +58,14 @@ const quickFixMessages = new Map<string, string>([
   ['radix', 'Add 10 as radix'],
   ['semi', 'Add semicolon'],
   ['sonarjs/prefer-immediate-return', 'Return value immediately'],
-  ['sonarjs/prefer-while', 'Use while'],
+  ['sonarjs/prefer-while', "Use 'while' loop"],
   ['@typescript-eslint/no-empty-interface', 'Use type alias instead'],
   ['@typescript-eslint/no-inferrable-types', 'Remove type declaration'],
-  ['@typescript-eslint/no-unnecessary-type-arguments', 'Remove type arguments'],
+  ['@typescript-eslint/no-unnecessary-type-arguments', 'Remove type argument'],
   ['@typescript-eslint/no-unnecessary-type-assertion', 'Remove type assertion'],
-  ['@typescript-eslint/prefer-namespace-keyword', "Use 'namespace' keyword"],
-  ['@typescript-eslint/prefer-readonly', "Use 'readonly'"],
-  ['@typescript-eslint/no-non-null-assertion', "Use '.?' instead"],
+  ['@typescript-eslint/prefer-namespace-keyword', "Replace with 'namespace' keyword"],
+  ['@typescript-eslint/prefer-readonly', "Add 'readonly'"],
+  ['@typescript-eslint/no-non-null-assertion', "Replace with optional chaining '.?'"],
 ]);
 
 export interface QuickFix {
@@ -104,7 +104,7 @@ function hasQuickFix(issue: Linter.LintMessage): boolean {
   if (!issue.fix && (!issue.suggestions || issue.suggestions.length === 0)) {
     return false;
   }
-  return !!issue.ruleId && rulesWithQuickFix.has(issue.ruleId);
+  return !!issue.ruleId && quickFixRules.has(issue.ruleId);
 }
 
 function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
@@ -124,7 +124,7 @@ function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
 
 function getMessageForFix(ruleKey: string): string {
   if (!quickFixMessages.has(ruleKey)) {
-    console.log(`DEBUG Missing message for ${ruleKey}`);
+    console.log(`DEBUG Missing message for quick fix '${ruleKey}'`);
     return 'Fix this issue';
   }
   return quickFixMessages.get(ruleKey)!;
