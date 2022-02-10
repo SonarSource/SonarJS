@@ -60,7 +60,7 @@ const quickFixMessages = new Map<string, string>([
   ['semi', 'Add semicolon'],
   ['sonarjs/prefer-immediate-return', 'Return value immediately'],
   ['sonarjs/prefer-while', "Use 'while' loop"],
-  ['@typescript-eslint/no-empty-interface', 'Replace with type alias instead'],
+  ['@typescript-eslint/no-empty-interface', 'Replace with type alias'],
   ['@typescript-eslint/no-inferrable-types', 'Remove type declaration'],
   ['@typescript-eslint/no-unnecessary-type-arguments', 'Remove type argument'],
   ['@typescript-eslint/no-unnecessary-type-assertion', 'Remove type assertion'],
