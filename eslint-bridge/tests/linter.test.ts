@@ -394,11 +394,40 @@ describe('Quickfixes', () => {
     ]);
   });
 
+  it('should provide quickFix for enabled rules only', () => {
+    expect(getQuickFix('foo(a,);', 'comma-dangle')).toHaveLength(1);
+    expect(getQuickFix('foo();', 'eol-last')).toHaveLength(1);
+    expect(getQuickFix('foo();;', 'no-extra-semi')).toHaveLength(1);
+    expect(getQuickFix('foo();  ', 'no-trailing-spaces')).toHaveLength(1);
+    expect(getQuickFix('if (!prop in obj) {}', 'no-unsafe-negation')).toHaveLength(2);
+    expect(getQuickFix('var x = 42;', 'no-var')).toHaveLength(1);
+    expect(getQuickFix('let x = {a: a};', 'object-shorthand')).toHaveLength(1);
+    expect(getQuickFix('let x = 42; foo(x);', 'prefer-const')).toHaveLength(1);
+    expect(getQuickFix('var str = "Hello, " + name + "!";', 'prefer-template')).toHaveLength(1);
+    expect(getQuickFix(`let x = 'Hey';`, 'quotes')).toHaveLength(1);
+    expect(getQuickFix('parseInt("42");', 'radix')).toHaveLength(1);
+    expect(getQuickFix('foo()', 'semi')).toHaveLength(1);
+    expect(getQuickFix('function foo() { let x = 42; return x; }', 'prefer-immediate-return')).toHaveLength(1);
+    expect(getQuickFix('for (;i < 0;) {}', 'prefer-while')).toHaveLength(1);
+    expect(getQuickFix('interface A extends B {}', 'no-empty-interface')).toHaveLength(1);
+    expect(getQuickFix('let x: any;', 'no-explicit-any')).toHaveLength(2);
+    expect(getQuickFix('function foo(x: number = 42){}', 'no-inferrable-types')).toHaveLength(1);
+    expect(getQuickFix(`
+      function foo<T = number>() {}
+      foo<number>();`, 'no-unnecessary-type-arguments')).toHaveLength(1);
+    expect(getQuickFix('function foo(p: number) { let x = p as number; }', 
+    'no-unnecessary-type-assertion')).toHaveLength(1);
+    expect(getQuickFix('module myModule {}', 'prefer-namespace-keyword')).toHaveLength(1);
+    expect(getQuickFix('class A { private _x: number }', 'prefer-readonly')).toHaveLength(1);
+    expect(getQuickFix('if (x.foo!.bar) {}', 'no-non-null-assertion')).toHaveLength(1);
+
+    // fix for this rule is not enabled
+    expect(getQuickFix('if (cond) { foo() \n}', 'brace-style')).toHaveLength(0);
+  });
 
   it('should throw when no customized message available for eslint fix', () => {
     expect(() => getMessageForFix('brace-style')).toThrow();
   });
-
 });
 
 function getQuickFix(code: string, ruleKey: string) {
@@ -412,6 +441,7 @@ function getQuickFix(code: string, ruleKey: string) {
   const sourceCode = parseTypeScriptSourceFile(code, filePath, [tsConfig]) as SourceCode;
   const result = linter.analyze(sourceCode, filePath).issues;
   expect(result).toHaveLength(1);
+  console.log(result);
 
   return result[0].quickFixes;
 }

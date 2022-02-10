@@ -158,6 +158,17 @@ class SonarLintTest {
   }
 
   @Test
+  void should_apply_quick_fix_from_not_core_eslint_rule() throws Exception {
+    var issues = analyze("foo.js", "for (;i < 0;) { foo(i); }");
+    assertThat(issues).hasSize(1);
+    var issue = issues.get(0);
+    assertThat(issue.getRuleKey()).isEqualTo("javascript:S1264");
+    assertThat(issue.quickFixes()).hasSize(1);
+    var quickFix = issue.quickFixes().get(0);
+    assertQuickFix(quickFix, "Replace with 'while' loop", "while (i < 0)", 1, 0, 1, 13);
+  }
+
+  @Test
   void should_apply_quickfix_from_suggestions() throws Exception {
     var issues = analyze("foo.js", "if (!5 instanceof number) f()");
     assertThat(issues).hasSize(1);
