@@ -28,6 +28,7 @@ import { Rule, SourceCode } from 'eslint';
 import { setContext } from 'context';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
+import { getMessageForFix } from '../src/quickfix';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
@@ -83,7 +84,9 @@ const regularRule = {
   },
 };
 
-const filePath = '/some/path/of/some/file.ts';
+// const filePath = '/some/path/of/some/file.ts';
+const filePath = path.join(__dirname, './fixtures/ts-project/sample.lint.ts');
+const tsConfig = path.join(__dirname, './fixtures/ts-project/tsconfig.json');
 
 describe('#getRuleConfig', () => {
   it("should set sonar-runtime when it's defined in the rule schema", () => {
@@ -314,8 +317,6 @@ describe('TypeScript ESLint rule sanitization', () => {
     [],
   );
 
-  const filePath = path.join(__dirname, './fixtures/ts-project/sample.lint.ts');
-  const tsConfig = path.join(__dirname, './fixtures/ts-project/tsconfig.json');
   const fileContent = `class C { private static f = 5; }`;
 
   it('when type information is available', () => {
@@ -362,75 +363,55 @@ describe('Metrics computation', () => {
 });
 
 describe('Quickfixes', () => {
-  it('should provide quickfix', () => {
-    const sourceCode = parseJavaScriptSourceFile(`var x = 5;;`, `foo.js`) as SourceCode;
-    const linter = new LinterWrapper(
-      [{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }],
-      [],
-      [],
-      [],
-    );
-    const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(1);
-    expect(result).toEqual([
+  it('should provide quickfix from eslint fix', () => {
+    const quickFix = getQuickFix(`var x = 5;;`, 'no-extra-semi');
+    expect(quickFix).toEqual([
       {
-        column: 10,
-        endColumn: 11,
-        endLine: 1,
-        line: 1,
-        message: 'Unnecessary semicolon.',
-        quickFixes: [
-          {
-            message: 'Remove extra semicolon',
-            edits: [{ loc: { line: 1, column: 9, endLine: 1, endColumn: 11 }, text: ';' }],
-          },
-        ],
-        ruleId: 'no-extra-semi',
-        secondaryLocations: [],
+        message: 'Remove extra semicolon',
+        edits: [{ loc: { line: 1, column: 9, endLine: 1, endColumn: 11 }, text: ';' }],
       },
     ]);
   });
 
-  it('should provide quickfix from suggestions', () => {
-    const sourceCode = parseJavaScriptSourceFile(
-      `if (!5 instanceof number) f()`,
-      `foo.js`,
-    ) as SourceCode;
-    const linter = new LinterWrapper(
-      [{ key: 'no-unsafe-negation', configurations: [], fileTypeTarget: ['MAIN'] }],
-      [],
-      [],
-      [],
-    );
-    const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(1);
-    expect(result).toEqual([
+  it('should provide quickfix from eslint suggestions', () => {
+    const quickFix = getQuickFix(`if (!5 instanceof number) f()`, 'no-unsafe-negation');
+    expect(quickFix).toEqual([
       {
-        column: 4,
-        endColumn: 6,
-        endLine: 1,
-        line: 1,
-        message: "Unexpected negating the left operand of 'instanceof' operator.",
-        quickFixes: [
+        message:
+          "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.",
+        edits: [
           {
-            message:
-              "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.",
-            edits: [
-              {
-                loc: { line: 1, column: 5, endLine: 1, endColumn: 24 },
-                text: '(5 instanceof number)',
-              },
-            ],
-          },
-          {
-            message:
-              "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.",
-            edits: [{ loc: { line: 1, column: 4, endLine: 1, endColumn: 6 }, text: '(!5)' }],
+            loc: { line: 1, column: 5, endLine: 1, endColumn: 24 },
+            text: '(5 instanceof number)',
           },
         ],
-        ruleId: 'no-unsafe-negation',
-        secondaryLocations: [],
+      },
+      {
+        message:
+          "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.",
+        edits: [{ loc: { line: 1, column: 4, endLine: 1, endColumn: 6 }, text: '(!5)' }],
       },
     ]);
   });
+
+
+  it('should throw when no customized message available for eslint fix', () => {
+    expect(() => getMessageForFix('brace-style')).toThrow();
+  });
+
 });
+
+function getQuickFix(code: string, ruleKey: string) {
+  const linter = new LinterWrapper(
+    [{ key: ruleKey, configurations: [], fileTypeTarget: ['MAIN'] }],
+    [],
+    [],
+    [],
+  );
+
+  const sourceCode = parseTypeScriptSourceFile(code, filePath, [tsConfig]) as SourceCode;
+  const result = linter.analyze(sourceCode, filePath).issues;
+  expect(result).toHaveLength(1);
+
+  return result[0].quickFixes;
+}

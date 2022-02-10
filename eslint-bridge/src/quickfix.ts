@@ -123,10 +123,10 @@ function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
   };
 }
 
-function getMessageForFix(ruleKey: string): string {
+// exported for testing
+export function getMessageForFix(ruleKey: string): string {
   if (!quickFixMessages.has(ruleKey)) {
-    console.log(`DEBUG Missing message for quick fix '${ruleKey}'`);
-    return 'Fix this issue';
+    throw Error(`Missing message for quick fix '${ruleKey}'`);
   }
   return quickFixMessages.get(ruleKey)!;
 }
