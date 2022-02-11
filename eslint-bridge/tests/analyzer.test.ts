@@ -79,7 +79,7 @@ describe('#analyzeJavaScript', () => {
   it('should report issue running eslint', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
       filePath,
@@ -95,7 +95,7 @@ describe('#analyzeJavaScript', () => {
   it('should analyze test files', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
     const result = await analyzeJavaScript({
       filePath,
@@ -115,7 +115,7 @@ describe('#analyzeJavaScript', () => {
   it('should analyze both main and test files', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST', 'MAIN'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
 
     const testFile: TsConfigBasedAnalysisInput = {
@@ -198,7 +198,7 @@ describe('#analyzeJavaScript', () => {
   it('should analyze shebang file', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeJavaScript({
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
@@ -270,7 +270,7 @@ describe('#analyzeTypeScript', () => {
   it('should report issue running eslint', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
       filePath: filePath,
@@ -300,7 +300,7 @@ describe('#analyzeTypeScript', () => {
   it('should read file content from fs when not provided', async () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: [2], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeTypeScript({
       filePath: filePath,
