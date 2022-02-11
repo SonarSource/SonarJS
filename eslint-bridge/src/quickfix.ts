@@ -34,16 +34,20 @@ const quickFixRules = new Set([
   'quotes',
   'radix',
   'semi',
-  'sonarjs/prefer-immediate-return',
-  'sonarjs/prefer-while',
-  '@typescript-eslint/no-empty-interface',
-  '@typescript-eslint/no-explicit-any',
-  '@typescript-eslint/no-inferrable-types',
-  '@typescript-eslint/no-unnecessary-type-arguments',
-  '@typescript-eslint/no-unnecessary-type-assertion',
-  '@typescript-eslint/prefer-namespace-keyword',
-  '@typescript-eslint/prefer-readonly',
-  '@typescript-eslint/no-non-null-assertion',
+
+  // sonarjs plugin
+  'prefer-immediate-return',
+  'prefer-while',
+
+  // @typescript-eslint plugin
+  'no-empty-interface',
+  'no-explicit-any',
+  'no-inferrable-types',
+  'no-unnecessary-type-arguments',
+  'no-unnecessary-type-assertion',
+  'prefer-namespace-keyword',
+  'prefer-readonly',
+  'no-non-null-assertion',
 ]);
 
 const quickFixMessages = new Map<string, string>([
@@ -58,15 +62,15 @@ const quickFixMessages = new Map<string, string>([
   ['quotes', 'Fix quotes'],
   ['radix', 'Add 10 as radix'],
   ['semi', 'Add semicolon'],
-  ['sonarjs/prefer-immediate-return', 'Return value immediately'],
-  ['sonarjs/prefer-while', "Use 'while' loop"],
-  ['@typescript-eslint/no-empty-interface', 'Replace with type alias'],
-  ['@typescript-eslint/no-inferrable-types', 'Remove type declaration'],
-  ['@typescript-eslint/no-unnecessary-type-arguments', 'Remove type argument'],
-  ['@typescript-eslint/no-unnecessary-type-assertion', 'Remove type assertion'],
-  ['@typescript-eslint/prefer-namespace-keyword', "Replace with 'namespace' keyword"],
-  ['@typescript-eslint/prefer-readonly', "Add 'readonly'"],
-  ['@typescript-eslint/no-non-null-assertion', "Replace with optional chaining '.?'"],
+  ['prefer-immediate-return', 'Return value immediately'],
+  ['prefer-while', "Replace with 'while' loop"],
+  ['no-empty-interface', 'Replace with type alias'],
+  ['no-inferrable-types', 'Remove type declaration'],
+  ['no-unnecessary-type-arguments', 'Remove type argument'],
+  ['no-unnecessary-type-assertion', 'Remove type assertion'],
+  ['prefer-namespace-keyword', "Replace with 'namespace' keyword"],
+  ['prefer-readonly', "Add 'readonly'"],
+  ['no-non-null-assertion', "Replace with optional chaining '.?'"],
 ]);
 
 export interface QuickFix {
@@ -86,7 +90,7 @@ export function getQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessag
   const quickFixes: QuickFix[] = [];
   if (eslintIssue.fix) {
     quickFixes.push({
-      message: getMessageForFix(eslintIssue.ruleId!),
+      message: getMessageForQuickFix(eslintIssue.ruleId!),
       edits: [fixToEdit(source, eslintIssue.fix)],
     });
   }
@@ -123,10 +127,10 @@ function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
   };
 }
 
-function getMessageForFix(ruleKey: string): string {
+// exported for testing
+export function getMessageForQuickFix(ruleKey: string): string {
   if (!quickFixMessages.has(ruleKey)) {
-    console.log(`DEBUG Missing message for quick fix '${ruleKey}'`);
-    return 'Fix this issue';
+    throw Error(`Missing message for quick fix '${ruleKey}'`);
   }
   return quickFixMessages.get(ruleKey)!;
 }

@@ -47,7 +47,12 @@ const noUnnecessaryTypeAssertionIssue: Issue = {
   endLine: 1,
   endColumn: 22,
   message: 'This assertion is unnecessary since it does not change the type of the expression.',
-  quickFixes: [],
+  quickFixes: [
+    {
+      edits: [{ loc: { column: 13, endColumn: 22, endLine: 1, line: 1 }, text: '' }],
+      message: 'Remove type assertion',
+    },
+  ],
   ruleId: 'no-unnecessary-type-assertion',
   secondaryLocations: [],
 };
