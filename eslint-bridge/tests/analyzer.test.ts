@@ -64,7 +64,7 @@ const noDuplicateStringIssue: Issue = {
   quickFixes: [],
   message: 'Define a constant instead of duplicating this literal 2 times.',
   ruleId: 'no-duplicate-string',
-  secondaryLocations: [{"column": 27, "endColumn": 41, "endLine": 7, "line": 7, "message": "Duplication"}],
+  secondaryLocations: [{ column: 27, endColumn: 41, endLine: 7, line: 7, message: 'Duplication' }],
 };
 
 describe('#analyzeJavaScript', () => {
