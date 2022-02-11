@@ -36,6 +36,7 @@ const quickFixRules = new Set([
   'semi',
 
   // sonarjs plugin
+  'no-inverted-boolean-check',
   'prefer-immediate-return',
   'prefer-while',
 
