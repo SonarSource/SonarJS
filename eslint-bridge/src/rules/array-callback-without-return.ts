@@ -23,12 +23,12 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 import {
   isArray,
   RequiredParserServices,
   isRequiredParserServices,
   isMemberExpression,
+  RuleContext,
 } from '../utils';
 
 const message = `Add a "return" statement to this callback.`;
@@ -108,7 +108,7 @@ function getNodeToReport(node: estree.Node, parent: estree.Node, context: Rule.R
       loc: getMainFunctionTokenLocation(
         node as TSESTree.FunctionLike,
         parent as TSESTree.Node,
-        context as unknown as Rule1.RuleContext,
+        context as unknown as RuleContext,
       ),
     };
   }

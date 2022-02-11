@@ -406,6 +406,7 @@ describe('Quick Fixes', () => {
     expect(getQuickFix(`let x = 'Hey';`, 'quotes')).toHaveLength(1);
     expect(getQuickFix('parseInt("42");', 'radix')).toHaveLength(1);
     expect(getQuickFix('foo()', 'semi')).toHaveLength(1);
+    expect(getQuickFix('if (!(x < 2)) {}', 'no-inverted-boolean-check')).toHaveLength(1);
     expect(
       getQuickFix('function foo() { let x = 42; return x; }', 'prefer-immediate-return'),
     ).toHaveLength(1);

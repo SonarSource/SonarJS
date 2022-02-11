@@ -23,12 +23,12 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   getParent,
   isElementWrite,
+  RuleContext,
   toEncodedMessage,
 } from '../utils';
 
@@ -82,7 +82,7 @@ export const rule: Rule.RuleModule = {
           loc: getMainFunctionTokenLocation(
             node as TSESTree.FunctionLike,
             getParent(context) as TSESTree.Node,
-            context as unknown as Rule1.RuleContext,
+            context as unknown as RuleContext,
           ),
         });
       }

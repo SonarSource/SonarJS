@@ -22,9 +22,14 @@
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { findFirstMatchingAncestor, getParent, LoopLike, toEncodedMessage } from '../utils';
+import {
+  findFirstMatchingAncestor,
+  getParent,
+  LoopLike,
+  RuleContext,
+  toEncodedMessage,
+} from '../utils';
 
 const message = 'Make sure this function is not called after the loop completes.';
 
@@ -75,7 +80,7 @@ export const rule: Rule.RuleModule = {
               loc: getMainFunctionTokenLocation(
                 node as TSESTree.FunctionLike,
                 getParent(context) as TSESTree.Node,
-                context as unknown as Rule1.RuleContext,
+                context as unknown as RuleContext,
               ),
             });
           }
