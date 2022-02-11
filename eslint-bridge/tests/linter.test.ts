@@ -407,16 +407,27 @@ describe('Quickfixes', () => {
     expect(getQuickFix(`let x = 'Hey';`, 'quotes')).toHaveLength(1);
     expect(getQuickFix('parseInt("42");', 'radix')).toHaveLength(1);
     expect(getQuickFix('foo()', 'semi')).toHaveLength(1);
-    expect(getQuickFix('function foo() { let x = 42; return x; }', 'prefer-immediate-return')).toHaveLength(1);
+    expect(
+      getQuickFix('function foo() { let x = 42; return x; }', 'prefer-immediate-return'),
+    ).toHaveLength(1);
     expect(getQuickFix('for (;i < 0;) {}', 'prefer-while')).toHaveLength(1);
     expect(getQuickFix('interface A extends B {}', 'no-empty-interface')).toHaveLength(1);
     expect(getQuickFix('let x: any;', 'no-explicit-any')).toHaveLength(2);
     expect(getQuickFix('function foo(x: number = 42){}', 'no-inferrable-types')).toHaveLength(1);
-    expect(getQuickFix(`
+    expect(
+      getQuickFix(
+        `
       function foo<T = number>() {}
-      foo<number>();`, 'no-unnecessary-type-arguments')).toHaveLength(1);
-    expect(getQuickFix('function foo(p: number) { let x = p as number; }', 
-    'no-unnecessary-type-assertion')).toHaveLength(1);
+      foo<number>();`,
+        'no-unnecessary-type-arguments',
+      ),
+    ).toHaveLength(1);
+    expect(
+      getQuickFix(
+        'function foo(p: number) { let x = p as number; }',
+        'no-unnecessary-type-assertion',
+      ),
+    ).toHaveLength(1);
     expect(getQuickFix('module myModule {}', 'prefer-namespace-keyword')).toHaveLength(1);
     expect(getQuickFix('class A { private _x: number }', 'prefer-readonly')).toHaveLength(1);
     expect(getQuickFix('if (x.foo!.bar) {}', 'no-non-null-assertion')).toHaveLength(1);
