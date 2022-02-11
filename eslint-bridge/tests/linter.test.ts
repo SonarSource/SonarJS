@@ -28,7 +28,7 @@ import { Rule, SourceCode } from 'eslint';
 import { setContext } from 'context';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
-import { getMessageForFix } from '../src/quickfix';
+import { getMessageForQuickFix } from '../src/quickfix';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
@@ -84,7 +84,6 @@ const regularRule = {
   },
 };
 
-// const filePath = '/some/path/of/some/file.ts';
 const filePath = path.join(__dirname, './fixtures/ts-project/sample.lint.ts');
 const tsConfig = path.join(__dirname, './fixtures/ts-project/tsconfig.json');
 
@@ -362,8 +361,8 @@ describe('Metrics computation', () => {
   });
 });
 
-describe('Quickfixes', () => {
-  it('should provide quickfix from eslint fix', () => {
+describe('Quick Fixes', () => {
+  it('should provide quick fix from eslint fix', () => {
     const quickFix = getQuickFix(`var x = 5;;`, 'no-extra-semi');
     expect(quickFix).toEqual([
       {
@@ -373,7 +372,7 @@ describe('Quickfixes', () => {
     ]);
   });
 
-  it('should provide quickfix from eslint suggestions', () => {
+  it('should provide quick fix from eslint suggestions', () => {
     const quickFix = getQuickFix(`if (!5 instanceof number) f()`, 'no-unsafe-negation');
     expect(quickFix).toEqual([
       {
@@ -394,7 +393,7 @@ describe('Quickfixes', () => {
     ]);
   });
 
-  it('should provide quickFix for enabled rules only', () => {
+  it('should provide quick fix for enabled rules only', () => {
     expect(getQuickFix('foo(a,);', 'comma-dangle')).toHaveLength(1);
     expect(getQuickFix('foo();', 'eol-last')).toHaveLength(1);
     expect(getQuickFix('foo();;', 'no-extra-semi')).toHaveLength(1);
@@ -437,7 +436,7 @@ describe('Quickfixes', () => {
   });
 
   it('should throw when no customized message available for eslint fix', () => {
-    expect(() => getMessageForFix('brace-style')).toThrow();
+    expect(() => getMessageForQuickFix('brace-style')).toThrow();
   });
 });
 
@@ -452,7 +451,6 @@ function getQuickFix(code: string, ruleKey: string) {
   const sourceCode = parseTypeScriptSourceFile(code, filePath, [tsConfig]) as SourceCode;
   const result = linter.analyze(sourceCode, filePath).issues;
   expect(result).toHaveLength(1);
-  console.log(result);
 
   return result[0].quickFixes;
 }

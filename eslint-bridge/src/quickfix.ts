@@ -90,7 +90,7 @@ export function getQuickFixes(source: SourceCode, eslintIssue: Linter.LintMessag
   const quickFixes: QuickFix[] = [];
   if (eslintIssue.fix) {
     quickFixes.push({
-      message: getMessageForFix(eslintIssue.ruleId!),
+      message: getMessageForQuickFix(eslintIssue.ruleId!),
       edits: [fixToEdit(source, eslintIssue.fix)],
     });
   }
@@ -128,7 +128,7 @@ function fixToEdit(source: SourceCode, fix: ESLintRule.Fix): QuickFixEdit {
 }
 
 // exported for testing
-export function getMessageForFix(ruleKey: string): string {
+export function getMessageForQuickFix(ruleKey: string): string {
   if (!quickFixMessages.has(ruleKey)) {
     throw Error(`Missing message for quick fix '${ruleKey}'`);
   }
