@@ -30,11 +30,16 @@ import {
   resolveFunction,
 } from '../utils';
 
-const MESSAGE = `Verify the message's origin in this cross-origin communication.`;
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      specifyTarget: `Specify a target origin for this message.`,
+      verifyOrigin: `Verify the origin of the received message.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -70,7 +75,7 @@ function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.Rul
   if (callee.type === 'Identifier') {
     context.report({
       node: callee,
-      message: MESSAGE,
+      messageId: 'specifyTarget',
     });
   }
   if (callee.type !== 'MemberExpression') {
@@ -79,7 +84,7 @@ function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.Rul
   if (isWindowObject(callee.object, context)) {
     context.report({
       node: callee,
-      message: MESSAGE,
+      messageId: 'specifyTarget',
     });
   }
 }
@@ -109,7 +114,7 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
   if (!hasVerifiedOrigin) {
     context.report({
       node: callee,
-      message: MESSAGE,
+      messageId: 'verifyOrigin',
     });
   }
 }
