@@ -98,6 +98,7 @@ ws_scan_task:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   whitesource_script:
     - source cirrus-env QA
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - source set_maven_build_version $BUILD_NUMBER
     - mvn clean install -DskipTests
     - source ws_scan.sh
@@ -120,7 +121,6 @@ plugin_qa_task:
     SONARSOURCE_QA: true
     matrix:
       - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: LATEST_RELEASE[8.9]
       - SQ_VERSION: DEV
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
@@ -136,7 +136,6 @@ plugin_qa_nodejs_task:
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
     matrix:
-      - dockerfile: .cirrus/nodejs-12.Dockerfile
       - dockerfile: .cirrus/nodejs-12.Dockerfile
       - dockerfile: .cirrus/nodejs-14.Dockerfile
       - dockerfile: .cirrus/nodejs-16.Dockerfile
