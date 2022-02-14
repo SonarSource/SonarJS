@@ -31,9 +31,13 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
   tokens.forEach(token => {
     let text = token.value;
 
-    if (text.trim().length === 0 || importTokens.includes(token)) {
+    if (text.trim().length === 0) {
       // for EndOfFileToken and JsxText tokens containing only whitespaces
-      // as well as import statements
+      return;
+    }
+
+    if (importTokens.includes(token)) {
+      // for tokens from import statements
       return;
     }
 
@@ -73,7 +77,6 @@ function extractTokens(sourceCode: SourceCode): {
         }
         break;
       case 'ImportDeclaration':
-      case 'ImportExpression':
         importTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
         break;
     }
