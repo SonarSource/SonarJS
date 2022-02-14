@@ -169,7 +169,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
       .pathResolver(bundle)
-      .minNodeVersion(NodeDeprecationWarning.MIN_NODE_VERSION)
+      .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles)
