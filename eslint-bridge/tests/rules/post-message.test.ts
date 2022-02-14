@@ -89,7 +89,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       var someWindow1 = window.open("url", "name");
       someWindow1.postMessage("message", "*");
             `,
-      errors: 1,
+      errors: [{ message: 'Specify a target origin for this message.' }],
     },
     {
       code: `
@@ -129,7 +129,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         console.log(event.data);
       });
             `,
-      errors: 1,
+      errors: [{ message: 'Verify the origin of the received message.' }],
     },
     {
       code: `
