@@ -179,7 +179,7 @@ describe('#analyzeJavaScript', () => {
       fileType: 'MAIN',
       tsConfigs: [],
     });
-    expect(cpdTokens).toHaveLength(42);
+    expect(cpdTokens).toHaveLength(37);
   });
 
   it('should return empty list when parse error', async () => {
@@ -368,7 +368,7 @@ describe('#analyzeTypeScript', () => {
       tsConfigs: [tsConfig],
       fileType: 'MAIN',
     });
-    expect(cpdTokens).toHaveLength(42);
+    expect(cpdTokens).toHaveLength(37);
   });
 
   it('should report cognitive complexity', async () => {
