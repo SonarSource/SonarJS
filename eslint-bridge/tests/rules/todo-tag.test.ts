@@ -34,6 +34,8 @@ ruleTester.run('Track uses of TODO tags', rule, {
         // notatodo comment
 
         // a todolist
+
+        // método
         `,
     },
   ],

@@ -24,6 +24,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const todoMessage = 'Complete the task associated to this "TODO" comment.';
 const todoPattern = 'todo';
+const letterPattern = /[A-Za-zÀ-ÖØ-öø-ÿ]/;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -63,8 +64,8 @@ export function reportPatternInComment(
 function isLetterAround(line: string, start: number, pattern: string) {
   const end = start + pattern.length;
 
-  const pre = start > 0 && /[a-zA-Z]/.test(line.charAt(start - 1));
-  const post = end < line.length - 1 && /[a-zA-Z]/.test(line.charAt(end));
+  const pre = start > 0 && letterPattern.test(line.charAt(start - 1));
+  const post = end < line.length - 1 && letterPattern.test(line.charAt(end));
 
   return pre || post;
 }
