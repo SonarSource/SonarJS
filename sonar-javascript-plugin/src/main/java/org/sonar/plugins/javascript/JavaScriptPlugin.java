@@ -69,6 +69,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 
   public static final String LCOV_REPORT_PATHS = PROPERTY_PREFIX + ".lcov.reportPaths";
+  public static final String LCOV_REPORT_PATHS_ALIAS = "sonar.typescript.lcov.reportPaths";
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
   public static final String ENVIRONMENTS = "sonar.javascript.environments";

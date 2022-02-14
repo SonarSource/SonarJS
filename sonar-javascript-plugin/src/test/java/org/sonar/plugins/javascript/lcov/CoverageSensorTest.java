@@ -103,6 +103,23 @@ class CoverageSensorTest {
     assertTwoReportsCoverageDataPresent();
   }
 
+  @Test
+  void test_alias() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, TWO_REPORTS);
+    coverageSensor.execute(context);
+    assertTwoReportsCoverageDataPresent();
+  }
+
+  @Test
+  void test_merging() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, REPORT2);
+    coverageSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
+    assertTwoReportsCoverageDataPresent();
+  }
+
   private void assertTwoReportsCoverageDataPresent() {
     Integer[] file1Expected = {3, 3, 1, null};
     Integer[] file2Expected = {5, 5, null, null};
@@ -188,6 +205,7 @@ class CoverageSensorTest {
     assertThat(descriptor.languages()).contains("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
     assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())).isTrue();
+    assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "bar").asConfig())).isTrue();
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 

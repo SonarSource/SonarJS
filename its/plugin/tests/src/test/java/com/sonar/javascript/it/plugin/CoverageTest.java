@@ -95,6 +95,23 @@ class CoverageTest {
   }
 
   @Test
+  void LCOV_report_paths_alias() {
+    final String projectKey = "LcovReportPathsAlias";
+    SonarScanner build = OrchestratorStarter.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.exclusions", "dir/**")
+      .setProperty("sonar.typescript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    OrchestratorStarter.setEmptyProfile(projectKey);
+    orchestrator.executeBuild(build);
+
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+  }
+
+  @Test
   void zero_coverage() {
     final String projectKey = "ZeroCoverage";
     SonarScanner build = OrchestratorStarter.createScanner()
