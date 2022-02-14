@@ -25,19 +25,6 @@ export function decorateAccessorPairs(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isDecoratedSetterWithAngularInput));
 }
 
-function reportExempting(
-  exemptionCondition: (def: TSESTree.MethodDefinition) => boolean,
-): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
-  return (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const def = reportDescriptor['node'] as TSESTree.MethodDefinition;
-      if (!exemptionCondition(def)) {
-        context.report(reportDescriptor);
-      }
-    }
-  };
-}
-
 function isDecoratedSetterWithAngularInput(def: TSESTree.MethodDefinition) {
   const { kind, decorators } = def;
   return (
@@ -50,4 +37,18 @@ function isDecoratedSetterWithAngularInput(def: TSESTree.MethodDefinition) {
         decorator.expression.callee.name === 'Input',
     )
   );
+}
+
+function reportExempting(
+  exemptionCondition: (def: unknown) => boolean,
+): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
+  return (context, reportDescriptor) => {
+    if (!"node" in reportDescriptor) {
+      var def = { reportDescriptor } as unknown as TSESTree.MethodDefinition;
+      if (!exemptionCondition(def)) {    
+        context.report(reportDescriptor)
+      }
+    }
+    
+  };
 }
