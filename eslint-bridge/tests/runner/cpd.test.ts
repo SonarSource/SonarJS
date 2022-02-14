@@ -129,6 +129,18 @@ it('should preserve string literals inside JSX constructs', () => {
   expect(result).toContainEqual(token(7, 16, 7, 21, 'LITERAL'));
 });
 
+it('should exclude import statements', () => {
+  const result = actual(`
+  import a from "x";
+  import * as b from "y";
+  import { c } from "z";
+  import "lib";
+  'hello';
+  `);
+  expect(result).toContainEqual(token(6, 2, 6, 9, 'LITERAL'));
+  expect(result).toContainEqual(token(6, 9, 6, 10, ';'));
+});
+
 function token(
   startLine: number,
   startCol: number,

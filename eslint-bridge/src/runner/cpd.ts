@@ -26,13 +26,14 @@ import { Location } from './location';
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
   const tokens = sourceCode.ast.tokens;
-  const jsxTokens = extractJSXTokens(sourceCode);
+  const { jsxTokens, importTokens } = extractTokens(sourceCode);
 
   tokens.forEach(token => {
     let text = token.value;
 
-    if (text.trim().length === 0) {
+    if (text.trim().length === 0 || importTokens.includes(token)) {
       // for EndOfFileToken and JsxText tokens containing only whitespaces
+      // as well as import statements
       return;
     }
 
@@ -57,15 +58,27 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
   return { cpdTokens };
 }
 
-function extractJSXTokens(sourceCode: SourceCode) {
-  const tokens: AST.Token[] = [];
+function extractTokens(sourceCode: SourceCode): {
+  jsxTokens: AST.Token[];
+  importTokens: AST.Token[];
+} {
+  const jsxTokens: AST.Token[] = [];
+  const importTokens: AST.Token[] = [];
   visit(sourceCode, (node: estree.Node) => {
     const tsNode = node as TSESTree.Node;
-    if (tsNode.type === 'JSXAttribute' && tsNode.value?.type === 'Literal') {
-      tokens.push(...sourceCode.getTokens(tsNode.value as estree.Node));
+    switch (tsNode.type) {
+      case 'JSXAttribute':
+        if (tsNode.value?.type === 'Literal') {
+          jsxTokens.push(...sourceCode.getTokens(tsNode.value as estree.Node));
+        }
+        break;
+      case 'ImportDeclaration':
+      case 'ImportExpression':
+        importTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
+        break;
     }
   });
-  return tokens;
+  return { jsxTokens, importTokens };
 }
 
 function isStringLiteralToken(token: AST.Token) {
