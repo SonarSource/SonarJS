@@ -135,10 +135,14 @@ it('should exclude import statements', () => {
   import * as b from "y";
   import { c } from "z";
   import "lib";
-  'hello';
+  import(lib);
   `);
-  expect(result).toContainEqual(token(6, 2, 6, 9, 'LITERAL'));
-  expect(result).toContainEqual(token(6, 9, 6, 10, ';'));
+  expect(result).toHaveLength(5);
+  expect(result).toContainEqual(token(6, 2, 6, 8, 'import'));
+  expect(result).toContainEqual(token(6, 8, 6, 9, '('));
+  expect(result).toContainEqual(token(6, 9, 6, 12, 'lib'));
+  expect(result).toContainEqual(token(6, 12, 6, 13, ')'));
+  expect(result).toContainEqual(token(6, 13, 6, 14, ';'));
 });
 
 function token(
