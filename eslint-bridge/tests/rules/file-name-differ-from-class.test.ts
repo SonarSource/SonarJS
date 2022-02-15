@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
+import { rule } from 'rules/file-name-differ-from-class';
+import path from 'path';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from 'rules/file-name-differ-from-class';
 
 ruleTester.run('Class names and file names should match', rule, {
   valid: [
@@ -78,11 +79,6 @@ ruleTester.run('Class names and file names should match', rule, {
       filename: 'ok_expression.js',
     },
     {
-      code: `class MyClass {}
-            export default MyClass;`,
-      filename: 'MyClass.dev.js', //ignore postfix
-    },
-    {
       code: `const myConst = 3.14;
             export default myConst;`,
       filename: 'index.js', //ignore index.js
@@ -95,17 +91,17 @@ ruleTester.run('Class names and file names should match', rule, {
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: '\\var\\www\\www.example.com\\MyClass.js',
-    },
-    {
-      code: `class MyClass {}
-            export default MyClass;`,
-      filename: 'C:/www/JS/src/MyClass.js',
+      filename: `${__dirname}${path.sep}MyClass.js`,
     },
     {
       code: `const MY_CONST = 3.14;
             export default MY_CONST;`,
       filename: 'MY_CONST.js',
+    },
+    {
+      code: `class MyClass {}
+            export default MyClass;`,
+      filename: 'my.class.js',
     },
   ],
   invalid: [
