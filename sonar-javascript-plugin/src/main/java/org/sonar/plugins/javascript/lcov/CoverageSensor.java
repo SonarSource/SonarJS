@@ -58,7 +58,7 @@ public class CoverageSensor implements Sensor {
     Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
     reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)));
     if (context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) && context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)) {
-      LOG.warn(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
+      LOG.info(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
     }
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
     if (lcovFiles.isEmpty()) {

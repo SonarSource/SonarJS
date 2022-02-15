@@ -115,7 +115,7 @@ class CoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, REPORT2);
     coverageSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
     assertTwoReportsCoverageDataPresent();
   }
