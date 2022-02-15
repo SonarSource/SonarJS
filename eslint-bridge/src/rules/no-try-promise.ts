@@ -71,13 +71,7 @@ function visitTryStatement(
         return;
       }
 
-      if (
-        (callLikeExpr.parent &&
-          (callLikeExpr.parent.type === 'AwaitExpression' ||
-            callLikeExpr.parent.type === 'YieldExpression')) ||
-        isThened(callLikeExpr) ||
-        isCatch(callLikeExpr)
-      ) {
+      if (isAwaitLike(callLikeExpr) || isThened(callLikeExpr) || isCatch(callLikeExpr)) {
         return;
       }
 
@@ -154,6 +148,13 @@ function checkForUselessCatch(
       loc: token!.loc,
     });
   }
+}
+
+function isAwaitLike(callExpr: CallLikeExpression) {
+  return (
+    callExpr.parent &&
+    (callExpr.parent.type === 'AwaitExpression' || callExpr.parent.type === 'YieldExpression')
+  );
 }
 
 function isThened(callExpr: CallLikeExpression) {

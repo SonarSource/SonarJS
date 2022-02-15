@@ -88,7 +88,7 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
     {
       code: `
       function returningPromise() { return Promise.reject(); }
-      async function okWithYield() {
+      async function * okWithYield() {
         try {
           yield returningPromise();
         } catch (e) {
