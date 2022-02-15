@@ -31,22 +31,22 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import static java.util.Map.entry;
 
 /**
- *  Currently supported versions ('supported' means that we execute the analysis):
- *      10 - deprecated (support will be removed not earlier than March 1, 2022)
- *      11 - deprecated (support will be removed not earlier than March 1, 2022), not recommended
- *      12 - deprecated (support will be removed not earlier than Aug 1, 2022)
- *      13 - deprecated (support will be removed not earlier than Aug 1, 2022), not recommended
- *      14 - nothing to warn, recommended version
- *      15 - not recommended
- *      16 - nothing to warn, recommended version
- *      17 - not recommended
- *      18 - not recommended
+ * Currently supported versions ('supported' means that we execute the analysis):
+ * 10 - deprecated (support will be removed not earlier than March 1, 2022)
+ * 11 - deprecated (support will be removed not earlier than March 1, 2022), not recommended
+ * 12 - deprecated (support will be removed not earlier than Aug 1, 2022)
+ * 13 - deprecated (support will be removed not earlier than Aug 1, 2022), not recommended
+ * 14 - nothing to warn, recommended version
+ * 15 - not recommended
+ * 16 - nothing to warn, recommended version
+ * 17 - not recommended
+ * 18 - not recommended
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public class NodeDeprecationWarning {
 
-  private static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
+  static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
     entry(10, "March 1st, 2022"),
     entry(11, "March 1st, 2022"),
     entry(12, "August 1st, 2022"),
@@ -55,18 +55,10 @@ public class NodeDeprecationWarning {
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
   static final int MIN_SUPPORTED_NODE_VERSION = 10;
-  private static final int MIN_RECOMMENDED_NODE_VERSION = 14;
-  private static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
-  private static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(10, 12, 14, 16);
+  static final int MIN_RECOMMENDED_NODE_VERSION = 14;
+  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
+  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(10, 12, 14, 16);
   private final AnalysisWarningsWrapper analysisWarnings;
-
-  static {
-    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION, MIN_RECOMMENDED_NODE_VERSION - 1)
-      .allMatch(REMOVAL_DATE::containsKey);
-    if (!allRemovalDates) {
-      throw new IllegalStateException("NodeDeprecationWarning is missing some removal date");
-    }
-  }
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
