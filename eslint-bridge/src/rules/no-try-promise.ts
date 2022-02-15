@@ -72,7 +72,9 @@ function visitTryStatement(
       }
 
       if (
-        (callLikeExpr.parent && callLikeExpr.parent.type === 'AwaitExpression') ||
+        (callLikeExpr.parent &&
+          (callLikeExpr.parent.type === 'AwaitExpression' ||
+            callLikeExpr.parent.type === 'YieldExpression')) ||
         isThened(callLikeExpr) ||
         isCatch(callLikeExpr)
       ) {
