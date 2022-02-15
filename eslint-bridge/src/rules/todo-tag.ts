@@ -24,7 +24,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const todoMessage = 'Complete the task associated to this "TODO" comment.';
 const todoPattern = 'todo';
-const letterPattern = /[A-Za-zÀ-ÖØ-öø-ÿ]/;
+const letterPattern = /[\p{Letter}]/u;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
