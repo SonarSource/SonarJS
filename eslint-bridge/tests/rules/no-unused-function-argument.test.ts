@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 import { rule } from 'rules/no-unused-function-argument';
+
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018 },
+});
 
 ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [
@@ -64,6 +67,13 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       code: `function fun(_a, b, _c) {
         b = 5;
       }`,
+    },
+    {
+      code: `
+      class C {
+        constructor(readonly a: number) {} // OK, a is a parameter property
+      }
+      `,
     },
   ],
   invalid: [

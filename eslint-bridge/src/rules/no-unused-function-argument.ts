@@ -67,7 +67,7 @@ function reportUnusedArgument(
   }
 
   for (const param of parametersVariable) {
-    if (isUnusedVariable(param) && !isIgnoredParameter(param)) {
+    if (isUnusedVariable(param) && !isIgnoredParameter(param) && !isParameterProperty(param)) {
       context.report({
         message: `Remove the unused function parameter "${param.name}".`,
         node: param.identifiers[0],
@@ -84,4 +84,10 @@ function isUnusedVariable(variable: Scope.Variable) {
 
 function isIgnoredParameter(variable: Scope.Variable) {
   return variable.name.startsWith('_');
+}
+
+function isParameterProperty(variable: Scope.Variable) {
+  return variable.defs.some(
+    def => (def.name as TSESTree.Node).parent?.type === 'TSParameterProperty',
+  );
 }
