@@ -57,6 +57,8 @@ public class CoverageSensor implements Sensor {
   public void execute(SensorContext context) {
     Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
     reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)));
+    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS);
+    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS);
     if (context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) && context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)) {
       LOG.info(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
     }
@@ -134,5 +136,11 @@ public class CoverageSensor implements Sensor {
       return null;
     }
     return file;
+  }
+
+  private static void logIfUsedProperty(SensorContext context, String property) {
+    if (context.config().hasKey(property)) {
+      LOG.debug(String.format("Property %s is used.", property));
+    }
   }
 }
