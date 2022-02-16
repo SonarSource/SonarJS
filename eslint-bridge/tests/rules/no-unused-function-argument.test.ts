@@ -30,12 +30,6 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
     },
     {
-      code: `function fun(a, b, c) {      // OK, even if b is not used, the last argument is.
-              a = 1;
-              c = 1;
-            }`,
-    },
-    {
       code: `function fun(a, b) {         // OK, arguments is used inside the function
               a = 1;
               o.call(arguments);
@@ -65,6 +59,11 @@ ruleTester.run('Unused function parameters should be removed', rule, {
               set p(v){      // OK
               }
             }`,
+    },
+    {
+      code: `function fun(_a, b, _c) {
+        b = 5;
+      }`,
     },
   ],
   invalid: [
@@ -116,7 +115,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       code: `function fun(a, b, c) {
              b = 1;
            }`,
-      errors: 1,
+      errors: 2,
     },
     {
       code: `each(function fun(a, b) {
@@ -169,6 +168,13 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     },
     {
       code: `watch('!a', (value, previous) => logger.log(value));`,
+      errors: 1,
+    },
+    {
+      code: `function fun(a, b, c) {
+              a = 1;
+              c = 1;
+            }`,
       errors: 1,
     },
   ],

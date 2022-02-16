@@ -66,13 +66,13 @@ function reportUnusedArgument(
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
   }
 
-  let i = parametersVariable.length - 1;
-  while (i >= 0 && isUnusedVariable(parametersVariable[i])) {
-    context.report({
-      message: `Remove the unused function parameter "${parametersVariable[i].name}".`,
-      node: parametersVariable[i].identifiers[0],
-    });
-    i--;
+  for (const param of parametersVariable) {
+    if (isUnusedVariable(param) && !isIgnoredParameter(param)) {
+      context.report({
+        message: `Remove the unused function parameter "${param.name}".`,
+        node: param.identifiers[0],
+      });
+    }
   }
 }
 
@@ -80,4 +80,8 @@ function isUnusedVariable(variable: Scope.Variable) {
   const refs = variable.references;
   //Parameter with default value has one reference, but should still be considered as unused.
   return refs.length === 0 || (refs.length === 1 && refs[0].init);
+}
+
+function isIgnoredParameter(variable: Scope.Variable) {
+  return variable.name.startsWith('_');
 }
