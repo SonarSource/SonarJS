@@ -21,12 +21,13 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import path from 'path';
 import { getVariableFromName } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    var isOnlyExport = true;
-    var nameOfExported: string | undefined = undefined;
+    let isOnlyExport = true;
+    let nameOfExported: string | undefined = undefined;
 
     return {
       ExportDefaultDeclaration: (node: estree.Node) => {
@@ -53,9 +54,12 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         if (isOnlyExport && nameOfExported) {
-          const splittedFileName = context.getFilename().split(/[\\/]/);
-          const fileName = splittedFileName[splittedFileName.length - 1].split('.')[0];
-          if ('index' !== fileName && !sameName(nameOfExported, fileName)) {
+          const fileName = path.parse(context.getFilename()).name;
+          if (
+            'index' !== fileName &&
+            !sameName(nameOfExported, fileName) &&
+            !sameName(nameOfExported, sliceOffPostfix(fileName))
+          ) {
             context.report({
               message: `Rename this file to "${nameOfExported}"`,
               loc: { line: 0, column: 0 },
@@ -68,11 +72,15 @@ export const rule: Rule.RuleModule = {
 };
 
 function sameName(nameOfExported: string, fileName: string) {
-  const normalizedFileName = fileName.replace(/_/g, '').replace(/-/g, '');
+  const normalizedFileName = fileName.replace(/_/g, '').replace(/-/g, '').replace(/\./g, '');
   const normalizedNameOfExported = nameOfExported.replace(/_/g, '').replace(/-/g, '');
   return normalizedNameOfExported.toLowerCase() === normalizedFileName.toLowerCase();
 }
 
 function isConst(def: Scope.Definition) {
   return def.type === 'Variable' && def.parent && def.parent.kind === 'const';
+}
+
+function sliceOffPostfix(fileName: string) {
+  return fileName.slice(0, fileName.lastIndexOf('.'));
 }
