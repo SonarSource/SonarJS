@@ -24,6 +24,12 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeOrRenameParameter:
+        'Remove the unused function parameter "{{param}}" or rename it to "_{{param}}" to make intention explicit.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression': function (node: estree.Node) {
@@ -69,8 +75,11 @@ function reportUnusedArgument(
   for (const param of parametersVariable) {
     if (isUnusedVariable(param) && !isIgnoredParameter(param) && !isParameterProperty(param)) {
       context.report({
-        message: `Remove the unused function parameter "${param.name}".`,
+        messageId: 'removeOrRenameParameter',
         node: param.identifiers[0],
+        data: {
+          param: param.name,
+        },
       });
     }
   }

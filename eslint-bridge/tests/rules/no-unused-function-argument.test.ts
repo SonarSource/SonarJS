@@ -83,7 +83,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: [
         {
-          message: `Remove the unused function parameter "b".`,
+          message: `Remove the unused function parameter "b" or rename it to "_b" to make intention explicit.`,
           line: 1,
           endLine: 1,
           column: 17,
@@ -97,7 +97,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: [
         {
-          message: `Remove the unused function parameter "ccc".`,
+          message: `Remove the unused function parameter "ccc" or rename it to "_ccc" to make intention explicit.`,
           line: 1,
           endLine: 1,
           column: 20,
@@ -125,7 +125,16 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       code: `function fun(a, b, c) {
              b = 1;
            }`,
-      errors: 2,
+      errors: [
+        {
+          message:
+            'Remove the unused function parameter "a" or rename it to "_a" to make intention explicit.',
+        },
+        {
+          message:
+            'Remove the unused function parameter "c" or rename it to "_c" to make intention explicit.',
+        },
+      ],
     },
     {
       code: `each(function fun(a, b) {
