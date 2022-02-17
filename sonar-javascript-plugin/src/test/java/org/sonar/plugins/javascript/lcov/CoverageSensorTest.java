@@ -103,6 +103,31 @@ class CoverageSensorTest {
     assertTwoReportsCoverageDataPresent();
   }
 
+  @Test
+  void test_alias() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, TWO_REPORTS);
+    coverageSensor.execute(context);
+    assertTwoReportsCoverageDataPresent();
+  }
+
+  @Test
+  void test_merging() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, REPORT2);
+    coverageSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
+    assertTwoReportsCoverageDataPresent();
+  }
+
+  @Test
+  void test_used_property_log() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
+    coverageSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .contains(String.format("Property %s is used.", JavaScriptPlugin.LCOV_REPORT_PATHS));
+  }
+
   private void assertTwoReportsCoverageDataPresent() {
     Integer[] file1Expected = {3, 3, 1, null};
     Integer[] file2Expected = {5, 5, null, null};
@@ -173,7 +198,7 @@ class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
-    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(2);
+    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(3);
     assertThat(stringIndexOutOfBoundLogMessage).startsWith("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(logTester.logs(LoggerLevel.DEBUG).size() - 1)).startsWith("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: ");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
@@ -188,6 +213,7 @@ class CoverageSensorTest {
     assertThat(descriptor.languages()).contains("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
     assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())).isTrue();
+    assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "bar").asConfig())).isTrue();
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 

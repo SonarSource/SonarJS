@@ -48,7 +48,7 @@ public class CoverageSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS))
+      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) || conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS))
       .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
   }
@@ -56,6 +56,12 @@ public class CoverageSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
+    reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)));
+    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS);
+    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS);
+    if (context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) && context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)) {
+      LOG.info(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
+    }
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
     if (lcovFiles.isEmpty()) {
       LOG.warn("No coverage information will be saved because all LCOV files cannot be found.");
@@ -130,5 +136,11 @@ public class CoverageSensor implements Sensor {
       return null;
     }
     return file;
+  }
+
+  private static void logIfUsedProperty(SensorContext context, String property) {
+    if (context.config().hasKey(property)) {
+      LOG.debug(String.format("Property %s is used.", property));
+    }
   }
 }
