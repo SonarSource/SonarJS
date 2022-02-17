@@ -32,6 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
@@ -39,6 +43,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
@@ -79,7 +84,7 @@ public class RulesMetadataForSonarLint {
       .setName("dummy");
 
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, getSonarlintRuntime());
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(ruleClasses));
     repository.done();
 
@@ -128,6 +133,31 @@ public class RulesMetadataForSonarLint {
       e.printStackTrace();
       System.exit(1);
     }
+  }
+
+  private static SonarRuntime getSonarlintRuntime() {
+    return new SonarRuntime() {
+      @Override
+      public Version getApiVersion() {
+        // we need at least 9.3 to provide OWASP 2021 standards
+        return Version.create(9, 3);
+      }
+
+      @Override
+      public SonarProduct getProduct() {
+        return SonarProduct.SONARLINT;
+      }
+
+      @Override
+      public SonarQubeSide getSonarQubeSide() {
+        throw new UnsupportedOperationException("Can only be called in SonarQube");
+      }
+
+      @Override
+      public SonarEdition getEdition() {
+        throw new UnsupportedOperationException("Can only be called in SonarQube");
+      }
+    };
   }
 
   static class Rule {

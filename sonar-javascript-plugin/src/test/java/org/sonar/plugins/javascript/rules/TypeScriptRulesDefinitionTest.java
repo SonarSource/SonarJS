@@ -27,11 +27,14 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -41,10 +44,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TypeScriptRulesDefinitionTest {
 
   private static final Gson gson = new Gson();
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
 
   @Test
   void test() {
-    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
+    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime));
 
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("ts");
@@ -56,7 +60,7 @@ class TypeScriptRulesDefinitionTest {
 
   @Test
   void sonarlint() {
-    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
+    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime));
     assertThat(repository.rule("S3923").activatedByDefault()).isTrue();
   }
 

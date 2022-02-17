@@ -26,11 +26,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
@@ -44,15 +47,17 @@ import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WA
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
 class JavaScriptProfilesDefinitionTest {
+
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
   private final BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
   private final Set<String> deprecatedJsRules =
-    TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition()).rules().stream()
+    TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime)).rules().stream()
       .filter(r -> r.status() == RuleStatus.DEPRECATED)
       .map(RulesDefinition.Rule::key)
       .collect(Collectors.toSet());
 
   private final Set<String> deprecatedTsRules =
-    TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition()).rules().stream()
+    TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime)).rules().stream()
       .filter(r -> r.status() == RuleStatus.DEPRECATED)
       .map(RulesDefinition.Rule::key)
       .collect(Collectors.toSet());
