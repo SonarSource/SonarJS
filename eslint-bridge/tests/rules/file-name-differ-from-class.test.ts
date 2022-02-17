@@ -103,6 +103,11 @@ ruleTester.run('Class names and file names should match', rule, {
             export default MyClass;`,
       filename: 'my.class.js',
     },
+    {
+      code: `class MyClass {}
+            export default MyClass;`,
+      filename: 'MyClass.dev.js', //ignore postfix
+    },
   ],
   invalid: [
     {

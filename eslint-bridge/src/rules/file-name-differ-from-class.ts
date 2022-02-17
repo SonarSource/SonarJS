@@ -26,8 +26,8 @@ import { getVariableFromName } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    var isOnlyExport = true;
-    var nameOfExported: string | undefined = undefined;
+    let isOnlyExport = true;
+    let nameOfExported: string | undefined = undefined;
 
     return {
       ExportDefaultDeclaration: (node: estree.Node) => {
@@ -55,7 +55,11 @@ export const rule: Rule.RuleModule = {
       'Program:exit': () => {
         if (isOnlyExport && nameOfExported) {
           const fileName = path.parse(context.getFilename()).name;
-          if ('index' !== fileName && !sameName(nameOfExported, fileName)) {
+          if (
+            'index' !== fileName &&
+            !sameName(nameOfExported, fileName) &&
+            !sameName(nameOfExported, sliceOffPostfix(fileName))
+          ) {
             context.report({
               message: `Rename this file to "${nameOfExported}"`,
               loc: { line: 0, column: 0 },
@@ -75,4 +79,8 @@ function sameName(nameOfExported: string, fileName: string) {
 
 function isConst(def: Scope.Definition) {
   return def.type === 'Variable' && def.parent && def.parent.kind === 'const';
+}
+
+function sliceOffPostfix(fileName: string) {
+  return fileName.slice(0, fileName.lastIndexOf('.'));
 }
