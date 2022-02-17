@@ -20,11 +20,9 @@
 package org.sonar.plugins.javascript.css.metrics;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,7 +34,6 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.css.CssLanguage;
@@ -57,21 +54,8 @@ public class CssMetricSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("CSS Metrics")
-      .onlyOnLanguage(CssLanguage.KEY);
-    processesFilesIndependently(descriptor);
-  }
-
-  private void processesFilesIndependently(SensorDescriptor descriptor) {
-    if ((sonarRuntime.getProduct() != SonarProduct.SONARQUBE)
-      || !sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
-      return;
-    }
-    try {
-      Method method = descriptor.getClass().getMethod("processesFilesIndependently");
-      method.invoke(descriptor);
-    } catch (ReflectiveOperationException e) {
-      LOG.warn("Could not call SensorDescriptor.processesFilesIndependently() method", e);
-    }
+      .onlyOnLanguage(CssLanguage.KEY)
+      .processesFilesIndependently();
   }
 
   @Override
