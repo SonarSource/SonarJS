@@ -18,21 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 import { rule } from 'rules/no-unused-function-argument';
+
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018 },
+});
 
 ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [
     {
       code: `function fun(a) {           // OK
               return {a};
-            }`,
-    },
-    {
-      code: `function fun(a, b, c) {      // OK, even if b is not used, the last argument is.
-              a = 1;
-              c = 1;
             }`,
     },
     {
@@ -66,6 +63,18 @@ ruleTester.run('Unused function parameters should be removed', rule, {
               }
             }`,
     },
+    {
+      code: `function fun(_a, b, _c) {
+        b = 5;
+      }`,
+    },
+    {
+      code: `
+      class C {
+        constructor(readonly a: number) {} // OK, a is a parameter property
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -74,7 +83,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: [
         {
-          message: `Remove the unused function parameter "b".`,
+          message: `Remove the unused function parameter "b" or rename it to "_b" to make intention explicit.`,
           line: 1,
           endLine: 1,
           column: 17,
@@ -88,7 +97,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: [
         {
-          message: `Remove the unused function parameter "ccc".`,
+          message: `Remove the unused function parameter "ccc" or rename it to "_ccc" to make intention explicit.`,
           line: 1,
           endLine: 1,
           column: 20,
@@ -116,7 +125,16 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       code: `function fun(a, b, c) {
              b = 1;
            }`,
-      errors: 1,
+      errors: [
+        {
+          message:
+            'Remove the unused function parameter "a" or rename it to "_a" to make intention explicit.',
+        },
+        {
+          message:
+            'Remove the unused function parameter "c" or rename it to "_c" to make intention explicit.',
+        },
+      ],
     },
     {
       code: `each(function fun(a, b) {
@@ -169,6 +187,13 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     },
     {
       code: `watch('!a', (value, previous) => logger.log(value));`,
+      errors: 1,
+    },
+    {
+      code: `function fun(a, b, c) {
+              a = 1;
+              c = 1;
+            }`,
       errors: 1,
     },
   ],
