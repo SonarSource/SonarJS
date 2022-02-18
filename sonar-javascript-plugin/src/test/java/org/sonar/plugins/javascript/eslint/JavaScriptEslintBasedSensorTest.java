@@ -34,6 +34,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -113,6 +115,7 @@ class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
+    context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
     tempFolder = new DefaultTempFolder(tempDir, true);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
@@ -163,6 +166,34 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
+  void should_set_quickfixavailable() throws Exception {
+    AnalysisResponse responseIssues = response("{ issues: [{" +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+      "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
+      "}" +
+      "]}");
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+
+    var sensor = createSensor();
+    createInputFile(context);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    var issue = context.allIssues().iterator().next();
+    assertThat(issue.isQuickFixAvailable()).isTrue();
+
+    var context91 = SensorContextTester.create(baseDir);
+    context91.fileSystem().setWorkDir(workDir);
+    context91.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 1), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+    createInputFile(context91);
+
+    sensor.execute(context91);
+    assertThat(context91.allIssues()).hasSize(1);
+    issue = context91.allIssues().iterator().next();
+    assertThat(issue.isQuickFixAvailable()).isFalse();
+  }
+
+    @Test
   void should_report_secondary_issue_locations() throws Exception {
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(response(
       "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
