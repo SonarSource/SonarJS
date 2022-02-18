@@ -120,7 +120,6 @@ plugin_qa_task:
     SONARSOURCE_QA: true
     matrix:
       - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: LATEST_RELEASE[8.9]
       - SQ_VERSION: DEV
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
