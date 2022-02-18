@@ -37,6 +37,10 @@ class ContextUtils {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
+  boolean isSonarQube() {
+    return context.runtime().getProduct() == SonarProduct.SONARQUBE;
+  }
+
   boolean ignoreHeaderComments() {
     return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
       .orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);

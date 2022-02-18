@@ -233,11 +233,13 @@ public class AnalysisProcessor {
       newIssue.gap(issue.cost);
     }
 
-    if (context.runtime().getProduct() == SonarProduct.SONARQUBE && issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
-      newIssue.setQuickFixAvailable(true);
-    }
-    if (isQuickFixCompatible() && issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
-      addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
+    if (issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
+      if (isSqQuickFixCompatible()) {
+        newIssue.setQuickFixAvailable(true);
+      }
+      if (isQuickFixCompatible()) {
+        addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
+      }
     }
 
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
@@ -248,6 +250,9 @@ public class AnalysisProcessor {
     }
   }
 
+  private boolean isSqQuickFixCompatible() {
+    return contextUtils.isSonarQube() && context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 2));
+  }
 
   private boolean isQuickFixCompatible() {
     return contextUtils.isSonarLint()
