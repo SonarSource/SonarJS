@@ -143,6 +143,16 @@ class CssRuleSensorTest {
   }
 
   @Test
+  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    sensor = new CssRuleSensor(sonarRuntime, eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
+    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
+  }
+
+  @Test
   void test_execute() throws IOException {
     addInputFile("file.css");
     sensor.execute(context);

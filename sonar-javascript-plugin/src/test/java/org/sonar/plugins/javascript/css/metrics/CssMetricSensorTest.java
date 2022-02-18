@@ -85,6 +85,15 @@ class CssMetricSensorTest {
   }
 
   @Test
+  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
+    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
+  }
+
+  @Test
   void empty_input() throws Exception {
     executeSensor("foo");
     assertThat(sensorContext.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
