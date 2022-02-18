@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -232,7 +233,10 @@ public class AnalysisProcessor {
       newIssue.gap(issue.cost);
     }
 
-    if (isQuickFixCompatible() && issue.quickFixes != null) {
+    if (context.runtime().getProduct() == SonarProduct.SONARQUBE && issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
+      newIssue.setQuickFixAvailable(true);
+    }
+    if (isQuickFixCompatible() && issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
       addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
     }
 
