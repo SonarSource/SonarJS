@@ -19,28 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S4144")
-public class IdenticalFunctionsCheck implements EslintBasedCheck {
+class IdenticalFunctionsCheckTest {
 
-  private static final int DEFAULT_THRESHOLD = 3;
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(DEFAULT_THRESHOLD);
-  }
-
-  @Override
-  public String eslintKey() {
-    return "no-identical-functions";
+  @Test
+  void configurations() {
+    IdenticalFunctionsCheck identicalFunctionsCheck = new IdenticalFunctionsCheck();
+    assertThat(identicalFunctionsCheck.configurations()).containsExactly(3);
   }
 }
