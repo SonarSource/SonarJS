@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.css;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -27,15 +29,18 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CssRulesDefinitionTest {
 
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
+
   @Test
   void test_repos() {
-    CssRulesDefinition rulesDefinition = new CssRulesDefinition();
+    CssRulesDefinition rulesDefinition = new CssRulesDefinition(sonarRuntime);
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
 
@@ -56,7 +61,7 @@ class CssRulesDefinitionTest {
 
   @Test
   void test_main_repo() {
-    RulesDefinition.Repository repository = TestUtils.buildRepository("css", new CssRulesDefinition());
+    RulesDefinition.Repository repository = TestUtils.buildRepository("css", new CssRulesDefinition(sonarRuntime));
 
     assertRuleProperties(repository);
     assertParameterProperties(repository);

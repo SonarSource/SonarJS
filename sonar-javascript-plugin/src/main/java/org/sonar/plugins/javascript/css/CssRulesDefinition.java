@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.css;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
@@ -31,13 +32,19 @@ public class CssRulesDefinition implements RulesDefinition {
 
   public static final String RESOURCE_FOLDER = "org/sonar/l10n/css/rules/";
 
+  private final SonarRuntime sonarRuntime;
+
+  public CssRulesDefinition(SonarRuntime sonarRuntime) {
+    this.sonarRuntime = sonarRuntime;
+  }
+
   @Override
   public void define(Context context) {
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, CssLanguage.KEY)
       .setName(RULE_REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER + REPOSITORY_KEY, PROFILE_PATH);
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER + REPOSITORY_KEY, PROFILE_PATH, sonarRuntime);
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CssRules.getRuleClasses());
     repository.done();
 

@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,7 +44,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -75,7 +73,10 @@ public class CssRuleSensor extends AbstractEslintSensor {
     descriptor
       .createIssuesForRuleRepository("css")
       .name("CSS Rules");
-    processesFilesIndependently(descriptor);
+
+    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE) {
+      descriptor.processesFilesIndependently();
+    }
   }
 
   @Override
@@ -226,19 +227,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
       return matcher.group(1);
     } else {
       return message;
-    }
-  }
-
-  private void processesFilesIndependently(SensorDescriptor descriptor) {
-    if ((sonarRuntime.getProduct() != SonarProduct.SONARQUBE)
-      || !sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
-      return;
-    }
-    try {
-      Method method = descriptor.getClass().getMethod("processesFilesIndependently");
-      method.invoke(descriptor);
-    } catch (ReflectiveOperationException e) {
-      LOG.warn("Could not call SensorDescriptor.processesFilesIndependently() method", e);
     }
   }
 }

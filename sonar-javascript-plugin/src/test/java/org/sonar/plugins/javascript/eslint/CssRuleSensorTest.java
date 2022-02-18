@@ -42,7 +42,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
@@ -123,33 +122,26 @@ class CssRuleSensorTest {
     assertThat(sensorDescriptor.languages()).isEmpty();
     assertThat(sensorDescriptor.configurationPredicate()).isNull();
     assertThat(sensorDescriptor.ruleRepositories()).containsOnly("css");
+    // true even for SonarLint runtime (see setUp) as this sensor is hardcoded by name
+    assertTrue(sensorDescriptor.isProcessesFilesIndependently());
   }
 
   @Test
-  void test_descriptor_sonarqube_9_3() throws Exception {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    sensor = new CssRuleSensor(sonarRuntime, eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
-
-    final boolean[] called = {false};
-    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
-      public SensorDescriptor processesFilesIndependently() {
-        called[0] = true;
-        return this;
-      }
-    };
-    sensor.describe(sensorDescriptor);
-    assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
-    assertTrue(called[0]);
+  void test_descriptor_sonarlint() {
+    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSensorDescriptor();
+    // should not throw as 'processesFilesIndependently' is not executed for SonarLint
+    sensor.describe(sonarlintDescriptor);
+    assertThat(sonarlintDescriptor.name()).isEqualTo("CSS Rules");
   }
 
   @Test
-  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
+  void test_descriptor_sonarqube_9_3() {
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     sensor = new CssRuleSensor(sonarRuntime, eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
-    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
+    assertTrue(sensorDescriptor.isProcessesFilesIndependently());
   }
 
   @Test
