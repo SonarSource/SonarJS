@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -35,15 +34,9 @@ public class IdenticalFunctionsCheck implements EslintBasedCheck {
 
   private static final int DEFAULT_THRESHOLD = 3;
 
-  @RuleProperty(
-    key = "Threshold",
-    description = "The minimum number of lines to trigger an issue.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
-  int threshold = DEFAULT_THRESHOLD;
-
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(threshold);
+    return Collections.singletonList(DEFAULT_THRESHOLD);
   }
 
   @Override

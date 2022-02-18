@@ -28,9 +28,6 @@ class IdenticalFunctionsCheckTest {
   @Test
   void configurations() {
     IdenticalFunctionsCheck identicalFunctionsCheck = new IdenticalFunctionsCheck();
-    // default configuration
     assertThat(identicalFunctionsCheck.configurations()).containsExactly(3);
-    identicalFunctionsCheck.threshold = 10;
-    assertThat(identicalFunctionsCheck.configurations()).containsExactly(10);
   }
 }
