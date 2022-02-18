@@ -3,19 +3,6 @@ href="https://www.w3.org/TR/xml/#sec-internal-ent">internal</a> or <a href="http
 <p>When parsing the XML file, the content of the external entities is retrieved from an external storage such as the file system or network, which may
 lead, if no restrictions are put in place, to arbitrary file disclosures or <a
 href="https://www.owasp.org/index.php/Server_Side_Request_Forgery">server-side request forgery (SSRF)</a> vulnerabilities.</p>
-<pre>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;!DOCTYPE person [
-  &lt;!ENTITY file SYSTEM "file:///etc/passwd"&gt;
-  &lt;!ENTITY ssrf SYSTEM "https://internal.network/sensitive_information"&gt;
-]&gt;
-
-&lt;person&gt;
-  &lt;name&gt;&amp;file;&lt;/name&gt;
-  &lt;city&gt;&amp;ssrf;&lt;/city&gt;
-  &lt;age&gt;18&lt;/age&gt;
-&lt;/person&gt;
-</pre>
 <p>It’s recommended to limit resolution of external entities by using one of these solutions:</p>
 <ul>
   <li> If DOCTYPE is not necessary, completely disable all DOCTYPE declarations. </li>
