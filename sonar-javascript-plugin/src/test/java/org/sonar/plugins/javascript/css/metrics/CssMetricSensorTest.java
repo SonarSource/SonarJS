@@ -31,7 +31,6 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -66,31 +65,26 @@ class CssMetricSensorTest {
 
     assertThat(desc.name()).isEqualTo("CSS Metrics");
     assertThat(desc.languages()).containsOnly("css");
+    // true even for SonarLint runtime as this sensor is hardcoded by name
+    assertTrue(desc.isProcessesFilesIndependently());
+  }
+
+  @Test
+  void test_descriptor_sonarlint() {
+    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSensorDescriptor();
+    // should not throw as 'processesFilesIndependently' is not executed for SonarLint
+    new CssMetricSensor(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)), null)
+      .describe(sonarlintDescriptor);
+    assertThat(sonarlintDescriptor.name()).isEqualTo("CSS Metrics");
   }
 
   @Test
   void test_descriptor_sonarqube_9_3() throws Exception {
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-
-    final boolean[] called = {false};
-    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
-      public SensorDescriptor processesFilesIndependently() {
-        called[0] = true;
-        return this;
-      }
-    };
-    new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
-    assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
-    assertTrue(called[0]);
-  }
-
-  @Test
-  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
-    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
+    assertTrue(sensorDescriptor.isProcessesFilesIndependently());
   }
 
   @Test
