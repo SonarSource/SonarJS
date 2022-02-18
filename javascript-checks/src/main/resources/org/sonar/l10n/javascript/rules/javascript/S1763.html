@@ -15,26 +15,6 @@ function fun(int a) {
   return i + a;
 }
 </pre>
-<h2>Exceptions</h2>
-<p>This rule ignores unreachable <code>break</code> statements in <code>switch</code> clauses.</p>
-<pre>
-switch (x) {
-  case 42:
-     return 43;
-     break;   // Compliant
-  default:
-    doSomething();
-}
-</pre>
-<p>Hoisted variables declarations without initialization are always considered reachable.</p>
-<pre>
-function bar() {
-  return x = function() {
-    x.foo = 42;
-  }
-  var x;
-}
-</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/561.html">MITRE, CWE-561</a> - Dead Code </li>

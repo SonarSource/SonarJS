@@ -11,7 +11,7 @@
   "ruleSpecification": "RSPEC-4023",
   "sqKey": "S4023",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]

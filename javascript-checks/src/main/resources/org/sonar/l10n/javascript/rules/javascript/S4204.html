@@ -1,6 +1,9 @@
 <p>Variables can be declared with or without types. Variables declared without a type will be implicitly typed if the declaration includes an
-initialization, and compiler type checking will be automatically applied to any typed variable. But if you declare a variable with the
-<code>any</code> "type" then you’ve explicitly told the compiler not to do any type checking, which is risky.</p>
+initialization, and the compiler then type-checks every usage of typed variables. On the other hand, a variable declared with the <code>any</code>
+type explicitly instructs the compiler not to do any type-checking, which is risky.</p>
+<p>The <code>unknown</code> type should be preferred over the <code>any</code> type if it’s not possible to have a better typing. <code>any</code>
+fully disables type-checking allowing to do anything with the variable, while <code>unknown</code> requires to narrow the type before doing something
+specific.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 let a = 42;  // implicitly typed to number

@@ -13,10 +13,19 @@ doSomething();
 <pre>
 if (parameter === void 0) {...}
 </pre>
-<p>No issue is also raised when <code>void</code> is used before immediately invoked function expressions.</p>
+<p>No issue is raised when <code>void</code> is used before immediately invoked function expressions.</p>
 <pre>
 void (function() {
    ...
 }());
+</pre>
+<p>No issue is raised when <code>void</code>'s argument is a promise.</p>
+<pre>
+const promise = new Promise((resolve, reject) =&gt; {
+   setTimeout(() =&gt; {
+      resolve('done');
+   }, 3000);
+});
+void promise;
 </pre>
 

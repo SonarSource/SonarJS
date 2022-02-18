@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-3257",
   "sqKey": "S3257",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]

@@ -11,31 +11,24 @@ function doSomething(b) {
   return compute(b);
 }
 </pre>
+<p>or</p>
+<pre>
+function doSomething(_a, b) {
+  return compute(b);
+}
+</pre>
 <h2>Exceptions</h2>
-<p>When writing function callbacks, some arguments might be required as part of the function signature, but not actually needed by the callback code.
-For instance, JQuery has the 'each' helper to iterate over arrays or objects, but using the counter 'i' should remain optional:</p>
-<pre>
-$(["first", "last"]).each(function (i, value) {
-  computeSomethingWithValue(value);
-});
-</pre>
-<p>So only unused arguments listed at the end of the argument list will be flagged with issues because they could be omitted from the function
-signature. Unused arguments which are followed by an argument that <em>is</em> used will be ignored.</p>
-<p>Examples :</p>
-<pre>
-var myFirsCallBackFunction = function (p1, p2, p3, p4) {  // p2 is ignored, but p4 is reported
-                                              return p1 + p3; }
-
-var mySecondCallBackFunction = function (p1, p2, p3, p4) {  // p1, p2 and p3 are ignored
-                                              return p4; }
-
-var myThirdCallBackFunction = function (p1, p2, p3, p4) {  // p1 is ignored but p3 and p4 are reported
-                                              return p2; }
-</pre>
-<p>Further, when <code>arguments</code> is used in the function body, no parameter is reported as unused.</p>
+<p>When <code>arguments</code> is used in the function body, no parameter is reported as unused.</p>
 <pre>
 function doSomething(a, b, c) {
   compute(arguments);
+}
+</pre>
+<p>Also, the rule ignores all parameters whose name starts with an underscore (<code>_</code>). This is a common practice to acknowledge the fact that
+some parameter is unused (e.g. in TypeScript compiler).</p>
+<pre>
+function doSomething(_a, b) {
+  return compute(b);
 }
 </pre>
 
