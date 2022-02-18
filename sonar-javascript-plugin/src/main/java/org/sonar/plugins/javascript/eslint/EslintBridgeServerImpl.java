@@ -31,6 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -165,7 +166,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     var outputConsumer = monitoring.isMonitoringEnabled() ?
       new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring)) : new LogOutputConsumer();
     // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
-    Map<String, String> env = monitoring.isMonitoringEnabled() ? Map.of("TIMING", "all") : Map.of();
+
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
       .pathResolver(bundle)
@@ -173,13 +174,23 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles)
-      .env(env);
+      .env(getEnv());
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
     nodeCommand = nodeCommandBuilder.build();
+  }
+
+  private Map<String, String> getEnv() {
+    Map<String, String> env = new HashMap<>();
+    if (monitoring.isMonitoringEnabled()) {
+      env.put("TIMING", "all");
+    }
+    // see https://github.com/SonarSource/SonarJS/issues/2803
+    env.put("BROWSERSLIST_IGNORE_OLD_DATA", "true");
+    return env;
   }
 
   @Override

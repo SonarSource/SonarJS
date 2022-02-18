@@ -8,6 +8,10 @@ console.log(`DEBUG testing debug log`)
 console.log(`WARN testing warn log`)
 console.log(`testing info log`)
 
+if (process.env.BROWSERSLIST_IGNORE_OLD_DATA) {
+  console.log("BROWSERSLIST_IGNORE_OLD_DATA is set to true");
+}
+
 const server = http.createServer((req, res) => {
   if (req.url === "/close") {
     res.end();

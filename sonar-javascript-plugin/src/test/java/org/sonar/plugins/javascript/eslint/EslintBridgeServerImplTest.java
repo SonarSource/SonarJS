@@ -151,6 +151,7 @@ class EslintBridgeServerImplTest {
     assertThat(logTester.logs(DEBUG)).contains("testing debug log");
     assertThat(logTester.logs(WARN)).contains("testing warn log");
     assertThat(logTester.logs(INFO)).contains("testing info log");
+    assertThat(logTester.logs(INFO)).contains("BROWSERSLIST_IGNORE_OLD_DATA is set to true");
   }
 
   @Test
