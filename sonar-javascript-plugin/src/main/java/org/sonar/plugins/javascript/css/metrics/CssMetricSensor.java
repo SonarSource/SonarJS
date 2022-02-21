@@ -35,6 +35,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.css.CssLanguage;
@@ -56,8 +57,12 @@ public class CssMetricSensor implements Sensor {
     descriptor
       .name("CSS Metrics")
       .onlyOnLanguage(CssLanguage.KEY);
+    processesFilesIndependently(descriptor);
+  }
 
-    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE) {
+  private void processesFilesIndependently(SensorDescriptor descriptor) {
+    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
+      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
       descriptor.processesFilesIndependently();
     }
   }

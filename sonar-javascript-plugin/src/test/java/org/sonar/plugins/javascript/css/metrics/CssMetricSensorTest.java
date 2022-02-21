@@ -79,11 +79,21 @@ class CssMetricSensorTest {
   }
 
   @Test
-  void test_descriptor_sonarqube_9_3() throws Exception {
+  void test_descriptor_sonarqube_9_3() {
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
+    assertTrue(sensorDescriptor.isProcessesFilesIndependently());
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_2() {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 2), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
+    // true even for v9.2 as this sensor is hardcoded by name
     assertTrue(sensorDescriptor.isProcessesFilesIndependently());
   }
 
