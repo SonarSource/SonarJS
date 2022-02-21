@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -74,7 +75,12 @@ public class CssRuleSensor extends AbstractEslintSensor {
       .createIssuesForRuleRepository("css")
       .name("CSS Rules");
 
-    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE) {
+    processesFilesIndependently(descriptor);
+  }
+
+  private void processesFilesIndependently(SensorDescriptor descriptor) {
+    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
+      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
       descriptor.processesFilesIndependently();
     }
   }

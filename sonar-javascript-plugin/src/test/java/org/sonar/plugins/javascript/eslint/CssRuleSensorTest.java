@@ -145,6 +145,17 @@ class CssRuleSensorTest {
   }
 
   @Test
+  void test_descriptor_sonarqube_9_2() {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 2), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    sensor = new CssRuleSensor(sonarRuntime, eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
+    // true even for v9.2 as this sensor is hardcoded by name
+    assertTrue(sensorDescriptor.isProcessesFilesIndependently());
+  }
+
+  @Test
   void test_execute() throws IOException {
     addInputFile("file.css");
     sensor.execute(context);
