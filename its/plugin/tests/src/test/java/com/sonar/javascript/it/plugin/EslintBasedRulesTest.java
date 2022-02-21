@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +35,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
@@ -196,5 +198,36 @@ class EslintBasedRulesTest {
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
     assertThat(projectDir.toPath().resolve(".scannerwork/metrics.json")).exists();
+  }
+
+  @Test
+  void quickfix() throws Exception {
+    var projectKey = "quickfix";
+    var projectDir = TestUtils.projectDir(projectKey);
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(projectDir);
+
+    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js",
+      "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
+    orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
+
+    OrchestratorStarter.setProfile(projectKey, "rules", "js");
+
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
+
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S1116"));
+    var wsClient = newWsClient(OrchestratorStarter.ORCHESTRATOR);
+    List<Issue> issuesList = wsClient.issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+    var issue = issuesList.get(0);
+    assertThat(issue.getLine()).isEqualTo(2);
+    if (Version.create(wsClient.server().version()).isGreaterThanOrEquals(9, 2)) {
+      assertThat(issue.getQuickFixAvailable()).isTrue();
+    }
   }
 }
