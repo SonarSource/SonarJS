@@ -25,6 +25,11 @@ import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      refactorAwait: "Refactor this redundant 'await' on a non-promise.",
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
@@ -36,7 +41,7 @@ export const rule: Rule.RuleModule = {
           );
           if (!hasThenMethod(awaitedType) && !isAny(awaitedType) && !isUnion(awaitedType)) {
             context.report({
-              message: "Refactor this redundant 'await' on a non-promise.",
+              messageId: 'refactorAwait',
               node,
             });
           }
