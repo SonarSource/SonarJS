@@ -28,10 +28,14 @@ import {
   getTypeAsString,
 } from '../utils';
 
-const MESSAGE = 'Convert this use of a Web SQL database to another technology.';
 const OPEN_DATABASE = 'openDatabase';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      convertWebSQLUse: 'Convert this use of a Web SQL database to another technology.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -46,14 +50,14 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (isIdentifier(callee, OPEN_DATABASE)) {
-          context.report({ node: callee, message: MESSAGE });
+          context.report({ node: callee, messageId: 'convertWebSQLUse' });
         }
         if (callee.type !== 'MemberExpression' || !isIdentifier(callee.property, OPEN_DATABASE)) {
           return;
         }
         const typeName = getTypeAsString(callee.object, services);
         if (typeName.match(/window/i) || typeName.match(/globalThis/i)) {
-          context.report({ node: callee, message: MESSAGE });
+          context.report({ node: callee, messageId: 'convertWebSQLUse' });
         }
       },
     };
