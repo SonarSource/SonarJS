@@ -23,6 +23,11 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeDelete: 'Remove this "delete" operator or pass an object property to it.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       "UnaryExpression[operator='delete'][argument.type!='MemberExpression']": (
@@ -31,7 +36,7 @@ export const rule: Rule.RuleModule = {
         const { argument } = node as estree.UnaryExpression;
         if (!isGlobalProperty(argument, context.getScope().references)) {
           context.report({
-            message: 'Remove this "delete" operator or pass an object property to it.',
+            messageId: 'removeDelete',
             node,
           });
         }
