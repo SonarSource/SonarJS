@@ -46,6 +46,11 @@ const formidableObjects: Map<Scope.Variable, { maxFileSize: number; nodeToReport
   new Map();
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeLimit: 'Make sure the content length limit is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
@@ -219,7 +224,7 @@ function report(
   const limitToCompare = useStandardSizeLimit ? standardSizeLimit : fileUploadSizeLimit;
   if (!size || size > limitToCompare) {
     context.report({
-      message: 'Make sure the content length limit is safe here.',
+      messageId: 'safeLimit',
       node: nodeToReport,
     });
   }

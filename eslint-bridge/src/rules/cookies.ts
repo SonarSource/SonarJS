@@ -23,9 +23,12 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier } from '../utils';
 
-const message = `Make sure that cookie is written safely here.`;
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeCookie: 'Make sure that cookie is written safely here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     let usingExpressFramework = false;
 
@@ -47,7 +50,7 @@ export const rule: Rule.RuleModule = {
           const { object, property } = left;
           if (isIdentifier(object, 'document') && isIdentifier(property, 'cookie')) {
             context.report({
-              message,
+              messageId: 'safeCookie',
               node: left,
             });
           }
@@ -62,7 +65,7 @@ export const rule: Rule.RuleModule = {
           isIdentifier(callee.property, 'cookie', 'cookies')
         ) {
           context.report({
-            message,
+            messageId: 'safeCookie',
             node,
           });
         }
@@ -73,7 +76,7 @@ export const rule: Rule.RuleModule = {
           isLiteral(args[0], 'Set-Cookie')
         ) {
           context.report({
-            message,
+            messageId: 'safeCookie',
             node: callee,
           });
         }

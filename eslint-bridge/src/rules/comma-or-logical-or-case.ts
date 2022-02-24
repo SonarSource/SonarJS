@@ -23,12 +23,19 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      specifyCase: `Explicitly specify {{nesting}} separate cases that fall through; currently this case clause only works for "{{expression}}".`,
+    },
+  },
   create(context: Rule.RuleContext) {
     function reportIssue(node: estree.Node, clause: estree.Node, nestingLvl: number) {
       context.report({
-        message: `Explicitly specify ${nestingLvl} separate cases that fall through; currently this case clause only works for "${getTextFromNode(
-          clause,
-        )}".`,
+        messageId: 'specifyCase',
+        data: {
+          nesting: nestingLvl.toString(),
+          expression: String(getTextFromNode(clause)),
+        },
         node,
       });
     }

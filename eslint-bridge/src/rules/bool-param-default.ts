@@ -29,6 +29,14 @@ type FunctionLike =
   | TSESTree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      provideDefault:
+        "Provide a default value for '{{parameter}}' so that " +
+        'the logic of the function is more evident when this parameter is missing. ' +
+        'Consider defining another function if providing default value is not possible.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
@@ -36,10 +44,10 @@ export const rule: Rule.RuleModule = {
         for (const param of functionLike.params) {
           if (param.type === 'Identifier' && isOptionalBoolean(param)) {
             context.report({
-              message:
-                `Provide a default value for '${param.name}' so that ` +
-                `the logic of the function is more evident when this parameter is missing. ` +
-                `Consider defining another function if providing default value is not possible.`,
+              messageId: 'provideDefault',
+              data: {
+                parameter: param.name,
+              },
               node: param as estree.Node,
             });
           }

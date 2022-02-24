@@ -26,6 +26,11 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       ClassDeclaration: (node: estree.Node) =>
@@ -46,7 +51,12 @@ function checkName(
     const name = node.id.name;
     if (!name.match(format)) {
       context.report({
-        message: `Rename ${declarationType} "${name}" to match the regular expression ${format}.`,
+        messageId: 'renameClass',
+        data: {
+          symbol: name,
+          symbolType: declarationType,
+          format,
+        },
         node: node.id,
       });
     }
