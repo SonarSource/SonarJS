@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeLabel: 'Remove this "{{label}}" label.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       LabeledStatement: (node: estree.Node) =>
@@ -34,7 +39,10 @@ export const rule: Rule.RuleModule = {
 function checkLabeledStatement(node: estree.LabeledStatement, context: Rule.RuleContext) {
   if (!isLoopStatement(node.body) && !isSwitchStatement(node.body)) {
     context.report({
-      message: `Remove this "${node.label.name}" label.`,
+      messageId: 'removeLabel',
+      data: {
+        label: node.label.name,
+      },
       node: node.label,
     });
   }

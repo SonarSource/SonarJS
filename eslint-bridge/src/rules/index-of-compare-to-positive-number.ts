@@ -23,10 +23,13 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isRequiredParserServices, RequiredParserServices } from '../utils';
 
-const message =
-  "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.";
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      considerIncludes:
+        "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -40,7 +43,7 @@ export const rule: Rule.RuleModule = {
           isZero(expression.right) &&
           isArrayIndexOfCall(expression.left, services)
         ) {
-          context.report({ node, message });
+          context.report({ node, messageId: 'considerIncludes' });
         }
       },
     };

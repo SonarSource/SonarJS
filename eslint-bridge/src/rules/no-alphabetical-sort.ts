@@ -26,6 +26,12 @@ import * as ts from 'typescript';
 import { isRequiredParserServices, sortLike, RequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      provideCompareFunction:
+        'Provide a compare function to avoid sorting elements alphabetically.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -42,7 +48,7 @@ export const rule: Rule.RuleModule = {
             const arrayElementType = arrayElementTypeOf(object, services);
             if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
               context.report({
-                message: 'Provide a compare function to avoid sorting elements alphabetically.',
+                messageId: 'provideCompareFunction',
                 node: property as estree.Node,
               });
             }

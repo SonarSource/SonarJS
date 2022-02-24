@@ -42,15 +42,22 @@ const futureReservedWords = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      renameReserved:
+        'Rename "{{reserved}}" identifier to prevent potential conflicts with future evolutions of the JavaScript language.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function checkVariable(variable: Scope.Variable) {
       if (variable.defs.length > 0) {
         const def = variable.defs[0].name;
         context.report({
           node: def,
-          message:
-            `Rename "${variable.name}" identifier to prevent potential conflicts ` +
-            `with future evolutions of the JavaScript language.`,
+          messageId: 'renameReserved',
+          data: {
+            reserved: variable.name,
+          },
         });
       }
     }

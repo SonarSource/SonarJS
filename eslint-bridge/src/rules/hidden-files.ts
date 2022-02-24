@@ -27,11 +27,14 @@ import {
   getObjectExpressionProperty,
 } from '../utils';
 
-const message = 'Make sure serving hidden files is safe here.';
-
 const SERVE_STATIC = 'serve-static';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeHiddenFile: 'Make sure serving hidden files is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
@@ -53,7 +56,7 @@ export const rule: Rule.RuleModule = {
             dotfilesProperty?.value.type === 'Literal' &&
             dotfilesProperty.value.value === 'allow'
           ) {
-            context.report({ node: dotfilesProperty, message });
+            context.report({ node: dotfilesProperty, messageId: 'safeHiddenFile' });
           }
         }
       },
