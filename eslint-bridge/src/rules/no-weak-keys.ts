@@ -53,6 +53,15 @@ const WEAK_CURVES = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      modulusLength:
+        'Use a modulus length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',
+      divisorLength:
+        'Use a divisor length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',
+      strongerCurve: `{{curve}} doesn't provide enough security. Use a stronger curve.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     function getNumericValue(node: estree.Node | undefined) {
       const literal = getValueOfExpression(context, node, 'Literal');
@@ -68,7 +77,11 @@ export const rule: Rule.RuleModule = {
       if (modulusProperty && modulusLength && modulusLength < MINIMAL_MODULUS_LENGTH) {
         context.report({
           node: modulusProperty,
-          message: `Use a modulus length of at least ${MINIMAL_MODULUS_LENGTH} bits for ${algorithm} cipher algorithm.`,
+          messageId: 'modulusLength',
+          data: {
+            minimalLength: MINIMAL_MODULUS_LENGTH.toString(),
+            algorithm,
+          },
         });
       }
       const divisorProperty = getObjectExpressionProperty(options, 'divisorLength');
@@ -76,7 +89,11 @@ export const rule: Rule.RuleModule = {
       if (divisorProperty && divisorLength && divisorLength < MINIMAL_DIVISOR_LENGTH) {
         context.report({
           node: divisorProperty,
-          message: `Use a divisor length of at least ${MINIMAL_DIVISOR_LENGTH} bits for ${algorithm} cipher algorithm.`,
+          messageId: 'divisorLength',
+          data: {
+            minimalLength: MINIMAL_DIVISOR_LENGTH.toString(),
+            algorithm,
+          },
         });
       }
     }
@@ -91,7 +108,10 @@ export const rule: Rule.RuleModule = {
       if (namedCurveProperty && namedCurve && WEAK_CURVES.includes(namedCurve)) {
         context.report({
           node: namedCurveProperty,
-          message: `${namedCurve} doesn't provide enough security. Use a stronger curve.`,
+          messageId: 'strongerCurve',
+          data: {
+            curve: namedCurve,
+          },
         });
       }
     }
