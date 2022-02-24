@@ -24,6 +24,11 @@ import * as estree from 'estree';
 import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      extractAssignment: 'Extract the assignment of "{{symbol}}" from this expression.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function isAssignmentStatement(parent: estree.Node) {
       return parent.type === 'ExpressionStatement';
@@ -99,7 +104,10 @@ function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext
   );
   const text = sourceCode.getText(node.left);
   context.report({
-    message: `Extract the assignment of \"${text}\" from this expression.`,
+    messageId: 'extractAssignment',
+    data: {
+      symbol: text,
+    },
     loc: operator!.loc,
   });
 }
