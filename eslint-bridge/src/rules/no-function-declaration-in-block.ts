@@ -25,15 +25,18 @@ import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/lo
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getParent, RuleContext } from '../utils';
 
-const message = 'Do not use function declarations within blocks.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      blockedFunction: 'Do not use function declarations within blocks.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       ':not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration':
         (node: estree.Node) => {
           context.report({
-            message,
+            messageId: 'blockedFunction',
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionDeclaration,
               getParent(context) as TSESTree.Node,
