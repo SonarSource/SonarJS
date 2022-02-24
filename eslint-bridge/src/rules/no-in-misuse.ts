@@ -25,9 +25,12 @@ import { isArray, isNumber, isRequiredParserServices } from '../utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -52,7 +55,7 @@ export const rule: Rule.RuleModule = {
             !isNumber(binExpr.left, services)
           ) {
             context.report({
-              message,
+              messageId: 'inMisuse',
               node,
             });
           }
