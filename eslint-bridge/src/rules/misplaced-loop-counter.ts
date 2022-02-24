@@ -33,6 +33,11 @@ class ForInfo {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      misplacedCounter: `This loop's stop condition tests "{{test}}" but the incrementer updates "{{update}}".`,
+    },
+  },
   create(context: Rule.RuleContext) {
     const forLoopStack: ForInfo[] = [];
 
@@ -90,9 +95,11 @@ export const rule: Rule.RuleModule = {
         if (!hasIntersection) {
           context.report({
             loc: context.getSourceCode().getFirstToken(forInfo.forLoop)!.loc,
-            message: `This loop's stop condition tests "${join(
-              forInfo.testedExpressions,
-            )}" but the incrementer updates "${join(forInfo.updatedExpressions)}".`,
+            messageId: 'misplacedCounter',
+            data: {
+              test: join(forInfo.testedExpressions),
+              update: join(forInfo.updatedExpressions),
+            },
           });
         }
       },
