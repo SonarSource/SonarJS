@@ -22,9 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 
-const message = 'Move this "default" clause to the end of this "switch" statement.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      defaultLast: 'Move this "default" clause to the end of this "switch" statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const sourceCode = context.getSourceCode();
     return {
@@ -34,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
         if (defaultPosition >= 0 && defaultPosition !== cases.length - 1) {
           context.report({
-            message,
+            messageId: 'defaultLast',
             loc: sourceCode.getFirstToken(cases[defaultPosition])!.loc,
           });
         }

@@ -24,13 +24,16 @@ import * as estree from 'estree';
 import ts, { TypeFlags } from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode } from '../utils';
 
-const message =
-  'Change the expression which uses this operand so that it can\'t evaluate to "NaN" (Not a Number).';
-
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
 const UNARY_OPERATORS = ['++', '--', '+', '-'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      noEvaluatedNaN:
+        'Change the expression which uses this operand so that it can\'t evaluate to "NaN" (Not a Number).',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -57,10 +60,10 @@ export const rule: Rule.RuleModule = {
         const leftType = getTypeFromTreeNode(expression.left, services);
         const rightType = getTypeFromTreeNode(expression.right, services);
         if (isObjectType(leftType)) {
-          context.report({ node: expression.left, message });
+          context.report({ node: expression.left, messageId: 'noEvaluatedNaN' });
         }
         if (isObjectType(rightType)) {
-          context.report({ node: expression.right, message });
+          context.report({ node: expression.right, messageId: 'noEvaluatedNaN' });
         }
       },
       'UnaryExpression, UpdateExpression': (node: estree.Node) => {
@@ -70,7 +73,7 @@ export const rule: Rule.RuleModule = {
         }
         const argType = getTypeFromTreeNode(expr.argument, services);
         if (isObjectType(argType)) {
-          context.report({ node, message });
+          context.report({ node, messageId: 'noEvaluatedNaN' });
         }
       },
     };

@@ -30,6 +30,11 @@ import {
 } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      nullDereference: 'TypeError can be thrown as "{{symbol}}" might be null or undefined here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -56,7 +61,10 @@ export const rule: Rule.RuleModule = {
       ) {
         alreadyRaisedSymbols.add(symbol);
         context.report({
-          message: `TypeError can be thrown as "${node.name}" might be null or undefined here.`,
+          messageId: 'nullDereference',
+          data: {
+            symbol: node.name,
+          },
           node,
         });
       }

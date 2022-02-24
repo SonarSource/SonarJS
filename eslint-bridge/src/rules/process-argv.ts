@@ -24,12 +24,17 @@ import * as estree from 'estree';
 import { isMemberExpression } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeArg: `Make sure that command line arguments are used safely here.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       MemberExpression(node: estree.Node) {
         if (isMemberExpression(node, 'process', 'argv')) {
           context.report({
-            message: `Make sure that command line arguments are used safely here.`,
+            messageId: 'safeArg',
             node,
           });
         }

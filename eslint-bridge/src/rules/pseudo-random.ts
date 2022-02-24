@@ -24,13 +24,18 @@ import * as estree from 'estree';
 import { isMemberExpression } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeGenerator: 'Make sure that using this pseudorandom number generator is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
         const { callee } = node as estree.CallExpression;
         if (isMemberExpression(callee, 'Math', 'random')) {
           context.report({
-            message: `Make sure that using this pseudorandom number generator is safe here.`,
+            messageId: 'safeGenerator',
             node,
           });
         }

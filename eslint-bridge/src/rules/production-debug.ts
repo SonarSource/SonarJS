@@ -29,10 +29,14 @@ import {
 } from '../utils';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
-const message =
-  'Make sure this debug feature is deactivated before delivering the code in production.';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      deactivateDebug:
+        'Make sure this debug feature is deactivated before delivering the code in production.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
@@ -65,7 +69,7 @@ function checkErrorHandlerMiddleware(
       ) {
         context.report({
           node: middleware,
-          message,
+          messageId: 'deactivateDebug',
         });
       }
     }

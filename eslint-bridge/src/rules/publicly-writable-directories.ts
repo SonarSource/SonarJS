@@ -42,8 +42,12 @@ const WINDOWS_DIRECTORIES_PATTERN = new RegExp(
 );
 const SENSITIVE_ENV_VARIABLES = ['TMPDIR', 'TMP', 'TEMPDIR', 'TEMP'];
 
-const MESSAGE = 'Make sure publicly writable directories are used safely here.';
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeDirectory: 'Make sure publicly writable directories are used safely here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       Literal: (node: estree.Node) => {
@@ -56,7 +60,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             node: literal,
-            message: MESSAGE,
+            messageId: 'safeDirectory',
           });
         }
       },
@@ -76,7 +80,7 @@ export const rule: Rule.RuleModule = {
           object.object.type === 'Identifier' &&
           object.object.name === 'process'
         ) {
-          context.report({ node: memberExpression, message: MESSAGE });
+          context.report({ node: memberExpression, messageId: 'safeDirectory' });
         }
       },
     };

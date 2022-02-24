@@ -33,11 +33,14 @@ const SPAWN_EXEC_FILE_FUNCTIONS = ['spawn', 'spawnSync', 'execFile', 'execFileSy
 
 const CHILD_PROCESS_MODULE = 'child_process';
 
-const MESSAGE = 'Make sure that executing this OS command is safe here.';
-
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeOSCommand: 'Make sure that executing this OS command is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>
@@ -70,7 +73,7 @@ function checkOSCommand(
   if (moduleName && moduleName.value === CHILD_PROCESS_MODULE && isQuestionable(callee, args)) {
     context.report({
       node: callee,
-      message: MESSAGE,
+      messageId: 'safeOSCommand',
     });
   }
 }
