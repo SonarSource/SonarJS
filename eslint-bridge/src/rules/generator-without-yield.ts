@@ -23,9 +23,12 @@ import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/lo
 import { getParent, RuleContext } from '../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const MESSAGE = 'Add a "yield" statement to this generator.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      addYield: 'Add a "yield" statement to this generator.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const yieldStack: number[] = [];
 
@@ -38,7 +41,7 @@ export const rule: Rule.RuleModule = {
       const countYield = yieldStack.pop();
       if (countYield === 0 && functionNode.body.body.length > 0) {
         context.report({
-          message: MESSAGE,
+          messageId: 'addYield',
           loc: getMainFunctionTokenLocation(
             functionNode as TSESTree.FunctionLike,
             getParent(context) as TSESTree.Node,
