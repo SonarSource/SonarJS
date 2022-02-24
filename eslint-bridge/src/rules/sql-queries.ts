@@ -23,13 +23,16 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequireModule, isMemberWithProperty } from '../utils';
 
-const message = `Make sure that executing SQL queries is safe here.`;
-
 const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
 
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeQuery: `Make sure that executing SQL queries is safe here.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     let isDbModuleImported = false;
 
@@ -61,7 +64,7 @@ export const rule: Rule.RuleModule = {
           isQuestionable(args[0])
         ) {
           context.report({
-            message,
+            messageId: 'safeQuery',
             node: callee,
           });
         }
