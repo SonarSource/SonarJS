@@ -24,6 +24,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeCode: 'Make sure that this dynamic injection or execution of code is safe.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>
@@ -39,7 +44,7 @@ function checkCallExpression(node: estree.CallExpression, context: Rule.RuleCont
     const { name } = node.callee;
     if ((name === 'eval' || name === 'Function') && hasAtLeastOneVariableArgument(node.arguments)) {
       context.report({
-        message: `Make sure that this dynamic injection or execution of code is safe.`,
+        messageId: 'safeCode',
         node: node.callee,
       });
     }
