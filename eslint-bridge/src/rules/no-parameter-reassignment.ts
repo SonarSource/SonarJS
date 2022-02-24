@@ -36,6 +36,12 @@ interface ReassignmentContext {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      noReassignment:
+        'Introduce a new variable or use its initial value before reassigning "{{reference}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     let variableUsageContext: ReassignmentContext = {
       type: 'global',
@@ -96,9 +102,10 @@ export const rule: Rule.RuleModule = {
     function raiseIssue(reference: Scope.Reference) {
       const locationHolder = getPreciseLocationHolder(reference);
       context.report({
-        message:
-          `Introduce a new variable or use its initial value ` +
-          `before reassigning "${reference.identifier.name}".`,
+        messageId: 'noReassignment',
+        data: {
+          reference: reference.identifier.name,
+        },
         ...locationHolder,
       });
     }
