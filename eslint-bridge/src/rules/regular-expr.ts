@@ -27,9 +27,12 @@ const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;
 const specialChars = ['+', '*', '{'];
 
-const message = 'Make sure that using a regular expression is safe here.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeRegex: 'Make sure that using a regular expression is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       Literal(node: estree.Node) {
@@ -38,7 +41,7 @@ export const rule: Rule.RuleModule = {
           const { pattern } = regex;
           if (isUnsafeRegexLiteral(pattern)) {
             context.report({
-              message,
+              messageId: 'safeRegex',
               node,
             });
           }
@@ -71,7 +74,7 @@ function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
     isUnsafeRegexLiteral(firstArg.value)
   ) {
     context.report({
-      message,
+      messageId: 'safeRegex',
       node: firstArg,
     });
   }

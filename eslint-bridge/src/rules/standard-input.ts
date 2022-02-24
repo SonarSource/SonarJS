@@ -24,12 +24,17 @@ import * as estree from 'estree';
 import { isMemberExpression } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeStdin: `Make sure that reading the standard input is safe here.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       MemberExpression(node: estree.Node) {
         if (isMemberExpression(node, 'process', 'stdin')) {
           context.report({
-            message: `Make sure that reading the standard input is safe here.`,
+            messageId: 'safeStdin',
             node,
           });
         }

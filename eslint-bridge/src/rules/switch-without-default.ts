@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      switchDefault: `Add a "default" clause to this "switch" statement.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       SwitchStatement(node: estree.Node) {
@@ -33,7 +38,7 @@ export const rule: Rule.RuleModule = {
             .getSourceCode()
             .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'switch')!;
           context.report({
-            message: `Add a "default" clause to this "switch" statement.`,
+            messageId: 'switchDefault',
             loc: switchKeyword.loc,
           });
         }

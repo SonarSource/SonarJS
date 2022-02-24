@@ -24,6 +24,12 @@ import * as estree from 'estree';
 import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      switchEnd:
+        'End this switch case with an unconditional break, continue, return or throw statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
@@ -97,8 +103,7 @@ export const rule: Rule.RuleModule = {
           noComment(switchCase)
         ) {
           context.report({
-            message:
-              'End this switch case with an unconditional break, continue, return or throw statement.',
+            messageId: 'switchEnd',
             loc: context.getSourceCode().getFirstToken(node)!.loc,
           });
         }

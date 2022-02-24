@@ -30,6 +30,10 @@ import { getParent, RuleContext } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    messages: {
+      functionMaxLine:
+        'This function has {{lineCount}} lines, which is greater than the {{threshold}} lines authorized. Split it into smaller functions.',
+    },
     schema: [{ type: 'integer' }],
   },
   create(context: Rule.RuleContext) {
@@ -52,7 +56,11 @@ export const rule: Rule.RuleModule = {
 
         if (lineCount > threshold) {
           context.report({
-            message: `This function has ${lineCount} lines, which is greater than the ${threshold} lines authorized. Split it into smaller functions.`,
+            messageId: 'functionMaxLine',
+            data: {
+              lineCount: lineCount.toString(),
+              threshold,
+            },
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionLike,
               getParent(context) as TSESTree.Node,
