@@ -23,8 +23,6 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isMemberWithProperty, isLiteral } from '../utils';
 
-const message = `Make sure disabling Angular built-in sanitization is safe here.`;
-
 const bypassMethods = [
   'bypassSecurityTrustHtml',
   'bypassSecurityTrustStyle',
@@ -34,6 +32,11 @@ const bypassMethods = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      checkAngularBypass: 'Make sure disabling Angular built-in sanitization is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => {
@@ -45,7 +48,7 @@ export const rule: Rule.RuleModule = {
           !isHardcodedLiteral(args[0])
         ) {
           context.report({
-            message,
+            messageId: 'checkAngularBypass',
             node: (callee as estree.MemberExpression).property,
           });
         }
