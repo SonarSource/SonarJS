@@ -35,6 +35,12 @@ interface CompleteForStatement extends estree.BaseStatement {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      replaceOperator:
+        "Replace '{{operator}}' operator with one of '<=', '>=', '<', or '>' comparison operators.",
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       ForStatement: (node: estree.Node) => {
@@ -50,9 +56,10 @@ export const rule: Rule.RuleModule = {
           !isException(completeForStatement, context)
         ) {
           context.report({
-            message:
-              `Replace '${condition.operator}' operator with ` +
-              `one of '<=', '>=', '<', or '>' comparison operators.`,
+            messageId: 'replaceOperator',
+            data: {
+              operator: condition.operator,
+            },
             node: condition,
           });
         }
