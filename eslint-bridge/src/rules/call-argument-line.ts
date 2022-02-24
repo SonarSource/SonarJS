@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      moveArguments: 'Make those call arguments start on line {{line}}.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => {
@@ -38,13 +43,12 @@ export const rule: Rule.RuleModule = {
             .loc.end.line;
           const { start } = sourceCode.getTokenAfter(call.callee)!.loc;
           if (calleeLastLine !== start.line) {
-            const message = `Make those call arguments start on line ${calleeLastLine}`;
             const { end } = sourceCode.getLastToken(call)!.loc;
             if (end.line !== start.line) {
               //If arguments span multiple lines, we only report the first one
-              reportIssue(start, message, context);
+              reportIssue(start, calleeLastLine, context);
             } else {
-              reportIssue({ start, end }, message, context);
+              reportIssue({ start, end }, calleeLastLine, context);
             }
           }
         }
@@ -55,11 +59,14 @@ export const rule: Rule.RuleModule = {
 
 function reportIssue(
   loc: { start: estree.Position; end: estree.Position } | estree.Position,
-  message: string,
+  line: number,
   context: Rule.RuleContext,
 ) {
   context.report({
-    message,
+    messageId: 'moveArguments',
+    data: {
+      line: line.toString(),
+    },
     loc,
   });
 }

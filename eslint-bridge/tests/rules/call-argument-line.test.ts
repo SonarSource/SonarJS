@@ -61,7 +61,7 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
         (bar);`,
       errors: [
         {
-          message: `Make those call arguments start on line 2`,
+          message: `Make those call arguments start on line 2.`,
           line: 3,
           endLine: 3,
           column: 9,
@@ -77,7 +77,7 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
       ))`,
       errors: [
         {
-          message: `Make those call arguments start on line 1`,
+          message: `Make those call arguments start on line 1.`,
           line: 2,
           column: 7,
         },
