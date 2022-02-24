@@ -51,6 +51,11 @@ const EXCEPTION_FULL_HOSTS = [
 const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      insecureProtocol: 'Using {{protocol}} protocol is insecure. Use {{alternative}} instead.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function checkNodemailer(callExpression: estree.CallExpression) {
       const firstArg = callExpression.arguments.length > 0 ? callExpression.arguments[0] : null;
@@ -70,7 +75,7 @@ export const rule: Rule.RuleModule = {
       if (port && (port.value.type !== 'Literal' || port.value.raw === '465')) {
         return;
       }
-      context.report({ node: callExpression.callee, message: getMessage('http') });
+      context.report({ node: callExpression.callee, ...getMessageAndData('http') });
     }
 
     function checkCallToFtp(callExpression: estree.CallExpression) {
@@ -97,7 +102,7 @@ export const rule: Rule.RuleModule = {
           if (secure && secure.value.type === 'Literal' && secure.value.raw === 'false') {
             context.report({
               node: callExpression.callee,
-              message: getMessage('ftp'),
+              ...getMessageAndData('ftp'),
             });
           }
         }
@@ -115,7 +120,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             node: firstArg,
-            message: getMessage('telnet'),
+            ...getMessageAndData('telnet'),
           });
         }
       }
@@ -156,7 +161,7 @@ export const rule: Rule.RuleModule = {
           if (insecure && !isExceptionUrl(value)) {
             const protocol = insecure.substring(0, insecure.indexOf(':'));
             context.report({
-              message: getMessage(protocol),
+              ...getMessageAndData(protocol),
               node,
             });
           }
@@ -178,7 +183,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             node: importDeclaration.source,
-            message: getMessage('telnet'),
+            ...getMessageAndData('telnet'),
           });
         }
       },
@@ -186,7 +191,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getMessage(protocol: string) {
+function getMessageAndData(protocol: string) {
   let alternative;
   switch (protocol) {
     case 'http':
@@ -198,5 +203,5 @@ function getMessage(protocol: string) {
     default:
       alternative = 'ssh';
   }
-  return `Using ${protocol} protocol is insecure. Use ${alternative} instead.`;
+  return { messageId: 'insecureProtocol', data: { protocol, alternative } };
 }
