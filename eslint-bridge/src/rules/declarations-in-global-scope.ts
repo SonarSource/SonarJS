@@ -23,6 +23,12 @@ import * as estree from 'estree';
 import { isIdentifier } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      defineLocally:
+        'Define this declaration in a local scope or bind explicitly the property to the global object.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       Program() {
@@ -42,8 +48,7 @@ export const rule: Rule.RuleModule = {
             ) {
               context.report({
                 node: defNode,
-                message:
-                  'Define this declaration in a local scope or bind explicitly the property to the global object.',
+                messageId: 'defineLocally',
               });
               return;
             }
