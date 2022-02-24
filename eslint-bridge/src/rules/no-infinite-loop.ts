@@ -28,10 +28,15 @@ const noUnmodifiedLoopEslint = interceptReport(
   linter.getRules().get('no-unmodified-loop-condition')!,
   onReport,
 );
-const MESSAGE = "Correct this loop's end condition to not be invariant.";
+
 export const rule: Rule.RuleModule = {
-  // we copy the meta to have proper messageId
-  meta: noUnmodifiedLoopEslint.meta,
+  meta: {
+    messages: {
+      noInfiniteLoop: "Correct this loop's end condition to not be invariant.",
+      // we copy the meta to have proper messageId
+      ...noUnmodifiedLoopEslint.meta?.messages,
+    },
+  },
   create(context: Rule.RuleContext) {
     const noUnmodifiedLoopListener = noUnmodifiedLoopEslint.create(context);
     return {
@@ -52,7 +57,7 @@ export const rule: Rule.RuleModule = {
             const firstToken = context.getSourceCode().getFirstToken(node);
             context.report({
               loc: firstToken!.loc,
-              message: MESSAGE,
+              messageId: 'noInfiniteLoop',
             });
           }
         }
@@ -71,7 +76,7 @@ function checkWhileStatement(node: estree.Node, context: Rule.RuleContext) {
     const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
     if (!hasEndCondition) {
       const firstToken = context.getSourceCode().getFirstToken(node);
-      context.report({ loc: firstToken!.loc, message: MESSAGE });
+      context.report({ loc: firstToken!.loc, messageId: 'noInfiniteLoop' });
     }
   }
 }
