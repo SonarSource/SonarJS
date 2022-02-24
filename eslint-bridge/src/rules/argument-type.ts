@@ -26,6 +26,12 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import ts, { SyntaxKind } from 'typescript';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      verifyType:
+        "Verify that argument is of correct type: expected '{{expected}}' instead of '{{actual}}'.",
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -108,9 +114,11 @@ export const rule: Rule.RuleModule = {
           if (mismatch) {
             context.report({
               node: mismatch.node,
-              message: `Verify that argument is of correct type: expected '${typeToString(
-                mismatch.declaredType,
-              )}' instead of '${typeToString(mismatch.actualType)}'.`,
+              messageId: 'verifyType',
+              data: {
+                expected: typeToString(mismatch.declaredType),
+                actual: typeToString(mismatch.actualType),
+              },
             });
           }
         }
