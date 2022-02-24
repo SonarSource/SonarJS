@@ -27,6 +27,11 @@ const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeDelete: 'Remove this use of "delete".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
@@ -47,7 +52,7 @@ export const rule: Rule.RuleModule = {
 function raiseIssue(context: Rule.RuleContext): void {
   const deleteKeyword = context.getSourceCode().getFirstToken(getParent(context)!);
   context.report({
-    message: `Remove this use of "delete".`,
+    messageId: 'removeDelete',
     loc: deleteKeyword!.loc,
   });
 }
