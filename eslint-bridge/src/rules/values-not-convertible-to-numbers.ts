@@ -29,11 +29,15 @@ import {
   isStringType,
 } from '../utils';
 
-const message = (typeName: string) =>
-  `Re-evaluate the data flow; this operand of a numeric comparison could be of type ${typeName}.`;
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reEvaluateDataFlow:
+        'Re-evaluate the data flow; this operand of a numeric comparison could be of type {{type}}.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services: RequiredParserServices = context.parserServices;
 
@@ -62,13 +66,19 @@ export const rule: Rule.RuleModule = {
         const isRightConvertibleToNumber = isConvertibleToNumber(rightType, checker);
         if (!isLeftConvertibleToNumber) {
           context.report({
-            message: message(checker.typeToString(leftType)),
+            messageId: 'reEvaluateDataFlow',
+            data: {
+              type: checker.typeToString(leftType),
+            },
             node: left,
           });
         }
         if (!isRightConvertibleToNumber) {
           context.report({
-            message: message(checker.typeToString(rightType)),
+            messageId: 'reEvaluateDataFlow',
+            data: {
+              type: checker.typeToString(rightType),
+            },
             node: right,
           });
         }

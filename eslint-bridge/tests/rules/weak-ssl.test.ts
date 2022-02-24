@@ -178,7 +178,7 @@ const secureProtocol = {
       `,
       errors: [
         {
-          message: "Change 'secureProtocol' to use at least TLS v1.2",
+          message: "Change 'secureProtocol' to use at least TLS v1.2.",
           line: 5,
           column: 25,
           endLine: 5,

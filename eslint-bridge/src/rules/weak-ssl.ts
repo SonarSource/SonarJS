@@ -38,6 +38,12 @@ const SECURE_PROTOCOL_ALLOWED_VALUES = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useMinimumTLS: "Change '{{option}}' to use at least TLS v1.2.",
+      useSecureTLS: "Change '{{option}}' to allow only secure TLS versions.",
+    },
+  },
   create(context: Rule.RuleContext) {
     function getValueOfProperty(
       objectExpression: estree.ObjectExpression | undefined,
@@ -54,7 +60,10 @@ export const rule: Rule.RuleModule = {
       if (property && (property.value === 'TLSv1.1' || property.value === 'TLSv1')) {
         context.report({
           node: property,
-          message: `Change \'${propertyName}\' to use at least TLS v1.2.`,
+          messageId: 'useMinimumTLS',
+          data: {
+            option: propertyName,
+          },
         });
       }
     }
@@ -71,7 +80,10 @@ export const rule: Rule.RuleModule = {
       if (secureProtocol && !SECURE_PROTOCOL_ALLOWED_VALUES.includes(secureProtocolValue)) {
         context.report({
           node: secureProtocol,
-          message: "Change 'secureProtocol' to use at least TLS v1.2",
+          messageId: 'useMinimumTLS',
+          data: {
+            option: 'secureProtocol',
+          },
         });
       }
 
@@ -79,7 +91,10 @@ export const rule: Rule.RuleModule = {
       if (secureOptions && !isValidSecureOptions(secureOptions.value)) {
         context.report({
           node: secureOptions,
-          message: "Change 'secureOptions' to allow only secure TLS versions.",
+          messageId: 'useSecureTLS',
+          data: {
+            option: 'secureOptions',
+          },
         });
       }
     }

@@ -28,6 +28,11 @@ import { isRequiredParserServices } from '../utils';
 const EXCLUDED_IMPORTS = ['React'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeUnusedImport: `Remove this unused import of '{{symbol}}'.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     const isJsxPragmaSet =
       context
@@ -104,7 +109,10 @@ export const rule: Rule.RuleModule = {
           )
           .forEach(unused =>
             context.report({
-              message: `Remove this unused import of '${unused.name}'.`,
+              messageId: 'removeUnusedImport',
+              data: {
+                symbol: unused.name,
+              },
               node: unused,
             }),
           );

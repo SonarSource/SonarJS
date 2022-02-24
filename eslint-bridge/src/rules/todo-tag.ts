@@ -22,15 +22,19 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const todoMessage = 'Complete the task associated to this "TODO" comment.';
 const todoPattern = 'todo';
 const letterPattern = /[\p{Letter}]/u;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      completeTODO: 'Complete the task associated to this "TODO" comment.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, todoPattern, todoMessage);
+        reportPatternInComment(context, todoPattern, 'completeTODO');
       },
     };
   },
@@ -39,7 +43,7 @@ export const rule: Rule.RuleModule = {
 export function reportPatternInComment(
   context: Rule.RuleContext,
   pattern: string,
-  message: string,
+  messageId: string,
 ) {
   const sourceCode = context.getSourceCode();
   (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
@@ -52,7 +56,7 @@ export function reportPatternInComment(
         const index = lines[i].indexOf(pattern);
         if (index >= 0 && !isLetterAround(lines[i], index, pattern)) {
           context.report({
-            message,
+            messageId,
             loc: getPatternPosition(i, index, comment, pattern),
           });
         }

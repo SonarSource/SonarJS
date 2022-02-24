@@ -27,12 +27,17 @@ import { Express } from './utils-express';
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
 const HEADER_X_POWERED_BY = 'X-Powered-By'.toLowerCase();
-const MESSAGE = 'Make sure disclosing the fingerprinting of this web technology is safe here.';
 const PROTECTING_MIDDLEWARES = [HELMET, HIDE_POWERED_BY];
 /** Expected number of arguments in `app.set`. */
 const APP_SET_NUM_ARGS = 2;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      disclosingFingerprinting:
+        'Make sure disclosing the fingerprinting of this web technology is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     let appInstantiation: estree.Identifier | null = null;
     let isSafe = false;
@@ -70,7 +75,7 @@ export const rule: Rule.RuleModule = {
         if (!isSafe && appInstantiation) {
           context.report({
             node: appInstantiation,
-            message: MESSAGE,
+            messageId: 'disclosingFingerprinting',
           });
         }
       },

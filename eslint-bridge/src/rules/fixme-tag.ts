@@ -22,14 +22,18 @@
 import { Rule } from 'eslint';
 import { reportPatternInComment } from './todo-tag';
 
-const fixmeMessage = 'Take the required action to fix the issue indicated by this comment.';
 const fixmePattern = 'fixme';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      fixme: 'Take the required action to fix the issue indicated by this comment.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, fixmePattern, fixmeMessage);
+        reportPatternInComment(context, fixmePattern, 'fixme');
       },
     };
   },

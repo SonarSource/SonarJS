@@ -30,6 +30,11 @@ interface FunctionLike {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       VariableDeclaration: (node: estree.Node) =>
@@ -86,7 +91,12 @@ function raiseOnInvalidIdentifier(
   const { name } = id;
   if (!name.match(format)) {
     context.report({
-      message: `Rename this ${idType} "${name}" to match the regular expression ${format}.`,
+      messageId: 'renameSymbol',
+      data: {
+        symbol: name,
+        symbolType: idType,
+        format,
+      },
       node: id,
     });
   }
