@@ -23,11 +23,19 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeIncrement: 'Remove this {{updateOperator}}rement or correct the code not to waste it.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(updateExpression: estree.UpdateExpression) {
       const updateOperator = updateExpression.operator === '++' ? 'inc' : 'dec';
       context.report({
-        message: `Remove this ${updateOperator}rement or correct the code not to waste it.`,
+        messageId: 'removeIncrement',
+        data: {
+          updateOperator,
+        },
         node: updateExpression,
       });
     }
