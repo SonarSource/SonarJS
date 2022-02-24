@@ -81,7 +81,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replaceAll(/(\d+)/, '$0')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $0',
+          message: 'Referencing non-existing group: $0.',
           line: 1,
           column: 26,
         },
@@ -91,7 +91,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(\d+)/, '$0')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $0',
+          message: 'Referencing non-existing group: $0.',
           line: 1,
           column: 23,
         },
@@ -101,7 +101,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(\d+)/, '$2')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $2',
+          message: 'Referencing non-existing group: $2.',
           line: 1,
           column: 23,
         },
@@ -111,7 +111,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(\d+)\s(\d+)/, '$0 $1 $2 $3')`,
       errors: [
         {
-          message: 'Referencing non-existing groups: $0, $3',
+          message: 'Referencing non-existing groups: $0, $3.',
           line: 1,
           column: 28,
         },
@@ -121,7 +121,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(?<first>\w+)/, '$<second>')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $<second>',
+          message: 'Referencing non-existing group: $<second>.',
           line: 1,
           column: 31,
         },
@@ -131,7 +131,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(?<first>\w+)\s(?<second>\w+)/, '$<first> $<third> $<second> $<fourth>')`,
       errors: [
         {
-          message: 'Referencing non-existing groups: $<third>, $<fourth>',
+          message: 'Referencing non-existing groups: $<third>, $<fourth>.',
           line: 1,
           column: 45,
         },
@@ -141,7 +141,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replace(/(?<first>\w+)/, '$0 $<first> $<second>')`,
       errors: [
         {
-          message: 'Referencing non-existing groups: $0, $<second>',
+          message: 'Referencing non-existing groups: $0, $<second>.',
           line: 1,
           column: 31,
         },
@@ -151,7 +151,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `'str'.replaceAll(new RegExp('(\d+)'), '$0')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $0',
+          message: 'Referencing non-existing group: $0.',
           line: 1,
           column: 38,
         },
@@ -163,7 +163,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
         'str'.replaceAll(new RegExp(pattern), '$0')`,
       errors: [
         {
-          message: 'Referencing non-existing group: $0',
+          message: 'Referencing non-existing group: $0.',
           line: 3,
           column: 47,
         },
@@ -173,7 +173,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
       code: `
         const pattern = /(\d+)/;
         'str'.replaceAll(pattern, '$0')`,
-      errors: [{ message: 'Referencing non-existing group: $0' }],
+      errors: [{ message: 'Referencing non-existing group: $0.' }],
     },
   ],
 });
