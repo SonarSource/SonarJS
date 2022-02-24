@@ -24,6 +24,11 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      refactorUnion: 'Refactor this union type to have less than {{threshold}} elements.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       TSUnionType: (node: estree.Node) => {
@@ -31,7 +36,10 @@ export const rule: Rule.RuleModule = {
         const [threshold] = context.options;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
-            message: `Refactor this union type to have less than ${threshold} elements.`,
+            messageId: 'refactorUnion',
+            data: {
+              threshold,
+            },
             node,
           });
         }
