@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeThis: `Remove the use of "this".`,
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'MemberExpression[object.type="ThisExpression"]'(node: estree.Node) {
@@ -35,7 +40,7 @@ export const rule: Rule.RuleModule = {
           );
         if ((scopeType === 'global' || scopeType === 'module') && !isInsideClass) {
           context.report({
-            message: `Remove the use of "this".`,
+            messageId: 'removeThis',
             node: memberExpression.object,
           });
         }
