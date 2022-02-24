@@ -23,13 +23,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
-const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
-const MESSAGE_ADD_BODY = 'Add curly braces and "return" to this arrow function body.';
-const MESSAGE_REMOVE_BODY = 'Remove curly braces and "return" from this arrow function body.';
-
 export const rule: Rule.RuleModule = {
   meta: {
+    messages: {
+      addParameter: 'Add parentheses around the parameter of this arrow function.',
+      removeParameter: 'Remove parentheses around the parameter of this arrow function.',
+      addBody: 'Add curly braces and "return" to this arrow function body.',
+      removeBody: 'Remove curly braces and "return" from this arrow function body.',
+    },
     schema: [
       {
         type: 'object',
@@ -76,7 +77,7 @@ function checkParameters(
   const hasParameterParentheses = tokenAfterParameter && tokenAfterParameter.value === ')';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
-    context.report({ node: parameter, message: MESSAGE_ADD_PARAMETER });
+    context.report({ node: parameter, messageId: 'addParameter' });
   } else if (
     !requireParameterParentheses &&
     !hasGeneric(context, arrowFunction) &&
@@ -94,7 +95,7 @@ function checkParameters(
       !(parameter as TSESTree.Identifier).typeAnnotation &&
       !(arrowFunction as TSESTree.ArrowFunctionExpression).returnType
     ) {
-      context.report({ node: parameter, message: MESSAGE_REMOVE_PARAMETER });
+      context.report({ node: parameter, messageId: 'removeParameter' });
     }
   }
 }
@@ -112,13 +113,13 @@ function checkBody(
 ) {
   const hasBodyBraces = arrowFunction.body.type === 'BlockStatement';
   if (requireBodyBraces && !hasBodyBraces) {
-    context.report({ node: arrowFunction.body, message: MESSAGE_ADD_BODY });
+    context.report({ node: arrowFunction.body, messageId: 'addBody' });
   } else if (!requireBodyBraces && hasBodyBraces) {
     const statements = (arrowFunction.body as estree.BlockStatement).body;
     if (statements.length === 1) {
       const statement = statements[0];
       if (isRemovableReturn(statement)) {
-        context.report({ node: arrowFunction.body, message: MESSAGE_REMOVE_BODY });
+        context.report({ node: arrowFunction.body, messageId: 'removeBody' });
       }
     }
   }
