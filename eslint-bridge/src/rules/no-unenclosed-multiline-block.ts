@@ -41,6 +41,16 @@ type NestingStatement =
   | estree.WhileStatement;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      onlyFirstStatement:
+        'This statement will not be executed {{expected}}; only the first statement will be. ' +
+        'The rest will execute {{actual}}.',
+      onlyFirstLine:
+        'This line will not be executed {{expected}}; only the first line of this {{lineCount}}-line block will be. ' +
+        'The rest will execute {{actual}}.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       Program: (node: estree.Node) => checkStatements((node as estree.Program).body, context),
@@ -115,9 +125,11 @@ function countStatementsInTheSamePile(reference: Statement, statements: Statemen
 
 function raiseAdjacenceIssue(adjacentStatements: ChainedStatements, context: Rule.RuleContext) {
   context.report({
-    message:
-      `This statement will not be executed ${adjacentStatements.includedStatementQualifier()}; only the first statement will be. ` +
-      `The rest will execute ${adjacentStatements.excludedStatementsQualifier()}.`,
+    messageId: 'onlyFirstStatement',
+    data: {
+      expected: adjacentStatements.includedStatementQualifier(),
+      actual: adjacentStatements.excludedStatementsQualifier(),
+    },
     node: adjacentStatements.next,
   });
 }
@@ -128,9 +140,12 @@ function raiseBlockIssue(
   context: Rule.RuleContext,
 ) {
   context.report({
-    message:
-      `This line will not be executed ${piledStatements.includedStatementQualifier()}; only the first line of this ${sizeOfPile}-line block will be. ` +
-      `The rest will execute ${piledStatements.excludedStatementsQualifier()}.`,
+    messageId: 'onlyFirstLine',
+    data: {
+      expected: piledStatements.includedStatementQualifier(),
+      actual: piledStatements.excludedStatementsQualifier(),
+      lineCount: sizeOfPile.toString(),
+    },
     node: piledStatements.next,
   });
 }
@@ -140,9 +155,11 @@ function raiseInlineAndIndentedIssue(
   context: Rule.RuleContext,
 ) {
   context.report({
-    message:
-      `This line will not be executed ${chainedStatements.includedStatementQualifier()}; only the first statement will be. ` +
-      `The rest will execute ${chainedStatements.excludedStatementsQualifier()}.`,
+    messageId: 'onlyFirstStatement',
+    data: {
+      expected: chainedStatements.includedStatementQualifier(),
+      actual: chainedStatements.excludedStatementsQualifier(),
+    },
     node: chainedStatements.next,
   });
 }
