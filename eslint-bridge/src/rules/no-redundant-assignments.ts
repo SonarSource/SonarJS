@@ -35,9 +35,13 @@ import {
   Values,
 } from './reachingDefinitions';
 
-const message = (name: string) =>
-  `Review this redundant assignment: "${name}" already holds the assigned value along all execution paths.`;
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reviewAssignment:
+        'Review this redundant assignment: "{{symbol}}" already holds the assigned value along all execution paths.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
     const reachingDefsMap = new Map<string, ReachingDefinitions>();
@@ -127,7 +131,10 @@ export const rule: Rule.RuleModule = {
       if (!isWrittenOnlyOnce(variable!) && lhsVal === rhsVal) {
         context.report({
           node: node!,
-          message: message(name),
+          messageId: 'reviewAssignment',
+          data: {
+            symbol: name,
+          },
         });
       }
     }
