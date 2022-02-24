@@ -23,6 +23,11 @@ import * as estree from 'estree';
 import { isRequiredParserServices, RequiredParserServices, isFunction, isString } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      standardImport: 'Use a standard "import" statement instead of "{{adhocImport}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -41,7 +46,10 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             node: identifier,
-            message: `Use a standard "import" statement instead of "${identifier.name}".`,
+            messageId: 'standardImport',
+            data: {
+              adhocImport: identifier.name,
+            },
           });
         }
       },
