@@ -24,6 +24,11 @@ import { isCallToFQN, getValueOfExpression } from '../utils';
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      strongerCipher: 'Use a strong cipher algorithm.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
@@ -37,7 +42,7 @@ export const rule: Rule.RuleModule = {
             WEAK_CIPHERS.findIndex(cipher => algorithmValue.startsWith(cipher)) >= 0
           ) {
             context.report({
-              message: 'Use a strong cipher algorithm.',
+              messageId: 'strongerCipher',
               node: algorithm,
             });
           }
