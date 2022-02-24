@@ -33,6 +33,11 @@ interface GroupComment {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      commentedCode: 'Remove this commented out code.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function getGroupedComments(comments: TSESTree.Comment[]): GroupComment[] {
       const groupedComments: GroupComment[] = [];
@@ -82,7 +87,7 @@ export const rule: Rule.RuleModule = {
           const rawTextTrimmed = groupComment.value.trim();
           if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
             context.report({
-              message: 'Remove this commented out code.',
+              messageId: 'commentedCode',
               loc: getCommentLocation(groupComment.nodes),
             });
           }
