@@ -24,6 +24,11 @@ import * as estree from 'estree';
 import { isRequiredParserServices, isThenable } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeVoid: 'Remove this use of the "void" operator.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     function checkNode(node: estree.Node) {
@@ -34,7 +39,7 @@ export const rule: Rule.RuleModule = {
       const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
       context.report({
         loc: operatorToken!.loc, // cannot be null due to previous checks
-        message: 'Remove this use of the "void" operator.',
+        messageId: 'removeVoid',
       });
     }
 
