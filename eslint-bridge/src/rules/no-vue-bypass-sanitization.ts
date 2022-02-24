@@ -21,9 +21,12 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 
-const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeVueBypassing: 'Make sure bypassing Vue built-in sanitization is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -37,10 +40,10 @@ export const rule: Rule.RuleModule = {
         "Property[key.name='domProps'] > ObjectExpression.value > Property[key.name='innerHTML']"](
         node: estree.Node,
       ) {
-        context.report({ node, message });
+        context.report({ node, messageId: 'safeVueBypassing' });
       },
       [`${attrsHref('createElement')},${attrsHref('h')}`](node: estree.Node) {
-        context.report({ node, message });
+        context.report({ node, messageId: 'safeVueBypassing' });
       },
     };
 
@@ -52,7 +55,7 @@ export const rule: Rule.RuleModule = {
           "VAttribute[directive=true][key.argument.name='href']"](node: AST.VAttribute) {
           context.report({
             loc: node.loc,
-            message,
+            messageId: 'safeVueBypassing',
           });
         },
       });
