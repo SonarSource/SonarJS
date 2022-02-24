@@ -30,9 +30,13 @@ import {
   getValueOfExpression,
 } from '../utils';
 
-const message =
-  'Create a new session during user authentication to prevent session fixation attacks.';
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      createSession:
+        'Create a new session during user authentication to prevent session fixation attacks.',
+    },
+  },
   create(context: Rule.RuleContext) {
     let sessionRegenerate = false;
 
@@ -83,7 +87,7 @@ export const rule: Rule.RuleModule = {
               sessionRegenerate = false;
               visitCallback(callback);
               if (!sessionRegenerate) {
-                context.report({ node: callback, message });
+                context.report({ node: callback, messageId: 'createSession' });
               }
             }
           }
