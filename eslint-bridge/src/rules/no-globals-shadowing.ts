@@ -24,13 +24,23 @@ import * as estree from 'estree';
 
 const illegalNames = ['eval', 'arguments', 'undefined', 'NaN', 'Infinity'];
 
-const getDeclareMessage = (redeclareType: string) => (name: string) =>
-  `Do not use "${name}" to declare a ${redeclareType} - use another name.`;
+const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
+  messageId: 'forbidDeclaration',
+  data: { symbol: name, type: redeclareType },
+});
 
-const getModificationMessage = (functionName: string) =>
-  `Remove the modification of "${functionName}".`;
+const getModificationIssue = (functionName: string) => ({
+  messageId: 'removeModification',
+  data: { symbol: functionName },
+});
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeModification: 'Remove the modification of "{{symbol}}".',
+      forbidDeclaration: 'Do not use "{{symbol}}" to declare a {{type}} - use another name.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression': function (node: estree.Node) {
@@ -42,17 +52,21 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
-          reportBadUsage(decl.id, getDeclareMessage('variable'), context);
+          reportBadUsage(decl.id, getDeclarationIssue('variable'), context);
         });
       },
       UpdateExpression(node: estree.Node) {
-        reportBadUsage((node as estree.UpdateExpression).argument, getModificationMessage, context);
+        reportBadUsage((node as estree.UpdateExpression).argument, getModificationIssue, context);
       },
       AssignmentExpression(node: estree.Node) {
-        reportBadUsage((node as estree.AssignmentExpression).left, getModificationMessage, context);
+        reportBadUsage((node as estree.AssignmentExpression).left, getModificationIssue, context);
       },
       CatchClause(node: estree.Node) {
-        reportBadUsage((node as estree.CatchClause).param, getDeclareMessage('variable'), context);
+        reportBadUsage(
+          (node as estree.CatchClause).param,
+          getDeclarationIssue('variable'),
+          context,
+        );
       },
     };
   },
@@ -63,15 +77,15 @@ function reportBadUsageOnFunction(
   id: estree.Node | null | undefined,
   context: Rule.RuleContext,
 ) {
-  reportBadUsage(id, getDeclareMessage('function'), context);
+  reportBadUsage(id, getDeclarationIssue('function'), context);
   func.params.forEach(p => {
-    reportBadUsage(p, getDeclareMessage('parameter'), context);
+    reportBadUsage(p, getDeclarationIssue('parameter'), context);
   });
 }
 
 function reportBadUsage(
   node: estree.Node | null | undefined,
-  buildMessage: (name: string) => string,
+  buildMessageAndData: (name: string) => { messageId: string; data: any },
   context: Rule.RuleContext,
 ) {
   if (node) {
@@ -79,31 +93,31 @@ function reportBadUsage(
       case 'Identifier': {
         if (illegalNames.includes(node.name)) {
           context.report({
-            message: buildMessage(node.name),
             node: node,
+            ...buildMessageAndData(node.name),
           });
         }
         break;
       }
       case 'RestElement':
-        reportBadUsage(node.argument, buildMessage, context);
+        reportBadUsage(node.argument, buildMessageAndData, context);
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
           if (prop.type === 'Property') {
-            reportBadUsage(prop.value, buildMessage, context);
+            reportBadUsage(prop.value, buildMessageAndData, context);
           } else {
-            reportBadUsage(prop.argument, buildMessage, context);
+            reportBadUsage(prop.argument, buildMessageAndData, context);
           }
         });
         break;
       case 'ArrayPattern':
         node.elements.forEach(elem => {
-          reportBadUsage(elem, buildMessage, context);
+          reportBadUsage(elem, buildMessageAndData, context);
         });
         break;
       case 'AssignmentPattern':
-        reportBadUsage(node.left, buildMessage, context);
+        reportBadUsage(node.left, buildMessageAndData, context);
         break;
     }
   }
