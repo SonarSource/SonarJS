@@ -26,6 +26,11 @@ import { Variable } from 'eslint-scope';
 import { isIdentifier, isRequiredParserServices, getTypeAsString } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeResource: 'Make sure not using resource integrity feature is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -113,7 +118,7 @@ export const rule: Rule.RuleModule = {
         if (shouldReport(assignedVariable)) {
           context.report({
             node: variableDeclarator,
-            message: 'Make sure not using resource integrity feature is safe here.',
+            messageId: 'safeResource',
           });
         }
       },
