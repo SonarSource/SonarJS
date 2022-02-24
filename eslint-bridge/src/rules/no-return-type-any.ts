@@ -27,9 +27,12 @@ import * as ts from 'typescript';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 
-const message = 'Remove this return type or change it to a more specific.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeOrChangeType: 'Remove this return type or change it to a more specific.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -55,7 +58,7 @@ export const rule: Rule.RuleModule = {
             allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services)
           ) {
             context.report({
-              message,
+              messageId: 'removeOrChangeType',
               loc: returnType.loc,
             });
           }
