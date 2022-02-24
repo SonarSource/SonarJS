@@ -24,6 +24,13 @@ import * as estree from 'estree';
 import { isTestCode } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeInstantiationOf:
+        'Either remove this useless object instantiation of "{{constructor}}" or use it.',
+      removeInstantiation: 'Either remove this useless object instantiation or use it.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const sourceCode = context.getSourceCode();
     return {
@@ -38,10 +45,10 @@ export const rule: Rule.RuleModule = {
             start: node.loc!.start,
             end: callee.loc!.end,
           };
-          reportIssue(reportLocation, ` of "${calleeText}"`, context);
+          reportIssue(reportLocation, `${calleeText}`, 'removeInstantiationOf', context);
         } else {
           const newToken = sourceCode.getFirstToken(node);
-          reportIssue(newToken!.loc, '', context);
+          reportIssue(newToken!.loc, '', 'removeInstantiation', context);
         }
       },
     };
@@ -64,10 +71,14 @@ function isTryable(node: estree.Node, context: Rule.RuleContext) {
 function reportIssue(
   loc: { start: estree.Position; end: estree.Position },
   objectText: string,
+  messageId: string,
   context: Rule.RuleContext,
 ) {
   context.report({
-    message: `Either remove this useless object instantiation${objectText} or use it.`,
+    messageId,
+    data: {
+      constructor: objectText,
+    },
     loc,
   });
 }
