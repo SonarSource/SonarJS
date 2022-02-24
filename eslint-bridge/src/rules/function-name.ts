@@ -24,6 +24,12 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      renameFunction:
+        "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       Property: (node: estree.Node) => {
@@ -50,7 +56,11 @@ export const rule: Rule.RuleModule = {
       const [{ format }] = context.options;
       if (id && id.type === 'Identifier' && !id.name.match(format)) {
         context.report({
-          message: `Rename this '${id.name}' function to match the regular expression '${format}'.`,
+          messageId: 'renameFunction',
+          data: {
+            function: id.name,
+            format,
+          },
           node: id,
         });
       }

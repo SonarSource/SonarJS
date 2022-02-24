@@ -31,6 +31,11 @@ import {
 } from '../utils/utils-string-replace';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      nonExistingGroup: 'Referencing non-existing group{{groups}}.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -48,12 +53,15 @@ export const rule: Rule.RuleModule = {
               ref => !isReferencingExistingGroup(ref, groups),
             );
             if (invalidReferences.length > 0) {
-              const message = `Referencing non-existing group${
-                invalidReferences.length > 1 ? 's' : ''
-              }: ${invalidReferences.map(ref => ref.raw).join(', ')}`;
+              const groups = `${invalidReferences.length > 1 ? 's' : ''}: ${invalidReferences
+                .map(ref => ref.raw)
+                .join(', ')}`;
               context.report({
                 node: substr,
-                message,
+                messageId: 'nonExistingGroup',
+                data: {
+                  groups,
+                },
               });
             }
           }

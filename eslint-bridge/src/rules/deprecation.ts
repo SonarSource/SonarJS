@@ -26,6 +26,11 @@ import { getParent, isRequiredParserServices, RequiredParserServices } from '../
 import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      deprecation: "'{{symbol}}' is deprecated. {{reason}}",
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -51,7 +56,11 @@ export const rule: Rule.RuleModule = {
         if (deprecation) {
           context.report({
             node,
-            message: `'${id.name}' is deprecated. ${deprecation.reason}`,
+            messageId: 'deprecation',
+            data: {
+              symbol: id.name,
+              reason: deprecation.reason,
+            },
           });
         }
       },

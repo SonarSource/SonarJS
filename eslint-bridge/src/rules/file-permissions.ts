@@ -26,6 +26,11 @@ import { isIdentifier, isMemberExpression, getUniqueWriteUsage, isCallToFQN } fr
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safePermission: 'Make sure this permission is safe.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function isChmodLikeFunction(node: estree.CallExpression) {
       const { callee } = node;
@@ -113,7 +118,7 @@ export const rule: Rule.RuleModule = {
       if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({
           node,
-          message: `Make sure this permission is safe.`,
+          messageId: 'safePermission',
         });
       }
     }

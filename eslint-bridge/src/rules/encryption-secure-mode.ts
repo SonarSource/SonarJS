@@ -44,6 +44,11 @@ const aliases: string[] = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useSecureMode: 'Use a secure mode and padding scheme.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const patterns: RegExp[] = [new RegExp('CBC', 'i'), new RegExp('ECB', 'i')];
     aliases.forEach(alias => patterns.push(new RegExp(`^${alias}$`, 'i')));
@@ -64,7 +69,7 @@ export const rule: Rule.RuleModule = {
         }
         if (patterns.some(pattern => pattern.test(value))) {
           context.report({
-            message: 'Use a secure mode and padding scheme.',
+            messageId: 'useSecureMode',
             node: sensitiveArgument,
           });
         }

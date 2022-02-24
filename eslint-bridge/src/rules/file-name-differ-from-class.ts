@@ -25,6 +25,11 @@ import path from 'path';
 import { getVariableFromName } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      renameFile: 'Rename this file to "{{exported}}"',
+    },
+  },
   create(context: Rule.RuleContext) {
     let isOnlyExport = true;
     let nameOfExported: string | undefined = undefined;
@@ -61,7 +66,10 @@ export const rule: Rule.RuleModule = {
             !sameName(nameOfExported, sliceOffPostfix(fileName))
           ) {
             context.report({
-              message: `Rename this file to "${nameOfExported}"`,
+              messageId: 'renameFile',
+              data: {
+                exported: nameOfExported,
+              },
               loc: { line: 0, column: 0 },
             });
           }
