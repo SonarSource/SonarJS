@@ -25,13 +25,16 @@ import { getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier } from '..
 
 const NET_MODULE = 'net';
 
-const MESSAGE = 'Make sure that sockets are used safely here.';
-
 const SOCKET_CREATION_FUNCTIONS = new Set(['createConnection', 'connect']);
 
 const SOCKET_CONSTRUCTOR = 'Socket';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeSocket: 'Make sure that sockets are used safely here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) =>
@@ -56,7 +59,7 @@ function checkCallExpression({ callee, type }: estree.CallExpression, context: R
   }
 
   if (expression && isQuestionable(expression, type === 'NewExpression', moduleName)) {
-    context.report({ message: MESSAGE, node: callee });
+    context.report({ messageId: 'safeSocket', node: callee });
   }
 }
 
