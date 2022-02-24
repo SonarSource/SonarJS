@@ -21,19 +21,25 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useLiteral: 'Use either a literal or "Array.from()" instead of the "Array" constructor.',
+      useArrayFrom: 'Use "Array.from()" instead of the "Array" constructor.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function checkNewExpression(node: estree.Node) {
       const newExpression = node as estree.NewExpression;
       if (newExpression.callee.type === 'Identifier' && newExpression.callee.name === 'Array') {
-        let message = 'Use either a literal or "Array.from()" instead of the "Array" constructor.';
+        let messageId = 'useLiteral';
         if (
           newExpression.arguments.length === 1 &&
           newExpression.arguments[0].type === 'Literal' &&
           typeof newExpression.arguments[0].value === 'number'
         ) {
-          message = 'Use "Array.from()" instead of the "Array" constructor.';
+          messageId = 'useArrayFrom';
         }
-        context.report({ node, message });
+        context.report({ node, messageId });
       }
     }
 
