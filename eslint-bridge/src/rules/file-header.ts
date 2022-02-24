@@ -21,8 +21,6 @@
 
 import { Rule } from 'eslint';
 
-const message = 'Add or update the header of this file.';
-
 let cached: {
   headerFormat: string;
   isRegularExpression: boolean;
@@ -32,6 +30,11 @@ let cached: {
 };
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      fixHeader: 'Add or update the header of this file.',
+    },
+  },
   create(context: Rule.RuleContext) {
     updateCache(context.options);
 
@@ -85,7 +88,7 @@ function checkRegularExpression(searchPattern: RegExp, context: Rule.RuleContext
 
 function addFileIssue(context: Rule.RuleContext) {
   context.report({
-    message,
+    messageId: 'fixHeader',
     loc: { line: 0, column: 0 },
   });
 }
