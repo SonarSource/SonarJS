@@ -42,6 +42,12 @@ const BITWISE_OPERATORS = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reviewBitwise:
+        'Review this use of bitwise "{{operator}}" operator; conditional "{{intended}}" might have been intended.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const isNumeric = getNumericTypeChecker(context);
     let lonelyBitwiseAndOr: null | estree.BinaryExpression = null;
@@ -73,7 +79,11 @@ export const rule: Rule.RuleModule = {
           if (operatorToken) {
             context.report({
               loc: operatorToken.loc,
-              message: `Review this use of bitwise "${op}" operator; conditional "${op}${op}" might have been intended.`,
+              messageId: 'reviewBitwise',
+              data: {
+                operator: op,
+                intended: op + op,
+              },
             });
           }
         }
