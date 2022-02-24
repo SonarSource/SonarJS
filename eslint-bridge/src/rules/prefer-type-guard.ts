@@ -28,6 +28,12 @@ import { getParent, RuleContext } from '../utils';
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useTypePredicate:
+        'Declare this function return type using type predicate "{{castedExpressionText}} is {{castedTypeText}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       "MethodDefinition[kind='method'] FunctionExpression": function (node: estree.Node) {
@@ -105,7 +111,11 @@ function checkCastedType(
       const castedExpressionText = sourceCode.getText(castedType[0]);
       const castedTypeText = sourceCode.getText(castedType[1]);
       context.report({
-        message: `Declare this function return type using type predicate "${castedExpressionText} is ${castedTypeText}".`,
+        messageId: 'useTypePredicate',
+        data: {
+          castedExpressionText,
+          castedTypeText,
+        },
         loc: getMainFunctionTokenLocation(
           node as TSESTree.FunctionLike,
           getParent(context) as TSESTree.Node,
