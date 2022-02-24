@@ -31,8 +31,6 @@ import {
   RuleContext,
 } from '../utils';
 
-const message = `Add a "return" statement to this callback.`;
-
 const methodsWithCallback = [
   'every',
   'filter',
@@ -58,6 +56,11 @@ function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParse
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      addReturn: 'Add a "return" statement to this callback.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -80,7 +83,7 @@ export const rule: Rule.RuleModule = {
           hasCallBackWithoutReturn(args[0], services)
         ) {
           context.report({
-            message,
+            messageId: 'addReturn',
             ...getNodeToReport(args[0], node, context),
           });
         } else if (
@@ -89,7 +92,7 @@ export const rule: Rule.RuleModule = {
           hasCallBackWithoutReturn(args[1], services)
         ) {
           context.report({
-            message,
+            messageId: 'addReturn',
             ...getNodeToReport(args[1], node, context),
           });
         }
