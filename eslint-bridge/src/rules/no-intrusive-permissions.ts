@@ -26,6 +26,11 @@ import { isIdentifier, isMemberExpression, getValueOfExpression } from '../utils
 const permissions = ['geolocation', 'camera', 'microphone', 'notifications', 'persistent-storage'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      checkPermission: 'Make sure the use of the {{feature}} is necessary.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'CallExpression[callee.type="MemberExpression"]'(node: estree.Node) {
@@ -43,7 +48,10 @@ export const rule: Rule.RuleModule = {
           isNavigatorMemberExpression(callee, 'geolocation', 'watchPosition', 'getCurrentPosition')
         ) {
           context.report({
-            message: 'Make sure the use of the geolocation is necessary.',
+            messageId: 'checkPermission',
+            data: {
+              feature: 'geolocation',
+            },
             node: callee,
           });
           return;
@@ -61,7 +69,10 @@ export const rule: Rule.RuleModule = {
           isMemberExpression(callee, 'Notification', 'requestPermission')
         ) {
           context.report({
-            message: 'Make sure the use of the notifications is necessary.',
+            messageId: 'checkPermission',
+            data: {
+              feature: 'notifications',
+            },
             node: callee,
           });
           return;
@@ -71,7 +82,10 @@ export const rule: Rule.RuleModule = {
           isMemberExpression(callee.object, 'navigator', 'storage')
         ) {
           context.report({
-            message: 'Make sure the use of the persistent-storage is necessary.',
+            messageId: 'checkPermission',
+            data: {
+              feature: 'persistent-storage',
+            },
             node: callee,
           });
         }
@@ -80,7 +94,10 @@ export const rule: Rule.RuleModule = {
         const { callee } = node as estree.NewExpression;
         if (context.options.includes('notifications') && isIdentifier(callee, 'Notification')) {
           context.report({
-            message: 'Make sure the use of the notifications is necessary.',
+            messageId: 'checkPermission',
+            data: {
+              feature: 'notifications',
+            },
             node: callee,
           });
         }
@@ -119,7 +136,10 @@ function checkForCameraAndMicrophonePermissions(
   }
   if (perms.length > 0) {
     context.report({
-      message: `Make sure the use of the ${perms.join(' and ')} is necessary.`,
+      messageId: 'checkPermission',
+      data: {
+        feature: perms.join(' and '),
+      },
       node: callee,
     });
   }
@@ -140,7 +160,10 @@ function checkPermissions(context: Rule.RuleContext, call: estree.CallExpression
     if (nameProp) {
       const { value } = (nameProp as estree.Property).value as estree.Literal;
       context.report({
-        message: `Make sure the use of the ${value} is necessary.`,
+        messageId: 'checkPermission',
+        data: {
+          feature: String(value),
+        },
         node: nameProp,
       });
     }

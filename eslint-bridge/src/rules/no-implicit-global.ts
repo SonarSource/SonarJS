@@ -22,12 +22,15 @@
 import { Rule } from 'eslint';
 import { flatMap, globalsByLibraries } from '../utils';
 
-const message = (variable: string) =>
-  `Add the "let", "const" or "var" keyword to this declaration of "${variable}" to make it explicit.`;
-
 const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      explicitModifier:
+        'Add the "let", "const" or "var" keyword to this declaration of "{{variable}}" to make it explicit.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'Program:exit'() {
@@ -40,7 +43,10 @@ export const rule: Rule.RuleModule = {
             if (!alreadyReported.has(name) && !excludedNames.has(name)) {
               alreadyReported.add(name);
               context.report({
-                message: message(name),
+                messageId: 'explicitModifier',
+                data: {
+                  variable: name,
+                },
                 node: ref.identifier,
               });
             }

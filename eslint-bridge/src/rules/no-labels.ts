@@ -22,12 +22,17 @@
 import { Rule } from 'eslint';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeLabel: 'Refactor the code to remove this label and the need for it.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       LabeledStatement(node) {
         const sourceCode = context.getSourceCode();
         context.report({
-          message: 'Refactor the code to remove this label and the need for it.',
+          messageId: 'removeLabel',
           loc: sourceCode.getFirstToken(node)!.loc,
         });
       },

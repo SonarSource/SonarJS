@@ -23,9 +23,12 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isStringLiteral } from '../utils';
 
-const MESSAGE = 'Review this potentially hardcoded credential.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reviewCredential: 'Review this potentially hardcoded credential.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const variableNames = context.options;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
@@ -63,7 +66,7 @@ function checkAssignment(
     patterns.some(pattern => context.getSourceCode().getText(variable).includes(pattern))
   ) {
     context.report({
-      message: MESSAGE,
+      messageId: 'reviewCredential',
       node: initializer,
     });
   }
@@ -72,7 +75,7 @@ function checkAssignment(
 function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
   if (isStringLiteral(literal) && patterns.some(pattern => pattern.test(literal.value as string))) {
     context.report({
-      message: MESSAGE,
+      messageId: 'reviewCredential',
       node: literal,
     });
   }

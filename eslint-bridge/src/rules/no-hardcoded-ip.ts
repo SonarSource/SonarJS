@@ -23,12 +23,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIP } from 'net';
 
-const message = (ip: string) => `Make sure using a hardcoded IP address ${ip} is safe here.`;
-
 const netMaskRegex = /(^[^\/]+)\/\d{1,3}$/;
 const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      checkIP: 'Make sure using a hardcoded IP address {{ip}} is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function isException(ip: string) {
       return (
@@ -71,7 +74,10 @@ export const rule: Rule.RuleModule = {
         if ((!isException(ip) && isIP(ip) !== 0) || isIPV4OctalOrHex(ip)) {
           context.report({
             node,
-            message: message(value),
+            messageId: 'checkIP',
+            data: {
+              ip: value,
+            },
           });
         }
       },

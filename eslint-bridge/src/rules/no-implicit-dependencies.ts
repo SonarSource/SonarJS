@@ -35,6 +35,11 @@ const DefinitelyTyped = '@types/';
 const cache: Map<string, Set<string>> = new Map();
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeOrAddDependency: 'Either remove this import or add it as a dependency.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
     const dependencies = getDependencies(context.getFilename());
@@ -109,7 +114,7 @@ function raiseOnImplicitImport(
     !dependencies.has(packageName)
   ) {
     context.report({
-      message: 'Either remove this import or add it as a dependency.',
+      messageId: 'removeOrAddDependency',
       loc,
     });
   }
