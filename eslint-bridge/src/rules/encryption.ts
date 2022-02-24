@@ -31,8 +31,12 @@ import {
 const getEncryptionRuleModule = (
   clientSideMethods: string[],
   serverSideMethods: string[],
-  message: string,
 ): Rule.RuleModule => ({
+  meta: {
+    messages: {
+      safeEncryption: 'Make sure that encrypting data is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     // for client side
     let usingCryptoInFile = false;
@@ -60,13 +64,13 @@ const getEncryptionRuleModule = (
 
         if (usingCryptoInFile) {
           // e.g.: crypto.subtle.encrypt()
-          checkForClientSide(callee, context, clientSideMethods, message);
+          checkForClientSide(callee, context, clientSideMethods);
         }
 
         // e.g.
         // const crypto = require("crypto");
         // const cipher = crypto.createCipher(alg, key);
-        checkForServerSide(callee, context, serverSideMethods, message);
+        checkForServerSide(callee, context, serverSideMethods);
       },
     };
   },
@@ -76,7 +80,6 @@ function checkForServerSide(
   callee: estree.Node,
   context: Rule.RuleContext,
   serverSideMethods: string[],
-  message: string,
 ) {
   let moduleName: estree.Literal | undefined;
 
@@ -91,7 +94,7 @@ function checkForServerSide(
   }
   if (moduleName && moduleName.value === 'crypto') {
     context.report({
-      message,
+      messageId: 'safeEncryption',
       node: callee,
     });
   }
@@ -101,20 +104,17 @@ function checkForClientSide(
   callee: estree.Node,
   context: Rule.RuleContext,
   clientSideMethods: string[],
-  message: string,
 ) {
   if (
     isIdentifier(callee, ...clientSideMethods) ||
     isMemberWithProperty(callee, ...clientSideMethods)
   ) {
     context.report({
-      message,
+      messageId: 'safeEncryption',
       node: callee,
     });
   }
 }
-
-const message = `Make sure that encrypting data is safe here.`;
 
 const clientSideEncryptMethods = ['encrypt', 'decrypt'];
 const serverSideEncryptMethods = [
@@ -131,5 +131,4 @@ const serverSideEncryptMethods = [
 export const rule: Rule.RuleModule = getEncryptionRuleModule(
   clientSideEncryptMethods,
   serverSideEncryptMethods,
-  message,
 );
