@@ -24,6 +24,11 @@ import * as estree from 'estree';
 import { isFunctionNode } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      promiseAction: 'Replace this trivial promise with "Promise.{{action}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) => {
@@ -64,7 +69,10 @@ function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.R
       const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
       if (action && args.length === 1) {
         context.report({
-          message: `Replace this trivial promise with "Promise.${action}".`,
+          messageId: 'promiseAction',
+          data: {
+            action,
+          },
           node,
         });
       }
