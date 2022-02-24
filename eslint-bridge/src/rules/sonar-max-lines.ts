@@ -25,6 +25,10 @@ import { getLocsNumber, getCommentLineNumbers } from './sonar-max-lines-per-func
 
 export const rule: Rule.RuleModule = {
   meta: {
+    messages: {
+      maxFileLine:
+        'This file has {{lineCount}} lines, which is greater than {{threshold}} authorized. Split it into smaller files.',
+    },
     schema: [{ type: 'integer' }],
   },
   create(context: Rule.RuleContext) {
@@ -45,7 +49,11 @@ export const rule: Rule.RuleModule = {
 
         if (lineCount > threshold) {
           context.report({
-            message: `This file has ${lineCount} lines, which is greater than ${threshold} authorized. Split it into smaller files.`,
+            messageId: 'maxFileLine',
+            data: {
+              lineCount: lineCount.toString(),
+              threshold,
+            },
             loc: { line: 0, column: 0 },
           });
         }
