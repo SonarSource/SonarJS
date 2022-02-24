@@ -25,6 +25,12 @@ import * as ts from 'typescript';
 import { getTypeFromTreeNode, isRequiredParserServices, RequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      declareClass:
+        'Declare a "{{class}}" class and move this declaration of "{{declaration}}" into it.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     const isFunction = isRequiredParserServices(services) ? isFunctionType : isFunctionLike;
@@ -41,7 +47,11 @@ export const rule: Rule.RuleModule = {
               property.name === 'prototype'
             ) {
               context.report({
-                message: `Declare a "${klass.name}" class and move this declaration of "${prototype.name}" into it.`,
+                messageId: 'declareClass',
+                data: {
+                  class: klass.name,
+                  declaration: prototype.name,
+                },
                 node: left,
               });
             }
