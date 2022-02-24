@@ -35,6 +35,11 @@ import CodePathSegment = Rule.CodePathSegment;
 import { isUnaryExpression, isArrayExpression } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeAssignment: 'Remove this useless assignment to variable "{{variable}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
     const liveVariablesMap = new Map<string, LiveVariables>();
@@ -209,7 +214,10 @@ export const rule: Rule.RuleModule = {
 
     function report(ref: ReferenceLike) {
       context.report({
-        message: `Remove this useless assignment to variable "${ref.identifier.name}".`,
+        messageId: 'removeAssignment',
+        data: {
+          variable: ref.identifier.name,
+        },
         loc: ref.identifier.loc!,
       });
     }
