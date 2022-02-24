@@ -30,17 +30,20 @@ import {
 
 const xpathModule = 'xpath';
 
-const message = 'Make sure that executing this XPATH expression is safe.';
-
 const xpathEvalMethods = ['select', 'select1', 'evaluate'];
 const ieEvalMethods = ['selectNodes', 'SelectSingleNode'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      checkXPath: 'Make sure that executing this XPATH expression is safe.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       MemberExpression: (node: estree.Node) => {
         if (isMemberExpression(node, 'document', 'evaluate')) {
-          context.report({ message, node });
+          context.report({ messageId: 'checkXPath', node });
         }
       },
       CallExpression: (node: estree.Node) =>
@@ -59,7 +62,7 @@ function checkCallExpression(
 
   // IE
   if (isMemberWithProperty(callee, ...ieEvalMethods) && args.length === 1) {
-    context.report({ message, node: callee });
+    context.report({ messageId: 'checkXPath', node: callee });
     return;
   }
 
@@ -72,7 +75,7 @@ function checkCallExpression(
     const resultTypeArgument = args[3];
     const argumentAsText = context.getSourceCode().getText(resultTypeArgument);
     if (argumentAsText.includes('XPathResult')) {
-      context.report({ message, node: callee });
+      context.report({ messageId: 'checkXPath', node: callee });
       return;
     }
   }
@@ -86,6 +89,6 @@ function checkCallExpression(
     method.type === 'Identifier' &&
     xpathEvalMethods.includes(method.name)
   ) {
-    context.report({ message, node: callee });
+    context.report({ messageId: 'checkXPath', node: callee });
   }
 }
