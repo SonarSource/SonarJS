@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      restrictLoop: 'Restrict what this loop acts on by testing each property.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function isAttrCopy(statement: estree.Node) {
       if (statement.type !== 'ExpressionStatement') {
@@ -57,7 +62,7 @@ export const rule: Rule.RuleModule = {
 
         context.report({
           node: forInStatement,
-          message: 'Restrict what this loop acts on by testing each property.',
+          messageId: 'restrictLoop',
         });
       },
     };
