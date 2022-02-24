@@ -23,11 +23,16 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useNull: 'Use null instead.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function raiseOnUndefined(node: estree.Node) {
       if (node.type === 'Identifier' && node.name === 'undefined') {
         context.report({
-          message: 'Use null instead.',
+          messageId: 'useNull',
           node,
         });
       }
