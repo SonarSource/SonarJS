@@ -23,10 +23,16 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      wildcardImport: 'Explicitly {{xPort}} the specific member needed.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function report(node: estree.Node, xPort: string) {
       context.report({
-        message: `Explicitly ${xPort} the specific member needed.`,
+        messageId: 'wildcardImport',
+        data: { xPort },
         node,
       });
     }

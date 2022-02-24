@@ -31,11 +31,14 @@ import {
   getModuleNameOfIdentifier,
 } from '../utils';
 
-const message = `Make sure that expanding this archive file is safe here.`;
-
 const ADM_ZIP = 'adm-zip';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeExpanding: 'Make sure that expanding this archive file is safe here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function canBeProperty(prop: estree.Property | estree.SpreadElement, name: string) {
       return (
@@ -106,7 +109,7 @@ export const rule: Rule.RuleModule = {
           isSensiteExtractZipCall(call)
         ) {
           context.report({
-            message,
+            messageId: 'safeExpanding',
             node: call.callee,
           });
         }

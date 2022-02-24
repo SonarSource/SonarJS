@@ -26,6 +26,11 @@ import * as estree from 'estree';
 import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeUndefined: 'Remove this redundant "undefined".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
@@ -40,7 +45,7 @@ export const rule: Rule.RuleModule = {
           const lastArgument = args[args.length - 1];
           if (isUndefined(lastArgument) && isOptionalParameter(args.length - 1, call, services)) {
             context.report({
-              message: `Remove this redundant "undefined".`,
+              messageId: 'removeUndefined',
               node: lastArgument,
             });
           }

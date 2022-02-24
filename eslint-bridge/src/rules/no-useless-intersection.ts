@@ -26,6 +26,12 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeIntersection: 'Remove this type without members or change this type intersection.',
+      simplifyIntersection: 'Simplify this intersection as it always has type "{{type}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
@@ -37,9 +43,10 @@ export const rule: Rule.RuleModule = {
           );
           if (anyOrNever) {
             context.report({
-              message: `Simplify this intersection as it always has type "${
-                anyOrNever.type === 'TSAnyKeyword' ? 'any' : 'never'
-              }".`,
+              messageId: 'simplifyIntersection',
+              data: {
+                type: anyOrNever.type === 'TSAnyKeyword' ? 'any' : 'never',
+              },
               node,
             });
           } else {
@@ -49,7 +56,7 @@ export const rule: Rule.RuleModule = {
                 .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
               if (isTypeWithoutMembers(tp)) {
                 context.report({
-                  message: 'Remove this type without members or change this type intersection.',
+                  messageId: 'removeIntersection',
                   node: typeNode as unknown as estree.Node,
                 });
               }
