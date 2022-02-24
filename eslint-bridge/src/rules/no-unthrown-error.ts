@@ -22,9 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 
-const message = 'Throw this error or remove this useless statement.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      throwOrRemoveError: 'Throw this error or remove this useless statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function looksLikeAnError(expression: estree.Expression | estree.Super): boolean {
       const text = context.getSourceCode().getText(expression);
@@ -36,7 +39,7 @@ export const rule: Rule.RuleModule = {
         const expression = (node as estree.NewExpression).callee;
         if (looksLikeAnError(expression)) {
           context.report({
-            message,
+            messageId: 'throwOrRemoveError',
             node,
           });
         }
