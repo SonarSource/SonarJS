@@ -23,6 +23,12 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      unusedFunction: `Remove unused function '{{symbol}}'.`,
+      unusedVariable: `Remove the declaration of the unused '{{symbol}}' variable.`,
+    },
+  },
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
     let jsxComponentsToIgnore: string[] = [];
@@ -46,11 +52,11 @@ export const rule: Rule.RuleModule = {
       const unused = v.references.every(ref => defs.includes(ref.identifier));
 
       if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
-        const message = getMessage(v.name, type === 'FunctionName');
+        const messageAndData = getMessageAndData(v.name, type === 'FunctionName');
         defs.forEach(def =>
           context.report({
             node: def,
-            message,
+            ...messageAndData,
           }),
         );
       }
@@ -112,10 +118,10 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getMessage(name: string, isFunction: boolean) {
+function getMessageAndData(name: string, isFunction: boolean) {
   if (isFunction) {
-    return `Remove unused function '${name}'.`;
+    return { messageId: 'unusedFunction', data: { symbol: name } };
   } else {
-    return `Remove the declaration of the unused '${name}' variable.`;
+    return { messageId: 'unusedVariable', data: { symbol: name } };
   }
 }
