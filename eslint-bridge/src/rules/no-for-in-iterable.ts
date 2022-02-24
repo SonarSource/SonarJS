@@ -25,6 +25,11 @@ import ts from 'typescript';
 import { getTypeFromTreeNode, isRequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      useForOf: 'Use "for...of" to iterate over this "{{iterable}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -36,7 +41,8 @@ export const rule: Rule.RuleModule = {
         if (isIterable(type)) {
           const iterable = type.symbol ? type.symbol.name : 'String';
           context.report({
-            message: `Use "for...of" to iterate over this "${iterable}".`,
+            messageId: 'useForOf',
+            data: { iterable },
             loc: context.getSourceCode().getFirstToken(node)!.loc,
           });
         }

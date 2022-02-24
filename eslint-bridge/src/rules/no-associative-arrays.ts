@@ -23,9 +23,13 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isString, isRequiredParserServices } from '../utils';
 
-const message = `Make it an object if it must have named properties; otherwise, use a numeric index here.`;
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      noAssociativeArray:
+        'Make it an object if it must have named properties; otherwise, use a numeric index here.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -39,7 +43,7 @@ export const rule: Rule.RuleModule = {
           .left as estree.MemberExpression;
         if (isString(property, services) && isArray(object, services)) {
           context.report({
-            message,
+            messageId: 'noAssociativeArray',
             node,
           });
         }

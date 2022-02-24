@@ -25,6 +25,11 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeOverride: 'Remove this override of "{{overridden}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     const overriden: Set<estree.Identifier> = new Set();
 
@@ -59,7 +64,10 @@ export const rule: Rule.RuleModule = {
         overriden.forEach(node => {
           if (!isTSEnumMemberId(node)) {
             context.report({
-              message: `Remove this override of "${node.name}".`,
+              messageId: 'removeOverride',
+              data: {
+                overridden: node.name,
+              },
               node,
             });
           }

@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeLabel: 'Remove this misleading "{{label}}" label.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const stack: number[] = [0];
     function enterCase() {
@@ -42,7 +47,10 @@ export const rule: Rule.RuleModule = {
         if (inCase()) {
           const label = (node as estree.LabeledStatement).label;
           context.report({
-            message: `Remove this misleading "${label.name}" label.`,
+            messageId: 'removeLabel',
+            data: {
+              label: label.name,
+            },
             node: label,
           });
         }
