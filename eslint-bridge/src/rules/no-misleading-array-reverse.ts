@@ -74,13 +74,11 @@ export const rule: Rule.RuleModule = {
 };
 
 function formatMethod(mutatingMethod: string) {
-  let mutatingMethodText;
   if (mutatingMethod.startsWith('"') || mutatingMethod.startsWith("'")) {
-    mutatingMethodText = mutatingMethod.substr(1, mutatingMethod.length - 2);
+    return mutatingMethod.substr(1, mutatingMethod.length - 2);
   } else {
-    mutatingMethodText = mutatingMethod;
+    return mutatingMethod;
   }
-  return mutatingMethodText;
 }
 
 function isArrayMutatingCall(
