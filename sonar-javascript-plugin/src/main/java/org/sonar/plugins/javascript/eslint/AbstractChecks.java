@@ -42,7 +42,7 @@ public class AbstractChecks {
   private final Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
   private RuleKey parseErrorRuleKey;
 
-  public AbstractChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
+  public AbstractChecks(CheckFactory checkFactory, CustomRuleRepository[] customRuleRepositories) {
     this.checkFactory = checkFactory;
     this.customRuleRepositories = customRuleRepositories;
   }
@@ -84,7 +84,7 @@ public class AbstractChecks {
       .map(EslintBasedCheck.class::cast);
   }
 
-  @Nullable
+
   public RuleKey ruleKeyFor(JavaScriptCheck check) {
     RuleKey ruleKey;
 
@@ -98,7 +98,7 @@ public class AbstractChecks {
     return null;
   }
 
-  @Nullable
+
   public RuleKey ruleKeyByEslintKey(String eslintKey) {
     RuleKey ruleKey;
 
@@ -121,7 +121,6 @@ public class AbstractChecks {
    *
    * @return rule key for parse error
    */
-  @Nullable
   RuleKey parsingErrorRuleKey() {
     return parseErrorRuleKey;
   }
