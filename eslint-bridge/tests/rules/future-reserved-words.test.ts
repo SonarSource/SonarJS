@@ -19,7 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 3, sourceType: 'script' } });
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 3, sourceType: 'script', allowReserved: true },
+});
 import { rule } from 'rules/future-reserved-words';
 
 ruleTester.run('Future reserved words', rule, {
