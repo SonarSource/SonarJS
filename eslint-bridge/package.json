@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "type": "commonjs",
   "devDependencies": {

@@ -46,14 +46,12 @@ import static java.util.Map.entry;
 public class NodeDeprecationWarning {
 
   static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
-    entry(10, "March 1st, 2022"),
-    entry(11, "March 1st, 2022"),
     entry(12, "August 1st, 2022"),
     entry(13, "August 1st, 2022")
   );
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
-  static final int MIN_SUPPORTED_NODE_VERSION = 10;
+  static final int MIN_SUPPORTED_NODE_VERSION = 12;
   static final int MIN_RECOMMENDED_NODE_VERSION = 14;
   static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
   static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(10, 12, 14, 16);

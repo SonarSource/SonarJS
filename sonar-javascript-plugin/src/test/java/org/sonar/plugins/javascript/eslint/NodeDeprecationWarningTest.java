@@ -50,21 +50,6 @@ class NodeDeprecationWarningTest {
   NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
 
   @Test
-  void test_10() {
-    deprecationWarning.logNodeDeprecation(10);
-    assertWarnings("Using Node.js version 10 to execute analysis is deprecated and will stop being supported no earlier than March 1st, 2022. " +
-      "Please upgrade to a newer LTS version of Node.js [14, 16]");
-  }
-
-  @Test
-  void test_11() {
-    deprecationWarning.logNodeDeprecation(11);
-    assertWarnings("Using Node.js version 11 to execute analysis is deprecated and will stop being supported no earlier than March 1st, 2022. " +
-        "Please upgrade to a newer LTS version of Node.js [14, 16]",
-      "Node.js version 11 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
-  }
-
-  @Test
   void test_12() {
     deprecationWarning.logNodeDeprecation(12);
     assertWarnings("Using Node.js version 12 to execute analysis is deprecated and will stop being supported no earlier than August 1st, 2022. " +
