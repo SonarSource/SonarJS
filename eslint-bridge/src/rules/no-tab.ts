@@ -21,9 +21,12 @@
 
 import { Rule } from 'eslint';
 
-const message = 'Replace all tab characters in this file by sequences of white-spaces.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      replaceTab: 'Replace all tab characters in this file by sequences of white-spaces.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': function () {
@@ -34,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
         if (firstTab !== undefined) {
           context.report({
-            message,
+            messageId: 'replaceTab',
             loc: { line: firstTab.line + 1, column: 0 },
           });
         }

@@ -23,12 +23,17 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      extractTernary: 'Extract this nested ternary operation into an independent statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       'ConditionalExpression ConditionalExpression': (node: estree.Node) => {
         if (!isNestingBroken(context.getAncestors())) {
           context.report({
-            message: 'Extract this nested ternary operation into an independent statement.',
+            messageId: 'extractTernary',
             node,
           });
         }

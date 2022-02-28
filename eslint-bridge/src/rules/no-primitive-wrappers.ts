@@ -25,13 +25,23 @@ import * as estree from 'estree';
 const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      removeConstructor: 'Remove this use of "{{constructor}}" constructor.',
+      replaceWrapper:
+        'Replace this "{{wrapper}}" wrapper object with primitive type "{{primitive}}".',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
         const constructor = (node as estree.NewExpression).callee;
         if (constructor.type === 'Identifier' && WRAPPER_TYPES.includes(constructor.name)) {
           context.report({
-            message: `Remove this use of "${constructor.name}" constructor.`,
+            messageId: 'removeConstructor',
+            data: {
+              constructor: constructor.name,
+            },
             node,
           });
         }
@@ -40,7 +50,11 @@ export const rule: Rule.RuleModule = {
         const typeString = context.getSourceCode().getText(node);
         if (WRAPPER_TYPES.includes(typeString)) {
           context.report({
-            message: `Replace this "${typeString}" wrapper object with primitive type "${typeString.toLowerCase()}".`,
+            messageId: 'replaceWrapper',
+            data: {
+              wrapper: typeString,
+              primitive: typeString.toLowerCase(),
+            },
             node,
           });
         }

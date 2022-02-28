@@ -22,14 +22,19 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 
-const MESSAGE_INC = 'Extract this increment operation into a dedicated statement.';
-const MESSAGE_DEC = 'Extract this decrement operation into a dedicated statement.';
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      extractOperation: 'Extract this {{incrementType}} operation into a dedicated statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(node: estree.UpdateExpression) {
       context.report({
-        message: node.operator === '++' ? MESSAGE_INC : MESSAGE_DEC,
+        messageId: 'extractOperation',
+        data: {
+          incrementType: node.operator === '++' ? 'increment' : 'decrement',
+        },
         node,
       });
     }

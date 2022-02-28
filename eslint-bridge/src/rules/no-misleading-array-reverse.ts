@@ -35,6 +35,11 @@ import {
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      moveMethod: 'Move this array "{{method}}" operation to a separate statement.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -54,7 +59,10 @@ export const rule: Rule.RuleModule = {
               isForbiddenOperation(node)
             ) {
               context.report({
-                message: formatMessage(propertyText),
+                messageId: 'moveMethod',
+                data: {
+                  method: formatMethod(propertyText),
+                },
                 node,
               });
             }
@@ -65,14 +73,12 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function formatMessage(mutatingMethod: string) {
-  let mutatingMethodText;
+function formatMethod(mutatingMethod: string) {
   if (mutatingMethod.startsWith('"') || mutatingMethod.startsWith("'")) {
-    mutatingMethodText = mutatingMethod.substr(1, mutatingMethod.length - 2);
+    return mutatingMethod.substr(1, mutatingMethod.length - 2);
   } else {
-    mutatingMethodText = mutatingMethod;
+    return mutatingMethod;
   }
-  return `Move this array "${mutatingMethodText}" operation to a separate statement.`;
 }
 
 function isArrayMutatingCall(
