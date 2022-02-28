@@ -5,4 +5,10 @@
 'rxjs:src/Subject.ts':[
 44,
 ],
+'rxjs:src/observable/GenerateObservable.ts':[
+93,
+121,
+145,
+170,
+],
 }
