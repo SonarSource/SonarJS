@@ -40,7 +40,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkProperty(node: estree.Node) {
-      const tsNode = node as TSESTree.Node as TSESTree.ClassProperty | TSESTree.TSPropertySignature;
+      const tsNode = node as TSESTree.Node as
+        | TSESTree.PropertyDefinition
+        | TSESTree.TSPropertySignature;
       const optionalToken = context
         .getSourceCode()
         .getFirstToken(node, token => token.value === '?');
@@ -63,7 +65,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'ClassProperty, TSPropertySignature': (node: estree.Node) => checkProperty(node),
+      'PropertyDefinition, TSPropertySignature': (node: estree.Node) => checkProperty(node),
     };
   },
 };
@@ -80,8 +82,6 @@ function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | 
     return typeNode;
   } else if (typeNode.type === 'TSUnionType') {
     return typeNode.types.find(innerTypeNode => getUndefinedTypeNode(innerTypeNode));
-  } else if (typeNode.type === 'TSParenthesizedType') {
-    return getUndefinedTypeNode(typeNode.typeAnnotation);
   }
   return undefined;
 }

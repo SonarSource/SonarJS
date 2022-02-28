@@ -80,7 +80,7 @@ function isDeclaration(id: estree.Identifier, context: Rule.RuleContext) {
   }
 
   const declarationTypes = [
-    'ClassProperty',
+    'PropertyDefinition',
     'TSPropertySignature',
     'TSDeclareFunction',
     'FunctionDeclaration',

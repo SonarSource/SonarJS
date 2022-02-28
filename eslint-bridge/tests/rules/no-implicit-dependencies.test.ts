@@ -80,12 +80,6 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
     },
     {
-      code: `import * as n from 1;`,
-      filename,
-      options,
-    },
-
-    {
       code: `const fs = require("fs");`,
       filename,
       options,
