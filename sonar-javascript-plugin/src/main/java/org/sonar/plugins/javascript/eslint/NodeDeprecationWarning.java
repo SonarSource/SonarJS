@@ -54,7 +54,7 @@ public class NodeDeprecationWarning {
   static final int MIN_SUPPORTED_NODE_VERSION = 12;
   static final int MIN_RECOMMENDED_NODE_VERSION = 14;
   static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
-  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(10, 12, 14, 16);
+  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(12, 14, 16);
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
