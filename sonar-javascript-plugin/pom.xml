@@ -126,7 +126,7 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
-          <nodeJsMinVersion>10.12.0</nodeJsMinVersion>
+          <nodeJsMinVersion>12.22.0</nodeJsMinVersion>
           <jreMinVersion>${jdk.min.version}</jreMinVersion>
         </configuration>
       </plugin>
