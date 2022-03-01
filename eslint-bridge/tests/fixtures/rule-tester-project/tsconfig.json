@@ -2,4 +2,5 @@
   "compilerOptions": {
     "target": "es2018",
   },
+  "files": ["file.tsx"]
 }

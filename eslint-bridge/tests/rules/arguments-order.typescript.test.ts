@@ -18,19 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import * as path from 'path';
+import { RuleTesterTs } from '../RuleTesterTs';
 import { rule } from 'rules/arguments-order';
 
-const tsParserPath = require.resolve('@typescript-eslint/parser');
-const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    project: path.resolve(`${__dirname}/../fixtures/rule-tester-project/tsconfig.json`),
-  },
-  parser: tsParserPath,
-});
-const placeHolderFilePath = path.resolve(`${__dirname}/../fixtures/rule-tester-project/file.ts`);
+const ruleTester = new RuleTesterTs();
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];
@@ -45,7 +36,6 @@ function invalid(code: string) {
     }
   }
   return {
-    filename: placeHolderFilePath,
     code: code,
     errors,
   };
@@ -54,7 +44,6 @@ function invalid(code: string) {
 ruleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
-      filename: placeHolderFilePath,
       code: `
         const a = 1, b = 2, c = 3, d = 4, x = "", y = 5;
         
@@ -105,7 +94,6 @@ ruleTester.run('Parameters should be passed in the correct order', rule, {
   ],
   invalid: [
     {
-      filename: placeHolderFilePath,
       code: `
         function differentTypes(x: string, y: number, z = 42) {}
         function nokForSameType(z: number, y: number) {
@@ -122,7 +110,6 @@ ruleTester.run('Parameters should be passed in the correct order', rule, {
       ],
     },
     {
-      filename: placeHolderFilePath,
       code: `
         interface A {
           prop1: number
