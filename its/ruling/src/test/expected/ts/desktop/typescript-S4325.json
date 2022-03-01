@@ -5,12 +5,6 @@
 'desktop:app/src/main-process/main.ts':[
 115,
 ],
-'desktop:app/src/main-process/menu/find-menu-item.ts':[
-11,
-],
-'desktop:app/src/models/app-menu.ts':[
-188,
-],
 'desktop:app/src/models/diff.ts':[
 366,
 ],
@@ -25,8 +19,5 @@
 ],
 'desktop:app/src/ui/diff/index.tsx':[
 164,
-],
-'desktop:tslint-rules/reactNoUnboundDispatcherPropsRule.ts':[
-82,
 ],
 }
