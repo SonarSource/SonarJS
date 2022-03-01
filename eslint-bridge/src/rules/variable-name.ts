@@ -41,8 +41,8 @@ export const rule: Rule.RuleModule = {
         checkVariable(node as TSESTree.VariableDeclaration, context),
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression':
         (node: estree.Node) => checkFunction(node as FunctionLike, context),
-      ClassProperty: (node: estree.Node) =>
-        checkProperty(node as unknown as TSESTree.ClassProperty, context),
+      PropertyDefinition: (node: estree.Node) =>
+        checkProperty(node as unknown as TSESTree.PropertyDefinition, context),
       CatchClause: (node: estree.Node) => checkCatch(node as TSESTree.CatchClause, context),
     };
   },
@@ -68,7 +68,7 @@ function checkFunction(func: FunctionLike, context: Rule.RuleContext) {
   );
 }
 
-function checkProperty(prop: TSESTree.ClassProperty, context: Rule.RuleContext) {
+function checkProperty(prop: TSESTree.PropertyDefinition, context: Rule.RuleContext) {
   if (prop.key.type === 'Identifier') {
     raiseOnInvalidIdentifier(prop.key, 'property', context);
   }

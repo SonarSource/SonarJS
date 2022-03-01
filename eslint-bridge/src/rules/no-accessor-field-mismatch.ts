@@ -86,8 +86,8 @@ export const rule: Rule.RuleModule = {
       ClassBody: (node: estree.Node) => {
         const classBody = node as TSESTree.ClassBody;
         const fields = getFieldMap(classBody.body, classElement =>
-          (classElement.type === 'ClassProperty' ||
-            classElement.type === 'TSAbstractClassProperty') &&
+          (classElement.type === 'PropertyDefinition' ||
+            classElement.type === 'TSAbstractPropertyDefinition') &&
           !classElement.static
             ? classElement.key
             : null,

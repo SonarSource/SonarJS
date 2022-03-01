@@ -167,9 +167,7 @@ function declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode: TSESTree.Typ
   return (
     isVoidType(returnTypeNode) ||
     (returnTypeNode.type === 'TSUnionType' &&
-      returnTypeNode.types.some(declaredReturnTypeContainsVoidOrNeverTypes)) ||
-    (returnTypeNode.type === 'TSParenthesizedType' &&
-      declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode.typeAnnotation))
+      returnTypeNode.types.some(declaredReturnTypeContainsVoidOrNeverTypes))
   );
 }
 
