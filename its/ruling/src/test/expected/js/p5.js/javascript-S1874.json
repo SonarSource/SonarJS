@@ -1,4 +1,12 @@
 {
+'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+2433,
+2433,
+4316,
+4316,
+4503,
+4503,
+],
 'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
 123,
 ],
@@ -17,5 +25,9 @@
 643,
 645,
 647,
+],
+'p5.js:src/typography/loading_displaying.js':[
+120,
+124,
 ],
 }

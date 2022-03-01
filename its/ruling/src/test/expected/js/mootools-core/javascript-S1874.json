@@ -1,10 +1,14 @@
 {
 'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
+1662,
 2579,
 ],
 'mootools-core:Source/Browser/Browser.js':[
 51,
 121,
+],
+'mootools-core:Source/Request/Request.js':[
+190,
 ],
 'mootools-core:Source/Types/Function.js':[
 91,
