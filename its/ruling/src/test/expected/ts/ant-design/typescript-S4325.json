@@ -3,10 +3,8 @@
 37,
 ],
 'ant-design:components/form/FormItem.tsx':[
-94,
 236,
 237,
-255,
 ],
 'ant-design:components/notification/index.tsx':[
 72,
@@ -19,11 +17,5 @@
 ],
 'ant-design:components/table/filterDropdown.tsx':[
 177,
-],
-'ant-design:components/tabs/index.tsx':[
-129,
-],
-'ant-design:components/tooltip/index.tsx':[
-185,
 ],
 }
