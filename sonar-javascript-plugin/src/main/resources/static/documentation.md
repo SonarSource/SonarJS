@@ -28,7 +28,7 @@ Discover and update the CSS [properties](/analysis/analysis-parameters/) in: **<
 
 ## Supported Frameworks, Versions and Languages
 * ECMAScript 3, 5, 2015, 2016, 2017, 2018, 2019, and 2020
-* TypeScript 4.6
+* TypeScript 4.5
 * React JSX
 * Vue.js
 * Flow
