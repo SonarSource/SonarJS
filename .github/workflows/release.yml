@@ -20,7 +20,7 @@ jobs:
         id: release
         env:
           ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
-          BINARIES_AWS_DEPLOY: ${{ secrets.BINARIES_AWS_DEPLOY }} # Required for pushing the binaries
+          BINARIES_AWS_DEPLOY: ${{ secrets.BINARIES_AWS_DEPLOY }}
           BURGRX_USER: ${{ secrets.BURGRX_USER }}
           BURGRX_PASSWORD: ${{ secrets.BURGRX_PASSWORD }}
           CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
@@ -32,7 +32,7 @@ jobs:
         uses: SonarSource/gh-action_release/main@v4
         with:
           distribute: true
-          publish_to_binaries: true # Used only if the binaries is delivered to customers
+          publish_to_binaries: true
           attach_artifacts_to_github_release: true
           slack_channel: team-lang-js-ts-css
       - name: Release action results
@@ -43,7 +43,7 @@ jobs:
           echo "${{ steps.release.outputs.publish_to_binaries }}"
           echo "${{ steps.release.outputs.release }}"
 
-  maven-central-sync: # Only required for OSS projects
+  maven-central-sync:
     runs-on: ubuntu-latest
     name: Maven Central Sync
     needs:
