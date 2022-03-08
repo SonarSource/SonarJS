@@ -1,27 +1,26 @@
 name: sonar-release
-# This workflow is triggered when publishing a new github release
+
 on:
   release:
     types:
       - published
 
-env:
-  PYTHONUNBUFFERED: 1
-
 jobs:
-  sonar_release:
+  release:
     runs-on: ubuntu-latest
     name: Release
     steps:
-      - name: Release
-        id: sonar_release
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          distribute: true
-          publish_to_binaries: true
-          attach_artifacts_to_github_release: true
-          slack_channel: team-lang-js-ts-css
+          aws-access-key-id: ${{ secrets.BINARIES_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BINARIES_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.BINARIES_AWS_REGION }}
+      - name: Release
+        id: release
         env:
           ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+          BINARIES_AWS_DEPLOY: ${{ secrets.BINARIES_AWS_DEPLOY }}
           BURGRX_USER: ${{ secrets.BURGRX_USER }}
           BURGRX_PASSWORD: ${{ secrets.BURGRX_PASSWORD }}
           CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
@@ -30,19 +29,25 @@ jobs:
           RELEASE_SSH_USER: ${{ secrets.RELEASE_SSH_USER }}
           RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
           SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
-        # Put your action repo here
         uses: SonarSource/gh-action_release/main@v4
-
-      - name: Check outputs
+        with:
+          distribute: true
+          publish_to_binaries: true
+          attach_artifacts_to_github_release: true
+          slack_channel: team-lang-js-ts-css
+      - name: Release action results
         if: always()
         run: |
-          echo "${{ steps.lt_release.outputs.releasability }}"
-          echo "${{ steps.lt_release.outputs.release }}"
-  
+          echo "${{ steps.release.outputs.releasability }}"
+          echo "${{ steps.release.outputs.promote }}"
+          echo "${{ steps.release.outputs.publish_to_binaries }}"
+          echo "${{ steps.release.outputs.release }}"
+
   maven-central-sync:
     runs-on: ubuntu-latest
+    name: Maven Central Sync
     needs:
-      - sonar_release
+      - release
     steps:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v1
@@ -76,7 +81,8 @@ jobs:
         if: ${{ failure() || steps.maven-central-sync.outcome == 'failure' }}
         uses: 8398a7/action-slack@v3
         with:
+          text: 'Maven sync failed'
           status: failure
           fields: repo,author,eventName
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_BUILD_WEBHOOK }}      
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_BUILD_WEBHOOK }}
