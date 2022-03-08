@@ -31,9 +31,7 @@ jobs:
           SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
         uses: SonarSource/gh-action_release/main@v4
         with:
-          distribute: true
           publish_to_binaries: true
-          attach_artifacts_to_github_release: true
           slack_channel: team-lang-js-ts-css
       - name: Release action results
         if: always()
