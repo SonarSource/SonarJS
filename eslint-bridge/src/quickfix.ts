@@ -49,6 +49,9 @@ const quickFixRules = new Set([
   'prefer-namespace-keyword',
   'prefer-readonly',
   'no-non-null-assertion',
+
+  // sonarjs
+  'no-commented-code',
 ]);
 
 const quickFixMessages = new Map<string, string>([
