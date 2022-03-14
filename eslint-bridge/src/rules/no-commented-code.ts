@@ -36,6 +36,7 @@ export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       commentedCode: 'Remove this commented out code.',
+      commentedCodeFix: 'Remove this commented out code',
     },
     hasSuggestions: true,
   },
@@ -92,7 +93,7 @@ export const rule: Rule.RuleModule = {
               loc: getCommentLocation(groupComment.nodes),
               suggest: [
                 {
-                  messageId: 'commentedCode',
+                  messageId: 'commentedCodeFix',
                   fix(fixer) {
                     const start = groupComment.nodes[0].range[0];
                     const end = groupComment.nodes[groupComment.nodes.length - 1].range[1];
