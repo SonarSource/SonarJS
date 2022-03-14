@@ -22,6 +22,7 @@ import { Linter, Rule as ESLintRule, SourceCode } from 'eslint';
 import { IssueLocation } from './analyzer';
 
 const quickFixRules = new Set([
+  // eslint core
   'comma-dangle',
   'eol-last',
   'no-extra-semi',
@@ -34,6 +35,9 @@ const quickFixRules = new Set([
   'quotes',
   'radix',
   'semi',
+
+  // eslint core with fix from decorator
+  'no-dupe-keys',
 
   // sonarjs plugin
   'no-inverted-boolean-check',
