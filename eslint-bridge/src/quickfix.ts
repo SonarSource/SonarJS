@@ -52,6 +52,7 @@ const quickFixRules = new Set([
 
   // sonarjs
   'no-redundant-parentheses',
+  'no-commented-code',
 ]);
 
 const quickFixMessages = new Map<string, string>([
