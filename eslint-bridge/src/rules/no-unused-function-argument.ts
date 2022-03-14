@@ -29,7 +29,8 @@ export const rule: Rule.RuleModule = {
     messages: {
       removeOrRenameParameter:
         'Remove the unused function parameter "{{param}}" or rename it to "_{{param}}" to make intention explicit.',
-      removeOrRenameParameterFix: 'Rename {{param}} to _{{param}}',
+      suggestRemoveParameter: 'Remove {{param}} (beware of call sites)',
+      suggestRenameParameter: 'Rename {{param}} to _{{param}}',
     },
   },
   create(context: Rule.RuleContext) {
@@ -74,7 +75,7 @@ function reportUnusedArgument(
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
   }
 
-  for (const param of parametersVariable) {
+  for (const [idx, param] of parametersVariable.entries()) {
     if (isUnusedVariable(param) && !isIgnoredParameter(param) && !isParameterProperty(param)) {
       context.report({
         messageId: 'removeOrRenameParameter',
@@ -82,18 +83,46 @@ function reportUnusedArgument(
         data: {
           param: param.name,
         },
-        suggest: [
-          {
-            messageId: 'removeOrRenameParameterFix',
-            data: {
-              param: param.name,
-            },
-            fix: fixer => fixer.replaceText(param.identifiers[0], `_${param.name}`),
-          },
-        ],
+        suggest: getSuggestions(param, idx),
       });
     }
   }
+}
+
+function getSuggestions(paramVariable: Scope.Variable, paramIndex: number) {
+  const paramIdentifier = paramVariable.identifiers[0];
+  const suggestions: Rule.SuggestionReportDescriptor[] = [
+    {
+      messageId: 'suggestRenameParameter',
+      data: {
+        param: paramVariable.name,
+      },
+      fix: fixer => fixer.replaceText(paramIdentifier, `_${paramVariable.name}`),
+    },
+  ];
+  const funct = paramVariable.defs[0].node as TSESTree.FunctionLike;
+  if ((paramIdentifier as TSESTree.Node).parent === funct) {
+    suggestions.push({
+      messageId: 'suggestRemoveParameter',
+      data: {
+        param: paramVariable.name,
+      },
+      fix: fixer => {
+        if (funct.params.length === 1) {
+          return fixer.remove(funct.params[paramIndex] as estree.Node);
+        } else if (funct.params.length - 1 === paramIndex) {
+          const [, start] = funct.params[paramIndex - 1].range;
+          const [, end] = funct.params[paramIndex].range;
+          return fixer.removeRange([start, end]);
+        } else {
+          const [start] = funct.params[paramIndex].range;
+          const [end] = funct.params[paramIndex + 1].range;
+          return fixer.removeRange([start, end]);
+        }
+      },
+    });
+  }
+  return suggestions;
 }
 
 function isUnusedVariable(variable: Scope.Variable) {

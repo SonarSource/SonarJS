@@ -197,13 +197,49 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       errors: 1,
     },
     {
-      code: `function fun(a, b, c) { a = c; }`,
+      code: `function fun(a, b, c, d, {e}, f, g) { b = d = f; }`,
       errors: [
         {
           suggestions: [
             {
-              desc: 'Rename b to _b',
-              output: 'function fun(a, _b, c) { a = c; }',
+              desc: 'Rename a to _a',
+              output: 'function fun(_a, b, c, d, {e}, f, g) { b = d = f; }',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: 'function fun(b, c, d, {e}, f, g) { b = d = f; }',
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Rename c to _c',
+              output: 'function fun(a, b, _c, d, {e}, f, g) { b = d = f; }',
+            },
+            {
+              desc: 'Remove c (beware of call sites)',
+              output: 'function fun(a, b, d, {e}, f, g) { b = d = f; }',
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Rename e to _e',
+              output: 'function fun(a, b, c, d, {_e}, f, g) { b = d = f; }',
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Rename g to _g',
+              output: 'function fun(a, b, c, d, {e}, f, _g) { b = d = f; }',
+            },
+            {
+              desc: 'Remove g (beware of call sites)',
+              output: 'function fun(a, b, c, d, {e}, f) { b = d = f; }',
             },
           ],
         },
