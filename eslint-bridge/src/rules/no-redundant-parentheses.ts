@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-1110
+// https://sonarsource.github.io/rspec/#/rspec/S1110/javascript
 
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
@@ -36,6 +36,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
+    hasSuggestions: true,
   },
   create(context: Rule.RuleContext) {
     return {
@@ -67,6 +68,17 @@ function checkRedundantParentheses(
         parentheses.closingParenthesis,
       ]),
       loc: parentheses.openingParenthesis.loc,
+      suggest: [
+        {
+          desc: 'Remove these useless parentheses',
+          fix(fixer) {
+            return [
+              fixer.remove(parentheses.openingParenthesis),
+              fixer.remove(parentheses.closingParenthesis),
+            ];
+          },
+        },
+      ],
     });
   });
 }

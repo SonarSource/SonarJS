@@ -35,7 +35,7 @@ const quickFixRules = new Set([
   'radix',
   'semi',
 
-  // sonarjs plugin
+  // eslint-plugin-sonarjs
   'no-inverted-boolean-check',
   'prefer-immediate-return',
   'prefer-while',
@@ -52,6 +52,7 @@ const quickFixRules = new Set([
 
   // sonarjs
   'no-commented-code',
+  'no-redundant-parentheses',
 ]);
 
 const quickFixMessages = new Map<string, string>([

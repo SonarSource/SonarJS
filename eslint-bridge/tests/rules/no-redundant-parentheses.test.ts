@@ -64,6 +64,9 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
           endLine: 1,
           column: 16,
           endColumn: 17,
+          suggestions: [
+            { desc: 'Remove these useless parentheses', output: 'var a = typeof (37);' },
+          ],
         },
       ],
     },
