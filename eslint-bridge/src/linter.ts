@@ -104,7 +104,7 @@ export class LinterWrapper {
         externalRuleDecorator.ruleKey,
         externalRuleDecorator.decorate(this.linter.getRules().get(externalRuleDecorator.ruleKey)!),
       );
-    })
+    });
 
     // TS implementation of no-throw-literal is not supporting JS code.
     delete typescriptEslintRules['no-throw-literal'];
