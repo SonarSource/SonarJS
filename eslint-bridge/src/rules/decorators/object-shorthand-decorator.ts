@@ -22,8 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { interceptReport } from '../utils';
+import { interceptReport } from '../../utils';
 
+// core implementation of this rule raises issues on aura lightning components
 export function decorateObjectShorthand(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isAuraLightningComponent));
 }

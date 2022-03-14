@@ -17,31 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter } from 'eslint';
-import { RuleTesterTs } from '../RuleTesterTs';
+import { Linter, RuleTester } from 'eslint';
+import { decorateObjectShorthand } from 'rules/decorators/object-shorthand-decorator';
 
-import { decorateNoRedeclare } from 'rules/no-redeclare-decorator';
+const rule = decorateObjectShorthand(new Linter().getRules().get('object-shorthand'));
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018 },
+});
 
-const ruleTester = new RuleTesterTs();
-const rule = decorateNoRedeclare(new Linter().getRules().get('no-redeclare'));
-
-ruleTester.run(`Variables and functions should not be redeclared`, rule, {
+ruleTester.run(`Object literal shorthand syntax should be used`, rule, {
   valid: [
     {
+      code: `const obj = { foo };`,
+    },
+    {
       code: `
-      export const FOO = 'FOO';
-      export type FOO = typeof FOO;`,
+      ({
+        foo: function(component, event, helper) {}
+      });
+      `,
     },
   ],
   invalid: [
     {
-      code: `var a = 42; var a = 0;`,
-      errors: 1,
+      code: `const obj = { foo: foo };`,
+      output: `const obj = { foo };`,
+      errors: [
+        {
+          line: 1,
+          column: 15,
+          endLine: 1,
+          endColumn: 18,
+        },
+      ],
     },
     {
-      code: `
-      export var FOO = 'FOO';
-      export var FOO = typeof FOO;`,
+      code: `({ foo: foo });`,
+      output: `({ foo });`,
       errors: 1,
     },
   ],

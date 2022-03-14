@@ -19,25 +19,27 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../utils';
+import { interceptReport } from '../../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-export function decoratePreferTemplate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isTwoOperands));
+// core implementation of this rule raises issues on type exports
+export function decorateNoRedeclare(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, reportExempting(isTypeDeclaration));
 }
 
 function reportExempting(
-  exemptionCondition: (node: estree.BinaryExpression) => boolean,
+  exemptionCondition: (node: estree.Identifier) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
-      const expr = reportDescriptor['node'] as estree.BinaryExpression;
-      if (!exemptionCondition(expr)) {
+      const node = reportDescriptor['node'];
+      if (node.type === 'Identifier' && !exemptionCondition(node)) {
         context.report(reportDescriptor);
       }
     }
   };
 }
 
-function isTwoOperands(node: estree.BinaryExpression) {
-  return node.right.type !== 'BinaryExpression' && node.left.type !== 'BinaryExpression';
+function isTypeDeclaration(node: estree.Identifier) {
+  return (node as TSESTree.Node).parent?.type === 'TSTypeAliasDeclaration';
 }

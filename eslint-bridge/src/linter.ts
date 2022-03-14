@@ -32,11 +32,8 @@ import {
 } from './runner/symbol-highlighter';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
-import { decoratePreferTemplate } from './rules/prefer-template-decorator';
-import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
-import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
-import { decorateObjectShorthand } from './rules/object-shorthand-decorator';
 import { getQuickFixes } from './quickfix';
+import { externalRuleDecorators } from './rules/decorators';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -98,38 +95,16 @@ export class LinterWrapper {
       decorateJavascriptEslint(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
     );
 
-    const TRAILING_COMMA = 'enforce-trailing-comma';
-
     // S1537 and S3723 both depend on the same eslint implementation
     // but the plugin doesn't allow duplicates of the same key.
-    this.linter.defineRule(TRAILING_COMMA, this.linter.getRules().get('comma-dangle')!);
+    this.linter.defineRule('enforce-trailing-comma', this.linter.getRules().get('comma-dangle')!);
 
-    const ACCESSOR_PAIRS = 'accessor-pairs';
-    this.linter.defineRule(
-      ACCESSOR_PAIRS,
-      decorateAccessorPairs(this.linter.getRules().get(ACCESSOR_PAIRS)!),
-    );
-
-    // core implementation of this rule raises issues on binary expressions with string literal operand(s)
-    const PREFER_TEMPLATE = 'prefer-template';
-    this.linter.defineRule(
-      PREFER_TEMPLATE,
-      decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
-    );
-
-    // core implementation of this rule raises issues on type exports
-    const NO_REDECLARE = 'no-redeclare';
-    this.linter.defineRule(
-      NO_REDECLARE,
-      decorateNoRedeclare(this.linter.getRules().get(NO_REDECLARE)!),
-    );
-
-    // core implementation of this rule raises issues on aura lightning components
-    const OBJECT_SHORTHAND = 'object-shorthand';
-    this.linter.defineRule(
-      OBJECT_SHORTHAND,
-      decorateObjectShorthand(this.linter.getRules().get(OBJECT_SHORTHAND)!),
-    );
+    externalRuleDecorators.forEach(externalRuleDecorator => {
+      this.linter.defineRule(
+        externalRuleDecorator.ruleKey,
+        externalRuleDecorator.decorate(this.linter.getRules().get(externalRuleDecorator.ruleKey)!),
+      );
+    })
 
     // TS implementation of no-throw-literal is not supporting JS code.
     delete typescriptEslintRules['no-throw-literal'];

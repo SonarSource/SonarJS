@@ -18,51 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { decorateAccessorPairs } from 'rules/accessor-pairs-decorator';
-import { RuleTesterJsWithTypes } from '../RuleTesterJsWithTypes';
+import { RuleTesterTs } from '../../RuleTesterTs';
 
-const ruleTester = new RuleTesterJsWithTypes();
-const rule = decorateAccessorPairs(new Linter().getRules().get('accessor-pairs'));
+import { decorateNoRedeclare } from 'rules/decorators/no-redeclare-decorator';
 
-ruleTester.run(`Property getters and setters should come in pairs`, rule, {
+const ruleTester = new RuleTesterTs();
+const rule = decorateNoRedeclare(new Linter().getRules().get('no-redeclare'));
+
+ruleTester.run(`Variables and functions should not be redeclared`, rule, {
   valid: [
     {
       code: `
-      class C {
-        get m() { return this.a; }
-        set m(a) { this.a = a; }
-      }`,
-    },
-    {
-      code: `
-      class C {
-        @Input()
-        set m(a) { this.a = a; }
-      }`,
+      export const FOO = 'FOO';
+      export type FOO = typeof FOO;`,
     },
   ],
   invalid: [
     {
-      code: `
-      class C {
-        set m(a) { this.a = a; }
-      }`,
+      code: `var a = 42; var a = 0;`,
       errors: 1,
     },
     {
       code: `
-      class C {
-        @Input
-        set m(a) { this.a = a; }
-      }`,
-      errors: 1,
-    },
-    {
-      code: `
-      class C {
-        @NonAngularInput()
-        set m(a) { this.a = a; }
-      }`,
+      export var FOO = 'FOO';
+      export var FOO = typeof FOO;`,
       errors: 1,
     },
   ],

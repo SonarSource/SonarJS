@@ -17,44 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
-import { decorateObjectShorthand } from 'rules/object-shorthand-decorator';
+import { Linter } from 'eslint';
+import { decorateAccessorPairs } from 'rules/decorators/accessor-pairs-decorator';
+import { RuleTesterJsWithTypes } from '../../RuleTesterJsWithTypes';
 
-const rule = decorateObjectShorthand(new Linter().getRules().get('object-shorthand'));
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2018 },
-});
+const ruleTester = new RuleTesterJsWithTypes();
+const rule = decorateAccessorPairs(new Linter().getRules().get('accessor-pairs'));
 
-ruleTester.run(`Object literal shorthand syntax should be used`, rule, {
+ruleTester.run(`Property getters and setters should come in pairs`, rule, {
   valid: [
     {
-      code: `const obj = { foo };`,
+      code: `
+      class C {
+        get m() { return this.a; }
+        set m(a) { this.a = a; }
+      }`,
     },
     {
       code: `
-      ({
-        foo: function(component, event, helper) {}
-      });
-      `,
+      class C {
+        @Input()
+        set m(a) { this.a = a; }
+      }`,
     },
   ],
   invalid: [
     {
-      code: `const obj = { foo: foo };`,
-      output: `const obj = { foo };`,
-      errors: [
-        {
-          line: 1,
-          column: 15,
-          endLine: 1,
-          endColumn: 18,
-        },
-      ],
+      code: `
+      class C {
+        set m(a) { this.a = a; }
+      }`,
+      errors: 1,
     },
     {
-      code: `({ foo: foo });`,
-      output: `({ foo });`,
+      code: `
+      class C {
+        @Input
+        set m(a) { this.a = a; }
+      }`,
+      errors: 1,
+    },
+    {
+      code: `
+      class C {
+        @NonAngularInput()
+        set m(a) { this.a = a; }
+      }`,
       errors: 1,
     },
   ],
