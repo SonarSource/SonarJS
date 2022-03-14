@@ -92,7 +92,7 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
               desc: 'Remove this redundant argument',
               output: `
       function foo(p1: number | undefined, p2?: number, p3 = 42) {}
-      foo(1, undefined);
+      foo(1, undefined, );
       foo(1, undefined);
       `,
             },
@@ -105,7 +105,7 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
               output: `
       function foo(p1: number | undefined, p2?: number, p3 = 42) {}
       foo(1, undefined, undefined);
-      foo(1);
+      foo(1, );
       `,
             },
           ],
@@ -137,6 +137,7 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       code: `
       function fun(p = 42) {}
       fun(undefined,);
+      fun(( ( undefined ) ),);
       `,
       errors: [
         {
@@ -145,7 +146,39 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
               desc: 'Remove this redundant argument',
               output: `
       function fun(p = 42) {}
-      fun(,);
+      fun();
+      fun(( ( undefined ) ),);
+      `,
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: `
+      function fun(p = 42) {}
+      fun(undefined,);
+      fun();
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+      function fun(p, q, r = 42) {}
+      fun(1, 2, undefined, );
+      `,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: `
+      function fun(p, q, r = 42) {}
+      fun(1, 2, );
       `,
             },
           ],

@@ -53,11 +53,14 @@ export const rule: Rule.RuleModule = {
                 {
                   messageId: 'suggestRemoveUndefined',
                   fix: fixer => {
+                    const closingParen = context.getSourceCode().getLastToken(node)!;
+                    const [end] = closingParen.range;
                     if (call.arguments.length === 1) {
-                      return fixer.remove(lastArgument);
+                      const openingParen = context.getSourceCode().getTokenAfter(call.callee)!;
+                      const [, begin] = openingParen.range;
+                      return fixer.removeRange([begin, end]);
                     } else {
-                      const [, begin] = args[args.length - 2].range!;
-                      const [, end] = lastArgument.range!;
+                      const [begin] = lastArgument.range!;
                       return fixer.removeRange([begin, end]);
                     }
                   },
