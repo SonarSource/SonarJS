@@ -196,5 +196,18 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: 1,
     },
+    {
+      code: `function fun(a, b, c) { a = c; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename b to _b',
+              output: 'function fun(a, _b, c) { a = c; }',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

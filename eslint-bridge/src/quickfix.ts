@@ -54,6 +54,7 @@ const quickFixRules = new Set([
   'no-commented-code',
   'no-redundant-parentheses',
   'no-unthrown-error',
+  'no-unused-function-argument',
 ]);
 
 const quickFixMessages = new Map<string, string>([

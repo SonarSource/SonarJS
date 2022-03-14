@@ -25,9 +25,11 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       removeOrRenameParameter:
         'Remove the unused function parameter "{{param}}" or rename it to "_{{param}}" to make intention explicit.',
+      removeOrRenameParameterFix: 'Rename {{param}} to _{{param}}',
     },
   },
   create(context: Rule.RuleContext) {
@@ -80,6 +82,15 @@ function reportUnusedArgument(
         data: {
           param: param.name,
         },
+        suggest: [
+          {
+            messageId: 'removeOrRenameParameterFix',
+            data: {
+              param: param.name,
+            },
+            fix: fixer => fixer.replaceText(param.identifiers[0], `_${param.name}`),
+          },
+        ],
       });
     }
   }
