@@ -75,7 +75,7 @@ function reportUnusedArgument(
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
   }
 
-  for (const [idx, param] of parametersVariable.entries()) {
+  for (const param of parametersVariable) {
     if (isUnusedVariable(param) && !isIgnoredParameter(param) && !isParameterProperty(param)) {
       context.report({
         messageId: 'removeOrRenameParameter',
@@ -83,13 +83,13 @@ function reportUnusedArgument(
         data: {
           param: param.name,
         },
-        suggest: getSuggestions(param, idx),
+        suggest: getSuggestions(param),
       });
     }
   }
 }
 
-function getSuggestions(paramVariable: Scope.Variable, paramIndex: number) {
+function getSuggestions(paramVariable: Scope.Variable) {
   const paramIdentifier = paramVariable.identifiers[0];
   const suggestions: Rule.SuggestionReportDescriptor[] = [
     {
@@ -108,6 +108,7 @@ function getSuggestions(paramVariable: Scope.Variable, paramIndex: number) {
         param: paramVariable.name,
       },
       fix: fixer => {
+        const paramIndex = funct.params.indexOf(paramIdentifier as TSESTree.Parameter);
         if (funct.params.length === 1) {
           return fixer.remove(funct.params[paramIndex] as estree.Node);
         } else if (funct.params.length - 1 === paramIndex) {
