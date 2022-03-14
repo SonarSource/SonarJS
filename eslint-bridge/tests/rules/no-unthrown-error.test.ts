@@ -47,6 +47,12 @@ ruleTester.run('Exception should not be created without being thrown', rule, {
           column: 1,
           endLine: 1,
           endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Throw this error',
+              output: 'throw new Error();',
+            },
+          ],
         },
       ],
     },

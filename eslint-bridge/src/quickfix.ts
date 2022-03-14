@@ -52,6 +52,7 @@ const quickFixRules = new Set([
 
   // sonarjs
   'no-commented-code',
+  'no-unthrown-error',
 ]);
 
 const quickFixMessages = new Map<string, string>([
