@@ -37,6 +37,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       commentedCode: 'Remove this commented out code.',
     },
+    hasSuggestions: true,
   },
   create(context: Rule.RuleContext) {
     function getGroupedComments(comments: TSESTree.Comment[]): GroupComment[] {
@@ -89,6 +90,16 @@ export const rule: Rule.RuleModule = {
             context.report({
               messageId: 'commentedCode',
               loc: getCommentLocation(groupComment.nodes),
+              suggest: [
+                {
+                  messageId: 'commentedCode',
+                  fix(fixer) {
+                    const start = groupComment.nodes[0].range[0];
+                    const end = groupComment.nodes[groupComment.nodes.length - 1].range[1];
+                    return fixer.removeRange([start, end]);
+                  },
+                },
+              ],
             });
           }
         });
