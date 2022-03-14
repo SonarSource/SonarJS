@@ -85,7 +85,34 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       foo(1, undefined, undefined);
       foo(1, undefined);
       `,
-      errors: 2,
+      errors: [
+        {
+          messageId: 'removeUndefined',
+          suggestions: [
+            {
+              desc: 'Remove "undefined"',
+              output: `
+      function foo(p1: number | undefined, p2?: number, p3 = 42) {}
+      foo(1, undefined);
+      foo(1, undefined);
+      `,
+            },
+          ],
+        },
+        {
+          messageId: 'removeUndefined',
+          suggestions: [
+            {
+              desc: 'Remove "undefined"',
+              output: `
+      function foo(p1: number | undefined, p2?: number, p3 = 42) {}
+      foo(1, undefined, undefined);
+      foo(1);
+      `,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `
@@ -93,7 +120,21 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       funcExprWithOneParameter(undefined);
       funcExprWithOneParameter(1);
       `,
-      errors: 1,
+      errors: [
+        {
+          messageId: 'removeUndefined',
+          suggestions: [
+            {
+              desc: 'Remove "undefined"',
+              output: `
+      let funcExprWithOneParameter = function(p = 42) {}
+      funcExprWithOneParameter();
+      funcExprWithOneParameter(1);
+      `,
+            },
+          ],
+        },
+      ],
     },
   ],
 });
