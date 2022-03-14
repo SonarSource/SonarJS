@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       removeUndefined: 'Remove this redundant "undefined".',
-      suggestRemoveUndefined: 'Remove "undefined"',
+      suggestRemoveUndefined: 'Remove this redundant argument',
     },
   },
   create(context: Rule.RuleContext) {
@@ -53,8 +53,7 @@ export const rule: Rule.RuleModule = {
                 {
                   messageId: 'suggestRemoveUndefined',
                   fix: fixer => {
-                    const singleArgument = call.arguments.length === 1;
-                    if (singleArgument) {
+                    if (call.arguments.length === 1) {
                       return fixer.remove(lastArgument);
                     } else {
                       const [, begin] = args[args.length - 2].range!;
