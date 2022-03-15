@@ -95,5 +95,57 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       `,
       errors: 1,
     },
+    {
+      code: `function foo(p = 42) {}; foo(undefined);`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: 'function foo(p = 42) {}; foo();',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(p = 42) {}; foo(undefined, );`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: 'function foo(p = 42) {}; foo();',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(p, q = 42) {}; foo(1, undefined);`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: 'function foo(p, q = 42) {}; foo(1);',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(p, q = 42) {}; foo(1, undefined, );`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: 'function foo(p, q = 42) {}; foo(1, );',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

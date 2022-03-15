@@ -55,6 +55,7 @@ const quickFixRules = new Set([
   'no-primitive-wrappers',
   'no-redundant-parentheses',
   'no-unthrown-error',
+  'no-undefined-argument',
 ]);
 
 const quickFixMessages = new Map<string, string>([
