@@ -88,5 +88,18 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       `,
       errors: 1,
     },
+    {
+      code: `[80, 3, 9, 34, 23, 5, 1].sort();`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add comparator',
+              output: '[80, 3, 9, 34, 23, 5, 1].sort((a, b) => (a - b));',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
