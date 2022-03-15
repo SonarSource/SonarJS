@@ -24,8 +24,10 @@ import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       throwOrRemoveError: 'Throw this error or remove this useless statement.',
+      suggestThrowError: 'Throw this error',
     },
   },
   create(context: Rule.RuleContext) {
@@ -41,6 +43,12 @@ export const rule: Rule.RuleModule = {
           context.report({
             messageId: 'throwOrRemoveError',
             node,
+            suggest: [
+              {
+                messageId: 'suggestThrowError',
+                fix: fixer => fixer.insertTextBefore(node, 'throw '),
+              },
+            ],
           });
         }
       },

@@ -39,7 +39,7 @@ const quickFixRules = new Set([
   // eslint core with fix from decorator
   'no-dupe-keys',
 
-  // sonarjs plugin
+  // eslint-plugin-sonarjs
   'no-inverted-boolean-check',
   'prefer-immediate-return',
   'prefer-while',
@@ -53,6 +53,11 @@ const quickFixRules = new Set([
   'prefer-namespace-keyword',
   'prefer-readonly',
   'no-non-null-assertion',
+
+  // sonarjs
+  'no-commented-code',
+  'no-redundant-parentheses',
+  'no-unthrown-error',
 ]);
 
 const quickFixMessages = new Map<string, string>([
