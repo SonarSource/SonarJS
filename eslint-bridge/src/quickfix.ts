@@ -56,6 +56,7 @@ const quickFixRules = new Set([
 
   // sonarjs
   'no-commented-code',
+  'no-global-this',
   'no-primitive-wrappers',
   'no-redundant-parentheses',
   'no-unthrown-error',

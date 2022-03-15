@@ -24,8 +24,10 @@ import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       removeThis: `Remove the use of "this".`,
+      suggestRemoveThis: 'Remove "this"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -39,9 +41,18 @@ export const rule: Rule.RuleModule = {
             ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
           );
         if ((scopeType === 'global' || scopeType === 'module') && !isInsideClass) {
+          const suggest: Rule.SuggestionReportDescriptor[] = [];
+          if (!memberExpression.computed) {
+            const propertyText = context.getSourceCode().getText(memberExpression.property);
+            suggest.push({
+              messageId: 'suggestRemoveThis',
+              fix: fixer => fixer.replaceText(node, propertyText),
+            });
+          }
           context.report({
             messageId: 'removeThis',
             node: memberExpression.object,
+            suggest,
           });
         }
       },

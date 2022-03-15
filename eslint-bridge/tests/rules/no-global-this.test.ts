@@ -95,6 +95,40 @@ const testCases = {
       }`,
       errors: 2,
     },
+    {
+      code: `this.foo = bar;`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove "this"',
+              output: 'foo = bar;',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `this.foo.bar.baz = qux;`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove "this"',
+              output: 'foo.bar.baz = qux;',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `this['f' + 'o' + 'o'] = bar;`,
+      errors: [
+        {
+          suggestions: [],
+        },
+      ],
+    },
   ],
 };
 
