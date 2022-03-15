@@ -43,6 +43,7 @@ export const rule: Rule.RuleModule = {
           const newToken = context
             .getSourceCode()
             .getFirstToken(node, token => token.value === 'new')!;
+          const [begin, end] = newToken.range;
           context.report({
             messageId: 'removeConstructor',
             data: {
@@ -52,7 +53,7 @@ export const rule: Rule.RuleModule = {
             suggest: [
               {
                 messageId: 'suggestRemoveNew',
-                fix: fixer => fixer.remove(newToken),
+                fix: fixer => fixer.removeRange([begin, end + 1]),
               },
             ],
           });

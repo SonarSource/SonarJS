@@ -174,7 +174,7 @@ ruleTester.run('Wrapper objects should not be used for primitive types', rule, {
           suggestions: [
             {
               desc: 'Remove "new" operator',
-              output: 'x =  Number(true);',
+              output: 'x = Number(true);',
             },
           ],
         },
