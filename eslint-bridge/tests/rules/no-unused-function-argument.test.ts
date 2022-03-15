@@ -314,14 +314,14 @@ ruleTester.run('Unused function parameters should be removed', rule, {
         {
           suggestions: [
             {
-              output: '_a => foo()'
+              output: '_a => foo()',
             },
             {
-              output: '() => foo()'
-            }
-          ]
-        }
-      ]
+              output: '() => foo()',
+            },
+          ],
+        },
+      ],
     },
     {
       // arrow with parentheses
@@ -362,14 +362,14 @@ ruleTester.run('Unused function parameters should be removed', rule, {
         {
           suggestions: [
             {
-              output: '(_a): (number | string) => foo()'
+              output: '(_a): (number | string) => foo()',
             },
             {
-              output: '(): (number | string) => foo()'
-            }
-          ]
-        }
-      ]
-    }
+              output: '(): (number | string) => foo()',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

@@ -127,9 +127,7 @@ function getParameterRemovalSuggestion(
       const paramIndex = func.params.indexOf(paramIdentifier as TSESTree.Parameter);
       const param = func.params[paramIndex] as estree.Node;
       if (func.params.length === 1) {
-        const openingParenthesis = context
-          .getSourceCode()
-          .getTokenBefore(param);
+        const openingParenthesis = context.getSourceCode().getTokenBefore(param);
         const closingParenthesis = context
           .getSourceCode()
           .getTokenAfter(param, token => token.value === ')');
