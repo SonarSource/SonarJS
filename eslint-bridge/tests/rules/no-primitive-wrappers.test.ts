@@ -167,5 +167,31 @@ ruleTester.run('Wrapper objects should not be used for primitive types', rule, {
         x = new String("");`,
       errors: 4,
     },
+    {
+      code: `x = new Number(true);`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove "new" operator',
+              output: 'x = Number(true);',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(): Number {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace "Number" with "number"',
+              output: 'function foo(): number {}',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

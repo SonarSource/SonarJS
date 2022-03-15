@@ -27,8 +27,10 @@ import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       removeUndefined: 'Remove this redundant "undefined".',
+      suggestRemoveUndefined: 'Remove this redundant argument',
     },
   },
   create(context: Rule.RuleContext) {
@@ -47,6 +49,24 @@ export const rule: Rule.RuleModule = {
             context.report({
               messageId: 'removeUndefined',
               node: lastArgument,
+              suggest: [
+                {
+                  messageId: 'suggestRemoveUndefined',
+                  fix: fixer => {
+                    if (call.arguments.length === 1) {
+                      const openingParen = context.getSourceCode().getTokenAfter(call.callee)!;
+                      const closingParen = context.getSourceCode().getLastToken(node)!;
+                      const [, begin] = openingParen.range;
+                      const [end] = closingParen.range;
+                      return fixer.removeRange([begin, end]);
+                    } else {
+                      const [, begin] = args[args.length - 2].range!;
+                      const [, end] = lastArgument.range!;
+                      return fixer.removeRange([begin, end]);
+                    }
+                  },
+                },
+              ],
             });
           }
         },

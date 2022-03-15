@@ -18,36 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { interceptReport } from '../utils';
+import * as estree from 'estree';
+import { interceptReport } from '../../utils';
 
-export function decorateAccessorPairs(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isDecoratedSetterWithAngularInput));
+// core implementation of this rule raises issues on binary expressions with string literal operand(s)
+export function decoratePreferTemplate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, reportExempting(isTwoOperands));
 }
 
 function reportExempting(
-  exemptionCondition: (def: TSESTree.MethodDefinition) => boolean,
+  exemptionCondition: (node: estree.BinaryExpression) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
-      const def = reportDescriptor['node'] as TSESTree.MethodDefinition;
-      if (!exemptionCondition(def)) {
+      const expr = reportDescriptor['node'] as estree.BinaryExpression;
+      if (!exemptionCondition(expr)) {
         context.report(reportDescriptor);
       }
     }
   };
 }
 
-function isDecoratedSetterWithAngularInput(def: TSESTree.MethodDefinition) {
-  const { kind, decorators } = def;
-  return (
-    kind === 'set' &&
-    decorators !== undefined &&
-    decorators.some(
-      decorator =>
-        decorator.expression.type === 'CallExpression' &&
-        decorator.expression.callee.type === 'Identifier' &&
-        decorator.expression.callee.name === 'Input',
-    )
-  );
+function isTwoOperands(node: estree.BinaryExpression) {
+  return node.right.type !== 'BinaryExpression' && node.left.type !== 'BinaryExpression';
 }

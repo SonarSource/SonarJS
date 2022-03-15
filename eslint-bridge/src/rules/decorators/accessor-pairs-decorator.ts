@@ -18,27 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { interceptReport } from '../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { interceptReport } from '../../utils';
 
-export function decorateNoRedeclare(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isTypeDeclaration));
+export function decorateAccessorPairs(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, reportExempting(isDecoratedSetterWithAngularInput));
 }
 
 function reportExempting(
-  exemptionCondition: (node: estree.Identifier) => boolean,
+  exemptionCondition: (def: TSESTree.MethodDefinition) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
-      const node = reportDescriptor['node'];
-      if (node.type === 'Identifier' && !exemptionCondition(node)) {
+      const def = reportDescriptor['node'] as TSESTree.MethodDefinition;
+      if (!exemptionCondition(def)) {
         context.report(reportDescriptor);
       }
     }
   };
 }
 
-function isTypeDeclaration(node: estree.Identifier) {
-  return (node as TSESTree.Node).parent?.type === 'TSTypeAliasDeclaration';
+function isDecoratedSetterWithAngularInput(def: TSESTree.MethodDefinition) {
+  const { kind, decorators } = def;
+  return (
+    kind === 'set' &&
+    decorators !== undefined &&
+    decorators.some(
+      decorator =>
+        decorator.expression.type === 'CallExpression' &&
+        decorator.expression.callee.type === 'Identifier' &&
+        decorator.expression.callee.name === 'Input',
+    )
+  );
 }
