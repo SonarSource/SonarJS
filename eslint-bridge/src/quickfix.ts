@@ -36,7 +36,7 @@ const quickFixRules = new Set([
   'radix',
   'semi',
 
-  // eslint core with fix from decorator
+  // decorated eslint core
   'no-dupe-keys',
 
   // eslint-plugin-sonarjs
