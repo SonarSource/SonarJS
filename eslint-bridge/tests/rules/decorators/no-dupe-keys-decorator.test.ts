@@ -27,11 +27,7 @@ const rule = decorateNoDupeKeys(new Linter().getRules().get('no-dupe-keys'));
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [
     {
-      code: `
-      let x = {
-        a: 42,
-        b: 42
-      }`,
+      code: `let x = { a: 42, b: 42 }`,
     },
   ],
   invalid: [
@@ -42,34 +38,48 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
       ],
     },
     {
-      code: `let x = { 
-        a: 42,
-        a: 42
-      }`,
+      code: `let x = { a: 42, a: 42, b: 42 }`,
+      errors: [{ suggestions: [{ output: `let x = { a: 42, b: 42 }` }] }],
+    },
+    {
+      code: `let x = { a: 42, b: 42, a: 42, }`,
+      errors: [{ suggestions: [{ output: `let x = { a: 42, b: 42, }` }] }],
+    },
+    {
+      code: `
+let x = { 
+  a: 42,
+  a: 42
+}`,
       errors: [
         {
           suggestions: [
             {
-              output: `let x = { 
-        a: 42
-      }`,
+              output: `
+let x = { 
+  a: 42
+}`,
             },
           ],
         },
       ],
     },
     {
-      code: `let x = { 
-        a: 42,
-        a: 42,
-      }`,
+      code: `
+let x = { 
+  a: 42,
+  get a() {
+    return 42;
+  },
+}`,
       errors: [
         {
           suggestions: [
             {
-              output: `let x = { 
-        a: 42,
-      }`,
+              output: `
+let x = { 
+  a: 42,
+}`,
             },
           ],
         },

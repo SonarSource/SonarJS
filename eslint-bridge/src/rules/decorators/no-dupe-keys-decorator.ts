@@ -33,20 +33,20 @@ export function decorateNoDupeKeys(rule: Rule.RuleModule): Rule.RuleModule {
         {
           desc: 'Remove this duplicate property',
           fix(fixer) {
-            const propertyToRemove = getPropertyNode(reportDescriptor);
+            const propertyToRemove = getPropertyNode(reportDescriptor, context)!;
             const commaAfter = context
               .getSourceCode()
-              .getTokenAfter(propertyToRemove!, token => token.value === ',');
+              .getTokenAfter(propertyToRemove, token => token.value === ',');
             const commaBefore = context
               .getSourceCode()
-              .getTokenBefore(propertyToRemove!, token => token.value === ',');
+              .getTokenBefore(propertyToRemove, token => token.value === ',')!;
 
-            let start = commaBefore!.range[0] + 1;
-            let end = propertyToRemove!.range![1];
+            let start = commaBefore.range[1];
+            let end = propertyToRemove.range![1];
             if (commaAfter) {
               end = commaAfter.range[1];
             } else {
-              start = commaBefore!.range[0];
+              start = commaBefore.range[0];
             }
             return fixer.removeRange([start, end]);
           },
@@ -56,15 +56,16 @@ export function decorateNoDupeKeys(rule: Rule.RuleModule): Rule.RuleModule {
   });
 }
 
-function getPropertyNode(reportDescriptor: Rule.ReportDescriptor) {
+function getPropertyNode(reportDescriptor: Rule.ReportDescriptor, context: Rule.RuleContext) {
   if ('node' in reportDescriptor && 'loc' in reportDescriptor) {
     const objectLiteral = reportDescriptor['node'] as estree.ObjectExpression;
     const loc = reportDescriptor['loc'] as AST.SourceLocation;
 
+    const transformPosToIndex = (p: estree.Position) => context.getSourceCode().getIndexFromLoc(p);
     return objectLiteral.properties.find(
       property =>
-        property.loc?.start.line === loc.start.line &&
-        property.loc?.start.column === loc.start.column,
+        transformPosToIndex(property.loc?.start!) <= transformPosToIndex(loc?.start) &&
+        transformPosToIndex(property.loc?.end!) >= transformPosToIndex(loc?.end),
     );
   } else {
     throw new Error('Missing properties in report descriptor for rule S1534');
