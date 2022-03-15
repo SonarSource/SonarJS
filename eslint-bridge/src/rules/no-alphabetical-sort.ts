@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
-      suggestCompareFunction: 'Add comparator',
+      suggestCompareFunction: 'Add a comparator function to sort in ascending order',
     },
   },
   create(context: Rule.RuleContext) {

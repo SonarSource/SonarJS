@@ -94,7 +94,7 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
         {
           suggestions: [
             {
-              desc: 'Add comparator',
+              desc: 'Add a comparator function to sort in ascending order',
               output: '[80, 3, 9, 34, 23, 5, 1].sort((a, b) => (a - b));',
             },
           ],
