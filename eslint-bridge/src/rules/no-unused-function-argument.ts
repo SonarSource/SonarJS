@@ -129,16 +129,14 @@ function getParameterRemovalSuggestion(
       if (func.params.length === 1) {
         const openingParenthesis = context
           .getSourceCode()
-          .getTokenBefore(param, token => token.value === '(');
+          .getTokenBefore(param);
         const closingParenthesis = context
           .getSourceCode()
           .getTokenAfter(param, token => token.value === ')');
         let [start, end] = param.range!;
-        if (openingParenthesis) {
+        if (openingParenthesis && openingParenthesis.value === '(') {
           start = openingParenthesis.range[0];
-        }
-        if (closingParenthesis) {
-          end = closingParenthesis.range[1];
+          end = closingParenthesis!.range[1];
         }
         return fixer.replaceTextRange([start, end], '()');
       } else if (func.params.length - 1 === paramIndex) {
