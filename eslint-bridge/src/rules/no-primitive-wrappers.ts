@@ -26,10 +26,13 @@ const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       removeConstructor: 'Remove this use of "{{constructor}}" constructor.',
       replaceWrapper:
         'Replace this "{{wrapper}}" wrapper object with primitive type "{{primitive}}".',
+      suggestRemoveNew: 'Remove "new" operator',
+      suggestReplaceWrapper: 'Replace "{{wrapper}}" with "{{primitive}}"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -37,25 +40,45 @@ export const rule: Rule.RuleModule = {
       NewExpression(node: estree.Node) {
         const constructor = (node as estree.NewExpression).callee;
         if (constructor.type === 'Identifier' && WRAPPER_TYPES.includes(constructor.name)) {
+          const newToken = context
+            .getSourceCode()
+            .getFirstToken(node, token => token.value === 'new')!;
           context.report({
             messageId: 'removeConstructor',
             data: {
               constructor: constructor.name,
             },
             node,
+            suggest: [
+              {
+                messageId: 'suggestRemoveNew',
+                fix: fixer => fixer.remove(newToken),
+              },
+            ],
           });
         }
       },
       TSTypeReference(node: estree.Node) {
         const typeString = context.getSourceCode().getText(node);
         if (WRAPPER_TYPES.includes(typeString)) {
+          const primitiveType = typeString.toLowerCase();
           context.report({
             messageId: 'replaceWrapper',
             data: {
               wrapper: typeString,
-              primitive: typeString.toLowerCase(),
+              primitive: primitiveType,
             },
             node,
+            suggest: [
+              {
+                messageId: 'suggestReplaceWrapper',
+                data: {
+                  wrapper: typeString,
+                  primitive: primitiveType,
+                },
+                fix: fixer => fixer.replaceText(node, primitiveType),
+              },
+            ],
           });
         }
       },
