@@ -85,32 +85,7 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       foo(1, undefined, undefined);
       foo(1, undefined);
       `,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove this redundant argument',
-              output: `
-      function foo(p1: number | undefined, p2?: number, p3 = 42) {}
-      foo(1, undefined, );
-      foo(1, undefined);
-      `,
-            },
-          ],
-        },
-        {
-          suggestions: [
-            {
-              desc: 'Remove this redundant argument',
-              output: `
-      function foo(p1: number | undefined, p2?: number, p3 = 42) {}
-      foo(1, undefined, undefined);
-      foo(1, );
-      `,
-            },
-          ],
-        },
-      ],
+      errors: 2,
     },
     {
       code: `
@@ -118,68 +93,55 @@ ruleTester.run(`"undefined" should not be passed as the value of optional parame
       funcExprWithOneParameter(undefined);
       funcExprWithOneParameter(1);
       `,
+      errors: 1,
+    },
+    {
+      code: `function foo(p = 42) {}; foo(undefined);`,
       errors: [
         {
           suggestions: [
             {
               desc: 'Remove this redundant argument',
-              output: `
-      let funcExprWithOneParameter = function(p = 42) {}
-      funcExprWithOneParameter();
-      funcExprWithOneParameter(1);
-      `,
+              output: 'function foo(p = 42) {}; foo();',
             },
           ],
         },
       ],
     },
     {
-      code: `
-      function fun(p = 42) {}
-      fun(undefined,);
-      fun(( ( undefined ) ),);
-      `,
+      code: `function foo(p = 42) {}; foo(undefined, );`,
       errors: [
         {
           suggestions: [
             {
               desc: 'Remove this redundant argument',
-              output: `
-      function fun(p = 42) {}
-      fun();
-      fun(( ( undefined ) ),);
-      `,
-            },
-          ],
-        },
-        {
-          suggestions: [
-            {
-              desc: 'Remove this redundant argument',
-              output: `
-      function fun(p = 42) {}
-      fun(undefined,);
-      fun();
-      `,
+              output: 'function foo(p = 42) {}; foo();',
             },
           ],
         },
       ],
     },
     {
-      code: `
-      function fun(p, q, r = 42) {}
-      fun(1, 2, undefined, );
-      `,
+      code: `function foo(p, q = 42) {}; foo(1, undefined);`,
       errors: [
         {
           suggestions: [
             {
               desc: 'Remove this redundant argument',
-              output: `
-      function fun(p, q, r = 42) {}
-      fun(1, 2, );
-      `,
+              output: 'function foo(p, q = 42) {}; foo(1);',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(p, q = 42) {}; foo(1, undefined, );`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove this redundant argument',
+              output: 'function foo(p, q = 42) {}; foo(1, );',
             },
           ],
         },
