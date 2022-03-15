@@ -245,5 +245,131 @@ ruleTester.run('Unused function parameters should be removed', rule, {
         },
       ],
     },
+    {
+      code: `function fun(a: T1, b: T2, c: T3, d: T4, e: T5) { b = d; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename a to _a',
+              output: 'function fun(_a: T1, b: T2, c: T3, d: T4, e: T5) { b = d; }',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: 'function fun(b: T2, c: T3, d: T4, e: T5) { b = d; }',
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Rename c to _c',
+              output: 'function fun(a: T1, b: T2, _c: T3, d: T4, e: T5) { b = d; }',
+            },
+            {
+              desc: 'Remove c (beware of call sites)',
+              output: 'function fun(a: T1, b: T2, d: T4, e: T5) { b = d; }',
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              desc: 'Rename e to _e',
+              output: 'function fun(a: T1, b: T2, c: T3, d: T4, _e: T5) { b = d; }',
+            },
+            {
+              desc: 'Remove e (beware of call sites)',
+              output: 'function fun(a: T1, b: T2, c: T3, d: T4) { b = d; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function fun(a, b, c, ) { a = b; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename c to _c',
+              output: 'function fun(a, b, _c, ) { a = b; }',
+            },
+            {
+              desc: 'Remove c (beware of call sites)',
+              output: 'function fun(a, b, ) { a = b; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function fun( a, ) {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename a to _a',
+              output: 'function fun( _a, ) {}',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: 'function fun() {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `(function ( a, ) {})`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename a to _a',
+              output: '(function ( _a, ) {})',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: '(function () {})',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `a => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename a to _a',
+              output: '_a => {}',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: '() => {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `( a ) => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename a to _a',
+              output: '( _a ) => {}',
+            },
+            {
+              desc: 'Remove a (beware of call sites)',
+              output: '(  ) => {}',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

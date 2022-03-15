@@ -23,6 +23,11 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
+type FunctionLike =
+  | TSESTree.ArrowFunctionExpression
+  | TSESTree.FunctionDeclaration
+  | TSESTree.FunctionExpression;
+
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
@@ -83,13 +88,13 @@ function reportUnusedArgument(
         data: {
           param: param.name,
         },
-        suggest: getSuggestions(param),
+        suggest: getSuggestions(param, context),
       });
     }
   }
 }
 
-function getSuggestions(paramVariable: Scope.Variable) {
+function getSuggestions(paramVariable: Scope.Variable, context: Rule.RuleContext) {
   const paramIdentifier = paramVariable.identifiers[0];
   const suggestions: Rule.SuggestionReportDescriptor[] = [
     {
@@ -97,27 +102,59 @@ function getSuggestions(paramVariable: Scope.Variable) {
       data: {
         param: paramVariable.name,
       },
-      fix: fixer => fixer.replaceText(paramIdentifier, `_${paramVariable.name}`),
+      fix: fixer => fixer.insertTextBefore(paramIdentifier, '_'),
     },
   ];
-  const funct = paramVariable.defs[0].node as TSESTree.FunctionLike;
-  if ((paramIdentifier as TSESTree.Node).parent === funct) {
+  const func = paramVariable.defs[0].node as FunctionLike;
+  if ((paramIdentifier as TSESTree.Node).parent === func) {
     suggestions.push({
       messageId: 'suggestRemoveParameter',
       data: {
         param: paramVariable.name,
       },
       fix: fixer => {
-        const paramIndex = funct.params.indexOf(paramIdentifier as TSESTree.Parameter);
-        if (funct.params.length === 1) {
-          return fixer.remove(funct.params[paramIndex] as estree.Node);
-        } else if (funct.params.length - 1 === paramIndex) {
-          const [, start] = funct.params[paramIndex - 1].range;
-          const [, end] = funct.params[paramIndex].range;
+        const paramIndex = func.params.indexOf(paramIdentifier as TSESTree.Parameter);
+        if (func.params.length === 1) {
+          switch (func.type) {
+            case 'ArrowFunctionExpression': {
+              const param = func.params[paramIndex] as estree.Node;
+              const token = context.getSourceCode().getTokenAfter(param);
+              if (token?.value === ')') {
+                return fixer.remove(param);
+              } else {
+                return fixer.replaceText(param, '()');
+              }
+            }
+            case 'FunctionDeclaration': {
+              const openingParen = context
+                .getSourceCode()
+                .getTokenAfter(func.id as estree.Node, token => token.value === '(')!;
+              const closingParen = context
+                .getSourceCode()
+                .getTokenBefore(func.body as estree.Node, token => token.value === ')')!;
+              const [, begin] = openingParen.range;
+              const [end] = closingParen.range;
+              return fixer.removeRange([begin, end]);
+            }
+            default: {
+              const openingParen = context
+                .getSourceCode()
+                .getFirstToken(func as estree.Node, token => token.value === '(')!;
+              const closingParen = context
+                .getSourceCode()
+                .getTokenBefore(func.body as estree.Node, token => token.value === ')')!;
+              const [, begin] = openingParen.range;
+              const [end] = closingParen.range;
+              return fixer.removeRange([begin, end]);
+            }
+          }
+        } else if (func.params.length - 1 === paramIndex) {
+          const [, start] = func.params[paramIndex - 1].range;
+          const [, end] = func.params[paramIndex].range;
           return fixer.removeRange([start, end]);
         } else {
-          const [start] = funct.params[paramIndex].range;
-          const [end] = funct.params[paramIndex + 1].range;
+          const [start] = func.params[paramIndex].range;
+          const [end] = func.params[paramIndex + 1].range;
           return fixer.removeRange([start, end]);
         }
       },
