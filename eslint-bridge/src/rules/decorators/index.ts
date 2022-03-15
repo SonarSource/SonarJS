@@ -17,32 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter } from 'eslint';
-import { RuleTesterTs } from '../RuleTesterTs';
+import { decorateAccessorPairs } from './accessor-pairs-decorator';
+import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
+import { decorateNoRedeclare } from './no-redeclare-decorator';
+import { decorateObjectShorthand } from './object-shorthand-decorator';
+import { decoratePreferTemplate } from './prefer-template-decorator';
 
-import { decorateNoRedeclare } from 'rules/no-redeclare-decorator';
-
-const ruleTester = new RuleTesterTs();
-const rule = decorateNoRedeclare(new Linter().getRules().get('no-redeclare'));
-
-ruleTester.run(`Variables and functions should not be redeclared`, rule, {
-  valid: [
-    {
-      code: `
-      export const FOO = 'FOO';
-      export type FOO = typeof FOO;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `var a = 42; var a = 0;`,
-      errors: 1,
-    },
-    {
-      code: `
-      export var FOO = 'FOO';
-      export var FOO = typeof FOO;`,
-      errors: 1,
-    },
-  ],
-});
+export const externalRuleDecorators = [
+  { decorate: decorateAccessorPairs, ruleKey: 'accessor-pairs' },
+  { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
+  { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
+  { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
+  { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
+];
