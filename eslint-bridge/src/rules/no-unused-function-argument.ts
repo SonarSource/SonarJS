@@ -34,8 +34,8 @@ export const rule: Rule.RuleModule = {
     messages: {
       removeOrRenameParameter:
         'Remove the unused function parameter "{{param}}" or rename it to "_{{param}}" to make intention explicit.',
-      suggestRemoveParameter: 'Remove {{param}} (beware of call sites)',
-      suggestRenameParameter: 'Rename {{param}} to _{{param}}',
+      suggestRemoveParameter: 'Remove "{{param}}" (beware of call sites)',
+      suggestRenameParameter: 'Rename "{{param}}" to "_{{param}}"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -125,43 +125,36 @@ function getParameterRemovalSuggestion(
     },
     fix: fixer => {
       const paramIndex = func.params.indexOf(paramIdentifier as TSESTree.Parameter);
+      const param = func.params[paramIndex] as estree.Node;
       if (func.params.length === 1) {
-        switch (func.type) {
-          case 'ArrowFunctionExpression': {
-            const param = func.params[paramIndex] as estree.Node;
-            const token = context.getSourceCode().getTokenAfter(param);
-            if (token?.value === ')') {
-              return fixer.remove(param);
-            } else {
-              return fixer.replaceText(param, '()');
-            }
-          }
-          case 'FunctionDeclaration': {
-            const openingParen = context
-              .getSourceCode()
-              .getTokenAfter(func.id as estree.Node, token => token.value === '(')!;
-            const closingParen = context
-              .getSourceCode()
-              .getTokenBefore(func.body as estree.Node, token => token.value === ')')!;
-            const [, begin] = openingParen.range;
-            const [end] = closingParen.range;
-            return fixer.removeRange([begin, end]);
-          }
-          default: {
-            const openingParen = context
-              .getSourceCode()
-              .getFirstToken(func as estree.Node, token => token.value === '(')!;
-            const closingParen = context
-              .getSourceCode()
-              .getTokenBefore(func.body as estree.Node, token => token.value === ')')!;
-            const [, begin] = openingParen.range;
-            const [end] = closingParen.range;
-            return fixer.removeRange([begin, end]);
-          }
+        const openingParenthesis = context
+          .getSourceCode()
+          .getTokenBefore(param, token => token.value === '(');
+        const closingParenthesis = context
+          .getSourceCode()
+          .getTokenAfter(param, token => token.value === ')');
+        let [start, end] = param.range!;
+        if (openingParenthesis) {
+          start = openingParenthesis.range[0];
         }
+        if (closingParenthesis) {
+          end = closingParenthesis.range[1];
+        }
+        return fixer.replaceTextRange([start, end], '()');
       } else if (func.params.length - 1 === paramIndex) {
-        const [, start] = func.params[paramIndex - 1].range;
-        const [, end] = func.params[paramIndex].range;
+        const commaAfter = context
+          .getSourceCode()
+          .getTokenAfter(param, token => token.value === ',');
+        const commaBefore = context
+          .getSourceCode()
+          .getTokenBefore(param, token => token.value === ',')!;
+        let start = commaBefore.range[1];
+        let end = param.range![1];
+        if (commaAfter) {
+          end = commaAfter.range[1];
+        } else {
+          start = commaBefore.range[0];
+        }
         return fixer.removeRange([start, end]);
       } else {
         const [start] = func.params[paramIndex].range;
