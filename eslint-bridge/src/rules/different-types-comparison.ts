@@ -26,6 +26,7 @@ import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from 
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -94,6 +95,17 @@ export const rule: Rule.RuleModule = {
               .getSourceCode()
               .getTokensBetween(left, right)
               .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
+            suggest: [
+              {
+                desc: `Replace "${actual}" with "${expected}"`,
+                fix: fixer => {
+                  const operatorToken = context
+                    .getSourceCode()
+                    .getTokenAfter(left, token => token.value === operator)!;
+                  return fixer.replaceText(operatorToken, expected);
+                },
+              },
+            ],
           });
         }
       },
