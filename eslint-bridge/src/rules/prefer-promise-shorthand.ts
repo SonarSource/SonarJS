@@ -25,16 +25,19 @@ import { isFunctionNode } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       promiseAction: 'Replace this trivial promise with "Promise.{{action}}".',
+      suggestPromiseAction: 'Replace with "Promise.{{action}}"',
     },
   },
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) => {
-        const executor = getPromiseExecutor(node as estree.NewExpression, context);
+        const newExpr = node as estree.NewExpression;
+        const executor = getPromiseExecutor(newExpr, context);
         if (executor) {
-          checkExecutor(executor, (node as estree.NewExpression).callee, context);
+          checkExecutor(newExpr, executor, context);
         }
       },
     };
@@ -52,7 +55,11 @@ function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContex
   return undefined;
 }
 
-function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext) {
+function checkExecutor(
+  newExpr: estree.NewExpression,
+  executor: estree.Node,
+  context: Rule.RuleContext,
+) {
   if (!isFunctionNode(executor)) {
     return;
   }
@@ -73,7 +80,19 @@ function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.R
           data: {
             action,
           },
-          node,
+          node: newExpr.callee,
+          suggest: [
+            {
+              messageId: 'suggestPromiseAction',
+              data: {
+                action,
+              },
+              fix: fixer => {
+                const argText = context.getSourceCode().getText(args[0]);
+                return fixer.replaceText(newExpr, `Promise.${action}(${argText})`);
+              },
+            },
+          ],
         });
       }
     }

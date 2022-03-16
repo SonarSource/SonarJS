@@ -61,6 +61,7 @@ const quickFixRules = new Set([
   'no-redundant-parentheses',
   'no-unthrown-error',
   'no-undefined-argument',
+  'prefer-promise-shorthand',
 ]);
 
 const quickFixMessages = new Map<string, string>([
