@@ -38,6 +38,7 @@ const quickFixRules = new Set([
 
   // decorated eslint core
   'no-dupe-keys',
+  'no-throw-literal',
 
   // eslint-plugin-sonarjs
   'no-inverted-boolean-check',

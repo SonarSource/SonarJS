@@ -20,6 +20,7 @@
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
+import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 
@@ -29,4 +30,5 @@ export const externalRuleDecorators = [
   { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
   { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
   { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
+  { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
 ];
