@@ -196,5 +196,180 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             }`,
       errors: 1,
     },
+    {
+      // parameter with type annotation
+      code: `function fun(a: T1, b: T2, c: T3) { a = c; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Rename "b" to "_b"',
+              output: 'function fun(a: T1, _b: T2, c: T3) { a = c; }',
+            },
+            {
+              desc: 'Remove "b" (beware of call sites)',
+              output: 'function fun(a: T1, c: T3) { a = c; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // destructured parameter
+      code: `function fun(a, { b }, c) { a = c; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function fun(a, { _b }, c) { a = c; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // unused parameter first
+      code: `function fun(a, b, c) { b = c; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function fun(_a, b, c) { b = c; }',
+            },
+            {
+              output: 'function fun(b, c) { b = c; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // unused parameter inbetween
+      code: `function fun(a, b, c) { a = c; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function fun(a, _b, c) { a = c; }',
+            },
+            {
+              output: 'function fun(a, c) { a = c; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // unused parameter last
+      code: `function fun(a, b, c) { a = b; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function fun(a, b, _c) { a = b; }',
+            },
+            {
+              output: 'function fun(a, b) { a = b; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // trailing comma
+      code: `function fun(a, b, c, ) { a = b; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function fun(a, b, _c, ) { a = b; }',
+            },
+            {
+              output: 'function fun(a, b, ) { a = b; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // arrow without parentheses
+      code: `a => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: '_a => {}',
+            },
+            {
+              output: '() => {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // arrow
+      code: `a => foo()`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: '_a => foo()',
+            },
+            {
+              output: '() => foo()',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // arrow with parentheses
+      code: `( a ) => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: '( _a ) => {}',
+            },
+            {
+              output: '() => {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // arrow with trailing comma
+      code: `( a, ) => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: '( _a, ) => {}',
+            },
+            {
+              output: '() => {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // arrow with return type
+      code: `(a): (number | string) => foo()`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: '(_a): (number | string) => foo()',
+            },
+            {
+              output: '(): (number | string) => foo()',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

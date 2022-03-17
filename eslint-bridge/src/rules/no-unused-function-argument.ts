@@ -23,11 +23,19 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
+type FunctionLike =
+  | TSESTree.ArrowFunctionExpression
+  | TSESTree.FunctionDeclaration
+  | TSESTree.FunctionExpression;
+
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       removeOrRenameParameter:
         'Remove the unused function parameter "{{param}}" or rename it to "_{{param}}" to make intention explicit.',
+      suggestRemoveParameter: 'Remove "{{param}}" (beware of call sites)',
+      suggestRenameParameter: 'Rename "{{param}}" to "_{{param}}"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -80,9 +88,77 @@ function reportUnusedArgument(
         data: {
           param: param.name,
         },
+        suggest: getSuggestions(param, context),
       });
     }
   }
+}
+
+function getSuggestions(paramVariable: Scope.Variable, context: Rule.RuleContext) {
+  const paramIdentifier = paramVariable.identifiers[0];
+  const suggestions: Rule.SuggestionReportDescriptor[] = [
+    {
+      messageId: 'suggestRenameParameter',
+      data: {
+        param: paramVariable.name,
+      },
+      fix: fixer => fixer.insertTextBefore(paramIdentifier, '_'),
+    },
+  ];
+  const func = paramVariable.defs[0].node as FunctionLike;
+  if ((paramIdentifier as TSESTree.Node).parent === func) {
+    suggestions.push(getParameterRemovalSuggestion(func, paramVariable, paramIdentifier, context));
+  }
+  return suggestions;
+}
+
+function getParameterRemovalSuggestion(
+  func: FunctionLike,
+  paramVariable: Scope.Variable,
+  paramIdentifier: estree.Identifier,
+  context: Rule.RuleContext,
+): Rule.SuggestionReportDescriptor {
+  return {
+    messageId: 'suggestRemoveParameter',
+    data: {
+      param: paramVariable.name,
+    },
+    fix: fixer => {
+      const paramIndex = func.params.indexOf(paramIdentifier as TSESTree.Parameter);
+      const param = func.params[paramIndex] as estree.Node;
+      if (func.params.length === 1) {
+        const openingParenthesis = context.getSourceCode().getTokenBefore(param);
+        const closingParenthesis = context
+          .getSourceCode()
+          .getTokenAfter(param, token => token.value === ')');
+        let [start, end] = param.range!;
+        if (openingParenthesis && openingParenthesis.value === '(') {
+          start = openingParenthesis.range[0];
+          end = closingParenthesis!.range[1];
+        }
+        return fixer.replaceTextRange([start, end], '()');
+      } else if (func.params.length - 1 === paramIndex) {
+        const commaAfter = context
+          .getSourceCode()
+          .getTokenAfter(param, token => token.value === ',');
+        const commaBefore = context
+          .getSourceCode()
+          .getTokenBefore(param, token => token.value === ',')!;
+        let start = commaBefore.range[1];
+        let end = param.range![1];
+        if (commaAfter) {
+          end = commaAfter.range[1];
+        } else {
+          start = commaBefore.range[0];
+        }
+        return fixer.removeRange([start, end]);
+      } else {
+        const [start] = func.params[paramIndex].range;
+        const [end] = func.params[paramIndex + 1].range;
+        return fixer.removeRange([start, end]);
+      }
+    },
+  };
 }
 
 function isUnusedVariable(variable: Scope.Variable) {

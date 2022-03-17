@@ -66,5 +66,31 @@ ruleTester.run('Shorthand promises should be used', rule, {
       code: `let rejectedPromise = new Promise((p1, p2) => p2(new Error('fail')));`,
       errors: [{ message: `Replace this trivial promise with "Promise.reject".` }],
     },
+    {
+      code: `new Promise(resolve => resolve(calc(42)));`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "Promise.resolve"',
+              output: 'Promise.resolve(calc(42));',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `new Promise((resolve, reject) => reject(new Error('fail')));`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "Promise.reject"',
+              output: `Promise.reject(new Error('fail'));`,
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
