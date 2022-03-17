@@ -28,6 +28,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       removeThis: `Remove the use of "this".`,
       suggestRemoveThis: 'Remove "this"',
+      suggestUseWindow: 'Replace "this" with "window" object',
     },
   },
   create(context: Rule.RuleContext) {
@@ -44,10 +45,16 @@ export const rule: Rule.RuleModule = {
           const suggest: Rule.SuggestionReportDescriptor[] = [];
           if (!memberExpression.computed) {
             const propertyText = context.getSourceCode().getText(memberExpression.property);
-            suggest.push({
-              messageId: 'suggestRemoveThis',
-              fix: fixer => fixer.replaceText(node, propertyText),
-            });
+            suggest.push(
+              {
+                messageId: 'suggestRemoveThis',
+                fix: fixer => fixer.replaceText(node, propertyText),
+              },
+              {
+                messageId: 'suggestUseWindow',
+                fix: fixer => fixer.replaceText(memberExpression.object, 'window'),
+              },
+            );
           }
           context.report({
             messageId: 'removeThis',
