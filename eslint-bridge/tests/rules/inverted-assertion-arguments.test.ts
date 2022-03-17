@@ -64,10 +64,14 @@ describe('suite', () => {
     },
     {
       code: `
-const assert = require('chai').expect;
+const assert = require('chai').assert;
 describe('suite', () => {
   it('test', () => {
-    expect(42).to.equal(aNumber);
+    assert
+      .fail(
+        42,
+         aNumber
+            );
   });
 });`,
       errors: [
@@ -75,10 +79,14 @@ describe('suite', () => {
           suggestions: [
             {
               output: `
-const assert = require('chai').expect;
+const assert = require('chai').assert;
 describe('suite', () => {
   it('test', () => {
-    expect(aNumber).to.equal(42);
+    assert
+      .fail(
+        aNumber,
+         42
+            );
   });
 });`,
             },
@@ -88,10 +96,10 @@ describe('suite', () => {
     },
     {
       code: `
-const assert = require('chai').should();
+const assert = require('chai').assert;
 describe('suite', () => {
   it('test', () => {
-    should.fail(42, aNumber);
+    assert.fail(  42  , aNumber + (anotherNumber * someNumber()), );
   });
 });`,
       errors: [
@@ -99,10 +107,10 @@ describe('suite', () => {
           suggestions: [
             {
               output: `
-const assert = require('chai').should();
+const assert = require('chai').assert;
 describe('suite', () => {
   it('test', () => {
-    should.fail(aNumber, 42);
+    assert.fail(  aNumber + (anotherNumber * someNumber())  , 42, );
   });
 });`,
             },
