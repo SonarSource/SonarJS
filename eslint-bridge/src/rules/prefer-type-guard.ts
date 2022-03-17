@@ -141,10 +141,9 @@ function getTypePredicateSuggestion(
   if (node.returnType) {
     fix = fixer => fixer.replaceText(node.returnType as unknown as estree.Node, predicate);
   } else {
-    const functionBody = node.body as estree.Node;
     const closingParenthesis = context
       .getSourceCode()
-      .getTokenBefore(functionBody, token => token.value === ')')!;
+      .getTokenBefore(node.body as estree.Node, token => token.value === ')')!;
     fix = fixer => fixer.insertTextAfter(closingParenthesis, predicate);
   }
   suggestions.push({ messageId: 'suggestTypePredicate', fix });
