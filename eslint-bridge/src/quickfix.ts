@@ -62,8 +62,9 @@ const quickFixRules = new Set([
   'no-commented-code',
   'no-primitive-wrappers',
   'no-redundant-parentheses',
-  'no-unthrown-error',
   'no-undefined-argument',
+  'no-unthrown-error',
+  'no-unused-function-argument',
   'prefer-promise-shorthand',
 ]);
 
