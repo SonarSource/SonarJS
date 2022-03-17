@@ -20,8 +20,10 @@
 import { rule } from 'rules/inverted-assertion-arguments';
 import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+// the behaviour of the rule is tested in another file; here we are just testing its quick fixes
+// until https://github.com/SonarSource/SonarJS/issues/3047 is done
 
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTester.run('Assertion arguments should be passed in the correct order', rule, {
   valid: [
     {
