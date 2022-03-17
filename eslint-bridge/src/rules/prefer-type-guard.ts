@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4322
+// https://sonarsource.github.io/rspec/#/rspec/S4322/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -29,9 +29,11 @@ type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionE
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       useTypePredicate:
         'Declare this function return type using type predicate "{{castedExpressionText}} is {{castedTypeText}}".',
+      suggestTypePredicate: 'Use type predicate',
     },
   },
   create(context: Rule.RuleContext) {
@@ -110,6 +112,8 @@ function checkCastedType(
     if (nOfParam === 1 || (nOfParam === 0 && castedType[0].type === 'ThisExpression')) {
       const castedExpressionText = sourceCode.getText(castedType[0]);
       const castedTypeText = sourceCode.getText(castedType[1]);
+      const predicate = `${castedExpressionText} is ${castedTypeText}`;
+      const suggest = getTypePredicateSuggestion(node, context, predicate);
       context.report({
         messageId: 'useTypePredicate',
         data: {
@@ -121,9 +125,35 @@ function checkCastedType(
           getParent(context) as TSESTree.Node,
           context as unknown as RuleContext,
         ),
+        suggest,
       });
     }
   }
+}
+
+function getTypePredicateSuggestion(
+  node: FunctionLikeDeclaration,
+  context: Rule.RuleContext,
+  predicate: string,
+) {
+  const suggestions: Rule.SuggestionReportDescriptor[] = [];
+  let fix: (fixer: Rule.RuleFixer) => Rule.Fix;
+  if (node.returnType) {
+    fix = fixer => fixer.replaceText(node.returnType as unknown as estree.Node, `: ${predicate}`);
+  } else {
+    const functionBody = node.body as estree.Node;
+    const closingParenthesis = context
+      .getSourceCode()
+      .getTokenBefore(functionBody, token => token.value === ')')!;
+    const openingBracket = context
+      .getSourceCode()
+      .getFirstToken(functionBody, token => token.value === '{')!;
+    const [, begin] = closingParenthesis.range;
+    const [end, _] = openingBracket.range;
+    fix = fixer => fixer.replaceTextRange([begin, end], `: ${predicate} `);
+  }
+  suggestions.push({ messageId: 'suggestTypePredicate', fix });
+  return suggestions;
 }
 
 function getCastTupleFromMemberExpression(

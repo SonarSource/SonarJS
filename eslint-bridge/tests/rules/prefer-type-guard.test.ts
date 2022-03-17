@@ -225,5 +225,32 @@ ruleTester.run('Type guards should be used', rule, {
               return !!((animal as Fish).swim);
             }
         }`),
+    {
+      code: `function isAnimal(animal: Animal) { return Boolean((animal as Fish).swim); }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Use type predicate',
+              output:
+                'function isAnimal(animal: Animal): animal is Fish { return Boolean((animal as Fish).swim); }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function isAnimal(animal: Animal): boolean { return Boolean((animal as Fish).swim); }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output:
+                'function isAnimal(animal: Animal): animal is Fish { return Boolean((animal as Fish).swim); }',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
