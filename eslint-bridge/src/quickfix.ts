@@ -31,6 +31,7 @@ const quickFixRules = new Set([
   'no-var',
   'object-shorthand',
   'prefer-const',
+  'prefer-regex-literals',
   'prefer-template',
   'quotes',
   'radix',
@@ -38,6 +39,7 @@ const quickFixRules = new Set([
 
   // decorated eslint core
   'no-dupe-keys',
+  'no-unreachable',
 
   // eslint-plugin-sonarjs
   'no-inverted-boolean-check',
@@ -61,6 +63,7 @@ const quickFixRules = new Set([
   'no-redundant-parentheses',
   'no-unthrown-error',
   'no-undefined-argument',
+  'prefer-promise-shorthand',
   'prefer-type-guard',
 ]);
 
