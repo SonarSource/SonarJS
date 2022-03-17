@@ -36,6 +36,7 @@ const ASSERT_FUNCTIONS = [
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -77,6 +78,15 @@ function checkInvertedArguments(node: estree.CallExpression, context: Rule.RuleC
       context.report({
         node: expected,
         message,
+        suggest: [
+          {
+            desc: 'Swap arguments',
+            fix: fixer => [
+              fixer.replaceText(actual, context.getSourceCode().getText(expected)),
+              fixer.replaceText(expected, context.getSourceCode().getText(actual)),
+            ],
+          },
+        ],
       });
     }
   }
