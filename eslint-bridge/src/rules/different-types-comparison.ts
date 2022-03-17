@@ -86,24 +86,20 @@ export const rule: Rule.RuleModule = {
         if (['===', '!=='].includes(operator) && haveDissimilarTypes(left, right)) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
+          const operatorToken = context
+            .getSourceCode()
+            .getTokensBetween(left, right)
+            .find(token => token.type === 'Punctuator' && token.value === operator)!;
           context.report({
             message: toEncodedMessage(
               `Remove this "${actual}" check; it will always be ${outcome}. Did you mean to use "${expected}"?`,
               [left, right],
             ),
-            loc: context
-              .getSourceCode()
-              .getTokensBetween(left, right)
-              .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
+            loc: operatorToken.loc,
             suggest: [
               {
                 desc: `Replace "${actual}" with "${expected}"`,
-                fix: fixer => {
-                  const operatorToken = context
-                    .getSourceCode()
-                    .getTokenAfter(left, token => token.value === operator)!;
-                  return fixer.replaceText(operatorToken, expected);
-                },
+                fix: fixer => fixer.replaceText(operatorToken, expected),
               },
             ],
           });
