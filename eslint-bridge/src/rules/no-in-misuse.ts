@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4619
+// https://sonarsource.github.io/rspec/#/rspec/S4619/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -27,8 +27,11 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',
+      suggestIndexOf: 'Use "indexOf"',
+      suggestIncludes: 'Use "includes"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -48,15 +51,23 @@ export const rule: Rule.RuleModule = {
     if (isRequiredParserServices(services)) {
       return {
         "BinaryExpression[operator='in']": (node: estree.Node) => {
-          const binExpr = node as estree.BinaryExpression;
-          if (
-            isArray(binExpr.right, services) &&
-            !prototypeProperty(binExpr.left) &&
-            !isNumber(binExpr.left, services)
-          ) {
+          const { left, right } = node as estree.BinaryExpression;
+          if (isArray(right, services) && !prototypeProperty(left) && !isNumber(left, services)) {
+            const leftText = context.getSourceCode().getText(left);
+            const rightText = context.getSourceCode().getText(right);
             context.report({
               messageId: 'inMisuse',
               node,
+              suggest: [
+                {
+                  messageId: 'suggestIndexOf',
+                  fix: fixer => fixer.replaceText(node, `${rightText}.indexOf(${leftText}) > -1`),
+                },
+                {
+                  messageId: 'suggestIncludes',
+                  fix: fixer => fixer.replaceText(node, `${rightText}.includes(${leftText})`),
+                },
+              ],
             });
           }
         },

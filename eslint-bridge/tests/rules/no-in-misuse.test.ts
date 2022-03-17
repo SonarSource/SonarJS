@@ -87,5 +87,22 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
                 }`,
       errors: 1,
     },
+    {
+      code: `if ("bar" in ["foo", "bar", "baz"]) {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Use "indexOf"`,
+              output: `if (["foo", "bar", "baz"].indexOf("bar") > -1) {}`,
+            },
+            {
+              desc: `Use "includes"`,
+              output: `if (["foo", "bar", "baz"].includes("bar")) {}`,
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
