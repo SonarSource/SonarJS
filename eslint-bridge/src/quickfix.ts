@@ -31,6 +31,7 @@ const quickFixRules = new Set([
   'no-var',
   'object-shorthand',
   'prefer-const',
+  'prefer-regex-literals',
   'prefer-template',
   'quotes',
   'radix',
