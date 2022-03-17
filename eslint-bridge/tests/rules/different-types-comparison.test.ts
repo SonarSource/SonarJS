@@ -197,5 +197,18 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
         str !== obj;`,
       errors: 1,
     },
+    {
+      code: `'foo' !== {};`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace "!==" with "!="',
+              output: `'foo' != {};`,
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
