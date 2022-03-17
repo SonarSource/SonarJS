@@ -112,7 +112,7 @@ function checkCastedType(
     if (nOfParam === 1 || (nOfParam === 0 && castedType[0].type === 'ThisExpression')) {
       const castedExpressionText = sourceCode.getText(castedType[0]);
       const castedTypeText = sourceCode.getText(castedType[1]);
-      const predicate = `${castedExpressionText} is ${castedTypeText}`;
+      const predicate = `: ${castedExpressionText} is ${castedTypeText}`;
       const suggest = getTypePredicateSuggestion(node, context, predicate);
       context.report({
         messageId: 'useTypePredicate',
@@ -139,18 +139,13 @@ function getTypePredicateSuggestion(
   const suggestions: Rule.SuggestionReportDescriptor[] = [];
   let fix: (fixer: Rule.RuleFixer) => Rule.Fix;
   if (node.returnType) {
-    fix = fixer => fixer.replaceText(node.returnType as unknown as estree.Node, `: ${predicate}`);
+    fix = fixer => fixer.replaceText(node.returnType as unknown as estree.Node, predicate);
   } else {
     const functionBody = node.body as estree.Node;
     const closingParenthesis = context
       .getSourceCode()
       .getTokenBefore(functionBody, token => token.value === ')')!;
-    const openingBracket = context
-      .getSourceCode()
-      .getFirstToken(functionBody, token => token.value === '{')!;
-    const [, begin] = closingParenthesis.range;
-    const [end, _] = openingBracket.range;
-    fix = fixer => fixer.replaceTextRange([begin, end], `: ${predicate} `);
+    fix = fixer => fixer.insertTextAfter(closingParenthesis, predicate);
   }
   suggestions.push({ messageId: 'suggestTypePredicate', fix });
   return suggestions;
