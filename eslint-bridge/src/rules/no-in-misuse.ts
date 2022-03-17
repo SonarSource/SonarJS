@@ -30,8 +30,8 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',
-      suggestIndexOf: 'Use "indexOf"',
-      suggestIncludes: 'Use "includes"',
+      suggestIndexOf: 'Replace with "indexOf" method',
+      suggestIncludes: 'Replace with "includes" method',
     },
   },
   create(context: Rule.RuleContext) {

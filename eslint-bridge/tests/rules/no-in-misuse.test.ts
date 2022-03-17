@@ -93,11 +93,11 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
         {
           suggestions: [
             {
-              desc: `Use "indexOf"`,
+              desc: `Replace with "indexOf" method`,
               output: `if (["foo", "bar", "baz"].indexOf("bar") > -1) {}`,
             },
             {
-              desc: `Use "includes"`,
+              desc: `Replace with "includes" method`,
               output: `if (["foo", "bar", "baz"].includes("bar")) {}`,
             },
           ],
