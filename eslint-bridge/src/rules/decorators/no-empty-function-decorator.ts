@@ -32,32 +32,26 @@ type FunctionLike =
 export function decorateNoEmptyFunction(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const func = reportDescriptor.node as FunctionLike;
-      const name = reportDescriptor.data!.name;
-      const openingBrace = context
-        .getSourceCode()
-        .getFirstToken(func.body, token => token.value === '{')!;
-      const closingBrace = context
-        .getSourceCode()
-        .getLastToken(func.body, token => token.value === '}')!;
-      let commentPlaceholder: string;
-      if (openingBrace.loc.start.line === closingBrace.loc.start.line) {
-        commentPlaceholder = ` /* TODO document why this ${name} is empty */ `;
-      } else {
-        const columnOffset = closingBrace.loc.start.column;
-        const padding = ' '.repeat(columnOffset);
-        commentPlaceholder = `\n${padding}  // TODO document why this ${name} is empty\n${padding}`;
-      }
-      context.report({
-        ...reportDescriptor,
-        suggest: [
-          {
-            desc: 'Insert placeholder comment',
-            fix: fixer => fixer.insertTextAfter(openingBrace, commentPlaceholder),
-          },
-        ],
-      });
+    const func = (reportDescriptor as any).node as FunctionLike;
+    const name = reportDescriptor.data!.name;
+    const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
+    const closingBrace = context.getSourceCode().getLastToken(func.body)!;
+    let commentPlaceholder: string;
+    if (openingBrace.loc.start.line === closingBrace.loc.start.line) {
+      commentPlaceholder = ` /* TODO document why this ${name} is empty */ `;
+    } else {
+      const columnOffset = closingBrace.loc.start.column;
+      const padding = ' '.repeat(columnOffset);
+      commentPlaceholder = `\n${padding}  // TODO document why this ${name} is empty\n${padding}`;
     }
+    context.report({
+      ...reportDescriptor,
+      suggest: [
+        {
+          desc: 'Insert placeholder comment',
+          fix: fixer => fixer.insertTextAfter(openingBrace, commentPlaceholder),
+        },
+      ],
+    });
   });
 }
