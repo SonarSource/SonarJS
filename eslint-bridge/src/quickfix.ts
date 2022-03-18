@@ -62,6 +62,7 @@ const quickFixRules = new Set([
   'inverted-assertion-arguments',
   'no-alphabetical-sort',
   'no-commented-code',
+  'no-global-this',
   'no-in-misuse',
   'no-primitive-wrappers',
   'no-redundant-parentheses',

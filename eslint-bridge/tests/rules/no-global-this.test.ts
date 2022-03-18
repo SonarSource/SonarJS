@@ -95,6 +95,46 @@ const testCases = {
       }`,
       errors: 2,
     },
+    {
+      code: `this.foo = bar;`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Remove "this"',
+              output: 'foo = bar;',
+            },
+            {
+              desc: 'Replace "this" with "window" object',
+              output: 'window.foo = bar;',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `this.foo.bar.baz = qux;`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'foo.bar.baz = qux;',
+            },
+            {
+              output: 'window.foo.bar.baz = qux;',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `this['f' + 'o' + 'o'] = bar;`,
+      errors: [
+        {
+          suggestions: [],
+        },
+      ],
+    },
   ],
 };
 
