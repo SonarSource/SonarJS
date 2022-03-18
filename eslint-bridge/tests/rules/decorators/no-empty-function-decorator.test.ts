@@ -111,5 +111,18 @@ const obj = {
         },
       ],
     },
+    {
+      code: `const arrow = () => {}`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output:
+                'const arrow = () => { /* TODO document why this arrow function is empty */ }',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
