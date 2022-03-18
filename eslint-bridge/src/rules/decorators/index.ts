@@ -19,6 +19,7 @@
  */
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
+import { decorateNoEmptyFunction } from './no-empty-function-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
@@ -27,10 +28,11 @@ import { decoratePreferTemplate } from './prefer-template-decorator';
 
 export const externalRuleDecorators = [
   { decorate: decorateAccessorPairs, ruleKey: 'accessor-pairs' },
-  { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
-  { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
-  { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
   { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
+  { decorate: decorateNoEmptyFunction, ruleKey: 'no-empty-function' },
+  { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
   { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
   { decorate: decorateNoUnreachable, ruleKey: 'no-unreachable' },
+  { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
+  { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
 ];
