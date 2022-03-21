@@ -184,27 +184,28 @@ function getSuggestion(
   const code = context.getSourceCode();
   let range: [number, number];
 
-  if (unusedSpecifier.type === 'ImportDefaultSpecifier') {
-    const tokenAfter = code.getTokenAfter(id)!;
-    // default import is always first
-    range = [id.range![0], code.getTokenAfter(tokenAfter)!.range![0]];
-  }
+  switch (unusedSpecifier.type) {
+    case 'ImportDefaultSpecifier':
+      const tokenAfter = code.getTokenAfter(id)!;
+      // default import is always first
+      range = [id.range![0], code.getTokenAfter(tokenAfter)!.range![0]];
+      break;
 
-  if (unusedSpecifier.type === 'ImportNamespaceSpecifier') {
-    // default import is always second
-    range = [code.getTokenBefore(unusedSpecifier)!.range![0], unusedSpecifier.range![1]];
-  }
+    case 'ImportNamespaceSpecifier':
+      // namespace import is always second
+      range = [code.getTokenBefore(unusedSpecifier)!.range![0], unusedSpecifier.range![1]];
+      break;
 
-  if (unusedSpecifier.type === 'ImportSpecifier') {
-    const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
-    const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
-    if (simpleSpecifiers.length === 1) {
-      range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range![1]];
-    } else if (index === 0) {
-      range = [simpleSpecifiers[0].range![0], simpleSpecifiers[1].range![0]];
-    } else {
-      range = [simpleSpecifiers[index - 1].range![1], simpleSpecifiers[index].range![1]];
-    }
+    case 'ImportSpecifier':
+      const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
+      const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
+      if (simpleSpecifiers.length === 1) {
+        range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range![1]];
+      } else if (index === 0) {
+        range = [simpleSpecifiers[0].range![0], simpleSpecifiers[1].range![0]];
+      } else {
+        range = [simpleSpecifiers[index - 1].range![1], simpleSpecifiers[index].range![1]];
+      }
   }
 
   return {
