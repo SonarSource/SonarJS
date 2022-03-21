@@ -35,7 +35,6 @@ ruleTester.run(
             address: string | undefined;
             pet?: string;
           }
-          
           class Car {
             propWithoutType?;
             brand: string;
@@ -69,8 +68,152 @@ ruleTester.run(
           }`,
         errors: [
           {
+            message: JSON.stringify({
+              message:
+                "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+              secondaryLocations: [
+                {
+                  column: 33,
+                  line: 3,
+                  endColumn: 42,
+                  endLine: 3,
+                },
+              ],
+            }),
             line: 3,
             endLine: 3,
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: undefined | number; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: undefined | number; }',
+              },
+              {
+                output: 'interface T { p?: number; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: number | undefined; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: number | undefined; }',
+              },
+              {
+                output: 'interface T { p?: number; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: (undefined | number); }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: (undefined | number); }',
+              },
+              {
+                output: 'interface T { p?: number; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: undefined | number | string; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: undefined | number | string; }',
+              },
+              {
+                output: 'interface T { p?: number | string; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: number | undefined | string; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: number | undefined | string; }',
+              },
+              {
+                output: 'interface T { p?: number | string; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: number | string | undefined; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: number | string | undefined; }',
+              },
+              {
+                output: 'interface T { p?: number | string; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: number | (string | undefined); }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: number | (string | undefined); }',
+              },
+              {
+                output: 'interface T { p?: number | string; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: undefined; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: undefined; }',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `interface T { p?: (undefined) | number; }`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: 'interface T { p: (undefined) | number; }',
+              },
+              {
+                output: 'interface T { p?: number; }',
+              },
+            ],
           },
         ],
       },

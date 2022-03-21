@@ -19,13 +19,14 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4782
 
-import { Rule } from 'eslint';
+import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices, toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -52,6 +53,7 @@ export const rule: Rule.RuleModule = {
 
       const typeNode = getUndefinedTypeAnnotation(tsNode.typeAnnotation);
       if (typeNode) {
+        const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
         const secondaryLocations = [typeNode];
         const message = toEncodedMessage(
           "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
@@ -60,6 +62,7 @@ export const rule: Rule.RuleModule = {
         context.report({
           message,
           loc: optionalToken.loc,
+          suggest,
         });
       }
     }
@@ -81,7 +84,68 @@ function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | 
   if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
   } else if (typeNode.type === 'TSUnionType') {
-    return typeNode.types.find(innerTypeNode => getUndefinedTypeNode(innerTypeNode));
+    for (const innerTypeNode of typeNode.types) {
+      const undefinedTypeNode = getUndefinedTypeNode(innerTypeNode);
+      if (undefinedTypeNode) {
+        return undefinedTypeNode;
+      }
+    }
   }
   return undefined;
+}
+
+function getQuickFixSuggestions(
+  context: Rule.RuleContext,
+  optionalToken: AST.Token,
+  undefinedType: TSESTree.TypeNode,
+): Rule.SuggestionReportDescriptor[] {
+  const suggestions: Rule.SuggestionReportDescriptor[] = [
+    {
+      desc: 'Remove "?" operator',
+      fix: fixer => fixer.remove(optionalToken),
+    },
+  ];
+  if (undefinedType.parent?.type === 'TSUnionType') {
+    suggestions.push(getUndefinedRemovalSuggestion(context, undefinedType));
+  }
+  return suggestions;
+}
+
+function getUndefinedRemovalSuggestion(
+  context: Rule.RuleContext,
+  undefinedType: TSESTree.TypeNode,
+): Rule.SuggestionReportDescriptor {
+  return {
+    desc: 'Remove "undefined" type annotation',
+    fix: fixer => {
+      const fixes: Rule.Fix[] = [];
+      const unionType = undefinedType.parent as TSESTree.TSUnionType;
+      if (unionType.types.length === 2) {
+        const unionTypeNode = unionType as any as estree.Node;
+        const otherType =
+          unionType.types[0] === undefinedType ? unionType.types[1] : unionType.types[0];
+        const otherTypeText = context.getSourceCode().getText(otherType as any as estree.Node);
+        fixes.push(fixer.replaceText(unionTypeNode, otherTypeText));
+
+        const tokenBefore = context.getSourceCode().getTokenBefore(unionTypeNode);
+        const tokenAfter = context.getSourceCode().getTokenAfter(unionTypeNode);
+        if (tokenBefore?.value === '(' && tokenAfter?.value === ')') {
+          fixes.push(fixer.remove(tokenBefore));
+          fixes.push(fixer.remove(tokenAfter));
+        }
+      } else {
+        let begin: number;
+        let end: number;
+        if (unionType.types[0] === undefinedType) {
+          begin = undefinedType.range[0];
+          end = unionType.types[1].range[0];
+        } else {
+          begin = unionType.types[unionType.types.indexOf(undefinedType) - 1].range[1];
+          end = undefinedType.range[1];
+        }
+        fixes.push(fixer.removeRange([begin, end]));
+      }
+      return fixes;
+    },
+  };
 }
