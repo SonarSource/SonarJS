@@ -87,6 +87,49 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
           endLine: 1,
           column: 8,
           endColumn: 9,
+          suggestions: [
+            {
+              desc: `Remove this import statement`,
+              output: ``,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import a, {b} from 'b'; console.log(b)`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Remove this variable import`,
+              output: `import {b} from 'b'; console.log(b)`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import a, {b} from 'b'; console.log(a)`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: `import a from 'b'; console.log(a)`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import a, * as c from 'b'; console.log(a)`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: `import a from 'b'; console.log(a)`,
+            },
+          ],
         },
       ],
     },
@@ -95,8 +138,30 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       errors: 1,
     },
     {
-      code: `import { a, b } from 'c';`,
-      errors: 2,
+      code: `import { a, b, c } from 'c';`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: `import { b, c } from 'c';`,
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              output: `import { a, c } from 'c';`,
+            },
+          ],
+        },
+        {
+          suggestions: [
+            {
+              output: `import { a, b } from 'c';`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `
