@@ -87,16 +87,47 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
           endLine: 1,
           column: 8,
           endColumn: 9,
+          suggestions: [
+            {
+              desc: `Remove this import statement`,
+              output: ``,
+            },
+          ],
         },
       ],
+    },
+    {
+      code: `import a, {b} from 'b'; console.log(b)`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Remove this variable import`,
+              output: `import {b} from 'b'; console.log(b)`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import a, {b} from 'b'; console.log(a)`,
+      errors: [errorWithSuggestion(`import a from 'b'; console.log(a)`)],
+    },
+    {
+      code: `import a, * as c from 'b'; console.log(a)`,
+      errors: [errorWithSuggestion(`import a from 'b'; console.log(a)`)],
     },
     {
       code: `import { a } from 'b';`,
       errors: 1,
     },
     {
-      code: `import { a, b } from 'c';`,
-      errors: 2,
+      code: `import { a, b, c } from 'c';`,
+      errors: [
+        errorWithSuggestion(`import { b, c } from 'c';`),
+        errorWithSuggestion(`import { a, c } from 'c';`),
+        errorWithSuggestion(`import { a, b } from 'c';`),
+      ],
     },
     {
       code: `
@@ -110,16 +141,16 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       errors: 1,
     },
     {
-      code: `import { a as b } from 'c';`,
-      errors: 1,
+      code: `import { a as b, c } from 'c'; console.log(c);`,
+      errors: [errorWithSuggestion(`import { c } from 'c'; console.log(c);`)],
     },
     {
       code: `import typeof a from 'b';`,
-      errors: 1,
+      errors: [errorWithSuggestion(``)],
     },
     {
-      code: `import type { a } from 'b';`,
-      errors: 1,
+      code: `import type { a, b } from 'b'; console.log(b);`,
+      errors: [errorWithSuggestion(`import type { b } from 'b'; console.log(b);`)],
     },
     {
       code: `import React, { Component } from 'react';`,
@@ -401,3 +432,13 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
     },
   ],
 });
+
+function errorWithSuggestion(output: string) {
+  return {
+    suggestions: [
+      {
+        output,
+      },
+    ],
+  };
+}

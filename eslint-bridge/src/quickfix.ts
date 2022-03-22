@@ -72,6 +72,7 @@ const quickFixRules = new Set([
   'no-unused-function-argument',
   'prefer-promise-shorthand',
   'prefer-type-guard',
+  'unused-import',
 ]);
 
 const quickFixMessages = new Map<string, string>([

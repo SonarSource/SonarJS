@@ -31,7 +31,10 @@ export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeUnusedImport: `Remove this unused import of '{{symbol}}'.`,
+      suggestRemoveWholeStatement: `Remove this import statement`,
+      suggestRemoveOneVariable: `Remove this variable import`,
     },
+    hasSuggestions: true,
   },
   create(context: Rule.RuleContext) {
     const isJsxPragmaSet =
@@ -39,7 +42,7 @@ export const rule: Rule.RuleModule = {
         .getSourceCode()
         .getAllComments()
         .findIndex(comment => comment.value.includes('@jsx jsx')) > -1;
-    const unusedImports: estree.Identifier[] = [];
+    const unusedImports: { id: estree.Identifier; importDecl: estree.ImportDeclaration }[] = [];
     const vueIdentifiers: Set<string> = new Set();
     const tsTypeIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
@@ -76,7 +79,10 @@ export const rule: Rule.RuleModule = {
         const variables = context.getDeclaredVariables(node);
         for (const variable of variables) {
           if (!isExcluded(variable) && !isImplicitJsx(variable) && isUnused(variable)) {
-            unusedImports.push(variable.identifiers[0]);
+            unusedImports.push({
+              id: variable.identifiers[0],
+              importDecl: node as estree.ImportDeclaration,
+            });
           }
         }
       },
@@ -101,7 +107,7 @@ export const rule: Rule.RuleModule = {
           .map(token => token.value);
         unusedImports
           .filter(
-            unused =>
+            ({ id: unused }) =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
               !vueIdentifiers.has(unused.name) &&
@@ -111,9 +117,10 @@ export const rule: Rule.RuleModule = {
             context.report({
               messageId: 'removeUnusedImport',
               data: {
-                symbol: unused.name,
+                symbol: unused.id.name,
               },
-              node: unused,
+              node: unused.id,
+              suggest: [getSuggestion(context, unused)],
             }),
           );
       },
@@ -156,4 +163,55 @@ function toPascalCase(str: string) {
   return str
     .replace(/\w+/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
     .replace('-', '');
+}
+
+function getSuggestion(
+  context: Rule.RuleContext,
+  { id, importDecl }: { id: estree.Identifier; importDecl: estree.ImportDeclaration },
+): Rule.SuggestionReportDescriptor {
+  const variables = context.getDeclaredVariables(importDecl);
+  if (variables.length === 1) {
+    return {
+      messageId: 'suggestRemoveWholeStatement',
+      fix: fixer => {
+        return fixer.remove(importDecl);
+      },
+    };
+  }
+
+  const specifiers = importDecl.specifiers;
+  const unusedSpecifier = specifiers.find(specifier => specifier.local === id)!;
+  const code = context.getSourceCode();
+  let range: [number, number];
+
+  switch (unusedSpecifier.type) {
+    case 'ImportDefaultSpecifier':
+      const tokenAfter = code.getTokenAfter(id)!;
+      // default import is always first
+      range = [id.range![0], code.getTokenAfter(tokenAfter)!.range![0]];
+      break;
+
+    case 'ImportNamespaceSpecifier':
+      // namespace import is always second
+      range = [code.getTokenBefore(unusedSpecifier)!.range![0], unusedSpecifier.range![1]];
+      break;
+
+    case 'ImportSpecifier':
+      const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
+      const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
+      if (simpleSpecifiers.length === 1) {
+        range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range![1]];
+      } else if (index === 0) {
+        range = [simpleSpecifiers[0].range![0], simpleSpecifiers[1].range![0]];
+      } else {
+        range = [simpleSpecifiers[index - 1].range![1], simpleSpecifiers[index].range![1]];
+      }
+  }
+
+  return {
+    messageId: 'suggestRemoveOneVariable',
+    fix: fixer => {
+      return fixer.removeRange(range);
+    },
+  };
 }
