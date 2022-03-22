@@ -45,10 +45,17 @@ export function decorateUseIsNan(rule: Rule.RuleModule): Rule.RuleModule {
       if (negate !== null) {
         const arg = isNaNIdentifier(left) ? right : left;
         const argText = context.getSourceCode().getText(arg);
-        suggest.push({
-          desc: 'Use "Number.isNaN()"',
-          fix: fixer => fixer.replaceText(node, `${negate ? '!' : ''}isNaN(${argText})`),
-        });
+        const prefix = negate ? '!' : '';
+        suggest.push(
+          {
+            desc: 'Use "isNaN()"',
+            fix: fixer => fixer.replaceText(node, `${prefix}isNaN(${argText})`),
+          },
+          {
+            desc: 'Use "Number.isNaN()"',
+            fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${argText})`),
+          },
+        );
       }
     }
     context.report({ ...reportDescriptor, suggest });

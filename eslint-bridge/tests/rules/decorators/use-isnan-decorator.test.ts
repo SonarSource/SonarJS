@@ -36,8 +36,12 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
         {
           suggestions: [
             {
-              desc: `Use "Number.isNaN()"`,
+              desc: `Use "isNaN()"`,
               output: `if (isNaN(n)) {}`,
+            },
+            {
+              desc: `Use "Number.isNaN()"`,
+              output: `if (Number.isNaN(n)) {}`,
             },
           ],
         },
@@ -51,6 +55,9 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
             {
               output: `if (!isNaN(n)) {}`,
             },
+            {
+              output: `if (!Number.isNaN(n)) {}`,
+            },
           ],
         },
       ],
@@ -63,12 +70,19 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
             {
               output: `if (isNaN(n)) {}`,
             },
+            {
+              output: `if (Number.isNaN(n)) {}`,
+            },
           ],
         },
       ],
     },
     {
       code: `switch (n) { case NaN: break; }`,
+      errors: [{ suggestions: [] }],
+    },
+    {
+      code: `if (n < NaN) {}`,
       errors: [{ suggestions: [] }],
     },
   ],
