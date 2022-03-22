@@ -43,6 +43,7 @@ const quickFixRules = new Set([
   'no-empty-function',
   'no-throw-literal',
   'no-unreachable',
+  'use-isnan',
 
   // eslint-plugin-sonarjs
   'no-inverted-boolean-check',
