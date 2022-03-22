@@ -60,6 +60,9 @@ const quickFixRules = new Set([
   'prefer-readonly',
   'no-non-null-assertion',
 
+  // decorated @typescript-eslint plugin
+  'prefer-for-of',
+
   // sonarjs
   'different-types-comparison',
   'inverted-assertion-arguments',
