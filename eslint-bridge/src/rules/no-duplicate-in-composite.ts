@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4621
+// https://sonarsource.github.io/rspec/#/rspec/S4621/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -26,6 +26,7 @@ import { toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -54,6 +55,7 @@ export const rule: Rule.RuleModule = {
 
         groupedTypes.forEach(duplicates => {
           if (duplicates.length > 1) {
+            const suggest = getSuggestions(compositeType, duplicates.slice(1), context);
             const primaryNode = duplicates.splice(1, 1)[0];
             const secondaryMessages = Array(duplicates.length);
             secondaryMessages[0] = `Original`;
@@ -66,6 +68,7 @@ export const rule: Rule.RuleModule = {
                 secondaryMessages,
               ),
               loc: primaryNode.loc,
+              suggest,
             });
           }
         });
@@ -73,3 +76,30 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getSuggestions(
+  composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
+  duplicates: TSESTree.Node[],
+  context: Rule.RuleContext,
+): Rule.SuggestionReportDescriptor[] {
+  const uniqueTypes = composite.types.filter(tpe => !duplicates.includes(tpe));
+  const uniqueTexts = uniqueTypes.map(tpe =>
+    context.getSourceCode().getText(tpe as unknown as estree.Node),
+  );
+  const compositeNode = composite as unknown as estree.Node;
+  const firstToken = context.getSourceCode().getFirstToken(compositeNode);
+  const lastToken = context.getSourceCode().getLastToken(compositeNode);
+  let [prefix, suffix] = ['', ''];
+  if (firstToken?.value === '(' && lastToken?.value === ')') {
+    prefix = '(';
+    suffix = ')';
+  }
+  const typeSeparator = composite.type === 'TSUnionType' ? ' | ' : ' & ';
+  const newComposite = `${prefix}${uniqueTexts.join(typeSeparator)}${suffix}`;
+  return [
+    {
+      desc: 'Remove duplicate types',
+      fix: fixer => fixer.replaceText(compositeNode, newComposite),
+    },
+  ];
+}

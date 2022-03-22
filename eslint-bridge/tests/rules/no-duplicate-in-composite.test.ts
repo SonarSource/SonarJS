@@ -37,15 +37,11 @@ ruleTester.run(
         age: number;
         name: string;
       }
-      
       interface Loggable<T> {
         log(param: T): string;
       }
-      
       type okUnion = number | string;
-
       type okUnionWithDifferentTypeParam = Loggable<number> | Loggable<string>;
-      
       type okIntersection = Person & Loggable<Person>;`,
       },
     ],
@@ -90,6 +86,115 @@ ruleTester.run(
         type nokIStringLiteral = "ValueA" & "ValueA";
         type nokIUnion = (number | string) & (number | string);`,
         errors: 12,
+      },
+      {
+        code: `type T = number | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                desc: 'Remove duplicate types',
+                output: `type T = number`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = number & number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = number | number | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = number | string | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number | string`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = string | number | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = string | number`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = number | string | boolean | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number | string | boolean`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = (number | string) & (number | string)`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = (number | string)`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = (number) | string | number`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number | string`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = number | string | (number)`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = number | string`,
+              },
+            ],
+          },
+        ],
       },
     ],
   },
