@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../../utils';
+import { suggestEmptyBlockQuickFix } from './no-empty-decorator';
 
 type FunctionLike =
   | estree.ArrowFunctionExpression
@@ -36,22 +37,6 @@ export function decorateNoEmptyFunction(rule: Rule.RuleModule): Rule.RuleModule 
     const name = reportDescriptor.data!.name;
     const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
     const closingBrace = context.getSourceCode().getLastToken(func.body)!;
-    let commentPlaceholder: string;
-    if (openingBrace.loc.start.line === closingBrace.loc.start.line) {
-      commentPlaceholder = ` /* TODO document why this ${name} is empty */ `;
-    } else {
-      const columnOffset = closingBrace.loc.start.column;
-      const padding = ' '.repeat(columnOffset);
-      commentPlaceholder = `\n${padding}  // TODO document why this ${name} is empty\n${padding}`;
-    }
-    context.report({
-      ...reportDescriptor,
-      suggest: [
-        {
-          desc: 'Insert placeholder comment',
-          fix: fixer => fixer.insertTextAfter(openingBrace, commentPlaceholder),
-        },
-      ],
-    });
+    suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
   });
 }
