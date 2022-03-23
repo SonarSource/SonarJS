@@ -47,6 +47,7 @@ const quickFixRules = new Set([
 
   // eslint-plugin-sonarjs
   'no-inverted-boolean-check',
+  'no-same-line-conditional',
   'prefer-immediate-return',
   'prefer-while',
 
