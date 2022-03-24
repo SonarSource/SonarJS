@@ -46,8 +46,9 @@ const quickFixRules = new Set([
   'use-isnan',
 
   // eslint-plugin-sonarjs
+  'no-collection-size-mischeck',
   'no-inverted-boolean-check',
-  'no-same-line-conditional',
+  'no-redundant-jump',
   'prefer-immediate-return',
   'prefer-while',
 
