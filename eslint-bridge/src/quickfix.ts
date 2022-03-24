@@ -49,6 +49,7 @@ const quickFixRules = new Set([
   'no-collection-size-mischeck',
   'no-inverted-boolean-check',
   'no-redundant-jump',
+  'non-existent-operator',
   'prefer-immediate-return',
   'prefer-single-boolean-return',
   'prefer-while',
