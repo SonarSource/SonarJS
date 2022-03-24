@@ -50,6 +50,7 @@ const quickFixRules = new Set([
   'no-inverted-boolean-check',
   'no-redundant-jump',
   'prefer-immediate-return',
+  'prefer-single-boolean-return',
   'prefer-while',
 
   // @typescript-eslint plugin
