@@ -39,6 +39,7 @@ const quickFixRules = new Set([
 
   // decorated eslint core
   'no-dupe-keys',
+  'no-duplicate-imports',
   'no-empty',
   'no-empty-function',
   'no-throw-literal',
