@@ -129,7 +129,7 @@ function getUndefinedRemovalSuggestion(
           fixes.push(fixer.remove(tokenAfter));
         }
       } else {
-        let index = unionType.types.indexOf(undefinedType);
+        const index = unionType.types.indexOf(undefinedType);
         if (index === 0) {
           fixes.push(fixer.removeRange([undefinedType.range[0], unionType.types[1].range[0]]));
         } else {
