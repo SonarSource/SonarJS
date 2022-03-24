@@ -91,9 +91,11 @@ ruleTester.run(
           {
             suggestions: [
               {
+                desc: 'Remove "?" operator',
                 output: 'interface T { p: undefined | number; }',
               },
               {
+                desc: 'Remove "undefined" type annotation',
                 output: 'interface T { p?: number; }',
               },
             ],

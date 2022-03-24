@@ -84,12 +84,7 @@ function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | 
   if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
   } else if (typeNode.type === 'TSUnionType') {
-    for (const innerTypeNode of typeNode.types) {
-      const undefinedTypeNode = getUndefinedTypeNode(innerTypeNode);
-      if (undefinedTypeNode) {
-        return undefinedTypeNode;
-      }
-    }
+    return typeNode.types.map(getUndefinedTypeNode).find(tpe => tpe !== undefined);
   }
   return undefined;
 }
@@ -138,9 +133,10 @@ function getUndefinedRemovalSuggestion(
         if (index === 0) {
           fixes.push(fixer.removeRange([undefinedType.range[0], unionType.types[1].range[0]]));
         } else {
-          fixes.push(fixer.removeRange([unionType.types[index - 1].range[1], undefinedType.range[1]]));
+          fixes.push(
+            fixer.removeRange([unionType.types[index - 1].range[1], undefinedType.range[1]]),
+          );
         }
-      }
       }
       return fixes;
     },
