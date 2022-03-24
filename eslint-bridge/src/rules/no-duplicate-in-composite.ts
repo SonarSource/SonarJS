@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
 
         groupedTypes.forEach(duplicates => {
           if (duplicates.length > 1) {
-            const suggest = getSuggestions(compositeType, duplicates.slice(1), context);
+            const suggest = getSuggestions(compositeType, duplicates, context);
             const primaryNode = duplicates.splice(1, 1)[0];
             const secondaryMessages = Array(duplicates.length);
             secondaryMessages[0] = `Original`;
@@ -82,7 +82,8 @@ function getSuggestions(
   duplicates: TSESTree.Node[],
   context: Rule.RuleContext,
 ): Rule.SuggestionReportDescriptor[] {
-  const uniqueTypes = composite.types.filter(tpe => !duplicates.includes(tpe));
+  const duplications = duplicates.slice(1);
+  const uniqueTypes = composite.types.filter(tpe => !duplications.includes(tpe));
   const uniqueTexts = uniqueTypes.map(tpe =>
     context.getSourceCode().getText(tpe as unknown as estree.Node),
   );
