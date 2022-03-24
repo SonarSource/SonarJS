@@ -32,6 +32,12 @@ ruleTester.run(`Variables and functions should not be redeclared`, rule, {
       export const FOO = 'FOO';
       export type FOO = typeof FOO;`,
     },
+    {
+      code: `
+      import FOO from "foo";
+      export type FOO = 'F' | 'O' | 'O';
+      `,
+    },
   ],
   invalid: [
     {
