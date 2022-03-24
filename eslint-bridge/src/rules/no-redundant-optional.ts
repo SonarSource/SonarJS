@@ -134,16 +134,13 @@ function getUndefinedRemovalSuggestion(
           fixes.push(fixer.remove(tokenAfter));
         }
       } else {
-        let begin: number;
-        let end: number;
-        if (unionType.types[0] === undefinedType) {
-          begin = undefinedType.range[0];
-          end = unionType.types[1].range[0];
+        let index = unionType.types.indexOf(undefinedType);
+        if (index === 0) {
+          fixes.push(fixer.removeRange([undefinedType.range[0], unionType.types[1].range[0]]));
         } else {
-          begin = unionType.types[unionType.types.indexOf(undefinedType) - 1].range[1];
-          end = undefinedType.range[1];
+          fixes.push(fixer.removeRange([unionType.types[index - 1].range[1], undefinedType.range[1]]));
         }
-        fixes.push(fixer.removeRange([begin, end]));
+      }
       }
       return fixes;
     },
