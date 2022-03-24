@@ -70,6 +70,7 @@ const quickFixRules = new Set([
   'no-global-this',
   'no-in-misuse',
   'no-primitive-wrappers',
+  'no-redundant-optional',
   'no-redundant-parentheses',
   'no-undefined-argument',
   'no-unthrown-error',
