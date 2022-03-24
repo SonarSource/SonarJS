@@ -24,21 +24,29 @@ import { interceptReport } from '../../utils';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
+const element = 'element';
+
 // core implementation of this rule does not provide quick fixes
 export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
     const forStmt = (reportDescriptor as any).node as estree.ForStatement;
+    const suggest: Rule.SuggestionReportDescriptor[] = [];
+    if (isFixable(context)) {
+      suggest.push({
+        desc: 'Replace with "for of" loop',
+        fix: fixer => rewriteForStatement(forStmt, context, fixer),
+      });
+    }
     context.report({
       ...reportDescriptor,
-      suggest: [
-        {
-          desc: 'Replace with "for of" loop',
-          fix: fixer => rewriteForStatement(forStmt, context, fixer),
-        },
-      ],
+      suggest,
     });
   });
+}
+
+function isFixable(context: Rule.RuleContext) {
+  return context.getScope().references.every(reference => reference.identifier.name !== element);
 }
 
 function rewriteForStatement(
@@ -58,10 +66,9 @@ function rewriteForStatement(
 
   const arrayExpr = extractArrayExpression(forStmt);
   const arrayText = context.getSourceCode().getText(arrayExpr);
-  const arrayElemText = 'element';
 
   const headerRange: AST.Range = [openingParenthesis.range[1], closingParenthesis.range[0]];
-  const headerText = `const ${arrayElemText} of ${arrayText}`;
+  const headerText = `const ${element} of ${arrayText}`;
   fixes.push(fixer.replaceTextRange(headerRange, headerText));
 
   /* rewrite `for` body: `<array>[<index>]` -> `element` */
@@ -70,7 +77,7 @@ function rewriteForStatement(
     const id = reference.identifier;
     if (contains(forStmt.body, id)) {
       const arrayAccess = (id as TSESTree.Node).parent as estree.Node;
-      fixes.push(fixer.replaceText(arrayAccess, arrayElemText));
+      fixes.push(fixer.replaceText(arrayAccess, element));
     }
   }
 
