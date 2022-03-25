@@ -77,30 +77,47 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+// function getSuggestions(
+//   composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
+//   duplicates: TSESTree.Node[],
+//   context: Rule.RuleContext,
+// ): Rule.SuggestionReportDescriptor[] {
+//   const duplications = duplicates.slice(1);
+//   const uniqueTypes = composite.types.filter(tpe => !duplications.includes(tpe));
+//   const uniqueTexts = uniqueTypes.map(tpe => {
+//     const firstToken = context.getSourceCode().getTokenBefore(tpe as unknown as estree.Node);
+//     const lastToken = context.getSourceCode().getTokenAfter(tpe as unknown as estree.Node);
+//     let [prefix, suffix] = ['', ''];
+//     if (firstToken?.value === '(' && lastToken?.value === ')') {
+//       prefix = '(';
+//       suffix = ')';
+//     }
+//     const tpeText = context.getSourceCode().getText(tpe as unknown as estree.Node);
+//     return `${prefix}${tpeText}${suffix}`;
+//   });
+//   const compositeNode = composite as unknown as estree.Node;
+//   const typeSeparator = composite.type === 'TSUnionType' ? ' | ' : ' & ';
+//   return [
+//     {
+//       desc: 'Remove duplicate types',
+//       fix: fixer => fixer.replaceText(compositeNode, uniqueTexts.join(typeSeparator)),
+//     },
+//   ];
+// }
+
 function getSuggestions(
   composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
   duplicates: TSESTree.Node[],
-  context: Rule.RuleContext,
+  _context: Rule.RuleContext,
 ): Rule.SuggestionReportDescriptor[] {
-  const duplications = duplicates.slice(1);
-  const uniqueTypes = composite.types.filter(tpe => !duplications.includes(tpe));
-  const uniqueTexts = uniqueTypes.map(tpe =>
-    context.getSourceCode().getText(tpe as unknown as estree.Node),
-  );
-  const compositeNode = composite as unknown as estree.Node;
-  const firstToken = context.getSourceCode().getFirstToken(compositeNode);
-  const lastToken = context.getSourceCode().getLastToken(compositeNode);
-  let [prefix, suffix] = ['', ''];
-  if (firstToken?.value === '(' && lastToken?.value === ')') {
-    prefix = '(';
-    suffix = ')';
-  }
-  const typeSeparator = composite.type === 'TSUnionType' ? ' | ' : ' & ';
-  const newComposite = `${prefix}${uniqueTexts.join(typeSeparator)}${suffix}`;
   return [
     {
       desc: 'Remove duplicate types',
-      fix: fixer => fixer.replaceText(compositeNode, newComposite),
+      fix: fixer =>
+        duplicates.slice(1).map(duplicate => {
+          const idx = composite.types.indexOf(duplicate as TSESTree.TypeNode);
+          return fixer.removeRange([composite.types[idx - 1].range[1], duplicate.range[1]]);
+        }),
     },
   ];
 }

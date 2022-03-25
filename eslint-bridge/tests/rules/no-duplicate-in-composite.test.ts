@@ -196,6 +196,42 @@ ruleTester.run(
           },
         ],
       },
+      {
+        code: `type T = (number | string) & (number | string) & Foo`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = (number | string) & Foo`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = ((A) | B) & C & C`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = ((A) | B) & C`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `type T = A & (B) & A`,
+        errors: [
+          {
+            suggestions: [
+              {
+                output: `type T = A & (B)`,
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 );
