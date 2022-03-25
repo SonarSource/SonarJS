@@ -28,26 +28,24 @@ export function decorateNoDuplicateImports(rule: Rule.RuleModule): Rule.RuleModu
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
     const duplicateDecl = (reportDescriptor as any).node as estree.ImportDeclaration;
-    const module = getModule(duplicateDecl);
-    const importDecl = getFirstMatchingImportDeclaration(module, context);
     context.report({
       ...reportDescriptor,
-      suggest: getSuggestion(module, importDecl, duplicateDecl, context),
+      suggest: getSuggestion(duplicateDecl, context),
     });
   });
 }
 
 function getSuggestion(
-  module: string,
-  importDecl: estree.ImportDeclaration,
   duplicateDecl: estree.ImportDeclaration,
   context: Rule.RuleContext,
 ): Rule.SuggestionReportDescriptor[] {
+  const module = getModule(duplicateDecl);
+  const importDecl = getFirstMatchingImportDeclaration(module, context);
   const newSpecifiersText = mergeSpecifiers(importDecl, duplicateDecl, context);
   const oldSpecifiersRange = getSpecifiersRange(importDecl, context);
   return [
     {
-      desc: `Merge duplicate "${module}" imports`,
+      desc: `Merge this import into the first import from "${module}"`,
       fix: fixer => [
         fixer.replaceTextRange(oldSpecifiersRange, newSpecifiersText),
         fixer.remove(duplicateDecl),
@@ -96,7 +94,7 @@ function mergeSpecifiers(
 
   return [defaultSpecifierText, namespaceSpecifierText, importSpecifiersText]
     .filter(text => text.length > 0)
-    .reduce((acc, text) => `${acc}, ${text}`);
+    .join(', ');
 }
 
 function getSpecifiersRange(

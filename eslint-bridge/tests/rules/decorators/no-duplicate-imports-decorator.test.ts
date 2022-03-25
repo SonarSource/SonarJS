@@ -37,7 +37,7 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
     {
       code: `import "foo"; import "foo"`,
       errors: [
-        { suggestions: [{ desc: 'Merge duplicate "foo" imports', output: `import "foo"; ` }] },
+        { suggestions: [{ desc: 'Merge this import into the first import from "foo"', output: `import "foo"; ` }] },
       ],
     },
     {
@@ -45,12 +45,19 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
       errors: [{ suggestions: [{ output: `import "foo"; import "bar"; ` }] }],
     },
     {
-      code: `import { f } from "foo"; import { g } from "foo";`,
-      errors: [{ suggestions: [{ output: `import { f, g } from "foo"; ` }] }],
+      code: `import { f as ff } from "foo"; import { g } from "foo";`,
+      errors: [{ suggestions: [{ output: `import { f as ff, g } from "foo"; ` }] }],
     },
     {
-      code: `import { f, g } from "foo"; import { h, i } from "foo";`,
-      errors: [{ suggestions: [{ output: `import { f, g, h, i } from "foo"; ` }] }],
+      code: `import { a, c } from "foo"; import { b, d } from "foo";`,
+      errors: [{ suggestions: [{ output: `import { a, c, b, d } from "foo"; ` }] }],
+    },
+    {
+      code: `import { a } from "foo"; import { b } from "foo"; import { c } from "foo";`,
+      errors: [
+        { suggestions: [{ output: `import { a, b } from "foo";  import { c } from "foo";` }] },
+        { suggestions: [{ output: `import { a, c } from "foo"; import { b } from "foo"; ` }] },
+      ],
     },
     {
       code: `import * as f from "foo"; import g from "foo";`,
