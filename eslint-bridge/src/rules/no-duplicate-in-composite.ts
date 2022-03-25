@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4621
+// https://sonarsource.github.io/rspec/#/rspec/S4621/javascript
 
-import { Rule } from 'eslint';
+import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -54,6 +55,7 @@ export const rule: Rule.RuleModule = {
 
         groupedTypes.forEach(duplicates => {
           if (duplicates.length > 1) {
+            const suggest = getSuggestions(compositeType, duplicates, context);
             const primaryNode = duplicates.splice(1, 1)[0];
             const secondaryMessages = Array(duplicates.length);
             secondaryMessages[0] = `Original`;
@@ -66,6 +68,7 @@ export const rule: Rule.RuleModule = {
                 secondaryMessages,
               ),
               loc: primaryNode.loc,
+              suggest,
             });
           }
         });
@@ -73,3 +76,33 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getSuggestions(
+  composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
+  duplicates: TSESTree.Node[],
+  context: Rule.RuleContext,
+): Rule.SuggestionReportDescriptor[] {
+  const ranges: [number, number][] = duplicates.slice(1).map(duplicate => {
+    const idx = composite.types.indexOf(duplicate as TSESTree.TypeNode);
+    return [getEnd(context, composite.types[idx - 1]), getEnd(context, duplicate)];
+  });
+  return [
+    {
+      desc: 'Remove duplicate types',
+      fix: fixer => ranges.map(r => fixer.removeRange(r)),
+    },
+  ];
+}
+
+function getEnd(context: Rule.RuleContext, node: TSESTree.Node) {
+  let end: estree.Node | AST.Token = node as unknown as estree.Node;
+  while (true) {
+    const nextToken: AST.Token | null = context.getSourceCode().getTokenAfter(end);
+    if (nextToken && nextToken.value === ')') {
+      end = nextToken;
+    } else {
+      break;
+    }
+  }
+  return end.range![1];
+}
