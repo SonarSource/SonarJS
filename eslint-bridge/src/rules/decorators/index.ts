@@ -25,6 +25,7 @@ import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
+import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 
@@ -37,6 +38,7 @@ export const externalRuleDecorators = [
   { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
   { decorate: decorateNoUnreachable, ruleKey: 'no-unreachable' },
   { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
+  { decorate: decoratePreferForOf, ruleKey: 'prefer-for-of' },
   { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
   { decorate: decorateUseIsNan, ruleKey: 'use-isnan' },
 ];

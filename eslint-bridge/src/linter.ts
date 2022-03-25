@@ -99,13 +99,6 @@ export class LinterWrapper {
     // but the plugin doesn't allow duplicates of the same key.
     this.linter.defineRule('enforce-trailing-comma', this.linter.getRules().get('comma-dangle')!);
 
-    externalRuleDecorators.forEach(externalRuleDecorator => {
-      this.linter.defineRule(
-        externalRuleDecorator.ruleKey,
-        externalRuleDecorator.decorate(this.linter.getRules().get(externalRuleDecorator.ruleKey)!),
-      );
-    });
-
     // TS implementation of no-throw-literal is not supporting JS code.
     delete typescriptEslintRules['no-throw-literal'];
     Object.keys(typescriptEslintRules).forEach(name => {
@@ -120,6 +113,13 @@ export class LinterWrapper {
         decorateTypescriptEslint(noUnusedExpressionsRule),
       );
     }
+
+    externalRuleDecorators.forEach(externalRuleDecorator => {
+      this.linter.defineRule(
+        externalRuleDecorator.ruleKey,
+        externalRuleDecorator.decorate(this.linter.getRules().get(externalRuleDecorator.ruleKey)!),
+      );
+    });
 
     customRules.forEach(r => this.linter.defineRule(r.ruleId, r.ruleModule));
     this.linter.defineRule(COGNITIVE_COMPLEXITY_RULE.ruleId, COGNITIVE_COMPLEXITY_RULE.ruleModule);
