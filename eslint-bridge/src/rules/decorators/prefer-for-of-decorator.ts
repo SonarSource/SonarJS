@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4138/javascript
 
-import { Rule, AST } from 'eslint';
+import { Rule, AST, Scope } from 'eslint';
 import { interceptReport } from '../../utils';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
@@ -32,7 +32,7 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const forStmt = (reportDescriptor as any).node as estree.ForStatement;
     const suggest: Rule.SuggestionReportDescriptor[] = [];
-    if (isFixable(context)) {
+    if (isFixable(context.getScope())) {
       suggest.push({
         desc: 'Replace with "for of" loop',
         fix: fixer => rewriteForStatement(forStmt, context, fixer),
@@ -45,8 +45,11 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
   });
 }
 
-function isFixable(context: Rule.RuleContext) {
-  return context.getScope().references.every(reference => reference.identifier.name !== element);
+function isFixable(scope: Scope.Scope): boolean {
+  return (
+    scope.references.every(reference => reference.identifier.name !== element) &&
+    scope.childScopes.every(isFixable)
+  );
 }
 
 function rewriteForStatement(
