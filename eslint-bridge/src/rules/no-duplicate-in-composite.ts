@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4621/javascript
 
-import { Rule } from 'eslint';
+import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { toEncodedMessage } from '../utils';
@@ -77,47 +77,32 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-// function getSuggestions(
-//   composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
-//   duplicates: TSESTree.Node[],
-//   context: Rule.RuleContext,
-// ): Rule.SuggestionReportDescriptor[] {
-//   const duplications = duplicates.slice(1);
-//   const uniqueTypes = composite.types.filter(tpe => !duplications.includes(tpe));
-//   const uniqueTexts = uniqueTypes.map(tpe => {
-//     const firstToken = context.getSourceCode().getTokenBefore(tpe as unknown as estree.Node);
-//     const lastToken = context.getSourceCode().getTokenAfter(tpe as unknown as estree.Node);
-//     let [prefix, suffix] = ['', ''];
-//     if (firstToken?.value === '(' && lastToken?.value === ')') {
-//       prefix = '(';
-//       suffix = ')';
-//     }
-//     const tpeText = context.getSourceCode().getText(tpe as unknown as estree.Node);
-//     return `${prefix}${tpeText}${suffix}`;
-//   });
-//   const compositeNode = composite as unknown as estree.Node;
-//   const typeSeparator = composite.type === 'TSUnionType' ? ' | ' : ' & ';
-//   return [
-//     {
-//       desc: 'Remove duplicate types',
-//       fix: fixer => fixer.replaceText(compositeNode, uniqueTexts.join(typeSeparator)),
-//     },
-//   ];
-// }
-
 function getSuggestions(
   composite: TSESTree.TSUnionType | TSESTree.TSIntersectionType,
   duplicates: TSESTree.Node[],
-  _context: Rule.RuleContext,
+  context: Rule.RuleContext,
 ): Rule.SuggestionReportDescriptor[] {
+  const ranges: [number, number][] = duplicates.slice(1).map(duplicate => {
+    const idx = composite.types.indexOf(duplicate as TSESTree.TypeNode);
+    return [getEnd(context, composite.types[idx - 1]), getEnd(context, duplicate)];
+  });
   return [
     {
       desc: 'Remove duplicate types',
-      fix: fixer =>
-        duplicates.slice(1).map(duplicate => {
-          const idx = composite.types.indexOf(duplicate as TSESTree.TypeNode);
-          return fixer.removeRange([composite.types[idx - 1].range[1], duplicate.range[1]]);
-        }),
+      fix: fixer => ranges.map(r => fixer.removeRange(r)),
     },
   ];
+}
+
+function getEnd(context: Rule.RuleContext, node: TSESTree.Node) {
+  let end: estree.Node | AST.Token = node as unknown as estree.Node;
+  while (true) {
+    const nextToken: AST.Token | null = context.getSourceCode().getTokenAfter(end);
+    if (nextToken && nextToken.value === ')') {
+      end = nextToken;
+    } else {
+      break;
+    }
+  }
+  return end.range![1];
 }

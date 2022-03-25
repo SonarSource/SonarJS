@@ -178,7 +178,7 @@ ruleTester.run(
           {
             suggestions: [
               {
-                output: `type T = number | string`,
+                output: `type T = (number) | string`,
               },
             ],
           },
@@ -221,12 +221,12 @@ ruleTester.run(
         ],
       },
       {
-        code: `type T = A & (B) & A`,
+        code: `type T = A & ((B)) & A`,
         errors: [
           {
             suggestions: [
               {
-                output: `type T = A & (B)`,
+                output: `type T = A & ((B))`,
               },
             ],
           },
