@@ -37,7 +37,14 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
     {
       code: `import "foo"; import "foo"`,
       errors: [
-        { suggestions: [{ desc: 'Merge this import into the first import from "foo"', output: `import "foo"; ` }] },
+        {
+          suggestions: [
+            {
+              desc: 'Merge this import into the first import from "foo"',
+              output: `import "foo"; `,
+            },
+          ],
+        },
       ],
     },
     {
