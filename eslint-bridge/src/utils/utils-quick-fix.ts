@@ -20,7 +20,7 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 
-export function removeNodeWithWsBefore(
+export function removeNodeWithLeadingWhitespaces(
   context: Rule.RuleContext,
   node: estree.Node,
   fixer: Rule.RuleFixer,
@@ -30,7 +30,7 @@ export function removeNodeWithWsBefore(
   if (previousComments.length === 0) {
     const previousToken = context.getSourceCode().getTokenBefore(node);
     if (previousToken) {
-      start = previousToken.range![1];
+      start = previousToken.range[1];
     }
   } else {
     start = previousComments[previousComments.length - 1].range![1];
