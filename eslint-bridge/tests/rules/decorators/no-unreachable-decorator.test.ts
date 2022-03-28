@@ -49,7 +49,6 @@ while (a()) {
               output: `
 while (a()) {
   break;
-  
 }
 `,
               desc: 'Remove unreachable code',
@@ -75,7 +74,6 @@ while (a()) {
 while (a()) {
   b();
   break;
-  
 }
 `,
               desc: 'Remove unreachable code',
