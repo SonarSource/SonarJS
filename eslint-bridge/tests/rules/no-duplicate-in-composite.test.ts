@@ -144,6 +144,10 @@ ruleTester.run(
         code: `type T = A & ((B)) & A`,
         errors: [{ suggestions: [{ output: `type T = A & ((B))` }] }],
       },
+      {
+        code: `function foo(p: A | (B) | A) {}`,
+        errors: [{ suggestions: [{ output: `function foo(p: A | (B)) {}` }] }],
+      },
     ],
   },
 );

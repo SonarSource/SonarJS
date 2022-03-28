@@ -84,7 +84,10 @@ function getSuggestions(
 ): Rule.SuggestionReportDescriptor[] {
   const ranges: [number, number][] = duplicates.slice(1).map(duplicate => {
     const idx = composite.types.indexOf(duplicate as TSESTree.TypeNode);
-    return [getEnd(context, composite.types[idx - 1]), getEnd(context, duplicate)];
+    return [
+      getEnd(context, composite.types[idx - 1], composite),
+      getEnd(context, duplicate, composite),
+    ];
   });
   return [
     {
@@ -94,11 +97,11 @@ function getSuggestions(
   ];
 }
 
-function getEnd(context: Rule.RuleContext, node: TSESTree.Node) {
+function getEnd(context: Rule.RuleContext, node: TSESTree.Node, composite: TSESTree.Node) {
   let end: estree.Node | AST.Token = node as unknown as estree.Node;
   while (true) {
     const nextToken: AST.Token | null = context.getSourceCode().getTokenAfter(end);
-    if (nextToken && nextToken.value === ')') {
+    if (nextToken && nextToken.value === ')' && nextToken.range![1] <= composite.range![1]) {
       end = nextToken;
     } else {
       break;
