@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -46,7 +47,7 @@ export const rule: Rule.RuleModule = {
             suggest: [
               {
                 messageId: 'suggestThrowError',
-                fix: fixer => fixer.insertTextBefore(node, 'throw '),
+                fix: fixer => fixer.insertTextBefore(getParent(context)!, 'throw '),
               },
             ],
           });
