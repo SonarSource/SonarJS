@@ -20,7 +20,7 @@ defined:</p>
 const { Signale } = require('signale');
 
 const CREDIT_CARD_NUMBERS = fetchFromWebForm()
-// here we suppose the credit card numbers are retrieved somewhere and CREDIT_CARD_NUMBERS looks like [1234-5678-0000-9999", "1234-5678-0000-8888"]; for instance
+// here we suppose the credit card numbers are retrieved somewhere and CREDIT_CARD_NUMBERS looks like ["1234-5678-0000-9999", "1234-5678-0000-8888"]; for instance
 
 const options = {
   secrets: []         // empty list of secrets
@@ -39,7 +39,7 @@ hidden in logs:</p>
 const { Signale } = require('signale');
 
 const CREDIT_CARD_NUMBERS = fetchFromWebForm()
-// here we suppose the credit card numbers are retrieved somewhere and CREDIT_CARD_NUMBERS looks like [1234-5678-0000-9999", "1234-5678-0000-8888"]; for instance
+// here we suppose the credit card numbers are retrieved somewhere and CREDIT_CARD_NUMBERS looks like ["1234-5678-0000-9999", "1234-5678-0000-8888"]; for instance
 
 const options = {
   secrets: ["([0-9]{4}-?)+"]
