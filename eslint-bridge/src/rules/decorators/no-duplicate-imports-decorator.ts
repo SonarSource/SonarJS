@@ -44,12 +44,17 @@ function getSuggestion(
   const importDecl = getFirstMatchingImportDeclaration(module, context);
   const newSpecifiersText = mergeSpecifiers(importDecl, duplicateDecl, context);
   const oldSpecifiersRange = getSpecifiersRange(importDecl, context);
+  const previousComments = context.getSourceCode().getCommentsBefore(duplicateDecl);
+  const previousToken =
+    previousComments.length === 0
+      ? context.getSourceCode().getTokenBefore(duplicateDecl)!
+      : previousComments[previousComments.length - 1];
   return [
     {
       desc: `Merge this import into the first import from "${module}"`,
       fix: fixer => [
         fixer.replaceTextRange(oldSpecifiersRange, newSpecifiersText),
-        fixer.remove(duplicateDecl),
+        fixer.removeRange([previousToken.range![1], duplicateDecl.range![1]]),
       ],
     },
   ];
