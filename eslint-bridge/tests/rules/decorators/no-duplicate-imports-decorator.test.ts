@@ -167,7 +167,19 @@ import {
         {
           suggestions: [
             {
-              output: `import { F, G } from "foo"; `,
+              output: `import type { F, G } from "foo"; `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import { type } from "foo"; import { epyt } from "foo";`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: `import { type, epyt } from "foo"; `,
             },
           ],
         },

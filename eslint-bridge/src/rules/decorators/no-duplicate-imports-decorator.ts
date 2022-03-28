@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoDuplicateImports(rule: Rule.RuleModule): Rule.RuleModule {
@@ -102,10 +103,9 @@ function getSpecifiersRange(
   context: Rule.RuleContext,
 ): [number, number] {
   const sourceCode = context.getSourceCode();
-  const importOrTypeToken = sourceCode.getFirstToken(
-    decl,
-    token => token.value === 'import' || token.value === 'type',
-  )!;
+  const importDecl = decl as TSESTree.ImportDeclaration;
+  const importOrType = importDecl.importKind === 'type' ? 'type' : 'import';
+  const importOrTypeToken = sourceCode.getFirstToken(decl, token => token.value === importOrType)!;
   const fromToken = sourceCode.getLastToken(decl, token => token.value === 'from');
   const begin = importOrTypeToken.range[1] + 1;
   const end = fromToken ? fromToken.range[0] - 1 : importOrTypeToken.range[1] + 1;
