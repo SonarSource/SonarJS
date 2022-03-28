@@ -163,15 +163,7 @@ import {
     },
     {
       code: `import type { F } from "foo"; import type { G } from "foo";`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `import { F, G } from "foo"; `,
-            },
-          ],
-        },
-      ],
+      errors: [{ suggestions: [{ output: `import type { F, G } from "foo"; ` }] }],
     },
   ],
 });
