@@ -24,6 +24,7 @@ export function removeNodeWithLeadingWhitespaces(
   context: Rule.RuleContext,
   node: estree.Node,
   fixer: Rule.RuleFixer,
+  removeUntil?: number,
 ) {
   const previousComments = context.getSourceCode().getCommentsBefore(node);
   let start = 0;
@@ -36,5 +37,6 @@ export function removeNodeWithLeadingWhitespaces(
     start = previousComments[previousComments.length - 1].range![1];
   }
 
-  return fixer.removeRange([start, node.range![1]]);
+  const end = removeUntil ? removeUntil : node.range![1];
+  return fixer.removeRange([start, end]);
 }

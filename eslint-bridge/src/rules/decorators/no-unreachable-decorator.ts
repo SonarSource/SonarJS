@@ -20,27 +20,30 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1763/javascript
 
 import { Rule, AST } from 'eslint';
+import * as estree from 'estree';
 import { interceptReport } from '../../utils';
+import { removeNodeWithLeadingWhitespaces } from '../../utils/utils-quick-fix';
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoUnreachable(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
-    if ('loc' in reportDescriptor) {
-      const loc = reportDescriptor['loc'] as AST.SourceLocation;
-      const range = [
-        context.getSourceCode().getIndexFromLoc(loc.start),
-        context.getSourceCode().getIndexFromLoc(loc.end),
-      ] as AST.Range;
-      context.report({
-        ...reportDescriptor,
-        suggest: [
-          {
-            desc: 'Remove unreachable code',
-            fix: fixer => fixer.removeRange(range),
-          },
-        ],
-      });
-    }
+    const loc = (reportDescriptor as any).loc as AST.SourceLocation;
+    const node = (reportDescriptor as any).node as estree.Node;
+    context.report({
+      ...reportDescriptor,
+      suggest: [
+        {
+          desc: 'Remove unreachable code',
+          fix: fixer =>
+            removeNodeWithLeadingWhitespaces(
+              context,
+              node,
+              fixer,
+              context.getSourceCode().getIndexFromLoc(loc.end),
+            ),
+        },
+      ],
+    });
   });
 }
