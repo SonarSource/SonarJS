@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-4782",
   "sqKey": "S4782",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]
