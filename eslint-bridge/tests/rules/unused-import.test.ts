@@ -153,6 +153,21 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       errors: [errorWithSuggestion(`import type { b } from 'b'; console.log(b);`)],
     },
     {
+      code: `
+// comment
+import Foo from "foo";
+import bar from "bar";
+
+bar();`,
+      errors: [
+        errorWithSuggestion(`
+// comment
+import bar from "bar";
+
+bar();`),
+      ],
+    },
+    {
       code: `import React, { Component } from 'react';`,
       errors: 1,
     },

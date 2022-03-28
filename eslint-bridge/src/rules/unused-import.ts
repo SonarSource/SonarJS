@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices } from '../utils';
+import { removeNodeWithLeadingWhitespaces } from '../utils/utils-quick-fix';
 
 const EXCLUDED_IMPORTS = ['React'];
 
@@ -174,7 +175,7 @@ function getSuggestion(
     return {
       messageId: 'suggestRemoveWholeStatement',
       fix: fixer => {
-        return fixer.remove(importDecl);
+        return removeNodeWithLeadingWhitespaces(context, importDecl, fixer);
       },
     };
   }
