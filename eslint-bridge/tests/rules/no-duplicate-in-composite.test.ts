@@ -102,135 +102,47 @@ ruleTester.run(
       },
       {
         code: `type T = number & number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = number`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = number` }] }],
       },
       {
         code: `type T = number | number | number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = number`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = number` }] }],
       },
       {
         code: `type T = number | string | number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = number | string`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = number | string` }] }],
       },
       {
         code: `type T = string | number | number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = string | number`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = string | number` }] }],
       },
       {
         code: `type T = number | string | boolean | number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = number | string | boolean`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = number | string | boolean` }] }],
       },
       {
         code: `type T = (number | string) & (number | string)`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = (number | string)`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = (number | string)` }] }],
       },
       {
         code: `type T = (number) | string | number`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = (number) | string`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = (number) | string` }] }],
       },
       {
         code: `type T = number | string | (number)`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = number | string`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = number | string` }] }],
       },
       {
         code: `type T = (number | string) & (number | string) & Foo`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = (number | string) & Foo`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = (number | string) & Foo` }] }],
       },
       {
         code: `type T = ((A) | B) & C & C`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = ((A) | B) & C`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = ((A) | B) & C` }] }],
       },
       {
         code: `type T = A & ((B)) & A`,
-        errors: [
-          {
-            suggestions: [
-              {
-                output: `type T = A & ((B))`,
-              },
-            ],
-          },
-        ],
+        errors: [{ suggestions: [{ output: `type T = A & ((B))` }] }],
       },
     ],
   },
