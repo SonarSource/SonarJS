@@ -75,8 +75,8 @@ ruleTester.run('Exception should not be created without being thrown', rule, {
       errors: 1,
     },
     {
-      code: `new MyException();`,
-      errors: 1,
+      code: `(new MyException());`,
+      errors: [{ suggestions: [{ output: 'throw (new MyException());' }] }],
     },
   ],
 });
