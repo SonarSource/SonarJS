@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { removeNodeWithWsBefore } from '../../utils/utils-quick-fix';
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoDuplicateImports(rule: Rule.RuleModule): Rule.RuleModule {
@@ -44,17 +45,12 @@ function getSuggestion(
   const importDecl = getFirstMatchingImportDeclaration(module, context);
   const newSpecifiersText = mergeSpecifiers(importDecl, duplicateDecl, context);
   const oldSpecifiersRange = getSpecifiersRange(importDecl, context);
-  const previousComments = context.getSourceCode().getCommentsBefore(duplicateDecl);
-  const previousToken =
-    previousComments.length === 0
-      ? context.getSourceCode().getTokenBefore(duplicateDecl)!
-      : previousComments[previousComments.length - 1];
   return [
     {
       desc: `Merge this import into the first import from "${module}"`,
       fix: fixer => [
         fixer.replaceTextRange(oldSpecifiersRange, newSpecifiersText),
-        fixer.removeRange([previousToken.range![1], duplicateDecl.range![1]]),
+        removeNodeWithWsBefore(context, duplicateDecl, fixer),
       ],
     },
   ];
