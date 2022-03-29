@@ -13,7 +13,7 @@
 
   <name>SonarQube JavaScript :: Plugin</name>
   <!-- Be careful when altering <description> as its value shows up in the SonarQube GUI -->
-  <description>Code Analyzer for JavaScript</description>
+  <description>Code Analyzer for JavaScript/TypeScript/CSS</description>
   <url>http://redirect.sonarsource.com/plugins/javascript.html</url>
 
   <scm>
