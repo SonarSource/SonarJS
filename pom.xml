@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
-  <description>SonarQube JavaScript/TypeScript Analyzer</description>
+  <description>SonarQube JavaScript/TypeScript/CSS Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource and Eriks Nukis</name>
