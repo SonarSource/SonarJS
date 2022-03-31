@@ -135,7 +135,13 @@ public class EslintBasedRulesTest {
     Tests.setProfile(projectKey, "rules", "js");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
-    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
+    // Error logs from browserslist dependencies are expected, see https://github.com/SonarSource/SonarJS/issues/2803
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).containsOnly(
+      "ERROR: Browserslist: caniuse-lite is outdated. Please run:",
+      "ERROR: npx browserslist@latest --update-db",
+      "ERROR: ",
+      "ERROR: Why you should do it regularly:",
+      "ERROR: https://github.com/browserslist/browserslist#browsers-data-updating");
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
     List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
