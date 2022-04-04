@@ -212,6 +212,45 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
   ],
 });
 
+const ruleTesterForBaseUrl = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    tsconfigRootDir: './tests/fixtures/no-implicit-dependencies/ts-project-with-base-url',
+    project: './tsconfig.json',
+  },
+});
+
+const filenameForBaseUrl = path.join(
+  __dirname,
+  '../fixtures/no-implicit-dependencies/ts-project-with-base-url/nested/file.ts',
+);
+
+ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
+  valid: [
+    {
+      code: `
+        import { f as f1 } from 'dependency-in-package-json';
+        import { f as f2 } from 'dir';
+        import { f as f3 } from 'a';
+        import { f as f4 } from 'dir/b';
+      `,
+      filename: filenameForBaseUrl,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+        import { f as f1 } from 'nonexistent';
+        import { f as f1 } from 'dir/nonexistent';
+      `,
+      filename: filenameForBaseUrl,
+      errors: 2,
+    },
+  ],
+});
+
 const ruleTesterForCatchAllExample = new RuleTester({
   parser: tsParserPath,
   parserOptions: {
