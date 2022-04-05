@@ -192,8 +192,13 @@ class CssRuleSensorTest {
     sensor.execute(context);
 
     Path configPath = Paths.get(context.fileSystem().workDir().getAbsolutePath(), "css-bundle", "stylelintconfig.json");
+    String baseDir = context.fileSystem().baseDir().getAbsolutePath();
     assertThat(Files.readAllLines(configPath)).containsOnly(
-      "{\"rules\":{" +
+      "{\"overrides\":["+
+        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.htm").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.html").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.php").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.vue").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-html\"}," +
+        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.less").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-less\"}," +
+        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.scss").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-scss\"}]," +
+      "\"rules\":{" +
         "\"block-no-empty\":true," +
         "\"color-no-invalid-hex\":true," +
         "\"declaration-block-no-duplicate-properties\":[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]" +

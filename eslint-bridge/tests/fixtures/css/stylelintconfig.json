@@ -1,4 +1,10 @@
 {
+  "overrides": [
+    {
+      "files": ["**/*.html", "**/*.php"],
+      "customSyntax": "postcss-html"
+    }
+  ],
   "rules": {
     "block-no-empty": true
   }

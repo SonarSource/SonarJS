@@ -59,14 +59,15 @@ public class CssRuleSensor extends AbstractEslintSensor {
   private static final String CONFIG_PATH = "css-bundle/stylelintconfig.json";
 
   private final SonarRuntime sonarRuntime;
-  private final CssRules cssRules;
+  private final CheckFactory checkFactory;
+  private CssRules cssRules;
 
   public CssRuleSensor(SonarRuntime sonarRuntime, EslintBridgeServer eslintBridgeServer, AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
                        CheckFactory checkFactory
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.sonarRuntime = sonarRuntime;
-    this.cssRules = new CssRules(checkFactory);
+    this.checkFactory = checkFactory;
   }
 
   @Override
@@ -88,6 +89,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
   @Override
   public void execute(SensorContext context) {
     this.context = context;
+    this.cssRules = new CssRules(this.context, this.checkFactory);
     List<InputFile> inputFiles = getInputFiles();
     if (inputFiles.isEmpty()) {
       LOG.info("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
