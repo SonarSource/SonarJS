@@ -28,6 +28,7 @@ import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
+import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -127,6 +128,7 @@ export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
     codeFilename: filePath,
     configFile: stylelintConfig,
   };
+  stylelint.rules[functionCalcNoInvalid.ruleName] = functionCalcNoInvalid.rule;
   return stylelint
     .lint(options)
     .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));

@@ -442,6 +442,7 @@ describe('#analyzeTypeScript', () => {
 });
 
 jest.mock('stylelint');
+jest.mock('rules/stylelint/function-calc-no-invalid', () => ({ rule: { ruleName: '', rule: {} } }));
 
 describe('#analyzeCss', () => {
   const filePath = join(__dirname, 'fixtures', 'css', 'file.css');
