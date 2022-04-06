@@ -71,14 +71,6 @@ class CssIssuesTest {
       .matches("(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*");
   }
 
-  // see https://github.com/SonarSource/sonar-css/issues/235
-  @Test
-  void parsing_error_on_less_selector_without_leading_space() {
-    // there should not be parse error: this comes from a bug reported to transitive dependency postcss-less (https://github.com/shellscape/postcss-less/issues/146)
-    assertThat(buildResult.getLogs())
-      .matches("(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error\\.less, line 4, Unknown word.*");
-  }
-
   @Test
   void issue_list() {
     SearchRequest request = new SearchRequest();
