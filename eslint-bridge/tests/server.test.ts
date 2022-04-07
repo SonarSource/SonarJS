@@ -448,12 +448,14 @@ describe('sonarlint context', () => {
   });
 
   describe('css analysis endpoint', () => {
-    const stylelintConfig = join(__dirname, 'fixtures', 'css', 'stylelintconfig.json');
+    const baseDir = __dirname;
+    const rules = [{ key: 'block-no-empty', configurations: [] }];
 
     it('should respond to analysis request for css', async () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
-        stylelintConfig,
+        baseDir,
+        rules,
       });
       const response = await post(request, '/analyze-css');
       expect(JSON.parse(response)).toEqual({
@@ -469,10 +471,29 @@ describe('sonarlint context', () => {
       });
     });
 
+    it('should respond to analysis request with configuration for css', async () => {
+      const request = JSON.stringify({
+        filePath: '/some/ignored/path',
+        fileContent: 'a { color: red; color: blue; color: green; }',
+        baseDir: __dirname,
+        rules: [
+          {
+            key: 'declaration-block-no-duplicate-properties',
+            configurations: [true, { ignore: ['consecutive-duplicates-with-different-values'] }],
+          },
+        ],
+      });
+      const response = await post(request, '/analyze-css');
+      expect(JSON.parse(response)).toEqual({
+        issues: [],
+      });
+    });
+
     it('should respond to analysis request for php', async () => {
       const requestPhp = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.php'),
-        stylelintConfig,
+        baseDir,
+        rules,
       });
       const responsePhp = await post(requestPhp, '/analyze-css');
       expect(JSON.parse(responsePhp)).toEqual({
@@ -491,7 +512,8 @@ describe('sonarlint context', () => {
     it('should respond to analysis request for html', async () => {
       const requestHtml = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.html'),
-        stylelintConfig,
+        baseDir,
+        rules,
       });
       const responseHtml = await post(requestHtml, '/analyze-css');
       expect(JSON.parse(responseHtml)).toEqual({
@@ -511,7 +533,8 @@ describe('sonarlint context', () => {
       const response = await post(
         JSON.stringify({
           filePath: join(__dirname, 'fixtures', 'css', 'file-bom.css'),
-          stylelintConfig,
+          baseDir,
+          rules,
         }),
         '/analyze-css',
       );
@@ -532,7 +555,8 @@ describe('sonarlint context', () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
         fileContent: '\n\n a { }', // move the issue on line 3
-        stylelintConfig,
+        baseDir,
+        rules,
       });
       const response = await post(request, '/analyze-css');
       expect(JSON.parse(response)).toEqual({

@@ -19,26 +19,15 @@
  */
 package org.sonar.plugins.javascript.css;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
-import java.lang.reflect.Type;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.javascript.css.rules.AtRuleNoUnknown;
 import org.sonar.plugins.javascript.css.rules.BlockNoEmpty;
@@ -70,17 +59,15 @@ import org.sonar.plugins.javascript.css.rules.UnitNoUnknown;
 public class CssRules {
 
   private final Map<String, RuleKey> stylelintKeyToRuleKey;
-  private final StylelintConfig config;
+  private final Collection<CssRule> rules;
 
-  public CssRules(SensorContext context, CheckFactory checkFactory) {
-    this.config = new StylelintConfig(context.fileSystem().baseDir().getAbsolutePath());
+  public CssRules(CheckFactory checkFactory) {
     Checks<CssRule> checks = checkFactory.<CssRule>create(CssRulesDefinition.REPOSITORY_KEY)
       .addAnnotatedChecks((Iterable<?>) getRuleClasses());
-    Collection<CssRule> enabledRules = checks.all();
+    this.rules = checks.all();
     stylelintKeyToRuleKey = new HashMap<>();
-    for (CssRule rule : enabledRules) {
+    for (CssRule rule : rules) {
       stylelintKeyToRuleKey.put(rule.stylelintKey(), checks.ruleKey(rule));
-      config.rules.put(rule.stylelintKey(), rule.stylelintOptions());
     }
   }
 
@@ -119,56 +106,7 @@ public class CssRules {
     return stylelintKeyToRuleKey.get(stylelintKey);
   }
 
-  public StylelintConfig getConfig() {
-    return config;
-  }
-
-  public boolean isEmpty() {
-    return stylelintKeyToRuleKey.isEmpty();
-  }
-
-  public static class StylelintConfig implements JsonSerializer<StylelintConfig> {
-    Map<String, List<Object>> rules = new HashMap<>();
-    final String baseDir;
-
-    public StylelintConfig(String baseDir) {
-      this.baseDir = baseDir;
-    }
-
-    private JsonArray overridesArray() {
-      JsonArray stylelintOverrides = new JsonArray();
-      stylelintOverrides.add(overridesSyntax(new String[]{"*.htm", "*.html", "*.php", "*.vue"}, "postcss-html"));
-      stylelintOverrides.add(overridesSyntax(new String[]{"*.less"}, "postcss-less"));
-      stylelintOverrides.add(overridesSyntax(new String[]{"*.scss"}, "postcss-scss"));
-      return stylelintOverrides;
-    }
-
-    private JsonObject overridesSyntax(String[] filePatterns, String customSyntax) {
-      JsonObject syntaxObject = new JsonObject();
-      JsonArray filesArray = new JsonArray();
-      for (String filePattern : filePatterns) {
-        filesArray.add(Paths.get(baseDir, "**", filePattern).toAbsolutePath().toString());
-      }
-      syntaxObject.add("files", filesArray);
-      syntaxObject.add("customSyntax", new JsonPrimitive(customSyntax));
-      return syntaxObject;
-    }
-
-    @Override
-    public JsonElement serialize(StylelintConfig src, Type typeOfSrc, JsonSerializationContext context) {
-      JsonObject stylelintJson = new JsonObject();
-      stylelintJson.add("overrides", overridesArray());
-      JsonObject rulesJson = new JsonObject();
-      stylelintJson.add("rules", rulesJson);
-      for (Entry<String, List<Object>> stylelintOptions : rules.entrySet()) {
-        List<Object> config = stylelintOptions.getValue();
-        if(config.isEmpty()) {
-          rulesJson.addProperty(stylelintOptions.getKey(), true);
-        } else {
-          rulesJson.add(stylelintOptions.getKey(), context.serialize(stylelintOptions.getValue()));
-        }
-      }
-      return stylelintJson;
-    }
+  public Collection<CssRule> getRules() {
+    return this.rules;
   }
 }

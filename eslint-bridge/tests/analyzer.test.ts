@@ -449,7 +449,8 @@ describe('#analyzeCss', () => {
   const request = {
     fileContent: undefined,
     filePath,
-    stylelintConfig: join(__dirname, 'fixtures', 'css', 'stylelintconfig.json'),
+    baseDir: __dirname,
+    rules: [{ key: 'block-no-empty', configurations: [] }],
   };
 
   const logSpy = jest.fn();

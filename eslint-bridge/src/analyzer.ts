@@ -29,6 +29,7 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
+import path from 'path';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -44,7 +45,13 @@ export interface AnalysisInput {
 }
 
 export interface CssAnalysisInput extends AnalysisInput {
-  stylelintConfig: string;
+  baseDir: string;
+  rules: StylelintRule[];
+}
+
+export interface StylelintRule {
+  key: string;
+  configurations: any[];
 }
 
 export interface TsConfigBasedAnalysisInput extends AnalysisInput {
@@ -121,17 +128,39 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
-  const { filePath, fileContent, stylelintConfig } = input;
+  const { filePath, fileContent, baseDir, rules } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
+  const config = createStylelintConfig(baseDir, rules);
   const options = {
     code,
     codeFilename: filePath,
-    configFile: stylelintConfig,
+    config,
   };
   stylelint.rules[functionCalcNoInvalid.ruleName] = functionCalcNoInvalid.rule;
   return stylelint
     .lint(options)
     .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));
+}
+
+function createStylelintConfig(baseDir: string, rules: StylelintRule[]): stylelint.Config {
+  const override = (customSyntax: string, ...patterns: string[]) => ({
+    customSyntax,
+    files: patterns.map(pattern => path.join(baseDir, '**', pattern)),
+  });
+  const overrides = [
+    override('postcss-html', '*.htm', '*.html', '*.php', '*.vue'),
+    override('postcss-less', '*.less'),
+    override('postcss-scss', '*.scss'),
+  ];
+  const configRules: stylelint.ConfigRules = {};
+  for (const { key, configurations } of rules) {
+    if (configurations.length === 0) {
+      configRules[key] = true;
+    } else {
+      configRules[key] = configurations;
+    }
+  }
+  return { overrides, rules: configRules };
 }
 
 function fromStylelintToSonarIssues(results: stylelint.LintResult[], filePath: string): Issue[] {

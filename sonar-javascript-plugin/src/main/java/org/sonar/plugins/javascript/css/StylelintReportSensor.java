@@ -57,12 +57,11 @@ public class StylelintReportSensor implements Sensor {
   private static final String FILE_EXCEPTION_MESSAGE = "No issues information will be saved as the report file can't be read.";
   private static final ByteOrderMark[] BYTE_ORDER_MARKS = {ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE};
 
-  private CssRules cssRules;
-  private final CheckFactory checkFactory;
+  private final CssRules cssRules;
   private ExternalRuleLoader stylelintRuleLoader = getStylelintRuleLoader();
 
   public StylelintReportSensor(CheckFactory checkFactory) {
-    this.checkFactory = checkFactory;
+    this.cssRules = new CssRules(checkFactory);
   }
 
   @Override
@@ -75,7 +74,6 @@ public class StylelintReportSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    this.cssRules = new CssRules(context, checkFactory);
     List<File> reportFiles = ExternalReportProvider.getReportFiles(context, JavaScriptPlugin.STYLELINT_REPORT_PATHS);
     reportFiles.forEach(report -> importReport(report, context));
   }

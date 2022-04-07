@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -187,25 +185,6 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void test_stylelint_config() throws IOException {
-    addInputFile("file.css");
-    sensor.execute(context);
-
-    Path configPath = Paths.get(context.fileSystem().workDir().getAbsolutePath(), "css-bundle", "stylelintconfig.json");
-    String baseDir = context.fileSystem().baseDir().getAbsolutePath();
-    assertThat(Files.readAllLines(configPath)).containsOnly(
-      "{\"overrides\":["+
-        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.htm").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.html").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.php").toAbsolutePath().toString() + "\",\"" + Paths.get(baseDir, "**", "*.vue").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-html\"}," +
-        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.less").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-less\"}," +
-        "{\"files\":[\"" + Paths.get(baseDir, "**", "*.scss").toAbsolutePath().toString() + "\"],\"customSyntax\":\"postcss-scss\"}]," +
-      "\"rules\":{" +
-        "\"block-no-empty\":true," +
-        "\"color-no-invalid-hex\":true," +
-        "\"declaration-block-no-duplicate-properties\":[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]" +
-      "}}");
-  }
-
-  @Test
   void test_non_css_files() {
     DefaultInputFile fileCss = addInputFile("file.css");
     DefaultInputFile fileHtml = addInputFile("file.web");
@@ -259,7 +238,7 @@ class CssRuleSensorTest {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
-    sensor.analyzeFile(httpFile, context, new File("config.json"));
+    sensor.analyzeFile(httpFile, context);
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");

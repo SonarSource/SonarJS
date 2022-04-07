@@ -19,14 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -50,24 +45,21 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssRules;
-import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class CssRuleSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(CssRuleSensor.class);
-  private static final String CONFIG_PATH = "css-bundle/stylelintconfig.json";
 
   private final SonarRuntime sonarRuntime;
-  private final CheckFactory checkFactory;
-  private CssRules cssRules;
+  private final CssRules cssRules;
 
   public CssRuleSensor(SonarRuntime sonarRuntime, EslintBridgeServer eslintBridgeServer, AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
                        CheckFactory checkFactory
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.sonarRuntime = sonarRuntime;
-    this.checkFactory = checkFactory;
+    this.cssRules = new CssRules(checkFactory);
   }
 
   @Override
@@ -89,7 +81,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
   @Override
   public void execute(SensorContext context) {
     this.context = context;
-    this.cssRules = new CssRules(this.context, this.checkFactory);
     List<InputFile> inputFiles = getInputFiles();
     if (inputFiles.isEmpty()) {
       LOG.info("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
@@ -100,7 +91,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    File stylelintConfig = createLinterConfig(context);
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
 
@@ -114,7 +104,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
 
-        analyzeFile(inputFile, context, stylelintConfig);
+        analyzeFile(inputFile, context);
         progressReport.nextFile(inputFile.absolutePath());
       }
       success = true;
@@ -128,7 +118,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, File stylelintConfig) {
+  void analyzeFile(InputFile inputFile, SensorContext context) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
@@ -136,7 +126,9 @@ public class CssRuleSensor extends AbstractEslintSensor {
         return;
       }
       String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
-      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, stylelintConfig.toString());
+      String baseDir = context.fileSystem().baseDir().getAbsolutePath();
+      List<StylelintRule> rules = cssRules.getRules().stream().map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions())).collect(Collectors.toList());
+      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, baseDir, rules);
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
@@ -213,18 +205,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguages(CssLanguage.KEY));
     return fileSystem.inputFiles(mainFilePredicate).iterator().hasNext();
-  }
-
-  private File createLinterConfig(SensorContext context) throws IOException {
-    StylelintConfig config = cssRules.getConfig();
-    final GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(StylelintConfig.class, config);
-    final Gson gson = gsonBuilder.create();
-    String configAsJson = gson.toJson(config);
-    File stylelintConfig = new File(context.fileSystem().workDir(), CONFIG_PATH).getAbsoluteFile();
-    Files.createDirectories(stylelintConfig.toPath().getParent());
-    Files.write(stylelintConfig.toPath(), Collections.singletonList(configAsJson), StandardCharsets.UTF_8);
-    return stylelintConfig;
   }
 
   private static String normalizeMessage(String message) {
