@@ -234,6 +234,7 @@ ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
         import { f as f1 } from 'dependency-in-package-json';
         import { f as f2 } from 'dir';
         import { f as f3 } from 'a';
+        import { f as f3 } from 'c';
         import { f as f4 } from 'dir/b';
       `,
       filename: filenameForBaseUrl,

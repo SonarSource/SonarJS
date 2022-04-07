@@ -113,13 +113,8 @@ function raiseOnImplicitImport(
 
   if (baseUrl) {
     const underBaseUrlPath = path.join(baseUrl, moduleName);
-    const alternatives = [
-      underBaseUrlPath,
-      underBaseUrlPath + '.ts',
-      underBaseUrlPath + '.d.ts',
-      underBaseUrlPath + '.tsx',
-    ];
-    if (alternatives.some(alternative => fs.existsSync(alternative))) {
+    const extensions = ['', '.ts', '.d.ts', '.tsx', '.js', '.jsx', '.vue', '.mjs'];
+    if (extensions.some(extension => fs.existsSync(underBaseUrlPath + extension))) {
       return;
     }
   }
