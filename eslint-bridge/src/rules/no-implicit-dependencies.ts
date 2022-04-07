@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4328
+// https://sonarsource.github.io/rspec/#/rspec/S4328/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -44,6 +44,7 @@ export const rule: Rule.RuleModule = {
     const whitelist = context.options;
     const dependencies = getDependencies(context.getFilename());
     const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
+    const baseUrl = getBaseUrl(context.parserServices);
     if (aliasedPathsMappingPatterns === 'matchAll') {
       // deactivates this rule altogether.
       return {};
@@ -65,6 +66,7 @@ export const rule: Rule.RuleModule = {
               dependencies,
               whitelist,
               aliasedPathsMappingPatterns,
+              baseUrl,
               context,
             );
           }
@@ -79,6 +81,7 @@ export const rule: Rule.RuleModule = {
           dependencies,
           whitelist,
           aliasedPathsMappingPatterns,
+          baseUrl,
           context,
         );
       },
@@ -92,6 +95,7 @@ function raiseOnImplicitImport(
   dependencies: Set<string>,
   whitelist: string[],
   aliasedPathsMappingPatterns: PathMappingPattern[],
+  baseUrl: string | undefined,
   context: Rule.RuleContext,
 ) {
   const moduleName = module.value;
@@ -105,6 +109,14 @@ function raiseOnImplicitImport(
 
   if (aliasedPathsMappingPatterns.some(pattern => pattern.isApplicableTo(moduleName))) {
     return;
+  }
+
+  if (baseUrl) {
+    const underBaseUrlPath = path.join(baseUrl, moduleName);
+    const extensions = ['', '.ts', '.d.ts', '.tsx', '.js', '.jsx', '.vue', '.mjs'];
+    if (extensions.some(extension => fs.existsSync(underBaseUrlPath + extension))) {
+      return;
+    }
   }
 
   const packageName = getPackageName(moduleName);
@@ -236,4 +248,12 @@ function extractPathMappingPatterns(
     }
   }
   return pathMappingPatterns;
+}
+
+function getBaseUrl(parserServices: RequiredParserServices): string | undefined {
+  if (parserServices.program && parserServices.program.getCompilerOptions()) {
+    return parserServices.program.getCompilerOptions().baseUrl;
+  }
+
+  return undefined;
 }
