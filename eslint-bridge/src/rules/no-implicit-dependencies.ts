@@ -30,7 +30,12 @@ import { RequiredParserServices } from '../utils';
 const DefinitelyTyped = '@types/';
 
 /**
- * Cache for each dirname the dependencies of the nearest package.json.
+ * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
+ */
+const dirCache: Map<string, Set<string>> = new Map();
+
+/**
+ * Cache for the available dependencies by dirname.
  */
 const cache: Map<string, Set<string>> = new Map();
 
@@ -146,32 +151,35 @@ function getPackageName(name: string) {
 }
 
 function getDependencies(fileName: string) {
-  const result = new Set<string>();
-
   let dirname = path.dirname(fileName);
-  while (true) {
-    getDependenciesFromDir(dirname).forEach(d => result.add(d));
-    const upperDirname = path.dirname(dirname);
-    if (upperDirname === dirname) {
-      break;
-    }
-    dirname = upperDirname;
+  if (cache.get(dirname)) {
+    return cache.get(dirname);
   }
 
-  return result;
-}
-
-function getDependenciesFromDir(dirname: string) {
-  const cached = cache.get(dirname);
-  if (cached) {
-    return cached;
-  }
-
-  const packageJsonPath = findPackageJson(path.resolve(dirname));
-  const result = packageJsonPath
-    ? getDependenciesFromPackageJson(packageJsonPath)
-    : new Set<string>();
+  const result = new Set<string>();
   cache.set(dirname, result);
+
+  let current: string;
+  while (true) {
+    const cached = dirCache.get(dirname);
+    if (cached) {
+      cached.forEach(d => result.add(d));
+    } else {
+      const packageJsonPath = path.join(path.resolve(dirname), 'package.json');
+      const dep = fs.existsSync(packageJsonPath)
+        ? getDependenciesFromPackageJson(packageJsonPath)
+        : new Set<string>();
+      dep.forEach(d => result.add(d));
+      dirCache.set(dirname, dep);
+    }
+
+    current = path.dirname(dirname);
+    if (current === dirname) {
+      break;
+    } else {
+      dirname = current;
+    }
+  }
 
   return result;
 }
@@ -198,21 +206,6 @@ function addDependencies(result: Set<string>, dependencies: any) {
   Object.keys(dependencies).forEach(name =>
     result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
   );
-}
-
-function findPackageJson(current: string): string | undefined {
-  const fileName = path.join(current, 'package.json');
-  if (fs.existsSync(fileName)) {
-    return fileName;
-  }
-
-  const prev: string = current;
-  current = path.dirname(current);
-
-  if (prev !== current) {
-    return findPackageJson(current);
-  }
-  return undefined;
 }
 
 /**
