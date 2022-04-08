@@ -3,8 +3,7 @@ Please do not create issues here!
 
 Our team monitors SonarSource Community Forum instead.
 
-* If you have a problem using this analyzer use "Get Help" category -> https://community.sonarsource.com/c/help/8
-* If you want to report a bug use "Report a bug" category -> https://community.sonarsource.com/c/bug/5
+* Please report issues under the relevant product at at https://community.sonarsource.com/
 * If you want to propose a feature/rule use "Suggest new features" category -> https://community.sonarsource.com/c/suggestions/12
 
 
