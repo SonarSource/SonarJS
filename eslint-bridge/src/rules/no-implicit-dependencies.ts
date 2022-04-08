@@ -152,18 +152,18 @@ function getPackageName(name: string) {
 
 function getDependencies(fileName: string) {
   let dirname = path.dirname(fileName);
-  if (cache.get(dirname)) {
-    return cache.get(dirname);
+  const cached = cache.get(dirname);
+  if (cached) {
+    return cached;
   }
 
   const result = new Set<string>();
   cache.set(dirname, result);
 
-  let current: string;
   while (true) {
-    const cached = dirCache.get(dirname);
-    if (cached) {
-      cached.forEach(d => result.add(d));
+    const dirCached = dirCache.get(dirname);
+    if (dirCached) {
+      dirCached.forEach(d => result.add(d));
     } else {
       const packageJsonPath = path.join(path.resolve(dirname), 'package.json');
       const dep = fs.existsSync(packageJsonPath)
@@ -173,11 +173,11 @@ function getDependencies(fileName: string) {
       dirCache.set(dirname, dep);
     }
 
-    current = path.dirname(dirname);
-    if (current === dirname) {
+    const upperDir = path.dirname(dirname);
+    if (upperDir === dirname) {
       break;
     } else {
-      dirname = current;
+      dirname = upperDir;
     }
   }
 
