@@ -22,9 +22,20 @@ package org.sonar.plugins.javascript.css.rules;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+
+import static org.sonar.plugins.javascript.css.rules.RuleUtils.splitAndTrim;
 
 @Rule(key = "S4653")
 public class UnitNoUnknown implements CssRule {
+
+  private static final String DEFAULT_IGNORED_UNITS = "x";
+
+  @RuleProperty(
+    key = "ignoredUnits",
+    description = "Comma-separated list of \"units\" to consider as valid.",
+    defaultValue = "" + DEFAULT_IGNORED_UNITS)
+  String ignoredUnits = DEFAULT_IGNORED_UNITS;
 
   @Override
   public String stylelintKey() {
@@ -33,11 +44,15 @@ public class UnitNoUnknown implements CssRule {
 
   @Override
   public List<Object> stylelintOptions() {
-    return Arrays.asList(true, new StylelintIgnoreOption());
+    return Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoredUnits)));
   }
 
   private static class StylelintIgnoreOption {
     // Used by GSON serialization
-    private final String[] ignoreUnits = {"x"};
+    private final List<String> ignoreUnits;
+
+    StylelintIgnoreOption(List<String> ignoreUnits) {
+      this.ignoreUnits = ignoreUnits;
+    }
   }
 }

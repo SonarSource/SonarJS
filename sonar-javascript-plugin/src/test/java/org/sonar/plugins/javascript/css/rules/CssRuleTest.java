@@ -137,4 +137,18 @@ class CssRuleTest {
     instance.ignoreFallbacks = false;
     assertThat(instance.stylelintOptions()).isEmpty();
   }
+
+  @Test
+  void unit_no_unknown_default() {
+    String optionsAsJson = new Gson().toJson(new UnitNoUnknown().stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreUnits\":[\"x\"]}]");
+  }
+
+  @Test
+  void unit_no_unknown__custom() {
+    UnitNoUnknown instance = new UnitNoUnknown();
+    instance.ignoredUnits = "foo,bar";
+    String optionsAsJson = new Gson().toJson(instance.stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreUnits\":[\"foo\",\"bar\"]}]");
+  }
 }
