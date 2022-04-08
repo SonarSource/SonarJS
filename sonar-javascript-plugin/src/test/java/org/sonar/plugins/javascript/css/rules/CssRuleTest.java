@@ -44,6 +44,7 @@ class CssRuleTest {
     Set<Class> rulesWithStylelintOptions = Sets.newSet(
       AtRuleNoUnknown.class,
       DeclarationBlockNoDuplicateProperties.class,
+      FontFamilyNoMissingGenericFamilyKeyword.class,
       PropertyNoUnknown.class,
       SelectorPseudoClassNoUnknown.class,
       SelectorPseudoElementNoUnknown.class,
@@ -136,5 +137,19 @@ class CssRuleTest {
     DeclarationBlockNoDuplicateProperties instance = new DeclarationBlockNoDuplicateProperties();
     instance.ignoreFallbacks = false;
     assertThat(instance.stylelintOptions()).isEmpty();
+  }
+
+  @Test
+  void font_family_no_missing_generic_family_keyword_default() {
+    String optionsAsJson = new Gson().toJson(new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[\"custom-font\"]}]");
+  }
+
+  @Test
+  void font_family_no_missing_generic_family_keyword_custom() {
+    FontFamilyNoMissingGenericFamilyKeyword instance = new FontFamilyNoMissingGenericFamilyKeyword();
+    instance.ignoreFontFamilies = "Icon Font, /icon$/";
+    String optionsAsJson = new Gson().toJson(instance.stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[\"Icon Font\",\"/icon$/\"]}]");
   }
 }
