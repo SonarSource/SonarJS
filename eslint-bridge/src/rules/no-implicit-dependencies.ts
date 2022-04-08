@@ -146,33 +146,51 @@ function getPackageName(name: string) {
 }
 
 function getDependencies(fileName: string) {
-  const dirname = path.dirname(fileName);
+  const result = new Set<string>();
 
+  let dirname = path.dirname(fileName);
+  while (true) {
+    getDependenciesFromDir(dirname).forEach(d => result.add(d));
+    const upperDirname = path.dirname(dirname);
+    if (upperDirname === dirname) {
+      break;
+    }
+    dirname = upperDirname;
+  }
+
+  return result;
+}
+
+function getDependenciesFromDir(dirname: string) {
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
   }
 
-  const result = new Set<string>();
   const packageJsonPath = findPackageJson(path.resolve(dirname));
-  if (packageJsonPath !== undefined) {
-    try {
-      // remove BOM from file content before parsing
-      const content = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8').replace(/^\uFEFF/, ''));
-      if (content.dependencies !== undefined) {
-        addDependencies(result, content.dependencies);
-      }
-      if (content.devDependencies !== undefined) {
-        addDependencies(result, content.devDependencies);
-      }
-      if (content.peerDependencies !== undefined) {
-        addDependencies(result, content.peerDependencies);
-      }
-    } catch {}
-  }
-
+  const result = packageJsonPath
+    ? getDependenciesFromPackageJson(packageJsonPath)
+    : new Set<string>();
   cache.set(dirname, result);
 
+  return result;
+}
+
+function getDependenciesFromPackageJson(packageJsonPath: string) {
+  const result = new Set<string>();
+  try {
+    // remove BOM from file content before parsing
+    const content = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8').replace(/^\uFEFF/, ''));
+    if (content.dependencies !== undefined) {
+      addDependencies(result, content.dependencies);
+    }
+    if (content.devDependencies !== undefined) {
+      addDependencies(result, content.devDependencies);
+    }
+    if (content.peerDependencies !== undefined) {
+      addDependencies(result, content.peerDependencies);
+    }
+  } catch {}
   return result;
 }
 

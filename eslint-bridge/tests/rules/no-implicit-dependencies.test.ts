@@ -160,6 +160,37 @@ ruleTester.run('Dependencies should be explicit', rule, {
   ],
 });
 
+const ruleTesterNestedPackage = new RuleTester({
+  parser: tsParserPath,
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
+
+const filenameNestedPackage = path.join(
+  __dirname,
+  '../fixtures/no-implicit-dependencies/nested-package-json-project/dir/file.js',
+);
+
+ruleTesterNestedPackage.run('all levels of package.json should be considered', rule, {
+  valid: [
+    {
+      code: `
+        import { f as f1 } from 'top-dependency';
+        import { f as f2 } from 'nested-dependency';
+      `,
+      filename: filenameNestedPackage,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+        import { f as f1 } from 'nonexistent';
+      `,
+      filename: filenameNestedPackage,
+      errors: 1,
+    },
+  ],
+});
+
 const ruleTesterForPathMappings = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
