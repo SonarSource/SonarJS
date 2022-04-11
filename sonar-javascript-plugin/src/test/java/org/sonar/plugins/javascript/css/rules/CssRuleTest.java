@@ -94,7 +94,7 @@ class CssRuleTest {
   @Test
   void selector_pseudo_element_no_unknown_default() {
     String optionsAsJson = new Gson().toJson(new SelectorPseudoElementNoUnknown().stylelintOptions());
-    assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoElements\":[\"ng-deep\",\"v-deep\"]}]");
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoElements\":[\"ng-deep\",\"v-deep\",\"deep\"]}]");
   }
 
   @Test
