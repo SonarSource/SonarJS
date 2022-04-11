@@ -30,7 +30,12 @@ import { RequiredParserServices } from '../utils';
 const DefinitelyTyped = '@types/';
 
 /**
- * Cache for each dirname the dependencies of the nearest package.json.
+ * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
+ */
+const dirCache: Map<string, Set<string>> = new Map();
+
+/**
+ * Cache for the available dependencies by dirname.
  */
 const cache: Map<string, Set<string>> = new Map();
 
@@ -146,33 +151,54 @@ function getPackageName(name: string) {
 }
 
 function getDependencies(fileName: string) {
-  const dirname = path.dirname(fileName);
-
+  let dirname = path.dirname(fileName);
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
   }
 
   const result = new Set<string>();
-  const packageJsonPath = findPackageJson(path.resolve(dirname));
-  if (packageJsonPath !== undefined) {
-    try {
-      // remove BOM from file content before parsing
-      const content = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8').replace(/^\uFEFF/, ''));
-      if (content.dependencies !== undefined) {
-        addDependencies(result, content.dependencies);
-      }
-      if (content.devDependencies !== undefined) {
-        addDependencies(result, content.devDependencies);
-      }
-      if (content.peerDependencies !== undefined) {
-        addDependencies(result, content.peerDependencies);
-      }
-    } catch {}
-  }
-
   cache.set(dirname, result);
 
+  while (true) {
+    const dirCached = dirCache.get(dirname);
+    if (dirCached) {
+      dirCached.forEach(d => result.add(d));
+    } else {
+      const packageJsonPath = path.join(path.resolve(dirname), 'package.json');
+      const dep = fs.existsSync(packageJsonPath)
+        ? getDependenciesFromPackageJson(packageJsonPath)
+        : new Set<string>();
+      dep.forEach(d => result.add(d));
+      dirCache.set(dirname, dep);
+    }
+
+    const upperDir = path.dirname(dirname);
+    if (upperDir === dirname) {
+      break;
+    } else {
+      dirname = upperDir;
+    }
+  }
+
+  return result;
+}
+
+function getDependenciesFromPackageJson(packageJsonPath: string) {
+  const result = new Set<string>();
+  try {
+    // remove BOM from file content before parsing
+    const content = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8').replace(/^\uFEFF/, ''));
+    if (content.dependencies !== undefined) {
+      addDependencies(result, content.dependencies);
+    }
+    if (content.devDependencies !== undefined) {
+      addDependencies(result, content.devDependencies);
+    }
+    if (content.peerDependencies !== undefined) {
+      addDependencies(result, content.peerDependencies);
+    }
+  } catch {}
   return result;
 }
 
@@ -180,21 +206,6 @@ function addDependencies(result: Set<string>, dependencies: any) {
   Object.keys(dependencies).forEach(name =>
     result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
   );
-}
-
-function findPackageJson(current: string): string | undefined {
-  const fileName = path.join(current, 'package.json');
-  if (fs.existsSync(fileName)) {
-    return fileName;
-  }
-
-  const prev: string = current;
-  current = path.dirname(current);
-
-  if (prev !== current) {
-    return findPackageJson(current);
-  }
-  return undefined;
 }
 
 /**
