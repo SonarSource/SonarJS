@@ -42,7 +42,7 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
         }
         /* invalid expression */
         if (!complained && !isValid(nodes)) {
-          complain('Expected a valid expression');
+          report('Expected a valid expression');
         }
       });
 
@@ -54,7 +54,7 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
         if (node.value === '/') {
           const operand = siblings[index + 1];
           if (operand && isZero(operand)) {
-            complain('Unexpected division by zero');
+            report('Unexpected division by zero');
           }
         }
       }
@@ -69,7 +69,7 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
           const previous = siblings[index - 1];
           if (previous && !isOperator(previous)) {
             const operator = node.value[0];
-            complain(`Expected space after "${operator}" operator`);
+            report(`Expected space after "${operator}" operator`);
           }
         }
         /* missing space before operator */
@@ -77,15 +77,15 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
           const after = siblings[index + 1];
           if (after && !isOperator(after)) {
             const operator = node.value[node.value.length - 1];
-            complain(`Expected space before "${operator}" operator`);
+            report(`Expected space before "${operator}" operator`);
           }
         }
         /* missing spaces surrounding operator */
         for (let i = 1; i < node.value.length - 1; ++i) {
           if (['+', '-'].includes(node.value[i])) {
             const operator = node.value[i];
-            complain(`Expected space before "${operator}" operator`);
-            complain(`Expected space after "${operator}" operator`);
+            report(`Expected space before "${operator}" operator`);
+            report(`Expected space after "${operator}" operator`);
           }
         }
       }
@@ -117,7 +117,7 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
         return node.type === 'word' && parseFloat(node.value) === 0;
       }
 
-      function complain(message: string) {
+      function report(message: string) {
         stylelint.utils.report({
           ruleName,
           result,
