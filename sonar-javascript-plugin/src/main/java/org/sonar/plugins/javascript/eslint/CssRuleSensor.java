@@ -127,7 +127,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
       }
       String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
       String baseDir = context.fileSystem().baseDir().getAbsolutePath();
-      List<StylelintRule> rules = cssRules.getRules().stream().map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions())).collect(Collectors.toList());
+      List<StylelintRule> rules = cssRules.getStylelintRules();
       EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, baseDir, rules);
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);

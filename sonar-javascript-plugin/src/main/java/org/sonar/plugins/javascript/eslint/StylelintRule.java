@@ -21,11 +21,11 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.util.List;
 
-class StylelintRule {
+public class StylelintRule {
   final String key;
   final List<Object> configurations;
 
-  StylelintRule(String key, List<Object> configurations) {
+  public StylelintRule(String key, List<Object> configurations) {
     this.key = key;
     this.configurations = configurations;
   }
