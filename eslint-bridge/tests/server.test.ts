@@ -474,7 +474,7 @@ describe('sonarlint context', () => {
     it('should respond to analysis request with configuration for css', async () => {
       const request = JSON.stringify({
         filePath: '/some/ignored/path',
-        fileContent: 'a { color: red; color: blue; color: green; }',
+        fileContent: `a { font-family: Arial; color: red; color: blue; font-family: Helvetica; }`,
         baseDir: __dirname,
         rules: [
           {
@@ -485,7 +485,16 @@ describe('sonarlint context', () => {
       });
       const response = await post(request, '/analyze-css');
       expect(JSON.parse(response)).toEqual({
-        issues: [],
+        issues: [
+          {
+            column: 50,
+            line: 1,
+            ruleId: 'declaration-block-no-duplicate-properties',
+            message:
+              'Unexpected duplicate "font-family" (declaration-block-no-duplicate-properties)',
+            secondaryLocations: [],
+          },
+        ],
       });
     });
 
