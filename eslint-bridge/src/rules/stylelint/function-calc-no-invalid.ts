@@ -28,11 +28,14 @@ export const rule = stylelint.createPlugin(ruleName, function () {
   return (root, result) => {
     root.walkDecls(decl => {
       /* flag to report an invalid expression iff the calc argument has no other issues */
-      let complained = false;
+      let complained: boolean;
       postcssValueParser(decl.value).walk(calc => {
         if (calc.type !== 'function' || calc.value.toLowerCase() !== 'calc') {
           return;
         }
+
+        complained = false;
+
         const nodes = calc.nodes.filter(node => !isSpaceOrComment(node));
         for (const [index, node] of nodes.entries()) {
           if (node.type === 'word') {
