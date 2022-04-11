@@ -80,5 +80,15 @@ tester.run('function-calc-no-invalid', {
       code: '.foo {width: calc(100% / 0px);}',
       errors: [{ text: 'Unexpected division by zero' }],
     },
+    {
+      description: 'sibling calc-s',
+      code: '.foo {width: calc() + calc(100% / 0px);}',
+      errors: [{ text: `Fix this 'calc' expression` }, { text: 'Unexpected division by zero' }],
+    },
+    {
+      description: 'nested calc-s',
+      code: '.foo {width: calc(100% / 0px + calc());}',
+      errors: [{ text: 'Unexpected division by zero' }, { text: `Fix this 'calc' expression` }],
+    },
   ],
 });
