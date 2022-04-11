@@ -30,11 +30,11 @@ import static org.sonar.plugins.javascript.css.rules.RuleUtils.splitAndTrim;
 @Rule(key = "S4649")
 public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
 
-  private static final String DEFAULT_IGNORE_FONT_FAMILIES = "custom-font";
+  private static final String DEFAULT_IGNORE_FONT_FAMILIES = "";
 
   @RuleProperty(
     key = "ignoreFontFamilies",
-    description = "Comma-separated list of regular expressions for font families exempt from this rule.",
+    description = "Comma-separated list of font families exempt from this rule (regular expressions supported).",
     defaultValue = "" + DEFAULT_IGNORE_FONT_FAMILIES)
   String ignoreFontFamilies = DEFAULT_IGNORE_FONT_FAMILIES;
 

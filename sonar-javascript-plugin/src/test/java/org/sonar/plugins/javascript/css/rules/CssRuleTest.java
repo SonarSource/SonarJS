@@ -142,7 +142,7 @@ class CssRuleTest {
   @Test
   void font_family_no_missing_generic_family_keyword_default() {
     String optionsAsJson = new Gson().toJson(new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions());
-    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[\"custom-font\"]}]");
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[\"\"]}]");
   }
 
   @Test
