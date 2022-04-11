@@ -32,14 +32,6 @@ tester.run('function-calc-no-invalid', {
       code: '.foo {width: calc(100% - 80px + 60pt);}',
     },
     {
-      description: 'missing space before non-sign operator',
-      code: '.foo {width: calc(100%* 80px);}',
-    },
-    {
-      description: 'missing space after non-sign operator',
-      code: '.foo {width: calc(100% /1);}',
-    },
-    {
       description: 'division by 1',
       code: '.foo {width: calc(100% / 1);}',
     },
@@ -72,24 +64,6 @@ tester.run('function-calc-no-invalid', {
       description: 'missing operator',
       code: '.foo {width: calc(100% 80px);}',
       errors: [{ message: 'Expected a valid expression' }],
-    },
-    {
-      description: 'missing space before operator',
-      code: '.foo {width: calc(100%- 80px);}',
-      errors: [{ message: 'Expected space before "-" operator' }],
-    },
-    {
-      description: 'missing space after operator',
-      code: '.foo {width: calc(100% -80px);}',
-      errors: [{ message: 'Expected space after "-" operator' }],
-    },
-    {
-      description: 'missing spaces surrounding operator',
-      code: '.foo {width: calc(100%-80px);}',
-      errors: [
-        { message: 'Expected space before "-" operator' },
-        { message: 'Expected space after "-" operator' },
-      ],
     },
     {
       description: 'division by 0',

@@ -37,7 +37,6 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
         for (const [index, node] of nodes.entries()) {
           if (node.type === 'word') {
             checkDivisionByZero(node, index, nodes);
-            checkSpacing(node, index, nodes);
           }
         }
         /* invalid expression */
@@ -55,37 +54,6 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
           const operand = siblings[index + 1];
           if (operand && isZero(operand)) {
             report('Unexpected division by zero');
-          }
-        }
-      }
-
-      function checkSpacing(
-        node: postcssValueParser.WordNode,
-        index: number,
-        siblings: postcssValueParser.Node[],
-      ) {
-        /* missing space after operator */
-        if (['+', '-'].includes(node.value[0]) && node.value.length > 1) {
-          const previous = siblings[index - 1];
-          if (previous && !isOperator(previous)) {
-            const operator = node.value[0];
-            report(`Expected space after "${operator}" operator`);
-          }
-        }
-        /* missing space before operator */
-        if (['+', '-'].includes(node.value[node.value.length - 1]) && node.value.length > 1) {
-          const after = siblings[index + 1];
-          if (after && !isOperator(after)) {
-            const operator = node.value[node.value.length - 1];
-            report(`Expected space before "${operator}" operator`);
-          }
-        }
-        /* missing spaces surrounding operator */
-        for (let i = 1; i < node.value.length - 1; ++i) {
-          if (['+', '-'].includes(node.value[i])) {
-            const operator = node.value[i];
-            report(`Expected space before "${operator}" operator`);
-            report(`Expected space after "${operator}" operator`);
           }
         }
       }
