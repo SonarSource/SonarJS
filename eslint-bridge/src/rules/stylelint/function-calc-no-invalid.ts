@@ -41,7 +41,7 @@ export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _
         }
         /* invalid expression */
         if (!complained && !isValid(nodes)) {
-          report('Expected a valid expression');
+          report(`Fix this 'calc' expression`);
         }
       });
 

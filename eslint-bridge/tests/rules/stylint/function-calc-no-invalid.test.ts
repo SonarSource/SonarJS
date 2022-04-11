@@ -48,22 +48,22 @@ tester.run('function-calc-no-invalid', {
     {
       description: 'empty expression',
       code: '.foo {width: calc();}',
-      errors: [{ message: 'Expected a valid expression' }],
+      errors: [{ message: `Fix this 'calc' expression` }],
     },
     {
       description: 'space-only expression',
       code: '.foo {width: calc(   );}',
-      errors: [{ message: 'Expected a valid expression' }],
+      errors: [{ message: `Fix this 'calc' expression` }],
     },
     {
       description: 'comment-only expression',
       code: '.foo {width: calc(/* this a comment */);}',
-      errors: [{ message: 'Expected a valid expression' }],
+      errors: [{ message: `Fix this 'calc' expression` }],
     },
     {
       description: 'missing operator',
       code: '.foo {width: calc(100% 80px);}',
-      errors: [{ message: 'Expected a valid expression' }],
+      errors: [{ message: `Fix this 'calc' expression` }],
     },
     {
       description: 'division by 0',
