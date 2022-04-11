@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { StylelintRuleTester } from '../../StylelintRuleTester';
-import { rule } from 'rules/stylelint/function-calc-no-invalid';
+import { messages, rule } from 'rules/stylelint/function-calc-no-invalid';
 
 const tester = new StylelintRuleTester(rule);
 tester.run('function-calc-no-invalid', {
@@ -48,47 +48,52 @@ tester.run('function-calc-no-invalid', {
     {
       description: 'empty expression',
       code: '.foo {width: calc();}',
-      errors: [{ text: `Fix this 'calc' expression`, line: 1, column: 7 }],
+      errors: [{ text: messages.invalid, line: 1, column: 7 }],
     },
     {
       description: 'space-only expression',
       code: '.foo {width: calc(   );}',
-      errors: [{ text: `Fix this 'calc' expression` }],
+      errors: [{ text: messages.invalid }],
     },
     {
       description: 'comment-only expression',
       code: '.foo {width: calc(/* this a comment */);}',
-      errors: [{ text: `Fix this 'calc' expression` }],
+      errors: [{ text: messages.invalid }],
     },
     {
       description: 'missing operator',
       code: '.foo {width: calc(100% 80px);}',
-      errors: [{ text: `Fix this 'calc' expression` }],
+      errors: [{ text: messages.invalid }],
     },
     {
       description: 'division by 0',
       code: '.foo {width: calc(100% / 0);}',
-      errors: [{ text: 'Unexpected division by zero' }],
+      errors: [{ text: messages.divByZero }],
     },
     {
       description: 'division by 0.0',
       code: '.foo {width: calc(100% / 0.0);}',
-      errors: [{ text: 'Unexpected division by zero' }],
+      errors: [{ text: messages.divByZero }],
     },
     {
       description: 'division by 0px',
       code: '.foo {width: calc(100% / 0px);}',
-      errors: [{ text: 'Unexpected division by zero' }],
+      errors: [{ text: messages.divByZero }],
     },
     {
       description: 'sibling calc-s',
       code: '.foo {width: calc() + calc(100% / 0px);}',
-      errors: [{ text: `Fix this 'calc' expression` }, { text: 'Unexpected division by zero' }],
+      errors: [{ text: messages.invalid }, { text: messages.divByZero }],
     },
     {
       description: 'nested calc-s',
       code: '.foo {width: calc(100% / 0px + calc());}',
-      errors: [{ text: 'Unexpected division by zero' }, { text: `Fix this 'calc' expression` }],
+      errors: [{ text: messages.divByZero }, { text: messages.invalid }],
+    },
+    {
+      description: 'nested expressions',
+      code: '.foo {width: calc(100 + ("foo" / (-0.9) * abs(80%) (70px+"bar")));}',
+      errors: [{ text: messages.invalid }, { text: messages.invalid }],
     },
   ],
 });

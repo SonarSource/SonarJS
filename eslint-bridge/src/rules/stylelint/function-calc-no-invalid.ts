@@ -24,56 +24,64 @@ import postcssValueParser from 'postcss-value-parser';
 const ruleName = 'function-calc-no-invalid';
 const operators = ['+', '-', '*', '/'];
 
+// exported for testing purpose
+export const messages = {
+  divByZero: 'Unexpected division by zero',
+  invalid: "Fix this 'calc' expression",
+};
+
 export const rule = stylelint.createPlugin(ruleName, function () {
   return (root, result) => {
     root.walkDecls(decl => {
-      /* flag to report an invalid expression iff the calc argument has no other issues */
-      let complained: boolean;
-      postcssValueParser(decl.value).walk(calc => {
-        if (calc.type !== 'function' || calc.value.toLowerCase() !== 'calc') {
+      postcssValueParser(decl.value).walk(node => {
+        if (!isCalcFunction(node)) {
           return;
         }
 
-        complained = false;
+        const calc = node as postcssValueParser.FunctionNode;
 
-        const nodes = calc.nodes.filter(node => !isSpaceOrComment(node));
-        for (const [index, node] of nodes.entries()) {
-          if (node.type === 'word') {
-            checkDivisionByZero(node, index, nodes);
-          }
-        }
-        /* invalid expression */
-        if (!complained && !isValid(nodes)) {
-          report(`Fix this 'calc' expression`);
-        }
+        checkDivisionByZero(calc.nodes);
+        checkMissingOperator(calc.nodes);
+        checkEmpty(calc.nodes);
       });
 
-      function checkDivisionByZero(
-        node: postcssValueParser.WordNode,
-        index: number,
-        siblings: postcssValueParser.Node[],
-      ) {
-        if (node.value === '/') {
-          const operand = siblings[index + 1];
-          if (operand && isZero(operand)) {
-            report('Unexpected division by zero');
+      function isCalcFunction(node: postcssValueParser.Node) {
+        return node.type === 'function' && node.value.toLowerCase() === 'calc';
+      }
+
+      function checkDivisionByZero(nodes: postcssValueParser.Node[]): void {
+        const siblings = nodes.filter(node => !isSpaceOrComment(node));
+        for (const [index, node] of siblings.entries()) {
+          if (isDivision(node)) {
+            const operand = siblings[index + 1];
+            if (operand && isZero(operand)) {
+              report(messages.divByZero);
+            }
+          } else if (node.type === 'function' && !isCalcFunction(node)) {
+            checkDivisionByZero(node.nodes);
           }
         }
       }
 
-      function isValid(nodes: postcssValueParser.Node[]) {
-        /* empty expression */
-        if (nodes.length === 0) {
-          return false;
-        }
-        /* missing operator */
-        for (let index = 1; index < nodes.length; index += 2) {
-          const node = nodes[index];
+      function checkMissingOperator(nodes: postcssValueParser.Node[]) {
+        const siblings = nodes.filter(node => !isSpaceOrComment(node));
+        for (let index = 1; index < siblings.length; index += 2) {
+          const node = siblings[index];
           if (!isOperator(node)) {
-            return false;
+            report(messages.invalid);
           }
         }
-        return true;
+        for (const node of siblings) {
+          if (node.type === 'function' && !isCalcFunction(node)) {
+            checkMissingOperator(node.nodes);
+          }
+        }
+      }
+
+      function checkEmpty(nodes: postcssValueParser.Node[]) {
+        if (nodes.filter(node => !isSpaceOrComment(node)).length === 0) {
+          report(messages.invalid);
+        }
       }
 
       function isSpaceOrComment(node: postcssValueParser.Node) {
@@ -81,7 +89,11 @@ export const rule = stylelint.createPlugin(ruleName, function () {
       }
 
       function isOperator(node: postcssValueParser.Node) {
-        return node.type === 'word' && operators.includes(node.value);
+        return (node.type === 'word' && operators.includes(node.value)) || node.type === 'div';
+      }
+
+      function isDivision(node: postcssValueParser.Node) {
+        return (node.type === 'word' && node.value === '/') || node.type === 'div';
       }
 
       function isZero(node: postcssValueParser.Node) {
@@ -95,7 +107,6 @@ export const rule = stylelint.createPlugin(ruleName, function () {
           message,
           node: decl,
         });
-        complained = true;
       }
     });
   };
