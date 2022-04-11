@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.css.rules;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
@@ -45,7 +46,7 @@ public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
 
   @Override
   public List<Object> stylelintOptions() {
-    return Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoreFontFamilies)));
+    return ignoreFontFamilies.isBlank() ? Collections.emptyList() : Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoreFontFamilies)));
   }
 
   private static class StylelintIgnoreOption {
