@@ -24,7 +24,7 @@ import postcssValueParser from 'postcss-value-parser';
 const ruleName = 'function-calc-no-invalid';
 const operators = ['+', '-', '*', '/'];
 
-export const rule = stylelint.createPlugin(ruleName, function (_primaryOption, _secondaryOptions) {
+export const rule = stylelint.createPlugin(ruleName, function () {
   return (root, result) => {
     root.walkDecls(decl => {
       /* flag to report an invalid expression iff the calc argument has no other issues */
