@@ -48,37 +48,37 @@ tester.run('function-calc-no-invalid', {
     {
       description: 'empty expression',
       code: '.foo {width: calc();}',
-      errors: [{ message: `Fix this 'calc' expression` }],
+      errors: [{ text: `Fix this 'calc' expression`, line: 1, column: 7 }],
     },
     {
       description: 'space-only expression',
       code: '.foo {width: calc(   );}',
-      errors: [{ message: `Fix this 'calc' expression` }],
+      errors: [{ text: `Fix this 'calc' expression` }],
     },
     {
       description: 'comment-only expression',
       code: '.foo {width: calc(/* this a comment */);}',
-      errors: [{ message: `Fix this 'calc' expression` }],
+      errors: [{ text: `Fix this 'calc' expression` }],
     },
     {
       description: 'missing operator',
       code: '.foo {width: calc(100% 80px);}',
-      errors: [{ message: `Fix this 'calc' expression` }],
+      errors: [{ text: `Fix this 'calc' expression` }],
     },
     {
       description: 'division by 0',
       code: '.foo {width: calc(100% / 0);}',
-      errors: [{ message: 'Unexpected division by zero' }],
+      errors: [{ text: 'Unexpected division by zero' }],
     },
     {
       description: 'division by 0.0',
       code: '.foo {width: calc(100% / 0.0);}',
-      errors: [{ message: 'Unexpected division by zero' }],
+      errors: [{ text: 'Unexpected division by zero' }],
     },
     {
       description: 'division by 0px',
       code: '.foo {width: calc(100% / 0px);}',
-      errors: [{ message: 'Unexpected division by zero' }],
+      errors: [{ text: 'Unexpected division by zero' }],
     },
   ],
 });

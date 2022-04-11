@@ -20,7 +20,11 @@
 import * as stylelint from 'stylelint';
 
 export type ValidAssertion = { description: string; code: string };
-export type InvalidAssertion = { description: string; code: string; errors: { message: string }[] };
+export type InvalidAssertion = {
+  description: string;
+  code: string;
+  errors: { text?: string; line?: number; column?: number }[];
+};
 
 class StylelintRuleTester {
   private readonly config: stylelint.Config;
@@ -60,7 +64,25 @@ class StylelintRuleTester {
       });
       expect(warnings).toHaveLength(assertion.errors.length);
       for (let index = 0; index < warnings.length; ++index) {
-        expect(warnings[index].text).toBe(assertion.errors[index].message);
+        const {
+          text: expectedMessage,
+          line: expectedLine,
+          column: expectedColumn,
+        } = warnings[index];
+        const {
+          text: actualMessage,
+          line: actualLine,
+          column: actualColumn,
+        } = assertion.errors[index];
+        if (actualMessage) {
+          expect(expectedMessage).toBe(actualMessage);
+        }
+        if (actualLine) {
+          expect(expectedLine).toBe(actualLine);
+        }
+        if (actualColumn) {
+          expect(expectedColumn).toBe(actualColumn);
+        }
       }
     });
   }
