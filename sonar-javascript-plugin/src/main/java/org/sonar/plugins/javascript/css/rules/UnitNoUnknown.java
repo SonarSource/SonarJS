@@ -33,7 +33,7 @@ public class UnitNoUnknown implements CssRule {
 
   @RuleProperty(
     key = "ignoredUnits",
-    description = "Comma-separated list of \"units\" to consider as valid.",
+    description = "Comma-separated list of \"units\" to consider as valid (regular expressions supported).",
     defaultValue = "" + DEFAULT_IGNORED_UNITS)
   String ignoredUnits = DEFAULT_IGNORED_UNITS;
 
