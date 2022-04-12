@@ -237,7 +237,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
       .setContents("a { }")
       .build();
-    CssAnalysisRequest request = new CssAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), "config.file");
+    CssAnalysisRequest request = new CssAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), Collections.emptyList());
     assertThat(eslintBridgeServer.analyzeCss(request).issues).isEmpty();
   }
 

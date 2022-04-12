@@ -19,18 +19,14 @@
  */
 package org.sonar.plugins.javascript.css;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
@@ -61,20 +57,20 @@ import org.sonar.plugins.javascript.css.rules.SelectorPseudoElementNoUnknown;
 import org.sonar.plugins.javascript.css.rules.SelectorTypeNoUnknown;
 import org.sonar.plugins.javascript.css.rules.StringNoNewline;
 import org.sonar.plugins.javascript.css.rules.UnitNoUnknown;
+import org.sonar.plugins.javascript.eslint.StylelintRule;
 
 public class CssRules {
 
   private final Map<String, RuleKey> stylelintKeyToRuleKey;
-  private final StylelintConfig config = new StylelintConfig();
+  private final Collection<CssRule> rules;
 
   public CssRules(CheckFactory checkFactory) {
     Checks<CssRule> checks = checkFactory.<CssRule>create(CssRulesDefinition.REPOSITORY_KEY)
       .addAnnotatedChecks((Iterable<?>) getRuleClasses());
-    Collection<CssRule> enabledRules = checks.all();
+    this.rules = checks.all();
     stylelintKeyToRuleKey = new HashMap<>();
-    for (CssRule rule : enabledRules) {
+    for (CssRule rule : rules) {
       stylelintKeyToRuleKey.put(rule.stylelintKey(), checks.ruleKey(rule));
-      config.rules.put(rule.stylelintKey(), rule.stylelintOptions());
     }
   }
 
@@ -113,31 +109,7 @@ public class CssRules {
     return stylelintKeyToRuleKey.get(stylelintKey);
   }
 
-  public StylelintConfig getConfig() {
-    return config;
-  }
-
-  public boolean isEmpty() {
-    return stylelintKeyToRuleKey.isEmpty();
-  }
-
-  public static class StylelintConfig implements JsonSerializer<StylelintConfig> {
-    Map<String, List<Object>> rules = new HashMap<>();
-
-    @Override
-    public JsonElement serialize(StylelintConfig src, Type typeOfSrc, JsonSerializationContext context) {
-      JsonObject stylelintJson = new JsonObject();
-      JsonObject rulesJson = new JsonObject();
-      stylelintJson.add("rules", rulesJson);
-      for (Entry<String, List<Object>> stylelintOptions : rules.entrySet()) {
-        List<Object> config = stylelintOptions.getValue();
-        if(config.isEmpty()) {
-          rulesJson.addProperty(stylelintOptions.getKey(), true);
-        } else {
-          rulesJson.add(stylelintOptions.getKey(), context.serialize(stylelintOptions.getValue()));
-        }
-      }
-      return stylelintJson;
-    }
+  public List<StylelintRule> getStylelintRules() {
+    return this.rules.stream().map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions())).collect(Collectors.toList());
   }
 }

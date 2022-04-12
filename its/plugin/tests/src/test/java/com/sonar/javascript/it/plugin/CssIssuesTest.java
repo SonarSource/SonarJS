@@ -71,14 +71,6 @@ class CssIssuesTest {
       .matches("(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*");
   }
 
-  // see https://github.com/SonarSource/sonar-css/issues/235
-  @Test
-  void parsing_error_on_less_selector_without_leading_space() {
-    // there should not be parse error: this comes from a bug reported to transitive dependency postcss-less (https://github.com/shellscape/postcss-less/issues/146)
-    assertThat(buildResult.getLogs())
-      .matches("(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error\\.less, line 4, Unknown word.*");
-  }
-
   @Test
   void issue_list() {
     SearchRequest request = new SearchRequest();
@@ -106,6 +98,8 @@ class CssIssuesTest {
       tuple("css:S4654", "css-issues-project:src/file1.css"),
       tuple("css:S4657", "css-issues-project:src/file1.css"),
       tuple("css:S4650", "css-issues-project:src/file1.css"),
+      tuple("css:S4650", "css-issues-project:src/file1.css"),
+      tuple("css:S4650", "css-issues-project:src/file1.css"),
       tuple("css:S4653", "css-issues-project:src/file1.css"),
       tuple("css:S4668", "css-issues-project:src/file1.css"),
       tuple("css:S4654", "css-issues-project:src/file1.css"),
@@ -130,6 +124,8 @@ class CssIssuesTest {
       tuple("css:S4654", "css-issues-project:src/file2.less"),
       tuple("css:S4657", "css-issues-project:src/file2.less"),
       tuple("css:S4650", "css-issues-project:src/file2.less"),
+      tuple("css:S4650", "css-issues-project:src/file2.less"),
+      tuple("css:S4650", "css-issues-project:src/file2.less"),
       tuple("css:S4653", "css-issues-project:src/file2.less"),
       tuple("css:S4651", "css-issues-project:src/file2.less"),
       tuple("css:S4666", "css-issues-project:src/file2.less"),
@@ -152,6 +148,8 @@ class CssIssuesTest {
       tuple("css:S4654", "css-issues-project:src/file3.scss"),
       tuple("css:S4657", "css-issues-project:src/file3.scss"),
       tuple("css:S4650", "css-issues-project:src/file3.scss"),
+      tuple("css:S4650", "css-issues-project:src/file3.scss"),
+      tuple("css:S4650", "css-issues-project:src/file3.scss"),
       tuple("css:S4653", "css-issues-project:src/file3.scss"),
       tuple("css:S4651", "css-issues-project:src/file3.scss"),
       tuple("css:S4666", "css-issues-project:src/file3.scss"),
@@ -163,13 +161,7 @@ class CssIssuesTest {
       tuple("css:S1116", "css-issues-project:src/file5.htm"),
       tuple("css:S1116", "css-issues-project:src/file6.vue"),
       tuple("css:S5362", "css-issues-project:src/file1.css"),
-      tuple("css:S5362", "css-issues-project:src/file1.css"),
-      tuple("css:S5362", "css-issues-project:src/file1.css"),
       tuple("css:S5362", "css-issues-project:src/file2.less"),
-      tuple("css:S5362", "css-issues-project:src/file2.less"),
-      tuple("css:S5362", "css-issues-project:src/file2.less"),
-      tuple("css:S5362", "css-issues-project:src/file3.scss"),
-      tuple("css:S5362", "css-issues-project:src/file3.scss"),
       tuple("css:S5362", "css-issues-project:src/file3.scss")
     );
   }

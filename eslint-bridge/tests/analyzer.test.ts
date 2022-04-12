@@ -442,13 +442,14 @@ describe('#analyzeTypeScript', () => {
 });
 
 jest.mock('stylelint');
+jest.mock('rules/stylelint/function-calc-no-invalid', () => ({ rule: { ruleName: '', rule: {} } }));
 
 describe('#analyzeCss', () => {
   const filePath = join(__dirname, 'fixtures', 'css', 'file.css');
   const request = {
     fileContent: undefined,
     filePath,
-    stylelintConfig: join(__dirname, 'fixtures', 'css', 'stylelintconfig.json'),
+    rules: [{ key: 'block-no-empty', configurations: [] }],
   };
 
   const logSpy = jest.fn();

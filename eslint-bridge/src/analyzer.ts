@@ -28,6 +28,7 @@ import { getContext } from './context';
 import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
+import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -43,7 +44,12 @@ export interface AnalysisInput {
 }
 
 export interface CssAnalysisInput extends AnalysisInput {
-  stylelintConfig: string;
+  rules: StylelintRule[];
+}
+
+export interface StylelintRule {
+  key: string;
+  configurations: any[];
 }
 
 export interface TsConfigBasedAnalysisInput extends AnalysisInput {
@@ -120,16 +126,30 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
-  const { filePath, fileContent, stylelintConfig } = input;
+  const { filePath, fileContent, rules } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
+  const config = createStylelintConfig(rules);
   const options = {
     code,
     codeFilename: filePath,
-    configFile: stylelintConfig,
+    config,
   };
+  stylelint.rules[functionCalcNoInvalid.ruleName] = functionCalcNoInvalid.rule;
   return stylelint
     .lint(options)
     .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));
+}
+
+function createStylelintConfig(rules: StylelintRule[]): stylelint.Config {
+  const configRules: stylelint.ConfigRules = {};
+  for (const { key, configurations } of rules) {
+    if (configurations.length === 0) {
+      configRules[key] = true;
+    } else {
+      configRules[key] = configurations;
+    }
+  }
+  return { customSyntax: 'postcss-syntax', rules: configRules };
 }
 
 function fromStylelintToSonarIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
