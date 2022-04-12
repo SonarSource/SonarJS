@@ -48,8 +48,7 @@ class CssRuleTest {
       PropertyNoUnknown.class,
       SelectorPseudoClassNoUnknown.class,
       SelectorPseudoElementNoUnknown.class,
-      SelectorTypeNoUnknown.class,
-      UnitNoUnknown.class);
+      SelectorTypeNoUnknown.class);
 
     for (Class ruleClass : CssRules.getRuleClasses()) {
       CssRule rule = (CssRule)ruleClass.getConstructor().newInstance();
@@ -104,12 +103,6 @@ class CssRuleTest {
     selectorPseudoElementNoUnknown.ignorePseudoElements =  "ng-deep, /^custom-/";
     String optionsAsJson = new Gson().toJson(selectorPseudoElementNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoElements\":[\"ng-deep\",\"/^custom-/\"]}]");
-  }
-
-  @Test
-  void units_no_unknown_options() {
-    String optionsAsJson = new Gson().toJson(new UnitNoUnknown().stylelintOptions());
-    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreUnits\":[\"x\"]}]");
   }
 
   @Test
