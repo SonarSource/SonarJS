@@ -55,33 +55,26 @@ class StylelintRuleTester {
   }
 
   private static reject(assertion: InvalidAssertion, config: stylelint.Config) {
-    it(assertion.description, async () => {
+    const { description, code, errors } = assertion;
+    it(description, async () => {
       const {
         results: [{ warnings }],
       } = await stylelint.lint({
-        code: assertion.code,
+        code,
         config,
       });
-      expect(warnings).toHaveLength(assertion.errors.length);
+      expect(warnings).toHaveLength(errors.length);
       for (let index = 0; index < warnings.length; ++index) {
-        const {
-          text: expectedMessage,
-          line: expectedLine,
-          column: expectedColumn,
-        } = warnings[index];
-        const {
-          text: actualMessage,
-          line: actualLine,
-          column: actualColumn,
-        } = assertion.errors[index];
-        if (actualMessage) {
-          expect(expectedMessage).toBe(actualMessage);
+        const { text: actualMessage, line: actualLine, column: actualColumn } = warnings[index];
+        const { text: expectedMessage, line: expectedLine, column: expectedColumn } = errors[index];
+        if (expectedMessage) {
+          expect(actualMessage).toBe(expectedMessage);
         }
-        if (actualLine) {
-          expect(expectedLine).toBe(actualLine);
+        if (expectedLine) {
+          expect(actualLine).toBe(expectedLine);
         }
-        if (actualColumn) {
-          expect(expectedColumn).toBe(actualColumn);
+        if (expectedColumn) {
+          expect(actualColumn).toBe(expectedColumn);
         }
       }
     });
