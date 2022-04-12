@@ -102,6 +102,7 @@ class CssIssuesTest {
       tuple("css:S4650", "css-issues-project:src/file1.css"),
       tuple("css:S4653", "css-issues-project:src/file1.css"),
       tuple("css:S4668", "css-issues-project:src/file1.css"),
+      tuple("css:S4654", "css-issues-project:src/file1.css"),
       tuple("css:S4651", "css-issues-project:src/file1.css"),
       tuple("css:S4666", "css-issues-project:src/file1.css"),
       tuple("css:S4670", "css-issues-project:src/file1.css"),
