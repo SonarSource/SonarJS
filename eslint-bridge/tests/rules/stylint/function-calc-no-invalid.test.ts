@@ -83,7 +83,10 @@ tester.run('function-calc-no-invalid', {
     {
       description: 'sibling calc-s',
       code: '.foo {width: calc() + calc(100% / 0px);}',
-      errors: [{ text: messages.emptyCalc }, { text: messages.divByZero }],
+      errors: [
+        { text: messages.emptyCalc, line: 1, column: 7 },
+        { text: messages.divByZero, line: 1, column: 7 },
+      ],
     },
     {
       description: 'nested calc-s',

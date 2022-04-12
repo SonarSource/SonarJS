@@ -28,7 +28,7 @@ const operators = ['+', '-', '*', '/'];
 export const messages = {
   divByZero: 'Unexpected division by zero',
   emptyCalc: "Fix this empty 'calc'",
-  missingOperator: 'Unexpected missing operator'
+  missingOperator: 'Unexpected missing operator',
 };
 
 export const rule = stylelint.createPlugin(ruleName, function () {
