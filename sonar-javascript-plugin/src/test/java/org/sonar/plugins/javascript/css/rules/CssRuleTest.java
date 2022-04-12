@@ -108,7 +108,7 @@ class CssRuleTest {
   @Test
   void at_rule_unknown_default() {
     String optionsAsJson = new Gson().toJson(new AtRuleNoUnknown().stylelintOptions());
-    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"forward\",\"/^@.*/\"]}]");
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"forward\",\"tailwind\",\"apply\",\"layer\",\"/^@.*/\"]}]");
   }
 
   @Test
