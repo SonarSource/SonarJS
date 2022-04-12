@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-100
+// https://sonarsource.github.io/rspec/#/rspec/S100/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { last } from '../utils';
+
+interface FunctionKnowledge {
+  startsWithCapital: boolean;
+  returnsJSX: boolean;
+}
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -31,6 +37,8 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    const functionStack: estree.Node[] = [];
+    const functionKnowledge = new Map<estree.Node, FunctionKnowledge>();
     return {
       Property: (node: estree.Node) => {
         const prop = node as TSESTree.Property;
@@ -44,8 +52,39 @@ export const rule: Rule.RuleModule = {
           checkName(variable.id);
         }
       },
-      FunctionDeclaration: (node: estree.Node) =>
-        checkName((node as TSESTree.FunctionDeclaration).id),
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
+        functionStack.push(node);
+        if (node.type === 'FunctionDeclaration') {
+          functionKnowledge.set(node, {
+            startsWithCapital: nameStartsWithCapital(node as TSESTree.FunctionDeclaration),
+            returnsJSX: false,
+          });
+        }
+      },
+      'FunctionDeclaration:exit': (node: estree.Node) => {
+        functionStack.pop();
+        const knowledge = functionKnowledge.get(node);
+        if (!isReactFunctionComponent(knowledge)) {
+          checkName((node as TSESTree.FunctionDeclaration).id);
+        }
+      },
+      'FunctionExpression:exit': () => {
+        functionStack.pop();
+      },
+      'ArrowFunctionExpression:exit': () => {
+        functionStack.pop();
+      },
+      ReturnStatement: (node: estree.Node) => {
+        const returnStatement = node as estree.ReturnStatement;
+        const knowledge = functionKnowledge.get(last(functionStack));
+        if (
+          knowledge &&
+          returnStatement.argument &&
+          (returnStatement.argument as any).type === 'JSXElement'
+        ) {
+          knowledge.returnsJSX = true;
+        }
+      },
       MethodDefinition: (node: estree.Node) => {
         const key = (node as TSESTree.MethodDefinition).key;
         checkName(key);
@@ -70,4 +109,12 @@ export const rule: Rule.RuleModule = {
 
 function isFunctionExpression(node: TSESTree.Node | null) {
   return node && (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression');
+}
+
+function isReactFunctionComponent(knowledge: FunctionKnowledge | undefined) {
+  return knowledge !== undefined && knowledge.startsWithCapital && knowledge.returnsJSX;
+}
+
+function nameStartsWithCapital(node: TSESTree.FunctionDeclaration) {
+  return node.id !== null && node.id.name[0] === node.id.name[0].toUpperCase();
 }

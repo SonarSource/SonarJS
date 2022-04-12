@@ -22,7 +22,7 @@ import { rule } from 'rules/function-name';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2018 },
+  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });
 
 const DEFAULT_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
@@ -54,6 +54,15 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
         function DoSomething() {}
       `,
       options: [{ format: ALLOW_UPPERCASE }],
+    },
+    {
+      code: `
+      function Welcome() {
+        const greeting = 'Hello, world!';
+
+        return <h1>{greeting}</h1>
+      }`,
+      options: [{ format: DEFAULT_FORMAT }],
     },
   ],
   invalid: [
