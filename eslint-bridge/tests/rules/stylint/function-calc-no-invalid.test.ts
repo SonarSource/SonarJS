@@ -48,22 +48,22 @@ tester.run('function-calc-no-invalid', {
     {
       description: 'empty expression',
       code: '.foo {width: calc();}',
-      errors: [{ text: messages.emptyCalc, line: 1, column: 7 }],
+      errors: [{ text: messages.empty, line: 1, column: 7 }],
     },
     {
       description: 'space-only expression',
       code: '.foo {width: calc(   );}',
-      errors: [{ text: messages.emptyCalc }],
+      errors: [{ text: messages.empty }],
     },
     {
       description: 'comment-only expression',
       code: '.foo {width: calc(/* this a comment */);}',
-      errors: [{ text: messages.emptyCalc }],
+      errors: [{ text: messages.empty }],
     },
     {
       description: 'missing operator',
       code: '.foo {width: calc(100% 80px);}',
-      errors: [{ text: messages.missingOperator }],
+      errors: [{ text: messages.malformed }],
     },
     {
       description: 'division by 0',
@@ -84,19 +84,19 @@ tester.run('function-calc-no-invalid', {
       description: 'sibling calc-s',
       code: '.foo {width: calc() + calc(100% / 0px);}',
       errors: [
-        { text: messages.emptyCalc, line: 1, column: 7 },
+        { text: messages.empty, line: 1, column: 7 },
         { text: messages.divByZero, line: 1, column: 7 },
       ],
     },
     {
       description: 'nested calc-s',
       code: '.foo {width: calc(100% / 0px + calc());}',
-      errors: [{ text: messages.divByZero }, { text: messages.emptyCalc }],
+      errors: [{ text: messages.divByZero }, { text: messages.empty }],
     },
     {
       description: 'nested expressions',
       code: '.foo {width: calc(100 + ("foo" / (-0.9) * abs(80%) (70px+"bar")));}',
-      errors: [{ text: messages.missingOperator }, { text: messages.missingOperator }],
+      errors: [{ text: messages.malformed }, { text: messages.malformed }],
     },
   ],
 });

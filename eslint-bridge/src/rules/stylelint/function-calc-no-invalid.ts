@@ -26,9 +26,9 @@ const operators = ['+', '-', '*', '/'];
 
 // exported for testing purpose
 export const messages = {
-  divByZero: 'Unexpected division by zero',
-  emptyCalc: "Fix this empty 'calc'",
-  missingOperator: 'Unexpected missing operator',
+  empty: "Fix this empty 'calc' expression.",
+  malformed: "Fix this malformed 'calc' expression.",
+  divByZero: "Fix this 'calc' expression with division by zero.",
 };
 
 export const rule = stylelint.createPlugin(ruleName, function () {
@@ -77,7 +77,7 @@ export const rule = stylelint.createPlugin(ruleName, function () {
         for (let index = 1; index < siblings.length; index += 2) {
           const node = siblings[index];
           if (!isOperator(node)) {
-            report(messages.missingOperator);
+            report(messages.malformed);
           }
         }
         for (const node of siblings) {
@@ -91,7 +91,7 @@ export const rule = stylelint.createPlugin(ruleName, function () {
 
       function checkEmpty(nodes: postcssValueParser.Node[]) {
         if (nodes.filter(node => !isSpaceOrComment(node)).length === 0) {
-          report(messages.emptyCalc);
+          report(messages.empty);
         }
       }
 
