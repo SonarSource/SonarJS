@@ -240,7 +240,7 @@ class CssRuleSensorTest {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
-    sensor.analyzeFile(httpFile, context, "/some/fake/dir", Collections.emptyList());
+    sensor.analyzeFile(httpFile, context, Collections.emptyList());
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");

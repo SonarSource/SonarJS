@@ -449,7 +449,6 @@ describe('#analyzeCss', () => {
   const request = {
     fileContent: undefined,
     filePath,
-    baseDir: __dirname,
     rules: [{ key: 'block-no-empty', configurations: [] }],
   };
 

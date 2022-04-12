@@ -448,13 +448,11 @@ describe('sonarlint context', () => {
   });
 
   describe('css analysis endpoint', () => {
-    const baseDir = __dirname;
     const rules = [{ key: 'block-no-empty', configurations: [] }];
 
     it('should respond to analysis request for css', async () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
-        baseDir,
         rules,
       });
       const response = await post(request, '/analyze-css');
@@ -475,7 +473,6 @@ describe('sonarlint context', () => {
       const request = JSON.stringify({
         filePath: '/some/ignored/path',
         fileContent: `a { font-family: Arial; color: red; color: blue; font-family: Helvetica; }`,
-        baseDir: __dirname,
         rules: [
           {
             key: 'declaration-block-no-duplicate-properties',
@@ -501,7 +498,6 @@ describe('sonarlint context', () => {
     it('should respond to analysis request for php', async () => {
       const requestPhp = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.php'),
-        baseDir,
         rules,
       });
       const responsePhp = await post(requestPhp, '/analyze-css');
@@ -521,7 +517,6 @@ describe('sonarlint context', () => {
     it('should respond to analysis request for html', async () => {
       const requestHtml = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.html'),
-        baseDir,
         rules,
       });
       const responseHtml = await post(requestHtml, '/analyze-css');
@@ -542,7 +537,6 @@ describe('sonarlint context', () => {
       const response = await post(
         JSON.stringify({
           filePath: join(__dirname, 'fixtures', 'css', 'file-bom.css'),
-          baseDir,
           rules,
         }),
         '/analyze-css',
@@ -564,7 +558,6 @@ describe('sonarlint context', () => {
       const request = JSON.stringify({
         filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
         fileContent: '\n\n a { }', // move the issue on line 3
-        baseDir,
         rules,
       });
       const response = await post(request, '/analyze-css');

@@ -82,13 +82,11 @@ public interface EslintBridgeServer extends Startable {
   class CssAnalysisRequest {
     final String filePath;
     final String fileContent;
-    final String baseDir;
     final List<StylelintRule> rules;
 
-    CssAnalysisRequest(String filePath, @Nullable String fileContent, String baseDir, List<StylelintRule> rules) {
+    CssAnalysisRequest(String filePath, @Nullable String fileContent, List<StylelintRule> rules) {
       this.filePath = filePath;
       this.fileContent = fileContent;
-      this.baseDir = baseDir;
       this.rules = rules;
     }
   }

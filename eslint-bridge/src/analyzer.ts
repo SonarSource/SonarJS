@@ -29,7 +29,6 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
-import path from 'path';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -45,7 +44,6 @@ export interface AnalysisInput {
 }
 
 export interface CssAnalysisInput extends AnalysisInput {
-  baseDir: string;
   rules: StylelintRule[];
 }
 
@@ -128,9 +126,9 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
-  const { filePath, fileContent, baseDir, rules } = input;
+  const { filePath, fileContent, rules } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
-  const config = createStylelintConfig(baseDir, rules);
+  const config = createStylelintConfig(rules);
   const options = {
     code,
     codeFilename: filePath,
@@ -142,16 +140,7 @@ export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
     .then(result => ({ issues: fromStylelintToSonarIssues(result.results, filePath) }));
 }
 
-function createStylelintConfig(baseDir: string, rules: StylelintRule[]): stylelint.Config {
-  const override = (customSyntax: string, ...patterns: string[]) => ({
-    customSyntax,
-    files: patterns.map(pattern => path.join(baseDir, '**', pattern)),
-  });
-  const overrides = [
-    override('postcss-html', '*.htm', '*.html', '*.php', '*.vue'),
-    override('postcss-less', '*.less'),
-    override('postcss-scss', '*.scss'),
-  ];
+function createStylelintConfig(rules: StylelintRule[]): stylelint.Config {
   const configRules: stylelint.ConfigRules = {};
   for (const { key, configurations } of rules) {
     if (configurations.length === 0) {
@@ -160,7 +149,7 @@ function createStylelintConfig(baseDir: string, rules: StylelintRule[]): styleli
       configRules[key] = configurations;
     }
   }
-  return { overrides, rules: configRules };
+  return { customSyntax: 'postcss-syntax', rules: configRules };
 }
 
 function fromStylelintToSonarIssues(results: stylelint.LintResult[], filePath: string): Issue[] {

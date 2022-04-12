@@ -93,7 +93,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
-    String baseDir = context.fileSystem().baseDir().getAbsolutePath();
     List<StylelintRule> rules = cssRules.getStylelintRules();
 
     try {
@@ -106,7 +105,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
 
-        analyzeFile(inputFile, context, baseDir, rules);
+        analyzeFile(inputFile, context, rules);
         progressReport.nextFile(inputFile.absolutePath());
       }
       success = true;
@@ -120,7 +119,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, String baseDir, List<StylelintRule> rules) {
+  void analyzeFile(InputFile inputFile, SensorContext context, List<StylelintRule> rules) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
@@ -128,7 +127,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
         return;
       }
       String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
-      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, baseDir, rules);
+      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, rules);
       LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
