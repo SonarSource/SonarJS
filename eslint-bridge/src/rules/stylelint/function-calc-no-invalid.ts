@@ -65,6 +65,8 @@ export const rule = stylelint.createPlugin(ruleName, function () {
               report(messages.divByZero);
             }
           } else if (isNotCalcFunction(node)) {
+            // parenthesized expressions are represented as `function` nodes
+            // they need to be visited as well if they are not `calc` calls
             checkDivisionByZero(node.nodes);
           }
         }
@@ -80,6 +82,8 @@ export const rule = stylelint.createPlugin(ruleName, function () {
         }
         for (const node of siblings) {
           if (isNotCalcFunction(node)) {
+            // parenthesized expressions are represented as `function` nodes
+            // they need to be visited as well if they are not `calc` calls
             checkMissingOperator(node.nodes);
           }
         }
