@@ -50,6 +50,12 @@ export const rule = stylelint.createPlugin(ruleName, function () {
         return node.type === 'function' && node.value.toLowerCase() === 'calc';
       }
 
+      function isNotCalcFunction(
+        node: postcssValueParser.Node,
+      ): node is postcssValueParser.FunctionNode {
+        return node.type === 'function' && node.value.toLowerCase() !== 'calc';
+      }
+
       function checkDivisionByZero(nodes: postcssValueParser.Node[]): void {
         const siblings = nodes.filter(node => !isSpaceOrComment(node));
         for (const [index, node] of siblings.entries()) {
@@ -58,7 +64,7 @@ export const rule = stylelint.createPlugin(ruleName, function () {
             if (operand && isZero(operand)) {
               report(messages.divByZero);
             }
-          } else if (node.type === 'function' && !isCalcFunction(node)) {
+          } else if (isNotCalcFunction(node)) {
             checkDivisionByZero(node.nodes);
           }
         }
@@ -73,7 +79,7 @@ export const rule = stylelint.createPlugin(ruleName, function () {
           }
         }
         for (const node of siblings) {
-          if (node.type === 'function' && !isCalcFunction(node)) {
+          if (isNotCalcFunction(node)) {
             checkMissingOperator(node.nodes);
           }
         }
