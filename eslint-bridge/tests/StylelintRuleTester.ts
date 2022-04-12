@@ -42,11 +42,12 @@ class StylelintRuleTester {
   }
 
   private static accept(assertion: ValidAssertion, config: stylelint.Config) {
-    it(assertion.description, async () => {
+    const { description, code } = assertion;
+    it(description, async () => {
       const {
         results: [{ parseErrors, warnings }],
       } = await stylelint.lint({
-        code: assertion.code,
+        code,
         config,
       });
       expect(parseErrors).toHaveLength(0);
@@ -64,8 +65,8 @@ class StylelintRuleTester {
         config,
       });
       expect(warnings).toHaveLength(errors.length);
-      for (let index = 0; index < warnings.length; ++index) {
-        const { text: actualMessage, line: actualLine, column: actualColumn } = warnings[index];
+      for (const [index, warning] of warnings.entries()) {
+        const { text: actualMessage, line: actualLine, column: actualColumn } = warning;
         const { text: expectedMessage, line: expectedLine, column: expectedColumn } = errors[index];
         if (expectedMessage) {
           expect(actualMessage).toBe(expectedMessage);
