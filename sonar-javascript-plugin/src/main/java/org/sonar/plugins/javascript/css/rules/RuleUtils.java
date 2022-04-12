@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.css.rules;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,9 @@ public class RuleUtils {
   }
 
   public static List<String> splitAndTrim(String parameterValue) {
+    if (parameterValue.isBlank()) {
+      return Collections.emptyList();
+    }
     String[] split = parameterValue.split(",");
     return Arrays.stream(split).map(String::trim).collect(Collectors.toList());
   }
