@@ -33,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -50,10 +51,10 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
 
-  private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.\\d+\\.\\d+");
+  private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.(\\d+)\\.(\\d+)");
 
   private final ProcessWrapper processWrapper;
-  private Integer minNodeVersion;
+  private Version minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();
   private List<String> nodeJsArgs = new ArrayList<>();
@@ -61,7 +62,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
   private BundlePathResolver pathResolver;
-  private int actualNodeVersion;
+  private Version actualNodeVersion;
   private Map<String, String> env = Map.of();
 
   public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
@@ -69,7 +70,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   @Override
-  public NodeCommandBuilder minNodeVersion(int minNodeVersion) {
+  public NodeCommandBuilder minNodeVersion(Version minNodeVersion) {
     this.minNodeVersion = minNodeVersion;
     return this;
   }
@@ -166,8 +167,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     LOG.debug("Checking Node.js version");
 
     String versionString = getVersion(nodeExecutable);
-    actualNodeVersion = nodeMajorVersion(versionString);
-    if (actualNodeVersion < minNodeVersion) {
+    actualNodeVersion = nodeVersion(versionString);
+    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
       throw new NodeCommandException(String.format("Only Node.js v%s or later is supported, got %s.", minNodeVersion, actualNodeVersion));
     }
 
@@ -175,10 +176,13 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   // Visible for testing
-  static int nodeMajorVersion(String versionString) throws NodeCommandException {
+  static Version nodeVersion(String versionString) throws NodeCommandException {
     Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(versionString);
     if (versionMatcher.lookingAt()) {
-      return Integer.parseInt(versionMatcher.group(1));
+      return Version.create(
+        Integer.parseInt(versionMatcher.group(1)),
+        Integer.parseInt(versionMatcher.group(2)),
+        Integer.parseInt(versionMatcher.group(3)));
     } else {
       throw new NodeCommandException("Failed to parse Node.js version, got '" + versionString + "'");
     }
@@ -186,7 +190,16 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private String getVersion(String nodeExecutable) throws NodeCommandException {
     StringBuilder output = new StringBuilder();
-    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, actualNodeVersion, singletonList("-v"), null, emptyList(), output::append, LOG::error, Map.of());
+    NodeCommand nodeCommand = new NodeCommand(
+      processWrapper,
+      nodeExecutable,
+      Version.create(0, 0),
+      singletonList("-v"),
+      null,
+      emptyList(),
+      output::append,
+      LOG::error,
+      Map.of());
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {

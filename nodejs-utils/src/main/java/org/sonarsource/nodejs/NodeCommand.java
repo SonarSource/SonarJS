@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -46,12 +48,12 @@ public class NodeCommand {
   final Consumer<String> outputConsumer;
   final Consumer<String> errorConsumer;
   private final ProcessWrapper processWrapper;
-  private final int actualNodeVersion;
+  private final Version actualNodeVersion;
   private final Map<String, String> env;
   private Process process;
   private final List<String> command;
 
-  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, int actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
+  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, Version actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
               List<String> args,
               Consumer<String> outputConsumer,
               Consumer<String> errorConsumer,
@@ -117,7 +119,7 @@ public class NodeCommand {
     return String.join(" ", command);
   }
 
-  public int getActualNodeVersion() {
+  public Version getActualNodeVersion() {
     return actualNodeVersion;
   }
 

@@ -24,12 +24,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.Version;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public interface NodeCommandBuilder {
-  NodeCommandBuilder minNodeVersion(int minNodeVersion);
+  NodeCommandBuilder minNodeVersion(Version minNodeVersion);
 
   NodeCommandBuilder configuration(Configuration configuration);
 
