@@ -91,7 +91,7 @@ class NodeDeprecationWarningTest {
 
   @Test
   void test_all_removal_dates_defined() {
-    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION, MIN_RECOMMENDED_NODE_VERSION - 1)
+    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION - 1)
       .allMatch(REMOVAL_DATE::containsKey);
     assertThat(allRemovalDates).isTrue();
   }

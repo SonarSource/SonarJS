@@ -39,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -104,11 +105,11 @@ class NodeCommandTest {
   @Test
   void test_min_version() throws IOException {
     assertThatThrownBy(() -> NodeCommand.builder()
-      .minNodeVersion(99)
+      .minNodeVersion(Version.create(99, 0))
       .pathResolver(getPathResolver())
       .build())
       .isInstanceOf(NodeCommandException.class)
-      .hasMessageStartingWith("Only Node.js v99 or later is supported, got");
+      .hasMessageStartingWith("Only Node.js v99.0 or later is supported, got");
   }
 
   @Test
@@ -125,7 +126,7 @@ class NodeCommandTest {
   @Test
   void test_min_version_positive() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder()
-      .minNodeVersion(1)
+      .minNodeVersion(Version.create(1, 0))
       .script(resourceScript(PATH_TO_SCRIPT))
       .pathResolver(getPathResolver())
       .build();
@@ -137,11 +138,11 @@ class NodeCommandTest {
 
   @Test
   void test_version_check() {
-    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v5.1.1")).isEqualTo(5);
-    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v10.8.0")).isEqualTo(10);
-    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v10.8.0+123")).isEqualTo(10);
+    assertThat(NodeCommandBuilderImpl.nodeVersion("v5.1.1")).isEqualTo(Version.create(5, 1, 1));
+    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0")).isEqualTo(Version.create(10, 8, 0));
+    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0+123")).isEqualTo(Version.create(10, 8, 0));
 
-    assertThatThrownBy(() -> NodeCommandBuilderImpl.nodeMajorVersion("Invalid version"))
+    assertThatThrownBy(() -> NodeCommandBuilderImpl.nodeVersion("Invalid version"))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Failed to parse Node.js version, got 'Invalid version'");
   }
@@ -275,7 +276,7 @@ class NodeCommandTest {
     when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenReturn(true);
     when(mockProcessWrapper.exitValue(any())).thenReturn(1);
     NodeCommandBuilder commandBuilder = NodeCommand.builder(mockProcessWrapper)
-      .minNodeVersion(8)
+      .minNodeVersion(Version.create(8, 0))
       .script(resourceScript(PATH_TO_SCRIPT));
     assertThatThrownBy(commandBuilder::build)
       .isInstanceOf(NodeCommandException.class)
@@ -326,9 +327,9 @@ class NodeCommandTest {
   void test_actual_node_version() throws Exception {
     Consumer<String> noop = s -> {
     };
-    NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", 12, Collections.emptyList(), null,
+    NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", Version.create(12, 0), Collections.emptyList(), null,
       Collections.emptyList(), noop, noop, Map.of());
-    assertThat(nodeCommand.getActualNodeVersion()).isEqualTo(12);
+    assertThat(nodeCommand.getActualNodeVersion().major()).isEqualTo(12);
   }
 
   @Test
