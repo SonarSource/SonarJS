@@ -8,4 +8,20 @@ function DoSomething(){...}  // Noncompliant
 <pre>
 function doSomething(){...}
 </pre>
+<h2>Exceptions</h2>
+<p>This rule ignores React Functional Components, which are JavaScript functions named with a capital letter and returning a React element (JSX
+syntax).</p>
+<pre>
+function Welcome() {
+  const greeting = 'Hello, World!';
+
+  // ...
+
+  return (
+    &lt;div className="Welcome"&gt;
+      &lt;p&gt;{greeting}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
 
