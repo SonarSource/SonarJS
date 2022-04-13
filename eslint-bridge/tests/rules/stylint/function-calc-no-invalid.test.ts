@@ -43,6 +43,10 @@ tester.run('function-calc-no-invalid', {
       description: 'division by 1px',
       code: '.foo {width: calc(100% / 1px);}',
     },
+    {
+      description: 'comma divider',
+      code: '.foo {width: calc(100% + var(--text-color, 0px));}',
+    },
   ],
   invalid: [
     {
