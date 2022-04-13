@@ -104,7 +104,7 @@ export const rule = stylelint.createPlugin(ruleName, function () {
       }
 
       function isDivision(node: postcssValueParser.Node) {
-        return (node.type === 'word' && node.value === '/') || node.type === 'div';
+        return (node.type === 'word' || node.type === 'div') && node.value === '/';
       }
 
       function isZero(node: postcssValueParser.Node) {
