@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-2092
+// https://sonarsource.github.io/rspec/#/rspec/S2092/javascript
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
