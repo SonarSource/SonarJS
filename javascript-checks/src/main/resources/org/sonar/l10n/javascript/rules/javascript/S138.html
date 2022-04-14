@@ -3,8 +3,8 @@
 <p>Above a specific threshold, it is strongly advised to refactor into smaller functions which focus on well-defined tasks.</p>
 <p>Those smaller functions will not only be easier to understand, but also probably easier to test.</p>
 <h2>Exceptions</h2>
-<p>This function ignores Immediately Invoked Function Expressions (IIFE), which are functions that are created and invoked without ever being assigned
-a name.</p>
+<p>This rule ignores Immediately Invoked Function Expressions (IIFE), which are functions that are created and invoked without ever being assigned a
+name.</p>
 <pre>
 (function () { // Ignored by this rule
 
@@ -20,5 +20,20 @@ a name.</p>
     // ...
   }
 })();
+</pre>
+<p>This rule also ignores React Functional Components, which are JavaScript functions named with a capital letter and returning a React element (JSX
+syntax).</p>
+<pre>
+function Welcome() {
+  const greeting = 'Hello, World!';
+
+  // ...
+
+  return (
+    &lt;div className="Welcome"&gt;
+      &lt;p&gt;{greeting}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
 </pre>
 
