@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-1527
+// https://sonarsource.github.io/rspec/#/rspec/S1527/javascript
 
 import { Rule, Scope } from 'eslint';
 
