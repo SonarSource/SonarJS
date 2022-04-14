@@ -19,7 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
+});
 import { rule } from 'rules/sonar-max-lines-per-function';
 
 ruleTester.run('Too many lines in functions', rule, {
@@ -85,6 +87,16 @@ function
 ()`, //IIFE are ignored
       options: [6],
     },
+    {
+      // React Function Component
+      code: `
+      function Welcome() {
+        const greeting = 'Hello, world!';
+
+        return <h1>{greeting}</h1>
+      }`,
+      options: [2],
+    },
   ],
   invalid: [
     {
@@ -117,6 +129,27 @@ function
           endLine: 1,
           column: 10,
           endColumn: 13,
+        },
+      ],
+    },
+    {
+      // React Function Component
+      code: `
+      function Welcome() {
+        const greeting = 'Hello, world!';
+
+        const doSomething = () => {
+          console.log('foo');
+          console.log('bar');
+          console.log('baz');
+        }
+
+        return <h1>{greeting}</h1>
+      }`,
+      options: [2],
+      errors: [
+        {
+          line: 5,
         },
       ],
     },

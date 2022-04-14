@@ -26,7 +26,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent, RuleContext } from '../utils';
+import { getParent, last, RuleContext } from '../utils';
+
+interface FunctionKnowledge {
+  node: estree.Node;
+  lineCount: number;
+  startsWithCapital: boolean;
+  returnsJSX: boolean;
+}
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -44,8 +51,11 @@ export const rule: Rule.RuleModule = {
 
     const commentLineNumbers = getCommentLineNumbers(sourceCode.getAllComments());
 
+    const functionStack: estree.Node[] = [];
+    const functionKnowledge = new Map<estree.Node, FunctionKnowledge>();
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
+        functionStack.push(node);
         const parent = getParent(context);
 
         if (!node.loc || isIIFE(node, parent as estree.Node)) {
@@ -53,20 +63,47 @@ export const rule: Rule.RuleModule = {
         }
 
         const lineCount = getLocsNumber(node.loc, lines, commentLineNumbers);
-
-        if (lineCount > threshold) {
-          context.report({
-            messageId: 'functionMaxLine',
-            data: {
-              lineCount: lineCount.toString(),
-              threshold,
-            },
-            loc: getMainFunctionTokenLocation(
-              node as TSESTree.FunctionLike,
-              getParent(context) as TSESTree.Node,
-              context as unknown as RuleContext,
-            ),
-          });
+        const startsWithCapital = nameStartsWithCapital(node);
+        functionKnowledge.set(node, { node, lineCount, startsWithCapital, returnsJSX: false });
+      },
+      ReturnStatement: (node: estree.Node) => {
+        const returnStatement = node as estree.ReturnStatement;
+        const knowledge = functionKnowledge.get(last(functionStack));
+        if (
+          knowledge &&
+          returnStatement.argument &&
+          (returnStatement.argument as any).type === 'JSXElement'
+        ) {
+          knowledge.returnsJSX = true;
+        }
+      },
+      'FunctionDeclaration:exit': () => {
+        functionStack.pop();
+      },
+      'FunctionExpression:exit': () => {
+        functionStack.pop();
+      },
+      'ArrowFunctionExpression:exit': () => {
+        functionStack.pop();
+      },
+      'Program:exit': () => {
+        for (const knowledge of functionKnowledge.values()) {
+          const { node, lineCount } = knowledge;
+          if (lineCount > threshold && !isReactFunctionComponent(knowledge)) {
+            const functionLike = node as TSESTree.FunctionLike;
+            context.report({
+              messageId: 'functionMaxLine',
+              data: {
+                lineCount: lineCount.toString(),
+                threshold,
+              },
+              loc: getMainFunctionTokenLocation(
+                functionLike,
+                functionLike.parent,
+                context as unknown as RuleContext,
+              ),
+            });
+          }
         }
       },
     };
@@ -132,5 +169,17 @@ function isIIFE(node: estree.Node, parent: estree.Node) {
     parent &&
     parent.type === 'CallExpression' &&
     parent.callee === node
+  );
+}
+
+function isReactFunctionComponent(knowledge: FunctionKnowledge) {
+  return knowledge.startsWithCapital && knowledge.returnsJSX;
+}
+
+function nameStartsWithCapital(node: estree.Node) {
+  return (
+    node.type === 'FunctionDeclaration' &&
+    node.id !== null &&
+    node.id.name[0] === node.id.name[0].toUpperCase()
   );
 }
