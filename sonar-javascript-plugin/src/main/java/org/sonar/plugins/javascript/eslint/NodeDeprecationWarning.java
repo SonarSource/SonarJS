@@ -52,6 +52,7 @@ public class NodeDeprecationWarning {
   );
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
+  // Keep in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(12, 22, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 14;
   static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
