@@ -36,13 +36,6 @@ These tests are implemented in [tests/rules/fixtures](../eslint-bridge/tests/rul
 - You can run a single one using: `npm run ctest -- -t="your-rule"` (the `--` double dash is necessary)
 
 ### Integration Tests
-To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
-```
-# version of SonarQube server
-sonar.runtimeVersion=8.3
-
-orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.properties
-```
 Before running any of integration tests make sure the submodules are checked out:
 ```
  git submodule init
