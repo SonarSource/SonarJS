@@ -1,0 +1,16 @@
+{
+  "title": "Import type should be used when possible",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6425",
+  "sqKey": "S6425",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": ["TYPESCRIPT"]
+}

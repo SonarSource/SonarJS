@@ -164,6 +164,7 @@ public final class CheckList {
       IgnoredReturnCheck.class,
       ImmediatelyReturnedVariableCheck.class,
       ImplicitDependenciesCheck.class,
+      ImportTypeWhenPossibleCheck.class,
       InOperatorTypeErrorCheck.class,
       InconsistentFunctionCallCheck.class,
       IncrementDecrementInSubExpressionCheck.class,

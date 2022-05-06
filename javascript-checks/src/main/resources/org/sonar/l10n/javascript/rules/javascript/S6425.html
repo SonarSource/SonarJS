@@ -1,0 +1,12 @@
+<p>When using the imported value exclusively for typing annotations, use <code>import type</code> instead of <code>import</code>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+import { Foo } from 'FooBar';
+const x: Foo = 1;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+import type { Foo } from 'FooBar';
+const x: Foo = 1;
+</pre>
+
