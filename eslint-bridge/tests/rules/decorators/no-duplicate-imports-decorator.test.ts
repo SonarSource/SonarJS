@@ -165,5 +165,35 @@ import {
       code: `import type { F } from "foo"; import type { G } from "foo";`,
       errors: [{ suggestions: [{ output: `import type { F, G } from "foo";` }] }],
     },
+    {
+      code: `
+      declare module 'Foo' {
+        import type { T } from 'baz';
+      }
+
+      declare module 'Bar' {
+        import type { U } from 'baz';
+      }`,
+      errors: [{ suggestions: [] }],
+    },
+    {
+      code: `
+      import type { T } from 'baz';
+      declare module 'Bar' {
+        import type { U } from 'baz';
+      }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: `
+      import type { T, U } from 'baz';
+      declare module 'Bar' {
+      }`,
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
