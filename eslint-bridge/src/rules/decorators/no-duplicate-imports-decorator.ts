@@ -43,6 +43,9 @@ function getSuggestion(
 ): Rule.SuggestionReportDescriptor[] {
   const module = getModule(duplicateDecl);
   const importDecl = getFirstMatchingImportDeclaration(module, context);
+  if (!importDecl) {
+    return [];
+  }
   const newSpecifiersText = mergeSpecifiers(importDecl, duplicateDecl, context);
   const oldSpecifiersRange = getSpecifiersRange(importDecl, context);
   return [
@@ -124,10 +127,10 @@ function getModule(decl: estree.ImportDeclaration): string {
 function getFirstMatchingImportDeclaration(
   module: string,
   context: Rule.RuleContext,
-): estree.ImportDeclaration {
+): estree.ImportDeclaration | undefined {
   return context
     .getSourceCode()
-    .ast.body.find(
-      node => node.type === 'ImportDeclaration' && module === getModule(node),
-    ) as estree.ImportDeclaration;
+    .ast.body.find(node => node.type === 'ImportDeclaration' && module === getModule(node)) as
+    | estree.ImportDeclaration
+    | undefined;
 }
