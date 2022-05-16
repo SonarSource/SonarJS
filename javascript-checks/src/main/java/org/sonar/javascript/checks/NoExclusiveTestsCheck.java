@@ -21,11 +21,16 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key="S6426")
-public class ExclusiveTestAvoidCheck {
-    
+public class NoExclusiveTestsCheck extends TestFileCheck {
+
+    @Override
+    public String eslintKey() {
+      return "no-exclusive-tests";
+    }
 }
