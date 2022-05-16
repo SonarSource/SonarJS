@@ -1,0 +1,27 @@
+<p>Testing frameworks Mocha and Jest provide a way to run a single test case for a file using the function <code>.only()</code>. This is convenient
+when debugging a specific use case. It makes no sense having it in production or development, but it appears there when cleanup is forgotten after
+such a debugging session.</p>
+<p>It is therefore strongly recommended to not commit usages of <code>.only()</code> to version control.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+describe("MyClass", function () {
+    it.only("should run correctly", function () {
+        /*...*/
+    });
+});;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+describe("MyClass", function () {
+    it("should run correctly", function () {
+        /*...*/
+    });
+});;
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://mochajs.org/#exclusive-tests">exclusive tests in Mocha</a> </li>
+  <li> <a href="https://jestjs.io/docs/next/api#testonlyname-fn-timeout">test.only() in Jest</a> </li>
+  <li> <a href="https://jestjs.io/docs/next/api#describeonlyname-fn">describe.only() in Jest</a> </li>
+</ul>
+

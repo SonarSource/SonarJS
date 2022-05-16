@@ -1,0 +1,15 @@
+{
+  "title": "Exclusive tests should not be commited to version control",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6426",
+  "sqKey": "S6426",
+  "scope": "All",
+  "quickfix": "covered"
+}
