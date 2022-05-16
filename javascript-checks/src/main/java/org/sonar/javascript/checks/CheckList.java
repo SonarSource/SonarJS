@@ -132,6 +132,7 @@ public final class CheckList {
       EqualInForLoopTerminationCheck.class,
       ErrorWithoutThrowCheck.class,
       EvalCheck.class,
+      ExclusiveTestAvoidCheck.class,
       ExistingGroupsCheck.class,
       ExpressionComplexityCheck.class,
       FileHeaderCheck.class,
