@@ -31,7 +31,9 @@ export const rule: Rule.RuleModule = {
         if (
           node?.callee?.type === 'MemberExpression' &&
           node?.callee?.property?.type === 'Identifier' &&
-          node?.callee?.property?.name === 'only'
+          node?.callee?.property?.name === 'only' &&
+          node?.callee?.object?.type === 'Identifier' &&
+          ['describe', 'it', 'test'].includes(node?.callee?.object.name)
         ) {
           context.report({
             message,
