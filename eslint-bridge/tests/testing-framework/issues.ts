@@ -69,7 +69,7 @@ export class FileIssues {
 
   private addPrimary(primary: PrimaryLocation) {
     const lineIssues = this.expectedIssues.get(primary.range.line);
-    console.log('thrown at', primary.range)
+    console.log('missing issue where', primary);
     if (lineIssues === undefined) {
       throw new Error(
         `Primary location does not have a related issue at ${primary.range.toString()}`,

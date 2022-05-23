@@ -58,7 +58,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     describe(`Running tests for rule ${rule}`, () => {
       files.forEach(filename => {
         //console.log('readin test', filename);
-        if (! filename.includes('no-exclusive-tests.js')) return;
+        if (!filename.includes('no-exclusive-tests.js')) return;
         const code = readFileSync(filename, { encoding: 'utf8' });
         const tests = {
           valid: [],
