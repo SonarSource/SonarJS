@@ -38,6 +38,14 @@ export const rule: Rule.RuleModule = {
           context.report({
             message,
             node: node.callee.property,
+            fix: (fixer: Rule.RuleFixer) => {
+              if (node?.callee?.type !== 'MemberExpression') return [];
+              if (node?.callee?.property == null) return [];
+              const fixes = [fixer.remove(node.callee.property)];
+              const dotBeforeOnly = context.getSourceCode().getTokenBefore(node.callee.property);
+              if (dotBeforeOnly != null) fixes.push(fixer.remove(dotBeforeOnly));
+              return fixes;
+            },
           });
         }
       },
