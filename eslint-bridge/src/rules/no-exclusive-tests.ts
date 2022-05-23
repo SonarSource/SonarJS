@@ -24,13 +24,10 @@ import * as estree from 'estree';
 
 const message = 'Remove .only() from your test case.';
 
-console.log('bonjour loadin')
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    console.log('salut dans la fonction');
     return {
       CallExpression: (node: estree.CallExpression) => {
-        console.log('salut');debugger;
         if (
           node?.callee?.type === 'MemberExpression' &&
           node?.callee?.property?.type === 'Identifier' &&
@@ -38,7 +35,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             message,
-            node: node.callee,
+            node: node.callee.property,
           });
         }
       },
