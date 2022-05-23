@@ -20,22 +20,40 @@
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/no-exclusive-tests';
 
-// Main test cases are in the file chai-determinate-assertion.js (comment-based)
-// Here we are testing that no issues are reported when no 'chai' import
+// Main test cases are in the file no-exclusive-tests.js.js (comment-based)
+// Here we are testing quickfixes
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `expect(foo).to.not.throw(ReferenceError);`,
-    },
-  ],
+ruleTester.run('Exclusive tests should not be commited to version control', rule, {
+  valid: [],
   invalid: [
     {
+      code: 'describe.only("a describe with a .only()", function () {',
+      errors: [
+        {
+          message: "Remove .only() from your test case.",
+          line: 1,
+          column: 10,
+          endLine: 1,
+          endColumn: 13,
+          suggestions: [{ desc: 'Remove .only', output: "describe(\"a describe with a .only()\", function () {" }],
+        },
+      ],
+    },
+    {
       code: `
-      const chai = require('chai');
-      expect(foo).to.not.throw(ReferenceError);`,
-      errors: [{ line: 3 }],
+it// skipping a line here
+.only("should be flagged with a comment slipped in the middle.");`,
+      errors: [
+        {
+          message: "Remove .only() from your test case.",
+          line: 2,
+          column: 2,
+          endLine: 2,
+          endColumn: 5,
+          suggestions: [{ desc: 'Remove .only', output: ".only(\"should be flagged with a comment slipped in the middle.\");" }]
+        },
+      ],
     },
   ],
 });
