@@ -1,4 +1,4 @@
-describe.only("only on root describe"); // Noncompliant {{Remove .only() from your test case.}}
+describe.only("only on root describe"); // Noncompliant {{Remove ".only()" from your test case.}}
 //       ^^^^
 
 describe("no exclusive tests", function() {
