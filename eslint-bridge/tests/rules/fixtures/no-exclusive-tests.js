@@ -17,6 +17,8 @@ describe("no exclusive tests", function() {
     it("works fine");
 });
 
+describe.skip();
+
 function only() {}
 only();
 
