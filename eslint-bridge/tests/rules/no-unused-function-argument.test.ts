@@ -75,6 +75,9 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       }
       `,
     },
+    {
+      code: `function fun(this: void) {}`,
+    },
   ],
   invalid: [
     {
