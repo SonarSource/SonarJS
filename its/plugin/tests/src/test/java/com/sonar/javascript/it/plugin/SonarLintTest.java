@@ -90,8 +90,10 @@ class SonarLintTest {
     String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
       tuple("javascript:S1481", 2, filePath, "MINOR"),
+      tuple("javascript:S3504", 2, filePath, "CRITICAL"),
       tuple("javascript:S1481", 4, filePath, "MINOR"),
-      tuple("javascript:S1854", 4, filePath, "MAJOR"));
+      tuple("javascript:S1854", 4, filePath, "MAJOR"),
+      tuple("javascript:S3504", 4, filePath, "CRITICAL"));
 
     assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
@@ -148,7 +150,7 @@ class SonarLintTest {
 
   @Test
   void should_apply_quick_fix() throws Exception {
-    var issues = analyze("foo.js", "var x = 5;;");
+    var issues = analyze("foo.js", "let x = 5;;");
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
     assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
