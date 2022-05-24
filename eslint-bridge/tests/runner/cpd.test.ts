@@ -145,6 +145,15 @@ it('should exclude import statements', () => {
   expect(result).toContainEqual(token(6, 13, 6, 14, ';'));
 });
 
+it('should exclude require statements', () => {
+  const result = actual(`const fs = require('fs');`);
+  expect(result).toHaveLength(4);
+  expect(result).toContainEqual(token(1, 0, 1, 5, 'const'));
+  expect(result).toContainEqual(token(1, 6, 1, 8, 'fs'));
+  expect(result).toContainEqual(token(1, 9, 1, 10, '='));
+  expect(result).toContainEqual(token(1, 24, 1, 25, ';'));
+});
+
 function token(
   startLine: number,
   startCol: number,
