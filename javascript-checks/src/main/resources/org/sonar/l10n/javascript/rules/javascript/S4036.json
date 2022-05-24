@@ -25,5 +25,9 @@
     "OWASP Top 10 2021": [
       "A8"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
