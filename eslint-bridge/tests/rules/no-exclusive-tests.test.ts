@@ -28,15 +28,20 @@ ruleTester.run('Exclusive tests should not be commited to version control', rule
   valid: [],
   invalid: [
     {
-      code: 'describe.only("a describe with a .only()", function () {',
+      code: 'describe.only("a describe with a .only()", function () {})',
       errors: [
         {
-          message: "Remove .only() from your test case.",
+          messageId: 'issue',
           line: 1,
           column: 10,
           endLine: 1,
-          endColumn: 13,
-          suggestions: [{ desc: 'Remove .only', output: "describe(\"a describe with a .only()\", function () {" }],
+          endColumn: 14,
+          suggestions: [
+            {
+              messageId: 'quickfix',
+              output: 'describe("a describe with a .only()", function () {})',
+            },
+          ],
         },
       ],
     },
@@ -46,12 +51,19 @@ it// skipping a line here
 .only("should be flagged with a comment slipped in the middle.");`,
       errors: [
         {
-          message: "Remove .only() from your test case.",
-          line: 2,
+          messageId: 'issue',
+          line: 3,
           column: 2,
-          endLine: 2,
-          endColumn: 5,
-          suggestions: [{ desc: 'Remove .only', output: ".only(\"should be flagged with a comment slipped in the middle.\");" }]
+          endLine: 3,
+          endColumn: 6,
+          suggestions: [
+            {
+              messageId: 'quickfix',
+              output: `
+it// skipping a line here
+("should be flagged with a comment slipped in the middle.");`,
+            },
+          ],
         },
       ],
     },

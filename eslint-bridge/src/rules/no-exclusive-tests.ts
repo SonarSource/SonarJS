@@ -22,10 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 
-const message = 'Remove .only() from your test case.';
-
 export const rule: Rule.RuleModule = {
-  meta: { fixable: "code" }, // necessary when providing a fix 
+  meta: {
+    hasSuggestions: true,
+    messages: {
+      issue: 'Remove .only() from your test case.',
+      quickfix: 'Remove .only().',
+    },
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
@@ -36,17 +40,21 @@ export const rule: Rule.RuleModule = {
           node?.callee?.object?.type === 'Identifier' &&
           ['describe', 'it', 'test'].includes(node?.callee?.object.name)
         ) {
+          const onlyProp: estree.MemberExpression = node.callee;
           context.report({
-            message,
+            messageId: 'issue',
             node: node.callee.property,
-            fix: (fixer: Rule.RuleFixer) => {
-              if (node?.callee?.type !== 'MemberExpression') return [];
-              if (node?.callee?.property == null) return [];
-              const fixes = [fixer.remove(node.callee.property)];
-              const dotBeforeOnly = context.getSourceCode().getTokenBefore(node.callee.property);
-              if (dotBeforeOnly != null) fixes.push(fixer.remove(dotBeforeOnly));
-              return fixes;
-            },
+            suggest: [
+              {
+                fix: (fixer: Rule.RuleFixer) => {
+                  const fixes = [fixer.remove(onlyProp.property)];
+                  const dotBeforeOnly = context.getSourceCode().getTokenBefore(onlyProp.property);
+                  if (dotBeforeOnly != null) fixes.push(fixer.remove(dotBeforeOnly));
+                  return fixes;
+                },
+                messageId: 'quickfix',
+              },
+            ],
           });
         }
       },
