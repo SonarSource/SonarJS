@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/no-exclusive-tests';
 
-// Main test cases are in the file no-exclusive-tests.js.js (comment-based)
+// Main test cases are in the file no-exclusive-tests.js (comment-based)
 // Here we are testing quickfixes
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
