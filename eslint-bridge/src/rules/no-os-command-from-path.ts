@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, isMethodCall, isIdentifier } from '../utils';
+import { getModuleNameOfNode, isMethodCall, isIdentifier, isStringLiteral } from '../utils';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
+const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\',];
 
 export const rule: Rule.RuleModule = {
   meta: {},
@@ -37,10 +38,24 @@ export const rule: Rule.RuleModule = {
             object.type === 'Identifier' &&
             getModuleNameOfNode(context, object)?.value === 'child_process'
           ) {
-            context.report({
-              message: 'Searching OS commands in PATH is security-sensitive',
-              node: property,
+            // check args
+            const args = node.arguments;
+            const faultyArgs: Array<string> = [];
+            args.forEach(arg => {
+              if (isStringLiteral(arg)) {
+                let startsWithRequiredPrefix = false
+                REQUIRED_PATH_PREFIXES.forEach(prefix => {
+                  if (arg.value.startsWith(prefix)) { startsWithRequiredPrefix = true; }
+                });
+                if (! startsWithRequiredPrefix) { faultyArgs.push(arg.value); }
+              }
             });
+            if (faultyArgs.length > 0) {
+              context.report({
+                message: 'Searching OS commands in PATH is security-sensitive.',
+                node: property,
+              });
+            }
           }
         }
       },
