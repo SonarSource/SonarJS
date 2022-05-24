@@ -21,33 +21,28 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from '../utils';
+import { getModuleNameOfNode, isMethodCall, isIdentifier } from '../utils';
 
-const SENSITIVE_METHODS = [
-    'exec',
-    'execSync',
-    'spawn',
-    'spawnSync',
-    'execFile',
-    'execFileSync',
-];
+const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 
 export const rule: Rule.RuleModule = {
   meta: {},
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        if (node.callee.type === 'MemberExpression' && 
-            node.callee.property.type === 'Identifier' &&
-            SENSITIVE_METHODS.includes(node.callee.property.name) &&
-            node.callee.object.type === 'Identifier' &&
-            getVariableFromName(node.callee.object.name) === 'child_process') {
-                
-                context.report({
-                    message: 'hello',
-                    node: node,
-                  });
-            }
+        if (isMethodCall(node)) {
+          const { property, object } = node.callee;
+          if (isIdentifier(property, ...SENSITIVE_METHODS) &&
+            SENSITIVE_METHODS.includes(property.name) &&
+            object.type === 'Identifier' &&
+            getModuleNameOfNode(context, object)?.value === 'child_process'
+          ) {
+            context.report({
+              message: 'Searching OS commands in PATH is security-sensitive',
+              node: property,
+            });
+          }
+        }
       },
     };
   },
