@@ -27,7 +27,7 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       issue: 'Remove ".only()" from your test case.',
-      quickfix: 'Remove .only().',
+      quickfix: 'Remove ."only()".',
     },
   },
   create(context: Rule.RuleContext) {
