@@ -163,7 +163,7 @@ function isKebabCase(str: string) {
 function toPascalCase(str: string) {
   return str
     .replace(/\w+/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
-    .replace('-', '');
+    .replace(/-/g, '');
 }
 
 function getSuggestion(

@@ -432,6 +432,16 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       </template>
       `,
     },
+    {
+      code: `
+      <script setup>
+        import FooBarBaz from './FooBarBaz.vue'
+      </script>
+      <template>
+        <foo-bar-baz />
+      </template>
+      `,
+    },
   ],
   invalid: [
     {
