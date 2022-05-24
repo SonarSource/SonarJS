@@ -25,6 +25,7 @@ import * as estree from 'estree';
 const message = 'Remove .only() from your test case.';
 
 export const rule: Rule.RuleModule = {
+  meta: { fixable: "code" },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
