@@ -11,5 +11,9 @@
   "ruleSpecification": "RSPEC-6426",
   "sqKey": "S6426",
   "scope": "All",
-  "quickfix": "covered"
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
