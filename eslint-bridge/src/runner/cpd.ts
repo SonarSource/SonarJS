@@ -26,7 +26,7 @@ import { Location } from './location';
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
   const tokens = sourceCode.ast.tokens;
-  const { jsxTokens, importTokens } = extractTokens(sourceCode);
+  const { jsxTokens, importTokens, requireTokens } = extractTokens(sourceCode);
 
   tokens.forEach(token => {
     let text = token.value;
@@ -38,6 +38,11 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
 
     if (importTokens.includes(token)) {
       // for tokens from import statements
+      return;
+    }
+
+    if (requireTokens.includes(token)) {
+      // for tokens from require statements
       return;
     }
 
@@ -65,9 +70,11 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
 function extractTokens(sourceCode: SourceCode): {
   jsxTokens: AST.Token[];
   importTokens: AST.Token[];
+  requireTokens: AST.Token[];
 } {
   const jsxTokens: AST.Token[] = [];
   const importTokens: AST.Token[] = [];
+  const requireTokens: AST.Token[] = [];
   visit(sourceCode, (node: estree.Node) => {
     const tsNode = node as TSESTree.Node;
     switch (tsNode.type) {
@@ -79,9 +86,14 @@ function extractTokens(sourceCode: SourceCode): {
       case 'ImportDeclaration':
         importTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
         break;
+      case 'CallExpression':
+        if (tsNode.callee.type === 'Identifier' && tsNode.callee.name === 'require') {
+          requireTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
+        }
+        break;
     }
   });
-  return { jsxTokens, importTokens };
+  return { jsxTokens, importTokens, requireTokens };
 }
 
 function isStringLiteralToken(token: AST.Token) {
