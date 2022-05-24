@@ -26,7 +26,7 @@ export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
     messages: {
-      issue: 'Remove .only() from your test case.',
+      issue: 'Remove ".only()" from your test case.',
       quickfix: 'Remove .only().',
     },
   },
