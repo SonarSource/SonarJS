@@ -34,10 +34,10 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.CallExpression) => {
         if (
-          node?.callee?.type === 'MemberExpression' &&
-          node?.callee?.property?.type === 'Identifier' &&
-          node?.callee?.property?.name === 'only' &&
-          node?.callee?.object?.type === 'Identifier' &&
+          node.callee.type === 'MemberExpression' &&
+          node.callee.property.type === 'Identifier' &&
+          node.callee.property.name === 'only' &&
+          node.callee.object.type === 'Identifier' &&
           ['describe', 'it', 'test'].includes(node?.callee?.object.name)
         ) {
           const onlyProp: estree.MemberExpression = node.callee;
