@@ -73,8 +73,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
   public static final String ENVIRONMENTS = "sonar.javascript.environments";
-  public static final String ENVIRONMENTS_DEFAULT_VALUE = "amd, applescript, atomtest, browser, commonjs, couch, embertest, flow, greasemonkey, jasmine, jest, jquery, " +
-    "meteor, mocha, mongo, nashorn, node, phantomjs, prototypejs, protractor, qunit, rhino, serviceworker, shared-node-browser, shelljs, webextensions, worker, wsh, yui";
+  public static final String ENVIRONMENTS_DEFAULT_VALUE = "amd,applescript,atomtest,browser,commonjs,couch,embertest,flow,greasemonkey,jasmine,jest,jquery," +
+    "meteor,mocha,mongo,nashorn,node,phantomjs,prototypejs,protractor,qunit,rhino,serviceworker,shared-node-browser,shelljs,webextensions,worker,wsh,yui";
 
   public static final String GLOBALS = "sonar.javascript.globals";
   public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_";
