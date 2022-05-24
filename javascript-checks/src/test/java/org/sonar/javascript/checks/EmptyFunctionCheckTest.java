@@ -19,29 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S1186")
-public class EmptyFunctionCheck implements EslintBasedCheck {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public String eslintKey() {
-    return "no-empty-function";
-  }
+class EmptyFunctionCheckTest {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-    String[] allow = {"private-constructors"};
+  @Test
+  void configurations() {
+    String configAsString = new Gson().toJson(new EmptyFunctionCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"allow\":[\"private-constructors\"]}]");
   }
 }
