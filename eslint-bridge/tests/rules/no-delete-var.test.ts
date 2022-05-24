@@ -56,6 +56,11 @@ const tests = {
         delete fun;
       `,
     },
+    {
+      code: `
+        var obj = { a: possiblyUndefined() };
+        delete obj?.a;`,
+    },
   ],
   invalid: [
     {
@@ -98,7 +103,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2021 } });
 const ruleTesterTs = new RuleTesterTs(false);
 
 ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);

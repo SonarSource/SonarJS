@@ -30,17 +30,16 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      "UnaryExpression[operator='delete'][argument.type!='MemberExpression']": (
-        node: estree.Node,
-      ) => {
-        const { argument } = node as estree.UnaryExpression;
-        if (!isGlobalProperty(argument, context.getScope().references)) {
-          context.report({
-            messageId: 'removeDelete',
-            node,
-          });
-        }
-      },
+      "UnaryExpression[operator='delete'][argument.type!='MemberExpression'][argument.type!='ChainExpression']":
+        (node: estree.Node) => {
+          const { argument } = node as estree.UnaryExpression;
+          if (!isGlobalProperty(argument, context.getScope().references)) {
+            context.report({
+              messageId: 'removeDelete',
+              node,
+            });
+          }
+        },
     };
   },
 };
