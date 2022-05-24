@@ -1,7 +1,5 @@
-const someObject = {
-    only: () => {}
-};
-someObject.only();
+describe.only("only on root describe"); // Noncompliant
+//       ^^^^
 
 describe("no exclusive tests", function() {
     describe.only("a describe with a .only()", function () { // Noncompliant {{Remove .only() from your test case.}}
@@ -19,5 +17,10 @@ describe("no exclusive tests", function() {
     it("works fine");
 });
 
-describe.only("only on root describe"); // Noncompliant
-//       ^^^^
+function only() {}
+only();
+
+const someObject = {
+    only: () => {}
+};
+someObject.only();
