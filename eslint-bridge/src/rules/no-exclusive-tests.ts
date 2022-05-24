@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
           node.callee.property.type === 'Identifier' &&
           node.callee.property.name === 'only' &&
           node.callee.object.type === 'Identifier' &&
-          ['describe', 'it', 'test'].includes(node?.callee?.object.name)
+          ['describe', 'it', 'test'].includes(node.callee.object.name)
         ) {
           const onlyProp: estree.MemberExpression = node.callee;
           context.report({
