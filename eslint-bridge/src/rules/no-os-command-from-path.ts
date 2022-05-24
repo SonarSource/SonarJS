@@ -40,20 +40,21 @@ export const rule: Rule.RuleModule = {
           ) {
             // check args
             const args = node.arguments;
-            const faultyArgs: Array<string> = [];
-            args.forEach(arg => {
-              if (isStringLiteral(arg)) {
+            let faultyArg;
+            if (args.length > 0) {
+              const firstArg = args[0];
+              if (isStringLiteral(firstArg)) {
                 let startsWithRequiredPrefix = false
                 REQUIRED_PATH_PREFIXES.forEach(prefix => {
-                  if (arg.value.startsWith(prefix)) { startsWithRequiredPrefix = true; }
+                  if (firstArg.value.startsWith(prefix)) { startsWithRequiredPrefix = true; }
                 });
-                if (! startsWithRequiredPrefix) { faultyArgs.push(arg.value); }
+                if (! startsWithRequiredPrefix) { faultyArg = firstArg; }
               }
-            });
-            if (faultyArgs.length > 0) {
+            }
+            if (faultyArg != null) {
               context.report({
                 message: 'Searching OS commands in PATH is security-sensitive.',
-                node: property,
+                node: faultyArg,
               });
             }
           }
