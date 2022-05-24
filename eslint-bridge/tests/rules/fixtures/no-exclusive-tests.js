@@ -1,8 +1,8 @@
-describe.only("only on root describe"); // Noncompliant
+describe.only("only on root describe"); // Noncompliant {{Remove .only() from your test case.}}
 //       ^^^^
 
 describe("no exclusive tests", function() {
-    describe.only("a describe with a .only()", function () { // Noncompliant {{Remove .only() from your test case.}}
+    describe.only("a describe with a .only()", function () { // Noncompliant
 //           ^^^^
     });
     it.only("is an 'it' statement using .only()", function () { // Noncompliant
