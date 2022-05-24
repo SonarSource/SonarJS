@@ -20,6 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6426/javascript
 
 import { Rule } from 'eslint';
+import { isMethodCall, isIdentifier } from '../utils';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -33,29 +34,25 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        if (
-          node.callee.type === 'MemberExpression' &&
-          node.callee.property.type === 'Identifier' &&
-          node.callee.property.name === 'only' &&
-          node.callee.object.type === 'Identifier' &&
-          ['describe', 'it', 'test'].includes(node.callee.object.name)
-        ) {
-          const onlyProp: estree.MemberExpression = node.callee;
-          context.report({
-            messageId: 'issue',
-            node: node.callee.property,
-            suggest: [
-              {
-                fix: (fixer: Rule.RuleFixer) => {
-                  const fixes = [fixer.remove(onlyProp.property)];
-                  const dotBeforeOnly = context.getSourceCode().getTokenBefore(onlyProp.property);
-                  if (dotBeforeOnly != null) { fixes.push(fixer.remove(dotBeforeOnly)); }
-                  return fixes;
+        if (isMethodCall(node)) {
+          const { property, object } = node.callee;
+          if (isIdentifier(property, 'only') && isIdentifier(object, 'describe', 'it', 'test')) {
+            context.report({
+              messageId: 'issue',
+              node: property,
+              suggest: [
+                {
+                  fix: (fixer: Rule.RuleFixer) => {
+                    const fixes = [fixer.remove(property)];
+                    const dotBeforeOnly = context.getSourceCode().getTokenBefore(property);
+                    if (dotBeforeOnly != null) { fixes.push(fixer.remove(dotBeforeOnly)); }
+                    return fixes;
+                  },
+                  messageId: 'quickfix',
                 },
-                messageId: 'quickfix',
-              },
-            ],
-          });
+              ],
+            });
+          }
         }
       },
     };
