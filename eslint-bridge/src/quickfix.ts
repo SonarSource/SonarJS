@@ -74,6 +74,7 @@ const quickFixRules = new Set([
   'no-alphabetical-sort',
   'no-commented-code',
   'no-duplicate-in-composite',
+  'no-exclusive-tests',
   'no-global-this',
   'no-in-misuse',
   'no-primitive-wrappers',
