@@ -32,10 +32,6 @@ ruleTester.run('Exclusive tests should not be commited to version control', rule
       errors: [
         {
           messageId: 'issue',
-          line: 1,
-          column: 10,
-          endLine: 1,
-          endColumn: 14,
           suggestions: [
             {
               messageId: 'quickfix',
@@ -52,10 +48,6 @@ it// skipping a line here
       errors: [
         {
           messageId: 'issue',
-          line: 3,
-          column: 2,
-          endLine: 3,
-          endColumn: 6,
           suggestions: [
             {
               messageId: 'quickfix',
