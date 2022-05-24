@@ -1,17 +1,7 @@
 {
-'TypeScript:src/compiler/core.ts':[
-1098,
-1109,
-2199,
-2205,
-2212,
-],
 'TypeScript:src/harness/harnessLanguageService.ts':[
 128,
 129,
-],
-'TypeScript:src/server/scriptVersionCache.ts':[
-511,
 ],
 'TypeScript:src/server/typingsInstaller/typingsInstaller.ts':[
 100,
@@ -24,8 +14,5 @@
 ],
 'TypeScript:src/services/services.ts':[
 1021,
-],
-'TypeScript:src/services/shims.ts':[
-19,
 ],
 }
