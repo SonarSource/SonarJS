@@ -34,23 +34,10 @@ export const rule: Rule.RuleModule = {
         if (isMethodCall(node)) {
           const { property, object } = node.callee;
           if (isIdentifier(property, ...SENSITIVE_METHODS) &&
-            SENSITIVE_METHODS.includes(property.name) &&
             object.type === 'Identifier' &&
             getModuleNameOfNode(context, object)?.value === 'child_process'
           ) {
-            // check args
-            const args = node.arguments;
-            let faultyArg;
-            if (args.length > 0) {
-              const firstArg = args[0];
-              if (isStringLiteral(firstArg)) {
-                let startsWithRequiredPrefix = false
-                REQUIRED_PATH_PREFIXES.forEach(prefix => {
-                  if (firstArg.value.startsWith(prefix)) { startsWithRequiredPrefix = true; }
-                });
-                if (! startsWithRequiredPrefix) { faultyArg = firstArg; }
-              }
-            }
+            const faultyArg = findFaultyArgument(node.arguments as Array<estree.Literal>);
             if (faultyArg != null) {
               context.report({
                 message: 'Searching OS commands in PATH is security-sensitive.',
@@ -63,3 +50,20 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function findFaultyArgument(functionArgs: Array<estree.Literal>) {
+  if (functionArgs.length === 0) {
+    return null;
+  }
+  const pathArg = functionArgs[0]; // we know this for the SENSITIVE_METHODS
+  if (! isStringLiteral(pathArg)) {
+    return null;
+  }
+  let startsWithRequiredPrefix = false;
+  REQUIRED_PATH_PREFIXES.forEach(prefix => {
+    if (pathArg.value.startsWith(prefix)) { 
+      startsWithRequiredPrefix = true; 
+    }
+  });
+  return startsWithRequiredPrefix ? null : pathArg;
+}
