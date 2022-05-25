@@ -135,6 +135,23 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
           }
         }`,
     },
+    {
+      code: `
+        let str = 'str', obj = {};
+        str === obj;`,
+    },
+    {
+      code: `
+        let str = 'str', obj = {};
+        str !== obj;`,
+    },
+    {
+      code: `
+      const foo = Symbol('foo');
+      const symbols = [ foo ];
+      symbols.filter(symbol => symbol !== foo);
+      `,
+    },
   ],
   invalid: [
     {
@@ -183,18 +200,6 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
       code: `
         let str = 'str', bool = false;
         str !== bool;`,
-      errors: 1,
-    },
-    {
-      code: `
-        let str = 'str', obj = {};
-        str === obj;`,
-      errors: 1,
-    },
-    {
-      code: `
-        let str = 'str', obj = {};
-        str !== obj;`,
       errors: 1,
     },
     {

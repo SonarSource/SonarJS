@@ -21,7 +21,6 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
@@ -40,50 +39,20 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    function isSameSymbol(s: ts.Type, t: ts.Type) {
-      return s.symbol && t.symbol && s.symbol.name === t.symbol.name;
-    }
-
-    function isSubType(s: ts.Type, t: ts.Type): boolean {
+    function isComparableTo(lhs: estree.Node, rhs: estree.Node) {
+      const checker = services.program.getTypeChecker();
+      const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
+      const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+      // @ts-ignore private API
       return (
-        (s.flags & t.flags) !== 0 ||
-        (t.isUnionOrIntersection() && t.types.some(tp => isSubType(s, tp)))
-      );
-    }
-
-    function isAny(type: ts.Type) {
-      return type.flags === ts.TypeFlags.Any;
-    }
-
-    function isUndefinedOrNull(type: ts.Type) {
-      return type.flags === ts.TypeFlags.Null || type.flags === ts.TypeFlags.Undefined;
-    }
-
-    function isThis(node: estree.Node) {
-      return node.type === 'ThisExpression';
-    }
-
-    function haveDissimilarTypes(lhs: estree.Node, rhs: estree.Node) {
-      const { getBaseTypeOfLiteralType } = services.program.getTypeChecker();
-      const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
-      return (
-        !isSameSymbol(lhsType, rhsType) &&
-        !isSubType(lhsType, rhsType) &&
-        !isSubType(rhsType, lhsType) &&
-        !isAny(lhsType) &&
-        !isAny(rhsType) &&
-        !isUndefinedOrNull(lhsType) &&
-        !isUndefinedOrNull(rhsType) &&
-        !isThis(lhs) &&
-        !isThis(rhs)
+        checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)
       );
     }
 
     return {
       BinaryExpression: (node: estree.Node) => {
         const { left, operator, right } = node as estree.BinaryExpression;
-        if (['===', '!=='].includes(operator) && haveDissimilarTypes(left, right)) {
+        if (['===', '!=='].includes(operator) && !isComparableTo(left, right)) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
           const operatorToken = context
