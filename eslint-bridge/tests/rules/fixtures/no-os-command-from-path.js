@@ -26,4 +26,4 @@ cp.exec(12);
 const someObject = {
     exec: () => {}
 };
-someObject.exec('filxe.exe');
+someObject.exec('file.exe');
