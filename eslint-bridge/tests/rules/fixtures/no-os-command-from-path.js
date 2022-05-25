@@ -1,4 +1,5 @@
 const cp = require('child_process');
+const { exec, execSync, spawn, spawnSync, execFile, execFileSync } = require('child_process');
 
 cp.exec('file.exe');  // Noncompliant {{Searching OS commands in PATH is security-sensitive.}}
 //      ^^^^^^^^^^
@@ -12,6 +13,18 @@ cp.execFile('file.exe');  // Noncompliant
 //          ^^^^^^^^^^
 cp.execFileSync('file.exe');  // Noncompliant
 //              ^^^^^^^^^^
+exec('file.exe');  // Noncompliant {{Searching OS commands in PATH is security-sensitive.}}
+//   ^^^^^^^^^^
+execSync('file.exe');  // Noncompliant
+//       ^^^^^^^^^^
+spawn('file.exe');  // Noncompliant
+//    ^^^^^^^^^^
+spawnSync('file.exe');  // Noncompliant
+//        ^^^^^^^^^^
+execFile('file.exe');  // Noncompliant
+//       ^^^^^^^^^^
+execFileSync('file.exe');  // Noncompliant
+//           ^^^^^^^^^^
 
 cp.exec('./usr/bin/file.exe');
 cp.execSync('.\\usr\\bin\\file.exe');
