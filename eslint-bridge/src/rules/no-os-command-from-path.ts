@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { getModuleNameOfNode, isMethodCall, isIdentifier, isStringLiteral } from '../utils';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
-const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\',];
+const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
 
 export const rule: Rule.RuleModule = {
   meta: {},
@@ -33,7 +33,8 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.CallExpression) => {
         if (isMethodCall(node)) {
           const { property, object } = node.callee;
-          if (isIdentifier(property, ...SENSITIVE_METHODS) &&
+          if (
+            isIdentifier(property, ...SENSITIVE_METHODS) &&
             object.type === 'Identifier' &&
             getModuleNameOfNode(context, object)?.value === 'child_process'
           ) {
@@ -56,13 +57,13 @@ function findFaultyArgument(functionArgs: Array<estree.Literal>) {
     return null;
   }
   const pathArg = functionArgs[0]; // we know this for the SENSITIVE_METHODS
-  if (! isStringLiteral(pathArg)) {
+  if (!isStringLiteral(pathArg)) {
     return null;
   }
   let startsWithRequiredPrefix = false;
   REQUIRED_PATH_PREFIXES.forEach(prefix => {
-    if (pathArg.value.startsWith(prefix)) { 
-      startsWithRequiredPrefix = true; 
+    if (pathArg.value.startsWith(prefix)) {
+      startsWithRequiredPrefix = true;
     }
   });
   return startsWithRequiredPrefix ? null : pathArg;
