@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
-@Rule(key = "4036")
+@Rule(key = "S4036")
 public class NoOsCommandsFromPathCheck extends TestFileCheck {
 
   @Override
