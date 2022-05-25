@@ -20,3 +20,10 @@ cp.spawnSync('..\\usr\\bin\\file.exe');
 cp.execFile('/usr/bin/file.exe');
 cp.execFileSync('\\usr\\bin\\file.exe');
 cp.exec('C:\\usr\\bin\\file.exe');
+cp.exec();
+cp.exec(12);
+
+const someObject = {
+    exec: () => {}
+};
+someObject.exec('filxe.exe');
