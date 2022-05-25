@@ -98,7 +98,7 @@ export function getModuleNameOfImportedIdentifier(
   if (importedDeclaration) {
     return importedDeclaration.source;
   }
-  // check if importing using `const f = require('module_name').f`
+  // check if importing using `const f = require('module_name').f` or `const { f } = require('module_name')`
   const writeExpression = getUniqueWriteUsage(context, identifier.name);
   if (writeExpression) {
     let maybeRequireCall: estree.Node;
