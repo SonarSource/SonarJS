@@ -13,7 +13,7 @@ cp.execFile('file.exe');  // Noncompliant
 //          ^^^^^^^^^^
 cp.execFileSync('file.exe');  // Noncompliant
 //              ^^^^^^^^^^
-exec('file.exe');  // Noncompliant {{Searching OS commands in PATH is security-sensitive.}}
+exec('file.exe');  // Noncompliant
 //   ^^^^^^^^^^
 execSync('file.exe');  // Noncompliant
 //       ^^^^^^^^^^
