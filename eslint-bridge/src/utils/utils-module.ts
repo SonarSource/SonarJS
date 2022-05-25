@@ -102,8 +102,11 @@ export function getModuleNameOfImportedIdentifier(
   const writeExpression = getUniqueWriteUsage(context, identifier.name);
   if (writeExpression) {
     let maybeRequireCall: estree.Node;
-    if (writeExpression.type === 'MemberExpression' && isIdentifier(writeExpression.property, identifier.name)) {
-      maybeRequireCall = writeExpression.object
+    if (
+      writeExpression.type === 'MemberExpression' &&
+      isIdentifier(writeExpression.property, identifier.name)
+    ) {
+      maybeRequireCall = writeExpression.object;
     } else {
       maybeRequireCall = writeExpression;
     }

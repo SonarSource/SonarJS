@@ -31,17 +31,13 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        // it's either cp.exec() or exec() with some test on node.callee and node.callee.object
-        // 1. check if *function* its part of cp - getModuleAndCalledMethod? getModuleNameOfNode?
-        // 2. is it a direct method call or not
-        // 3. has it got the right name
-        const { module, method } = getModuleAndCalledMethod(node.callee, context); debugger;
+        const { module, method } = getModuleAndCalledMethod(node.callee, context);
         if (module?.value === 'child_process' && isIdentifier(method, ...SENSITIVE_METHODS)) {
-          const faultyArg = findFaultyArgument(node.arguments as Array<estree.Literal>);
-          if (faultyArg != null) {
+          const sensitiveArg = findSensitiveArgument(node.arguments as Array<estree.Literal>);
+          if (sensitiveArg != null) {
             context.report({
               message: 'Searching OS commands in PATH is security-sensitive.',
-              node: faultyArg,
+              node: sensitiveArg,
             });
           }
         }
@@ -50,7 +46,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function findFaultyArgument(functionArgs: Array<estree.Literal>) {
+function findSensitiveArgument(functionArgs: Array<estree.Literal>) {
   if (functionArgs.length === 0) {
     return null;
   }
