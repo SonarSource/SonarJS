@@ -40,3 +40,9 @@ const someObject = {
     exec: () => {}
 };
 someObject.exec('file.exe');
+
+function someFunctionWithScope() {
+    function exec() {}
+    exec();
+}
+someFunctionWithScope();

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, isMethodCall, isIdentifier, isStringLiteral } from '../utils';
+import { isIdentifier, isStringLiteral, getModuleAndCalledMethod } from '../utils';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
@@ -31,20 +31,18 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        if (isMethodCall(node)) {
-          const { property, object } = node.callee;
-          if (
-            isIdentifier(property, ...SENSITIVE_METHODS) &&
-            object.type === 'Identifier' &&
-            getModuleNameOfNode(context, object)?.value === 'child_process'
-          ) {
-            const faultyArg = findFaultyArgument(node.arguments as Array<estree.Literal>);
-            if (faultyArg != null) {
-              context.report({
-                message: 'Searching OS commands in PATH is security-sensitive.',
-                node: faultyArg,
-              });
-            }
+        // it's either cp.exec() or exec() with some test on node.callee and node.callee.object
+        // 1. check if *function* its part of cp - getModuleAndCalledMethod? getModuleNameOfNode?
+        // 2. is it a direct method call or not
+        // 3. has it got the right name
+        const { module, method } = getModuleAndCalledMethod(node.callee, context); debugger;
+        if (module?.value === 'child_process' && isIdentifier(method, ...SENSITIVE_METHODS)) {
+          const faultyArg = findFaultyArgument(node.arguments as Array<estree.Literal>);
+          if (faultyArg != null) {
+            context.report({
+              message: 'Searching OS commands in PATH is security-sensitive.',
+              node: faultyArg,
+            });
           }
         }
       },
