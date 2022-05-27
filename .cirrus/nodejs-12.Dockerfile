@@ -1,4 +1,4 @@
-FROM gcr.io/language-team/base:latest
+FROM eu.gcr.io/release-engineering-ci-prod/base:j11-latest
 
 USER root
 
