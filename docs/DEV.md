@@ -63,10 +63,10 @@ sonar-javascript/its/ruling/src/test/resources/expected/
 ## Adding a rule
 
 ### Card stuff
-1. On [Kanban](https://github.com/SonarSource/SonarJS/projects/3), move card from "To do" to "In progress", it should be assigned to you automatically
-2. comment link to rspec PR if exists
+1. On [Kanban](https://github.com/SonarSource/SonarJS/projects/3), move card from "To do" to "In progress", The issue should be assigned to you automatically
+2. Comment on the issue linking to the rspec PR if exists 
 3. Rename issue to match rspec name
-4. checkout new branch named `issue-1234`
+4. Checkout new branch named `issue-1234`
 
 ### Implementing a rule
 Load the files from [Rspec](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
@@ -75,14 +75,11 @@ Load the files from [Rspec](https://github.com/SonarSource/rspec#4-implement-the
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
 ```
 
-- Get inspiration from [S6426: no exclusive tests](https://github.com/SonarSource/SonarJS/pull/3141)
-- (from scratch only) Reference: [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
-
-1. create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/YourRuleCheck.java`
+1. Create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/YourRuleCheck.java`
    1. Add `@JavaScriptRule` and/or `@TypeScriptRule`
    2. Add rule id as `@Rule(key="S1234")`
    3. If writing a rule for test files, use `extends TestFileCheck` otherwise, use `implements EslintBasedCheck`
-   1. have *at minimum* single method `public String eslintKey()` that does `return "your-rule"`
+   4. have *at minimum* single method `public String eslintKey()` that does `return "your-rule"`
       1. If reusing ESlint implementation, return string must correspond to one in https://typescript-eslint.io/rules/
 2. Add your rule in `javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java` as `YourRuleCheck.class`
 3. In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
@@ -97,13 +94,13 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
    2. `ruleModules['your-rule'] = yourRule;`
 5. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts` (See [Implementing the rule](#implementing-the-rule))
    1. Write up your coding examples into [AST explorer](https://astexplorer.net/)
-   2. Figure out the structure that you are looking for and implement the rule
+   2. Figure out the structure that you are looking for and implement the rule following [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
    3. Use the helper functions from `eslint-bridge/src/utils/`
 6. (from scratch only) Implement comment-based tests in `eslint-bridge/tests/rules/fixtures/your-rule.js`. See [comment-based testing](#comment-based-testing).
 7. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`, See [ESlint-based testing](#eslint-testing)
 8. You will need to verify how your new rule will behave by running it on "rulings" which are a subset of [Peach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management). See [Rulings](#rulings).
 9. You might want to checkout how your rule runs on Peach, see [release on Peach](#release-on-peach).
-10. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on next, Fix eventual smells and push the coverage to 100%
+10. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on Next, Fix eventual smells and push the coverage to 100%
 11. Once you are done implementing the rule, update the rspec-generated files (your rspec must be merged to master), using rule-api
 
 #### Comment-based testing
@@ -167,3 +164,9 @@ to update the expected issues.
 1. add branch prefixed with `dogfood/` such as: https://github.com/SonarSource/sonar-cpp/blob/master/docs/Testing.adoc#dogfood-branch
 2. wait for after 19:00 CET and check: Peaches>Rules>Typescript+name-of-rule as https://peach.sonarsource.com/coding_rules?languages=ts&open=typescript%3AS6425&q=import
 3. Or run it manually as described: https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management
+
+## Inspirations:
+
+- Rule implemented from scratch: [S4036](https://github.com/SonarSource/SonarJS/pull/3148)
+- Rule implemented from scratch, with quickfix: [S6426](https://github.com/SonarSource/SonarJS/pull/3141)
+- Rule reusing ESlint impementation: [S6425](https://github.com/SonarSource/SonarJS/pull/3134)
