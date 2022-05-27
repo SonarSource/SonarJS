@@ -138,7 +138,8 @@ Rulings run against the latest build of your project. If you have worked in `esl
 #### View code smells
 
 1. In `its/ruling`, run `diff -rq src/test/expected/js target/actual/js`.
-2. In each 
+2. For each file (should be `javascript-S1234.json`), copy its name, find it using VScode finder (CMD+P)
+3. Find the file that is mentioned using the VScode finder, and assess if the flag was legitimate
 #### View code smells in Sonarqube
 
 If there are too many new issues flagged, it might be easier to view them through Sonarqube:
