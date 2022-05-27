@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isStringLiteral, getModuleAndCalledMethod, getValueOfExpression } from '../utils';
+import {
+  isIdentifier,
+  isStringLiteral,
+  getModuleAndCalledMethod,
+  getValueOfExpression,
+} from '../utils';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
@@ -37,7 +42,10 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.CallExpression) => {
         const { module, method } = getModuleAndCalledMethod(node.callee, context);
         if (module?.value === 'child_process' && isIdentifier(method, ...SENSITIVE_METHODS)) {
-          const sensitiveArg = findSensitiveArgument(context, node.arguments as estree.Expression[]);
+          const sensitiveArg = findSensitiveArgument(
+            context,
+            node.arguments as estree.Expression[],
+          );
           if (sensitiveArg != null) {
             context.report({
               messageId: 'issue',
@@ -55,8 +63,12 @@ function findSensitiveArgument(context: Rule.RuleContext, functionArgs: estree.E
     return null;
   }
   let pathArg = functionArgs[0]; // we know this for the SENSITIVE_METHODS
-  const literalInExpression: estree.Literal | undefined = getValueOfExpression(context, pathArg, 'Literal');
-  let stringLiteral: estree.Literal & {value: string};
+  const literalInExpression: estree.Literal | undefined = getValueOfExpression(
+    context,
+    pathArg,
+    'Literal',
+  );
+  let stringLiteral: estree.Literal & { value: string };
   if (literalInExpression != undefined && isStringLiteral(literalInExpression)) {
     stringLiteral = literalInExpression;
   } else if (isStringLiteral(pathArg)) {
@@ -64,6 +76,8 @@ function findSensitiveArgument(context: Rule.RuleContext, functionArgs: estree.E
   } else {
     return null;
   }
-  const startsWithRequiredPrefix = REQUIRED_PATH_PREFIXES.some(prefix => stringLiteral.value.startsWith(prefix));
+  const startsWithRequiredPrefix = REQUIRED_PATH_PREFIXES.some(prefix =>
+    stringLiteral.value.startsWith(prefix),
+  );
   return startsWithRequiredPrefix ? null : pathArg;
 }
