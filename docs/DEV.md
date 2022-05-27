@@ -133,7 +133,12 @@ We use the ESlint rule tester for quickfixes, as our comment-based one does not 
 ### Rulings
 
 You can verify how your new rule will behave by running on "rulings" which are a subset of "peach" that are part of the SonarJS repo.
+
 Rulings run against the latest build of your project. If you have worked in `eslint-bridge/`, you must [rebuild the project](#build-the-project-and-run-unit-tests) to apply your changes.
+
+#### Run them
+
+If you run into issues when [running them](#ruling-tests), such as `{"errors":[{"msg":"A rule with the key \u0027CommentRegexTest\u0027 already exists"}]}`, you can run the rulings separately (JS, TS, CSS) following the [View code smells in Sonarqube guide](#view-code-smells-in-sonarqube) without the breakpoints and selecting `Run test`.
 
 #### View code smells
 
@@ -146,7 +151,7 @@ If there are too many new issues flagged, it might be easier to view them throug
 
 In the file `its/rulings/src/test/java/org/sonar/javascript/it/{Java/TypeScriptRulingTest.java}`
 1. Add a breakpoint at the end of `runRulingTest()`, on line `assertThat(new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)).isEmpty();`
-2. launch rulings by right-clicking left of the class declaration and selecting `Run test`.
+2. launch rulings by right-clicking left of the class declaration and selecting `Run debug`.
 3. find PORT, searching for following line in `DEBUG CONSOLE`: `INFO: ANALYSIS SUCCESSFUL, you can find the results at: http://127.0.0.1:53583/dashboard?id=ag-grid`
 4. open in browser
 5. Look
