@@ -1,13 +1,13 @@
-gcp_credentials: ENCRYPTED[!17c59813193e86cc337bce848b358412b90f50bc5fe1b8b39d363cdf14a41ebe76cfba0482e7f81d076994b9f6dbfb4c!]
-
+gcp_credentials: ENCRYPTED[!149d4005ecdba4cdd78bb5ba22756ebb98bf8e3367ee2e9ab08c5a1608c0d3e3b501904b67a1d67c0b63085e469d7dde!]
+ 
 env:
   ARTIFACTORY_URL: ENCRYPTED[!2f8fa307d3289faa0aa6791f18b961627ae44f1ef46b136e1a1e63b0b4c86454dbb25520d49b339e2d50a1e1e5f95c88!]
-  ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-e2882e
-  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!815fc7526a6579b7d974d1c41b5c247cfed8c88fb2c7b41ec5d3d54244701186da777c4003476b5b9fa208c8b8f208dc!]
-  ARTIFACTORY_DEPLOY_USERNAME: repox-qa-deployer
-  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!d484e19f33c9ce63b165f70e414a33b1ac6c215a126791aacbf8059626caf0fd8a78e999a20af5c1a4ba01c0b0247921!]
+  ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-lt-ef42e7
+  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!9b954ad23535be51e04d7ad72d8f79b93141341f3b6fe5527140e1ffa9570694f23ddea6fc384b742e7ec956533765d6!]
+  ARTIFACTORY_DEPLOY_USERNAME: repox-qa-deployer-lt-ef42e7
+  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!e9d67cbbb9ffaa6a05b863eae9d08292b431481ae920205c7cb42d8811c18a932f2a29f486a46171c9ac6c053bc51e73!]
   ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
-  ARTIFACTORY_API_KEY: ENCRYPTED[!815fc7526a6579b7d974d1c41b5c247cfed8c88fb2c7b41ec5d3d54244701186da777c4003476b5b9fa208c8b8f208dc!]
+  ARTIFACTORY_API_KEY: ENCRYPTED[!9b954ad23535be51e04d7ad72d8f79b93141341f3b6fe5527140e1ffa9570694f23ddea6fc384b742e7ec956533765d6!]
   # burgr notification
   BURGR_URL: ENCRYPTED[!c7e294da94762d7bac144abef6310c5db300c95979daed4454ca977776bfd5edeb557e1237e3aa8ed722336243af2d78!]
   BURGR_USERNAME: ENCRYPTED[!b29ddc7610116de511e74bec9a93ad9b8a20ac217a0852e94a96d0066e6e822b95e7bc1fe152afb707f16b70605fddd3!]
@@ -17,19 +17,19 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  builder_image_project: language-team
-  builder_image_name: docker-builder-lt-v1
-  cluster_name: cirrus-ci-lt-cluster
-  zone: us-central1-a
+  builder_image_project: release-engineering-ci-prod
+  builder_image_name: family/docker-builder
+  cluster_name: cirrus-ci
+  zone: europe-west4-b
   namespace: default
   use_in_memory_disk: true
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
-    image_project: language-team
-    image_family: lt-base-windows
+    image_project: release-engineering-ci-prod
+    image_family: lt-base-windows-jdk11
     platform: windows
-    zone: us-central1-a
+    zone: europe-west4-b
     preemptible: false
     disk: 128
     type: c2-standard-8
@@ -78,8 +78,9 @@ build_win_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   build_script:
+    - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
+    - mvn test
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
