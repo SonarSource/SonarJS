@@ -62,17 +62,15 @@ function findSensitiveArgument(context: Rule.RuleContext, functionArgs: estree.E
   if (functionArgs.length === 0) {
     return null;
   }
-  let pathArg = functionArgs[0]; // we know this for the SENSITIVE_METHODS
+  const pathArg = functionArgs[0]; // we know this for the SENSITIVE_METHODS
   const literalInExpression: estree.Literal | undefined = getValueOfExpression(
     context,
     pathArg,
     'Literal',
   );
   let stringLiteral: estree.Literal & { value: string };
-  if (literalInExpression != undefined && isStringLiteral(literalInExpression)) {
+  if (literalInExpression !== undefined && isStringLiteral(literalInExpression)) {
     stringLiteral = literalInExpression;
-  } else if (isStringLiteral(pathArg)) {
-    stringLiteral = pathArg;
   } else {
     return null;
   }
