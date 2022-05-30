@@ -64,8 +64,8 @@ its/ruling/src/test/resources/expected/
 
 ### Card stuff
 1. On [Kanban](https://github.com/SonarSource/SonarJS/projects/3), move card from "To do" to "In progress", The issue should be assigned to you automatically
-2. Comment on the issue linking to the rspec PR if exists 
-3. Rename issue to match rspec name
+2. Comment on the issue linking to the [Rspec PR](https://github.com/SonarSource/rspec/pulls) if exists 
+3. Rename issue to match Rspec name
 4. Checkout new branch named `issue-1234`
 
 ### Implementing a rule
