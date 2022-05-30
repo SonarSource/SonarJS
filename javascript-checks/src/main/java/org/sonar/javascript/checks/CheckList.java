@@ -233,6 +233,7 @@ public final class CheckList {
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
       NoSameArgumentAssertCheck.class,
+      NoSingleCharInCharacterClassesCheck.class,
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,

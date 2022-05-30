@@ -1,0 +1,19 @@
+<p>Character classes in regular expressions are a convenient way to match one of several possible characters by listing the allowed characters or
+ranges of characters. If a character class contains only one character, the effect is the same as just writing the character without a character
+class.</p>
+<p>Thus, having only one character in a character class is usually a simple oversight that remained after removing other characters of the class.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+"a[b]c"
+"[\\^]"
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+"abc"
+"\\^"
+"a[*]c" // Compliant, see Exceptions
+</pre>
+<h2>Exceptions</h2>
+<p>This rule does not raise when the character inside the class is a metacharacter. This notation is sometimes used to avoid escaping (e.g.,
+<code>[.]{3}</code> to match three dots).</p>
+
