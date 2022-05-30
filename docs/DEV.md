@@ -164,8 +164,8 @@ to update the expected issues.
 
 ### Release on Peach
 
-1. add branch prefixed with `dogfood/` such as: https://github.com/SonarSource/sonar-cpp/blob/master/docs/Testing.adoc#dogfood-branch
-2. wait for after 19:00 CET and check: Peaches>Rules>Typescript+name-of-rule as https://peach.sonarsource.com/coding_rules?languages=ts&open=typescript%3AS6425&q=import
+1. Add branch prefixed with `dogfood/` such as: https://github.com/SonarSource/sonar-cpp/blob/master/docs/Testing.adoc#dogfood-branch
+2. Wait for after 19:00 CET and check: Peaches>Rules>Typescript+name-of-rule as https://peach.sonarsource.com/coding_rules?languages=ts&open=typescript%3AS6425&q=import
 3. Or run it manually as described: https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management
 
 ## Inspirations:
