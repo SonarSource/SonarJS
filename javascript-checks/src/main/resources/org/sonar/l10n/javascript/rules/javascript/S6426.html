@@ -1,14 +1,13 @@
-<p>Testing frameworks Mocha and Jest provide a way to run a single test case for a file using the function <code>.only()</code>. This is convenient
-when debugging a specific use case. It makes no sense having it in production or development, but it appears there when cleanup is forgotten after
-such a debugging session.</p>
-<p>It is therefore strongly recommended to not commit usages of <code>.only()</code> to version control.</p>
+<p>Testing frameworks like Mocha and Jest provide a way to run a single test case for a file by appending <code>.only()</code> to the test function.
+This is convenient when debugging a specific use case. It makes, however, no sense to have it in production or development, and it was likely left by
+mistake after such a debugging session. Therefore, it is strongly recommended not to commit usages of <code>.only()</code> to version control.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 describe("MyClass", function () {
     it.only("should run correctly", function () {
         /*...*/
     });
-});;
+});
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
@@ -16,7 +15,7 @@ describe("MyClass", function () {
     it("should run correctly", function () {
         /*...*/
     });
-});;
+});
 </pre>
 <h2>See</h2>
 <ul>

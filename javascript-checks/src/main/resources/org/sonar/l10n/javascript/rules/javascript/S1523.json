@@ -24,6 +24,12 @@
     ],
     "OWASP Top 10 2021": [
       "A3"
+    ],
+    "PCI DSS 3.2": [
+      "6.5.1"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
     ]
   },
   "compatibleLanguages": [
