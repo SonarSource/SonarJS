@@ -53,11 +53,11 @@ mvn clean install
 
 This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking SonarQube UI (use DEBUG mode and put a breakpoint on assertion) at the end of analysis. If everything looks good to you, you can copy the file with the actual issues located at
 ```
-sonar-javascript/its/ruling/target/actual/
+its/ruling/target/actual/
 ``` 
 into the directory with the expected issues
 ```
-sonar-javascript/its/ruling/src/test/resources/expected/
+its/ruling/src/test/resources/expected/
 ```
 
 ## Adding a rule
