@@ -139,18 +139,19 @@ If you run into issues when [running them](#ruling-tests), such as `{"errors":[{
 #### View code smells
 
 1. In `its/ruling`, run `diff -rq src/test/expected/js target/actual/js`.
-2. For each file (should be `javascript-S1234.json`), copy its name, find it using VScode finder (CMD+P)
+2. For each line (should be `javascript-S1234.json`), copy its name, find it using VScode finder (CMD+P)
 3. Find the file that is mentioned using the VScode finder, and assess if the flag was legitimate
+
 #### View code smells in Sonarqube
 
 If there are too many new issues flagged, it might be easier to view them through Sonarqube:
 
 In the file `its/rulings/src/test/java/org/sonar/javascript/it/{Java/TypeScriptRulingTest.java}`
-1. Add a breakpoint at the end of `runRulingTest()`, on line `assertThat(new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)).isEmpty();`
-2. launch rulings by right-clicking left of the class declaration and selecting `Run debug`.
-3. find PORT, searching for following line in `DEBUG CONSOLE`: `INFO: ANALYSIS SUCCESSFUL, you can find the results at: http://127.0.0.1:53583/dashboard?id=ag-grid`
-4. open in browser
-5. Look
+1. Add a breakpoint at the end of `runRulingTest()`, on line: `assertThat(...)`
+2. Launch rulings by right-clicking left of the class declaration and selecting `Run debug`.
+3. Find PORT, searching for following string in `DEBUG CONSOLE`: `ANALYSIS SUCCESSFUL`
+4. Open in browser
+5. Evaluate
 
 #### Update expected ruling errors
 
