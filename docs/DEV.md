@@ -96,7 +96,9 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 6. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts`
    1. Write up your coding examples into [AST explorer](https://astexplorer.net/)
    2. Figure out the structure that you are looking for and implement the rule following [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
-   3. Use the helper functions from `eslint-bridge/src/utils/`
+   3. Use `meta.messages` and refer to it by `messageId`.
+   4. Reuse message from Rspec if such one is defined [as in S4036](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message)
+   5. Use the helper functions from `eslint-bridge/src/utils/`
 7. (from scratch only) Implement comment-based tests in `eslint-bridge/tests/rules/fixtures/your-rule.js`. See [comment-based testing](#comment-based-testing).
 8. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`.
    1. Ref.: [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester)
