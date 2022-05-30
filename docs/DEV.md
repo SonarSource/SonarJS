@@ -94,7 +94,7 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
    1. `import { rule as yourRule } from './your-rule';`
    2. `ruleModules['your-rule'] = yourRule;`
 6. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts`
-   1. Write up your coding examples into [AST explorer](https://astexplorer.net/)
+   1. Write up your coding examples into [AST explorer](https://astexplorer.net/). You should use the `regexpp` parser when implementing a Regex rule.
    2. Figure out the structure that you are looking for and implement the rule following [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
    3. Use `meta.messages` and refer to it by `messageId`.
    4. Reuse message from Rspec if such one is defined [as in S4036](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message)
