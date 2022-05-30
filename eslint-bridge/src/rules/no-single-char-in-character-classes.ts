@@ -22,22 +22,17 @@
 // based on S5869
 
 import { Rule } from 'eslint';
-import { CharacterClass, Flags, RegExpLiteral } from 'regexpp/ast';
-import { ElementFlags } from 'typescript';
-import { getRegexpLocation, SimplifiedRegexCharacterClass, toEncodedMessage } from '../utils';
+import { CharacterClass } from 'regexpp/ast';
 import { createRegExpRule } from './regex-rule-template';
 
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-    let flags: Flags;
     return {
-        onRegExpLiteralEnter: (node: RegExpLiteral) => {
-          flags = node.flags;
-        },
         onCharacterClassEnter: (node: CharacterClass) => {
           if (node.raw.length <= 3) {
             context.reportRegExpNode({
-              messageId: 'issue',
+              //messageId: 'issue',
+              message: 'Replace this character class by the character itself.',
               node: context.node,
               regexpNode: node,
             });

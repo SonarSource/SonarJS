@@ -6,7 +6,7 @@ let valid = [
   
 let invalid = [
     {
-        code: /a[b]d/, // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
+        code: /a[b]d/, // Noncompliant {{Replace this character class by the character itself.}}
         //      ^^^
     }    
 ];
