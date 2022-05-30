@@ -89,21 +89,22 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
          "TYPESCRIPT"
        ]
       ```
-4. (from scratch only) in `eslint-bridge/src/rules/main.ts`, add your rule import like:
+4. (Reusing ESlint only) See [Reusing ESlint rule](#reusing-rule-from-eslint).
+5. (from scratch only) in `eslint-bridge/src/rules/main.ts`, add your rule import like:
    1. `import { rule as yourRule } from './your-rule';`
    2. `ruleModules['your-rule'] = yourRule;`
-5. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts`
+6. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts`
    1. Write up your coding examples into [AST explorer](https://astexplorer.net/)
    2. Figure out the structure that you are looking for and implement the rule following [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
    3. Use the helper functions from `eslint-bridge/src/utils/`
-6. (from scratch only) Implement comment-based tests in `eslint-bridge/tests/rules/fixtures/your-rule.js`. See [comment-based testing](#comment-based-testing).
-7. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`.
+7. (from scratch only) Implement comment-based tests in `eslint-bridge/tests/rules/fixtures/your-rule.js`. See [comment-based testing](#comment-based-testing).
+8. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`.
    1. Ref.: [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester)
    2. We use the ESlint rule tester for quickfixes, as our comment-based one does not support them yet.
-8. You will need to verify how your new rule will behave by running it on "rulings" which are a subset of [Peach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management). See [Rulings](#rulings).
-9.  You might want to checkout how your rule runs on Peach, see [release on Peach](#release-on-peach).
-10. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on Next, Fix eventual smells and push the coverage to 100%
-11. Once you are done implementing the rule, update the rspec-generated files (your rspec must be merged to master), using rule-api
+9. You will need to verify how your new rule will behave by running it on "rulings" which are a subset of [Peach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management). See [Rulings](#rulings).
+10.  You might want to checkout how your rule runs on Peach, see [release on Peach](#release-on-peach).
+11. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on Next, Fix eventual smells and push the coverage to 100%
+12. Once you are done implementing the rule, update the rspec-generated files (your rspec must be merged to master), using rule-api
 
 #### Comment-based testing
 
