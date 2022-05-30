@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
             context,
             node.arguments as estree.Expression[],
           );
-          if (sensitiveArg != null) {
+          if (sensitiveArg !== null) {
             context.report({
               messageId: 'issue',
               node: sensitiveArg,
