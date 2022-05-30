@@ -1,5 +1,5 @@
 const cp = require('child_process');
-cp.exec('file.exe');  // Noncompliant {{Searching OS commands in PATH is security-sensitive.}}
+cp.exec('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //      ^^^^^^^^^^
 cp.execSync('file.exe');  // Noncompliant
 //          ^^^^^^^^^^
