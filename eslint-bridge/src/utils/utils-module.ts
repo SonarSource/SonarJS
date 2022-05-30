@@ -98,14 +98,19 @@ export function getModuleNameOfImportedIdentifier(
   if (importedDeclaration) {
     return importedDeclaration.source;
   }
-  // check if importing using `const f = require('module_name').f`
+  // check if importing using `const f = require('module_name').f` or `const { f } = require('module_name')`
   const writeExpression = getUniqueWriteUsage(context, identifier.name);
-  if (
-    writeExpression &&
-    writeExpression.type === 'MemberExpression' &&
-    isIdentifier(writeExpression.property, identifier.name)
-  ) {
-    return getModuleNameFromRequire(writeExpression.object);
+  if (writeExpression) {
+    let maybeRequireCall: estree.Node;
+    if (
+      writeExpression.type === 'MemberExpression' &&
+      isIdentifier(writeExpression.property, identifier.name)
+    ) {
+      maybeRequireCall = writeExpression.object;
+    } else {
+      maybeRequireCall = writeExpression;
+    }
+    return getModuleNameFromRequire(maybeRequireCall);
   }
 
   return undefined;

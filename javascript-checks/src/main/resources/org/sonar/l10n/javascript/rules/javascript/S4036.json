@@ -1,0 +1,33 @@
+{
+  "title": "Searching OS commands in PATH is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a1"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4036",
+  "sqKey": "S4036",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      427,
+      426
+    ],
+    "OWASP": [
+      "A1"
+    ],
+    "OWASP Top 10 2021": [
+      "A8"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
