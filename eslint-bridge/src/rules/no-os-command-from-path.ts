@@ -34,7 +34,7 @@ const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      issue: 'Searching OS commands in PATH is security-sensitive.',
+      issue: 'Make sure the "PATH" used to find this command includes only what you intend.',
     },
   },
   create(context: Rule.RuleContext) {
