@@ -2,6 +2,45 @@ let valid = [
     {
         code: /a[bc]d/,
     },
+    {
+        code: /[0-1]/,
+    },
+    {
+        code: /[^abc]/,
+    },
+    {
+        code: /[^a]/,
+    },
+    {
+        code: /[[]/,
+    },
+    {
+        code: /[{]/,
+    },
+    {
+        code: /[(]/,
+    },
+    {
+        code: /[.]/,
+    },
+    {
+        code: /[?]/,
+    },
+    {
+        code: /[+]/,
+    },
+    {
+        code: /[*]/,
+    },
+    {
+        code: /[$]/,
+    },
+    {
+        code: /[^]/,
+    },
+    {
+        code: /[\\]/,
+    },
 ];
   
 let invalid = [
@@ -20,7 +59,6 @@ let invalid = [
     {
         code: /[1-2[3]4-5]/, // Noncompliant {{Replace this character class by the character itself.}}
         //     ^^^^^^^
-        
     },
 ];
 

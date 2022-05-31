@@ -19,20 +19,18 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6397/javascript
 
-// based on S5869
-
 import { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from 'regexpp/ast';
 import { createRegExpRule } from './regex-rule-template';
 
 const FORBIDDEN_TYPES = ['EscapeCharacterSet', 'UnicodePropertyCharacterSet', 'Character'];
-const FALSE_POSITIVES = ['['];
+const FALSE_POSITIVES = '[{(.?+*$^\\\\';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
     return {
       onCharacterClassEnter: (node: CharacterClass) => {
-        if (onlyOneIsValid(node.elements)) {
+        if (onlyOneIsValid(node.elements) && !node.negate) {
           //const [startCol, endCol] = fixLoc(node);
           context.reportRegExpNode({
             //messageId: 'issue',
