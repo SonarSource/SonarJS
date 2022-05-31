@@ -27,11 +27,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6397")
-public class NoSingleCharInCharacterClassesCheck implements EslintBasedCheck {
+public class SingleCharInCharacterClassesCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-single-char-in-character-classes";
+    return "single-char-in-character-classes";
   }
 
 }
