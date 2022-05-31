@@ -43,8 +43,8 @@ build_task:
   gke_container:
     dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
-    cpu: 15
-    memory: 24G
+    cpu: 3
+    memory: 10G
   env:
     GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
     # analysis on next
