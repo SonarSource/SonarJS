@@ -23,21 +23,21 @@ import { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from 'regexpp/ast';
 import { createRegExpRule } from './regex-rule-template';
 
-const FORBIDDEN_TYPES = ['EscapeCharacterSet', 'UnicodePropertyCharacterSet', 'Character', 'CharacterSet'];
-const FALSE_POSITIVES = '[{(.?+*$^\\\\';
+const FORBIDDEN_TYPES = [
+  'EscapeCharacterSet',
+  'UnicodePropertyCharacterSet',
+  'Character',
+  'CharacterSet',
+];
+const EXCEPTION_META_CHARACTERS = '[{(.?+*$^\\\\';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
     return {
       onCharacterClassEnter: (node: CharacterClass) => {
-        if (onlyOneIsValid(node.elements) && !node.negate) {
-          //const [startCol, endCol] = fixLoc(node);
+        if (hasSingleForbiddenNode(node.elements) && !node.negate) {
           context.reportRegExpNode({
             messageId: 'issue',
-            //loc: {
-            //    start: { column: startCol },
-            //    end: { column: endCol },
-            //},
             node: context.node,
             regexpNode: node,
           });
@@ -54,25 +54,12 @@ export const rule: Rule.RuleModule = createRegExpRule(
   },
 );
 
-/**
- * Check if there are multiple
- * 1. single one: OK
- * 2. multiple ones: only if one is valid
- */
-function onlyOneIsValid(elems: CharacterClassElement[]) {
+function hasSingleForbiddenNode(elems: CharacterClassElement[]) {
   let validOnes = 0;
   elems.forEach(elem => {
-    if (FORBIDDEN_TYPES.includes(elem.type) && !FALSE_POSITIVES.includes(elem.raw)) {
+    if (FORBIDDEN_TYPES.includes(elem.type) && !EXCEPTION_META_CHARACTERS.includes(elem.raw)) {
       validOnes++;
     }
   });
   return validOnes === 1;
 }
-
-/* function fixLoc(node: CharacterClass) {
-    if (node.end - node.start > 3) {
-        return [node.start+1, node.end];
-    } else {
-        return [node.start, node.end];
-    }
-} */
