@@ -73,7 +73,6 @@ export function createRegExpRule(
       }
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
-        
         const { node, regexpNode, offset = [0, 0] } = descriptor;
         const loc = getRegexpLocation(node, regexpNode, context, offset);
         if ('message' in descriptor) {
