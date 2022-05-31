@@ -33,8 +33,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
         if (onlyOneIsValid(node.elements) && !node.negate) {
           //const [startCol, endCol] = fixLoc(node);
           context.reportRegExpNode({
-            //messageId: 'issue',
-            message: 'Replace this character class by the character itself.',
+            messageId: 'issue',
             //loc: {
             //    start: { column: startCol },
             //    end: { column: endCol },
