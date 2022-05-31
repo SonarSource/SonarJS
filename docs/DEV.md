@@ -103,6 +103,7 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 8. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`.
    1. Ref.: [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester)
    2. We use the ESlint rule tester for quickfixes, as our comment-based one does not support them yet.
+   3. We don't support quickfixes for Regex
 9. You will need to verify how your new rule will behave by running it on "rulings" which are a subset of [Peach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management). See [Rulings](#rulings).
 10.  You might want to checkout how your rule runs on Peach, see [release on Peach](#release-on-peach).
 11. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on Next, Fix eventual smells and push the coverage to 100%
