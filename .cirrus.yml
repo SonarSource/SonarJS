@@ -1,4 +1,4 @@
-gcp_credentials: ENCRYPTED[!149d4005ecdba4cdd78bb5ba22756ebb98bf8e3367ee2e9ab08c5a1608c0d3e3b501904b67a1d67c0b63085e469d7dde!]
+gcp_credentials: ENCRYPTED[2b1a0b976ff4f99f077bb53b65d4bbdcff864fa8095624de329d625ab272555e16c65a2d8b16356a81b13d595c636e37]
  
 env:
   ARTIFACTORY_URL: ENCRYPTED[!2f8fa307d3289faa0aa6791f18b961627ae44f1ef46b136e1a1e63b0b4c86454dbb25520d49b339e2d50a1e1e5f95c88!]
@@ -17,8 +17,8 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  builder_image_project: release-engineering-ci-prod
-  builder_image_name: family/docker-builder
+  builder_image_project: release-engineering-ci-staging
+  builder_image_name: family/pr-87-docker-builder
   cluster_name: cirrus-ci
   zone: europe-west4-b
   namespace: default
@@ -26,8 +26,8 @@ container_definition: &CONTAINER_DEFINITION
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
-    image_project: release-engineering-ci-prod
-    image_family: lt-base-windows-jdk11
+    image_project: release-engineering-ci-staging
+    image_family: pr-87-lt-base-windows-jdk11
     platform: windows
     zone: europe-west4-b
     preemptible: false

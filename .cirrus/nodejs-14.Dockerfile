@@ -1,4 +1,4 @@
-FROM eu.gcr.io/release-engineering-ci-prod/base:j11-latest
+FROM eu.gcr.io/release-engineering-ci-staging/base:j11-latest-PR87
 
 USER root
 
