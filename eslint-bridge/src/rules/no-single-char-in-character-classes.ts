@@ -22,29 +22,60 @@
 // based on S5869
 
 import { Rule } from 'eslint';
-import { CharacterClass } from 'regexpp/ast';
+import { CharacterClass, CharacterClassElement } from 'regexpp/ast';
 import { createRegExpRule } from './regex-rule-template';
 
+const FORBIDDEN_TYPES = ['EscapeCharacterSet', 'UnicodePropertyCharacterSet', 'Character'];
+const FALSE_POSITIVES = ['['];
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
     return {
-        onCharacterClassEnter: (node: CharacterClass) => {
-          if (node.raw.length <= 3) {
-            context.reportRegExpNode({
-              //messageId: 'issue',
-              message: 'Replace this character class by the character itself.',
-              node: context.node,
-              regexpNode: node,
-            });
-          }
-        },
-      };
-
-  
-}, {
-    meta: {
-        messages: {
-            issue: 'Replace this character class by the character itself.'
+      onCharacterClassEnter: (node: CharacterClass) => {
+        if (onlyOneIsValid(node.elements)) {
+          //const [startCol, endCol] = fixLoc(node);
+          context.reportRegExpNode({
+            //messageId: 'issue',
+            message: 'Replace this character class by the character itself.',
+            //loc: {
+            //    start: { column: startCol },
+            //    end: { column: endCol },
+            //},
+            node: context.node,
+            regexpNode: node,
+          });
         }
+      },
+    };
+  },
+  {
+    meta: {
+      messages: {
+        issue: 'Replace this character class by the character itself.',
+      },
+    },
+  },
+);
+
+/**
+ * Check if there are multiple
+ * 1. single one: OK
+ * 2. multiple ones: only if one is valid
+ */
+function onlyOneIsValid(elems: CharacterClassElement[]) {
+  let validOnes = 0;
+  elems.forEach(elem => {
+    if (FORBIDDEN_TYPES.includes(elem.type) && !FALSE_POSITIVES.includes(elem.raw)) {
+      validOnes++;
     }
-});
+  });
+  return validOnes === 1;
+}
+
+/* function fixLoc(node: CharacterClass) {
+    if (node.end - node.start > 3) {
+        return [node.start+1, node.end];
+    } else {
+        return [node.start, node.end];
+    }
+} */

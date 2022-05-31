@@ -15,11 +15,12 @@ let invalid = [
     },
     {
         code: /[[a]]/, // Noncompliant {{Replace this character class by the character itself.}}
-        //      ^^^
+        //     ^^^^
     },
     {
         code: /[1-2[3]4-5]/, // Noncompliant {{Replace this character class by the character itself.}}
-        //         ^^^
+        //     ^^^^^^^
+        
     },
 ];
 
