@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from 'regexpp/ast';
 import { createRegExpRule } from './regex-rule-template';
 
-const FORBIDDEN_TYPES = ['EscapeCharacterSet', 'UnicodePropertyCharacterSet', 'Character'];
+const FORBIDDEN_TYPES = ['EscapeCharacterSet', 'UnicodePropertyCharacterSet', 'Character', 'CharacterSet'];
 const FALSE_POSITIVES = '[{(.?+*$^\\\\';
 
 export const rule: Rule.RuleModule = createRegExpRule(
