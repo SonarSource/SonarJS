@@ -41,6 +41,12 @@ let valid = [
     {
         code: /[\\]/,
     },
+    {
+        code: /[$\w]/,
+    },
+    { 
+        code: /[1-2[3]4-5]/,
+    },
 ];
   
 let invalid = [
@@ -51,10 +57,6 @@ let invalid = [
     {
         code: /[0]/, // Noncompliant
         //     ^^^
-    },
-    { // multiple levels of character classes are incorrectly handled by NodeJS, we leave this example to show this.
-        code: /[1-2[3]4-5]/, // Noncompliant
-        //     ^^^^^^^
     },
     {
         code: /[\w]/, // Noncompliant

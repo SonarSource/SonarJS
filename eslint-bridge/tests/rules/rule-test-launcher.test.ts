@@ -57,6 +57,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     }
     describe(`Running tests for rule ${rule}`, () => {
       files.forEach(filename => {
+        if (! filename.includes('single-char')) return;
         const code = readFileSync(filename, { encoding: 'utf8' });
         const tests = {
           valid: [],

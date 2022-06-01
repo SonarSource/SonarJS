@@ -55,11 +55,14 @@ export const rule: Rule.RuleModule = createRegExpRule(
 );
 
 function hasSingleForbiddenNode(elems: CharacterClassElement[]) {
-  let validOnes = 0;
-  elems.forEach(elem => {
-    if (FORBIDDEN_TYPES.includes(elem.type) && !EXCEPTION_META_CHARACTERS.includes(elem.raw)) {
-      validOnes++;
-    }
-  });
-  return validOnes === 1;
+  if (elems.length !== 1) {
+    return false;
+  }
+  if (
+    FORBIDDEN_TYPES.includes(elems[0].type) &&
+    !EXCEPTION_META_CHARACTERS.includes(elems[0].raw)
+  ) {
+    return true;
+  }
+  return false;
 }
