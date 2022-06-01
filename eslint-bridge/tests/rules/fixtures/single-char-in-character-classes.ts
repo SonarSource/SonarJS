@@ -62,6 +62,10 @@ let invalid = [
         code: /[\w]/, // Noncompliant
         //     ^^^^
     },
+    {
+        code: /[\u2028]/, // Noncompliant
+        //     ^^^^^^^^
+    },
 ];
 
   
