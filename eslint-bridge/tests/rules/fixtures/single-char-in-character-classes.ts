@@ -66,6 +66,10 @@ let invalid = [
         regex: /[\u2028]/, // Noncompliant
         //      ^^^^^^^^
     },
+    {
+        regex: /[\^]/ // Noncompliant
+        //      ^^^^
+    }
 ];
 
   
