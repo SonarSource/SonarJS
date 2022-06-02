@@ -1,69 +1,69 @@
 let valid = [
     {
-        code: /a[bc]d/,
+        regex: /a[bc]d/,
     },
     {
-        code: /[0-1]/,
+        regex: /[0-1]/,
     },
     {
-        code: /[^abc]/,
+        regex: /[^abc]/,
     },
     {
-        code: /[^a]/,
+        regex: /[^a]/,
     },
     {
-        code: /[[]/,
+        regex: /[[]/,
     },
     {
-        code: /[{]/,
+        regex: /[{]/,
     },
     {
-        code: /[(]/,
+        regex: /[(]/,
     },
     {
-        code: /[.]/,
+        regex: /[.]/,
     },
     {
-        code: /[?]/,
+        regex: /[?]/,
     },
     {
-        code: /[+]/,
+        regex: /[+]/,
     },
     {
-        code: /[*]/,
+        regex: /[*]/,
     },
     {
-        code: /[$]/,
+        regex: /[$]/,
     },
     {
-        code: /[^]/,
+        regex: /[^]/,
     },
     {
-        code: /[\\]/,
+        regex: /[\\]/,
     },
     {
-        code: /[$\w]/,
+        regex: /[$\w]/,
     },
     { 
-        code: /[1-2[3]4-5]/,
+        regex: /[1-2[3]4-5]/,
     },
 ];
   
 let invalid = [
     {
-        code: /a[b]d/, // Noncompliant {{Replace this character class by the character itself.}}
+        regex: /a[b]d/, // Noncompliant {{Replace this character class by the character itself.}}
         //      ^^^
     },
     {
-        code: /[0]/, // Noncompliant
+        regex: /[0]/, // Noncompliant
         //     ^^^
     },
     {
-        code: /[\w]/, // Noncompliant
+        regex: /[\w]/, // Noncompliant
         //     ^^^^
     },
     {
-        code: /[\u2028]/, // Noncompliant
+        regex: /[\u2028]/, // Noncompliant
         //     ^^^^^^^^
     },
 ];
