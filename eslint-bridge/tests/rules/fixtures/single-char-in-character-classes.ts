@@ -52,19 +52,19 @@ let valid = [
 let invalid = [
     {
         regex: /a[b]d/, // Noncompliant {{Replace this character class by the character itself.}}
-        //      ^^^
+        //       ^^^
     },
     {
         regex: /[0]/, // Noncompliant
-        //     ^^^
+        //      ^^^
     },
     {
         regex: /[\w]/, // Noncompliant
-        //     ^^^^
+        //      ^^^^
     },
     {
         regex: /[\u2028]/, // Noncompliant
-        //     ^^^^^^^^
+        //      ^^^^^^^^
     },
 ];
 
