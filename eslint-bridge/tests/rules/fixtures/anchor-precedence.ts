@@ -1,55 +1,55 @@
 let valid = [
   {
-    code: /^(?:a|b|c)$/,
+    regex: /^(?:a|b|c)$/,
   },
   {
-    code: /(?:^a)|b|(?:c$)/,
+    regex: /(?:^a)|b|(?:c$)/,
   },
   {
-    code: /^abc$/,
+    regex: /^abc$/,
   },
   {
-    code: /a|b|c/,
+    regex: /a|b|c/,
   },
   {
-    code: /^a$|^b$|^c$/,
+    regex: /^a$|^b$|^c$/,
   },
   {
-    code: /^a$|b|c/,
+    regex: /^a$|b|c/,
   },
   {
-    code: /a|b|^c$/,
+    regex: /a|b|^c$/,
   },
   {
-    code: /^a|^b$|c$/,
+    regex: /^a|^b$|c$/,
   },
   {
-    code: /^a|^b|c$/,
+    regex: /^a|^b|c$/,
   },
   {
-    code: /^a|b$|c$/,
+    regex: /^a|b$|c$/,
   },
   {
-    code: /^a|^b|c/, // More likely intential as there are multiple anchored alternatives
+    regex: /^a|^b|c/, // More likely intential as there are multiple anchored alternatives
   },
   {
-    code: /aa|bb|cc/,
+    regex: /aa|bb|cc/,
   },
   {
-    code: /^/,
+    regex: /^/,
   },
   {
-    code: /^[abc]$/,
+    regex: /^[abc]$/,
   },
   {
-    code: /|/,
+    regex: /|/,
   },
 ];
 
 let invalid = [
   {
-    code: /^a|b|c$/, // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
-    //     ^^^^^^^
+    regex: /^a|b|c$/, // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
+    //      ^^^^^^^
     errors: [
       {
         message:
@@ -62,23 +62,23 @@ let invalid = [
     ],
   },
   {
-    code: /^a|b|cd/, // Noncompliant
-    //     ^^^^^^^
+    regex: /^a|b|cd/, // Noncompliant
+    //      ^^^^^^^
     errors: 1,
   },
   {
-    code: /a|b|c$/, // Noncompliant
-    //     ^^^^^^
+    regex: /a|b|c$/, // Noncompliant
+    //      ^^^^^^
     errors: 1,
   },
   {
-    code: /^a|(b|c)/, // Noncompliant
-    //     ^^^^^^^^
+    regex: /^a|(b|c)/, // Noncompliant
+    //      ^^^^^^^^
     errors: 1,
   },
   {
-    code: /(a|b)|c$/, // Noncompliant
-    //     ^^^^^^^^
+    regex: /(a|b)|c$/, // Noncompliant
+    //      ^^^^^^^^
     errors: 1,
   },
 ];
