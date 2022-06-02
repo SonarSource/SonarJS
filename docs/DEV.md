@@ -75,6 +75,8 @@ Load the files from [Rspec](https://github.com/SonarSource/rspec#4-implement-the
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
 ```
 
+When naming your rule, avoid using "No" at the beginning as it is implicit.
+
 1. Create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/YourRuleCheck.java`
    1. Add `@JavaScriptRule` and/or `@TypeScriptRule`
    2. Add rule id as `@Rule(key="S1234")`
@@ -99,6 +101,7 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
    3. Use `meta.messages` and refer to it by `messageId`.
    4. Reuse message from Rspec if such one is defined [as in S4036](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message)
    5. Use the helper functions from `eslint-bridge/src/utils/`
+   6. If writing a regex rule, use `[createRegExpRule](https://github.com/SonarSource/SonarJS/blob/6798d21cd9fec8da929334460b364d548b0a608c/eslint-bridge/src/rules/regex-rule-template.ts#L53)`.
 7. (from scratch only) Implement comment-based tests in `eslint-bridge/tests/rules/fixtures/your-rule.js`. See [comment-based testing](#comment-based-testing).
 8. (from scratch only) If applicable, implement quickfix tests in `eslint-bridge/tests/rules/your-rule.test.ts`.
    1. Ref.: [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester)
