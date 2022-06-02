@@ -142,7 +142,7 @@ Rulings run against the latest build of your project. If you have worked in `esl
 
 If you run into issues when [running them](#ruling-tests), such as `{"errors":[{"msg":"A rule with the key \u0027CommentRegexTest\u0027 already exists"}]}`, you can run the rulings separately (JS, TS, CSS) following the [View code smells in Sonarqube guide](#view-code-smells-in-sonarqube) without the breakpoints and selecting `Run test`.
 
-#### View code smells
+#### View code smells locally
 
 1. In `its/ruling`, run `diff -rq src/test/expected/js target/actual/js`.
 2. For each line (should be `javascript-S1234.json`), copy its name, find it using VScode finder (CMD+P)
@@ -158,6 +158,14 @@ In the file `its/rulings/src/test/java/org/sonar/javascript/it/{Java/TypeScriptR
 3. Find PORT, searching for following string in `DEBUG CONSOLE`: `ANALYSIS SUCCESSFUL`
 4. Open in browser
 5. Evaluate
+
+#### Write your own rulings
+
+If your rule does not raise any issue, you should write your own code that triggers your rule in:
+- `its/sources/file-for-rules/S1234.js` for code
+- `its/sources/file-for-rules/tests/S1234.js` for test code
+
+You can simply copy and paste compliant and non-compliant examples from your Rspec.
 
 #### Update expected ruling errors
 
