@@ -110,7 +110,6 @@ When naming your rule, avoid using "No" at the beginning as it is implicit.
 9. You will need to verify how your new rule will behave by running it on "rulings" which are a subset of [Peach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management). See [Rulings](#rulings).
 10.  You might want to checkout how your rule runs on Peach, see [release on Peach](#release-on-peach).
 11. When you have opened a PR and pushed some data, if the project builds, you will get an automatic analysis on Next, Fix eventual smells and push the coverage to 100%
-12. Once you are done implementing the rule, update the rspec-generated files (your rspec must be merged to master), using rule-api
 
 #### Comment-based testing
 
@@ -175,6 +174,13 @@ to update the expected issues.
 2. Wait for after 19:00 CET and check: Peaches>Rules>Typescript+name-of-rule as https://peach.sonarsource.com/coding_rules?languages=ts&open=typescript%3AS6425&q=import
 3. Or run it manually as described: https://xtranet-sonarsource.atlassian.net/wiki/spaces/LANG/pages/271352055/Peach+management
 
+#### Review security hotspot flagging
+
+1. Go to projects, select: languages=ts or js
+2. Go through all projects that were recently analzed, by checking the “last analysis” timestamp
+3. Go to: new code/new security hotspots
+4. Look for your rule searching by rspec message
+5. Ensure that it behaves as expected	
 ## Inspirations:
 
 - Security Hotspot implemented from scratch: [S4036](https://github.com/SonarSource/SonarJS/pull/3148)
