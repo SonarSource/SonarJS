@@ -70,17 +70,14 @@ build_task:
 
 
 build_win_task:
-  depends_on:
-    - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   maven_cache:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   build_script:
-    - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - mvn test
+    - mvn.cmd -s /c/buildTools-docker/mvn/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
