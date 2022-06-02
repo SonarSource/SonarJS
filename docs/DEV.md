@@ -177,6 +177,6 @@ to update the expected issues.
 
 ## Inspirations:
 
-- Rule implemented from scratch: [S4036](https://github.com/SonarSource/SonarJS/pull/3148)
-- Rule implemented from scratch, with quickfix: [S6426](https://github.com/SonarSource/SonarJS/pull/3141)
+- Security Hotspot implemented from scratch: [S4036](https://github.com/SonarSource/SonarJS/pull/3148)
+- Code smell implemented from scratch, with quickfix: [S6426](https://github.com/SonarSource/SonarJS/pull/3141)
 - Rule reusing ESlint impementation: [S6425](https://github.com/SonarSource/SonarJS/pull/3134)
