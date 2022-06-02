@@ -55,7 +55,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
 );
 
 function hasSingleForbiddenCharacter(elems: CharacterClassElement[]) {
-  return elems.length === 1 &&
+  return (
+    elems.length === 1 &&
     FORBIDDEN_TYPES.includes(elems[0].type) &&
-    !EXCEPTION_META_CHARACTERS.includes(elems[0].raw);
+    !EXCEPTION_META_CHARACTERS.includes(elems[0].raw)
+  );
 }
