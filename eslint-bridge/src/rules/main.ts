@@ -142,7 +142,7 @@ import { rule as noReferrerPolicy } from './no-referrer-policy';
 import { rule as noRequireOrDefine } from './no-require-or-define';
 import { rule as noReturnTypeAny } from './no-return-type-any';
 import { rule as noSameArgumentAssert } from './no-same-argument-assert';
-import { rule as SingleCharInCharacterClassesCheck } from './single-char-in-character-classes';
+import { rule as singleCharInCharacterClasses } from './single-char-in-character-classes';
 import { rule as noTab } from './no-tab';
 import { rule as noTryPromise } from './no-try-promise';
 import { rule as noUndefinedArgument } from './no-undefined-argument';
