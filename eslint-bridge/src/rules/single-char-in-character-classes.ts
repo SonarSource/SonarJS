@@ -35,7 +35,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
   context => {
     return {
       onCharacterClassEnter: (node: CharacterClass) => {
-        if (hasSingleForbiddenNode(node.elements) && !node.negate) {
+        if (hasSingleForbiddenCharacter(node.elements) && !node.negate) {
           context.reportRegExpNode({
             messageId: 'issue',
             node: context.node,
@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
   },
 );
 
-function hasSingleForbiddenNode(elems: CharacterClassElement[]) {
+function hasSingleForbiddenCharacter(elems: CharacterClassElement[]) {
   return elems.length === 1 &&
     FORBIDDEN_TYPES.includes(elems[0].type) &&
     !EXCEPTION_META_CHARACTERS.includes(elems[0].raw);
