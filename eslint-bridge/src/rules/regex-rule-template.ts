@@ -37,12 +37,13 @@ export type RegexRuleContext = Rule.RuleContext & {
   reportRegExpNode: (descriptor: RegexReportDescriptor) => void;
 };
 
-type RegexReportDescriptor = {
-  message: string;
+type RegexReportMessage = { message: string } | { messageId: string };
+type RegexReportData = {
   regexpNode: regexpp.AST.Node;
   node: estree.Node;
   offset?: [number, number];
 };
+type RegexReportDescriptor = RegexReportData & RegexReportMessage;
 
 /**
  * Rule template to create regex rules.
@@ -72,9 +73,13 @@ export function createRegExpRule(
       }
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
-        const { node, regexpNode, message, offset = [0, 0] } = descriptor;
+        const { node, regexpNode, offset = [0, 0] } = descriptor;
         const loc = getRegexpLocation(node, regexpNode, context, offset);
-        context.report({ message, loc });
+        if ('message' in descriptor) {
+          context.report({ message: descriptor.message, loc });
+        } else if ('messageId' in descriptor) {
+          context.report({ messageId: descriptor.messageId, loc });
+        }
       }
 
       function checkLiteral(literal: estree.Literal) {

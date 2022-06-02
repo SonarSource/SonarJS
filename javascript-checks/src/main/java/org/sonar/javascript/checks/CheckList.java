@@ -282,6 +282,7 @@ public final class CheckList {
       SessionRegenerationCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
       SingleCharacterAlternativeCheck.class,
+      SingleCharInCharacterClassesCheck.class,
       SlowRegexCheck.class,
       SocketsCheck.class,
       SonarNoInvalidRegexCheck.class,
