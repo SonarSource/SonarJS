@@ -1,0 +1,24 @@
+<p>The <code>typeof</code> operator returns a string indicating the type of its argument, and the set of returned values is limited:</p>
+<ul>
+  <li> "undefined" </li>
+  <li> "boolean" </li>
+  <li> "number" </li>
+  <li> "string" </li>
+  <li> "symbol" (since ECMAScript 2015) </li>
+  <li> "function" </li>
+  <li> "object" (for <code>null</code> and any other object) </li>
+</ul>
+<p>Compare a <code>typeof</code> expression to anything else, and the result is predefined: <code>false</code>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function someFunc(x: any): boolean {
+  return typeof x === "Number"; // Noncompliant, function will always return 'false'
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function someFunc(x: any): boolean {
+  return typeof x === "number";
+}
+</pre>
+
