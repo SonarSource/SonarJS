@@ -27,7 +27,7 @@ export class FileIssues {
 
   /**
    * Parses the file into its expected errors. Throws if error flags are not well formated.
-   * @param fileContent 
+   * @param fileContent
    */
   constructor(fileContent: string) {
     const comments = extractComments(fileContent);
