@@ -77,7 +77,7 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 
 When naming your rule, avoid using "No" at the beginning as it is implicit.
 
-1. Create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/YourRuleCheck.java`
+1. Create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/checks/YourRuleCheck.java`
    1. Add `@JavaScriptRule` and/or `@TypeScriptRule`
    2. Add rule id as `@Rule(key="S1234")`
    3. If writing a rule for test files, use `extends TestFileCheck` otherwise, use `implements EslintBasedCheck`
