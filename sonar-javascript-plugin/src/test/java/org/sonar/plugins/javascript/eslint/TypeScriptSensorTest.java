@@ -230,11 +230,11 @@ class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
     verify(eslintBridgeServerMock, never()).analyzeWithProgram(any());
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.toRealPath().resolve("wrong.json") + "'");
   }
 
-  private SensorContextTester createSensorContext(Path baseDir) {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+  private SensorContextTester createSensorContext(Path baseDir) throws IOException {
+    SensorContextTester ctx = SensorContextTester.create(baseDir.toRealPath());
     ctx.fileSystem().setWorkDir(workDir);
     return ctx;
   }
@@ -411,7 +411,7 @@ class TypeScriptSensorTest {
   }
 
   @Test
-  void should_do_nothing_when_no_tsconfig_when_analysis_with_program() {
+  void should_do_nothing_when_no_tsconfig_when_analysis_with_program() throws IOException {
     var ctx = createSensorContext(baseDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
