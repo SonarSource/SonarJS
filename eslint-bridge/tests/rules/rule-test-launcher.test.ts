@@ -29,6 +29,10 @@ import { FileType } from '../../src/analyzer';
 
 /**
  * Return test files for specific rule based on rule key
+ * Looks for files like:
+ * - fixtures/rule.ts
+ * - fixtures/rule.js
+ * - fixtures/rule/anything
  * @param rule - rule key
  */
 function testFilesForRule(rule: string): string[] {
