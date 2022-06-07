@@ -7,7 +7,7 @@
     "clear": "tsc -b src tests --clean",
     "check-format": "prettier --list-different \"{src,tests}/**/!(*.lint).ts\"",
     "test": "jest",
-    "ntest": "npm test tests/rules/rule-test-launcher.test.ts",
+    "ntest": "jest tests/rules/rule-test-launcher.test.ts",
     "format": "prettier --write \"{src,tests}/**/!(*.lint).ts\"",
     "compile": "tsc -b src tests",
     "jar": "npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes",
