@@ -21,11 +21,9 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
-@TypeScriptRule
 @Rule(key = "S4125")
 public class ValidTypeOfCheck implements EslintBasedCheck {
 
