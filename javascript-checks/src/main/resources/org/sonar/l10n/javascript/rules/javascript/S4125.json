@@ -13,7 +13,5 @@
   "scope": "All",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "JAVASCRIPT"  ]
 }
