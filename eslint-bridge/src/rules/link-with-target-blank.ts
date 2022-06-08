@@ -31,14 +31,14 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-            context.report({
-              messageId: 'issue',
-              node,
-            });
-          
-        
+        if (true) {
+          return;
+        }
+        context.report({
+          messageId: 'issue',
+          node,
+        });
       },
     };
   },
 };
-
