@@ -62,7 +62,7 @@ function isMissingRequiredOption(argument: estree.Node) {
   if (!isStringLiteral(argument)) {
     return false;
   }
-  return ! argument.value?.includes(REQUIRED_OPTION);
+  return !argument.value?.includes(REQUIRED_OPTION);
 }
 
 function isUrl(argument: estree.Node): boolean {
