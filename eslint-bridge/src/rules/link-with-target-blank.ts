@@ -21,6 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { URL } from 'url';
+import { isIdentifier, isMethodCall, isStringLiteral } from '../utils';
+
+const REQUIRED_OPTION = 'noopener';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -31,14 +35,44 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        if (true) {
+        if (!isMethodCall(node)) {
           return;
         }
-        context.report({
-          messageId: 'issue',
-          node,
-        });
+        const { property, object } = node.callee;
+
+        if (!(isIdentifier(property, 'open') && isIdentifier(object, 'window'))) {
+          return;
+        }
+        const args = node.arguments;
+        if (args.length > 0 && !isUrl(args[0])) {
+          return;
+        }
+        if (args.length < 3 || isMissingRequiredOption(args[2])) {
+          context.report({
+            messageId: 'issue',
+            node: property,
+          });
+        }
       },
     };
   },
 };
+
+function isMissingRequiredOption(argument: estree.Node) {
+  if (!isStringLiteral(argument)) {
+    return false;
+  }
+  return argument.value?.includes(REQUIRED_OPTION);
+}
+
+function isUrl(argument: estree.Node): boolean {
+  if (!isStringLiteral(argument)) {
+    return false;
+  }
+  try {
+    new URL(argument.value);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
