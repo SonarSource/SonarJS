@@ -45,7 +45,7 @@ export function extractComments(fileContent: string): Comment[] {
   const comments: Comment[] = [];
   const lines = fileContent.split('\n');
   for (const [index, line] of lines.entries()) {
-    const commentPosition = line.indexOf(LINE_COMMENT);
+    const commentPosition = line.lastIndexOf(LINE_COMMENT);
     if (commentPosition !== -1) {
       const column = commentPosition + LINE_COMMENT.length;
       const value = line.substring(column);
