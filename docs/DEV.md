@@ -22,6 +22,19 @@ To build the plugin and run its unit tests, execute this command from the projec
 mvn clean install
 ```
 
+#### Comment-based tests
+
+We implemented a framework to write unit tests for rules using a more readable format:
+
+```javascript
+crypto.createHash('sha1'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+//     ^^^^^^^^^^
+```
+
+These tests are implemented in [tests/rules/fixtures](../eslint-bridge/tests/rules/fixtures/)
+
+- You can run a single one using: `npm run ctest -- -t="your-rule"` (the `--` double dash is necessary)
+
 ### Integration Tests
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```
