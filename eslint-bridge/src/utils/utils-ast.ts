@@ -128,12 +128,24 @@ export function isFunctionInvocation(
   );
 }
 
+/**
+ * Tests if the provided node is like foo(a,b,...)
+ *
+ * @param node
+ * @returns
+ */
 export function isFunctionCall(
   node: estree.Node,
 ): node is estree.CallExpression & { callee: estree.Identifier } {
   return node.type === 'CallExpression' && node.callee.type === 'Identifier';
 }
 
+/**
+ * Tests if a CallExpression is like foo.bar(a,b,...)
+ *
+ * @param callExpr
+ * @returns
+ */
 export function isMethodCall(callExpr: estree.CallExpression): callExpr is estree.CallExpression & {
   callee: estree.MemberExpression & { property: estree.Identifier };
 } {
@@ -472,11 +484,11 @@ export function checkSensitiveCall(
 }
 
 export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
-  return node && node.type === 'Literal' && typeof node.value === 'string';
+  return isLiteral(node) && typeof node.value === 'string';
 }
 
 export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
-  return node && node.type === 'Literal' && typeof node.value === 'number';
+  return isLiteral(node) && typeof node.value === 'number';
 }
 
 export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral {
