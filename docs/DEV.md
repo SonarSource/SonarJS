@@ -1,14 +1,15 @@
 # Development
 
-This document describes setup your project environment locally and contribute to it by implementing new rules and their tests.
+This document describes how to setup your project environment locally and contribute to it by implementing new rules and their tests.
 
 ## Setup
 You will need these tools locally to build the project:
 - [JDK](https://xtranet-sonarsource.atlassian.net/wiki/spaces/DEV/pages/776711/Developer+Box#Java-runtime)
 - [Maven](https://maven.apache.org/install.html)
-- [Node.js](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
 
-You can also use dockerfile in (./.cirrus/nodejs-lts.Dockerfile) which bundles all dependencies and is used for CI pipeline.
+You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
+
 ### Build the project and run unit tests
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
@@ -63,13 +64,13 @@ its/ruling/src/test/resources/expected/
 ## Adding a rule
 
 ### Card stuff
-1. On [Kanban](https://github.com/SonarSource/SonarJS/projects/3), move card from "To do" to "In progress", The issue should be assigned to you automatically
+1. On [Kanban](https://github.com/SonarSource/SonarJS/projects/3), move card from "To do" to "In progress". The issue should be assigned to you automatically
 2. Comment on the issue linking to the [Rspec PR](https://github.com/SonarSource/rspec/pulls) if exists 
-3. Rename issue to match Rspec name
+3. Rename issue to match RSPEC name
 4. Checkout new branch named `issue-1234`
 
 ### Implementing a rule
-Load the files from [Rspec](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
+Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
 
 ```sh
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
@@ -77,7 +78,7 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 
 When naming your rule, avoid using "No" at the beginning as it is implicit.
 
-1. Create Java class (as above) in `javascript-checks/src/main/java/org/sonar/javascript/checks/YourRuleCheck.java`
+1. Create Java class in `javascript-checks/src/main/java/org/sonar/javascript/checks/YourRuleCheck.java`
    1. Add `@JavaScriptRule` and/or `@TypeScriptRule`
    2. Add rule id as `@Rule(key="S1234")`
    3. If writing a rule for test files, use `extends TestFileCheck` otherwise, use `implements EslintBasedCheck`
@@ -91,8 +92,8 @@ When naming your rule, avoid using "No" at the beginning as it is implicit.
          "TYPESCRIPT"
        ]
       ```
-4. (Reusing ESlint only) See [Reusing ESlint rule](#reusing-rule-from-eslint).
-5. (from scratch only) in `eslint-bridge/src/rules/main.ts`, add your rule import like:
+4. When using external rule implementation (e.g. ESLint core rule) check instruction [here](#reusing-rule-from-eslint).
+5. For a rule implemented in SonarJS, add it to the module `eslint-bridge/src/rules/main.ts`:
    1. `import { rule as yourRule } from './your-rule';`
    2. `ruleModules['your-rule'] = yourRule;`
 6. (from scratch only) Implement rule in `eslint-bridge/src/rules/your-rule.ts`
