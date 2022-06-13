@@ -70,7 +70,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
   }
 }
 
+const pathToParser = path.join(__dirname, '../../tests/testing-framework/parseForEslint');
 
-
-const ruleTester = new RuleTester({ parser: __filename });
+const ruleTester = new RuleTester({ parser: pathToParser });
 runRuleTests(rules, ruleTester);
