@@ -7,17 +7,18 @@
   <li> "symbol" (since ECMAScript 2015) </li>
   <li> "function" </li>
   <li> "object" (for <code>null</code> and any other object) </li>
+  <li> "BigInt" (since ECMAScript 2020) </li>
 </ul>
 <p>Compare a <code>typeof</code> expression to anything else, and the result is predefined: <code>false</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function someFunc(x: any): boolean {
+function someFunc(x) {
   return typeof x === "Number"; // Noncompliant, function will always return 'false'
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-function someFunc(x: any): boolean {
+function someFunc(x) {
   return typeof x === "number";
 }
 </pre>
