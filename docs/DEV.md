@@ -4,7 +4,7 @@ This document describes how to setup your project environment locally and contri
 
 ## Setup
 You will need these tools locally to build the project:
-- [JDK](https://xtranet-sonarsource.atlassian.net/wiki/spaces/DEV/pages/776711/Developer+Box#Java-runtime)
+- [JDK 11](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/what-is-corretto-11.html)
 - [Maven](https://maven.apache.org/install.html)
 - Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
 
