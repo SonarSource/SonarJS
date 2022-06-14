@@ -36,19 +36,19 @@ cd its/ruling
 mvn clean install
 ```
 
-This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking SonarQube UI (use DEBUG mode and put a breakpoint on assertion) at the end of analysis. 
+This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect. You can inspect new/lost issues checking the SonarQube UI (use DEBUG mode and put a breakpoint on the assertion) at the end of analysis. 
 
 If everything looks good to you, you can copy the file with the actual issues located at `its/ruling/target/actual/`
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
 
-From `its/ruling/`
+From `its/ruling/`:
 * for JS `cp -R target/actual/ts/ src/test/expected/ts`
 * for TS `cp -R target/actual/js/ src/test/expected/js`
 * for CSS `cp -R target/actual/css/ src/test/expected/css`
 
-You can review Ruling difference by running `diff -rq src/test/expected/js target/actual/js`  from `its/ruling`.
+You can review the Ruling difference by running `diff -rq src/test/expected/js target/actual/js` from `its/ruling`.
 
-To review Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in a  `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube. 
+To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube. 
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
 ## Adding a rule
@@ -56,7 +56,7 @@ Note that you can fix the port in `orchestrator.properties files`, e.g. `orchest
 ### Rule Description
 1. Create a PR with a rule description in RSPEC repo like described [here](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
 2. Link this RSPEC PR to the implementation issue in this repo
-5. Make sure the implementation issue title contains RSPEC number and name
+5. Make sure the implementation issue title contains the RSPEC number and name
 
 ### Implementing a rule
 1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
@@ -73,16 +73,16 @@ npm run new-rule S1234 <ESLint-style rulekey>
 npm run new-rule S1234 no-invalid-something
 ```
 This script:
-* generates Java class for the rule `NoInvalidSomethingCheck.java`
-* generates `no-invalid-something.ts` file for the rule implementation
-* updates `main.ts` file to include new rule
-* updates `CheckList.java` to include new rule
+* generates a Java class for the rule `NoInvalidSomethingCheck.java`
+* generates a `no-invalid-something.ts` file for the rule implementation
+* updates the `main.ts` file to include the new rule
+* updates the `CheckList.java` to include the new rule
 
 3. Update generated files
-   * Make sure annotations in Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
-   * If required override `configurations` method of the Java check class
-   * If writing a rule for the test files replace `implements EslintBasedCheck` with `extends TestFileCheck` in Java class
-   * If adding a rule that is already covered by ESLint or its plugins, remove `no-invalid-something.ts` rule file and undo the change in `main.ts`
+   * Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
+   * If required, override the `configurations()` method of the Java CheckList class
+   * If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
+   * If adding a rule that is already covered by ESLint or its plugins, remove the `no-invalid-something.ts` rule file and undo the change in `main.ts`
    * In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
       ```json
        "compatibleLanguages": [
@@ -91,7 +91,7 @@ This script:
        ]
       ```
 4. Implement the rule logic in `no-invalid-something.ts`
-   * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
+   * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    * Note that there are some helper functions in `eslint-bridge/src/utils/`
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/6798d21cd9fec8da929334460b364d548b0a608c/eslint-bridge/src/rules/regex-rule-template.ts#L53)
    * If possible implement quickfixes for the rule
@@ -112,9 +112,9 @@ some.faulty.code(); // Noncompliant {{Optional message to assert}}
 //   ^^^^^^
 ```
 
-Issue primary location (`// ^^^^`) and issue message are optional.
+The issue primary location (`// ^^^^`) and issue message are optional.
 
-To execute:
+To execute a single comment-based test:
 ```sh
 npm run ctest -- -t="no-invalid-something"
 ```
@@ -133,8 +133,8 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 
 * Security Hotspot implementation: [PR](https://github.com/SonarSource/SonarJS/pull/3148)
 * Quality rule implemented with quickfix: [PR](https://github.com/SonarSource/SonarJS/pull/3141)
-* Adding rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
-* Adding quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
+* Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
+* Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
 
 ## Misc
 * Use issue number for a branch name, e.g. `issue-1234`
