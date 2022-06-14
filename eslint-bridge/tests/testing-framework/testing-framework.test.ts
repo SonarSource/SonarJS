@@ -22,7 +22,13 @@ import { readAssertions } from './assertions';
 import { readFileSync } from 'fs';
 
 describe('Comment-based Testing Framework', () => {
-  const baseDir = path.resolve(`${__dirname}/../fixtures/testing-framework`);
+  const baseDir = path.resolve(`${__dirname}/fixtures`);
+
+  function assertions(filename: string) {
+    const filePath = path.join(baseDir, filename);
+    const code = readFileSync(filePath, { encoding: 'utf8' });
+    return readAssertions(code);
+  }
 
   it('non compliant', () => {
     expect(assertions('non_compliant.js')).toEqual([{ line: 1 }]);
@@ -169,10 +175,4 @@ describe('Comment-based Testing Framework', () => {
       "Secondary location '>' without next primary location at (1:6,1:9)",
     );
   });
-
-  function assertions(filename: string) {
-    const filePath = path.join(baseDir, filename);
-    const code = readFileSync(filePath, { encoding: 'utf8' });
-    return readAssertions(code);
-  }
 });
