@@ -6,7 +6,7 @@ module.exports = {
     },
   },
   moduleFileExtensions: ['js', 'ts', 'json'],
-  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests/fixtures'],
+  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests/fixtures', '<rootDir>/tests/comments-based', '<rootDir>/tests/testing-framework/fixtures'],
   modulePathIgnorePatterns: [
     '<rootDir>/tests/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
   ],
