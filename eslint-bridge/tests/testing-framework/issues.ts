@@ -41,7 +41,7 @@ export class FileIssues {
     if (parsed instanceof SourceCode) {
       esTreeComments = parsed.getAllComments();
     } else {
-      throw Error(`file not parseable: ${fileContent}`);
+      throw Error(`File not parseable: ${fileContent}`);
     }
     const comments = esTreeComments.map(c => {
       return {
