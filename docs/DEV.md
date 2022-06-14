@@ -73,14 +73,14 @@ npm run new-rule S1234 <ESLint-style rulekey>
 npm run new-rule S1234 no-invalid-something
 ```
 This script:
-* generates a Java class for the rule `NoInvalidSomethingCheck.java`
+* generates a Java check class for the rule `NoInvalidSomethingCheck.java`
 * generates a `no-invalid-something.ts` file for the rule implementation
 * updates the `main.ts` file to include the new rule
 * updates the `CheckList.java` to include the new rule
 
 3. Update generated files
    * Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
-   * If required, override the `configurations()` method of the Java CheckList class
+   * If required, override the `configurations()` method of the Java check class
    * If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
    * If adding a rule that is already covered by ESLint or its plugins, remove the `no-invalid-something.ts` rule file and undo the change in `main.ts`
    * In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
