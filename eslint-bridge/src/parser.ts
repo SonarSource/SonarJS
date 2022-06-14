@@ -36,20 +36,20 @@ function shouldTryTsParser() {
 }
 
 export function buildSourceCode(input: JsTsAnalysisInput, language: 'ts' | 'js') {
-  const vue = input.filePath.endsWith('.vue');
+  const isVue = input.filePath.endsWith('.vue');
   let options, result;
 
   // ts (including .vue)
   if (language === 'ts') {
-    options = buildParsingOptions(input, false, vue ? tsParser.parser : undefined);
-    const parse = vue ? vueParser.parse : tsParser.parse;
+    options = buildParsingOptions(input, false, isVue ? tsParser.parser : undefined);
+    const parse = isVue ? vueParser.parse : tsParser.parse;
     return parseForEslint(input, parse, options);
   }
 
   const tryTsParser = shouldTryTsParser();
 
   // .vue
-  if (vue) {
+  if (isVue) {
     if (tryTsParser) {
       options = buildParsingOptions(input, false, tsParser.parser);
       result = parseForEslint(input, vueParser.parse, options);
