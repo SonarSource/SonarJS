@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseForESLint } from './parseForEslint';
+// import {  } from './parseForEslint';
+import { buildSourceCode } from 'parser';
 import { extractLineIssues } from './comments';
 import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
 import { SourceCode } from 'eslint';
+import * as estree from 'estree';
 
 export class FileIssues {
   private readonly expectedIssues = new Map<number, LineIssues>();
@@ -32,23 +34,20 @@ export class FileIssues {
    * @param fileContent
    */
   constructor(fileContent: string) {
-    const parsed = parseForESLint(fileContent, { filePath: 'foo' });
-    let comments;
+    const parsed = buildSourceCode({fileContent, filePath: '', fileType: null, tsConfigs: []}, null);
+    let esTreeComments: estree.Comment[];
     if (parsed instanceof SourceCode) {
-      //console.log('got comms', JSON.stringify(parsed.getAllComments(),null,2));
-      //console.log('old ones', extractComments(fileContent));
-      comments = parsed.getAllComments();
+      esTreeComments = parsed.getAllComments();
     } else {
-      throw Error('not parseable');
+      throw Error(`file not parseable: ${fileContent}`);
     }
-
-    comments = comments.map(c => {
+    const comments = esTreeComments.map(c => {
       return {
         value: c.value,
         line: c.loc.start.line,
-        column: c.loc.start.column + 2,
+        column: c.loc.start.column + 2, // these offsets are everywhere down the road
         endLine: c.loc.end.line,
-        endColumn: c.loc.end.column + 1,
+        endColumn: c.loc.end.column + 1, // same
       };
     });
     for (const comment of comments) {
