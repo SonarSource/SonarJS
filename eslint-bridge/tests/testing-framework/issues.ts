@@ -32,7 +32,7 @@ export class FileIssues {
    * @param fileContent
    */
   constructor(fileContent: string) {
-    const parsed = parseForESLint(fileContent, { filePath: 'foo'} );
+    const parsed = parseForESLint(fileContent, { filePath: 'foo' });
     let comments;
     if (parsed instanceof SourceCode) {
       //console.log('got comms', JSON.stringify(parsed.getAllComments(),null,2));
@@ -41,14 +41,14 @@ export class FileIssues {
     } else {
       throw Error('not parseable');
     }
-    
+
     comments = comments.map(c => {
       return {
         value: c.value,
         line: c.loc.start.line,
-        column: c.loc.start.column+2,
+        column: c.loc.start.column + 2,
         endLine: c.loc.end.line,
-        endColumn: c.loc.end.column+1,
+        endColumn: c.loc.end.column + 1,
       };
     });
     for (const comment of comments) {
