@@ -34,7 +34,10 @@ export class FileIssues {
    * @param fileContent
    */
   constructor(fileContent: string) {
-    const parsed = buildSourceCode({fileContent, filePath: '', fileType: null, tsConfigs: []}, null);
+    const parsed = buildSourceCode(
+      { fileContent, filePath: '', fileType: null, tsConfigs: [] },
+      null,
+    );
     let esTreeComments: estree.Comment[];
     if (parsed instanceof SourceCode) {
       esTreeComments = parsed.getAllComments();
