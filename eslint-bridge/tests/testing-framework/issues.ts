@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractComments, extractLineIssues } from './comments';
+import { parseForESLint } from './parseForEslint';
+import { extractLineIssues } from './comments';
 import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
+import { SourceCode } from 'eslint';
 
 export class FileIssues {
   private readonly expectedIssues = new Map<number, LineIssues>();
@@ -30,7 +32,25 @@ export class FileIssues {
    * @param fileContent
    */
   constructor(fileContent: string) {
-    const comments = extractComments(fileContent);
+    const parsed = parseForESLint(fileContent, { filePath: 'foo'} );
+    let comments;
+    if (parsed instanceof SourceCode) {
+      //console.log('got comms', JSON.stringify(parsed.getAllComments(),null,2));
+      //console.log('old ones', extractComments(fileContent));
+      comments = parsed.getAllComments();
+    } else {
+      throw Error('not parseable');
+    }
+    
+    comments = comments.map(c => {
+      return {
+        value: c.value,
+        line: c.loc.start.line,
+        column: c.loc.start.column+2,
+        endLine: c.loc.end.line,
+        endColumn: c.loc.end.column+1,
+      };
+    });
     for (const comment of comments) {
       const lineIssues = extractLineIssues(comment);
       if (lineIssues !== null) {
