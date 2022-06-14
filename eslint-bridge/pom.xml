@@ -77,7 +77,8 @@
             <include>tests/**/*.ts</include>
           </includes>
           <excludes>
-            <exclude>tests/**/fixtures/**/*,tests/rules/comments-based/**/*</exclude>
+            <exclude>tests/**/fixtures/**/*</exclude>
+            <exclude>tests/rules/comments-based/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
