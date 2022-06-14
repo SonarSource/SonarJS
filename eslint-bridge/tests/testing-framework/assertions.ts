@@ -22,7 +22,7 @@ import { toEncodedMessage } from 'utils';
 import { FileIssues, LineIssues } from './issues';
 
 /**
- * Produces array of errors for the ESLint RuleTester from the file contents of a comments-based test file
+ * Produces array of errors for the ESLint RuleTester from the file contents of a comment-based test file
  * @param fileContent The comment-based file as a string
  * @returns array of errors
  */

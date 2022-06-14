@@ -38,7 +38,7 @@ import { FileType } from '../../src/analyzer';
 function testFilesForRule(rule: string): string[] {
   const files = [];
   for (const ext of ['js', 'ts']) {
-    const p = path.join(__dirname, 'comments-based', `${rule}.${ext}`);
+    const p = path.join(__dirname, 'comment-based', `${rule}.${ext}`);
     if (fs.existsSync(p)) {
       files.push(p);
     }
