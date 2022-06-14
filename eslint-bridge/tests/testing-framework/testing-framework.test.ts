@@ -175,4 +175,8 @@ describe('Comment-based Testing Framework', () => {
       "Secondary location '>' without next primary location at (1:6,1:9)",
     );
   });
+
+  it('comments parsing ambiguity', () => {
+    expect(assertions('parsing.js')).toEqual([{ line: 1 }]);
+  });
 });
