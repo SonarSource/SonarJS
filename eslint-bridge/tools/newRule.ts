@@ -115,7 +115,7 @@ function run() {
 
     rules.sort();
     lastRule = rules[rules.length - 1];
-    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1);
+    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1); // remove comma
 
     fs.writeFileSync(checkListPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));
   }
@@ -165,7 +165,7 @@ function run() {
     }
 
     function processHead2(line: string) {
-      if (line.trim() === 'return ImmutableList.of(') {
+      if (line.trim() === 'return Arrays.asList(') {
         state++;
       }
       head2.push(line);
