@@ -77,7 +77,6 @@ This script:
 * generates a `no-invalid-something.ts` file for the rule implementation
 * updates the `main.ts` file to include the new rule
 * updates the `CheckList.java` to include the new rule
-* updates the `quickfix.ts` file to include the new rule
 
 3. Update generated files
    * Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
