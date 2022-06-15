@@ -96,6 +96,8 @@ This script:
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/6798d21cd9fec8da929334460b364d548b0a608c/eslint-bridge/src/rules/regex-rule-template.ts#L53)
    * If possible implement quickfixes for the rule
    
+5. If a quickfix is available or was implemented, add its rule key in `eslint-bridge/src/quickfix.ts`
+
 ### Testing the rule
 
 `eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests
