@@ -31,13 +31,7 @@ const checkListPath = path.join(
 
 const mainPath = path.join(rootFolder, 'eslint-bridge/src/rules/main.ts');
 
-try {
-  run();
-} catch (error) {
-  console.error(error.message);
-  console.error();
-  process.exit(1);
-}
+run();
 
 // example: npm run new-rule S1234 no-something-somewhere
 function run() {
