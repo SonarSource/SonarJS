@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -118,7 +119,7 @@ public class AnalysisWithProgram {
     var counter = 0;
     for (var file : program.files) {
       var inputFile = fs.inputFile(fs.predicates().and(
-        fs.predicates().hasAbsolutePath(file),
+        fs.predicates().hasAbsolutePath(Paths.get(file).toFile().getCanonicalPath()),
         // we need to check the language, because project might contain files which were already analyzed with JS sensor
         // this should be removed once we unify the two sensors
         fs.predicates().hasLanguage(TypeScriptLanguage.KEY)));
