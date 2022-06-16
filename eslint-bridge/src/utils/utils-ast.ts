@@ -472,11 +472,11 @@ export function checkSensitiveCall(
 }
 
 export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
-  return node && node.type === 'Literal' && typeof node.value === 'string';
+  return isLiteral(node) && typeof node.value === 'string';
 }
 
 export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
-  return node && node.type === 'Literal' && typeof node.value === 'number';
+  return isLiteral(node) && typeof node.value === 'number';
 }
 
 export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral {

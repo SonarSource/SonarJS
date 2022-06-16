@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { buildSourceCode } from '../../src/parser';
 import { LineIssues } from './issues';
 import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
+import * as estree from 'estree';
+import { SourceCode } from 'eslint';
 
-const LINE_COMMENT = '//';
 const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
 const NON_COMPLIANT_PATTERN = RegExp(
   ' *Noncompliant' +
@@ -42,18 +44,25 @@ export interface Comment {
 }
 
 export function extractComments(fileContent: string): Comment[] {
-  const comments: Comment[] = [];
-  const lines = fileContent.split('\n');
-  for (const [index, line] of lines.entries()) {
-    const commentPosition = line.lastIndexOf(LINE_COMMENT);
-    if (commentPosition !== -1) {
-      const column = commentPosition + LINE_COMMENT.length;
-      const value = line.substring(column);
-      const endColumn = column + value.length + 1;
-      comments.push({ value, line: index + 1, endLine: index + 1, column, endColumn });
-    }
+  const parsed = buildSourceCode(
+    { fileContent, filePath: '', fileType: null, tsConfigs: [] },
+    null,
+  );
+  let esTreeComments: estree.Comment[];
+  if (parsed instanceof SourceCode) {
+    esTreeComments = parsed.getAllComments();
+  } else {
+    throw Error(`File not parseable: ${fileContent}`);
   }
-  return comments;
+  return esTreeComments.map(c => {
+    return {
+      value: c.value,
+      line: c.loc.start.line,
+      column: c.loc.start.column + 2, // these offsets are everywhere down the road
+      endLine: c.loc.end.line,
+      endColumn: c.loc.end.column + 1, // same
+    };
+  });
 }
 
 export function extractLineIssues(comment: Comment): LineIssues | null {

@@ -16,6 +16,7 @@
     }
   ],
   "exclude": [
-    "**/fixtures/**"
+    "**/fixtures/**",
+    "**/comment-based/**"
   ]
 }
