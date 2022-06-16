@@ -304,10 +304,10 @@ function replace(text: string, dictionary: { [x: string]: string }): string {
   return text;
 }
 
-function inflateTemplate(template: string, dest: string, dict: { [x: string]: string }) {
-  const content = fs.readFileSync(template, 'utf8');
-  const newContent = replace(content, dict);
-  fs.writeFileSync(dest, newContent);
+function inflateTemplate(templatePath: string, dest: string, dict: { [x: string]: string }) {
+  const template = fs.readFileSync(templatePath, 'utf8');
+  const inflatedTemplate = replace(template, dict);
+  fs.writeFileSync(dest, inflatedTemplate);
 }
 
 function parseOptions(options: string[]) {
