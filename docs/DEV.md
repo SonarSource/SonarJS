@@ -31,9 +31,11 @@ mvn clean install
 
 ### Ruling Tests
 The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files).
-```
+```sh
 cd its/ruling
-mvn clean install
+mvn verify -Dtest=JavaScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
+mvn verify -Dtest=TypeScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
+mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
 This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect. You can inspect new/lost issues checking the SonarQube UI (use DEBUG mode and put a breakpoint on the assertion) at the end of analysis. 
