@@ -112,7 +112,8 @@ function run() {
 
     rules.sort();
     lastRule = rules[rules.length - 1];
-    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1); // remove comma
+    // remove comma
+    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1);
 
     fs.writeFileSync(checkListPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));
   }
