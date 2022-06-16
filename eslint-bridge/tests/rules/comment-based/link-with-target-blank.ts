@@ -10,3 +10,11 @@ window.open('http://example.com/dangerous4'); // Noncompliant
     // ^^^^
 window.open('https://example.com/dangerous5', 'windowname', 'resizable'); // Noncompliant
     // ^^^^
+
+function open() {
+    console.log('hello')
+}
+open('https://example.com/dangerous5', 'windowname', 'resizable');
+
+window.notOpen('https://example.com/dangerous5', 'windowname', 'resizable');
+
