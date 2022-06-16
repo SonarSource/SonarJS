@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const args = node.arguments;
-        if (args.length > 0 && !isUrl(args[PLACE_OF_URL])) {
+        if (args.length >= PLACE_OF_URL && !isUrl(args[PLACE_OF_URL])) {
           return;
         }
         if (
