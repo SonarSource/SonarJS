@@ -11,13 +11,13 @@ window.open('http://example.com/dangerous4'); // Noncompliant
     // ^^^^
 window.open('https://example.com/dangerous5', 'windowname', 'resizable'); // Noncompliant
     // ^^^^
-window.open('https://example.com/dangerous5', 'windowname', 123); // Noncompliant
+window.open('https://example.com/dangerous6', 'windowname', 123); // Noncompliant
     // ^^^^
-    
+
 function open() {
     console.log('hello')
 }
 open('https://example.com/dangerous5', 'windowname', 'resizable');
 
-window.notOpen('https://example.com/dangerous5', 'windowname', 'resizable');
+window.notOpen('https://example.com/dangerous7', 'windowname', 'resizable');
 

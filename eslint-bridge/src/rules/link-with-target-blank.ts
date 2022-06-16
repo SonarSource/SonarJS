@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
         if (args.length > 0 && !isUrl(args[0])) {
           return;
         }
-        if (args.length < 3 || isMissingRequiredOption(args[2])) {
+        if (args.length < 3 || !hasRequiredOption(args[2])) {
           context.report({
             messageId: 'issue',
             node: property,
@@ -58,11 +58,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isMissingRequiredOption(argument: estree.Node) {
+function hasRequiredOption(argument: estree.Node) {
   if (!isStringLiteral(argument)) {
-    return true;
+    return false;
   }
-  return !argument.value?.includes(REQUIRED_OPTION);
+  return argument.value?.includes(REQUIRED_OPTION);
 }
 
 function isUrl(argument: estree.Node): boolean {
