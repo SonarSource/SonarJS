@@ -304,6 +304,22 @@ ruleTesterJsWithTypes.run('', rule, {
       x?.y?.z?.foo;
       `,
     },
+    {
+      code: `
+      if (x != null && x.prop == 0) {
+        console.log("String is empty");
+      }
+      if (x == null || x.prop == 0) {
+        console.log("String is empty");
+      }
+      if (x != undefined && x.prop == 0) {
+        console.log("String is empty");
+      }
+      if (x == undefined || x.prop == 0) {
+        console.log("String is empty");
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -424,6 +440,48 @@ ruleTesterJsWithTypes.run('', rule, {
         var x;
         x.foo`,
       errors: 1,
+    },
+    {
+      code: `
+        if (x == null && x.prop == 0) {
+          console.log("String is empty");
+        }
+        if (null != x || x.prop == 0) {
+          console.log("String is empty");
+        }
+        if (undefined == x && x.prop == 0) {
+          console.log("String is empty");
+        }
+        if (x.prop != undefined || x.prop.prop2 == 0) {
+          console.log("String is empty");
+        }
+      `,
+      errors: [
+        {
+          line: 2,
+          endLine: 2,
+          column: 26,
+          endColumn: 27,
+        },
+        {
+          line: 5,
+          endLine: 5,
+          column: 26,
+          endColumn: 27,
+        },
+        {
+          line: 8,
+          endLine: 8,
+          column: 31,
+          endColumn: 32,
+        },
+        {
+          line: 11,
+          endLine: 11,
+          column: 36,
+          endColumn: 42,
+        },
+      ],
     },
   ],
 });
