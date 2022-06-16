@@ -88,5 +88,6 @@ export function parseForESLint(
   );
 }
 
-const ruleTester = new RuleTester({ parser: __filename }); // loading the above parseForESLint() function
+// loading the above parseForESLint() function
+const ruleTester = new RuleTester({ parser: __filename });
 runRuleTests(rules, ruleTester);
