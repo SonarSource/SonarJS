@@ -71,7 +71,7 @@ function run() {
     ruleMetadata['___RULE_CLASS_NAME___'] = javaRuleClassName;
     ruleMetadata['___RULE_KEY___'] = rspecId;
 
-    copyWithReplace(
+    inflateTemplate(
       ruleTemplatePath,
       path.join(rootFolder, `eslint-bridge/src/rules/${ruleNameDash}.ts`),
       ruleMetadata,
@@ -92,7 +92,7 @@ function run() {
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___JAVA_RULE_CLASS_NAME___'] = javaRuleClassName;
     ruleMetadata['___RULE_KEY___'] = rspecId;
-    copyWithReplace(
+    inflateTemplate(
       javaRuleTemplatePath,
       path.join(
         rootFolder,
@@ -304,15 +304,8 @@ function replace(text: string, dictionary: { [x: string]: string }): string {
   return text;
 }
 
-/**
- * Copies file, replacing occurences according to provided dictionary. Used on templates.
- *
- * @param src 
- * @param dest 
- * @param dict 
- */
-function copyWithReplace(src: string, dest: string, dict: { [x: string]: string }) {
-  const content = fs.readFileSync(src, 'utf8');
+function inflateTemplate(template: string, dest: string, dict: { [x: string]: string }) {
+  const content = fs.readFileSync(template, 'utf8');
   const newContent = replace(content, dict);
   fs.writeFileSync(dest, newContent);
 }
