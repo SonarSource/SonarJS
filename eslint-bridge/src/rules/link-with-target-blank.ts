@@ -49,7 +49,10 @@ export const rule: Rule.RuleModule = {
         if (args.length > 0 && !isUrl(args[PLACE_OF_URL])) {
           return;
         }
-        if (args.length <= PLACE_OF_REQUIRED_OPTION || !hasRequiredOption(args[PLACE_OF_REQUIRED_OPTION])) {
+        if (
+          args.length <= PLACE_OF_REQUIRED_OPTION ||
+          !hasRequiredOption(args[PLACE_OF_REQUIRED_OPTION])
+        ) {
           context.report({
             messageId: 'issue',
             node: property,
