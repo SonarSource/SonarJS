@@ -43,7 +43,7 @@ function run() {
 
   const rspecId = process.argv[2];
   const ruleNameDash = process.argv[3];
-  const { isEslint } = parseOptions(process.argv.slice(4));
+  const isEslint = process.argv[4] === 'eslint';
 
   verifyRspecId();
   verifyRuleName();
@@ -314,17 +314,4 @@ function inflateTemplate(templatePath: string, dest: string, dict: { [x: string]
   const template = fs.readFileSync(templatePath, 'utf8');
   const inflatedTemplate = replace(template, dict);
   fs.writeFileSync(dest, inflatedTemplate);
-}
-
-function parseOptions(options: string[]) {
-  const ESLINT_OPTION = 'eslint';
-  const VALID_OPTIONS = [ESLINT_OPTION];
-  options.forEach(option => {
-    if (!VALID_OPTIONS.includes(option)) {
-      throw Error(`Unknown option ${option}. Supported options: ${VALID_OPTIONS}`);
-    }
-  });
-  return {
-    isEslint: options.some(option => option === ESLINT_OPTION),
-  };
 }
