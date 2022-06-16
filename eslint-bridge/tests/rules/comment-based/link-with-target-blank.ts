@@ -1,4 +1,5 @@
 window.open('test.html');
+window.open(123);
 
 window.open('https://example.com/dangerous1', 'windowname', 'noopener');
 
@@ -10,7 +11,9 @@ window.open('http://example.com/dangerous4'); // Noncompliant
     // ^^^^
 window.open('https://example.com/dangerous5', 'windowname', 'resizable'); // Noncompliant
     // ^^^^
-
+window.open('https://example.com/dangerous5', 'windowname', 123); // Noncompliant
+    // ^^^^
+    
 function open() {
     console.log('hello')
 }

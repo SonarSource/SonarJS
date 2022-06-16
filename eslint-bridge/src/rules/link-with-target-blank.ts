@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = {
 
 function isMissingRequiredOption(argument: estree.Node) {
   if (!isStringLiteral(argument)) {
-    return false;
+    return true;
   }
   return !argument.value?.includes(REQUIRED_OPTION);
 }
