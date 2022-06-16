@@ -1,2 +1,3 @@
 *.lint.js
 tests/rules/fixtures
+tests/rules/comment-based
