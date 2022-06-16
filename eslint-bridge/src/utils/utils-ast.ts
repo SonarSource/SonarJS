@@ -47,6 +47,10 @@ export const functionLike = new Set([
   'MethodDefinition',
 ]);
 
+export const equal = new Set(['==', '===']);
+
+export const not_equal = new Set(['!=', '!==']);
+
 export function isIdentifier(
   node: estree.Node | undefined,
   ...values: string[]
@@ -190,8 +194,16 @@ export function isLiteral(n: estree.Node | null): n is estree.Literal {
   return n != null && n.type === 'Literal';
 }
 
+export function isNullish(n: estree.Node): boolean {
+  return isNullLiteral(n) || isUndefined(n);
+}
+
 export function isNullLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === null;
+}
+
+export function isUndefined(node: estree.Node): boolean {
+  return node.type === 'Identifier' && node.name === 'undefined';
 }
 
 /**
