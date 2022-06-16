@@ -35,12 +35,15 @@ run();
 
 // example: npm run new-rule S1234 no-something-somewhere
 function run() {
-  if (process.argv.length !== 4) {
-    throw new Error(`Invalid number of arguments: expected 2, but got ${process.argv.length - 2}`);
+  if (process.argv.length < 4) {
+    throw new Error(
+      `Insufficient number of arguments: expected at least 2, but got ${process.argv.length - 2}`,
+    );
   }
 
   const rspecId = process.argv[2];
   const ruleNameDash = process.argv[3];
+  const isEslint = process.argv[4] === 'eslint';
 
   verifyRspecId();
   verifyRuleName();
@@ -50,9 +53,9 @@ function run() {
   //- Create file for rule implementation in src/rules.
   //- Create test folder in test/rules with the name of the rule file
   //- In this folder create files <rule file name>.test.ts
-  createTsFiles();
+  createTsFiles(isEslint);
 
-  updateMain();
+  updateMain(isEslint);
 
   //- Create file for rule in java part
   createJavaFile();
@@ -61,26 +64,28 @@ function run() {
   updateCheckList();
 
   /** Creates rule typescript source and test files from templates */
-  function createTsFiles() {
+  function createTsFiles(isEslint: boolean) {
+    if (isEslint) {
+      return;
+    }
+
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___RULE_CLASS_NAME___'] = javaRuleClassName;
     ruleMetadata['___RULE_KEY___'] = rspecId;
 
-    copyWithReplace(
+    inflateTemplate(
       ruleTemplatePath,
       path.join(rootFolder, `eslint-bridge/src/rules/${ruleNameDash}.ts`),
       ruleMetadata,
     );
 
     const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/fixtures`);
-
     try {
       fs.mkdirSync(testPath);
     } catch {
       // already exists
     }
-
     fs.writeFileSync(path.join(testPath, `${ruleNameDash}.js`), '');
   }
 
@@ -90,7 +95,7 @@ function run() {
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___JAVA_RULE_CLASS_NAME___'] = javaRuleClassName;
     ruleMetadata['___RULE_KEY___'] = rspecId;
-    copyWithReplace(
+    inflateTemplate(
       javaRuleTemplatePath,
       path.join(
         rootFolder,
@@ -102,14 +107,14 @@ function run() {
 
   function updateCheckList() {
     const { head1, imports, head2, rules, tail } = parseCheckList();
-
     let lastRule = rules[rules.length - 1];
     rules[rules.length - 1] = lastRule + ',';
     rules.push(`      ${javaRuleClassName}.class,`);
 
     rules.sort();
     lastRule = rules[rules.length - 1];
-    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1); // remove comma
+    // remove comma
+    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1);
 
     fs.writeFileSync(checkListPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));
   }
@@ -184,7 +189,11 @@ function run() {
     }
   }
 
-  function updateMain() {
+  function updateMain(isEslint: boolean) {
+    if (isEslint) {
+      return;
+    }
+
     const { head1, imports, head2, rules, tail } = parseMain();
     const camelCaseRuleName = ruleNameDash.replace(/(-[a-z])/g, match => match[1].toUpperCase());
 
@@ -301,8 +310,8 @@ function replace(text: string, dictionary: { [x: string]: string }): string {
   return text;
 }
 
-function copyWithReplace(src: string, dest: string, dict: { [x: string]: string }) {
-  const content = fs.readFileSync(src, 'utf8');
-  const newContent = replace(content, dict);
-  fs.writeFileSync(dest, newContent);
+function inflateTemplate(templatePath: string, dest: string, dict: { [x: string]: string }) {
+  const template = fs.readFileSync(templatePath, 'utf8');
+  const inflatedTemplate = replace(template, dict);
+  fs.writeFileSync(dest, inflatedTemplate);
 }

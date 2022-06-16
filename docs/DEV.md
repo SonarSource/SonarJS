@@ -67,12 +67,12 @@ Note that you can fix the port in `orchestrator.properties files`, e.g. `orchest
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
 ```
 
-2. Generate other files required for a new rule (use existing <ESLint-style rulekey> if the rule is already covered by ESLint or its plugins)
+2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
 ```sh
 cd eslint-bridge
 npm run new-rule S1234 <ESLint-style rulekey>
 // e.g.
-npm run new-rule S1234 no-invalid-something
+npm run new-rule S1234 no-invalid-something [eslint]
 ```
 This script:
 * generates a Java check class for the rule `NoInvalidSomethingCheck.java`
@@ -84,7 +84,6 @@ This script:
    * Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
    * If required, override the `configurations()` method of the Java check class
    * If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
-   * If adding a rule that is already covered by ESLint or its plugins, remove the `no-invalid-something.ts` rule file and undo the change in `main.ts`
    * In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
       ```json
        "compatibleLanguages": [
