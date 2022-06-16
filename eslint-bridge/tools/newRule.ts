@@ -311,16 +311,14 @@ function inflateTemplate(templatePath: string, dest: string, dict: { [x: string]
 }
 
 function parseOptions(options: string[]) {
-  const [ ESLINT_OPTION ] = ['eslint' ]
+  const ESLINT_OPTION = 'eslint';
   const VALID_OPTIONS = [ ESLINT_OPTION ];
-  let [ isEslint ] = [ false ];
   options.forEach(option => {
     if (! VALID_OPTIONS.includes(option)) {
       throw Error(`Unknown option ${option}. Supported options: ${VALID_OPTIONS}`);
     }
-    if (option === ESLINT_OPTION) {
-      isEslint = true;
-    }
   });
-  return { isEslint };
+  return { 
+    isEslint: options.some(option => option === ESLINT_OPTION),
+   };
 }
