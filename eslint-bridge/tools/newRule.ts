@@ -36,7 +36,9 @@ run();
 // example: npm run new-rule S1234 no-something-somewhere
 function run() {
   if (process.argv.length < 4) {
-    throw new Error(`Insufficient number of arguments: expected at least 2, but got ${process.argv.length - 2}`);
+    throw new Error(
+      `Insufficient number of arguments: expected at least 2, but got ${process.argv.length - 2}`,
+    );
   }
 
   const rspecId = process.argv[2];
@@ -63,9 +65,8 @@ function run() {
 
   /** Creates rule typescript source and test files from templates */
   function createTsFiles(isEslint: boolean) {
-    
-    if (isEslint) { 
-      return; 
+    if (isEslint) {
+      return;
     }
 
     const ruleMetadata: { [x: string]: string } = {};
@@ -189,8 +190,8 @@ function run() {
   }
 
   function updateMain(isEslint: boolean) {
-    if (isEslint) { 
-      return; 
+    if (isEslint) {
+      return;
     }
 
     const { head1, imports, head2, rules, tail } = parseMain();
@@ -317,13 +318,13 @@ function inflateTemplate(templatePath: string, dest: string, dict: { [x: string]
 
 function parseOptions(options: string[]) {
   const ESLINT_OPTION = 'eslint';
-  const VALID_OPTIONS = [ ESLINT_OPTION ];
+  const VALID_OPTIONS = [ESLINT_OPTION];
   options.forEach(option => {
-    if (! VALID_OPTIONS.includes(option)) {
+    if (!VALID_OPTIONS.includes(option)) {
       throw Error(`Unknown option ${option}. Supported options: ${VALID_OPTIONS}`);
     }
   });
-  return { 
+  return {
     isEslint: options.some(option => option === ESLINT_OPTION),
-   };
+  };
 }
