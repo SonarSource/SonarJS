@@ -64,7 +64,9 @@ function run() {
   /** Creates rule typescript source and test files from templates */
   function createTsFiles(isEslint: boolean) {
     
-    if ( isEslint ) { return; }
+    if (isEslint) { 
+      return; 
+    }
 
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
@@ -186,7 +188,9 @@ function run() {
   }
 
   function updateMain(isEslint: boolean) {
-    if (isEslint) { return; }
+    if (isEslint) { 
+      return; 
+    }
 
     const { head1, imports, head2, rules, tail } = parseMain();
     const camelCaseRuleName = ruleNameDash.replace(/(-[a-z])/g, match => match[1].toUpperCase());
