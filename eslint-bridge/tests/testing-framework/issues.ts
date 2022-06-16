@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from 'parser';
-import { extractLineIssues } from './comments';
+import { extractComments, extractLineIssues } from './comments';
 import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
-import { SourceCode } from 'eslint';
-import * as estree from 'estree';
 
 export class FileIssues {
   private readonly expectedIssues = new Map<number, LineIssues>();
@@ -33,25 +30,7 @@ export class FileIssues {
    * @param fileContent
    */
   constructor(fileContent: string) {
-    const parsed = buildSourceCode(
-      { fileContent, filePath: '', fileType: null, tsConfigs: [] },
-      null,
-    );
-    let esTreeComments: estree.Comment[];
-    if (parsed instanceof SourceCode) {
-      esTreeComments = parsed.getAllComments();
-    } else {
-      throw Error(`File not parseable: ${fileContent}`);
-    }
-    const comments = esTreeComments.map(c => {
-      return {
-        value: c.value,
-        line: c.loc.start.line,
-        column: c.loc.start.column + 2, // these offsets are everywhere down the road
-        endLine: c.loc.end.line,
-        endColumn: c.loc.end.column + 1, // same
-      };
-    });
+    const comments = extractComments(fileContent);
     for (const comment of comments) {
       const lineIssues = extractLineIssues(comment);
       if (lineIssues !== null) {
