@@ -94,9 +94,7 @@ This script:
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    * Note that there are some helper functions in `eslint-bridge/src/utils/`
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/6798d21cd9fec8da929334460b364d548b0a608c/eslint-bridge/src/rules/regex-rule-template.ts#L53)
-   * If possible implement quickfixes for the rule
-   
-5. If a quickfix is available or was implemented, add its rule key in `eslint-bridge/src/quickfix.ts`
+   * If possible implement quickfixes for the rule (then add its rule key in `eslint-bridge/src/quickfix.ts`).
 
 ### Testing the rule
 
