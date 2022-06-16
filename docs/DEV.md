@@ -65,7 +65,7 @@ Note that you can fix the port in `orchestrator.properties files`, e.g. `orchest
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
 ```
 
-1. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
+2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
 ```sh
 cd eslint-bridge
 npm run new-rule S1234 <ESLint-style rulekey>

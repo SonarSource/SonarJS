@@ -65,7 +65,7 @@ function run() {
   function createTsFiles(isEslint: boolean) {
     
     if ( isEslint ) { return; }
-    
+
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___RULE_CLASS_NAME___'] = javaRuleClassName;
@@ -77,7 +77,7 @@ function run() {
       ruleMetadata,
     );
 
-    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/fixtures`)
+    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/fixtures`);
     try {
       fs.mkdirSync(testPath);
     } catch {
