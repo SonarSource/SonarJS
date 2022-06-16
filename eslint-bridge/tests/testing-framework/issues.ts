@@ -25,6 +25,10 @@ export class FileIssues {
   private orphanSecondaryLocations: SecondaryLocation[] = [];
   private currentPrimary: PrimaryLocation | null = null;
 
+  /**
+   * Parses the file into its expected errors. Throws if error flags are not well formated.
+   * @param fileContent
+   */
   constructor(fileContent: string) {
     const comments = extractComments(fileContent);
     for (const comment of comments) {

@@ -21,6 +21,11 @@ import { RuleTester } from 'eslint';
 import { toEncodedMessage } from 'utils';
 import { FileIssues, LineIssues } from './issues';
 
+/**
+ * Produces array of errors for the ESLint RuleTester from the file contents of a comments-based test file
+ * @param fileContent The comment-based file as a string
+ * @returns array of errors
+ */
 export function readAssertions(fileContent: string): RuleTester.TestCaseError[] {
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const errors: RuleTester.TestCaseError[] = [];

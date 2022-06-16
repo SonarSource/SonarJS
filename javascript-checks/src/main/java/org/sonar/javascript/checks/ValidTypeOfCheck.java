@@ -22,16 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@TypeScriptRule
 @JavaScriptRule
-@Rule(key = "___RULE_KEY___")
-public class ___JAVA_RULE_CLASS_NAME___ implements EslintBasedCheck {
+@Rule(key = "S4125")
+public class ValidTypeOfCheck implements EslintBasedCheck {
+
 
   @Override
   public String eslintKey() {
-    return "___RULE_NAME_DASH___";
+    return "valid-typeof";
   }
-
 }

@@ -335,6 +335,7 @@ public final class CheckList {
       UselessIncrementCheck.class,
       UselessIntersectionCheck.class,
       UselessStringOperationCheck.class,
+      ValidTypeOfCheck.class,
       ValuesNotConvertibleToNumbersCheck.class,
       VarDeclarationCheck.class,
       VariableDeclarationAfterUsageCheck.class,
