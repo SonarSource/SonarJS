@@ -31,13 +31,7 @@ const checkListPath = path.join(
 
 const mainPath = path.join(rootFolder, 'eslint-bridge/src/rules/main.ts');
 
-try {
-  run();
-} catch (error) {
-  console.error(error.message);
-  console.error();
-  process.exit(1);
-}
+run();
 
 // example: npm run new-rule S1234 no-something-somewhere
 function run() {
@@ -115,7 +109,7 @@ function run() {
 
     rules.sort();
     lastRule = rules[rules.length - 1];
-    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1);
+    rules[rules.length - 1] = lastRule.slice(0, lastRule.length - 1); // remove comma
 
     fs.writeFileSync(checkListPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));
   }
@@ -165,7 +159,7 @@ function run() {
     }
 
     function processHead2(line: string) {
-      if (line.trim() === 'return ImmutableList.of(') {
+      if (line.trim() === 'return Arrays.asList(') {
         state++;
       }
       head2.push(line);
