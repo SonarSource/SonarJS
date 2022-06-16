@@ -25,8 +25,8 @@ import { URL } from 'url';
 import { isIdentifier, isMethodCall, isStringLiteral } from '../utils';
 
 const REQUIRED_OPTION = 'noopener';
-const PLACE_OF_REQUIRED_OPTION = 2;
-const PLACE_OF_URL = 0;
+const REQUIRED_OPTION_INDEX = 2;
+const URL_INDEX = 0;
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -46,12 +46,12 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const args = node.arguments;
-        if (args.length >= PLACE_OF_URL && !isUrl(args[PLACE_OF_URL])) {
+        if (args.length >= URL_INDEX && !isUrl(args[URL_INDEX])) {
           return;
         }
         if (
-          args.length <= PLACE_OF_REQUIRED_OPTION ||
-          !hasRequiredOption(args[PLACE_OF_REQUIRED_OPTION])
+          args.length <= REQUIRED_OPTION_INDEX ||
+          !hasRequiredOption(args[REQUIRED_OPTION_INDEX])
         ) {
           context.report({
             messageId: 'issue',
