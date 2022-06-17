@@ -75,18 +75,23 @@ function isThisWindow(node: estree.Node) {
 }
 
 function hasRequiredOption(context: Rule.RuleContext, argument: estree.Node) {
-  const literalNode = getValueOfExpression(context, argument, 'Literal');
-  if (literalNode === undefined || !isStringLiteral(literalNode)) {
-    return false;
-  }
-  return literalNode.value.includes(REQUIRED_OPTION);
+  const stringOrNothing = extractString(context, argument);
+  return stringOrNothing !== undefined && stringOrNothing.includes(REQUIRED_OPTION);
 }
 
 function isHttpUrl(context: Rule.RuleContext, argument: estree.Node): boolean {
-  const literalNode = getValueOfExpression(context, argument, 'Literal');
-  if (literalNode === undefined || !isStringLiteral(literalNode)) {
-    return false;
+  const stringOrNothing = extractString(context, argument);
+  return (
+    stringOrNothing !== undefined &&
+    (stringOrNothing.startsWith('http') || stringOrNothing.startsWith('https'))
+  );
+}
+
+function extractString(context: Rule.RuleContext, node: estree.Node): string | undefined {
+  const literalNodeOrNothing = getValueOfExpression(context, node, 'Literal');
+  if (literalNodeOrNothing === undefined || !isStringLiteral(literalNodeOrNothing)) {
+    return undefined;
+  } else {
+    return literalNodeOrNothing.value;
   }
-  const url = literalNode.value;
-  return url.startsWith('http') || url.startsWith('https');
 }
