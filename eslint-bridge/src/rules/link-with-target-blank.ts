@@ -41,17 +41,20 @@ export const rule: Rule.RuleModule = {
         }
         const { object, property } = node.callee;
 
-        if (
-          !isIdentifier(property, 'open') ||
-          (!isIdentifier(object, 'window') && !isThisWindow(object))
-        ) {
+        const isWindowOpen =
+          isIdentifier(property, 'open') &&
+          (isIdentifier(object, 'window') || isThisWindow(object));
+
+        if (!isWindowOpen) {
           return;
         }
 
         const args = node.arguments;
-        if (args.length >= URL_INDEX && !isHttpUrl(context, args[URL_INDEX])) {
+        const hasHttpUrl = URL_INDEX < args.length && isHttpUrl(context, args[URL_INDEX]);
+        if (!hasHttpUrl) {
           return;
         }
+
         if (
           args.length <= REQUIRED_OPTION_INDEX ||
           !hasRequiredOption(context, args[REQUIRED_OPTION_INDEX])
