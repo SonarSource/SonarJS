@@ -25,13 +25,14 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   isLiteral,
   isObjectExpression,
+  isIdentifier,
   isAssignmentExpression,
 } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { LiveVariables, lva, ReferenceLike } from './lva';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
-import { isUnaryExpression, isArrayExpression, isUndefined } from '../utils';
+import { isUnaryExpression, isArrayExpression } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -196,8 +197,8 @@ export const rule: Rule.RuleModule = {
       if (isLiteral(node1)) {
         return node1.value === '' || [0, 1, null, true, false].includes(node1.value as any);
       }
-      if (isUndefined(node1 as estree.Node)) {
-        return true;
+      if (isIdentifier(node1)) {
+        return node1.name === 'undefined';
       }
       if (isUnaryExpression(node)) {
         return isBasicValue(node.argument);
