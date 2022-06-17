@@ -31,3 +31,6 @@ window.open(httpUrl, 'windowname', missingRequiredOption); // Noncompliant
 window.open(otherUrl, 'windowname', missingRequiredOption);
 
 window.open(httpUrl, 'windowname', requiredOption);
+
+this.window.open('https://example.com/dangerous10', 'windowname', 'resizable'); // Noncompliant
+         // ^^^^
