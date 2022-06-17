@@ -41,7 +41,10 @@ export const rule: Rule.RuleModule = {
         }
         const { object, property } = node.callee;
 
-        if (!isIdentifier(property, 'open') || (!isIdentifier(object, 'window') && !isThisWindow(object))) {
+        if (
+          !isIdentifier(property, 'open') ||
+          (!isIdentifier(object, 'window') && !isThisWindow(object))
+        ) {
           return;
         }
 
@@ -64,7 +67,11 @@ export const rule: Rule.RuleModule = {
 };
 
 function isThisWindow(node: estree.Node) {
-  return node.type === 'MemberExpression' && node.object.type === 'ThisExpression' && isIdentifier(node.property, 'window');
+  return (
+    node.type === 'MemberExpression' &&
+    node.object.type === 'ThisExpression' &&
+    isIdentifier(node.property, 'window')
+  );
 }
 
 function hasRequiredOption(context: Rule.RuleContext, argument: estree.Node) {
