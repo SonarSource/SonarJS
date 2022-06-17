@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { URL } from 'url';
-import { isIdentifier, isMethodCall, isStringLiteral } from '../utils';
+import { getValueOfExpression, isIdentifier, isMethodCall, isStringLiteral } from '../utils';
 
 const REQUIRED_OPTION = 'noopener';
 const REQUIRED_OPTION_INDEX = 2;
@@ -31,7 +30,7 @@ const URL_INDEX = 0;
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      issue: 'Make sure not using "noopener" is safe here.',
+      missingNoopener: 'Make sure not using "noopener" is safe here.',
     },
   },
   create(context: Rule.RuleContext) {
@@ -40,21 +39,21 @@ export const rule: Rule.RuleModule = {
         if (!isMethodCall(node)) {
           return;
         }
-        const { property, object } = node.callee;
+        const { object, property } = node.callee;
 
-        if (!(isIdentifier(property, 'open') && isIdentifier(object, 'window'))) {
+        if (!isIdentifier(property, 'open') || !isIdentifier(object, 'window')) {
           return;
         }
         const args = node.arguments;
-        if (args.length >= URL_INDEX && !isUrl(args[URL_INDEX])) {
+        if (args.length >= URL_INDEX && !isHttpUrl(context, args[URL_INDEX])) {
           return;
         }
         if (
           args.length <= REQUIRED_OPTION_INDEX ||
-          !hasRequiredOption(args[REQUIRED_OPTION_INDEX])
+          !hasRequiredOption(context, args[REQUIRED_OPTION_INDEX])
         ) {
           context.report({
-            messageId: 'issue',
+            messageId: 'missingNoopener',
             node: property,
           });
         }
@@ -63,21 +62,19 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasRequiredOption(argument: estree.Node) {
-  if (!isStringLiteral(argument)) {
+function hasRequiredOption(context: Rule.RuleContext, argument: estree.Node) {
+  const literalNode = getValueOfExpression(context, argument, 'Literal');
+  if (literalNode === undefined || !isStringLiteral(literalNode)) {
     return false;
   }
-  return argument.value.includes(REQUIRED_OPTION);
+  return literalNode.value.includes(REQUIRED_OPTION);
 }
 
-function isUrl(argument: estree.Node): boolean {
-  if (!isStringLiteral(argument)) {
+function isHttpUrl(context: Rule.RuleContext, argument: estree.Node): boolean {
+  const literalNode = getValueOfExpression(context, argument, 'Literal');
+  if (literalNode === undefined || !isStringLiteral(literalNode)) {
     return false;
   }
-  try {
-    new URL(argument.value);
-    return true;
-  } catch (_) {
-    return false;
-  }
+  const url = literalNode.value;
+  return url.startsWith('http') || url.startsWith('https');
 }
