@@ -47,10 +47,6 @@ export const functionLike = new Set([
   'MethodDefinition',
 ]);
 
-export const equal = new Set(['==', '===']);
-
-export const not_equal = new Set(['!=', '!==']);
-
 export function isIdentifier(
   node: estree.Node | undefined,
   ...values: string[]
@@ -192,10 +188,6 @@ export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
 // eventually we should update eslint-plugin-sonarjs
 export function isLiteral(n: estree.Node | null): n is estree.Literal {
   return n != null && n.type === 'Literal';
-}
-
-export function isNullish(n: estree.Node): boolean {
-  return isNullLiteral(n) || isUndefined(n);
 }
 
 export function isNullLiteral(n: estree.Node): boolean {

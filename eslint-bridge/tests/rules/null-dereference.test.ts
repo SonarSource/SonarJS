@@ -306,18 +306,20 @@ ruleTesterJsWithTypes.run('', rule, {
     },
     {
       code: `
-      if (x != null && x.prop == 0) {
-        console.log("String is empty");
-      }
-      if (x == null || x.prop == 0) {
-        console.log("String is empty");
-      }
-      if (x != undefined && x.prop == 0) {
-        console.log("String is empty");
-      }
-      if (x == undefined || x.prop == 0) {
-        console.log("String is empty");
-      }
+      if (x != null && x.prop == 0) {}
+      if (x == null || x.prop == 0) {}
+      if (x != undefined && x.prop == 0) {}
+      if (x == undefined || x.prop == 0) {}
+      `,
+    },
+    {
+      code: `
+        if (x == null && x?.prop == 0) {}
+      `,
+    },
+    {
+      code: `
+        if (x == null && y.prop == 0) {}
       `,
     },
   ],
@@ -443,18 +445,7 @@ ruleTesterJsWithTypes.run('', rule, {
     },
     {
       code: `
-        if (x == null && x.prop == 0) {
-          console.log("String is empty");
-        }
-        if (null != x || x.prop == 0) {
-          console.log("String is empty");
-        }
-        if (undefined == x && x.prop == 0) {
-          console.log("String is empty");
-        }
-        if (x.prop != undefined || x.prop.prop2 == 0) {
-          console.log("String is empty");
-        }
+        if (x == null && x.prop == 0) {}
       `,
       errors: [
         {
@@ -462,24 +453,49 @@ ruleTesterJsWithTypes.run('', rule, {
           endLine: 2,
           column: 26,
           endColumn: 27,
+          message: 'TypeError can be thrown as expression might be null or undefined here.',
         },
+      ],
+    },
+    {
+      code: `
+        if (null != x || x.prop == 0) {}
+      `,
+      errors: [
         {
-          line: 5,
-          endLine: 5,
+          line: 2,
+          endLine: 2,
           column: 26,
           endColumn: 27,
+          message: 'TypeError can be thrown as expression might be null or undefined here.',
         },
+      ],
+    },
+    {
+      code: `
+        if (undefined == x && x.prop == 0) {}
+      `,
+      errors: [
         {
-          line: 8,
-          endLine: 8,
+          line: 2,
+          endLine: 2,
           column: 31,
           endColumn: 32,
+          message: 'TypeError can be thrown as expression might be null or undefined here.',
         },
+      ],
+    },
+    {
+      code: `
+        if (x.prop != undefined || x.prop.prop2 == 0) {}
+      `,
+      errors: [
         {
-          line: 11,
-          endLine: 11,
+          line: 2,
+          endLine: 2,
           column: 36,
           endColumn: 42,
+          message: 'TypeError can be thrown as expression might be null or undefined here.',
         },
       ],
     },

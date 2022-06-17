@@ -21,7 +21,7 @@
 
 import { Linter, Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport, childrenOf } from '../utils';
+import { interceptReport, childrenOf, isUndefined } from '../utils';
 
 const linter = new Linter();
 const noUnmodifiedLoopEslint = interceptReport(
@@ -79,7 +79,7 @@ function checkWhileStatement(node: estree.Node, context: Rule.RuleContext) {
 function onReport(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) {
   if ('node' in reportDescriptor) {
     const node = reportDescriptor['node'];
-    if (node.type === 'Identifier' && node.name === 'undefined') {
+    if (isUndefined(node)) {
       return;
     }
     context.report(reportDescriptor);

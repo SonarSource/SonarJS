@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isUndefined } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -30,7 +31,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     function raiseOnUndefined(node: estree.Node) {
-      if (node.type === 'Identifier' && node.name === 'undefined') {
+      if (isUndefined(node)) {
         context.report({
           messageId: 'useNull',
           node,

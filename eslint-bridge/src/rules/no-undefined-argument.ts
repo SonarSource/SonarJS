@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isRequiredParserServices, RequiredParserServices } from '../utils';
+import { isRequiredParserServices, isUndefined, RequiredParserServices } from '../utils';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 
@@ -75,10 +75,6 @@ export const rule: Rule.RuleModule = {
     return {};
   },
 };
-
-function isUndefined(node: estree.Node) {
-  return node.type === 'Identifier' && node.name === 'undefined';
-}
 
 function isOptionalParameter(
   paramIndex: number,

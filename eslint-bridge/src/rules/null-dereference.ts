@@ -28,111 +28,29 @@ import {
   isUndefinedOrNull,
   findFirstMatchingAncestor,
   RuleContext,
-  not_equal,
-  equal,
-  isNullish,
+  isNullLiteral,
+  isUndefined,
 } from '../utils';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 
-export enum Nullish {
+enum Null {
   confirmed,
   discarded,
   unknown,
 }
 
-//Check nullish value implicitly by Binary Expression
-function binaryExpressionImplicitNullish(
-  expr: estree.BinaryExpression,
-  id: estree.Node,
-  context: RuleContext,
-): Nullish {
-  const { left, right } = expr;
-  if (
-    (isNullish(right) &&
-      areEquivalent(left as TSESTree.Node, id as TSESTree.Node, context.getSourceCode())) ||
-    (isNullish(left) &&
-      areEquivalent(right as TSESTree.Node, id as TSESTree.Node, context.getSourceCode()))
-  ) {
-    if (not_equal.has(expr.operator)) return Nullish.discarded;
-    if (equal.has(expr.operator)) return Nullish.confirmed;
-  }
-  return Nullish.unknown;
+function isNull(n: estree.Node): boolean {
+  return isNullLiteral(n) || isUndefined(n);
 }
 
-//Check Null Dereference by implicit logical expression
-function checkLogicalNullDereference(
-  expr: estree.LogicalExpression,
-  id: estree.Node,
-  context: Rule.RuleContext,
-) {
-  if (expr.left.type === 'BinaryExpression') {
-    const nullish = binaryExpressionImplicitNullish(
-      expr.left,
-      id,
-      context as unknown as RuleContext,
-    );
-    if (
-      (nullish === Nullish.confirmed && expr.operator === '&&') ||
-      (nullish === Nullish.discarded && expr.operator === '||')
-    ) {
-      context.report({
-        messageId: 'shortCircuitError',
-        node: id,
-      });
-    }
-  }
-}
-
-function isWrittenInInnerFunction(symbol: Scope.Variable, fn: estree.Node | undefined) {
-  return symbol.references.some(ref => {
-    if (ref.isWrite() && ref.identifier.hasOwnProperty('parent')) {
-      const enclosingFn = findFirstMatchingAncestor(ref.identifier as TSESTree.Node, node =>
-        functionLike.has(node.type),
-      );
-      return enclosingFn && enclosingFn !== fn;
-    }
-    return false;
-  });
-}
-
-//Check NullDereference in scope declaration
-function checkNullDereference(
-  node: estree.Node,
-  context: Rule.RuleContext,
-  alreadyRaisedSymbols: Set<Scope.Variable>,
-) {
-  if (node.type !== 'Identifier') {
-    return;
-  }
-  const scope = context.getScope();
-  const symbol = scope.references.find(v => v.identifier === node)?.resolved;
-  if (!symbol) {
-    return;
-  }
-
-  const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
-
-  if (
-    !alreadyRaisedSymbols.has(symbol) &&
-    !isWrittenInInnerFunction(symbol, enclosingFunction) &&
-    isUndefinedOrNull(node, context.parserServices)
-  ) {
-    alreadyRaisedSymbols.add(symbol);
-    context.report({
-      messageId: 'nullDereference',
-      data: {
-        symbol: node.name,
-      },
-      node,
-    });
-  }
-}
+const equalOperators = ['==', '==='];
+const notEqualOperators = ['!=', '!=='];
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       nullDereference: 'TypeError can be thrown as "{{symbol}}" might be null or undefined here.',
-      shortCircuitError: 'MemberExpression on null or undefined reference',
+      shortCircuitError: 'TypeError can be thrown as expression might be null or undefined here.',
     },
   },
   create(context: Rule.RuleContext) {
@@ -168,3 +86,84 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getNullState(
+  expr: estree.BinaryExpression,
+  node: estree.Node,
+  context: RuleContext,
+): Null {
+  const { left, right } = expr;
+  if (
+    (isNull(right) &&
+      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.getSourceCode())) ||
+    (isNull(left) &&
+      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.getSourceCode()))
+  ) {
+    if (notEqualOperators.includes(expr.operator)) return Null.discarded;
+    if (equalOperators.includes(expr.operator)) return Null.confirmed;
+  }
+  return Null.unknown;
+}
+
+function checkLogicalNullDereference(
+  expr: estree.LogicalExpression,
+  node: estree.Node,
+  context: Rule.RuleContext,
+) {
+  if (expr.left.type === 'BinaryExpression') {
+    const nullish = getNullState(expr.left, node, context as unknown as RuleContext);
+    if (
+      (nullish === Null.confirmed && expr.operator === '&&') ||
+      (nullish === Null.discarded && expr.operator === '||')
+    ) {
+      context.report({
+        messageId: 'shortCircuitError',
+        node: node,
+      });
+    }
+  }
+}
+
+function isWrittenInInnerFunction(symbol: Scope.Variable, fn: estree.Node | undefined) {
+  return symbol.references.some(ref => {
+    if (ref.isWrite() && ref.identifier.hasOwnProperty('parent')) {
+      const enclosingFn = findFirstMatchingAncestor(ref.identifier as TSESTree.Node, node =>
+        functionLike.has(node.type),
+      );
+      return enclosingFn && enclosingFn !== fn;
+    }
+    return false;
+  });
+}
+
+function checkNullDereference(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  alreadyRaisedSymbols: Set<Scope.Variable>,
+) {
+  if (node.type !== 'Identifier') {
+    return;
+  }
+  const scope = context.getScope();
+  const symbol = scope.references.find(v => v.identifier === node)?.resolved;
+  if (!symbol) {
+    return;
+  }
+
+  const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
+
+  if (
+    !alreadyRaisedSymbols.has(symbol) &&
+    !isWrittenInInnerFunction(symbol, enclosingFunction) &&
+    isUndefinedOrNull(node, context.parserServices)
+  ) {
+    alreadyRaisedSymbols.add(symbol);
+    context.report({
+      messageId: 'nullDereference',
+      data: {
+        symbol: node.name,
+      },
+      node,
+    });
+  }
+}
