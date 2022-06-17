@@ -31,5 +31,4 @@ export * from './utils-parent';
 export * from './utils-regex';
 export * from './utils-type';
 export * from './utils-visitor';
-export * from './utils-window';
 export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';

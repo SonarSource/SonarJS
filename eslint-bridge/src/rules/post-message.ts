@@ -25,9 +25,9 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   isRequiredParserServices,
   getValueOfExpression,
+  getTypeAsString,
   childrenOf,
   resolveFunction,
-  isWindowObject,
 } from '../utils';
 
 const POST_MESSAGE = 'postMessage';
@@ -56,6 +56,12 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
+  const type = getTypeAsString(node, context.parserServices);
+  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
+  return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
+}
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
   const { callee } = callExpr;
@@ -116,6 +122,26 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
 function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {
   const eventValue = getValueOfExpression(context, eventNode, 'Literal');
   return typeof eventValue?.value === 'string' && eventValue.value.toLowerCase() === 'message';
+}
+
+class WindowNameVisitor {
+  private hasWindowName = false;
+
+  static containsWindowName(node: estree.Node, context: Rule.RuleContext) {
+    const visitor = new WindowNameVisitor();
+    visitor.visit(node, context);
+    return visitor.hasWindowName;
+  }
+
+  private visit(root: estree.Node, context: Rule.RuleContext) {
+    const visitNode = (node: estree.Node) => {
+      if (node.type === 'Identifier' && node.name.match(/window/i)) {
+        this.hasWindowName = true;
+      }
+      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
+    };
+    visitNode(root);
+  }
 }
 
 class EventListenerVisitor {
