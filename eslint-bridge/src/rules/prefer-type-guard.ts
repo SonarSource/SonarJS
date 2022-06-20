@@ -67,9 +67,9 @@ function checkFunctionLikeDeclaration(
 
   if (isInequalityBinaryExpression(returnedExpression)) {
     const { left, right } = returnedExpression;
-    if (isUndefined(right as estree.Node)) {
+    if (isUndefined(right)) {
       checkCastedType(functionDeclaration, left, context);
-    } else if (isUndefined(left as estree.Node)) {
+    } else if (isUndefined(left)) {
       checkCastedType(functionDeclaration, right, context);
     }
   } else if (isBooleanCall(returnedExpression)) {

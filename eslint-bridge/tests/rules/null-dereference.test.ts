@@ -313,14 +313,10 @@ ruleTesterJsWithTypes.run('', rule, {
       `,
     },
     {
-      code: `
-        if (x == null && x?.prop == 0) {}
-      `,
+      code: `if (x == null && x?.prop == 0) {}`,
     },
     {
-      code: `
-        if (x == null && y.prop == 0) {}
-      `,
+      code: `if (x == null && y.prop == 0) {}`,
     },
   ],
   invalid: [
@@ -444,58 +440,38 @@ ruleTesterJsWithTypes.run('', rule, {
       errors: 1,
     },
     {
-      code: `
-        if (x == null && x.prop == 0) {}
-      `,
+      code: `if (x == null && x.prop == 0) {}`,
       errors: [
         {
-          line: 2,
-          endLine: 2,
-          column: 26,
-          endColumn: 27,
-          message: 'TypeError can be thrown as expression might be null or undefined here.',
+          messageId: 'shortCircuitError',
         },
       ],
     },
     {
-      code: `
-        if (null != x || x.prop == 0) {}
-      `,
+      code: `if (null != x || x.prop == 0) {}`,
       errors: [
         {
-          line: 2,
-          endLine: 2,
-          column: 26,
-          endColumn: 27,
-          message: 'TypeError can be thrown as expression might be null or undefined here.',
+          messageId: 'shortCircuitError',
         },
       ],
     },
     {
-      code: `
-        if (undefined == x && x.prop == 0) {}
-      `,
+      code: `if (undefined == x && x.prop == 0) {}`,
       errors: [
         {
-          line: 2,
-          endLine: 2,
-          column: 31,
-          endColumn: 32,
-          message: 'TypeError can be thrown as expression might be null or undefined here.',
+          messageId: 'shortCircuitError',
         },
       ],
     },
     {
-      code: `
-        if (x.prop != undefined || x.prop.prop2 == 0) {}
-      `,
+      code: `if (x.prop != undefined || x.prop.prop2 == 0) {}`,
       errors: [
         {
-          line: 2,
-          endLine: 2,
-          column: 36,
-          endColumn: 42,
-          message: 'TypeError can be thrown as expression might be null or undefined here.',
+          line: 1,
+          endLine: 1,
+          column: 28,
+          endColumn: 34,
+          messageId: 'shortCircuitError',
         },
       ],
     },

@@ -111,10 +111,10 @@ function checkLogicalNullDereference(
   context: Rule.RuleContext,
 ) {
   if (expr.left.type === 'BinaryExpression') {
-    const nullish = getNullState(expr.left, node, context as unknown as RuleContext);
+    const nullState = getNullState(expr.left, node, context as unknown as RuleContext);
     if (
-      (nullish === Null.confirmed && expr.operator === '&&') ||
-      (nullish === Null.discarded && expr.operator === '||')
+      (nullState === Null.confirmed && expr.operator === '&&') ||
+      (nullState === Null.discarded && expr.operator === '||')
     ) {
       context.report({
         messageId: 'shortCircuitError',
