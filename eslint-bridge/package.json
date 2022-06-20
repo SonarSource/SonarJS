@@ -39,7 +39,7 @@
     "jest-sonar-reporter": "2.0.0",
     "mkdirp": "1.0.4",
     "prettier": "2.4.1",
-    "ts-jest": "28.0.1",
+    "ts-jest": "28.0.5",
     "ts-node": "10.4.0"
   },
   "dependencies": {
