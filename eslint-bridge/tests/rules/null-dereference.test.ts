@@ -304,6 +304,20 @@ ruleTesterJsWithTypes.run('', rule, {
       x?.y?.z?.foo;
       `,
     },
+    {
+      code: `
+      if (x != null && x.prop == 0) {}
+      if (x == null || x.prop == 0) {}
+      if (x != undefined && x.prop == 0) {}
+      if (x == undefined || x.prop == 0) {}
+      `,
+    },
+    {
+      code: `if (x == null && x?.prop == 0) {}`,
+    },
+    {
+      code: `if (x == null && y.prop == 0) {}`,
+    },
   ],
   invalid: [
     {
@@ -424,6 +438,42 @@ ruleTesterJsWithTypes.run('', rule, {
         var x;
         x.foo`,
       errors: 1,
+    },
+    {
+      code: `if (x == null && x.prop == 0) {}`,
+      errors: [
+        {
+          messageId: 'shortCircuitError',
+        },
+      ],
+    },
+    {
+      code: `if (null != x || x.prop == 0) {}`,
+      errors: [
+        {
+          messageId: 'shortCircuitError',
+        },
+      ],
+    },
+    {
+      code: `if (undefined == x && x.prop == 0) {}`,
+      errors: [
+        {
+          messageId: 'shortCircuitError',
+        },
+      ],
+    },
+    {
+      code: `if (x.prop != undefined || x.prop.prop2 == 0) {}`,
+      errors: [
+        {
+          line: 1,
+          endLine: 1,
+          column: 28,
+          endColumn: 34,
+          messageId: 'shortCircuitError',
+        },
+      ],
     },
   ],
 });

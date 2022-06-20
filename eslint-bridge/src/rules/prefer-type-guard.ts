@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent, RuleContext } from '../utils';
+import { getParent, RuleContext, isUndefined } from '../utils';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
@@ -164,10 +164,6 @@ function getCastTupleFromMemberExpression(
 
 function isNegation(node: TSESTree.Expression): node is TSESTree.UnaryExpression {
   return node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
-}
-
-function isUndefined(node: TSESTree.Node) {
-  return node.type === 'Identifier' && node.name === 'undefined';
 }
 
 function isBooleanCall(node: TSESTree.Expression): node is TSESTree.CallExpression {

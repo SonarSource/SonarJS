@@ -194,6 +194,10 @@ export function isNullLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === null;
 }
 
+export function isUndefined(node: estree.Node | TSESTree.Node): boolean {
+  return node.type === 'Identifier' && node.name === 'undefined';
+}
+
 /**
  * Detect expression statements like the following:
  *  myArray[1] = 42;

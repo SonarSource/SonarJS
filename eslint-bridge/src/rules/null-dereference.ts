@@ -27,71 +27,58 @@ import {
   functionLike,
   isUndefinedOrNull,
   findFirstMatchingAncestor,
+  RuleContext,
+  isNullLiteral,
+  isUndefined,
 } from '../utils';
+import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
+
+enum Null {
+  confirmed,
+  discarded,
+  unknown,
+}
+
+function isNull(n: estree.Node): boolean {
+  return isNullLiteral(n) || isUndefined(n);
+}
+
+const equalOperators = ['==', '==='];
+const notEqualOperators = ['!=', '!=='];
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       nullDereference: 'TypeError can be thrown as "{{symbol}}" might be null or undefined here.',
+      shortCircuitError: 'TypeError can be thrown as expression might be null or undefined here.',
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
+    if (!isRequiredParserServices(context.parserServices)) {
       return {};
     }
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
-
-    function checkNullDereference(node: estree.Node) {
-      if (node.type !== 'Identifier') {
-        return;
-      }
-      const scope = context.getScope();
-      const symbol = scope.references.find(v => v.identifier === node)?.resolved;
-      if (!symbol) {
-        return;
-      }
-
-      const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
-
-      if (
-        !alreadyRaisedSymbols.has(symbol) &&
-        !isWrittenInInnerFunction(symbol, enclosingFunction) &&
-        isUndefinedOrNull(node, services)
-      ) {
-        alreadyRaisedSymbols.add(symbol);
-        context.report({
-          messageId: 'nullDereference',
-          data: {
-            symbol: node.name,
-          },
-          node,
-        });
-      }
-    }
-
-    function isWrittenInInnerFunction(symbol: Scope.Variable, fn: estree.Node | undefined) {
-      return symbol.references.some(ref => {
-        if (ref.isWrite() && ref.identifier.hasOwnProperty('parent')) {
-          const enclosingFn = findFirstMatchingAncestor(ref.identifier as TSESTree.Node, node =>
-            functionLike.has(node.type),
-          );
-          return enclosingFn && enclosingFn !== fn;
-        }
-        return false;
-      });
-    }
 
     return {
       MemberExpression(node: estree.Node) {
         const { object, optional } = node as estree.MemberExpression;
         if (!optional) {
-          checkNullDereference(object);
+          checkNullDereference(object, context, alreadyRaisedSymbols);
+        }
+      },
+      'LogicalExpression MemberExpression'(node: estree.Node) {
+        const { object, optional } = node as estree.MemberExpression;
+        if (!optional) {
+          const ancestors = context.getAncestors();
+          const enclosingLogicalExpression = ancestors.find(
+            n => n.type === 'LogicalExpression',
+          ) as estree.LogicalExpression;
+          checkLogicalNullDereference(enclosingLogicalExpression, object, context);
         }
       },
       ForOfStatement(node: estree.Node) {
         const { right } = node as estree.ForOfStatement;
-        checkNullDereference(right);
+        checkNullDereference(right, context, alreadyRaisedSymbols);
       },
       'Program:exit'() {
         alreadyRaisedSymbols.clear();
@@ -99,3 +86,84 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getNullState(
+  expr: estree.BinaryExpression,
+  node: estree.Node,
+  context: RuleContext,
+): Null {
+  const { left, right } = expr;
+  if (
+    (isNull(right) &&
+      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.getSourceCode())) ||
+    (isNull(left) &&
+      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.getSourceCode()))
+  ) {
+    if (notEqualOperators.includes(expr.operator)) return Null.discarded;
+    if (equalOperators.includes(expr.operator)) return Null.confirmed;
+  }
+  return Null.unknown;
+}
+
+function checkLogicalNullDereference(
+  expr: estree.LogicalExpression,
+  node: estree.Node,
+  context: Rule.RuleContext,
+) {
+  if (expr.left.type === 'BinaryExpression') {
+    const nullState = getNullState(expr.left, node, context as unknown as RuleContext);
+    if (
+      (nullState === Null.confirmed && expr.operator === '&&') ||
+      (nullState === Null.discarded && expr.operator === '||')
+    ) {
+      context.report({
+        messageId: 'shortCircuitError',
+        node: node,
+      });
+    }
+  }
+}
+
+function isWrittenInInnerFunction(symbol: Scope.Variable, fn: estree.Node | undefined) {
+  return symbol.references.some(ref => {
+    if (ref.isWrite() && ref.identifier.hasOwnProperty('parent')) {
+      const enclosingFn = findFirstMatchingAncestor(ref.identifier as TSESTree.Node, node =>
+        functionLike.has(node.type),
+      );
+      return enclosingFn && enclosingFn !== fn;
+    }
+    return false;
+  });
+}
+
+function checkNullDereference(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  alreadyRaisedSymbols: Set<Scope.Variable>,
+) {
+  if (node.type !== 'Identifier') {
+    return;
+  }
+  const scope = context.getScope();
+  const symbol = scope.references.find(v => v.identifier === node)?.resolved;
+  if (!symbol) {
+    return;
+  }
+
+  const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
+
+  if (
+    !alreadyRaisedSymbols.has(symbol) &&
+    !isWrittenInInnerFunction(symbol, enclosingFunction) &&
+    isUndefinedOrNull(node, context.parserServices)
+  ) {
+    alreadyRaisedSymbols.add(symbol);
+    context.report({
+      messageId: 'nullDereference',
+      data: {
+        symbol: node.name,
+      },
+      node,
+    });
+  }
+}
