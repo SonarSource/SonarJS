@@ -2,10 +2,6 @@
 'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
 54,
 ],
-'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
-8,
-1122,
-],
 'mootools-core:Source/Core/Core.js':[
 105,
 217,

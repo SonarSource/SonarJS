@@ -20,9 +20,6 @@
 'mootools-core:Grunt/plugins/karma/syn/index.js':[
 0,
 ],
-'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
-0,
-],
 'mootools-core:Grunt/plugins/karma/syn/post-amd.js':[
 0,
 ],

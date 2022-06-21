@@ -20,9 +20,6 @@
 'mootools-core:Grunt/plugins/karma/syn/index.js':[
 4,
 ],
-'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
-14,
-],
 'mootools-core:Grunt/tasks/tasks.js':[
 4,
 ],
