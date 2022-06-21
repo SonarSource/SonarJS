@@ -41,5 +41,13 @@ ruleTester.run(`Function parameters with default values should be last`, rule, {
       code: `function multiply(a = 1, b) {}`,
       errors: 1,
     },
+    {
+      code: `function appReducer(state = initialState, action, param) {}`,
+      errors: 1,
+    },
+    {
+      code: `function appReducer(status = initialState, action) {}`,
+      errors: 1,
+    },
   ],
 });
