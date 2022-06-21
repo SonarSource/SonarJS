@@ -22,6 +22,8 @@ import { interceptReport, isIdentifier } from '../../utils';
 import { BaseFunction } from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
+const NUM_ARGS_REDUX_REDUCER = 2;
+
 export function decorateDefaultParamLast(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isReduxReducer));
 }
@@ -44,14 +46,15 @@ function reportExempting(
 }
 
 function isReduxReducer(enclosingFunction: BaseFunction) {
-  if (enclosingFunction?.params?.length === 2) {
+  if (enclosingFunction?.params?.length === NUM_ARGS_REDUX_REDUCER) {
     const [firstParam, secondParam] = enclosingFunction.params;
     if (
       firstParam.type === 'AssignmentPattern' &&
       isIdentifier(firstParam.left, 'state') &&
       isIdentifier(secondParam, 'action')
-    )
+    ) {
       return true;
+    }
   }
   return false;
 }
