@@ -33,7 +33,7 @@ import { decorateUseIsNan } from './use-isnan-decorator';
 
 export const externalRuleDecorators = [
   { decorate: decorateAccessorPairs, ruleKey: 'accessor-pairs' },
-  { decorate: decorateDefaultParamLast, ruleKey: 'accessor-pairs' },
+  { decorate: decorateDefaultParamLast, ruleKey: 'default-param-last' },
   { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
   { decorate: decorateNoDuplicateImports, ruleKey: 'no-duplicate-imports' },
   { decorate: decorateNoEmpty, ruleKey: 'no-empty' },
