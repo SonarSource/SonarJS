@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
+import { decorateDefaultParamLast } from './default-param-last-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
@@ -32,6 +33,7 @@ import { decorateUseIsNan } from './use-isnan-decorator';
 
 export const externalRuleDecorators = [
   { decorate: decorateAccessorPairs, ruleKey: 'accessor-pairs' },
+  { decorate: decorateDefaultParamLast, ruleKey: 'accessor-pairs' },
   { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
   { decorate: decorateNoDuplicateImports, ruleKey: 'no-duplicate-imports' },
   { decorate: decorateNoEmpty, ruleKey: 'no-empty' },
