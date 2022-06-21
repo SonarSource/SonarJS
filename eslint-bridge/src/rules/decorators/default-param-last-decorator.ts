@@ -38,7 +38,8 @@ function reportExempting(
       const variable = scope.variables.find(
         value => node.left.type === 'Identifier' && node.left.name === value.name,
       );
-      if (!exemptionCondition(variable?.defs?.[0]?.node as BaseFunction)) {
+      const enclosingFunction = variable?.defs?.[0]?.node as BaseFunction;
+      if (enclosingFunction && !exemptionCondition(enclosingFunction)) {
         context.report(reportDescriptor);
       }
     }
@@ -46,7 +47,7 @@ function reportExempting(
 }
 
 function isReduxReducer(enclosingFunction: BaseFunction) {
-  if (enclosingFunction?.params?.length === NUM_ARGS_REDUX_REDUCER) {
+  if (enclosingFunction.params.length === NUM_ARGS_REDUX_REDUCER) {
     const [firstParam, secondParam] = enclosingFunction.params;
     if (
       firstParam.type === 'AssignmentPattern' &&
