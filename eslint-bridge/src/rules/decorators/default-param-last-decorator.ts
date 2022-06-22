@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { interceptReport, isIdentifier } from '../../utils';
-import { AssignmentPattern, BaseFunction, Node } from 'estree';
+import { AssignmentPattern, BaseFunction } from 'estree';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 
@@ -36,7 +36,7 @@ function reportExempting(
     if ('node' in reportDescriptor) {
       const node = reportDescriptor['node'] as AssignmentPattern;
       const scope = context.getScope();
-      const variable = scope.variables.find(value => isIdentifier(node.left as Node, value.name));
+      const variable = scope.variables.find(value => isIdentifier(node.left, value.name));
       const enclosingFunction = variable?.defs?.[0]?.node as BaseFunction;
       if (enclosingFunction && !exemptionCondition(enclosingFunction)) {
         context.report(reportDescriptor);
