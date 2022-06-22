@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// https://sonarsource.github.io/rspec/#/rspec/S1788/javascript
+
 import { Rule } from 'eslint';
 import { interceptReport, isIdentifier } from '../../utils';
-import { BaseFunction } from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { AssignmentPattern, BaseFunction, Node } from 'estree';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 
@@ -32,12 +33,10 @@ function reportExempting(
   exemptionCondition: (enclosingFunction: BaseFunction) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
-    const scope = context.getScope();
     if ('node' in reportDescriptor) {
-      const node = reportDescriptor['node'] as TSESTree.AssignmentPattern;
-      const variable = scope.variables.find(
-        value => node.left.type === 'Identifier' && node.left.name === value.name,
-      );
+      const node = reportDescriptor['node'] as AssignmentPattern;
+      const scope = context.getScope();
+      const variable = scope.variables.find(value => isIdentifier(node.left as Node, value.name));
       const enclosingFunction = variable?.defs?.[0]?.node as BaseFunction;
       if (enclosingFunction && !exemptionCondition(enclosingFunction)) {
         context.report(reportDescriptor);
@@ -49,13 +48,11 @@ function reportExempting(
 function isReduxReducer(enclosingFunction: BaseFunction) {
   if (enclosingFunction.params.length === NUM_ARGS_REDUX_REDUCER) {
     const [firstParam, secondParam] = enclosingFunction.params;
-    if (
+    return (
       firstParam.type === 'AssignmentPattern' &&
       isIdentifier(firstParam.left, 'state') &&
       isIdentifier(secondParam, 'action')
-    ) {
-      return true;
-    }
+    );
   }
   return false;
 }
