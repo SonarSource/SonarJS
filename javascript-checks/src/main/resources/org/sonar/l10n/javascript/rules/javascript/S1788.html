@@ -19,4 +19,21 @@ function multiply(b, a = 1) {
 
 var x = multiply(42);  // returns 42 as expected
 </pre>
+<h2>Exceptions</h2>
+<p>When writing Redux reducers, there is a convention to use default argument syntax to provide initial state (first argument), while action (second
+argument) is mandatory. A reducer may be called with <code>undefined</code> as the state value when the application is being initialized.</p>
+<pre>
+// Use the initialState as a default value
+export default function appReducer(state = initialState, action) {
+  switch (action.type) {
+    default:
+      return state;
+  }
+}
+</pre>
+<h3>See</h3>
+<ul>
+  <li> <a href="https://redux.js.org/tutorials/fundamentals/part-3-state-actions-reducers#writing-reducers">Writing Reducers</a> - Redux documentation
+  </li>
+</ul>
 
