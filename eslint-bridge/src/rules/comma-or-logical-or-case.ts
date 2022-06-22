@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isLiteral } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -54,12 +55,22 @@ export const rule: Rule.RuleModule = {
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
       'SwitchCase > LogicalExpression': function (node: estree.Node) {
-        const firstElemAndNesting = getFirstElementAndNestingLevel(
-          node as estree.LogicalExpression,
-          0,
-        );
-        if (firstElemAndNesting) {
-          reportIssue(node, firstElemAndNesting[0], firstElemAndNesting[1] + 1);
+        const ancestors = context.getAncestors();
+        let enclosingSwitchStatement!: estree.SwitchStatement;
+        for (let n of ancestors) {
+          if (n.type === 'SwitchStatement') enclosingSwitchStatement = n;
+        }
+        if (
+          !isLiteral(enclosingSwitchStatement.discriminant) ||
+          enclosingSwitchStatement.discriminant.value !== true
+        ) {
+          const firstElemAndNesting = getFirstElementAndNestingLevel(
+            node as estree.LogicalExpression,
+            0,
+          );
+          if (firstElemAndNesting) {
+            reportIssue(node, firstElemAndNesting[0], firstElemAndNesting[1] + 1);
+          }
         }
       },
     };

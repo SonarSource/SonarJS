@@ -35,6 +35,12 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
               break;
       }`,
     },
+    {
+      code: `switch (true) {
+               case cond1() || cond2(): 
+                 break;
+             }`,
+    },
   ],
   invalid: [
     {
