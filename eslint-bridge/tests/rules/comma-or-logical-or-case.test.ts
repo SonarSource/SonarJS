@@ -41,6 +41,16 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
                  break;
              }`,
     },
+    {
+      code: `switch (a) {
+               case 2: 
+                 switch (true) {
+                   case cond3() || cond4(): 
+                     break;
+                 }
+                 break;
+             }`,
+    },
   ],
   invalid: [
     {
@@ -124,6 +134,17 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
           endColumn: 33,
         },
       ],
+    },
+    {
+      code: `switch (true) {
+               case cond1() || cond2(): 
+                 switch (a) {
+                   case cond3() || cond4(): 
+                     break;
+                 }
+                 break;
+             }`,
+      errors: 1,
     },
   ],
 });

@@ -55,15 +55,7 @@ export const rule: Rule.RuleModule = {
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
       'SwitchCase > LogicalExpression': function (node: estree.Node) {
-        const ancestors = context.getAncestors();
-        let enclosingSwitchStatement!: estree.SwitchStatement;
-        for (let n of ancestors) {
-          if (n.type === 'SwitchStatement') enclosingSwitchStatement = n;
-        }
-        if (
-          !isLiteral(enclosingSwitchStatement.discriminant) ||
-          enclosingSwitchStatement.discriminant.value !== true
-        ) {
+        if (!isSwitchTrue(getEnclosingSwitchStatement(context))) {
           const firstElemAndNesting = getFirstElementAndNestingLevel(
             node as estree.LogicalExpression,
             0,
@@ -76,6 +68,20 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getEnclosingSwitchStatement(context: Rule.RuleContext): estree.SwitchStatement {
+  const ancestors = context.getAncestors();
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (ancestors[i].type === 'SwitchStatement') {
+      return ancestors[i] as estree.SwitchStatement;
+    }
+  }
+  throw new Error('Should not be reachable');
+}
+
+function isSwitchTrue(node: estree.SwitchStatement) {
+  return isLiteral(node.discriminant) && node.discriminant.value === true;
+}
 
 function getFirstElementAndNestingLevel(
   logicalExpression: estree.LogicalExpression,
