@@ -76,7 +76,7 @@ function getEnclosingSwitchStatement(context: Rule.RuleContext): estree.SwitchSt
       return ancestors[i] as estree.SwitchStatement;
     }
   }
-  throw new Error('Should not be reachable');
+  throw new Error('A switch case should have an enclosing switch statement');
 }
 
 function isSwitchTrue(node: estree.SwitchStatement) {
