@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isLiteral } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -54,17 +55,33 @@ export const rule: Rule.RuleModule = {
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
       'SwitchCase > LogicalExpression': function (node: estree.Node) {
-        const firstElemAndNesting = getFirstElementAndNestingLevel(
-          node as estree.LogicalExpression,
-          0,
-        );
-        if (firstElemAndNesting) {
-          reportIssue(node, firstElemAndNesting[0], firstElemAndNesting[1] + 1);
+        if (!isSwitchTrue(getEnclosingSwitchStatement(context))) {
+          const firstElemAndNesting = getFirstElementAndNestingLevel(
+            node as estree.LogicalExpression,
+            0,
+          );
+          if (firstElemAndNesting) {
+            reportIssue(node, firstElemAndNesting[0], firstElemAndNesting[1] + 1);
+          }
         }
       },
     };
   },
 };
+
+function getEnclosingSwitchStatement(context: Rule.RuleContext): estree.SwitchStatement {
+  const ancestors = context.getAncestors();
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (ancestors[i].type === 'SwitchStatement') {
+      return ancestors[i] as estree.SwitchStatement;
+    }
+  }
+  throw new Error('A switch case should have an enclosing switch statement');
+}
+
+function isSwitchTrue(node: estree.SwitchStatement) {
+  return isLiteral(node.discriminant) && node.discriminant.value === true;
+}
 
 function getFirstElementAndNestingLevel(
   logicalExpression: estree.LogicalExpression,
