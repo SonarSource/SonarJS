@@ -13,5 +13,6 @@
   "scope": "All",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT"  ]
+    "JAVASCRIPT"
+  ]
 }
