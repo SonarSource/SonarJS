@@ -95,6 +95,7 @@ class TypeScriptAnalysisTest {
     assertThat(issue.getComponent()).isEqualTo(projectKey + ":fileUsedInCustomTsConfig.ts");
 
     Path tsconfig = PROJECT_DIR.toPath().resolve("custom.tsconfig.json").toAbsolutePath();
+    System.out.println("[[DEBUG]] " + tsconfig);
     assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
   }
 
