@@ -32,7 +32,7 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("ant-design", "tests"), // todo: many dirs **/__tests__
       tsProject("console", ""), // todo: many dirs **/__tests__
       tsProject("desktop", "app/test"),
-      tsProject("emission", ""), // todo: many dirs **/__tests__
+      tsProject("eigen", ""), // todo
       tsProject("file-for-rules", ""),
       tsProject("fireface", ""),
       tsProject("ionic2-auth", ""),
@@ -40,7 +40,7 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("postgraphql", ""), // todo: many dirs **/__tests__
       tsProject("prettier-vscode", ""),
       tsProject("rxjs", "spec"),
-      tsProject("searchkit", "src/__test__"), // todo: **/*.unit.ts
+      tsProject("searchkit", ""), // todo
       tsProject("TypeScript", "src/harness/unittests")
       );
   }

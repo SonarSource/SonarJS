@@ -1,8 +1,5 @@
 {
-'searchkit:src/components/__test__/TestHelpers.ts':[
-39,
-],
-'searchkit:src/core/support/Utils.ts':[
-25,
+'searchkit:packages/searchkit-sdk/src/facets/utils/index.ts':[
+2,
 ],
 }

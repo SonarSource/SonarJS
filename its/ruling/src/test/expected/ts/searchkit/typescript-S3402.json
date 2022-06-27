@@ -1,5 +1,6 @@
 {
-'searchkit:src/core/support/Utils.ts':[
-11,
+'searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts':[
+50,
+62,
 ],
 }

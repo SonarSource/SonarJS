@@ -1,12 +1,9 @@
 {
-'ant-design:components/anchor/anchorHelper.tsx':[
-70,
-72,
+'ant-design:components/_util/wave.tsx':[
+41,
 ],
-'ant-design:components/anchor/index.tsx':[
-39,
-],
-'ant-design:components/layout/Sider.tsx':[
-58,
+'ant-design:components/anchor/Anchor.tsx':[
+105,
+112,
 ],
 }

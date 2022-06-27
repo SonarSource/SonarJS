@@ -1,8 +1,8 @@
 {
-'searchkit:src/core/accessors/ResetSearchAccessor.ts':[
-20,
+'searchkit:packages/searchkit-client/src/components.tsx':[
+25,
 ],
-'searchkit:src/core/react/SearchkitComponent.ts':[
-57,
+'searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx':[
+16,
 ],
 }

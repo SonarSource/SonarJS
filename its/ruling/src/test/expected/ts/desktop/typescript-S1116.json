@@ -1,8 +1,11 @@
 {
-'desktop:app/src/ui/history/commit-summary.tsx':[
-35,
+'desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts':[
+144,
 ],
-'desktop:app/src/ui/list.tsx':[
-187,
+'desktop:app/src/lib/source-map-support.ts':[
+127,
+],
+'desktop:app/src/ui/lib/author-input.tsx':[
+364,
 ],
 }
