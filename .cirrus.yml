@@ -231,7 +231,8 @@ promote_task:
     - ws_scan
     - build_win
     - plugin_qa
-    - plugin_qa_win
+    - plugin_qa_win_1
+    - plugin_qa_win_2
     - plugin_qa_nodejs
     - ruling
   <<: *ONLY_SONARSOURCE_QA
