@@ -97,7 +97,9 @@ class TypeScriptAnalysisTest {
     Path tsconfig = PROJECT_DIR.toPath().resolve("custom.tsconfig.json").toAbsolutePath();
     System.out.println("[[DEBUG]] " + tsconfig);
     System.out.println("[[[---------------\n" + result.getLogs() + "\n----------------]]]");
-    assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
+    var log = "Using " + tsconfig + " from sonar.typescript.tsconfigPath property";
+    assertThat(result.getLogsLines(l -> l.contains(log)))
+      .withFailMessage("Failed to find: " +log + "\n" + result.getLogsLines(l -> true).toString()).hasSize(1);
   }
 
   @Test
