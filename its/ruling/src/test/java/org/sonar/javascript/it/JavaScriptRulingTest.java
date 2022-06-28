@@ -85,6 +85,7 @@ class JavaScriptRulingTest {
       jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
       jsProject("prototype", "", "test"),
       jsProject("qunit", "", "test"),
+      jsProject("react-cloud-music", "", ""),
       jsProject("sizzle", "external/**", "test"),
       jsProject("underscore", "", "test")
       );

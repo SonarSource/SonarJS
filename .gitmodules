@@ -67,6 +67,10 @@
 	path = its/sources/qunit
 	url = https://github.com/SonarSource/qunit.git
 	ignore = untracked
+[submodule "its/sources/react-cloud-music"]
+	path = its/sources/react-cloud-music
+	url = https://github.com/sanyuan0704/react-cloud-music.git
+	ignore = untracked
 [submodule "its/sources/sizzle"]
 	path = its/sources/sizzle
 	url = https://github.com/SonarSource/sizzle.git
@@ -83,6 +87,3 @@
 [submodule "its/css-sources/projects"]
 	path = its/css-sources/projects
 	url = https://github.com/SonarSource/css-test-sources
-[submodule "its/sources/react-cloud-music"]
-	path = its/sources/react-cloud-music
-	url = https://github.com/sanyuan0704/react-cloud-music.git
