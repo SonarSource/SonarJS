@@ -95,13 +95,10 @@ class TypeScriptAnalysisTest {
     assertThat(issue.getLine()).isEqualTo(2);
     assertThat(issue.getComponent()).isEqualTo(projectKey + ":fileUsedInCustomTsConfig.ts");
 
-    Path tsconfig = PROJECT_DIR.toPath().resolve("custom.tsconfig.json").toAbsolutePath();
-    System.out.println("[[DEBUG]] " + tsconfig);
-    System.out.println("[[DEBUG]] " + tsconfig.toFile().getCanonicalFile());
-
-    // comparing logs in upper case as otherwise test is failing when executed on Windows (`C:\Windows\TEMP...` vs `C:\Windows\Temp`)
-    var log = ("Using " + tsconfig + " from sonar.typescript.tsconfigPath property").toUpperCase(Locale.ROOT);
-    assertThat(result.getLogsLines(l -> l.toUpperCase(Locale.ROOT).contains(log))).hasSize(1);
+    // using `getCanonicalFile` as otherwise test is failing when executed on Windows (`C:\Windows\TEMP...` vs `C:\Windows\Temp`)
+    Path tsconfig = PROJECT_DIR.getCanonicalFile().toPath().resolve("custom.tsconfig.json");
+    var log = ("Using " + tsconfig + " from sonar.typescript.tsconfigPath property");
+    assertThat(result.getLogsLines(l -> l.contains(log))).hasSize(1);
   }
 
   @Test
