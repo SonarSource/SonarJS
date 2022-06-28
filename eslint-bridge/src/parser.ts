@@ -25,6 +25,7 @@ import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
 import { JsTsAnalysisInput } from './analyzer';
 import { getProgramById } from './programManager';
+import * as yaml from 'yaml';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
@@ -210,4 +211,53 @@ function babelConfig(config: Linter.ParserOptions) {
     configFile: false,
   };
   return { ...config, requireConfigFile: false, babelOptions };
+}
+
+export function parseYaml(filePath: string) {
+  const src = getFileContent(filePath);
+  const lineCounter = new yaml.LineCounter();
+  const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
+  const docs = new yaml.Composer().compose(tokens);
+  const lambdas: { code: string; line: number; column: number }[] = [];
+  for (const doc of docs) {
+    yaml.visit(doc, {
+      Pair(_, pair: any, ancestors: any) {
+        if (isInlineAwsLambda(ancestors)) {
+          const [offset] = pair.value.range;
+          const { line, col: column } = lineCounter.linePos(offset);
+          lambdas.push({ code: pair.value.value, line, column });
+        }
+      },
+    });
+  }
+  return lambdas;
+}
+
+function isInlineAwsLambda(ancestors: any[]) {
+  return (
+    hasZipFile(ancestors) &&
+    hasCode(ancestors) &&
+    hasNodeJsRuntime(ancestors) &&
+    hasAwsLambdaFunction(ancestors)
+  );
+}
+
+function hasZipFile(ancestors: any[]) {
+  return ancestors[ancestors.length - 1]?.items.some((item: any) => item.key.value === 'ZipFile');
+}
+
+function hasCode(ancestors: any[]) {
+  return ancestors[ancestors.length - 2]?.key?.value === 'Code';
+}
+
+function hasNodeJsRuntime(ancestors: any[]) {
+  return ancestors[ancestors.length - 3]?.items.some(
+    (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
+  );
+}
+
+function hasAwsLambdaFunction(ancestors: any[]) {
+  return ancestors[ancestors.length - 5]?.items.some(
+    (item: any) => item?.key.value === 'Type' && item?.value.value === 'AWS::Lambda::Function',
+  );
 }

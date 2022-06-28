@@ -22,6 +22,7 @@ import {
   buildSourceCode,
   ParseExceptionCode,
   parseExceptionCodeOf,
+  parseYaml,
 } from 'parser';
 import { SourceCode } from 'eslint';
 import { ParsingError, ProgramBasedAnalysisInput } from 'analyzer';
@@ -383,6 +384,21 @@ describe('program based analysis', () => {
     const parsingOptions = buildParsingOptions(analysisInput);
     expect(parsingOptions.programs).toHaveLength(1);
     expect(parsingOptions.project).toBeUndefined();
+  });
+});
+
+describe('Parse YAML Files', () => {
+  it('parse YAML syntax', () => {
+    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
+    const parsed = parseYaml(filePath);
+    expect(parsed).toBeDefined();
+    expect(parsed).toEqual([
+      {
+        code: `console.log('hello, world');;`,
+        line: 7,
+        column: 18,
+      },
+    ]);
   });
 });
 
