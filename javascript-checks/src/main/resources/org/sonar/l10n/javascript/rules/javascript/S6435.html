@@ -1,36 +1,38 @@
-<p>When writing the <code>render</code> method in a component it is easy to forget to return the JSX content. This rule will warn if the
-<code>return</code> statement is missing.</p>
+<p>The <code>render</code> should always return. The rule will raise an issue when it’s missing.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var Hello = createReactClass({
+const createReactClass = require('create-react-class');
+const App1 = createReactClass({
   render() {
-    &lt;div&gt;Hello&lt;/div&gt;;
+    &lt;div&gt;Contents&lt;/div&gt;; // Without return, it's an empty statement
   }
 });
 
-class Hello extends React.Component {
+const React = require('react');
+class App2 extends React.Component {
   render() {
-    &lt;div&gt;Hello&lt;/div&gt;;
+    &lt;div&gt;Contents&lt;/div&gt;; // Without return, it's an empty statement
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var Hello = createReactClass({
+const createReactClass = require('create-react-class');
+var App1 = createReactClass({
   render() {
-    return &lt;div&gt;Hello&lt;/div&gt;;
+    return &lt;div&gt;Contents&lt;/div&gt;;
   }
 });
 
-class Hello extends React.Component {
+const React = require('react');
+class App2 extends React.Component {
   render() {
-    return &lt;div&gt;Hello&lt;/div&gt;;
+    return &lt;div&gt;Contents&lt;/div&gt;;
   }
 }
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/require-render-return.md">Enforce ES5 or ES6 class for
-  returning value in render function (react/require-render-return) </a> - ESLint rule </li>
+  <li> <a href="https://reactjs.org/docs/react-component.html#render">render()</a> - React API Reference </li>
 </ul>
 

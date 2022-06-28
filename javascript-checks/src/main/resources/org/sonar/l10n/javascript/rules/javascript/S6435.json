@@ -1,12 +1,14 @@
 {
-  "title": "React render function must always return a value",
+  "title": "React render function should \"return\" a value",
   "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
   },
-  "tags": [],
+  "tags": [
+    "react"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6435",
   "sqKey": "S6435",
