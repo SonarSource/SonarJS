@@ -27,6 +27,14 @@
 	path = its/sources/es5-shim
 	url = https://github.com/SonarSource/es5-shim.git
 	ignore = untracked
+[submodule "its/sources/fireact"]
+	path = its/sources/fireact
+	url = https://github.com/chaoming/fireact.git
+  ignore = untracked
+[submodule "its/sources/jira-clone"]
+  path = its/sources/jira-clone
+  url = https://github.com/oldboyxx/jira_clone.git
+  ignore = untracked
 [submodule "its/sources/jshint"]
 	path = its/sources/jshint
 	url = https://github.com/SonarSource/jshint.git
@@ -75,3 +83,6 @@
 [submodule "its/css-sources/projects"]
 	path = its/css-sources/projects
 	url = https://github.com/SonarSource/css-test-sources
+[submodule "its/sources/react-cloud-music"]
+	path = its/sources/react-cloud-music
+	url = https://github.com/sanyuan0704/react-cloud-music.git
