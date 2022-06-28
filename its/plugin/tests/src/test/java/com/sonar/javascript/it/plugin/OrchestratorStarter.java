@@ -49,6 +49,8 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
@@ -57,6 +59,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
     .build();
 
   private static boolean started;
