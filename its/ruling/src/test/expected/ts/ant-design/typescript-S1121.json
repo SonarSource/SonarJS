@@ -1,8 +1,5 @@
 {
-'ant-design:components/anchor/anchorHelper.tsx':[
-12,
-],
-'ant-design:components/back-top/index.tsx':[
-18,
+'ant-design:components/_util/easings.ts':[
+9,
 ],
 }

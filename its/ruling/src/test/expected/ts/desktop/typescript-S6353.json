@@ -1,6 +1,13 @@
 {
-'desktop:app/src/lib/git/status.ts':[
+'desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts':[
+21,
+21,
+],
+'desktop:app/src/lib/git/log.ts':[
+48,
 53,
-56,
+],
+'desktop:app/src/lib/release-notes.ts':[
+17,
 ],
 }

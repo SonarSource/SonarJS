@@ -1,8 +1,8 @@
 {
 'desktop:app/src/ui/history/commit-summary.tsx':[
-49,
+159,
 ],
-'desktop:app/src/ui/list.tsx':[
-225,
+'desktop:app/src/ui/lib/list/list.tsx':[
+289,
 ],
 }

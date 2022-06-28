@@ -72,7 +72,9 @@ class JavaScriptRulingTest {
       jsProject("backbone", "", "test"),
       jsProject("es5-shim", "", "tests"),
       jsProject("file-for-rules", "", "tests"),
+      jsProject("fireact", "", ""),
       jsProject("javascript-test-sources", "", ""),
+      jsProject("jira-clone", "", ""),
       jsProject("jquery", "", "test"),
       jsProject("jshint", "", "tests"),
       jsProject("jStorage", "", "tests"),
@@ -83,6 +85,7 @@ class JavaScriptRulingTest {
       jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
       jsProject("prototype", "", "test"),
       jsProject("qunit", "", "test"),
+      jsProject("react-cloud-music", "", ""),
       jsProject("sizzle", "external/**", "test"),
       jsProject("underscore", "", "test")
       );
