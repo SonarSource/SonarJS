@@ -169,6 +169,9 @@ plugin_qa_win_1_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   qa_script:
+    - echo %TMP%
+    - echo %TEMP%
+    - dir C:\Windows
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
   # building the custom plugin required for the further tests
@@ -188,6 +191,9 @@ plugin_qa_win_2_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   qa_script:
+    - echo %TMP%
+    - echo %TEMP%
+    - dir C:\Windows
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false "-Dtest=CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest" -B -e -V verify
