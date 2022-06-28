@@ -25,6 +25,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
@@ -98,7 +99,7 @@ class TypeScriptAnalysisTest {
     System.out.println("[[DEBUG]] " + tsconfig);
     System.out.println("[[[---------------\n" + result.getLogs() + "\n----------------]]]");
     var log = "Using " + tsconfig + " from sonar.typescript.tsconfigPath property";
-    assertThat(result.getLogsLines(l -> l.contains(log)))
+    assertThat(result.getLogsLines(l -> l.toUpperCase(Locale.ROOT).contains(log.toUpperCase(Locale.ROOT))))
       .withFailMessage("Failed to find: " +log + "\n" + result.getLogsLines(l -> true).toString()).hasSize(1);
   }
 
