@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;

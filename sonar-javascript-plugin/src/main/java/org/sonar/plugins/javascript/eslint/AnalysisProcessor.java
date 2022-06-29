@@ -97,7 +97,7 @@ public class AnalysisProcessor {
     monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
   }
 
-  protected void processParsingError(EslintBridgeServer.ParsingError parsingError) {
+  private void processParsingError(EslintBridgeServer.ParsingError parsingError) {
     Integer line = parsingError.line;
     String message = parsingError.message;
 
@@ -137,7 +137,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  protected void saveIssues(List<Issue> issues) {
+  private void saveIssues(List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
       saveIssue(issue);
