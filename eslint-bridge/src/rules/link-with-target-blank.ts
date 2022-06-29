@@ -86,7 +86,7 @@ function isHttpUrl(context: Rule.RuleContext, argument: estree.Node): boolean {
   const stringOrNothing = extractString(context, argument);
   return (
     stringOrNothing !== undefined &&
-    (stringOrNothing.startsWith('http') || stringOrNothing.startsWith('https'))
+    (stringOrNothing.startsWith('http://') || stringOrNothing.startsWith('https://'))
   );
 }
 

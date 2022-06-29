@@ -14,6 +14,8 @@ window.open('https://example.com/dangerous5', 'windowname', 'noopener');
 
 window.open('https://example.com/dangerous6', 'windowname', 'resizable,scrollbars,status,noopener');
 
+window.open('http-protocol-explained.pdf');
+
 function open() {
     console.log('hello')
 }
