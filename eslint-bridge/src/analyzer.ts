@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ParseExceptionCode, buildSourceCode, getFileContent } from './parser';
+import {
+  ParseExceptionCode,
+  buildSourceCode,
+  getFileContent,
+  buildSourceCodesFromYaml,
+} from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
@@ -123,6 +128,16 @@ export function analyzeJavaScript(input: TsConfigBasedAnalysisInput): Promise<An
 
 export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   return Promise.resolve(analyze(input, 'ts'));
+}
+
+export function analyzeYaml(input: TsConfigBasedAnalysisInput): AnalysisResponse {
+  const sourceCodes = buildSourceCodesFromYaml(input.filePath);
+  const aggregatedIssues: Issue[] = [];
+  for (const sourceCode of sourceCodes) {
+    const { issues } = linter.analyze(sourceCode, input.filePath, input.fileType);
+    aggregatedIssues.push(...issues);
+  }
+  return { issues: aggregatedIssues };
 }
 
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {

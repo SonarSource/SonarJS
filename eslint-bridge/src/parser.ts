@@ -26,6 +26,7 @@ import { getContext } from './context';
 import { JsTsAnalysisInput } from './analyzer';
 import { getProgramById } from './programManager';
 import * as yaml from 'yaml';
+import { FileType, visit } from './utils';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
@@ -218,14 +219,14 @@ export function parseYaml(filePath: string) {
   const lineCounter = new yaml.LineCounter();
   const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
   const docs = new yaml.Composer().compose(tokens);
-  const lambdas: { code: string; line: number; column: number }[] = [];
+  const lambdas: { code: string; line: number; column: number; offset: number }[] = [];
   for (const doc of docs) {
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
         if (isInlineAwsLambda(ancestors)) {
           const [offset] = pair.value.range;
           const { line, col: column } = lineCounter.linePos(offset);
-          lambdas.push({ code: pair.value.value, line, column });
+          lambdas.push({ code: pair.value.value, line, column, offset });
         }
       },
     });
@@ -260,4 +261,33 @@ function hasAwsLambdaFunction(ancestors: any[]) {
   return ancestors[ancestors.length - 5]?.items.some(
     (item: any) => item?.key.value === 'Type' && item?.value.value === 'AWS::Lambda::Function',
   );
+}
+
+export function buildSourceCodesFromYaml(filePath: string) {
+  const lambdas = parseYaml(filePath);
+  const sourceCodes: SourceCode[] = [];
+  for (const lambda of lambdas) {
+    const { code, line, column, offset } = lambda;
+    const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
+    const sourceCode = buildSourceCode(input, 'js') as SourceCode;
+    fixLocations(sourceCode, line, column, offset);
+    sourceCodes.push(sourceCode);
+  }
+  return sourceCodes;
+}
+
+export function fixLocations(sourceCode: SourceCode, line: number, column: number, offset: number) {
+  /* nodes */
+  visit(sourceCode, node => {
+    if (node.loc) {
+      node.loc.start.line += line - 1;
+      node.loc.end.line += line - 1;
+      node.loc.start.column += column;
+      node.loc.end.column += column;
+    }
+    if (node.range) {
+      node.range[0] += offset;
+      node.range[1] += offset;
+    }
+  });
 }

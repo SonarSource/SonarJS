@@ -24,6 +24,7 @@ import {
   initLinter,
   analyzeCss,
   Issue,
+  analyzeYaml,
 } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -476,5 +477,21 @@ describe('#analyzeCss', () => {
   it('should throw when failed promise returned', async () => {
     (stylelint.lint as jest.Mock).mockRejectedValue(new Error('some reason'));
     await expect(analyzeCss(request)).rejects.toEqual(new Error('some reason'));
+  });
+});
+
+describe('Analyze YAML', () => {
+  it('should analyze YAML file', () => {
+    initLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
+    const { issues } = analyzeYaml({
+      filePath,
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues[0].line).toEqual(7);
+    expect(issues[0].column).toEqual(46);
   });
 });

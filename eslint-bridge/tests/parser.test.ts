@@ -20,6 +20,7 @@
 import {
   buildParsingOptions,
   buildSourceCode,
+  buildSourceCodesFromYaml,
   ParseExceptionCode,
   parseExceptionCodeOf,
   parseYaml,
@@ -397,8 +398,17 @@ describe('Parse YAML Files', () => {
         code: `console.log('hello, world');;`,
         line: 7,
         column: 18,
+        offset: 149,
       },
     ]);
+  });
+
+  it('build source code from YAML file', () => {
+    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
+    const sourceCodes = buildSourceCodesFromYaml(filePath);
+    expect(sourceCodes).toHaveLength(1);
+    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 });
 
