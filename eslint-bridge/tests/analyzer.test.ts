@@ -481,12 +481,12 @@ describe('#analyzeCss', () => {
 });
 
 describe('Analyze YAML', () => {
-  it('should analyze YAML file', () => {
+  it('should analyze YAML file', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = join(__dirname, './fixtures/yaml/file.yaml');
-    const { issues } = analyzeYaml({
+    const { issues } = await analyzeYaml({
       filePath,
       fileContent: undefined,
       fileType: 'MAIN',
