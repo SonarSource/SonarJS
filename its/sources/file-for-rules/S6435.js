@@ -1,5 +1,6 @@
-var Hello = createReactClass({
+const React = require('react');
+class App extends React.Component {
   render() {
-    <div>Hello</div>;
+    <div>Contents</div>;
   }
-});
+}

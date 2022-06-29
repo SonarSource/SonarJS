@@ -84,6 +84,7 @@
     "bytes",
     "eslint",
     "eslint-plugin-chai-friendly",
+    "eslint-plugin-react",
     "eslint-plugin-sonarjs",
     "express",
     "functional-red-black-tree",

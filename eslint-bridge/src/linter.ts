@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
+import { rules as reactRules } from 'eslint-plugin-react';
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
 import {
   decorateJavascriptEslint,
@@ -86,6 +87,7 @@ export class LinterWrapper {
     this.linter = new Linter();
     this.linter.defineRules(sonarjsRules);
     this.linter.defineRules(internalRules);
+    this.linter.defineRules(reactRules);
 
     const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
 
