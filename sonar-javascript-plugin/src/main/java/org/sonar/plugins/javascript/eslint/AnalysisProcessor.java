@@ -43,6 +43,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.yaml.YamlLanguage;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
@@ -82,17 +83,21 @@ public class AnalysisProcessor {
       return;
     }
 
-    // it's important to have an order here:
-    // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
-    saveMetrics(response.metrics);
-    saveIssues(response.issues);
-    saveHighlights(response.highlights);
-    saveHighlightedSymbols(response.highlightedSymbols);
-    saveCpd(response.cpdTokens);
+    if (YamlLanguage.KEY.equals(file.language())) {
+      saveIssues(response.issues);
+    } else {
+      // it's important to have an order here:
+      // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
+      saveMetrics(response.metrics);
+      saveIssues(response.issues);
+      saveHighlights(response.highlights);
+      saveHighlightedSymbols(response.highlightedSymbols);
+      saveCpd(response.cpdTokens);
+    }
     monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
   }
 
-  private void processParsingError(EslintBridgeServer.ParsingError parsingError) {
+  protected void processParsingError(EslintBridgeServer.ParsingError parsingError) {
     Integer line = parsingError.line;
     String message = parsingError.message;
 
@@ -132,7 +137,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private void saveIssues(List<Issue> issues) {
+  protected void saveIssues(List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
       saveIssue(issue);

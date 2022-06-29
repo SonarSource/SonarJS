@@ -250,6 +250,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return response(request(json, "analyze-css"), request.filePath);
   }
 
+  @Override
+  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException {
+    String json = GSON.toJson(request);
+    return response(request(json, "analyze-yaml"), request.filePath);
+  }
+
   private String request(String json, String endpoint) throws IOException {
     var request = HttpRequest.newBuilder()
       .uri(url(endpoint))

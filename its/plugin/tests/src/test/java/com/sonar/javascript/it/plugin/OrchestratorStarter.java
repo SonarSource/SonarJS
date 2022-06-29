@@ -25,6 +25,8 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -101,6 +103,11 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   public static void setProfile(String projectKey, String profileName, String language) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, language, profileName);
+  }
+
+  public static void setProfiles(String projectKey, Map<String, String> profiles) {
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    profiles.forEach((profileName, language) -> ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, language, profileName));
   }
 
   @CheckForNull

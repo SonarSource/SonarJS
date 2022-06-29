@@ -22,6 +22,8 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
@@ -45,7 +47,9 @@ public class YamlAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("yaml-aws-lambda"));
 
-    OrchestratorStarter.setProfile(projectKey, "yaml-aws-lambda-profile", "cloudformation");
+    OrchestratorStarter.setProfiles(projectKey, Map.of(
+      "yaml-aws-lambda-profile", "cloudformation",
+      "eslint-based-rules-profile", "js"));
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
