@@ -1,31 +1,20 @@
-<p>The <code>render</code> should always return. The rule will raise an issue when it’s missing.</p>
+<p>React components describe an independent and reusable piece of UI. To define it one can declare a function (functional component) or a class (class
+component). When implementing a class component, a <code>render</code> method is required to define the DOM structure, typically with JSX syntax. Thus
+having a <code>render</code> method without a single <code>return</code> statement is usually a mistake. If it’s required that the component renders
+to nothing, the method should return <code>null</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-const createReactClass = require('create-react-class');
-const App1 = createReactClass({
-  render() {
-    &lt;div&gt;Contents&lt;/div&gt;; // Without return, it's an empty statement
-  }
-});
-
 const React = require('react');
-class App2 extends React.Component {
+class App extends React.Component {
   render() {
-    &lt;div&gt;Contents&lt;/div&gt;; // Without return, it's an empty statement
+    &lt;div&gt;Contents&lt;/div&gt;;
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-const createReactClass = require('create-react-class');
-var App1 = createReactClass({
-  render() {
-    return &lt;div&gt;Contents&lt;/div&gt;;
-  }
-});
-
 const React = require('react');
-class App2 extends React.Component {
+class App extends React.Component {
   render() {
     return &lt;div&gt;Contents&lt;/div&gt;;
   }
