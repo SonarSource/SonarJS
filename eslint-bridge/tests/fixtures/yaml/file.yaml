@@ -4,6 +4,6 @@ Resources:
     Type: "AWS::Lambda::Function"
     Properties:
       Code:
-        ZipFile: console.log('hello, world');;
+        ZipFile: if (foo()) bar(); else bar();
       Description: "The branch duplication should be reported at 14:53"
       Runtime: "nodejs16.0"

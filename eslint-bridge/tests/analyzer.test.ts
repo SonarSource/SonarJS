@@ -482,7 +482,9 @@ describe('#analyzeCss', () => {
 
 describe('Analyze YAML', () => {
   it('should analyze YAML file', () => {
-    initLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const filePath = join(__dirname, './fixtures/yaml/file.yaml');
     const { issues } = analyzeYaml({
       filePath,
@@ -492,6 +494,6 @@ describe('Analyze YAML', () => {
     });
     expect(issues).toHaveLength(1);
     expect(issues[0].line).toEqual(7);
-    expect(issues[0].column).toEqual(46);
+    expect(issues[0].column).toEqual(18);
   });
 });

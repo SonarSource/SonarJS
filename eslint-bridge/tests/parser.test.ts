@@ -395,7 +395,7 @@ describe('Parse YAML Files', () => {
     expect(parsed).toBeDefined();
     expect(parsed).toEqual([
       {
-        code: `console.log('hello, world');;`,
+        code: `if (foo()) bar(); else bar();`,
         line: 7,
         column: 18,
         offset: 149,
