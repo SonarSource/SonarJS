@@ -62,7 +62,6 @@ public class JavaScriptPlugin implements Plugin {
   private static final String JS_TS_CATEGORY = "JavaScript / TypeScript";
   private static final String TS_SUB_CATEGORY = "TypeScript";
   private static final String CSS_CATEGORY = "CSS";
-  private static final String LINTER_SUBCATEGORY = "Popular Rule Engines";
 
   // Global JavaScript constants
 
@@ -73,7 +72,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
   public static final String ENVIRONMENTS = "sonar.javascript.environments";
-  public static final String ENVIRONMENTS_DEFAULT_VALUE = String.join(",", "amd","applescript","atomtest","browser","commonjs","couch","embertest","flow","greasemonkey","jasmine","jest","jquery","meteor","mocha","mongo","nashorn","node","phantomjs","prototypejs","protractor","qunit","rhino","serviceworker","shared-node-browser","shelljs","webextensions","worker","wsh","yui");
+  public static final String[] ENVIRONMENTS_DEFAULT_VALUE = {"amd", "applescript", "atomtest", "browser", "commonjs", "couch", "embertest", "flow", "greasemonkey", "jasmine", "jest", "jquery",
+  "meteor", "mocha", "mongo", "nashorn", "node", "phantomjs", "prototypejs", "protractor", "qunit", "rhino", "serviceworker", "shared-node-browser", "shelljs", "webextensions", "worker", "wsh", "yui"};
 
   public static final String GLOBALS = "sonar.javascript.globals";
   public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
@@ -185,10 +185,10 @@ public class JavaScriptPlugin implements Plugin {
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
-        .defaultValue(JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE)
+        .defaultValue(String.join(",", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE))
         .name("JavaScript execution environments")
         .description("List of environments names. The analyzer automatically adds global variables based on that list. "
-          + "Available environment names: " + JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE + ".")
+          + "Available environment names: " + String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) + ".")
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
