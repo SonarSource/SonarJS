@@ -256,7 +256,7 @@ describe('server', () => {
     );
     const response = await post(
       JSON.stringify({
-        filePath: join(__dirname, './fixtures/yaml/file.yaml'),
+        filePath: join(__dirname, './fixtures/yaml/valid.yaml'),
         fileType: 'MAIN',
       }),
       '/analyze-yaml',

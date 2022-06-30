@@ -23,10 +23,17 @@ import { Linter, SourceCode } from 'eslint';
 import * as VueJS from 'vue-eslint-parser';
 import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
-import { JsTsAnalysisInput } from './analyzer';
+import { JsTsAnalysisInput, ParsingError } from './analyzer';
 import { getProgramById } from './programManager';
 import * as yaml from 'yaml';
 import { FileType, visit } from './utils';
+
+type Lambda = {
+  code: string;
+  line: number;
+  column: number;
+  offset: number;
+};
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
@@ -97,7 +104,7 @@ function parseForEslint(
   { fileContent, filePath }: JsTsAnalysisInput,
   parse: (code: string, options: {}) => any,
   options: {},
-) {
+): SourceCode | ParsingError {
   try {
     const text = fileContent || getFileContent(filePath);
     const result = parse(text, options);
@@ -214,23 +221,33 @@ function babelConfig(config: Linter.ParserOptions) {
   return { ...config, requireConfigFile: false, babelOptions };
 }
 
-export function parseYaml(filePath: string) {
+export function parseYaml(filePath: string): Lambda[] | ParsingError {
   const src = getFileContent(filePath);
   const lineCounter = new yaml.LineCounter();
   const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
-  const docs = new yaml.Composer().compose(tokens);
-  const lambdas: { code: string; line: number; column: number; offset: number }[] = [];
-  for (const doc of docs) {
-    yaml.visit(doc, {
-      Pair(_, pair: any, ancestors: any) {
-        if (isInlineAwsLambda(ancestors)) {
-          const [offset] = pair.value.range;
-          const { line, col: column } = lineCounter.linePos(offset);
-          lambdas.push({ code: pair.value.value, line, column, offset });
-        }
-      },
-    });
+  // we expect a single document - TODO check if at least 1 doc
+  const doc = Array.from(new yaml.Composer().compose(tokens))[0];
+
+  if (doc.errors.length > 0) {
+    // we only consider the first error
+    const error = doc.errors[0];
+    return {
+      line: lineCounter.linePos(error.pos[0]).line,
+      message: error.message,
+      code: ParseExceptionCode.Parsing,
+    };
   }
+
+  const lambdas: Lambda[] = [];
+  yaml.visit(doc, {
+    Pair(_, pair: any, ancestors: any) {
+      if (isInlineAwsLambda(ancestors)) {
+        const [offset] = pair.value.range;
+        const { line, col: column } = lineCounter.linePos(offset);
+        lambdas.push({ code: pair.value.value, line, column, offset });
+      }
+    },
+  });
   return lambdas;
 }
 
@@ -263,15 +280,28 @@ function hasAwsLambdaFunction(ancestors: any[]) {
   );
 }
 
-export function buildSourceCodesFromYaml(filePath: string) {
-  const lambdas = parseYaml(filePath);
+// If there is at least 1 error in any JS lambda, we return only the first errror
+export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
+  const lambdasOrError = parseYaml(filePath);
+
+  const constainsError = !(lambdasOrError instanceof Array<Lambda>);
+  if (constainsError) {
+    return lambdasOrError;
+  }
+  const lambdas = lambdasOrError;
+
   const sourceCodes: SourceCode[] = [];
   for (const lambda of lambdas) {
     const { code, line, column, offset } = lambda;
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
-    const sourceCode = buildSourceCode(input, 'js') as SourceCode;
-    fixLocations(sourceCode, line, column, offset);
-    sourceCodes.push(sourceCode);
+    const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
+    if (sourceCodeOrError instanceof SourceCode) {
+      const sourceCode = sourceCodeOrError;
+      fixLocations(sourceCode, line, column, offset);
+      sourceCodes.push(sourceCode);
+    } else {
+      return sourceCodeOrError;
+    }
   }
   return sourceCodes;
 }

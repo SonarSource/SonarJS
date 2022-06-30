@@ -131,7 +131,17 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
-  const sourceCodes = buildSourceCodesFromYaml(input.filePath);
+  const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
+
+  const containsErrors = ! (sourceCodesOrError instanceof Array<SourceCode>);
+  if (containsErrors) {
+    const parsingError = sourceCodesOrError;
+    return Promise.resolve({
+      ...EMPTY_RESPONSE,
+      parsingError,
+    });
+  }
+  const sourceCodes = sourceCodesOrError;
   const aggregatedIssues: Issue[] = [];
   for (const sourceCode of sourceCodes) {
     const { issues } = linter.analyze(sourceCode, input.filePath, input.fileType);

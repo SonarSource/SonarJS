@@ -388,10 +388,12 @@ describe('program based analysis', () => {
   });
 });
 
-describe('Parse YAML Files', () => {
-  it('parse YAML syntax', () => {
-    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
-    const parsed = parseYaml(filePath);
+describe('parse YAML Files', () => {
+  const YAML_FILE_PATH = join(__dirname, './fixtures/yaml/valid.yaml');
+  const INVALID_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-yaml.yaml');
+  const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
+  it('should parse YAML syntax', () => {
+    const parsed = parseYaml(YAML_FILE_PATH);
     expect(parsed).toBeDefined();
     expect(parsed).toEqual([
       {
@@ -403,12 +405,25 @@ describe('Parse YAML Files', () => {
     ]);
   });
 
-  it('build source code from YAML file', () => {
-    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
-    const sourceCodes = buildSourceCodesFromYaml(filePath);
+  it('should build source code from YAML file', () => {
+    const sourceCodes = buildSourceCodesFromYaml(YAML_FILE_PATH);
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
+  });
+
+  it('should handle YAML parsing errors', () => {
+    const parsingError = buildSourceCodesFromYaml(INVALID_YAML_FILE_PATH);
+    expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
+    expect(parsingError).toHaveProperty('line', 2);
+    expect(parsingError).toHaveProperty('message', 'Map keys must be unique');
+  });
+
+  it('should throw a parsing error when parsing invalid JS embedded in YAML', () => {
+    const parsingError = buildSourceCodesFromYaml(INVALID_JS_IN_YAML_FILE_PATH);
+    expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
+    expect(parsingError).toHaveProperty('line', 1);
+    expect(parsingError).toHaveProperty('message', 'Unexpected token (1:4)');
   });
 });
 

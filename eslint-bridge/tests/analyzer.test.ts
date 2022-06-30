@@ -30,6 +30,7 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
 import * as stylelint from 'stylelint';
+import { ParseExceptionCode } from '../src/parser';
 
 const noOneIterationIssue: Issue = {
   line: 3,
@@ -480,14 +481,13 @@ describe('#analyzeCss', () => {
   });
 });
 
-describe('Analyze YAML', () => {
+describe('#analyzeYaml', () => {
   it('should analyze YAML file', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = join(__dirname, './fixtures/yaml/file.yaml');
     const { issues } = await analyzeYaml({
-      filePath,
+      filePath: join(__dirname, './fixtures/yaml/valid.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
@@ -495,5 +495,20 @@ describe('Analyze YAML', () => {
     expect(issues).toHaveLength(1);
     expect(issues[0].line).toEqual(7);
     expect(issues[0].column).toEqual(18);
+  });
+  it('YAML should return an empty issues list when parse error', async () => {
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    const { issues, parsingError } = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/invalid-yaml.yaml'),
+      fileContent: undefined,
+      tsConfigs: [],
+      fileType: 'MAIN',
+    });
+    expect(issues).toHaveLength(0);
+    expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
+    expect(parsingError).toHaveProperty('line', 2);
+    expect(parsingError).toHaveProperty('message', 'Map keys must be unique');
   });
 });
