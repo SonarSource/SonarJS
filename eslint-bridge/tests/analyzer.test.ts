@@ -496,7 +496,7 @@ describe('#analyzeYaml', () => {
     expect(issues[0].line).toEqual(7);
     expect(issues[0].column).toEqual(18);
   });
-  it('YAML should return an empty issues list when parse error', async () => {
+  it('should return an empty issues list when parse error', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);

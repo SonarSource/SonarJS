@@ -225,29 +225,31 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   const src = getFileContent(filePath);
   const lineCounter = new yaml.LineCounter();
   const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
-  // we expect a single document - TODO check if at least 1 doc
-  const doc = Array.from(new yaml.Composer().compose(tokens))[0];
-
-  if (doc.errors.length > 0) {
-    // we only consider the first error
-    const error = doc.errors[0];
-    return {
-      line: lineCounter.linePos(error.pos[0]).line,
-      message: error.message,
-      code: ParseExceptionCode.Parsing,
-    };
-  }
+  // YAML supports a marker that indicates the end of a document: a file may contain multiple documents
+  const docs = new yaml.Composer().compose(tokens);
 
   const lambdas: Lambda[] = [];
-  yaml.visit(doc, {
-    Pair(_, pair: any, ancestors: any) {
-      if (isInlineAwsLambda(ancestors)) {
-        const [offset] = pair.value.range;
-        const { line, col: column } = lineCounter.linePos(offset);
-        lambdas.push({ code: pair.value.value, line, column, offset });
-      }
-    },
-  });
+  for (const doc of docs) {
+    // we only consider the first error
+    if (doc.errors.length > 0) {
+      const error = doc.errors[0];
+      return {
+        line: lineCounter.linePos(error.pos[0]).line,
+        message: error.message,
+        code: ParseExceptionCode.Parsing,
+      };
+    }
+    
+    yaml.visit(doc, {
+      Pair(_, pair: any, ancestors: any) {
+        if (isInlineAwsLambda(ancestors)) {
+          const [offset] = pair.value.range;
+          const { line, col: column } = lineCounter.linePos(offset);
+          lambdas.push({ code: pair.value.value, line, column, offset });
+        }
+      },
+    });
+  }
   return lambdas;
 }
 
