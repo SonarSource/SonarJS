@@ -25,6 +25,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
@@ -94,8 +95,10 @@ class TypeScriptAnalysisTest {
     assertThat(issue.getLine()).isEqualTo(2);
     assertThat(issue.getComponent()).isEqualTo(projectKey + ":fileUsedInCustomTsConfig.ts");
 
-    Path tsconfig = PROJECT_DIR.toPath().resolve("custom.tsconfig.json").toAbsolutePath();
-    assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
+    // using `getCanonicalFile` as otherwise test is failing when executed on Windows (`C:\Windows\TEMP...` vs `C:\Windows\Temp`)
+    Path tsconfig = PROJECT_DIR.getCanonicalFile().toPath().resolve("custom.tsconfig.json");
+    var log = ("Using " + tsconfig + " from sonar.typescript.tsconfigPath property");
+    assertThat(result.getLogsLines(l -> l.contains(log))).hasSize(1);
   }
 
   @Test

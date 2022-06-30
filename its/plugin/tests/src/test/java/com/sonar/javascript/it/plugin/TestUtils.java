@@ -42,8 +42,8 @@ public class TestUtils {
       throw new IllegalStateException("failed to obtain HOME", e);
     }
 
-    HOME = testResources // home/tests/src/tests/resources
-      .getParentFile() // home/tests/src/tests
+    HOME = testResources // home/tests/src/test/resources
+      .getParentFile() // home/tests/src/test
       .getParentFile() // home/tests/src
       .getParentFile() // home/tests
       .getParentFile(); // home

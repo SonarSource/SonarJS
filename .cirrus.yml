@@ -156,7 +156,8 @@ plugin_qa_nodejs_task:
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
   cleanup_before_cache_script: cleanup_maven_repository
 
-plugin_qa_win_task:
+# Plugin QA for Windows is splint into 2 parts to make it faster
+plugin_qa_win_1_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
@@ -170,7 +171,26 @@ plugin_qa_win_task:
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
+  # building the custom plugin required for the further tests
+    - mvn clean package -f its/plugin/plugins/pom.xml
+    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false "-Dtest=!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest" -B -e -V verify
+  cleanup_before_cache_script: cleanup_maven_repository
+
+plugin_qa_win_2_task:
+  depends_on:
+    - build
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  env:
+    SONARSOURCE_QA: true
+    SQ_VERSION: LATEST_RELEASE
+  maven_cache:
+    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
+    folder: ~/.m2/repository
+  qa_script:
+    - source /c/buildTools-docker/bin/cirrus-env QA
+    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
+    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false "-Dtest=CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest" -B -e -V verify
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
@@ -211,7 +231,8 @@ promote_task:
     - ws_scan
     - build_win
     - plugin_qa
-    - plugin_qa_win
+    - plugin_qa_win_1
+    - plugin_qa_win_2
     - plugin_qa_nodejs
     - ruling
   <<: *ONLY_SONARSOURCE_QA
