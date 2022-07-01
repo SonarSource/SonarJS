@@ -314,8 +314,8 @@ export function fixLocations(sourceCode: SourceCode, line: number, column: numbe
     if (node.loc) {
       node.loc.start.line += line - 1;
       node.loc.end.line += line - 1;
-      node.loc.start.column += column;
-      node.loc.end.column += column;
+      node.loc.start.column += column - 1;
+      node.loc.end.column += column - 1;
     }
     if (node.range) {
       node.range[0] += offset;
