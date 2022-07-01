@@ -239,7 +239,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
         code: ParseExceptionCode.Parsing,
       };
     }
-    
+
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
         if (isInlineAwsLambda(ancestors)) {
@@ -286,7 +286,7 @@ function hasAwsLambdaFunction(ancestors: any[]) {
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
   const lambdasOrError = parseYaml(filePath);
 
-  const constainsError = !(lambdasOrError instanceof Array<Lambda>);
+  const constainsError = !Array.isArray(lambdasOrError);
   if (constainsError) {
     return lambdasOrError;
   }

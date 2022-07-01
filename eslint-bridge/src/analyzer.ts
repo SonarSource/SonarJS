@@ -133,7 +133,7 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
 
-  const containsErrors = ! (sourceCodesOrError instanceof Array<SourceCode>);
+  const containsErrors = !Array.isArray(sourceCodesOrError);
   if (containsErrors) {
     const parsingError = sourceCodesOrError;
     return Promise.resolve({
