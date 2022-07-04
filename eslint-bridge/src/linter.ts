@@ -157,7 +157,8 @@ export class LinterWrapper {
       parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
       env,
       globals: globalsConfig,
-      settings: { react: { version: '999.999.999' } }, // using 'latest' prints a warning
+      // using "max" version to prevent eslint-plugin-react from printing a warning
+      settings: { react: { version: '999.999.999' } },
     };
     inputRules.forEach(inputRule => {
       const ruleModule = this.rules.get(inputRule.key);
