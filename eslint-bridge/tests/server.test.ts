@@ -265,8 +265,8 @@ describe('server', () => {
     const expectedResponse = {
       issues: [
         {
-          column: 18,
-          endColumn: 47,
+          column: 17,
+          endColumn: 46,
           line: 7,
           endLine: 7,
           message:

@@ -409,7 +409,7 @@ describe('parse YAML Files', () => {
     const sourceCodes = buildSourceCodesFromYaml(YAML_FILE_PATH);
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 17 });
   });
 
   it('should handle YAML parsing errors', () => {

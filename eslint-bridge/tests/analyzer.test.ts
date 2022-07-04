@@ -494,7 +494,7 @@ describe('#analyzeYaml', () => {
     });
     expect(issues).toHaveLength(1);
     expect(issues[0].line).toEqual(7);
-    expect(issues[0].column).toEqual(18);
+    expect(issues[0].column).toEqual(17);
   });
   it('should return an empty issues list when parse error', async () => {
     initLinter([
