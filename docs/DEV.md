@@ -105,7 +105,7 @@ This script:
 
 #### Comment-based testing
 
-These tests are located in `eslint-bridge/tests/rules/fixtures/`, they follow the following structure:
+These tests are located in `eslint-bridge/tests/rules/comment-based/`, they follow the following structure:
 
 ```javascript
 some.clean.code();
