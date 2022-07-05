@@ -1,0 +1,21 @@
+{
+  "title": "React \"render\" function should return a value",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6435",
+  "sqKey": "S6435",
+  "scope": "All",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
