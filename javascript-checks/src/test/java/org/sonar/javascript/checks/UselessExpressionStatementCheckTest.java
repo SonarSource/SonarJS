@@ -29,6 +29,6 @@ class UselessExpressionStatementCheckTest {
   @Test
   void test() {
     String configAsString = new Gson().toJson(new UselessExpressionStatementCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true}]");
+    assertThat(configAsString).isEqualTo("[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true,\"enforceForJSX\":true}]");
   }
 }
