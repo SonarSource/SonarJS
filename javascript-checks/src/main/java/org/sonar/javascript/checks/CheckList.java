@@ -175,6 +175,7 @@ public final class CheckList {
       InvariantReturnCheck.class,
       InvertedAssertionArgumentsCheck.class,
       IpForwardCheck.class,
+      JsxNoCommentTextnodesCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
       LabelledStatementCheck.class,
