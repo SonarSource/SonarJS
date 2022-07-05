@@ -242,7 +242,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
 
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
-        if (isInlineAwsLambda(ancestors)) {
+        if (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) {
           const [offset] = pair.value.range;
           const { line, col: column } = lineCounter.linePos(offset);
           lambdas.push({ code: pair.value.value, line, column, offset });
@@ -253,32 +253,46 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   return lambdas;
 }
 
-function isInlineAwsLambda(ancestors: any[]) {
+function isInlineAwsLambda(pair: any, ancestors: any[]) {
   return (
-    hasZipFile(ancestors) &&
+    isZipFile(pair) &&
     hasCode(ancestors) &&
     hasNodeJsRuntime(ancestors) &&
-    hasAwsLambdaFunction(ancestors)
+    hasType(ancestors, 'AWS::Lambda::Function')
   );
 }
 
-function hasZipFile(ancestors: any[]) {
-  return ancestors[ancestors.length - 1]?.items.some((item: any) => item.key.value === 'ZipFile');
+function isInlineAwsServerless(pair: any, ancestors: any[]) {
+  return (
+    isInlineCode(pair) &&
+    hasNodeJsRuntime(ancestors, 1) &&
+    hasType(ancestors, 'AWS::Serverless::Function', 3)
+  );
 }
 
-function hasCode(ancestors: any[]) {
-  return ancestors[ancestors.length - 2]?.key?.value === 'Code';
+
+// we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
+function isInlineCode(pair: any) {
+  return pair.key.value === 'InlineCode';
 }
 
-function hasNodeJsRuntime(ancestors: any[]) {
-  return ancestors[ancestors.length - 3]?.items.some(
+function isZipFile(pair: any) {
+  return pair.key.value === 'ZipFile';
+}
+
+function hasCode(ancestors: any[], level = 2) {
+  return ancestors[ancestors.length - level]?.key?.value === 'Code';
+}
+
+function hasNodeJsRuntime(ancestors: any[], level = 3) {
+  return ancestors[ancestors.length - level]?.items?.some(
     (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
   );
 }
 
-function hasAwsLambdaFunction(ancestors: any[]) {
-  return ancestors[ancestors.length - 5]?.items.some(
-    (item: any) => item?.key.value === 'Type' && item?.value.value === 'AWS::Lambda::Function',
+function hasType(ancestors: any[], value: string, level = 5) {
+  return ancestors[ancestors.length - level]?.items?.some(
+    (item: any) => item?.key.value === 'Type' && item?.value.value === value,
   );
 }
 

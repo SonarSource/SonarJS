@@ -256,7 +256,7 @@ describe('server', () => {
     );
     const response = await post(
       JSON.stringify({
-        filePath: join(__dirname, './fixtures/yaml/valid.yaml'),
+        filePath: join(__dirname, './fixtures/yaml/valid-lambda.yaml'),
         fileType: 'MAIN',
       }),
       '/analyze-yaml',
@@ -267,8 +267,8 @@ describe('server', () => {
         {
           column: 17,
           endColumn: 46,
-          line: 7,
-          endLine: 7,
+          line: 8,
+          endLine: 8,
           message:
             "Remove this conditional structure or edit its code blocks so that they're not all the same.",
           quickFixes: [],

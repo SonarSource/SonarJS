@@ -3,7 +3,8 @@ Resources:
   SomeLambdaFunction:
     Type: "AWS::Lambda::Function"
     Properties:
+      Runtime: "nodejs16.0"
       Code:
         ZipFile: if (foo()) bar(); else bar();
+        someProp: hello there
       Description: "The branch duplication should be reported at 14:53"
-      Runtime: "nodejs16.0"

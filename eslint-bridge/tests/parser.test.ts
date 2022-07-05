@@ -389,27 +389,35 @@ describe('program based analysis', () => {
 });
 
 describe('parse YAML Files', () => {
-  const YAML_FILE_PATH = join(__dirname, './fixtures/yaml/valid.yaml');
+  const YAML_LAMBDA_FILE_PATH = join(__dirname, './fixtures/yaml/valid-lambda.yaml');
+  const YAML_SERVERLESS_FILE_PATH = join(__dirname, './fixtures/yaml/valid-serverless.yaml');
   const INVALID_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-yaml.yaml');
   const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
   it('should parse YAML syntax', () => {
-    const parsed = parseYaml(YAML_FILE_PATH);
+    const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();
     expect(parsed).toEqual([
       {
         code: `if (foo()) bar(); else bar();`,
-        line: 7,
+        line: 8,
         column: 18,
-        offset: 149,
+        offset: 177,
       },
     ]);
   });
 
-  it('should build source code from YAML file', () => {
-    const sourceCodes = buildSourceCodesFromYaml(YAML_FILE_PATH);
+  it('should build source code from YAML lambda file', () => {
+    const sourceCodes = buildSourceCodesFromYaml(YAML_LAMBDA_FILE_PATH);
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 17 });
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
+  });
+
+  it('should build source code from YAML serverless file', () => {
+    const sourceCodes = buildSourceCodesFromYaml(YAML_SERVERLESS_FILE_PATH);
+    expect(sourceCodes).toHaveLength(1);
+    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
   it('should handle YAML parsing errors', () => {

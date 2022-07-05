@@ -487,13 +487,13 @@ describe('#analyzeYaml', () => {
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = await analyzeYaml({
-      filePath: join(__dirname, './fixtures/yaml/valid.yaml'),
+      filePath: join(__dirname, './fixtures/yaml/valid-lambda.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
     });
     expect(issues).toHaveLength(1);
-    expect(issues[0].line).toEqual(7);
+    expect(issues[0].line).toEqual(8);
     expect(issues[0].column).toEqual(17);
   });
   it('should return an empty issues list when parse error', async () => {
