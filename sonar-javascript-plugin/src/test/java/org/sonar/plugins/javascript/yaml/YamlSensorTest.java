@@ -27,8 +27,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +76,8 @@ import com.google.gson.Gson;
 
 public class YamlSensorTest {
   
-  private static final String RULE = "S3923";
+  private static final String DUPLICATE_BRANCH_RULE_KEY = "S3923";
+  private static final String PARSING_ERROR_RULE_KEY = "S2260";
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -151,6 +154,21 @@ public class YamlSensorTest {
     assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("Custom JavaScript rules are deprecated and API will be removed in future version.");
   }
 
+  @Test
+  void should_raise_a_parsing_error() throws IOException {
+    when(eslintBridgeServerMock.analyzeYaml(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
+    createInputFile(context);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.yaml] at line 1: Parse error message");
+  }
+
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -163,14 +181,14 @@ public class YamlSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.yaml")
       .setLanguage(YamlLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+      .setContents("myJsCode: if (cond) doFoo(); else doFoo();")
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
   }
 
   private YamlSensor createSensor() {
-    return new YamlSensor(checks(RULE), eslintBridgeServerMock, new AnalysisWarningsWrapper(), monitoring, analysisProcessor);
+    return new YamlSensor(checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY), eslintBridgeServerMock, new AnalysisWarningsWrapper(), monitoring, analysisProcessor);
   }
 
   private AnalysisResponse response(String json) {
