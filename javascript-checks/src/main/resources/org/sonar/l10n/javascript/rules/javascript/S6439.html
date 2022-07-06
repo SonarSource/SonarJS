@@ -1,0 +1,39 @@
+<p>One can use logical AND (<code>&amp;&amp;</code>) operator to conditionally render in React (aka short-circuit evaluation). <code>myCondition
+&amp;&amp; &lt;MyElement /&gt;</code> will return <code>&lt;MyElement /&gt;</code> if <code>myCondition</code> is <code>true</code> and
+<code>false</code> otherwise. As React renders boolean values to nothing, when condition is <code>false</code>, nothing will be rendered as intended.
+But if the condition has a non-boolean value which evaluates to <code>false</code> (e.g. <code>0</code>), that value will leak into the rendered
+result.</p>
+<p>Note that along with short-circuit evaluation, in order to achieve conditional rendering it’s possible to use ternary operator (<code>myCondition ?
+&lt;MyElement /&gt; : null</code>), which is less error-prone in this case as both return values are explicit.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function Profile(props) {
+  return &lt;div&gt;
+    &lt;h1&gt;{ props.username }&lt;/h1&gt;
+    { props.orders &amp;&amp; &lt;Orders /&gt; } { /* Noncompliant, 0 will be rendered if no orders available */ }
+  &lt;/div&gt;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function Profile(props) {
+  return &lt;div&gt;
+    &lt;h1&gt;{ props.username }&lt;/h1&gt;
+    { props.orders &gt; 0 &amp;&amp; &lt;Orders /&gt; }
+  &lt;/div&gt;;
+}
+</pre>
+<p>or</p>
+<pre>
+function Profile(props) {
+  return &lt;div&gt;
+    &lt;h1&gt;{ props.username }&lt;/h1&gt;
+    { props.orders ? &lt;Orders /&gt; : null }
+  &lt;/div&gt;;
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://reactjs.org/docs/conditional-rendering.html">Conditional Rendering</a> - conditional rendering in React </li>
+</ul>
+
