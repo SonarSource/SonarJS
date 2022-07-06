@@ -17,20 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import { Rule } from 'eslint';
 
-@JavaScriptRule
-@Rule(key = "S1534")
-@DeprecatedRuleKey(ruleKey = "DuplicatePropertyName")
-public class DuplicatePropertyNameCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "sonar-no-dupe-keys";
+export function mergeRules(rule1: Rule.RuleListener, rule2: Rule.RuleListener): Rule.RuleListener {
+  const merged = { ...rule1, ...rule2 };
+  for (const listener in merged) {
+    if (rule1.hasOwnProperty(listener) && rule2.hasOwnProperty(listener)) {
+      merged[listener] = mergeListeners(rule1[listener], rule2[listener]);
+    }
   }
+  return merged;
+}
+
+function mergeListeners(listener1: Function | undefined, listener2: Function | undefined) {
+  return (...args: any[]) => {
+    if (listener1) {
+      listener1(...args);
+    }
+    if (listener2) {
+      listener2(...args);
+    }
+  };
 }
