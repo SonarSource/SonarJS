@@ -28,6 +28,7 @@ import {
 import { SourceCode } from 'eslint';
 import { ParsingError, ProgramBasedAnalysisInput } from 'analyzer';
 import { visit } from '../src/utils';
+import * as estree from 'estree';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
@@ -393,6 +394,9 @@ describe('parse YAML Files', () => {
   const YAML_SERVERLESS_FILE_PATH = join(__dirname, './fixtures/yaml/valid-serverless.yaml');
   const INVALID_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-yaml.yaml');
   const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
+  const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/plain-format.yaml');
+  //const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded-format.yaml');
+  //const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal-format.yaml');
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();
@@ -432,6 +436,70 @@ describe('parse YAML Files', () => {
     expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
     expect(parsingError).toHaveProperty('line', 1);
     expect(parsingError).toHaveProperty('message', 'Unexpected token (1:4)');
+  });
+
+  it('should fix plain-based format locations', () => {
+    const [{ ast }] = buildSourceCodesFromYaml(PLAIN_FORMAT_FILE_PATH) as SourceCode[];
+    
+    const { body: [ifStmt] } = ast
+    expect(ifStmt.loc).toEqual(expect.objectContaining({
+      start: {
+        line: 7,
+        column: 18
+      },
+      end: {
+        line: 7,
+        column: 59,
+      }
+    }));
+    expect(ifStmt.range).toEqual([170, 211]);
+    
+    const { alternate } = ifStmt as estree.IfStatement;
+    expect(alternate.loc).toEqual(expect.objectContaining({
+      start: {
+        line: 7,
+        column: 53
+      },
+      end: {
+        line: 7,
+        column: 59,
+      }
+    }));
+    expect(alternate.range).toEqual([205, 211]);
+
+    const { comments: [comment]} = ast
+    expect(comment.loc).toEqual(expect.objectContaining({
+      start: {
+        line: 7,
+        column: 36
+      },
+      end: {
+        line: 7,
+        column: 47,
+      }
+    }));
+    expect(comment.range).toEqual([188, 199]);
+    
+    const elseToken = ast.tokens.find(token => token.value === 'else');
+    expect(elseToken.loc).toEqual(expect.objectContaining({
+      start: {
+        line: 7,
+        column: 48
+      },
+      end: {
+        line: 7,
+        column: 52,
+      }
+    }));
+    expect(elseToken.range).toEqual([200, 204]);
+  });
+
+  it('should fix block-folded-based format locations', () => {
+
+  });
+
+  it('should fix block-literal-based format locations', () => {
+
   });
 });
 

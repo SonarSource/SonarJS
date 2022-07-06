@@ -58,6 +58,7 @@
     "eslint-plugin-sonarjs": "0.13.0",
     "express": "4.17.3",
     "functional-red-black-tree": "1.0.1",
+    "lodash": "^4.17.21",
     "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
     "postcss-scss": "4.0.3",
@@ -110,5 +111,34 @@
   "files": [
     "lib/",
     "bin/"
+  ],
+  "bundleDependencies": [
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/experimental-utils",
+    "@typescript-eslint/parser",
+    "@babel/core",
+    "@babel/eslint-parser",
+    "@babel/preset-env",
+    "@babel/preset-flow",
+    "@babel/preset-react",
+    "builtin-modules",
+    "bytes",
+    "eslint",
+    "eslint-plugin-chai-friendly",
+    "eslint-plugin-sonarjs",
+    "express",
+    "functional-red-black-tree",
+    "postcss-html",
+    "postcss-less",
+    "postcss-scss",
+    "postcss-syntax",
+    "postcss-value-parser",
+    "regexpp",
+    "run-node",
+    "scslre",
+    "stylelint",
+    "vue-eslint-parser",
+    "typescript",
+    "yaml"
   ]
 }

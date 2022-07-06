@@ -27,12 +27,15 @@ import { JsTsAnalysisInput, ParsingError } from './analyzer';
 import { getProgramById } from './programManager';
 import * as yaml from 'yaml';
 import { FileType, visit } from './utils';
+import { Position } from 'estree';
+import { cloneDeep } from 'lodash';
 
 type Lambda = {
   code: string;
   line: number;
   column: number;
   offset: number;
+  lineStarts: number[];
 };
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
@@ -226,7 +229,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   const lineCounter = new yaml.LineCounter();
   const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
   // YAML supports a marker that indicates the end of a document: a file may contain multiple documents
-  const docs = new yaml.Composer().compose(tokens);
+  const docs = new yaml.Composer({ keepSourceTokens: true }).compose(tokens);
 
   const lambdas: Lambda[] = [];
   for (const doc of docs) {
@@ -243,9 +246,12 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
         if (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) {
-          const [offset] = pair.value.range;
-          const { line, col: column } = lineCounter.linePos(offset);
-          lambdas.push({ code: pair.value.value, line, column, offset });
+          const [offsetStart, offsetEnd] = pair.value.range;
+          const lineStart = lineCounter.linePos(offsetStart).line - 1
+          const lineEnd = lineCounter.linePos(offsetEnd - 1).line
+          const { line, col: column } = lineCounter.linePos(offsetStart);
+          const lineStarts = lineCounter.lineStarts.slice(lineStart, lineEnd).map(offset => lineCounter.linePos(offset).line)
+          lambdas.push({ code: pair.srcToken.value.source, line, column, offset: offsetStart, lineStarts});
         }
       },
     });
@@ -308,12 +314,20 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
   const sourceCodes: SourceCode[] = [];
   for (const lambda of lambdas) {
-    const { code, line, column, offset } = lambda;
+    const { code, lineStarts } = lambda;
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
     if (sourceCodeOrError instanceof SourceCode) {
-      const sourceCode = sourceCodeOrError;
-      fixLocations(sourceCode, line, column, offset);
+      const sourceCode = cloneDeep(sourceCodeOrError);
+      sourceCode.getLocFromIndex = function (index: number): Position {
+        // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
+        const lineNumber = index >= lineStarts[lineStarts.length - 1]
+                ? lineStarts[lineStarts.length - 1]
+                : lineStarts.findIndex(el => index < el);
+    
+        return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
+      };
+      fixLocations(sourceCode, lambda);
       sourceCodes.push(sourceCode);
     } else {
       return sourceCodeOrError;
@@ -322,7 +336,19 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   return sourceCodes;
 }
 
-export function fixLocations(sourceCode: SourceCode, line: number, column: number, offset: number) {
+export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
+  const { line, column, offset } = lambda;
+
+  /* source code */
+  // sourceCode.getLocFromIndex = function (index: number): Position {
+  //   // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
+  //   const lineNumber = index >= lineStarts[lineStarts.length - 1]
+  //           ? lineStarts.length
+  //           : lineStarts.findIndex(el => index < el);
+
+  //   return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
+  // }
+
   /* nodes */
   visit(sourceCode, node => {
     if (node.loc) {
@@ -336,4 +362,32 @@ export function fixLocations(sourceCode: SourceCode, line: number, column: numbe
       node.range[1] += offset;
     }
   });
+
+  const { comments } = sourceCode.ast;
+  for (const comment of comments) {
+    if (comment.loc) {
+      comment.loc.start.line += line - 1;
+      comment.loc.end.line += line - 1;
+      comment.loc.start.column += column - 1;
+      comment.loc.end.column += column - 1;
+    }
+    if (comment.range) {
+      comment.range[0] += offset;
+      comment.range[1] += offset;
+    }
+  }
+
+  const { tokens } = sourceCode.ast;
+  for (const token of tokens) {
+    if (token.loc) {
+      token.loc.start.line += line - 1;
+      token.loc.end.line += line - 1;
+      token.loc.start.column += column - 1;
+      token.loc.end.column += column - 1;
+    }
+    if (token.range) {
+      token.range[0] += offset;
+      token.range[1] += offset;
+    }
+  }
 }

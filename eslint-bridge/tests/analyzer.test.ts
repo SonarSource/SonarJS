@@ -511,4 +511,30 @@ describe('#analyzeYaml', () => {
     expect(parsingError).toHaveProperty('line', 2);
     expect(parsingError).toHaveProperty('message', 'Map keys must be unique');
   });
+
+  it('should not break when using a rule with a quickfix', async () => {
+    initLinter([
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    const result = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/valid-serverless-quickfix.yaml'),
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    const { issues: [{ quickFixes: [quickFix] }] } = result;
+    expect(quickFix).toEqual(expect.objectContaining({
+      line: 7,
+      column: 48,
+      edits: expect.arrayContaining([expect.objectContaining({
+        loc: {
+          line: 7,
+          column: 48,
+          endLine: 7,
+          endColumn: 49,
+        }
+      })])
+    }))
+  });
 });
+
