@@ -513,25 +513,30 @@ describe('#analyzeYaml', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initLinter([
-      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/valid-serverless-quickfix.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
     });
-    const { issues: [{ quickFixes: [quickFix] }] } = result;
-    expect(quickFix.edits).toEqual([{
-      text: '',
-      loc: {
-        line: 7,
-        column: 59,
-        endLine: 7,
-        endColumn: 60,
-      }
-    }]);
+    const {
+      issues: [
+        {
+          quickFixes: [quickFix],
+        },
+      ],
+    } = result;
+    expect(quickFix.edits).toEqual([
+      {
+        text: '',
+        loc: {
+          line: 7,
+          column: 59,
+          endLine: 7,
+          endColumn: 60,
+        },
+      },
+    ]);
   });
 });
-

@@ -401,14 +401,14 @@ describe('parse YAML Files', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();
     expect(parsed).toHaveLength(1);
-    expect(parsed[0]).toEqual(expect.objectContaining(
-      {
+    expect(parsed[0]).toEqual(
+      expect.objectContaining({
         code: `if (foo()) bar(); else bar();`,
         line: 8,
         column: 18,
         offset: 177,
-      },
-    ));
+      }),
+    );
   });
 
   it('should build source code from YAML lambda file', () => {
@@ -441,67 +441,75 @@ describe('parse YAML Files', () => {
 
   it('should fix plain-based format locations', () => {
     const [{ ast }] = buildSourceCodesFromYaml(PLAIN_FORMAT_FILE_PATH) as SourceCode[];
-    
-    const { body: [ifStmt] } = ast
-    expect(ifStmt.loc).toEqual(expect.objectContaining({
-      start: {
-        line: 7,
-        column: 18
-      },
-      end: {
-        line: 7,
-        column: 59,
-      }
-    }));
+
+    const {
+      body: [ifStmt],
+    } = ast;
+    expect(ifStmt.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 7,
+          column: 18,
+        },
+        end: {
+          line: 7,
+          column: 59,
+        },
+      }),
+    );
     expect(ifStmt.range).toEqual([170, 211]);
-    
+
     const { alternate } = ifStmt as estree.IfStatement;
-    expect(alternate.loc).toEqual(expect.objectContaining({
-      start: {
-        line: 7,
-        column: 53
-      },
-      end: {
-        line: 7,
-        column: 59,
-      }
-    }));
+    expect(alternate.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 7,
+          column: 53,
+        },
+        end: {
+          line: 7,
+          column: 59,
+        },
+      }),
+    );
     expect(alternate.range).toEqual([205, 211]);
 
-    const { comments: [comment]} = ast
-    expect(comment.loc).toEqual(expect.objectContaining({
-      start: {
-        line: 7,
-        column: 36
-      },
-      end: {
-        line: 7,
-        column: 47,
-      }
-    }));
+    const {
+      comments: [comment],
+    } = ast;
+    expect(comment.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 7,
+          column: 36,
+        },
+        end: {
+          line: 7,
+          column: 47,
+        },
+      }),
+    );
     expect(comment.range).toEqual([188, 199]);
-    
+
     const elseToken = ast.tokens.find(token => token.value === 'else');
-    expect(elseToken.loc).toEqual(expect.objectContaining({
-      start: {
-        line: 7,
-        column: 48
-      },
-      end: {
-        line: 7,
-        column: 52,
-      }
-    }));
+    expect(elseToken.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 7,
+          column: 48,
+        },
+        end: {
+          line: 7,
+          column: 52,
+        },
+      }),
+    );
     expect(elseToken.range).toEqual([200, 204]);
   });
 
-  it('should fix block-folded-based format locations', () => {
+  it('should fix block-folded-based format locations', () => {});
 
-  });
-
-  it('should fix block-literal-based format locations', () => {
-
-  });
+  it('should fix block-literal-based format locations', () => {});
 });
 
 function expectToParse(code: string) {

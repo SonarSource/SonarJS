@@ -249,7 +249,13 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
           const [offsetStart] = pair.value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
-          lambdas.push({ code: pair.srcToken.value.source, line, column, offset: offsetStart, lineStarts});
+          lambdas.push({
+            code: pair.srcToken.value.source,
+            line,
+            column,
+            offset: offsetStart,
+            lineStarts,
+          });
         }
       },
     });
@@ -273,7 +279,6 @@ function isInlineAwsServerless(pair: any, ancestors: any[]) {
     hasType(ancestors, 'AWS::Serverless::Function', 3)
   );
 }
-
 
 // we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
 function isInlineCode(pair: any) {
@@ -319,11 +324,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       const sourceCode = cloneDeep(sourceCodeOrError);
       sourceCode.getLocFromIndex = function (index: number): Position {
         // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
-        const lineNumber = index >= lineStarts[lineStarts.length - 1]
-                ? lineStarts.length
-                : lineStarts.findIndex(el => index < el);
-    
-        return { line: lineNumber, column: index - lineStarts[lineNumber-1] };
+        const lineNumber =
+          index >= lineStarts[lineStarts.length - 1]
+            ? lineStarts.length
+            : lineStarts.findIndex(el => index < el);
+
+        return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
       };
       fixLocations(sourceCode, lambda);
       sourceCodes.push(sourceCode);
@@ -354,7 +360,10 @@ export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
 
   function fixNodeLocation(node: Node | Comment | AST.Token) {
     if (node.loc) {
-      const { start: { line: sLine, column: sColumn}, end: { line: eLine, column: eColumn} } = node.loc;
+      const {
+        start: { line: sLine, column: sColumn },
+        end: { line: eLine, column: eColumn },
+      } = node.loc;
       node.loc = {
         start: {
           line: sLine + line - 1,
@@ -363,12 +372,12 @@ export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
         end: {
           line: eLine + line - 1,
           column: eColumn + column - 1,
-        }
-      }
+        },
+      };
     }
     if (node.range) {
       node.range[0] += offset;
       node.range[1] += offset;
     }
-  } 
+  }
 }
