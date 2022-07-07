@@ -341,7 +341,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 }
 
 export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
-  const { line, column, offset } = lambda;
+  const { offset } = lambda;
 
   /* nodes */
   visit(sourceCode, node => {
@@ -359,25 +359,15 @@ export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
   }
 
   function fixNodeLocation(node: Node | Comment | AST.Token) {
-    if (node.loc) {
-      const {
-        start: { line: sLine, column: sColumn },
-        end: { line: eLine, column: eColumn },
-      } = node.loc;
+    if (node.loc != null && node.range != null) {
       node.loc = {
-        start: {
-          line: sLine + line - 1,
-          column: sColumn + column - 1,
-        },
-        end: {
-          line: eLine + line - 1,
-          column: eColumn + column - 1,
-        },
+        start: sourceCode.getLocFromIndex(node.range[0] + offset),
+        end: sourceCode.getLocFromIndex(node.range[1] + offset),
       };
     }
     if (node.range) {
-      node.range[0] += offset;
-      node.range[1] += offset;
+      const [sRange, eRange] = node.range;
+      node.range = [sRange + offset, eRange + offset];
     }
   }
 }
