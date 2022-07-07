@@ -453,26 +453,26 @@ describe('parse YAML Files', () => {
         },
         end: {
           line: 7,
-          column: 59,
+          column: 67,
         },
       }),
     );
-    expect(ifStmt.range).toEqual([170, 211]);
+    expect(ifStmt.range).toEqual([170, 219]);
 
     const { alternate } = ifStmt as estree.IfStatement;
     expect(alternate.loc).toEqual(
       expect.objectContaining({
         start: {
           line: 7,
-          column: 53,
+          column: 57,
         },
         end: {
           line: 7,
-          column: 59,
+          column: 67,
         },
       }),
     );
-    expect(alternate.range).toEqual([205, 211]);
+    expect(alternate.range).toEqual([209, 219]);
 
     const {
       comments: [comment],
@@ -481,30 +481,30 @@ describe('parse YAML Files', () => {
       expect.objectContaining({
         start: {
           line: 7,
-          column: 36,
+          column: 38,
         },
         end: {
           line: 7,
-          column: 47,
+          column: 49,
         },
       }),
     );
-    expect(comment.range).toEqual([188, 199]);
+    expect(comment.range).toEqual([190, 201]);
 
     const elseToken = ast.tokens.find(token => token.value === 'else');
     expect(elseToken.loc).toEqual(
       expect.objectContaining({
         start: {
           line: 7,
-          column: 48,
+          column: 52,
         },
         end: {
           line: 7,
-          column: 52,
+          column: 56,
         },
       }),
     );
-    expect(elseToken.range).toEqual([200, 204]);
+    expect(elseToken.range).toEqual([204, 208]);
   });
 
   it('should fix block-folded-based format locations', () => {
