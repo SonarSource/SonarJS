@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3854/javascript
 
 import { Linter, Rule } from 'eslint';
-import { mergeRules } from '../utils/utils-rules';
+import { mergeRules } from '../utils';
 
 const rules = new Linter().getRules();
 const constructorSuperRule = rules.get('constructor-super')!;

@@ -22,7 +22,7 @@
 import { Linter, Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 
-import { mergeRules } from '../utils/utils-rules';
+import { mergeRules } from '../utils';
 
 const rules = new Linter().getRules();
 const noDupeKeysRule = rules.get('no-dupe-keys')!;
