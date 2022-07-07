@@ -19,7 +19,7 @@
  */
 import * as fs from 'fs';
 import * as babel from '@babel/eslint-parser';
-import { Linter, SourceCode } from 'eslint';
+import { AST, Linter, SourceCode } from 'eslint';
 import * as VueJS from 'vue-eslint-parser';
 import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
@@ -27,7 +27,7 @@ import { JsTsAnalysisInput, ParsingError } from './analyzer';
 import { getProgramById } from './programManager';
 import * as yaml from 'yaml';
 import { FileType, visit } from './utils';
-import { Position } from 'estree';
+import { Comment, Node, Position } from 'estree';
 import { cloneDeep } from 'lodash';
 
 type Lambda = {
@@ -339,43 +339,36 @@ export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
 
   /* nodes */
   visit(sourceCode, node => {
+    fixNodeLocation(node);
+  });
+
+  const { comments } = sourceCode.ast;
+  for (const comment of comments) {
+    fixNodeLocation(comment);
+  }
+
+  const { tokens } = sourceCode.ast;
+  for (const token of tokens) {
+    fixNodeLocation(token);
+  }
+
+  function fixNodeLocation(node: Node | Comment | AST.Token) {
     if (node.loc) {
-      node.loc.start.line += line - 1;
-      node.loc.end.line += line - 1;
-      node.loc.start.column += column - 1;
-      node.loc.end.column += column - 1;
+      const { start: { line: sLine, column: sColumn}, end: { line: eLine, column: eColumn} } = node.loc;
+      node.loc = {
+        start: {
+          line: sLine + line - 1,
+          column: sColumn + column - 1,
+        },
+        end: {
+          line: eLine + line - 1,
+          column: eColumn + column - 1,
+        }
+      }
     }
     if (node.range) {
       node.range[0] += offset;
       node.range[1] += offset;
     }
-  });
-
-  const { comments } = sourceCode.ast;
-  for (const comment of comments) {
-    if (comment.loc) {
-      comment.loc.start.line += line - 1;
-      comment.loc.end.line += line - 1;
-      comment.loc.start.column += column - 1;
-      comment.loc.end.column += column - 1;
-    }
-    if (comment.range) {
-      comment.range[0] += offset;
-      comment.range[1] += offset;
-    }
-  }
-
-  const { tokens } = sourceCode.ast;
-  for (const token of tokens) {
-    if (token.loc) {
-      token.loc.start.line += line - 1;
-      token.loc.end.line += line - 1;
-      token.loc.start.column += column - 1;
-      token.loc.end.column += column - 1;
-    }
-    if (token.range) {
-      token.range[0] += offset;
-      token.range[1] += offset;
-    }
-  }
+  } 
 }
