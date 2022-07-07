@@ -400,14 +400,15 @@ describe('parse YAML Files', () => {
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();
-    expect(parsed).toEqual([
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]).toEqual(expect.objectContaining(
       {
         code: `if (foo()) bar(); else bar();`,
         line: 8,
         column: 18,
         offset: 177,
       },
-    ]);
+    ));
   });
 
   it('should build source code from YAML lambda file', () => {

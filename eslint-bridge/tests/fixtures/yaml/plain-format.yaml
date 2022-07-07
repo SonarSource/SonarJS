@@ -4,5 +4,4 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Runtime: "nodejs16.0"
-      InlineCode: if (foo())
-        bar(); /* howdy */ else bar();
+      InlineCode: if (foo()) bar(); /* howdy */ else bar();

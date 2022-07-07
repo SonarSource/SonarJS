@@ -523,18 +523,15 @@ describe('#analyzeYaml', () => {
       tsConfigs: [],
     });
     const { issues: [{ quickFixes: [quickFix] }] } = result;
-    expect(quickFix).toEqual(expect.objectContaining({
-      line: 7,
-      column: 48,
-      edits: expect.arrayContaining([expect.objectContaining({
-        loc: {
-          line: 7,
-          column: 48,
-          endLine: 7,
-          endColumn: 49,
-        }
-      })])
-    }))
+    expect(quickFix.edits).toEqual([{
+      text: '',
+      loc: {
+        line: 7,
+        column: 59,
+        endLine: 7,
+        endColumn: 60,
+      }
+    }]);
   });
 });
 

@@ -246,11 +246,9 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
         if (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) {
-          const [offsetStart, offsetEnd] = pair.value.range;
-          const lineStart = lineCounter.linePos(offsetStart).line - 1
-          const lineEnd = lineCounter.linePos(offsetEnd - 1).line
+          const [offsetStart] = pair.value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
-          const lineStarts = lineCounter.lineStarts.slice(lineStart, lineEnd).map(offset => lineCounter.linePos(offset).line)
+          const lineStarts = lineCounter.lineStarts;
           lambdas.push({ code: pair.srcToken.value.source, line, column, offset: offsetStart, lineStarts});
         }
       },
@@ -322,10 +320,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       sourceCode.getLocFromIndex = function (index: number): Position {
         // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
         const lineNumber = index >= lineStarts[lineStarts.length - 1]
-                ? lineStarts[lineStarts.length - 1]
+                ? lineStarts.length
                 : lineStarts.findIndex(el => index < el);
     
-        return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
+        return { line: lineNumber, column: index - lineStarts[lineNumber-1] };
       };
       fixLocations(sourceCode, lambda);
       sourceCodes.push(sourceCode);
@@ -338,16 +336,6 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
 export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
   const { line, column, offset } = lambda;
-
-  /* source code */
-  // sourceCode.getLocFromIndex = function (index: number): Position {
-  //   // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
-  //   const lineNumber = index >= lineStarts[lineStarts.length - 1]
-  //           ? lineStarts.length
-  //           : lineStarts.findIndex(el => index < el);
-
-  //   return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
-  // }
 
   /* nodes */
   visit(sourceCode, node => {
