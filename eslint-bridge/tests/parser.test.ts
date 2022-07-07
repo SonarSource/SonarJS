@@ -524,6 +524,54 @@ describe('parse YAML Files', () => {
         },
       }),
     );
+    expect(ifStmt.range).toEqual([180, 265]);
+
+    const { alternate } = ifStmt as estree.IfStatement;
+    expect(alternate.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 10,
+          column: 15,
+        },
+        end: {
+          line: 12,
+          column: 9,
+        },
+      }),
+    );
+    expect(alternate.range).toEqual([237, 265]);
+
+    const {
+      comments: [comment],
+    } = ast;
+    expect(comment.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 9,
+          column: 17,
+        },
+        end: {
+          line: 9,
+          column: 28,
+        },
+      }),
+    );
+    expect(comment.range).toEqual([210, 221]);
+
+    const elseToken = ast.tokens.find(token => token.value === 'else');
+    expect(elseToken.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 10,
+          column: 10,
+        },
+        end: {
+          line: 10,
+          column: 14,
+        },
+      }),
+    );
+    expect(elseToken.range).toEqual([232, 236]);
   });
 
   it('should fix block-literal-based format locations', () => {});
