@@ -253,13 +253,23 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
             code: pair.srcToken.value.source,
             line,
             column,
-            offset: offsetStart,
+            offset: fixOffset(offsetStart, pair.value.type),
             lineStarts,
           });
         }
       },
     });
   }
+
+  // the offset value needs to be fixed depending on the type of string format in YAML
+  function fixOffset(offset: number, format: string): number {
+    if (format === 'BLOCK_FOLDED') {
+      return offset + 2;
+    } else {
+      return offset;
+    }
+  }
+
   return lambdas;
 }
 

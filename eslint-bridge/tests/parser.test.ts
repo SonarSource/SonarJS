@@ -395,7 +395,7 @@ describe('parse YAML Files', () => {
   const INVALID_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-yaml.yaml');
   const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
   const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/plain-format.yaml');
-  //const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded-format.yaml');
+  const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded.yaml');
   //const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal-format.yaml');
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
@@ -507,7 +507,24 @@ describe('parse YAML Files', () => {
     expect(elseToken.range).toEqual([200, 204]);
   });
 
-  it('should fix block-folded-based format locations', () => {});
+  it('should fix block-folded-based format locations', () => {
+    const [{ ast }] = buildSourceCodesFromYaml(BLOCK_FOLDED_FORMAT_FILE_PATH) as SourceCode[];
+    const {
+      body: [ifStmt],
+    } = ast;
+    expect(ifStmt.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 8,
+          column: 8,
+        },
+        end: {
+          line: 12,
+          column: 9,
+        },
+      }),
+    );
+  });
 
   it('should fix block-literal-based format locations', () => {});
 });
