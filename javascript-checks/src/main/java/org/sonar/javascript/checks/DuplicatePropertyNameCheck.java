@@ -31,6 +31,6 @@ public class DuplicatePropertyNameCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-dupe-keys";
+    return "sonar-no-dupe-keys";
   }
 }
