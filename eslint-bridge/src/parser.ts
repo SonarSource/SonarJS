@@ -263,7 +263,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
 
   // the offset value needs to be fixed depending on the type of string format in YAML
   function fixOffset(offset: number, format: string): number {
-    if (format === 'BLOCK_FOLDED') {
+    if (format === 'BLOCK_FOLDED' || format === 'BLOCK_LITERAL') {
       return offset + 2;
     } else {
       return offset;

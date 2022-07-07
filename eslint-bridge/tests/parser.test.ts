@@ -396,7 +396,7 @@ describe('parse YAML Files', () => {
   const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
   const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/plain-format.yaml');
   const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded.yaml');
-  //const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal-format.yaml');
+  const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal.yaml');
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();
@@ -574,7 +574,72 @@ describe('parse YAML Files', () => {
     expect(elseToken.range).toEqual([232, 236]);
   });
 
-  it('should fix block-literal-based format locations', () => {});
+  it('should fix block-literal-based format locations', () => {
+    const [{ ast }] = buildSourceCodesFromYaml(BLOCK_LITERAL_FORMAT_FILE_PATH) as SourceCode[];
+    const {
+      body: [ifStmt],
+    } = ast;
+    expect(ifStmt.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 8,
+          column: 8,
+        },
+        end: {
+          line: 12,
+          column: 9,
+        },
+      }),
+    );
+    expect(ifStmt.range).toEqual([180, 265]);
+
+    const { alternate } = ifStmt as estree.IfStatement;
+    expect(alternate.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 10,
+          column: 15,
+        },
+        end: {
+          line: 12,
+          column: 9,
+        },
+      }),
+    );
+    expect(alternate.range).toEqual([237, 265]);
+
+    const {
+      comments: [comment],
+    } = ast;
+    expect(comment.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 9,
+          column: 17,
+        },
+        end: {
+          line: 9,
+          column: 28,
+        },
+      }),
+    );
+    expect(comment.range).toEqual([210, 221]);
+
+    const elseToken = ast.tokens.find(token => token.value === 'else');
+    expect(elseToken.loc).toEqual(
+      expect.objectContaining({
+        start: {
+          line: 10,
+          column: 10,
+        },
+        end: {
+          line: 10,
+          column: 14,
+        },
+      }),
+    );
+    expect(elseToken.range).toEqual([232, 236]);
+  });
 });
 
 function expectToParse(code: string) {
