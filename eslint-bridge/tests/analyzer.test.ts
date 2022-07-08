@@ -539,4 +539,27 @@ describe('#analyzeYaml', () => {
       },
     ]);
   });
+
+  it('should not break when using a rule with secondary locations', async () => {
+    initLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const result = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/valid-serverless-secondary.yaml'),
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    const {
+      issues: [
+        {
+          secondaryLocations: [secondaryLocation]
+        },
+      ],
+    } = result;
+    expect(secondaryLocation).toEqual({
+      line: 7,
+      column: 35,
+      endLine: 7,
+      endColumn: 41
+    });
+  });
 });
