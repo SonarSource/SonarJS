@@ -562,4 +562,23 @@ describe('#analyzeYaml', () => {
       endColumn: 41
     });
   });
+
+  it('should not break when using a regex-parsing rule', async () => {
+    initLinter([{ key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const result = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/valid-serverless-regex.yaml'),
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    const {
+      issues: [issue],
+    } = result;
+    expect(issue).toEqual(expect.objectContaining({
+      line: 7,
+      column: 41,
+      endLine: 7,
+      endColumn: 44
+    }));
+  });
 });
