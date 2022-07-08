@@ -486,15 +486,19 @@ describe('#analyzeYaml', () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = await analyzeYaml({
+    const { issues: [issue] } = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/valid-lambda.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
     });
-    expect(issues).toHaveLength(1);
-    expect(issues[0].line).toEqual(8);
-    expect(issues[0].column).toEqual(17);
+    expect(issue).toEqual(expect.objectContaining({
+      ruleId: 'no-all-duplicated-branches',
+      line: 8,
+      column: 17,
+      endLine: 8,
+      endColumn: 46
+    }));
   });
   it('should return an empty issues list when parse error', async () => {
     initLinter([
