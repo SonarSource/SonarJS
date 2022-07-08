@@ -111,34 +111,5 @@
   "files": [
     "lib/",
     "bin/"
-  ],
-  "bundleDependencies": [
-    "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/experimental-utils",
-    "@typescript-eslint/parser",
-    "@babel/core",
-    "@babel/eslint-parser",
-    "@babel/preset-env",
-    "@babel/preset-flow",
-    "@babel/preset-react",
-    "builtin-modules",
-    "bytes",
-    "eslint",
-    "eslint-plugin-chai-friendly",
-    "eslint-plugin-sonarjs",
-    "express",
-    "functional-red-black-tree",
-    "postcss-html",
-    "postcss-less",
-    "postcss-scss",
-    "postcss-syntax",
-    "postcss-value-parser",
-    "regexpp",
-    "run-node",
-    "scslre",
-    "stylelint",
-    "vue-eslint-parser",
-    "typescript",
-    "yaml"
   ]
 }
