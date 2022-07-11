@@ -486,19 +486,23 @@ describe('#analyzeYaml', () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues: [issue] } = await analyzeYaml({
+    const {
+      issues: [issue],
+    } = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/valid-lambda.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
     });
-    expect(issue).toEqual(expect.objectContaining({
-      ruleId: 'no-all-duplicated-branches',
-      line: 8,
-      column: 17,
-      endLine: 8,
-      endColumn: 46
-    }));
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'no-all-duplicated-branches',
+        line: 8,
+        column: 17,
+        endLine: 8,
+        endColumn: 46,
+      }),
+    );
   });
   it('should return an empty issues list when parse error', async () => {
     initLinter([
@@ -555,7 +559,7 @@ describe('#analyzeYaml', () => {
     const {
       issues: [
         {
-          secondaryLocations: [secondaryLocation]
+          secondaryLocations: [secondaryLocation],
         },
       ],
     } = result;
@@ -563,7 +567,7 @@ describe('#analyzeYaml', () => {
       line: 7,
       column: 35,
       endLine: 7,
-      endColumn: 41
+      endColumn: 41,
     });
   });
 
@@ -578,11 +582,13 @@ describe('#analyzeYaml', () => {
     const {
       issues: [issue],
     } = result;
-    expect(issue).toEqual(expect.objectContaining({
-      line: 7,
-      column: 41,
-      endLine: 7,
-      endColumn: 44
-    }));
+    expect(issue).toEqual(
+      expect.objectContaining({
+        line: 7,
+        column: 41,
+        endLine: 7,
+        endColumn: 44,
+      }),
+    );
   });
 });
