@@ -397,6 +397,7 @@ describe('parse YAML Files', () => {
   const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/flow-plain.yaml');
   const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded.yaml');
   const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal.yaml');
+
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
     expect(parsed).toBeDefined();

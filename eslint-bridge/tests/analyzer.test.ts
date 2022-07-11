@@ -504,6 +504,7 @@ describe('#analyzeYaml', () => {
       }),
     );
   });
+
   it('should return an empty issues list when parse error', async () => {
     initLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
