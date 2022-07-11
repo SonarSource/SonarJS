@@ -71,6 +71,11 @@ function isParenthesized(sourceCode: SourceCode, node: estree.Node) {
   );
 }
 
+function isValidType(node: estree.Node, context: Rule.RuleContext) {
+  const type = getTypeFromTreeNode(node, context.parserServices);
+  return !isStringType(type) && !isBigIntType(type) && !isNumberType(type);
+}
+
 function isValidNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type === 'LogicalExpression') {
     return (
@@ -78,8 +83,7 @@ function isValidNestedLogicalExpression(context: Rule.RuleContext, node: estree.
       isValidNestedLogicalExpression(context, node.right)
     );
   }
-  const type = getTypeFromTreeNode(node, context.parserServices);
-  return !isStringType(type) && !isBigIntType(type) && !isNumberType(type);
+  return isValidType(node, context);
 }
 
 function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): string {
@@ -90,14 +94,11 @@ function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node
       node.operator
     } ${fixNestedLogicalExpression(context, node.right)}${addParentheses ? ')' : ''}`;
   }
-  const type = getTypeFromTreeNode(node, context.parserServices);
-  const valid = !isStringType(type) && !isBigIntType(type) && !isNumberType(type);
-
   let text = sourceCode.getText(node);
   if (addParentheses) {
     text = `(${text})`;
   }
-  if (!valid) {
+  if (!isValidType(node, context)) {
     text = `!!${text}`;
   }
   return text;
