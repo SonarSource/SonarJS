@@ -181,7 +181,7 @@ public class YamlSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.yaml")
       .setLanguage(YamlLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("myJsCode: if (cond) doFoo(); else doFoo();")
+      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
