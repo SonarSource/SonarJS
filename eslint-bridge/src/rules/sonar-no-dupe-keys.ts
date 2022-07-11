@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S3854/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
 import { Linter, Rule } from 'eslint';
+import { rules as reactRules } from 'eslint-plugin-react';
+
 import { mergeRules } from '../utils';
 
 const rules = new Linter().getRules();
-const constructorSuperRule = rules.get('constructor-super')!;
-const noThisBeforeSuperRule = rules.get('no-this-before-super')!;
+const noDupeKeysRule = rules.get('no-dupe-keys')!;
+const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
 export const rule: Rule.RuleModule = {
-  // meta of constructor-super and no-this-before-super is required for issue messages
+  // meta of no-dupe-keys and jsx-no-duplicate-props is required for issue messages
   meta: {
-    messages: { ...constructorSuperRule.meta!.messages, ...noThisBeforeSuperRule.meta!.messages },
+    messages: { ...noDupeKeysRule.meta!.messages, ...jsxNoDuplicatePropsRule.meta!.messages },
   },
   create(context: Rule.RuleContext) {
-    const constructorSuperListener: Rule.RuleListener = constructorSuperRule.create(context);
-    const notThisBeforeSuperListener: Rule.RuleListener = noThisBeforeSuperRule.create(context);
+    const noDupeKeysListener: Rule.RuleListener = noDupeKeysRule.create(context);
+    const jsxNoDuplicatePropsListener: Rule.RuleListener = jsxNoDuplicatePropsRule.create(context);
 
-    return mergeRules(constructorSuperListener, notThisBeforeSuperListener);
+    return mergeRules(noDupeKeysListener, jsxNoDuplicatePropsListener);
   },
 };

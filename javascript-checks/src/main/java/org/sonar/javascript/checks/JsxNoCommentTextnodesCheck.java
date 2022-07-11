@@ -22,15 +22,16 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
+@TypeScriptRule
 @JavaScriptRule
-@Rule(key = "S1534")
-@DeprecatedRuleKey(ruleKey = "DuplicatePropertyName")
-public class DuplicatePropertyNameCheck implements EslintBasedCheck {
+@Rule(key = "S6438")
+public class JsxNoCommentTextnodesCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "sonar-no-dupe-keys";
+    return "jsx-no-comment-textnodes";
   }
+
 }

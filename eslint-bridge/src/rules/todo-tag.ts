@@ -69,7 +69,7 @@ function isLetterAround(line: string, start: number, pattern: string) {
   const end = start + pattern.length;
 
   const pre = start > 0 && letterPattern.test(line.charAt(start - 1));
-  const post = end < line.length - 1 && letterPattern.test(line.charAt(end));
+  const post = end <= line.length - 1 && letterPattern.test(line.charAt(end));
 
   return pre || post;
 }
