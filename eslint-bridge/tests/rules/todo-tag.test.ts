@@ -38,6 +38,12 @@ ruleTester.run('Track uses of TODO tags', rule, {
         // método
         `,
     },
+    {
+      code: '// todos',
+    },
+    {
+      code: '// todos ',
+    },
   ],
   invalid: [
     {
