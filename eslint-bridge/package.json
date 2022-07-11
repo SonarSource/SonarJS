@@ -100,7 +100,7 @@
     "stylelint",
     "vue-eslint-parser",
     "typescript",
-    "yaml"
+    "yaml-node12"
   ],
   "prettier": {
     "printWidth": 100,
