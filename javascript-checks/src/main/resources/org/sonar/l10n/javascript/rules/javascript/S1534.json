@@ -15,6 +15,7 @@
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ]
 }
