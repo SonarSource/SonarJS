@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.yaml;
+package org.sonar.plugins.javascript.eslint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +68,7 @@ import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.yaml.YamlLanguage;
 import org.sonar.plugins.javascript.eslint.JavaScriptChecks;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
