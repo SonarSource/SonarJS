@@ -46,8 +46,7 @@ public class YamlSensor extends AbstractEslintSensor {
       EslintBridgeServer eslintBridgeServer,
       AnalysisWarningsWrapper analysisWarnings,
       Monitoring monitoring,
-      AnalysisProcessor processAnalysis)
-  {
+      AnalysisProcessor processAnalysis) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = processAnalysis;

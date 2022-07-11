@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.SonarEdition;
@@ -49,6 +51,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
@@ -61,15 +64,17 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.yaml.YamlLanguage;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 
 import com.google.gson.Gson;
 
-public class YamlSensorTest {
+class YamlSensorTest {
   
   private static final String DUPLICATE_BRANCH_RULE_KEY = "S3923";
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
@@ -116,6 +121,15 @@ public class YamlSensorTest {
   }
 
   @Test
+  void should_have_descriptor() throws Exception {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+
+    createSensor().describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("JavaScript inside YAML analysis");
+    assertThat(descriptor.languages()).containsOnly(YamlLanguage.KEY);
+  }
+
+  @Test
   void should_create_issues() throws Exception {
     AnalysisResponse responseIssues = response("{ issues: [{" +
       "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
@@ -150,6 +164,29 @@ public class YamlSensorTest {
   }
 
   @Test
+  void should_send_content_on_sonarlint() throws Exception {
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx);
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeYaml(captor.capture());
+    assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
+      "doFoo(); \n" +
+      "else \n" +
+      "doFoo();");
+
+    clearInvocations(eslintBridgeServerMock);
+    ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
+    createInputFile(ctx);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeYaml(captor.capture());
+    assertThat(captor.getValue().fileContent).isNull();
+  }
+
+  @Test
   void should_raise_a_parsing_error() throws IOException {
     when(eslintBridgeServerMock.analyzeYaml(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
@@ -162,6 +199,37 @@ public class YamlSensorTest {
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.yaml] at line 1: Parse error message");
+  }
+
+  @Test
+  void should_not_explode_if_no_response() throws Exception {
+    when(eslintBridgeServerMock.analyzeYaml(any())).thenThrow(new IOException("error"));
+    YamlSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+    sensor.execute(context);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile.uri());
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void stop_analysis_if_cancelled() throws Exception {
+    YamlSensor sensor = createSensor();
+    createInputFile(context);
+    context.setCancelled(true);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+  }
+
+  @Test
+  void stop_analysis_if_server_is_not_responding() throws Exception {
+    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    YamlSensor yamlSensor = createSensor();
+    createInputFile(context);
+    yamlSensor.execute(context);
+    final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
+    assertThat(logAndArguments.getFormattedMsg()).isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage()).isEqualTo("eslint-bridge server is not answering");
   }
 
   private static JavaScriptChecks checks(String... ruleKeys) {
