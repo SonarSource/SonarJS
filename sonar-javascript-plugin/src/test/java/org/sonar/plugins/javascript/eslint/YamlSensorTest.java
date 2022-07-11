@@ -64,14 +64,8 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
-import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.yaml.YamlLanguage;
-import org.sonar.plugins.javascript.eslint.JavaScriptChecks;
-import org.sonar.plugins.javascript.eslint.Monitoring;
-import org.sonar.plugins.javascript.eslint.YamlSensor;
 
 import com.google.gson.Gson;
 
