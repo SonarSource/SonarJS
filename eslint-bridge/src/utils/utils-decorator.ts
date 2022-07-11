@@ -99,3 +99,24 @@ export function interceptReport(
     },
   };
 }
+
+export function mergeRules(rule1: Rule.RuleListener, rule2: Rule.RuleListener): Rule.RuleListener {
+  const merged = { ...rule1, ...rule2 };
+  for (const listener in merged) {
+    if (rule1.hasOwnProperty(listener) && rule2.hasOwnProperty(listener)) {
+      merged[listener] = mergeListeners(rule1[listener], rule2[listener]);
+    }
+  }
+  return merged;
+}
+
+function mergeListeners(listener1: Function | undefined, listener2: Function | undefined) {
+  return (...args: any[]) => {
+    if (listener1) {
+      listener1(...args);
+    }
+    if (listener2) {
+      listener2(...args);
+    }
+  };
+}

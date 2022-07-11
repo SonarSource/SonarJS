@@ -1,4 +1,7 @@
 {
+'file-for-rules:S1534.js':[
+9,
+],
 'file-for-rules:S5247.js':[
 1,
 ],
@@ -32,6 +35,9 @@
 1,
 ],
 'file-for-rules:S6435.js':[
+1,
+],
+'file-for-rules:S6438.js':[
 1,
 ],
 }
