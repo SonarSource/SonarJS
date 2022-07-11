@@ -197,6 +197,19 @@ class EslintBridgeServerImplTest {
   }
 
   @Test
+  void should_get_answer_from_server_for_yaml_request() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
+    assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
+  }
+
+  @Test
   void should_get_answer_from_server_for_program_based_requests() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
