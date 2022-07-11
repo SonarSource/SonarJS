@@ -25,7 +25,7 @@ import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
 import { JsTsAnalysisInput, ParsingError } from './analyzer';
 import { getProgramById } from './programManager';
-import * as yaml from 'yaml';
+import * as yaml from '../debug-dependencies/yaml';
 import { FileType, visit } from './utils';
 import { Comment, Node, Position } from 'estree';
 import { cloneDeep } from 'lodash';
