@@ -351,10 +351,9 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   return sourceCodes;
 }
 
-export function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
+function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
   const { offset } = lambda;
 
-  /* nodes */
   visit(sourceCode, node => {
     fixNodeLocation(node);
   });
