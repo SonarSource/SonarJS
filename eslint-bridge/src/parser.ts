@@ -29,7 +29,6 @@ import { getProgramById } from './programManager';
 import * as yaml from 'yaml-node12';
 import { FileType, visit } from './utils';
 import { Comment, Node, Position } from 'estree';
-import { cloneDeep } from 'lodash';
 
 type Lambda = {
   code: string;
@@ -332,7 +331,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
     if (sourceCodeOrError instanceof SourceCode) {
-      const sourceCode = cloneDeep(sourceCodeOrError);
+      const sourceCode = Object.create(sourceCodeOrError);
       sourceCode.getLocFromIndex = function (index: number): Position {
         // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
         const lineNumber =
