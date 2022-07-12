@@ -27,9 +27,9 @@ export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
     messages: {
-      noPotentialLeakedRender:
-        'Potential leaked value that might cause unintentionally rendered values or rendering crashes',
-      suggestCoercion: 'Coerce the conditional to a boolean',
+      nonBooleanMightRender:
+        'Non-boolean value that might cause unintentional rendered values or crashes',
+      suggestConversion: 'Convert the conditional to a boolean',
     },
   },
   create(context: Rule.RuleContext) {
@@ -42,11 +42,11 @@ export const rule: Rule.RuleModule = {
         }
 
         context.report({
-          messageId: 'noPotentialLeakedRender',
+          messageId: 'nonBooleanMightRender',
           node,
           suggest: [
             {
-              messageId: 'suggestCoercion',
+              messageId: 'suggestConversion',
               fix: fixer => fixer.replaceText(node, fixNestedLogicalExpression(context, node)),
             },
           ],
