@@ -1,0 +1,19 @@
+{
+  "title": "React\u0027s setState hook should only be used in the render function or body of a component",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6442",
+  "sqKey": "S6442",
+  "scope": "All",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
