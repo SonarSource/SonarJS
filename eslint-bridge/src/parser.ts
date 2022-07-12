@@ -367,8 +367,10 @@ function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
   let match;
   const lines = [];
   
+  let i = 0;
   while ((match = lineEndingPattern.exec(lambda.text))) {
-      lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1], match.index));
+      lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
+      i++;
   }
   lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
 
