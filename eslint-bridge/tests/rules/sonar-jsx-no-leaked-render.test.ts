@@ -18,8 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
 
 const ruleTesterTs = new RuleTesterTs();
+const ruleTesterJs = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
+});
 
 import { rule } from 'rules/sonar-jsx-no-leaked-render';
 
@@ -28,6 +32,7 @@ ruleTesterTs.run('', rule, {
     {
       code: `
         const Component = (count, collection) => {
+          count = 1;
           return (
             <div>
               {count && <List elements={collection} />}
@@ -61,7 +66,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Non-boolean values might cause unintentional rendered values or crashes',
+          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
@@ -72,7 +77,42 @@ ruleTesterTs.run('', rule, {
         const Component = (count: number, collection) => {
           return (
             <div>
-              {!!count && <List elements={collection} />}
+              {!!(count) && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+        const Component = (collection) => {
+          const count = 0;
+          return (
+            <div>
+              {count && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+      errors: [
+        {
+          message: 'Convert the conditional to a boolean to avoid leaked value',
+          line: 6,
+          column: 16,
+          endLine: 6,
+          endColumn: 55,
+          suggestions: [
+            {
+              output: `
+        const Component = (collection) => {
+          const count = 0;
+          return (
+            <div>
+              {!!(count) && <List elements={collection} />}
             </div>
           )
         }
@@ -94,7 +134,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Non-boolean values might cause unintentional rendered values or crashes',
+          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
@@ -105,7 +145,7 @@ ruleTesterTs.run('', rule, {
         const Component = (collection: Array<number>) => {
           return (
             <div>
-              {!!collection.length && <List elements={collection} />}
+              {!!(collection.length) && <List elements={collection} />}
             </div>
           )
         }
@@ -127,7 +167,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Non-boolean values might cause unintentional rendered values or crashes',
+          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
@@ -149,4 +189,22 @@ ruleTesterTs.run('', rule, {
       ],
     },
   ],
+});
+
+ruleTesterJs.run('', rule, {
+  valid: [
+    {
+      code: `
+        const Component = (collection) => {
+          const count = 0;
+          return (
+            <div>
+              {count && <List elements={collection} />  /*OK, no type information available*/ }
+            </div>
+          )
+        }
+        `,
+    },
+  ],
+  invalid: [],
 });

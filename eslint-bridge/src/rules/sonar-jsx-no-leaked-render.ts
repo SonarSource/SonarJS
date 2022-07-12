@@ -21,23 +21,31 @@
 
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { getTypeFromTreeNode, isBigIntType, isNumberType, isStringType } from '../utils';
+import {
+  getTypeFromTreeNode,
+  isBigIntType,
+  isNumberType,
+  isRequiredParserServices,
+  isStringType,
+} from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
     messages: {
-      nonBooleanMightRender:
-        'Non-boolean values might cause unintentional rendered values or crashes',
+      nonBooleanMightRender: 'Convert the conditional to a boolean to avoid leaked value',
       suggestConversion: 'Convert the conditional to a boolean',
     },
   },
   create(context: Rule.RuleContext) {
+    if (!isRequiredParserServices(context.parserServices)) {
+      return {};
+    }
     return {
       'JSXExpressionContainer > LogicalExpression[operator="&&"]'(node: estree.LogicalExpression) {
         const leftSide = node.left;
 
-        if (isValidNestedLogicalExpression(context, leftSide)) {
+        if (containsNonBoolean(context, leftSide)) {
           return;
         }
 
@@ -71,19 +79,16 @@ function isParenthesized(sourceCode: SourceCode, node: estree.Node) {
   );
 }
 
-function isValidType(node: estree.Node, context: Rule.RuleContext) {
+function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
   const type = getTypeFromTreeNode(node, context.parserServices);
-  return !isStringType(type) && !isBigIntType(type) && !isNumberType(type);
+  return isStringType(type) || isBigIntType(type) || isNumberType(type);
 }
 
-function isValidNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): boolean {
+function containsNonBoolean(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type === 'LogicalExpression') {
-    return (
-      isValidNestedLogicalExpression(context, node.left) &&
-      isValidNestedLogicalExpression(context, node.right)
-    );
+    return containsNonBoolean(context, node.left) && containsNonBoolean(context, node.right);
   }
-  return isValidType(node, context);
+  return !isStringOrNumber(node, context);
 }
 
 function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): string {
@@ -95,11 +100,10 @@ function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node
     } ${fixNestedLogicalExpression(context, node.right)}${addParentheses ? ')' : ''}`;
   }
   let text = sourceCode.getText(node);
-  if (addParentheses) {
+  if (isStringOrNumber(node, context)) {
+    text = `!!(${text})`;
+  } else if (addParentheses) {
     text = `(${text})`;
-  }
-  if (!isValidType(node, context)) {
-    text = `!!${text}`;
   }
   return text;
 }
