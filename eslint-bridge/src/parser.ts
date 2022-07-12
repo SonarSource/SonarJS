@@ -245,15 +245,24 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
 
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
-        if (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) {
-          const [offsetStart] = pair.value.range;
+        if (
+          (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) &&
+          isSupportedFormat(pair)
+        ) {
+          const { value, srcToken } = pair;
+          const code = srcToken.value.source;
+          if (!code) {
+            /* this should not happen */
+            throw new Error('An extracted inline JavaScript snippet should not be undefined.');
+          }
+          const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
           lambdas.push({
-            code: pair.srcToken.value.source,
+            code,
             line,
             column,
-            offset: fixOffset(offsetStart, pair.value.type),
+            offset: fixOffset(offsetStart, value.type),
             lineStarts,
           });
         }
@@ -288,6 +297,10 @@ function isInlineAwsServerless(pair: any, ancestors: any[]) {
     hasNodeJsRuntime(ancestors, 1) &&
     hasType(ancestors, 'AWS::Serverless::Function', 3)
   );
+}
+
+function isSupportedFormat(pair: yaml.Pair<any, any>) {
+  return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
 }
 
 // we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
@@ -328,6 +341,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   const sourceCodes: SourceCode[] = [];
   for (const lambda of lambdas) {
     const { code, lineStarts } = lambda;
+    /**
+     * The file path is left empty because the file content is the extracted inline JavaScript snippet,
+     * which will directly be used `buildSourceCode`.
+     */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
     if (sourceCodeOrError instanceof SourceCode) {

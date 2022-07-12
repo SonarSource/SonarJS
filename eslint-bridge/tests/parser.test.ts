@@ -397,6 +397,7 @@ describe('parse YAML Files', () => {
   const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/flow-plain.yaml');
   const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded.yaml');
   const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal.yaml');
+  const UNSUPPORTED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/unsupported-format.yaml');
 
   it('should parse YAML syntax', () => {
     const parsed = parseYaml(YAML_LAMBDA_FILE_PATH);
@@ -438,6 +439,11 @@ describe('parse YAML Files', () => {
     expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
     expect(parsingError).toHaveProperty('line', 1);
     expect(parsingError).toHaveProperty('message', 'Unexpected token (1:4)');
+  });
+
+  it('it should not build a source code for an unsupported format', () => {
+    const sourceCodes = buildSourceCodesFromYaml(UNSUPPORTED_FORMAT_FILE_PATH);
+    expect(sourceCodes).toHaveLength(0);
   });
 
   it('should fix plain-based format locations', () => {
