@@ -362,14 +362,23 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 }
 
 function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
-  const sourceCode = Object.create(sourceCodeOrig, {
-    lineStartIndices: lambda.lineStarts,
-    text: lambda.text,
-  } as any);
-  /* sourceCode.lineStartIndices = lambda.lineStarts;
-  sourceCode.text = lambda.text; */
+  const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
+  const lineEndingPattern = new RegExp(lineBreakPattern.source, "gu");
+  let match;
+  const lines = [];
   
-  return sourceCode;
+  while ((match = lineEndingPattern.exec(lambda.text))) {
+      lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1], match.index));
+  }
+  lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
+
+  return Object.create(sourceCodeOrig, {
+    lineStartIndices: { value: lambda.lineStarts },
+    text: { value: lambda.text },
+    lines: { value: lines },
+  });
+  
+  
   /* sourceCode.getLocFromIndex = function (index: number): Position {
     // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
     const lineNumber =
