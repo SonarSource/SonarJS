@@ -28,7 +28,7 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       nonBooleanMightRender:
-        'Non-boolean value that might cause unintentional rendered values or crashes',
+        'Non-boolean values might cause unintentional rendered values or crashes',
       suggestConversion: 'Convert the conditional to a boolean',
     },
   },

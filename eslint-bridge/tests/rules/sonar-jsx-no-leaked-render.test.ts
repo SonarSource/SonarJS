@@ -61,8 +61,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message:
-            'Potential leaked value that might cause unintentionally rendered values or rendering crashes',
+          message: 'Non-boolean values might cause unintentional rendered values or crashes',
           line: 5,
           column: 16,
           endLine: 5,
@@ -95,8 +94,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message:
-            'Potential leaked value that might cause unintentionally rendered values or rendering crashes',
+          message: 'Non-boolean values might cause unintentional rendered values or crashes',
           line: 5,
           column: 16,
           endLine: 5,
@@ -129,8 +127,7 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message:
-            'Potential leaked value that might cause unintentionally rendered values or rendering crashes',
+          message: 'Non-boolean values might cause unintentional rendered values or crashes',
           line: 5,
           column: 16,
           endLine: 5,
