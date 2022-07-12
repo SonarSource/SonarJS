@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../utils';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -32,12 +32,17 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {};
+    return {
+      CallExpression(node: estree.Node) {
+        const callNode = node as estree.CallExpression;
+        if (callNode.callee.type === 'Identifier' && callNode.callee.name === 'setLanguage') {
+          context.report({
+            message:
+              "React's setState hook should only be used in the render function or body of a component",
+            node: callNode,
+          });
+        }
+      },
+    };
   },
 };
