@@ -1,6 +1,8 @@
-<p>React’s <code>useState</code> hook gives you a state variable and a setter function. When the setter function is called with the state variable as
-a parameter, nothing will happen.</p>
-<p>This can happen by mistake when attempting to reset a default value, invert a boolean, among others.</p>
+<p>React components have a built-in <code>state</code> object. This object is used to store property values of the component. When <code>state</code>
+changes, the component is re-rendered. React provides the <code>useState</code> hook to declare <code>state</code> variables, and returns the state
+variable and a setter function to update its value.</p>
+<p>When the setter function is called with the state variable as a parameter, nothing will happen. This can happen by mistake when attempting to reset
+a default value, invert a boolean, among others.</p>
 <p>This rule raises an issue when calling the setter function with the same state variable provided by <code>useState</code> React hook.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
