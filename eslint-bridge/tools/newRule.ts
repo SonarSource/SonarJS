@@ -80,7 +80,7 @@ function run() {
       ruleMetadata,
     );
 
-    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/fixtures`);
+    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/comment-based`);
     try {
       fs.mkdirSync(testPath);
     } catch {
