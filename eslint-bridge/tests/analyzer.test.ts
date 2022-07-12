@@ -549,6 +549,17 @@ describe('#analyzeYaml', () => {
     ]);
   });
 
+  it('should not break when using "enforce-trailing-comma" rule', async () => {
+    initLinter([{ key: 'enforce-trailing-comma', configurations: ["always-multiline"], fileTypeTarget: ['MAIN'] }]);
+    const result = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/fail-lambda.yaml'),
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    expect(result.issues).toHaveLength(0);
+  });
+
   it('should not break when using a rule with secondary locations', async () => {
     initLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = await analyzeYaml({

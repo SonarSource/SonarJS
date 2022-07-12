@@ -28,7 +28,7 @@ import { getProgramById } from './programManager';
 // replace this with `yaml` when we deprecate node 12
 import * as yaml from 'yaml-node12';
 import { FileType, visit } from './utils';
-import { Comment, Node, Position } from 'estree';
+import { Comment, Node } from 'estree';
 
 type Lambda = {
   code: string;
@@ -36,6 +36,7 @@ type Lambda = {
   column: number;
   offset: number;
   lineStarts: number[];
+  text: string;
 };
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
@@ -258,12 +259,14 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
           const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
+          
           lambdas.push({
             code,
             line,
             column,
             offset: fixOffset(offsetStart, value.type),
             lineStarts,
+            text: src,
           });
         }
       },
@@ -340,7 +343,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
   const sourceCodes: SourceCode[] = [];
   for (const lambda of lambdas) {
-    const { code, lineStarts } = lambda;
+    const { code } = lambda;
     /**
      * The file path is left empty because the file content is the extracted inline JavaScript snippet,
      * which will directly be used `buildSourceCode`.
@@ -348,17 +351,8 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
     if (sourceCodeOrError instanceof SourceCode) {
-      const sourceCode = Object.create(sourceCodeOrError);
-      sourceCode.getLocFromIndex = function (index: number): Position {
-        // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
-        const lineNumber =
-          index >= lineStarts[lineStarts.length - 1]
-            ? lineStarts.length
-            : lineStarts.findIndex(el => index < el);
-
-        return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
-      };
-      fixLocations(sourceCode, lambda);
+      const sourceCode = patchSourceCode(sourceCodeOrError, lambda);
+      patchLocations(sourceCode, lambda);
       sourceCodes.push(sourceCode);
     } else {
       return sourceCodeOrError;
@@ -367,7 +361,27 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   return sourceCodes;
 }
 
-function fixLocations(sourceCode: SourceCode, lambda: Lambda) {
+function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
+  const sourceCode = Object.create(sourceCodeOrig, {
+    lineStartIndices: lambda.lineStarts,
+    text: lambda.text,
+  } as any);
+  /* sourceCode.lineStartIndices = lambda.lineStarts;
+  sourceCode.text = lambda.text; */
+  
+  return sourceCode;
+  /* sourceCode.getLocFromIndex = function (index: number): Position {
+    // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
+    const lineNumber =
+      index >= lineStarts[lineStarts.length - 1]
+        ? lineStarts.length
+        : lineStarts.findIndex(el => index < el);
+
+    return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
+  };
+ */}
+
+function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
   const { offset } = lambda;
 
   visit(sourceCode, node => {
