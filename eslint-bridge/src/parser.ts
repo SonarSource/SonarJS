@@ -259,7 +259,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
           const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
-          
+
           lambdas.push({
             code,
             line,
@@ -363,14 +363,14 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
 function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
   const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
-  const lineEndingPattern = new RegExp(lineBreakPattern.source, "gu");
+  const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
   let match;
   const lines = [];
-  
+
   let i = 0;
   while ((match = lineEndingPattern.exec(lambda.text))) {
-      lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
-      i++;
+    lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
+    i++;
   }
   lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
 
@@ -379,8 +379,7 @@ function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
     text: { value: lambda.text },
     lines: { value: lines },
   });
-  
-  
+
   /* sourceCode.getLocFromIndex = function (index: number): Position {
     // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
     const lineNumber =
@@ -390,7 +389,8 @@ function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
 
     return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
   };
- */}
+ */
+}
 
 function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
   const { offset } = lambda;

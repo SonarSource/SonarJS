@@ -550,7 +550,13 @@ describe('#analyzeYaml', () => {
   });
 
   it('should not break when using "enforce-trailing-comma" rule', async () => {
-    initLinter([{ key: 'enforce-trailing-comma', configurations: ["always-multiline"], fileTypeTarget: ['MAIN'] }]);
+    initLinter([
+      {
+        key: 'enforce-trailing-comma',
+        configurations: ['always-multiline'],
+        fileTypeTarget: ['MAIN'],
+      },
+    ]);
     const result = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/fail-lambda.yaml'),
       fileContent: undefined,
