@@ -20,7 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6443/javascript
 
 import { Rule, Scope } from 'eslint';
-import { getModuleNameOfIdentifier, isRequiredParserServices } from '../utils';
+import {
+  getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier,
+  isRequiredParserServices
+} from '../utils';
 import * as estree from 'estree';
 
 type reference = {
@@ -43,34 +46,31 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      [`:matches(
-          VariableDeclarator[init.callee.name="useState"], 
-          VariableDeclarator[init.callee.object.name="react"][init.callee.property.name="useState"]
-        )
-        [id.type="ArrayPattern"]
-        [id.elements.length=2]
-        [id.elements.0.type="Identifier"]
-        [id.elements.1.type="Identifier"]`](node: estree.VariableDeclarator) {
+      'VariableDeclarator[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(node: estree.VariableDeclarator) {
         const ids = node.id as estree.ArrayPattern;
         const setter = (ids.elements[1] as estree.Identifier).name;
         stateVariables[setter] = {
           setter: null,
           value: null,
         };
+
         let module: estree.Literal | undefined;
+        let usesReactState = false;
         if (node.init!.type === 'CallExpression') {
           if (node.init.callee.type === 'Identifier') {
-            module = getModuleNameOfIdentifier(context, node.init.callee);
+            module = getModuleNameOfImportedIdentifier(context, node.init.callee);
+            usesReactState = (module?.value === 'react' && node.init.callee.name === 'useState');
           }
-          if (node.init.callee.type === 'MemberExpression') {
+          if (node.init.callee.type === 'MemberExpression' && (node.init.callee.property as estree.Identifier).name === 'useState') {
             module = getModuleNameOfIdentifier(
               context,
               node.init.callee.object as estree.Identifier,
             );
+            usesReactState = (module?.value === 'react');
           }
         }
 
-        if (module?.value === 'react') {
+        if (usesReactState) {
           const scope = context.getScope();
           scope.references.forEach(ref => {
             if (ref.identifier === ids.elements[0] && ref.resolved) {
