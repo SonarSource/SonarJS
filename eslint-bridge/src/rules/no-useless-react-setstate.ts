@@ -21,8 +21,9 @@
 
 import { Rule, Scope } from 'eslint';
 import {
-  getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier,
-  isRequiredParserServices
+  getModuleNameOfIdentifier,
+  getModuleNameOfImportedIdentifier,
+  isRequiredParserServices,
 } from '../utils';
 import * as estree from 'estree';
 
@@ -46,7 +47,9 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'VariableDeclarator[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(node: estree.VariableDeclarator) {
+      'VariableDeclarator[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(
+        node: estree.VariableDeclarator,
+      ) {
         const ids = node.id as estree.ArrayPattern;
         const setter = (ids.elements[1] as estree.Identifier).name;
         stateVariables[setter] = {
@@ -59,14 +62,17 @@ export const rule: Rule.RuleModule = {
         if (node.init!.type === 'CallExpression') {
           if (node.init.callee.type === 'Identifier') {
             module = getModuleNameOfImportedIdentifier(context, node.init.callee);
-            usesReactState = (module?.value === 'react' && node.init.callee.name === 'useState');
+            usesReactState = module?.value === 'react' && node.init.callee.name === 'useState';
           }
-          if (node.init.callee.type === 'MemberExpression' && (node.init.callee.property as estree.Identifier).name === 'useState') {
+          if (
+            node.init.callee.type === 'MemberExpression' &&
+            (node.init.callee.property as estree.Identifier).name === 'useState'
+          ) {
             module = getModuleNameOfIdentifier(
               context,
               node.init.callee.object as estree.Identifier,
             );
-            usesReactState = (module?.value === 'react');
+            usesReactState = module?.value === 'react';
           }
         }
 
