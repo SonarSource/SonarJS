@@ -19,8 +19,29 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import {
+  getModuleNameOfImportedIdentifier,
+  getVariableFromName,
+  isFunctionCall,
+  isIdentifier,
+  isMemberExpression,
+} from '../utils';
+import Variable = Scope.Variable;
+
+// Types used in the hook declaration callback signature which reflects the expectations coming from the selector.
+
+type HookDeclarator = estree.VariableDeclarator & {
+  id: {
+    elements: estree.Identifier[];
+  };
+  init: estree.Node;
+};
+
+type SetterCall = estree.CallExpression & {
+  callee: estree.Identifier;
+};
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -32,17 +53,119 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
+    const REACT_MODULE = 'react';
+    const REACT_ROOT = 'React';
+    const REACT_PATTERN = /^[^a-z]/;
+    const HOOK_FUNCTION = 'useState';
+
+    /**
+     * Tells if a name comes from the 'react' module. It uses {@link getModuleNameOfImportedIdentifier()} to get the
+     * module name. In the example below <code>isReactName(context, "useState")</code> will return true.
+     * @example
+     * import { useState } from "react";
+     *
+     * function ShowLanguageInvalid() {
+     *   const [language, setLanguage] = useState("fr-FR");
+     *   // [...]
+     * }
+     */
+    function isReactName(identifier: estree.Identifier | undefined): boolean {
+      if (identifier === undefined) {
+        return false;
+      }
+      const module = getModuleNameOfImportedIdentifier(context, identifier);
+      return module?.value === REACT_MODULE;
+    }
+
+    /**
+     * Check if a node or a string is a reference to the React <code>useState(value)</code> function. It can be used on:
+     * <ul>
+     *   <li>an Identifier
+     *   <li>a member expression
+     *   <li>a function call
+     * </ul>
+     */
+    function isHook(node: estree.Node): boolean {
+      function getHookIdentifier(node: estree.Node): estree.Identifier | undefined {
+        if (isIdentifier(node, HOOK_FUNCTION)) {
+          return node;
+        } else if (isMemberExpression(node, REACT_ROOT, HOOK_FUNCTION)) {
+          return (node as estree.MemberExpression).property as estree.Identifier;
+        } else if (isFunctionCall(node) && node.arguments.length == 1) {
+          return getHookIdentifier(node.callee);
+        } else {
+          return undefined;
+        }
+      }
+      return isReactName(getHookIdentifier(node));
+    }
+
+    function getReactComponentScope(): Scope.Scope | undefined {
+      const scope = context.getScope();
+      if (scope.type !== 'function') {
+        return undefined;
+      } else if (
+        scope.block.type === 'FunctionDeclaration' &&
+        matchesIdentifier(scope.block.id, REACT_PATTERN)
+      ) {
+        return scope;
+      }
+    }
+
+    let reactComponentScope: Scope.Scope | undefined;
+    let setters: Variable[] = [];
+
     return {
-      CallExpression(node: estree.Node) {
-        const callNode = node as estree.CallExpression;
-        if (callNode.callee.type === 'Identifier' && callNode.callee.name === 'setLanguage') {
+      FunctionDeclaration() {
+        if (reactComponentScope === undefined) {
+          reactComponentScope = getReactComponentScope();
+        }
+      },
+
+      'FunctionDeclaration:exit'() {
+        if (getReactComponentScope() === reactComponentScope) {
+          reactComponentScope = undefined;
+          setters.length = 0;
+        }
+      },
+
+      'VariableDeclarator[init.callee.name="useState"]:has(ArrayPattern[elements.length=2][elements.0.type="Identifier"][elements.1.type="Identifier"])'(
+        node: estree.VariableDeclarator,
+      ) {
+        if (reactComponentScope === undefined) {
+          return;
+        }
+
+        const hookDeclarator = node as HookDeclarator;
+
+        if (isHook(hookDeclarator.init)) {
+          const variable = getVariableFromName(context, hookDeclarator.id.elements[1].name);
+          if (variable !== undefined) {
+            setters.push(variable);
+          }
+        }
+      },
+
+      'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
+        if (context.getScope() !== reactComponentScope || setters.length === 0) {
+          return;
+        }
+
+        const maybeSetterCall = node as SetterCall;
+
+        const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name);
+        if (setters.some(variable => variable === calleeVariable)) {
           context.report({
             message:
               "React's setState hook should only be used in the render function or body of a component",
-            node: callNode,
+            node: node.callee,
           });
         }
       },
     };
   },
 };
+
+function matchesIdentifier(node: estree.Node | null, pattern: RegExp): node is estree.Identifier {
+  return node == null ? false : isIdentifier(node) && pattern.test(node.name);
+}
