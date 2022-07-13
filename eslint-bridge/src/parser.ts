@@ -345,8 +345,8 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   for (const lambda of lambdas) {
     const { code } = lambda;
     /**
-     * The file path is left empty because the file content is the extracted inline JavaScript snippet,
-     * which will directly be used `buildSourceCode`.
+     * The file path is left empty as it is ignored by `buildSourceCode` if the file content is provided, which
+     * happens to be the case here since we extract inline JavaScript code.
      */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
