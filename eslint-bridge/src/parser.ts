@@ -351,74 +351,80 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
     if (sourceCodeOrError instanceof SourceCode) {
-      const sourceCode = patchSourceCode(sourceCodeOrError, lambda);
-      patchLocations(sourceCode, lambda);
-      sourceCodes.push(sourceCode);
+      const patchedSourceCode = patchSourceCode(sourceCodeOrError, lambda);
+      sourceCodes.push(patchedSourceCode);
     } else {
-      return sourceCodeOrError;
+      return sourceCodeOrError; // FIXME patch parsing error location
     }
   }
   return sourceCodes;
 }
 
-function patchSourceCode(sourceCodeOrig: SourceCode, lambda: Lambda) {
-  const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
-  const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
-  let match;
-  const lines = [];
+function patchSourceCode(originalSourceCode: SourceCode, lambda: Lambda) {
+  /* taken from eslint/lib/source-code/source-code.js#constructor */
+  function computeLines() {
+    const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
+    const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
+    let match;
+    const lines = [];
 
-  let i = 0;
-  while ((match = lineEndingPattern.exec(lambda.text))) {
-    lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
-    i++;
+    let i = 0;
+    while ((match = lineEndingPattern.exec(lambda.text))) {
+      lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
+      i++;
+    }
+    lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
+
+    return lines;
   }
-  lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
 
-  return Object.create(sourceCodeOrig, {
+  function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
+    const { offset } = lambda;
+
+    visit(sourceCode, node => {
+      fixNodeLocation(node);
+    });
+
+    const { comments } = sourceCode.ast;
+    for (const comment of comments) {
+      fixNodeLocation(comment);
+    }
+
+    const { tokens } = sourceCode.ast;
+    for (const token of tokens) {
+      fixNodeLocation(token);
+    }
+
+    function fixNodeLocation(node: Node | Comment | AST.Token) {
+      if (node.loc != null && node.range != null) {
+        node.loc = {
+          start: sourceCode.getLocFromIndex(node.range[0] + offset),
+          end: sourceCode.getLocFromIndex(node.range[1] + offset),
+        };
+      }
+      if (node.range) {
+        const [sRange, eRange] = node.range;
+        node.range = [sRange + offset, eRange + offset];
+      }
+    }
+  }
+
+  const lines = computeLines();
+  const patchedSourceCode = Object.create(originalSourceCode, {
     lineStartIndices: { value: lambda.lineStarts },
     text: { value: lambda.text },
     lines: { value: lines },
   });
 
-  /* sourceCode.getLocFromIndex = function (index: number): Position {
-    // Inspired from eslint/lib/source-code/source-code.js#getLocFromIndex
-    const lineNumber =
-      index >= lineStarts[lineStarts.length - 1]
-        ? lineStarts.length
-        : lineStarts.findIndex(el => index < el);
+  patchLocations(patchedSourceCode, lambda);
 
-    return { line: lineNumber, column: index - lineStarts[lineNumber - 1] };
-  };
- */
-}
-
-function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
-  const { offset } = lambda;
-
-  visit(sourceCode, node => {
-    fixNodeLocation(node);
+  const patchedSourceCodeBis = new SourceCode({
+    text: patchedSourceCode.text,
+    ast: patchedSourceCode.ast,
+    parserServices: patchedSourceCode.parserServices,
+    scopeManager: patchedSourceCode.scopeManager,
+    visitorKeys: patchedSourceCode.visitorKeys,
   });
 
-  const { comments } = sourceCode.ast;
-  for (const comment of comments) {
-    fixNodeLocation(comment);
-  }
-
-  const { tokens } = sourceCode.ast;
-  for (const token of tokens) {
-    fixNodeLocation(token);
-  }
-
-  function fixNodeLocation(node: Node | Comment | AST.Token) {
-    if (node.loc != null && node.range != null) {
-      node.loc = {
-        start: sourceCode.getLocFromIndex(node.range[0] + offset),
-        end: sourceCode.getLocFromIndex(node.range[1] + offset),
-      };
-    }
-    if (node.range) {
-      const [sRange, eRange] = node.range;
-      node.range = [sRange + offset, eRange + offset];
-    }
-  }
+  return patchedSourceCodeBis;
 }
