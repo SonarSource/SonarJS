@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'VariableDeclarator[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(
+      ':matches(VariableDeclarator[init.callee.name="useState"], VariableDeclarator[init.callee.property.name="useState"])[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(
         node: estree.VariableDeclarator,
       ) {
         const ids = node.id as estree.ArrayPattern;
