@@ -93,8 +93,8 @@ public class AnalysisProcessor {
       saveHighlights(response.highlights);
       saveHighlightedSymbols(response.highlightedSymbols);
       saveCpd(response.cpdTokens);
+      monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
     }
-    monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
   }
 
   private void processParsingError(EslintBridgeServer.ParsingError parsingError) {
