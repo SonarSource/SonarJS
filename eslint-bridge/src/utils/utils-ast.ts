@@ -158,15 +158,24 @@ export function isCallingMethod(
   );
 }
 
+//import * as utils from "module";
 export function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
   return importDeclaration.specifiers.some(
     ({ type, local }) => type === 'ImportNamespaceSpecifier' && local.name === name,
   );
 }
 
+//import utils from "module";
 export function isDefaultSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
   return importDeclaration.specifiers.some(
     ({ type, local }) => type === 'ImportDefaultSpecifier' && local.name === name,
+  );
+}
+
+//import {utils} from "module";
+export function isNamedSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
+  return importDeclaration.specifiers.some(
+    ({ type, local }) => type === 'ImportSpecifier' && local.name === name,
   );
 }
 

@@ -19,49 +19,100 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6443/javascript
 
-import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../utils';
+import { Rule, Scope } from 'eslint';
+import { getModuleNameOfIdentifier, isRequiredParserServices } from '../utils';
 import * as estree from 'estree';
 
 type reference = {
-  setter: estree.Identifier,
-  value: estree.Identifier
-}
+  setter: Scope.Variable | null;
+  value: Scope.Variable | null;
+};
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      uselessSetState: 'Change the parameter of this setter to not use its matching state variable'
+      uselessSetState: 'Change the parameter of this setter to not use its matching state variable',
     },
-  },  
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    const stateVariables: {[key: string]: reference} = {};
+    const stateVariables: { [key: string]: reference } = {};
 
     if (!isRequiredParserServices(services)) {
       return {};
     }
 
     return {
-      'VariableDeclarator[init.callee.name="useState"] > ArrayPattern[elements.length=2]'(node: estree.ArrayPattern) {
-        //console.log(node)
-        if (node.elements.every(elem => elem?.type === "Identifier")) {
-          stateVariables[(node.elements[1] as estree.Identifier).name] = {
-            value: (node.elements[0] as estree.Identifier),
-            setter: (node.elements[1] as estree.Identifier)
-          };
+      [`:matches(
+          VariableDeclarator[init.callee.name="useState"], 
+          VariableDeclarator[init.callee.object.name="react"][init.callee.property.name="useState"]
+        )
+        [id.type="ArrayPattern"]
+        [id.elements.length=2]
+        [id.elements.0.type="Identifier"]
+        [id.elements.1.type="Identifier"]`](node: estree.VariableDeclarator) {
+        const ids = node.id as estree.ArrayPattern;
+        const setter = (ids.elements[1] as estree.Identifier).name;
+        stateVariables[setter] = {
+          setter: null,
+          value: null,
+        };
+        let module: estree.Literal | undefined;
+        if (node.init!.type === 'CallExpression') {
+          if (node.init.callee.type === 'Identifier') {
+            module = getModuleNameOfIdentifier(context, node.init.callee);
+          }
+          if (node.init.callee.type === 'MemberExpression') {
+            module = getModuleNameOfIdentifier(
+              context,
+              node.init.callee.object as estree.Identifier,
+            );
+          }
+        }
+
+        if (module?.value === 'react') {
+          const scope = context.getScope();
+          scope.references.forEach(ref => {
+            if (ref.identifier === ids.elements[0] && ref.resolved) {
+              stateVariables[setter].value = ref.resolved;
+            }
+            if (ref.identifier === ids.elements[1] && ref.resolved) {
+              stateVariables[setter].setter = ref.resolved;
+            }
+          });
         }
       },
-      'CallExpression[arguments.length=1]'(node:estree.CallExpression) {
-        //console.log(node)
-        const scope = context.getScope();
-        const symbol = scope.references.find(v => v.identifier === node.callee)?.resolved;
-        if (!symbol) {
-          return;
+      'CallExpression[arguments.length=1][arguments.0.type="Identifier"]'(
+        node: estree.CallExpression,
+      ) {
+        const { scopeManager } = context.getSourceCode();
+        let match: reference = {
+          setter: null,
+          value: null,
+        };
+        for (const scope of scopeManager.scopes) {
+          scope.references.forEach(ref => {
+            if (ref.identifier === node.callee && ref.resolved) {
+              match.setter = ref.resolved;
+            }
+            if (ref.identifier === node.arguments[0] && ref.resolved) {
+              match.value = ref.resolved;
+            }
+          });
         }
-        console.log(symbol);
-
-      }
+        const key = match.setter?.name as string;
+        if (stateVariables.hasOwnProperty(key)) {
+          if (
+            stateVariables[key].setter === match.setter &&
+            stateVariables[key].value === match.value
+          ) {
+            context.report({
+              messageId: 'uselessSetState',
+              node: node,
+            });
+          }
+        }
+      },
     };
   },
 };

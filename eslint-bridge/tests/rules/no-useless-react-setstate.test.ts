@@ -27,16 +27,41 @@ ruleTesterTs.run('', rule, {
   valid: [
     {
       code: `
-        import { useState } from "react";
+        import * as react from "react";
 
         function ShowLanguage() {
-            const [language, setLanguage] = useState("fr-FR");
+            const [language, setLanguage] = react.useState("fr-FR");
             return (
               <section>
                 <h1>Your language is {language}!</h1>
-                <button onClick={() => setLanguage(navigator.language)}>Detect language</button> {/* this button does nothing */}
+                <button onClick={() => setLanguage(navigator.language)}>Detect language</button>
                 <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
               </section>
+            );
+        }
+      `,
+    },
+    {
+      code: `
+        import { useState } from "react";
+
+        function ShowLanguage() {
+            const [language1, setLanguage1] = useState("fr-FR");
+            const [language2, setLanguage2] = useState("France");
+            return (
+              <div>
+                <section>
+                  <h1>Your main language is {language1}!</h1>
+                  <button onClick={() => setLanguage1(navigator.language)}>Detect language</button>
+                  <button onClick={() => setLanguage1(language2)}>Same as secondary</button>
+                  <button onClick={() => setLanguage2("fr-FR")}>Je préfère le Français</button>
+                </section>
+                <section>
+                  <h1>Your secondary language is {language2}!</h1>
+                  <button onClick={() => setLanguage1(navigator.language)}>Detect language</button>
+                  <button onClick={() => setLanguage2(language1)}>Same as main</button>
+                </section>
+              </div>
             );
         }
       `,
@@ -45,10 +70,10 @@ ruleTesterTs.run('', rule, {
   invalid: [
     {
       code: `
-        import { useState } from "react";
+        import * as react from "react";
 
         function ShowLanguage() {
-            const [language, setLanguage] = useState("fr-FR");
+            const [language, setLanguage] = react.useState("fr-FR");
             return (
               <section>
                 <h1>Your language is {language}!</h1>
@@ -58,7 +83,15 @@ ruleTesterTs.run('', rule, {
             );
         }
       `,
-      errors: 1
+      errors: [
+        {
+          message: 'Change the parameter of this setter to not use its matching state variable',
+          line: 10,
+          column: 40,
+          endLine: 10,
+          endColumn: 61,
+        },
+      ],
     },
   ],
 });

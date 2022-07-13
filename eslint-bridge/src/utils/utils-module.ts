@@ -24,6 +24,7 @@ import {
   isIdentifier,
   isNamespaceSpecifier,
   getUniqueWriteUsage,
+  isNamedSpecifier,
 } from './utils-ast';
 
 /**
@@ -41,7 +42,10 @@ export function getModuleNameOfIdentifier(
   const { name } = identifier;
   // check if importing using `import * as X from 'module_name'`
   const importDeclaration = getImportDeclarations(context).find(
-    importDecl => isNamespaceSpecifier(importDecl, name) || isDefaultSpecifier(importDecl, name),
+    importDecl =>
+      isNamespaceSpecifier(importDecl, name) ||
+      isDefaultSpecifier(importDecl, name) ||
+      isNamedSpecifier(importDecl, name),
   );
   if (importDeclaration) {
     return importDeclaration.source;

@@ -1,6 +1,6 @@
 {
   "title": "React state setter function should not be called with its matching state variable",
-  "type": "CODE_SMELL",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -13,9 +13,5 @@
   "ruleSpecification": "RSPEC-6443",
   "sqKey": "S6443",
   "scope": "All",
-  "quickfix": "unknown",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+  "quickfix": "unknown"
 }
