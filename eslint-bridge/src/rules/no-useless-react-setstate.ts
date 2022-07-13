@@ -23,6 +23,11 @@ import { Rule } from 'eslint';
 import { isRequiredParserServices } from '../utils';
 import * as estree from 'estree';
 
+type reference = {
+  setter: estree.Identifier,
+  value: estree.Identifier
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
@@ -31,14 +36,31 @@ export const rule: Rule.RuleModule = {
   },  
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
+    const stateVariables: {[key: string]: reference} = {};
 
     if (!isRequiredParserServices(services)) {
       return {};
     }
 
     return {
-      'VariableDeclarator > CallExpression > Identifier[name="useState"]'(node: estree.Node) {
-        console.log(node);
+      'VariableDeclarator[init.callee.name="useState"] > ArrayPattern[elements.length=2]'(node: estree.ArrayPattern) {
+        //console.log(node)
+        if (node.elements.every(elem => elem?.type === "Identifier")) {
+          stateVariables[(node.elements[1] as estree.Identifier).name] = {
+            value: (node.elements[0] as estree.Identifier),
+            setter: (node.elements[1] as estree.Identifier)
+          };
+        }
+      },
+      'CallExpression[arguments.length=1]'(node:estree.CallExpression) {
+        //console.log(node)
+        const scope = context.getScope();
+        const symbol = scope.references.find(v => v.identifier === node.callee)?.resolved;
+        if (!symbol) {
+          return;
+        }
+        console.log(symbol);
+
       }
     };
   },
