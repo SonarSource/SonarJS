@@ -273,6 +273,51 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
     });
   }
 
+  function isInlineAwsLambda(pair: any, ancestors: any[]) {
+    return (
+      isZipFile(pair) &&
+      hasCode(ancestors) &&
+      hasNodeJsRuntime(ancestors) &&
+      hasType(ancestors, 'AWS::Lambda::Function')
+    );
+
+    function isZipFile(pair: any) {
+      return pair.key.value === 'ZipFile';
+    }
+    function hasCode(ancestors: any[], level = 2) {
+      return ancestors[ancestors.length - level]?.key?.value === 'Code';
+    }
+  }
+
+  function isInlineAwsServerless(pair: any, ancestors: any[]) {
+    return (
+      isInlineCode(pair) &&
+      hasNodeJsRuntime(ancestors, 1) &&
+      hasType(ancestors, 'AWS::Serverless::Function', 3)
+    );
+
+    // we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
+    function isInlineCode(pair: any) {
+      return pair.key.value === 'InlineCode';
+    }
+  }
+
+  function isSupportedFormat(pair: yaml.Pair<any, any>) {
+    return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
+  }
+
+  function hasNodeJsRuntime(ancestors: any[], level = 3) {
+    return ancestors[ancestors.length - level]?.items?.some(
+      (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
+    );
+  }
+
+  function hasType(ancestors: any[], value: string, level = 5) {
+    return ancestors[ancestors.length - level]?.items?.some(
+      (item: any) => item?.key.value === 'Type' && item?.value.value === value,
+    );
+  }
+
   // the offset value needs to be fixed depending on the type of string format in YAML
   function fixOffset(offset: number, format: string): number {
     if (format === 'BLOCK_FOLDED' || format === 'BLOCK_LITERAL') {
@@ -283,52 +328,6 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   }
 
   return lambdas;
-}
-
-function isInlineAwsLambda(pair: any, ancestors: any[]) {
-  return (
-    isZipFile(pair) &&
-    hasCode(ancestors) &&
-    hasNodeJsRuntime(ancestors) &&
-    hasType(ancestors, 'AWS::Lambda::Function')
-  );
-}
-
-function isInlineAwsServerless(pair: any, ancestors: any[]) {
-  return (
-    isInlineCode(pair) &&
-    hasNodeJsRuntime(ancestors, 1) &&
-    hasType(ancestors, 'AWS::Serverless::Function', 3)
-  );
-}
-
-function isSupportedFormat(pair: yaml.Pair<any, any>) {
-  return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
-}
-
-// we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
-function isInlineCode(pair: any) {
-  return pair.key.value === 'InlineCode';
-}
-
-function isZipFile(pair: any) {
-  return pair.key.value === 'ZipFile';
-}
-
-function hasCode(ancestors: any[], level = 2) {
-  return ancestors[ancestors.length - level]?.key?.value === 'Code';
-}
-
-function hasNodeJsRuntime(ancestors: any[], level = 3) {
-  return ancestors[ancestors.length - level]?.items?.some(
-    (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
-  );
-}
-
-function hasType(ancestors: any[], value: string, level = 5) {
-  return ancestors[ancestors.length - level]?.items?.some(
-    (item: any) => item?.key.value === 'Type' && item?.value.value === value,
-  );
 }
 
 // If there is at least 1 error in any JS lambda, we return only the first errror
@@ -358,73 +357,73 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     }
   }
   return sourceCodes;
-}
 
-function patchSourceCode(originalSourceCode: SourceCode, lambda: Lambda) {
-  /* taken from eslint/lib/source-code/source-code.js#constructor */
-  function computeLines() {
-    const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
-    const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
-    let match;
-    const lines = [];
+  function patchSourceCode(originalSourceCode: SourceCode, lambda: Lambda) {
+    /* taken from eslint/lib/source-code/source-code.js#constructor */
+    function computeLines() {
+      const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
+      const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
+      let match;
+      const lines = [];
 
-    let i = 0;
-    while ((match = lineEndingPattern.exec(lambda.text))) {
-      lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
-      i++;
+      let i = 0;
+      while ((match = lineEndingPattern.exec(lambda.text))) {
+        lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
+        i++;
+      }
+      lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
+
+      return lines;
     }
-    lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
 
-    return lines;
-  }
+    function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
+      const { offset } = lambda;
 
-  function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
-    const { offset } = lambda;
+      visit(sourceCode, node => {
+        fixNodeLocation(node);
+      });
 
-    visit(sourceCode, node => {
-      fixNodeLocation(node);
+      const { comments } = sourceCode.ast;
+      for (const comment of comments) {
+        fixNodeLocation(comment);
+      }
+
+      const { tokens } = sourceCode.ast;
+      for (const token of tokens) {
+        fixNodeLocation(token);
+      }
+
+      function fixNodeLocation(node: Node | Comment | AST.Token) {
+        if (node.loc != null && node.range != null) {
+          node.loc = {
+            start: sourceCode.getLocFromIndex(node.range[0] + offset),
+            end: sourceCode.getLocFromIndex(node.range[1] + offset),
+          };
+        }
+        if (node.range) {
+          const [sRange, eRange] = node.range;
+          node.range = [sRange + offset, eRange + offset];
+        }
+      }
+    }
+
+    const lines = computeLines();
+    const patchedSourceCode = Object.create(originalSourceCode, {
+      lineStartIndices: { value: lambda.lineStarts },
+      text: { value: lambda.text },
+      lines: { value: lines },
     });
 
-    const { comments } = sourceCode.ast;
-    for (const comment of comments) {
-      fixNodeLocation(comment);
-    }
+    patchLocations(patchedSourceCode, lambda);
 
-    const { tokens } = sourceCode.ast;
-    for (const token of tokens) {
-      fixNodeLocation(token);
-    }
+    const patchedSourceCodeBis = new SourceCode({
+      text: patchedSourceCode.text,
+      ast: patchedSourceCode.ast,
+      parserServices: patchedSourceCode.parserServices,
+      scopeManager: patchedSourceCode.scopeManager,
+      visitorKeys: patchedSourceCode.visitorKeys,
+    });
 
-    function fixNodeLocation(node: Node | Comment | AST.Token) {
-      if (node.loc != null && node.range != null) {
-        node.loc = {
-          start: sourceCode.getLocFromIndex(node.range[0] + offset),
-          end: sourceCode.getLocFromIndex(node.range[1] + offset),
-        };
-      }
-      if (node.range) {
-        const [sRange, eRange] = node.range;
-        node.range = [sRange + offset, eRange + offset];
-      }
-    }
+    return patchedSourceCodeBis;
   }
-
-  const lines = computeLines();
-  const patchedSourceCode = Object.create(originalSourceCode, {
-    lineStartIndices: { value: lambda.lineStarts },
-    text: { value: lambda.text },
-    lines: { value: lines },
-  });
-
-  patchLocations(patchedSourceCode, lambda);
-
-  const patchedSourceCodeBis = new SourceCode({
-    text: patchedSourceCode.text,
-    ast: patchedSourceCode.ast,
-    parserServices: patchedSourceCode.parserServices,
-    scopeManager: patchedSourceCode.scopeManager,
-    visitorKeys: patchedSourceCode.visitorKeys,
-  });
-
-  return patchedSourceCodeBis;
 }
