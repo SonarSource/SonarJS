@@ -176,6 +176,7 @@ public final class CheckList {
       InvertedAssertionArgumentsCheck.class,
       IpForwardCheck.class,
       JsxNoCommentTextnodesCheck.class,
+      JsxNoLeakedRenderCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
       LabelledStatementCheck.class,

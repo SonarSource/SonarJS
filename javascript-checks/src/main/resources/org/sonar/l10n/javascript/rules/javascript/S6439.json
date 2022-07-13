@@ -1,0 +1,21 @@
+{
+  "title": "React components should not render non-boolean condition values",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6439",
+  "sqKey": "S6439",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

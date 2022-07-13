@@ -1,0 +1,11 @@
+{
+'courselit:apps/web/components/admin/base-layout.tsx':[
+134,
+],
+'courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx':[
+56,
+],
+'courselit:apps/web/pages/course/[id]/[slug].tsx':[
+64,
+],
+}
