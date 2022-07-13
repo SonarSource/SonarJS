@@ -29,6 +29,7 @@ import { getProgramById } from './programManager';
 import * as yaml from 'yaml-node12';
 import { FileType, visit } from './utils';
 import { Comment, Node } from 'estree';
+import { assert } from 'console';
 
 type Lambda = {
   code: string;
@@ -229,7 +230,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   const src = getFileContent(filePath);
   const lineCounter = new yaml.LineCounter();
   const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
-  // YAML supports a marker that indicates the end of a document: a file may contain multiple documents
+  // YAML supports a marker "---" that indicates the end of a document: a file may contain multiple documents
   const docs = new yaml.Composer({ keepSourceTokens: true }).compose(tokens);
 
   const lambdas: Lambda[] = [];
@@ -252,10 +253,8 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
         ) {
           const { value, srcToken } = pair;
           const code = srcToken.value.source;
-          if (!code) {
-            /* this should not happen */
-            throw new Error('An extracted inline JavaScript snippet should not be undefined.');
-          }
+          // this should not happen
+          assert(code != null, 'An extracted inline JavaScript snippet should not be undefined.');
           const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
@@ -330,7 +329,9 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
   return lambdas;
 }
 
-// If there is at least 1 error in any JS lambda, we return only the first errror
+/**
+ * If there is at least 1 error in any JS lambda, we return only the first error
+ */
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
   const lambdasOrError = parseYaml(filePath);
 
@@ -376,6 +377,9 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       return lines;
     }
 
+    /**
+     * Patches loc.start, loc.end and range in sourceCode.ast nodes
+     */
     function patchLocations(sourceCode: SourceCode, lambda: Lambda) {
       const { offset } = lambda;
 
@@ -407,6 +411,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       }
     }
 
+    /**
+     * 1. We compute lines here because sourceCode.lines is in the JS referrential and the YAML parser does not provide it
+     * 2. We override the values lineStartIndices, text and lines in sourceCode from the JS to the YAML referrential. We must use Object.create() because SourceCode's properties are frozen
+     * 3. We patch the sourceCode.ast nodes after 1 & 2 as it relies on values computed earlier
+     * 4. We rebuild sourceCode from the patched values because it builds internal properties that are dependent on them
+     */
     const lines = computeLines();
     const patchedSourceCode = Object.create(originalSourceCode, {
       lineStartIndices: { value: lambda.lineStarts },
@@ -416,14 +426,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
     patchLocations(patchedSourceCode, lambda);
 
-    const patchedSourceCodeBis = new SourceCode({
+    return new SourceCode({
       text: patchedSourceCode.text,
       ast: patchedSourceCode.ast,
       parserServices: patchedSourceCode.parserServices,
       scopeManager: patchedSourceCode.scopeManager,
       visitorKeys: patchedSourceCode.visitorKeys,
     });
-
-    return patchedSourceCodeBis;
   }
 }
