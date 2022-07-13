@@ -86,7 +86,7 @@ class JavaScriptRulingTest {
       jsProject("prototype", "", "test"),
       jsProject("qunit", "", "test"),
       jsProject("sizzle", "external/**", "test"),
-      jsProject("underscore", "", "test")
+      jsProject("underscore", "", "test"),
       jsProject("yaml", "", "")
       );
   }
