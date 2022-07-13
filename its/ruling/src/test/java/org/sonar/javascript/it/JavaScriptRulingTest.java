@@ -63,6 +63,8 @@ class JavaScriptRulingTest {
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
+    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .build();
 
   public static Stream<Arguments> ruling() {
@@ -85,6 +87,7 @@ class JavaScriptRulingTest {
       jsProject("qunit", "", "test"),
       jsProject("sizzle", "external/**", "test"),
       jsProject("underscore", "", "test")
+      jsProject("yaml", "", "")
       );
   }
 
@@ -119,7 +122,9 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
       "S124",
@@ -150,6 +155,8 @@ class JavaScriptRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "terraform", "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "cloudformation", "empty-profile");
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
