@@ -146,7 +146,7 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
   const aggregatedIssues: Issue[] = [];
   for (const sourceCode of sourceCodes) {
     const { issues } = linter.analyze(sourceCode, input.filePath, input.fileType);
-    const filteredIssues = filterIssues(sourceCode, issues);
+    const filteredIssues = removeYamlIssues(sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
   }
   return Promise.resolve({ issues: aggregatedIssues });
@@ -158,12 +158,13 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
    * to include all the YAML file in its properties outside of its AST.
    * So rules that operate on SourceCode.text get flagged
    */
-  function filterIssues(sourceCode: SourceCode, issues: Issue[]) {
+  function removeYamlIssues(sourceCode: SourceCode, issues: Issue[]) {
     const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
     return issues.filter(issue => {
+      const issueStart = { line: issue.line, column: issue.column };
       return (
-        isBeforeOrEqual(jsStart, { line: issue.line, column: issue.column }) &&
-        isBeforeOrEqual({ line: issue.line, column: issue.column }, jsEnd)
+        isBeforeOrEqual(jsStart, issueStart) &&
+        isBeforeOrEqual(issueStart, jsEnd)
       );
     });
 
