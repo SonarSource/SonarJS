@@ -1,10 +1,12 @@
 import { useState } from "react";
 
+// Function Declarations..............
+
 function ShowLanguageInvalid() {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant
+  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -26,11 +28,13 @@ function ShowLanguageValid() {
   );
 };
 
+// Arrow Functions..............
+
 const ShowLanguageInvalidArrow = () => {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant
+  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -52,11 +56,13 @@ const ShowLanguageValidArrow = () => {
   );
 };
 
+// Function Expressions..............
+
 const ShowLanguageInvalidExpression = function() {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant
+  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -77,3 +83,51 @@ const ShowLanguageValidExpression = function() {
     </section>
   );
 };
+
+// MultipleHookInvalid..............
+
+function MultipleHookInvalid() {
+  const [a, setA] = useState("a");
+  const [b, setB] = useState("b");
+
+  function setC(c) {
+    MultipleHookInvalid.c = c;
+  }
+
+  // Makes an infinite loop
+  setA("A"); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+//^^^^
+  setB("B"); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+//^^^^
+  setC("C");
+
+  return (
+    <section>
+      <h1>Multiple Hooks</h1>
+      <var>{a}</var><button onClick={() => setA("A")}>A</button>
+      <var>{b}</var><button onClick={() => setB("B")}>B</button>
+    </section>
+  );
+}
+
+// MultipleHookValid..............
+
+function MultipleHooValid() {
+  const [a, setA] = useState("a");
+  const [b, setB] = useState("b");
+
+  function setC(c) {
+    MultipleHookInvalid.c = c;
+  }
+
+  setC("C");
+
+  return (
+    <section>
+      <h1>Multiple Hooks</h1>
+      <var>{a}</var><button onClick={() => setA("A")}>A</button>
+      <var>{b}</var><button onClick={() => setB("B")}>B</button>
+    </section>
+  );
+}
+

@@ -46,6 +46,10 @@ type SetterCall = estree.CallExpression & {
 
 export const rule: Rule.RuleModule = {
   meta: {
+    messages: {
+      noHookSetterInBody:
+        "React's setState hook should only be used in the render function or body of a component",
+    },
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -157,8 +161,7 @@ export const rule: Rule.RuleModule = {
         const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name);
         if (setters.some(variable => variable === calleeVariable)) {
           context.report({
-            message:
-              "React's setState hook should only be used in the render function or body of a component",
+            messageId: 'noHookSetterInBody',
             node: node.callee,
           });
         }
