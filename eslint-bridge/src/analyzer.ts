@@ -154,14 +154,12 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
   /**
    * Filters out issues outside of JS code.
    *
-   * This is necessary because we patch the sourceCode object
+   * This is necessary because we patch the SourceCode object
    * to include all the YAML file in its properties outside of its AST.
-   * So rules that operate on text get flagged
+   * So rules that operate on SourceCode.text get flagged
    */
   function filterIssues(sourceCode: SourceCode, issues: Issue[]) {
-    const [jsRangeStart, jsRangeEnd] = sourceCode.ast.range;
-    const jsStart = sourceCode.getLocFromIndex(jsRangeStart);
-    const jsEnd = sourceCode.getLocFromIndex(jsRangeEnd);
+    const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
     return issues.filter(issue => {
       return (
         isBeforeOrEqual(jsStart, { line: issue.line, column: issue.column }) &&
