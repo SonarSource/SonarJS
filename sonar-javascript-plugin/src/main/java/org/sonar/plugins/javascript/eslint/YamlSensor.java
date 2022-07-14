@@ -30,7 +30,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
@@ -100,15 +99,15 @@ public class YamlSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file) throws IOException {
     try {
-      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(
+      var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+      var jsAnalysisRequest = new JsAnalysisRequest(
         file.absolutePath(),
         file.type().toString(),
         fileContent,
         contextUtils.ignoreHeaderComments(),
         null,
         null);
-      AnalysisResponse response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
+      var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
