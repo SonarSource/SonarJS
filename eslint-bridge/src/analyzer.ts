@@ -153,9 +153,9 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
 
   /**
    * Filters out issues outside of JS code.
-   * 
-   * This is necessary because we patch the sourceCode object 
-   * to include all the YAML file in its properties outside of its AST. 
+   *
+   * This is necessary because we patch the sourceCode object
+   * to include all the YAML file in its properties outside of its AST.
    * So rules that operate on text get flagged
    */
   function filterIssues(sourceCode: SourceCode, issues: Issue[]) {
