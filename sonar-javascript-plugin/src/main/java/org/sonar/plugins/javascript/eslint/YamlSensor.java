@@ -33,9 +33,10 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
-import org.sonar.plugins.javascript.yaml.YamlLanguage;
 
 public class YamlSensor extends AbstractEslintSensor {
+
+  public static final String LANGUAGE = "yaml";
 
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
@@ -58,7 +59,7 @@ public class YamlSensor extends AbstractEslintSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("JavaScript inside YAML analysis")
-      .onlyOnLanguage(YamlLanguage.KEY);
+      .onlyOnLanguage(LANGUAGE);
   }
 
   @Override
@@ -92,7 +93,7 @@ public class YamlSensor extends AbstractEslintSensor {
   @Override
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
-    var filePredicate = fileSystem.predicates().hasLanguage(YamlLanguage.KEY);
+    var filePredicate = fileSystem.predicates().hasLanguage(YamlSensor.LANGUAGE);
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }

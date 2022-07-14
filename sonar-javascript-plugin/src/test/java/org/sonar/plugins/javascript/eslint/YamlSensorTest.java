@@ -69,7 +69,6 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.yaml.YamlLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 
 import com.google.gson.Gson;
@@ -126,7 +125,7 @@ class YamlSensorTest {
 
     createSensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("JavaScript inside YAML analysis");
-    assertThat(descriptor.languages()).containsOnly(YamlLanguage.KEY);
+    assertThat(descriptor.languages()).containsOnly(YamlSensor.LANGUAGE);
   }
 
   @Test
@@ -242,7 +241,7 @@ class YamlSensorTest {
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.yaml")
-      .setLanguage(YamlLanguage.KEY)
+      .setLanguage(YamlSensor.LANGUAGE)
       .setCharset(StandardCharsets.UTF_8)
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
