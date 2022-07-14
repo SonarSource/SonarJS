@@ -26,17 +26,16 @@ import { EmbeddedJS } from './embedded-js';
 import { parseYaml } from './parser';
 
 /**
+ * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
  *
- * If there is at least 1 error in any embedded JS, we return only the first error
- *
- * @param filePath
- * @returns
+ * If there is at least one parsing error in any snippet, we return only the first error and
+ * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
   const embeddedJSsOrError = parseYaml(filePath);
 
-  const constainsError = !Array.isArray(embeddedJSsOrError);
-  if (constainsError) {
+  const containsError = !Array.isArray(embeddedJSsOrError);
+  if (containsError) {
     return embeddedJSsOrError;
   }
   const embeddedJSs = embeddedJSsOrError;
@@ -44,47 +43,62 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   const sourceCodes: SourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
+
     /**
-     * The file path is left empty as it is ignored by `buildSourceCode` if the file content is provided, which
-     * happens to be the case here since we extract inline JavaScript code.
+     * The file path is purposely left empty as it is ignored by `buildSourceCode` if the file content is provided, which
+     * happens to be the case here since `code` denotes an embedded JavaScript snippet extracted from the YAML file.
      */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js');
     if (sourceCodeOrError instanceof SourceCode) {
-      const patchedSourceCode = patchSourceCode(sourceCodeOrError, embeddedJS);
+      const sourceCode = sourceCodeOrError;
+      const patchedSourceCode = patchSourceCode(sourceCode, embeddedJS);
       sourceCodes.push(patchedSourceCode);
     } else {
-      return patchParsingError(sourceCodeOrError, embeddedJS);
+      const parsingError = sourceCodeOrError;
+      return patchParsingError(parsingError, embeddedJS);
     }
   }
   return sourceCodes;
 
   /**
+   * Patches the ESLint SourceCode instance parsed with an ESLint-based parser
    *
-   * 1. We compute lines here because SourceCode.lines is in the JS referrential and
-   *    the YAML parser does not provide it
-   * 2. We override the values lineStartIndices, text and lines in SourceCode
-   *    from the JS to the YAML referrential. We must use Object.create() because
-   *    SourceCode's properties are frozen
-   * 3. We patch the SourceCode.ast nodes locations after 1 & 2 as it relies on values computed then
-   * 4. We rebuild SourceCode from the patched values because it builds internal properties that are dependent on them
-   *
-   * @param originalSourceCode
-   * @param embeddedJS
-   * @returns
+   * Patching an ESLint SourceCode instance denoting an embedded JavaScript snippet implies
+   * fixing all location-related data structures in the abstract syntax tree as well as the
+   * behavior of the instance methods because they are relative to the beginning of the code
+   * code snippet that was parsed, not relative to the whole YAML file content. By doing so,
+   * location-related information within reported issues and quick fixes will be relative to
+   * the YAML file (YAML referential).
    */
   function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
-    // 1
+    /**
+     * 1. Recomputes the lines from the original YAML file content, as the lines in the original
+     *    SourceCode includes only those from the embedded JavaScript code snippet and these
+     *    lines are used internally by the SourceCode for various purposes.
+     */
     const lines = computeLines();
-    // 2
+
+    /**
+     * 2. Overrides the values `lineStartIndices`, `text` and `lines` of the original SourceCode
+     *    instance from the JavaScript referential to the YAML one. To achieve that, we must use
+     *    `Object.create()` because these particular SourceCode's properties are frozen.
+     */
     const patchedSourceCode = Object.create(originalSourceCode, {
       lineStartIndices: { value: embeddedJS.lineStarts },
       text: { value: embeddedJS.text },
       lines: { value: lines },
     });
-    // 3
+
+    /**
+     * 3. Patches the location information of the SourceCode abstract syntax tree as it sill
+     *    in the JavaScript referential
+     */
     patchASTLocations(patchedSourceCode, embeddedJS.offset);
-    // 4
+
+    /**
+     * 4. Rebuilds the SourceCode from the patched values because it builds internal properties that are depending on them
+     */
     return new SourceCode({
       text: patchedSourceCode.text,
       ast: patchedSourceCode.ast,
@@ -97,10 +111,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     function computeLines() {
       const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
       const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
-      let match;
       const lines = [];
 
       let i = 0;
+      let match;
       while ((match = lineEndingPattern.exec(embeddedJS.text))) {
         lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[i], match.index));
         i++;
@@ -111,7 +125,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     }
 
     /**
-     * Patches loc.start, loc.end and range in sourceCode.ast nodes
+     * Patches the location in the abstract syntax tree from the embedded JavaScript snippet
+     *
+     * The patching involves any kind of nodes with locations and ranges, that is, regular
+     * nodes, comments, and tokens.
      */
     function patchASTLocations(sourceCode: SourceCode, offset: number) {
       visit(sourceCode, node => {
@@ -144,10 +161,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   }
 
   /**
+   * Patches a parsing error in an embedded JavaScript snippet
    *
-   * @param parsingError
-   * @param embeddedJS
-   * @returns
+   * Patching a parsing error in such a snippet requires patching the line number of the error
+   * as well as its message if it includes location information like a token position. At this,
+   * point, location information in the parsing error is relative to the beginning of the code
+   * snippet, which should be patched.
    */
   function patchParsingError(parsingError: ParsingError, embeddedJS: EmbeddedJS): ParsingError {
     const { code, line, message } = parsingError;
@@ -165,14 +184,17 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   }
 
   /**
+   * Patches the message of a parsing error in an embedded JavaScript snippet
    *
-   * @param message
-   * @param patchedLine
-   * @param embeddedJS
-   * @returns
+   * A parsing error reported by an ESLint-based parser generally includes location information
+   * about an unexpected token, e.g., `Unexpected token ','. (7:22)`, which should be patched.
    */
-  function patchParsingErrorMessage(message: string, patchedLine: number, embeddedJS: EmbeddedJS) {
-    /* patching error message `(<line>:<column>)` */
+  function patchParsingErrorMessage(
+    message: string,
+    patchedLine: number,
+    embeddedJS: EmbeddedJS,
+  ): string {
+    /* Extracts location information of the form `(<line>:<column>)` */
     const regex = /((?<line>\d+):(?<column>\d+))/;
     const found = message.match(regex);
     if (found) {

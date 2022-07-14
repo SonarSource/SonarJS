@@ -69,7 +69,7 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
     }
 
     /**
-     * Extract the embedded JavaScript snippets from the YAML abstract-syntax tree
+     * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
      */
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
