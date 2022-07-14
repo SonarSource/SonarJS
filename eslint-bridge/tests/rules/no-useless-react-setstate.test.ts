@@ -85,11 +85,31 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Change the parameter of this setter to not use its matching state variable',
+          message: 'Change the argument of this setter to not use its matching state variable',
           line: 10,
           column: 40,
           endLine: 10,
           endColumn: 61,
+        },
+      ],
+    },
+    {
+      code: `
+        import * as react from "react";
+
+        function ShowLanguage() {
+            const [language, setLanguage] = react.useState("fr-FR");
+            setLanguage(navigator.language);
+            setLanguage(language);
+        }
+      `,
+      errors: [
+        {
+          message: 'Change the argument of this setter to not use its matching state variable',
+          line: 7,
+          column: 13,
+          endLine: 7,
+          endColumn: 34,
         },
       ],
     },

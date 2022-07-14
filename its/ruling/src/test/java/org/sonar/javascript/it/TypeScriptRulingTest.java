@@ -28,7 +28,22 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      tsProject("eigen", "")
+      tsProject("ag-grid", "spec"),
+      tsProject("ant-design", "tests"), // todo: many dirs **/__tests__
+      tsProject("console", ""), // todo: many dirs **/__tests__
+      tsProject("courselit", ""),
+      tsProject("desktop", "app/test"),
+      tsProject("eigen", ""), // todo
+      tsProject("file-for-rules", ""),
+      tsProject("fireface", ""),
+      tsProject("ionic2-auth", ""),
+      tsProject("Joust", ""), // todo: files **/*.spec.ts
+      tsProject("moose", ""),
+      tsProject("postgraphql", ""), // todo: many dirs **/__tests__
+      tsProject("prettier-vscode", ""),
+      tsProject("rxjs", "spec"),
+      tsProject("searchkit", ""), // todo
+      tsProject("TypeScript", "src/harness/unittests")
       );
   }
 

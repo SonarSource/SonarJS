@@ -23,11 +23,12 @@ import { Rule, Scope } from 'eslint';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
+  getVariableFromName,
   isRequiredParserServices,
 } from '../utils';
 import * as estree from 'estree';
 
-type reference = {
+type Reference = {
   setter: Scope.Variable | null;
   value: Scope.Variable | null;
 };
@@ -35,82 +36,64 @@ type reference = {
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      uselessSetState: 'Change the parameter of this setter to not use its matching state variable',
+      uselessSetState: 'Change the argument of this setter to not use its matching state variable',
     },
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    const stateVariables: { [key: string]: reference } = {};
-
     if (!isRequiredParserServices(services)) {
       return {};
     }
 
+    const referencesBySetterName: { [key: string]: Reference } = {};
+
+    const declarator_selector = [
+      ':matches(',
+      [
+        'VariableDeclarator[init.callee.name="useState"]',
+        'VariableDeclarator[init.callee.property.name="useState"]',
+      ].join(','),
+      ')',
+      '[id.type="ArrayPattern"]',
+      '[id.elements.length=2]',
+      '[id.elements.0.type="Identifier"]',
+      '[id.elements.1.type="Identifier"]',
+    ].join('');
+
+    const call_selector = [
+      'CallExpression[callee.type="Identifier"]',
+      '[arguments.length=1]',
+      '[arguments.0.type="Identifier"]',
+    ].join('');
+
     return {
-      ':matches(VariableDeclarator[init.callee.name="useState"], VariableDeclarator[init.callee.property.name="useState"])[id.type="ArrayPattern"][id.elements.length=2][id.elements.0.type="Identifier"][id.elements.1.type="Identifier"]'(
-        node: estree.VariableDeclarator,
-      ) {
-        const ids = node.id as estree.ArrayPattern;
-        const setter = (ids.elements[1] as estree.Identifier).name;
-        stateVariables[setter] = {
-          setter: null,
-          value: null,
-        };
-
-        let module: estree.Literal | undefined;
-        let usesReactState = false;
-        if (node.init!.type === 'CallExpression') {
-          if (node.init.callee.type === 'Identifier') {
-            module = getModuleNameOfImportedIdentifier(context, node.init.callee);
-            usesReactState = module?.value === 'react' && node.init.callee.name === 'useState';
-          }
-          if (
-            node.init.callee.type === 'MemberExpression' &&
-            (node.init.callee.property as estree.Identifier).name === 'useState'
-          ) {
-            module = getModuleNameOfIdentifier(
-              context,
-              node.init.callee.object as estree.Identifier,
-            );
-            usesReactState = module?.value === 'react';
-          }
-        }
-
-        if (usesReactState) {
+      [declarator_selector](node: estree.VariableDeclarator) {
+        if (isReactCall(context, node.init as estree.CallExpression)) {
+          const ids = node.id as estree.ArrayPattern;
+          const setter = (ids.elements[1] as estree.Identifier).name;
+          referencesBySetterName[setter] = {
+            setter: null,
+            value: null,
+          };
           const scope = context.getScope();
           scope.references.forEach(ref => {
             if (ref.identifier === ids.elements[0] && ref.resolved) {
-              stateVariables[setter].value = ref.resolved;
+              referencesBySetterName[setter].value = ref.resolved;
             }
             if (ref.identifier === ids.elements[1] && ref.resolved) {
-              stateVariables[setter].setter = ref.resolved;
+              referencesBySetterName[setter].setter = ref.resolved;
             }
           });
         }
       },
-      'CallExpression[arguments.length=1][arguments.0.type="Identifier"]'(
-        node: estree.CallExpression,
-      ) {
-        const { scopeManager } = context.getSourceCode();
-        let match: reference = {
-          setter: null,
-          value: null,
-        };
-        for (const scope of scopeManager.scopes) {
-          scope.references.forEach(ref => {
-            if (ref.identifier === node.callee && ref.resolved) {
-              match.setter = ref.resolved;
-            }
-            if (ref.identifier === node.arguments[0] && ref.resolved) {
-              match.value = ref.resolved;
-            }
-          });
-        }
-        const key = match.setter?.name as string;
-        if (stateVariables.hasOwnProperty(key)) {
+      [call_selector](node: estree.CallExpression) {
+        const setter = getVariableFromName(context, (node.callee as estree.Identifier).name);
+        const value = getVariableFromName(context, (node.arguments[0] as estree.Identifier).name);
+        const key = setter?.name as string;
+        if (referencesBySetterName.hasOwnProperty(key)) {
           if (
-            stateVariables[key].setter === match.setter &&
-            stateVariables[key].value === match.value
+            referencesBySetterName[key].setter === setter &&
+            referencesBySetterName[key].value === value
           ) {
             context.report({
               messageId: 'uselessSetState',
@@ -122,3 +105,16 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isReactCall(context: Rule.RuleContext, callExpr: estree.CallExpression): boolean {
+  let usesReactState = false;
+
+  if (callExpr.callee.type === 'Identifier') {
+    let module = getModuleNameOfImportedIdentifier(context, callExpr.callee);
+    usesReactState = module?.value === 'react';
+  } else if (callExpr.callee.type === 'MemberExpression') {
+    let module = getModuleNameOfIdentifier(context, callExpr.callee.object as estree.Identifier);
+    usesReactState = module?.value === 'react';
+  }
+  return usesReactState;
+}
