@@ -64,6 +64,7 @@ class JavaScriptRulingTest {
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+    // required to load YAML files
     .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .build();
 
