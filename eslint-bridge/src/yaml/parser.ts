@@ -17,27 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as yaml from 'yaml-node12'; /* TODO replace this with `yaml` when we drop the support of Node.js 12 */
+
+/* TODO replace the `yaml-node12` dependency with `yaml` once we drop the support of Node.js 12 */
+import * as yaml from 'yaml-node12';
 import assert from 'assert';
 import { ParsingError } from '../analyzer';
 import { getFileContent, ParseExceptionCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
 
 /**
- *
- * @param filePath
- * @returns
+ * Extracts from a YAML file all the embedded JavaScript code snippets either
+ * in AWS Lambda Functions or AWS Serverless Functions.
  */
 export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
-  const src = getFileContent(filePath);
+  const text = getFileContent(filePath);
+
+  /**
+   * Builds the abstract syntax tree of the YAML file
+   *
+   * YAML supports a marker "---" that indicates the end of a document: a file may contain multiple documents.
+   * This means that it can return multiple abstract syntax trees.
+   */
   const lineCounter = new yaml.LineCounter();
-  const tokens = new yaml.Parser(lineCounter.addNewLine).parse(src);
-  // YAML supports a marker "---" that indicates the end of a document: a file may contain multiple documents
+  const tokens = new yaml.Parser(lineCounter.addNewLine).parse(text);
   const docs = new yaml.Composer({ keepSourceTokens: true }).compose(tokens);
 
   const embeddedJSs: EmbeddedJS[] = [];
   for (const doc of docs) {
-    // we only consider the first error
+    /**
+     * Although there could be multiple parsing errors in the YAML file, we only consider
+     * the first error to be consistent with how parsing errors are returned when parsing
+     * standalone JavaScript source files.
+     */
     if (doc.errors.length > 0) {
       const error = doc.errors[0];
       return {
@@ -47,6 +58,9 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
       };
     }
 
+    /**
+     * Extract the embedded JavaScript snippets from the YAML abstract-syntax tree
+     */
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
         if (
@@ -55,8 +69,14 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
         ) {
           const { value, srcToken } = pair;
           const code = srcToken.value.source;
-          // this should not happen
-          assert(code != null, 'An extracted inline JavaScript snippet should not be undefined.');
+          const format = pair.value.type;
+
+          /**
+           * This assertion should never fail because the visited node denotes either an AWS Lambda
+           * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
+           */
+          assert(code != null, 'An extracted embedded JavaScript snippet should not be undefined.');
+
           const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
           const lineStarts = lineCounter.lineStarts;
@@ -67,8 +87,8 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
             column,
             offset: fixOffset(offsetStart, value.type),
             lineStarts,
-            text: src,
-            format: pair.value.type,
+            text,
+            format,
           });
         }
       },
@@ -76,10 +96,14 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
   }
 
   /**
+   * Embedded JavaScript code inside an AWS Lambda Function has the following structure:
    *
-   * @param pair
-   * @param ancestors
-   * @returns
+   * SomeLambdaFunction:
+   *   Type: "AWS::Lambda::Function"
+   *   Properties:
+   *     Runtime: <nodejs-version>
+   *     Code:
+   *       ZipFile: <embedded-js-code>
    */
   function isInlineAwsLambda(pair: any, ancestors: any[]) {
     return (
@@ -98,10 +122,13 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
   }
 
   /**
+   * Embedded JavaScript code inside an AWS Serverless Function has the following structure:
    *
-   * @param pair
-   * @param ancestors
-   * @returns
+   * SomeServerlessFunction:
+   *   Type: "AWS::Serverless::Function"
+   *   Properties:
+   *     Runtime: <nodejs-version>
+   *     InlineCode: <embedded-js-code>
    */
   function isInlineAwsServerless(pair: any, ancestors: any[]) {
     return (
@@ -110,50 +137,38 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
       hasType(ancestors, 'AWS::Serverless::Function', 3)
     );
 
-    // we need to check the pair directly instead of ancestors, otherwise it will validate all siblings
+    /**
+     * We need to check the pair directly instead of ancestors,
+     * otherwise it will validate all siblings.
+     */
     function isInlineCode(pair: any) {
       return pair.key.value === 'InlineCode';
     }
   }
 
-  /**
-   *
-   * @param pair
-   * @returns
-   */
-  function isSupportedFormat(pair: yaml.Pair<any, any>) {
-    return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
-  }
-
-  /**
-   *
-   * @param ancestors
-   * @param level
-   * @returns
-   */
   function hasNodeJsRuntime(ancestors: any[], level = 3) {
     return ancestors[ancestors.length - level]?.items?.some(
       (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
     );
   }
 
-  /**
-   *
-   * @param ancestors
-   * @param value
-   * @param level
-   * @returns
-   */
   function hasType(ancestors: any[], value: string, level = 5) {
     return ancestors[ancestors.length - level]?.items?.some(
       (item: any) => item?.key.value === 'Type' && item?.value.value === value,
     );
   }
 
-  // the offset value needs to be fixed depending on the type of string format in YAML
+  function isSupportedFormat(pair: yaml.Pair<any, any>) {
+    return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
+  }
+
+  /**
+   * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
+   * as it changes depending on the type of the embedding format.
+   */
   function fixOffset(offset: number, format: string): number {
     if (format === 'BLOCK_FOLDED' || format === 'BLOCK_LITERAL') {
-      return offset + 2;
+      return offset + 2 /* +1 for the block marker (`>` or `|`) and +1 for the line break */;
     } else {
       return offset;
     }
