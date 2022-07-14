@@ -24,7 +24,6 @@ import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
   getVariableFromName,
-  isRequiredParserServices,
 } from '../utils';
 import * as estree from 'estree';
 
@@ -40,11 +39,6 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
     const referencesBySetterName: { [key: string]: Reference } = {};
 
     const declarator_selector = [
