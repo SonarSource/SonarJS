@@ -131,3 +131,39 @@ function MultipleHooValid() {
   );
 }
 
+// NestedInvalid..............
+
+function NestedInvalid() {
+  const [language, setLanguage] = useState(navigator.language);
+
+  if (language === 'fr') {
+    setLanguage('en'); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+//  ^^^^^^^^^^^
+  }
+
+  return (
+    <section>
+      <h1>Your language is {language}!</h1>
+      <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+    </section>
+  );
+}
+
+function NestedValid() {
+  const [language, setLanguage] = useState(navigator.language);
+
+  function process(setLanguage) {
+    setLanguage('en');
+  }
+
+  process(l => navigator.language = l);
+
+  return (
+    <section>
+      <h1>Your language is {language}!</h1>
+      <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+    </section>
+  );
+}
+
+

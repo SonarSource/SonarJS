@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
-import { Rule, Scope } from 'eslint';
+import { Rule, Scope as EsLintScope } from 'eslint';
 import * as estree from 'estree';
 import {
   getModuleNameOfImportedIdentifier,
@@ -29,7 +29,8 @@ import {
   isIdentifier,
   isMemberExpression,
 } from '../utils';
-import Variable = Scope.Variable;
+import Variable = EsLintScope.Variable;
+import Scope = EsLintScope.Scope;
 
 // Types used in the hook declaration callback signature which reflects the expectations coming from the selector.
 
@@ -108,7 +109,7 @@ export const rule: Rule.RuleModule = {
     /**
      * Returns the current scope if it corresonds to a React component function or undefined otherwise.
      */
-    function getReactComponentScope(): Scope.Scope | undefined {
+    function getReactComponentScope(): Scope | undefined {
       const scope = context.getScope();
       const isReact =
         scope.type === 'function' &&
@@ -117,7 +118,23 @@ export const rule: Rule.RuleModule = {
       return isReact ? scope : undefined;
     }
 
-    let reactComponentScope: Scope.Scope | undefined;
+    /**
+     * Returns the closest enclosing scope of type function or undefined if there isn't any.
+     */
+    function functionEnclosingScope(): Scope | undefined {
+      function functionScope(scope: Scope | null): Scope | undefined {
+        if (scope === null) {
+          return undefined;
+        } else if (scope.type === 'function') {
+          return scope;
+        } else {
+          return functionScope(scope.upper);
+        }
+      }
+      return functionScope(context.getScope());
+    }
+
+    let reactComponentScope: Scope | undefined;
     let setters: Variable[] = [];
 
     return {
@@ -152,7 +169,7 @@ export const rule: Rule.RuleModule = {
       },
 
       'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
-        if (context.getScope() !== reactComponentScope || setters.length === 0) {
+        if (functionEnclosingScope() !== reactComponentScope || setters.length === 0) {
           return;
         }
 
