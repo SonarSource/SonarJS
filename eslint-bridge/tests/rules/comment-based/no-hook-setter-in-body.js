@@ -22,7 +22,7 @@ function ShowLanguageInvalid() {
       <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
     </section>
   );
-};
+}
 
 function ShowLanguageValid() {
   const [language, setLanguage] = useState(navigator.language);
@@ -33,7 +33,7 @@ function ShowLanguageValid() {
       <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
     </section>
   );
-};
+}
 
 // Arrow Functions..............
 
@@ -89,6 +89,36 @@ const ShowLanguageValidExpression = function() {
       <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
     </section>
   );
+};
+
+// MemberInvalid..............
+
+exports.MemberInvalid = () => {
+    const [language, setLanguage] = useState("fr-FR");
+
+    // Makes an infinite loop
+    setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+//  ^^^^^^^^^^^
+
+    return (
+        <section>
+            <h1>Your language is {language}!</h1>
+            <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+        </section>
+    );
+};
+
+// MemberInvalid..............
+
+exports.MemberValid = () => {
+    const [language, setLanguage] = useState("fr-FR");
+
+    return (
+        <section>
+            <h1>Your language is {language}!</h1>
+            <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+        </section>
+    );
 };
 
 // MultipleHookInvalid..............

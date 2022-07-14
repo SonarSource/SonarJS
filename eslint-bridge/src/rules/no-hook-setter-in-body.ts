@@ -51,12 +51,6 @@ export const rule: Rule.RuleModule = {
       noHookSetterInBody:
         "React's setState hook should only be used in the render function or body of a component",
     },
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
   },
   create(context: Rule.RuleContext) {
     const REACT_MODULE = 'react';
@@ -107,14 +101,14 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Returns the current scope if it corresonds to a React component function or undefined otherwise.
+     * Returns the current scope if it corresponds to a React component function or undefined otherwise.
      */
     function getReactComponentScope(): Scope | undefined {
       const scope = context.getScope();
       const isReact =
         scope.type === 'function' &&
         isFunctionNode(scope.block) &&
-        matches(scope.block, REACT_PATTERN);
+        matches(scope.block, REACT_PATTERN, 1);
       return isReact ? scope : undefined;
     }
 
@@ -196,31 +190,33 @@ function isRuleNode(node: estree.Node): node is Rule.Node {
 }
 
 /**
- * Check if the node has an identifier property.
- */
-function isIdentified(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
-  return (node as any).id?.type === 'Identifier';
-}
-
-/**
  * Check if a node matches a regular expression. It supports:
  * <ul>
  *   <li>Identifier: it uses the name
- *   <li>VariableDeclarator and FunctionDeclaration: it uses the id name.
+ *   <li>FunctionDeclaration: it uses the id.
+ *   <li>VariableDeclarator: it uses the id.
+ *   <li>AssignmentExpression: it uses the left part.
+ *   <li>MemberExpression: it uses the property part.
  * </ul>
  * If the node is not supported calls itself recursively on the parent node up to max level.
  */
 function matches(
   node: estree.Node | null,
   pattern: RegExp,
-  max: number = 1,
+  max: number = 0,
 ): node is estree.Identifier {
   if (node == null) {
     return false;
   } else if (isIdentifier(node)) {
     return pattern.test(node.name);
-  } else if (isIdentified(node)) {
+  } else if (node.type === 'FunctionDeclaration') {
     return matches(node.id, pattern);
+  } else if (node.type === 'VariableDeclarator') {
+    return matches(node.id, pattern);
+  } else if (node.type === 'AssignmentExpression') {
+    return matches(node.left, pattern);
+  } else if (node.type === 'MemberExpression') {
+    return matches(node.property, pattern);
   } else if (isRuleNode(node) && max > 0) {
     return matches(node.parent, pattern, max - 1);
   } else {
