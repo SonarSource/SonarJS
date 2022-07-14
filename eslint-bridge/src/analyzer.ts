@@ -132,6 +132,7 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
+  // TODO check that the linter is initialized, similarly to what analyze does
   const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
 
   const containsErrors = !Array.isArray(sourceCodesOrError);
