@@ -639,4 +639,18 @@ describe('#analyzeYaml', () => {
     });
     expect(issues).toHaveLength(0);
   });
+
+  it('should throw without init-linter', () => {
+    try {
+      jest.resetModules();
+      const analyzer = require('../src/analyzer');
+      analyzer.analyzeYaml({
+        filePath: '/fake/path',
+        fileContent: 'fakeCode();',
+      });
+      fail('this test should throw error');
+    } catch (e) {
+      expect(e.message).toBe('Linter is undefined. Did you call /init-linter?');
+    }
+  });
 });
