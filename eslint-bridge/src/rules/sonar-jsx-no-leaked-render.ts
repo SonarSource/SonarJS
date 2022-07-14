@@ -41,11 +41,24 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(context.parserServices)) {
       return {};
     }
+    let usesReactNative = false;
+    const detectReactNativeSelector = [
+      ':matches(',
+      [
+        'CallExpression[callee.name="require"][arguments.0.value="react-native"]',
+        'ImportDeclaration[source.value="react-native"]',
+      ].join(','),
+      ')',
+    ].join('');
+
     return {
+      [detectReactNativeSelector]() {
+        usesReactNative = true;
+      },
       'JSXExpressionContainer > LogicalExpression[operator="&&"]'(node: estree.LogicalExpression) {
         const leftSide = node.left;
 
-        if (containsNonBoolean(context, leftSide)) {
+        if (containsNonBoolean(context, usesReactNative, leftSide)) {
           return;
         }
 
@@ -55,7 +68,8 @@ export const rule: Rule.RuleModule = {
           suggest: [
             {
               messageId: 'suggestConversion',
-              fix: fixer => fixer.replaceText(node, fixNestedLogicalExpression(context, node)),
+              fix: fixer =>
+                fixer.replaceText(node, fixNestedLogicalExpression(context, usesReactNative, node)),
             },
           ],
         });
@@ -81,26 +95,46 @@ function isParenthesized(sourceCode: SourceCode, node: estree.Node) {
 
 function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
   const type = getTypeFromTreeNode(node, context.parserServices);
-  return isStringType(type) || isBigIntType(type) || isNumberType(type);
+  return isStringType(type) || isNumber(node, context);
 }
 
-function containsNonBoolean(context: Rule.RuleContext, node: estree.Node): boolean {
+function isNumber(node: estree.Node, context: Rule.RuleContext) {
+  const type = getTypeFromTreeNode(node, context.parserServices);
+  return isBigIntType(type) || isNumberType(type);
+}
+
+function containsNonBoolean(
+  context: Rule.RuleContext,
+  usesReactNative: boolean,
+  node: estree.Node,
+): boolean {
   if (node.type === 'LogicalExpression') {
-    return containsNonBoolean(context, node.left) && containsNonBoolean(context, node.right);
+    return (
+      containsNonBoolean(context, usesReactNative, node.left) &&
+      containsNonBoolean(context, usesReactNative, node.right)
+    );
   }
-  return !isStringOrNumber(node, context);
+  return usesReactNative ? !isStringOrNumber(node, context) : !isNumber(node, context);
 }
 
-function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): string {
+function fixNestedLogicalExpression(
+  context: Rule.RuleContext,
+  usesReactNative: boolean,
+  node: estree.Node,
+): string {
   const sourceCode = context.getSourceCode();
   const addParentheses = isParenthesized(sourceCode, node);
   if (node.type === 'LogicalExpression') {
-    return `${addParentheses ? '(' : ''}${fixNestedLogicalExpression(context, node.left)} ${
-      node.operator
-    } ${fixNestedLogicalExpression(context, node.right)}${addParentheses ? ')' : ''}`;
+    return `${addParentheses ? '(' : ''}${fixNestedLogicalExpression(
+      context,
+      usesReactNative,
+      node.left,
+    )} ${node.operator} ${fixNestedLogicalExpression(context, usesReactNative, node.right)}${
+      addParentheses ? ')' : ''
+    }`;
   }
   let text = sourceCode.getText(node);
-  if (isStringOrNumber(node, context)) {
+  if (usesReactNative ? isStringOrNumber(node, context) : isNumber(node, context)) {
     text = `!!(${text})`;
   } else if (addParentheses) {
     text = `(${text})`;

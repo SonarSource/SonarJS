@@ -52,6 +52,18 @@ ruleTesterTs.run('', rule, {
         }
       `,
     },
+    {
+      code: `
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -100,7 +112,6 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 6,
           column: 16,
           endLine: 6,
@@ -134,7 +145,6 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
@@ -167,7 +177,6 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
@@ -187,6 +196,34 @@ ruleTesterTs.run('', rule, {
           ],
         },
       ],
+    },
+    {
+      code: `
+        import react from 'react-native';
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const react = require('react-native');
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+      errors: 1,
     },
   ],
 });
