@@ -61,11 +61,38 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
   /**
    *
+   * 1. We compute lines here because SourceCode.lines is in the JS referrential and
+   *    the YAML parser does not provide it
+   * 2. We override the values lineStartIndices, text and lines in SourceCode
+   *    from the JS to the YAML referrential. We must use Object.create() because
+   *    SourceCode's properties are frozen
+   * 3. We patch the SourceCode.ast nodes locations after 1 & 2 as it relies on values computed then
+   * 4. We rebuild SourceCode from the patched values because it builds internal properties that are dependent on them
+   *
    * @param originalSourceCode
    * @param embeddedJS
    * @returns
    */
   function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
+    // 1
+    const lines = computeLines();
+    // 2
+    const patchedSourceCode = Object.create(originalSourceCode, {
+      lineStartIndices: { value: embeddedJS.lineStarts },
+      text: { value: embeddedJS.text },
+      lines: { value: lines },
+    });
+    // 3
+    patchASTLocations(patchedSourceCode, embeddedJS.offset);
+    // 4
+    return new SourceCode({
+      text: patchedSourceCode.text,
+      ast: patchedSourceCode.ast,
+      parserServices: patchedSourceCode.parserServices,
+      scopeManager: patchedSourceCode.scopeManager,
+      visitorKeys: patchedSourceCode.visitorKeys,
+    });
+
     /* taken from eslint/lib/source-code/source-code.js#constructor */
     function computeLines() {
       const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
@@ -86,9 +113,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     /**
      * Patches loc.start, loc.end and range in sourceCode.ast nodes
      */
-    function patchLocations(sourceCode: SourceCode, embeddedJS: EmbeddedJS) {
-      const { offset } = embeddedJS;
-
+    function patchASTLocations(sourceCode: SourceCode, offset: number) {
       visit(sourceCode, node => {
         fixNodeLocation(node);
       });
@@ -116,32 +141,6 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
         }
       }
     }
-
-    /**
-     * 1. We compute lines here because sourceCode.lines is in the JS referrential and
-     * the YAML parser does not provide it
-     * 2. We override the values lineStartIndices, text and lines in sourceCode
-     * from the JS to the YAML referrential. We must use Object.create() because
-     * SourceCode's properties are frozen
-     * 3. We patch the sourceCode.ast nodes after 1 & 2 as it relies on values computed earlier
-     * 4. We rebuild sourceCode from the patched values because it builds internal properties that are dependent on them
-     */
-    const lines = computeLines();
-    const patchedSourceCode = Object.create(originalSourceCode, {
-      lineStartIndices: { value: embeddedJS.lineStarts },
-      text: { value: embeddedJS.text },
-      lines: { value: lines },
-    });
-
-    patchLocations(patchedSourceCode, embeddedJS);
-
-    return new SourceCode({
-      text: patchedSourceCode.text,
-      ast: patchedSourceCode.ast,
-      parserServices: patchedSourceCode.parserServices,
-      scopeManager: patchedSourceCode.scopeManager,
-      visitorKeys: patchedSourceCode.visitorKeys,
-    });
   }
 
   /**
