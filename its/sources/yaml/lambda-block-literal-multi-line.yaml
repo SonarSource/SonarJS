@@ -156,7 +156,7 @@ Resources:
       Timeout: 60
       Environment:
         Variables:
-          TKM_BASIC_AUTH: Basic c3RyZWFtb3Rpb25fVEtNOnk4WGdsZkwxQzVzRQ==
+          # TKM_BASIC_AUTH was removed because it was flagged as leaked credentials by GitGuardian
           TKM_HOST: streamotion.stage.ott.irdeto.com
     DependsOn:
       - SpekeHandlerLogGroup
