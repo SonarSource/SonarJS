@@ -25,6 +25,7 @@ import {
   getModuleNameOfImportedIdentifier,
   getVariableFromName,
   isFunctionCall,
+  isFunctionNode,
   isIdentifier,
   isMemberExpression,
 } from '../utils';
@@ -100,29 +101,29 @@ export const rule: Rule.RuleModule = {
       return isReactName(getHookIdentifier(node));
     }
 
+    /**
+     * Returns the current scope if it corresonds to a React component function or undefined otherwise.
+     */
     function getReactComponentScope(): Scope.Scope | undefined {
       const scope = context.getScope();
-      if (scope.type !== 'function') {
-        return undefined;
-      } else if (
-        scope.block.type === 'FunctionDeclaration' &&
-        matchesIdentifier(scope.block.id, REACT_PATTERN)
-      ) {
-        return scope;
-      }
+      const isReact =
+        scope.type === 'function' &&
+        isFunctionNode(scope.block) &&
+        matches(scope.block, REACT_PATTERN);
+      return isReact ? scope : undefined;
     }
 
     let reactComponentScope: Scope.Scope | undefined;
     let setters: Variable[] = [];
 
     return {
-      FunctionDeclaration() {
+      ':function'() {
         if (reactComponentScope === undefined) {
           reactComponentScope = getReactComponentScope();
         }
       },
 
-      'FunctionDeclaration:exit'() {
+      ':function:exit'() {
         if (getReactComponentScope() === reactComponentScope) {
           reactComponentScope = undefined;
           setters.length = 0;
@@ -166,6 +167,40 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function matchesIdentifier(node: estree.Node | null, pattern: RegExp): node is estree.Identifier {
-  return node == null ? false : isIdentifier(node) && pattern.test(node.name);
+/**
+ * Check if the node is an eslint Rule.Node that's to say it has a parent property.
+ */
+function isRuleNode(node: estree.Node): node is Rule.Node {
+  return (node as any).parent !== undefined;
+}
+
+/**
+ * Check if the node is either a VariableDeclarator or FunctionDeclaration that both have an id.
+ */
+function hasIdentifier(
+  node: estree.Node,
+): node is estree.VariableDeclarator | estree.FunctionDeclaration {
+  return node.type === 'VariableDeclarator' || node.type === 'FunctionDeclaration';
+}
+
+/**
+ * Check if a node matches a regular expression. It supports:
+ * <ul>
+ *   <li>Identifier: it uses the name
+ *   <li>VariableDeclarator and FunctionDeclaration: it uses the id name.
+ * </ul>
+ * If the node is not supported calls itself recursively on the parent node.
+ */
+function matches(node: estree.Node | null, pattern: RegExp): node is estree.Identifier {
+  if (node == null) {
+    return false;
+  } else if (isIdentifier(node)) {
+    return pattern.test(node.name);
+  } else if (hasIdentifier(node) && node.id !== null) {
+    return matches(node.id, pattern);
+  } else if (isRuleNode(node)) {
+    return matches(node.parent, pattern);
+  } else {
+    return false;
+  }
 }
