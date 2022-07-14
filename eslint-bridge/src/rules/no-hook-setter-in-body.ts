@@ -196,12 +196,10 @@ function isRuleNode(node: estree.Node): node is Rule.Node {
 }
 
 /**
- * Check if the node is either a VariableDeclarator or FunctionDeclaration that both have an id.
+ * Check if the node has an identifier property.
  */
-function hasIdentifier(
-  node: estree.Node,
-): node is estree.VariableDeclarator | estree.FunctionDeclaration {
-  return node.type === 'VariableDeclarator' || node.type === 'FunctionDeclaration';
+function isIdentified(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
+  return (node as any).id?.type === 'Identifier';
 }
 
 /**
@@ -210,17 +208,21 @@ function hasIdentifier(
  *   <li>Identifier: it uses the name
  *   <li>VariableDeclarator and FunctionDeclaration: it uses the id name.
  * </ul>
- * If the node is not supported calls itself recursively on the parent node.
+ * If the node is not supported calls itself recursively on the parent node up to max level.
  */
-function matches(node: estree.Node | null, pattern: RegExp): node is estree.Identifier {
+function matches(
+  node: estree.Node | null,
+  pattern: RegExp,
+  max: number = 1,
+): node is estree.Identifier {
   if (node == null) {
     return false;
   } else if (isIdentifier(node)) {
     return pattern.test(node.name);
-  } else if (hasIdentifier(node) && node.id !== null) {
+  } else if (isIdentified(node)) {
     return matches(node.id, pattern);
-  } else if (isRuleNode(node)) {
-    return matches(node.parent, pattern);
+  } else if (isRuleNode(node) && max > 0) {
+    return matches(node.parent, pattern, max - 1);
   } else {
     return false;
   }

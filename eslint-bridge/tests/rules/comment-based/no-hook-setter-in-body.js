@@ -1,4 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
+
+// NotAReactComponent..............
+
+function notAReactComponent() {
+  const [, forceUpdate] = React.useReducer(x => x + 1, 0);
+  return forceUpdate;
+}
 
 // Function Declarations..............
 
@@ -165,5 +172,4 @@ function NestedValid() {
     </section>
   );
 }
-
 
