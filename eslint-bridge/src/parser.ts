@@ -412,8 +412,11 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     }
 
     /**
-     * 1. We compute lines here because sourceCode.lines is in the JS referrential and the YAML parser does not provide it
-     * 2. We override the values lineStartIndices, text and lines in sourceCode from the JS to the YAML referrential. We must use Object.create() because SourceCode's properties are frozen
+     * 1. We compute lines here because sourceCode.lines is in the JS referrential and
+     * the YAML parser does not provide it
+     * 2. We override the values lineStartIndices, text and lines in sourceCode
+     * from the JS to the YAML referrential. We must use Object.create() because
+     * SourceCode's properties are frozen
      * 3. We patch the sourceCode.ast nodes after 1 & 2 as it relies on values computed earlier
      * 4. We rebuild sourceCode from the patched values because it builds internal properties that are dependent on them
      */
