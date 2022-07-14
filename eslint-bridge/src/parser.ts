@@ -38,6 +38,7 @@ type Lambda = {
   offset: number;
   lineStarts: number[];
   text: string;
+  format: 'PLAIN' | 'BLOCK_FOLDED' | 'BLOCK_LITERAL';
 };
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
@@ -266,6 +267,7 @@ export function parseYaml(filePath: string): Lambda[] | ParsingError {
             offset: fixOffset(offsetStart, value.type),
             lineStarts,
             text: src,
+            format: pair.value.type,
           });
         }
       },
@@ -349,12 +351,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
      * happens to be the case here since we extract inline JavaScript code.
      */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
-    const sourceCodeOrError = buildSourceCode(input, 'js') as SourceCode;
+    const sourceCodeOrError = buildSourceCode(input, 'js');
     if (sourceCodeOrError instanceof SourceCode) {
       const patchedSourceCode = patchSourceCode(sourceCodeOrError, lambda);
       sourceCodes.push(patchedSourceCode);
     } else {
-      return sourceCodeOrError; // FIXME patch parsing error location
+      return patchParsingError(sourceCodeOrError, lambda);
     }
   }
   return sourceCodes;
@@ -437,4 +439,32 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       visitorKeys: patchedSourceCode.visitorKeys,
     });
   }
+}
+
+function patchParsingError(parsingError: ParsingError, lambda: Lambda): ParsingError {
+  const { code, line, message } = parsingError;
+  let patchedLine: number | undefined;
+  let patchedMessage = message;
+  if (line) {
+    patchedLine = lambda.format === 'PLAIN' ? lambda.line : lambda.line + line;
+    patchedMessage = patchParsingErrorMessage(message, patchedLine, lambda);
+  }
+  return {
+    code,
+    line: patchedLine,
+    message: patchedMessage,
+  };
+}
+
+function patchParsingErrorMessage(message: string, patchedLine: number, lambda: Lambda) {
+  /* patching error message `(<line>:<column>)` */
+  const regex = /((?<line>\d+):(?<column>\d+))/;
+  const found = message.match(regex);
+  if (found) {
+    const line = found.groups!.line;
+    const column = Number(found.groups!.column);
+    const patchedColumn = lambda.format === 'PLAIN' ? column + lambda.column - 1 : column;
+    return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
+  }
+  return message;
 }

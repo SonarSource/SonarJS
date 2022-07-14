@@ -132,8 +132,8 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 }
 
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
+  checkLinterState();
   const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
-
   const containsErrors = !Array.isArray(sourceCodesOrError);
   if (containsErrors) {
     const parsingError = sourceCodesOrError;
@@ -249,9 +249,7 @@ function analyze(
   input: TsConfigBasedAnalysisInput | ProgramBasedAnalysisInput,
   language: 'ts' | 'js',
 ): AnalysisResponse {
-  if (!linter) {
-    throw new Error('Linter is undefined. Did you call /init-linter?');
-  }
+  checkLinterState();
   const { result, duration: parseTime } = measureDuration(() => buildSourceCode(input, language));
   if (result instanceof SourceCode) {
     const { result: response, duration: analysisTime } = measureDuration(() =>
@@ -263,6 +261,12 @@ function analyze(
       ...EMPTY_RESPONSE,
       parsingError: result,
     };
+  }
+}
+
+function checkLinterState() {
+  if (!linter) {
+    throw new Error('Linter is undefined. Did you call /init-linter?');
   }
 }
 

@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SomeLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        ZipFile: foo(,)
+      Description: "The branch duplication should be reported at 14:53"
+      Runtime: "nodejs16.0"
