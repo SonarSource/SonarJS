@@ -393,7 +393,14 @@ describe('parse YAML Files', () => {
   const YAML_LAMBDA_FILE_PATH = join(__dirname, './fixtures/yaml/valid-lambda.yaml');
   const YAML_SERVERLESS_FILE_PATH = join(__dirname, './fixtures/yaml/valid-serverless.yaml');
   const INVALID_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-yaml.yaml');
-  const INVALID_JS_IN_YAML_FILE_PATH = join(__dirname, './fixtures/yaml/invalid-js-in-yaml.yaml');
+  const INVALID_PLAIN_INLINE_JS_FILE_PATH = join(
+    __dirname,
+    './fixtures/yaml/invalid-plain-inline-js.yaml',
+  );
+  const INVALID_BLOCK_INLINE_JS_FILE_PATH = join(
+    __dirname,
+    './fixtures/yaml/invalid-block-inline-js.yaml',
+  );
   const PLAIN_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/flow-plain.yaml');
   const BLOCK_FOLDED_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-folded.yaml');
   const BLOCK_LITERAL_FORMAT_FILE_PATH = join(__dirname, './fixtures/yaml/block-literal.yaml');
@@ -428,17 +435,34 @@ describe('parse YAML Files', () => {
   });
 
   it('should handle YAML parsing errors', () => {
-    const parsingError = buildSourceCodesFromYaml(INVALID_YAML_FILE_PATH);
-    expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
-    expect(parsingError).toHaveProperty('line', 2);
-    expect(parsingError).toHaveProperty('message', 'Map keys must be unique');
+    const parsingError = buildSourceCodesFromYaml(INVALID_YAML_FILE_PATH) as ParsingError;
+    expect(parsingError).toEqual({
+      code: ParseExceptionCode.Parsing,
+      line: 2,
+      message: 'Map keys must be unique',
+    });
   });
 
-  it('should throw a parsing error when parsing invalid JS embedded in YAML', () => {
-    const parsingError = buildSourceCodesFromYaml(INVALID_JS_IN_YAML_FILE_PATH);
-    expect(parsingError).toHaveProperty('code', ParseExceptionCode.Parsing);
-    expect(parsingError).toHaveProperty('line', 1);
-    expect(parsingError).toHaveProperty('message', 'Unexpected token (1:4)');
+  it('should return a parsing error when parsing invalid plain inline JS', () => {
+    const parsingError = buildSourceCodesFromYaml(
+      INVALID_PLAIN_INLINE_JS_FILE_PATH,
+    ) as ParsingError;
+    expect(parsingError).toEqual({
+      code: ParseExceptionCode.Parsing,
+      line: 7,
+      message: `Unexpected token ','. (7:22)`,
+    });
+  });
+
+  it('should return a parsing error when parsing invalid block inline JS', () => {
+    const parsingError = buildSourceCodesFromYaml(
+      INVALID_BLOCK_INLINE_JS_FILE_PATH,
+    ) as ParsingError;
+    expect(parsingError).toEqual({
+      code: ParseExceptionCode.Parsing,
+      line: 8,
+      message: `Unexpected token ','. (8:15)`,
+    });
   });
 
   it('it should not build a source code for an unsupported format', () => {
