@@ -611,7 +611,10 @@ describe('#analyzeYaml', () => {
   });
 
   it('should not return issues outside of the JS snippets', async () => {
-    initLinter([{ key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initLinter([
+      { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'file-header', configurations: [{headerFormat:''}], fileTypeTarget: ['MAIN'] }
+    ]);
     const { issues } = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/trailing-spaces.yaml'),
       fileContent: undefined,
