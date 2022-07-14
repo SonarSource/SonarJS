@@ -557,13 +557,29 @@ describe('#analyzeYaml', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const result = await analyzeYaml({
+    const { issues } = await analyzeYaml({
       filePath: join(__dirname, './fixtures/yaml/fail-lambda.yaml'),
       fileContent: undefined,
       fileType: 'MAIN',
       tsConfigs: [],
     });
-    expect(result.issues).toHaveLength(0);
+    expect(issues).toHaveLength(2);
+    expect(issues[0]).toEqual(
+      expect.objectContaining({
+        line: 30,
+        column: 28,
+        endLine: 31,
+        endColumn: 0,
+      }),
+    );
+    expect(issues[1]).toEqual(
+      expect.objectContaining({
+        line: 31,
+        column: 19,
+        endLine: 32,
+        endColumn: 0,
+      }),
+    );
   });
 
   it('should not break when using a rule with secondary locations', async () => {
