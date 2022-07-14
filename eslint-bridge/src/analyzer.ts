@@ -34,6 +34,7 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
+import { Location } from 'vue-eslint-parser/ast';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -145,9 +146,39 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
   const aggregatedIssues: Issue[] = [];
   for (const sourceCode of sourceCodes) {
     const { issues } = linter.analyze(sourceCode, input.filePath, input.fileType);
-    aggregatedIssues.push(...issues);
+    const filteredIssues = filterIssues(sourceCode, issues);
+    aggregatedIssues.push(...filteredIssues);
   }
   return Promise.resolve({ issues: aggregatedIssues });
+
+  /**
+   * Filters out issues outside of JS code.
+   * 
+   * This is necessary because we patch the sourceCode object 
+   * to include all the YAML file in its properties outside of its AST. 
+   * So rules that operate on text get flagged
+   */
+  function filterIssues(sourceCode: SourceCode, issues: Issue[]) {
+    const [jsRangeStart, jsRangeEnd] = sourceCode.ast.range;
+    const jsStart = sourceCode.getLocFromIndex(jsRangeStart);
+    const jsEnd = sourceCode.getLocFromIndex(jsRangeEnd);
+    return issues.filter(issue => {
+      return (
+        isBeforeOrEqual(jsStart, { line: issue.line, column: issue.column }) &&
+        isBeforeOrEqual({ line: issue.line, column: issue.column }, jsEnd)
+      );
+    });
+
+    function isBeforeOrEqual(a: Location, b: Location) {
+      if (a.line < b.line) {
+        return true;
+      } else if (a.line > b.line) {
+        return false;
+      } else {
+        return a.column <= b.column;
+      }
+    }
+  }
 }
 
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {

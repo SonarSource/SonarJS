@@ -609,4 +609,15 @@ describe('#analyzeYaml', () => {
       }),
     );
   });
+
+  it('should not return issues outside of the JS snippets', async () => {
+    initLinter([{ key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const { issues } = await analyzeYaml({
+      filePath: join(__dirname, './fixtures/yaml/trailing-spaces.yaml'),
+      fileContent: undefined,
+      fileType: 'MAIN',
+      tsConfigs: [],
+    });
+    expect(issues).toHaveLength(0);
+  });
 });
