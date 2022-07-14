@@ -26,6 +26,16 @@ import { getFileContent, ParseExceptionCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
 
 /**
+ * These formats are given by the YAML parser
+ */
+const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
+  'PLAIN',
+  'BLOCK_FOLDED',
+  'BLOCK_LITERAL',
+];
+const SUPPORTED_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
+
+/**
  * Extracts from a YAML file all the embedded JavaScript code snippets either
  * in AWS Lambda Functions or AWS Serverless Functions.
  */
@@ -159,7 +169,7 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
   }
 
   function isSupportedFormat(pair: yaml.Pair<any, any>) {
-    return ['PLAIN', 'BLOCK_FOLDED', 'BLOCK_LITERAL'].includes(pair.value?.type);
+    return SUPPORTED_FORMATS.includes(pair.value?.type);
   }
 
   /**
@@ -167,8 +177,9 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
    * as it changes depending on the type of the embedding format.
    */
   function fixOffset(offset: number, format: string): number {
-    if (format === 'BLOCK_FOLDED' || format === 'BLOCK_LITERAL') {
-      return offset + 2 /* +1 for the block marker (`>` or `|`) and +1 for the line break */;
+    if ([BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT].includes(format)) {
+      /* +1 for the block marker (`>` or `|`) and +1 for the line break */
+      return offset + 2;
     } else {
       return offset;
     }
