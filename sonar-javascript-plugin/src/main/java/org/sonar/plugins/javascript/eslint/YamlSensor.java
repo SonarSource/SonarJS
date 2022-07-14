@@ -47,6 +47,8 @@ public class YamlSensor extends AbstractEslintSensor {
       AnalysisWarningsWrapper analysisWarnings,
       Monitoring monitoring,
       AnalysisProcessor processAnalysis) {
+    // The monitoring sensor remains inactive during YAML files analysis, as the
+    // bridge doesn't provide nor compute metrics for such files.
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
