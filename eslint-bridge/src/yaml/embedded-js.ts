@@ -19,7 +19,13 @@
  */
 
 /**
- *
+ * @param code JS code
+ * @param line Line where JS code starts
+ * @param column Column where JS code starts
+ * @param offset Offset where JS code starts
+ * @param lineStarts Offset at each line start
+ * @param text Whole file
+ * @param format JS code's string format in YAML file
  */
 export type EmbeddedJS = {
   code: string;
