@@ -92,13 +92,13 @@ export const rule: Rule.RuleModule = {
      * </ul>
      */
     function isHook(node: estree.Node): boolean {
-      function getHookIdentifier(node: estree.Node): estree.Identifier | undefined {
-        if (isIdentifier(node, HOOK_FUNCTION)) {
-          return node;
-        } else if (isMemberExpression(node, REACT_ROOT, HOOK_FUNCTION)) {
-          return (node as estree.MemberExpression).property as estree.Identifier;
-        } else if (isFunctionCall(node) && node.arguments.length == 1) {
-          return getHookIdentifier(node.callee);
+      function getHookIdentifier(current: estree.Node): estree.Identifier | undefined {
+        if (isIdentifier(current, HOOK_FUNCTION)) {
+          return current;
+        } else if (isMemberExpression(current, REACT_ROOT, HOOK_FUNCTION)) {
+          return (current as estree.MemberExpression).property as estree.Identifier;
+        } else if (isFunctionCall(current) && current.arguments.length == 1) {
+          return getHookIdentifier(current.callee);
         } else {
           return undefined;
         }
@@ -122,39 +122,39 @@ export const rule: Rule.RuleModule = {
      * Returns the closest enclosing scope of type function or undefined if there isn't any.
      */
     function isInsideFunction(scope: Scope | undefined): boolean {
-      function functionScope(scope: Scope | null): Scope | undefined {
-        if (scope === null) {
+      function functionScope(current: Scope | null): Scope | undefined {
+        if (current === null) {
           return undefined;
-        } else if (scope.type === 'function') {
-          return scope;
+        } else if (current.type === 'function') {
+          return current;
         } else {
-          return functionScope(scope.upper);
+          return functionScope(current.upper);
         }
       }
       return scope !== undefined && functionScope(context.getScope()) === scope;
     }
 
-    let reactComponentScope: Scope | undefined;
-    let setters: Variable[] = [];
+    let reactComponentScope: Scope | undefined; // Scope of the React component render function.
+    let setters: Variable[] = []; // Setter variables returned by the React useState() function.
 
     return {
       ':function'() {
-        if (reactComponentScope === undefined) {
-          reactComponentScope = getReactComponentScope();
-        }
+        reactComponentScope ??= getReactComponentScope(); // Store the top-most React component scope.
       },
 
       ':function:exit'() {
-        if (getReactComponentScope() === reactComponentScope) {
+        if (context.getScope() === reactComponentScope) {
+          // Clean variables when leaving the React component scope.
           reactComponentScope = undefined;
           setters.length = 0;
         }
       },
 
+      // Selector matching declarations like: const [count, setCount] = useState(0);
       'VariableDeclarator[init.callee.name="useState"]:has(ArrayPattern[elements.length=2][elements.0.type="Identifier"][elements.1.type="Identifier"])'(
         node: estree.VariableDeclarator,
       ) {
-        if (reactComponentScope === undefined) {
+        if (!isInsideFunction(reactComponentScope)) {
           return;
         }
 
@@ -168,6 +168,7 @@ export const rule: Rule.RuleModule = {
         }
       },
 
+      // Selector matching function calls like: setCount(1)
       'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
         if (!isInsideFunction(reactComponentScope) || setters.length === 0) {
           return;
