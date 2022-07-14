@@ -121,7 +121,7 @@ export const rule: Rule.RuleModule = {
     /**
      * Returns the closest enclosing scope of type function or undefined if there isn't any.
      */
-    function functionEnclosingScope(): Scope | undefined {
+    function isInsideFunction(scope: Scope | undefined): boolean {
       function functionScope(scope: Scope | null): Scope | undefined {
         if (scope === null) {
           return undefined;
@@ -131,7 +131,7 @@ export const rule: Rule.RuleModule = {
           return functionScope(scope.upper);
         }
       }
-      return functionScope(context.getScope());
+      return scope !== undefined && functionScope(context.getScope()) === scope;
     }
 
     let reactComponentScope: Scope | undefined;
@@ -169,7 +169,7 @@ export const rule: Rule.RuleModule = {
       },
 
       'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
-        if (functionEnclosingScope() !== reactComponentScope || setters.length === 0) {
+        if (!isInsideFunction(reactComponentScope) || setters.length === 0) {
           return;
         }
 
