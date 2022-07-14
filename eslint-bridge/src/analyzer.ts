@@ -162,10 +162,7 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
     const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
     return issues.filter(issue => {
       const issueStart = { line: issue.line, column: issue.column };
-      return (
-        isBeforeOrEqual(jsStart, issueStart) &&
-        isBeforeOrEqual(issueStart, jsEnd)
-      );
+      return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
     });
 
     function isBeforeOrEqual(a: Location, b: Location) {
