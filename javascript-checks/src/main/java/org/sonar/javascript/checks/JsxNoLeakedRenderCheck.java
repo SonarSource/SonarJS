@@ -23,16 +23,15 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1534")
-@DeprecatedRuleKey(ruleKey = "DuplicatePropertyName")
-public class DuplicatePropertyNameCheck implements EslintBasedCheck {
+@JavaScriptRule
+@Rule(key = "S6439")
+public class JsxNoLeakedRenderCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "sonar-no-dupe-keys";
+    return "sonar-jsx-no-leaked-render";
   }
+
 }

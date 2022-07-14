@@ -180,6 +180,7 @@ import { rule as singleCharacterAlternative } from './single-character-alternati
 import { rule as slowRegex } from './slow-regex';
 import { rule as sockets } from './sockets';
 import { rule as sonarBlockScopedVar } from './sonar-block-scoped-var';
+import { rule as sonarJsxNoLeakedRender } from './sonar-jsx-no-leaked-render';
 import { rule as sonarMaxLines } from './sonar-max-lines';
 import { rule as sonarMaxLinesPerFunction } from './sonar-max-lines-per-function';
 import { rule as sonarNoControlRegex } from './sonar-no-control-regex';
@@ -380,6 +381,7 @@ ruleModules['single-character-alternation'] = singleCharacterAlternative;
 ruleModules['slow-regex'] = slowRegex;
 ruleModules['sockets'] = sockets;
 ruleModules['sonar-block-scoped-var'] = sonarBlockScopedVar;
+ruleModules['sonar-jsx-no-leaked-render'] = sonarJsxNoLeakedRender;
 ruleModules['sonar-max-lines'] = sonarMaxLines;
 ruleModules['sonar-max-lines-per-function'] = sonarMaxLinesPerFunction;
 ruleModules['sonar-no-control-regex'] = sonarNoControlRegex;
