@@ -538,10 +538,10 @@ describe('#analyzeYaml', () => {
     } = result;
     expect(quickFix.edits).toEqual([
       {
-        text: '',
+        text: ';',
         loc: {
           line: 7,
-          column: 59,
+          column: 58,
           endLine: 7,
           endColumn: 60,
         },
