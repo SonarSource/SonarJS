@@ -27,23 +27,23 @@ import { parseYaml } from './parser';
 
 /**
  *
- * If there is at least 1 error in any JS lambda, we return only the first error
+ * If there is at least 1 error in any embedded JS, we return only the first error
  *
  * @param filePath
  * @returns
  */
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
-  const lambdasOrError = parseYaml(filePath);
+  const embeddedJSsOrError = parseYaml(filePath);
 
-  const constainsError = !Array.isArray(lambdasOrError);
+  const constainsError = !Array.isArray(embeddedJSsOrError);
   if (constainsError) {
-    return lambdasOrError;
+    return embeddedJSsOrError;
   }
-  const lambdas = lambdasOrError;
+  const embeddedJSs = embeddedJSsOrError;
 
   const sourceCodes: SourceCode[] = [];
-  for (const lambda of lambdas) {
-    const { code } = lambda;
+  for (const embeddedJS of embeddedJSs) {
+    const { code } = embeddedJS;
     /**
      * The file path is left empty as it is ignored by `buildSourceCode` if the file content is provided, which
      * happens to be the case here since we extract inline JavaScript code.
@@ -51,10 +51,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js');
     if (sourceCodeOrError instanceof SourceCode) {
-      const patchedSourceCode = patchSourceCode(sourceCodeOrError, lambda);
+      const patchedSourceCode = patchSourceCode(sourceCodeOrError, embeddedJS);
       sourceCodes.push(patchedSourceCode);
     } else {
-      return patchParsingError(sourceCodeOrError, lambda);
+      return patchParsingError(sourceCodeOrError, embeddedJS);
     }
   }
   return sourceCodes;
@@ -62,10 +62,10 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   /**
    *
    * @param originalSourceCode
-   * @param lambda
+   * @param embeddedJS
    * @returns
    */
-  function patchSourceCode(originalSourceCode: SourceCode, lambda: EmbeddedJS) {
+  function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
     /* taken from eslint/lib/source-code/source-code.js#constructor */
     function computeLines() {
       const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
@@ -74,11 +74,11 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       const lines = [];
 
       let i = 0;
-      while ((match = lineEndingPattern.exec(lambda.text))) {
-        lines.push(lambda.text.slice(lambda.lineStarts[i], match.index));
+      while ((match = lineEndingPattern.exec(embeddedJS.text))) {
+        lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[i], match.index));
         i++;
       }
-      lines.push(lambda.text.slice(lambda.lineStarts[lambda.lineStarts.length - 1]));
+      lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[embeddedJS.lineStarts.length - 1]));
 
       return lines;
     }
@@ -86,8 +86,8 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     /**
      * Patches loc.start, loc.end and range in sourceCode.ast nodes
      */
-    function patchLocations(sourceCode: SourceCode, lambda: EmbeddedJS) {
-      const { offset } = lambda;
+    function patchLocations(sourceCode: SourceCode, embeddedJS: EmbeddedJS) {
+      const { offset } = embeddedJS;
 
       visit(sourceCode, node => {
         fixNodeLocation(node);
@@ -128,12 +128,12 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
      */
     const lines = computeLines();
     const patchedSourceCode = Object.create(originalSourceCode, {
-      lineStartIndices: { value: lambda.lineStarts },
-      text: { value: lambda.text },
+      lineStartIndices: { value: embeddedJS.lineStarts },
+      text: { value: embeddedJS.text },
       lines: { value: lines },
     });
 
-    patchLocations(patchedSourceCode, lambda);
+    patchLocations(patchedSourceCode, embeddedJS);
 
     return new SourceCode({
       text: patchedSourceCode.text,
@@ -147,16 +147,16 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
   /**
    *
    * @param parsingError
-   * @param lambda
+   * @param embeddedJS
    * @returns
    */
-  function patchParsingError(parsingError: ParsingError, lambda: EmbeddedJS): ParsingError {
+  function patchParsingError(parsingError: ParsingError, embeddedJS: EmbeddedJS): ParsingError {
     const { code, line, message } = parsingError;
     let patchedLine: number | undefined;
     let patchedMessage = message;
     if (line) {
-      patchedLine = lambda.format === 'PLAIN' ? lambda.line : lambda.line + line;
-      patchedMessage = patchParsingErrorMessage(message, patchedLine, lambda);
+      patchedLine = embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + line;
+      patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
     }
     return {
       code,
@@ -169,17 +169,17 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
    *
    * @param message
    * @param patchedLine
-   * @param lambda
+   * @param embeddedJS
    * @returns
    */
-  function patchParsingErrorMessage(message: string, patchedLine: number, lambda: EmbeddedJS) {
+  function patchParsingErrorMessage(message: string, patchedLine: number, embeddedJS: EmbeddedJS) {
     /* patching error message `(<line>:<column>)` */
     const regex = /((?<line>\d+):(?<column>\d+))/;
     const found = message.match(regex);
     if (found) {
       const line = found.groups!.line;
       const column = Number(found.groups!.column);
-      const patchedColumn = lambda.format === 'PLAIN' ? column + lambda.column - 1 : column;
+      const patchedColumn = embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;
       return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
     }
     return message;
