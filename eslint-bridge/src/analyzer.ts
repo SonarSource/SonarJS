@@ -17,12 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ParseExceptionCode,
-  buildSourceCode,
-  getFileContent,
-  buildSourceCodesFromYaml,
-} from './parser';
+import { ParseExceptionCode, buildSourceCode, getFileContent } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
@@ -35,6 +30,7 @@ import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
 import { Location } from 'vue-eslint-parser/ast';
+import { buildSourceCodesFromYaml } from './yaml';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
