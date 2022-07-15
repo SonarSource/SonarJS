@@ -29,6 +29,15 @@ import {
   isStringType,
 } from '../utils';
 
+const detectReactNativeSelector = [
+  ':matches(',
+  [
+    'CallExpression[callee.name="require"][arguments.0.value="react-native"]',
+    'ImportDeclaration[source.value="react-native"]',
+  ].join(','),
+  ')',
+].join('');
+
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
@@ -42,14 +51,6 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     let usesReactNative = false;
-    const detectReactNativeSelector = [
-      ':matches(',
-      [
-        'CallExpression[callee.name="require"][arguments.0.value="react-native"]',
-        'ImportDeclaration[source.value="react-native"]',
-      ].join(','),
-      ')',
-    ].join('');
 
     return {
       [detectReactNativeSelector]() {
