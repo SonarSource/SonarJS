@@ -99,7 +99,6 @@ class YamlSensorTest {
 
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
-    context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
