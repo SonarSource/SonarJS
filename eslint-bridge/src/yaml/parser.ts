@@ -35,75 +35,16 @@ const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
 ];
 const SUPPORTED_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
 
+type Predicate = (pair: yaml.Pair<any, any>, ancestors: any) => boolean;
+
 /**
- * Extracts from a YAML file all the embedded JavaScript code snippets either
- * in AWS Lambda Functions or AWS Serverless Functions.
+ * Checks if the given YAML AST node is a supported AWS Lambda or Serverless function
  */
-export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
-  const text = getFileContent(filePath);
-
-  /**
-   * Builds the abstract syntax tree of the YAML file
-   *
-   * YAML supports a marker "---" that indicates the end of a document: a file may contain multiple documents.
-   * This means that it can return multiple abstract syntax trees.
-   */
-  const lineCounter = new yaml.LineCounter();
-  const tokens = new yaml.Parser(lineCounter.addNewLine).parse(text);
-  const docs = new yaml.Composer({ keepSourceTokens: true }).compose(tokens);
-
-  const embeddedJSs: EmbeddedJS[] = [];
-  for (const doc of docs) {
-    /**
-     * Although there could be multiple parsing errors in the YAML file, we only consider
-     * the first error to be consistent with how parsing errors are returned when parsing
-     * standalone JavaScript source files.
-     */
-    if (doc.errors.length > 0) {
-      const error = doc.errors[0];
-      return {
-        line: lineCounter.linePos(error.pos[0]).line,
-        message: error.message,
-        code: ParseExceptionCode.Parsing,
-      };
-    }
-
-    /**
-     * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
-     */
-    yaml.visit(doc, {
-      Pair(_, pair: any, ancestors: any) {
-        if (
-          (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) &&
-          isSupportedFormat(pair)
-        ) {
-          const { value, srcToken } = pair;
-          const code = srcToken.value.source;
-          const format = pair.value.type;
-
-          /**
-           * This assertion should never fail because the visited node denotes either an AWS Lambda
-           * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
-           */
-          assert(code != null, 'An extracted embedded JavaScript snippet should not be undefined.');
-
-          const [offsetStart] = value.range;
-          const { line, col: column } = lineCounter.linePos(offsetStart);
-          const lineStarts = lineCounter.lineStarts;
-
-          embeddedJSs.push({
-            code,
-            line,
-            column,
-            offset: fixOffset(offsetStart, value.type),
-            lineStarts,
-            text,
-            format,
-          });
-        }
-      },
-    });
-  }
+const isSupportedAwsFunction: Predicate = function (pair, ancestors) {
+  return (
+    (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) &&
+    isSupportedFormat(pair)
+  );
 
   /**
    * Embedded JavaScript code inside an AWS Lambda Function has the following structure:
@@ -171,6 +112,70 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
   function isSupportedFormat(pair: yaml.Pair<any, any>) {
     return SUPPORTED_FORMATS.includes(pair.value?.type);
   }
+};
+
+function parseYaml(predicate: Predicate, filePath: string): EmbeddedJS[] | ParsingError {
+  const text = getFileContent(filePath);
+
+  /**
+   * Builds the abstract syntax tree of the YAML file
+   *
+   * YAML supports a marker "---" that indicates the end of a document: a file may contain multiple documents.
+   * This means that it can return multiple abstract syntax trees.
+   */
+  const lineCounter = new yaml.LineCounter();
+  const tokens = new yaml.Parser(lineCounter.addNewLine).parse(text);
+  const docs = new yaml.Composer({ keepSourceTokens: true }).compose(tokens);
+
+  const embeddedJSs: EmbeddedJS[] = [];
+  for (const doc of docs) {
+    /**
+     * Although there could be multiple parsing errors in the YAML file, we only consider
+     * the first error to be consistent with how parsing errors are returned when parsing
+     * standalone JavaScript source files.
+     */
+    if (doc.errors.length > 0) {
+      const error = doc.errors[0];
+      return {
+        line: lineCounter.linePos(error.pos[0]).line,
+        message: error.message,
+        code: ParseExceptionCode.Parsing,
+      };
+    }
+
+    /**
+     * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
+     */
+    yaml.visit(doc, {
+      Pair(_, pair: any, ancestors: any) {
+        if (predicate(pair, ancestors)) {
+          const { value, srcToken } = pair;
+          const code = srcToken.value.source;
+          const format = pair.value.type;
+
+          /**
+           * This assertion should never fail because the visited node denotes either an AWS Lambda
+           * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
+           */
+          assert(code != null, 'An extracted embedded JavaScript snippet should not be undefined.');
+
+          const [offsetStart] = value.range;
+          const { line, col: column } = lineCounter.linePos(offsetStart);
+          const lineStarts = lineCounter.lineStarts;
+
+          embeddedJSs.push({
+            code,
+            line,
+            column,
+            offset: fixOffset(offsetStart, value.type),
+            lineStarts,
+            text,
+            format,
+          });
+        }
+      },
+    });
+  }
 
   /**
    * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
@@ -187,3 +192,9 @@ export function parseYaml(filePath: string): EmbeddedJS[] | ParsingError {
 
   return embeddedJSs;
 }
+
+/**
+ * Extracts from a YAML file all the embedded JavaScript code snippets either
+ * in AWS Lambda Functions or AWS Serverless Functions.
+ */
+export const parseAwsFromYaml = parseYaml.bind(null, isSupportedAwsFunction);

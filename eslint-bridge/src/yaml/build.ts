@@ -23,7 +23,7 @@ import { FileType, visit } from '../utils';
 import { ParsingError } from '../analyzer';
 import { buildSourceCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
-import { parseYaml } from './parser';
+import { parseAwsFromYaml } from './parser';
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
@@ -32,7 +32,7 @@ import { parseYaml } from './parser';
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
-  const embeddedJSsOrError = parseYaml(filePath);
+  const embeddedJSsOrError = parseAwsFromYaml(filePath);
 
   const containsError = !Array.isArray(embeddedJSsOrError);
   if (containsError) {

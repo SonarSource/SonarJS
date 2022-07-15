@@ -19,12 +19,12 @@
  */
 
 import path from 'path';
-import { parseYaml } from '../../src/yaml';
+import { parseAwsFromYaml } from '../../src/yaml';
 
-describe('parseYaml()', () => {
+describe('parseAwsFromYaml()', () => {
   it('should parse YAML syntax', () => {
     const filePath = path.join(__dirname, '../fixtures/yaml/valid-lambda.yaml');
-    const parsed = parseYaml(filePath);
+    const parsed = parseAwsFromYaml(filePath);
     expect(parsed).toBeDefined();
     expect(parsed).toHaveLength(1);
     expect(parsed[0]).toEqual(
