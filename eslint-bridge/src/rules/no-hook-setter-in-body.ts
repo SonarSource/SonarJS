@@ -24,7 +24,6 @@ import * as estree from 'estree';
 import {
   getModuleNameOfImportedIdentifier,
   getVariableFromName,
-  isFunctionCall,
   isFunctionNode,
   isIdentifier,
   isMemberExpression,
@@ -38,7 +37,7 @@ type HookDeclarator = estree.VariableDeclarator & {
   id: {
     elements: estree.Identifier[];
   };
-  init: estree.Node;
+  init: estree.CallExpression;
 };
 
 type SetterCall = estree.CallExpression & {
@@ -48,8 +47,7 @@ type SetterCall = estree.CallExpression & {
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      noHookSetterInBody:
-        "React's setState hook should only be used in the render function or body of a component",
+      noHookSetterInBody: 'Move the setState hook to the render function or body of a component',
     },
   },
   create(context: Rule.RuleContext) {
@@ -65,7 +63,7 @@ export const rule: Rule.RuleModule = {
      * import { useState } from "react";
      *
      * function ShowLanguageInvalid() {
-     *   const [language, setLanguage] = useState("fr-FR");
+     *   const [language, setLanguage] = useState('fr-FR');
      *   // [...]
      * }
      */
@@ -85,19 +83,14 @@ export const rule: Rule.RuleModule = {
      *   <li>a function call
      * </ul>
      */
-    function isHook(node: estree.Node): boolean {
-      function getHookIdentifier(current: estree.Node): estree.Identifier | undefined {
-        if (isIdentifier(current, HOOK_FUNCTION)) {
-          return current;
-        } else if (isMemberExpression(current, REACT_ROOT, HOOK_FUNCTION)) {
-          return (current as estree.MemberExpression).property as estree.Identifier;
-        } else if (isFunctionCall(current) && current.arguments.length == 1) {
-          return getHookIdentifier(current.callee);
-        } else {
-          return undefined;
-        }
+    function isHookCall(node: estree.CallExpression): boolean {
+      let identifier: estree.Identifier | undefined = undefined;
+      if (isIdentifier(node.callee, HOOK_FUNCTION)) {
+        identifier = node.callee;
+      } else if (isMemberExpression(node.callee, REACT_ROOT, HOOK_FUNCTION)) {
+        identifier = (node.callee as estree.MemberExpression).property as estree.Identifier;
       }
-      return isReactName(getHookIdentifier(node));
+      return isReactName(identifier) && node.arguments.length === 1;
     }
 
     /**
@@ -125,11 +118,12 @@ export const rule: Rule.RuleModule = {
           return functionScope(current.upper);
         }
       }
+
       return scope !== undefined && functionScope(context.getScope()) === scope;
     }
 
     let reactComponentScope: Scope | undefined; // Scope of the React component render function.
-    let setters: Variable[] = []; // Setter variables returned by the React useState() function.
+    const setters: Variable[] = []; // Setter variables returned by the React useState() function.
 
     return {
       ':function'() {
@@ -145,7 +139,8 @@ export const rule: Rule.RuleModule = {
       },
 
       // Selector matching declarations like: const [count, setCount] = useState(0);
-      'VariableDeclarator[init.callee.name="useState"]:has(ArrayPattern[elements.length=2][elements.0.type="Identifier"][elements.1.type="Identifier"])'(
+      ['VariableDeclarator[init.type="CallExpression"]' +
+        ':has(ArrayPattern[elements.length=2][elements.0.type="Identifier"][elements.1.type="Identifier"])'](
         node: estree.VariableDeclarator,
       ) {
         if (!isInsideFunction(reactComponentScope)) {
@@ -154,7 +149,7 @@ export const rule: Rule.RuleModule = {
 
         const hookDeclarator = node as HookDeclarator;
 
-        if (isHook(hookDeclarator.init)) {
+        if (isHookCall(hookDeclarator.init)) {
           const variable = getVariableFromName(context, hookDeclarator.id.elements[1].name);
           if (variable !== undefined) {
             setters.push(variable);
@@ -200,11 +195,7 @@ function isRuleNode(node: estree.Node): node is Rule.Node {
  * </ul>
  * If the node is not supported calls itself recursively on the parent node up to max level.
  */
-function matches(
-  node: estree.Node | null,
-  pattern: RegExp,
-  max: number = 0,
-): node is estree.Identifier {
+function matches(node: estree.Node | null, pattern: RegExp, max = 0): node is estree.Identifier {
   if (node == null) {
     return false;
   } else if (isIdentifier(node)) {

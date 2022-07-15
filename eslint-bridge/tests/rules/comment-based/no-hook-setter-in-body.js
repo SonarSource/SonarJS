@@ -13,7 +13,7 @@ function ShowLanguageInvalid() {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+  setLanguage(navigator.language); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -22,6 +22,21 @@ function ShowLanguageInvalid() {
       <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
     </section>
   );
+}
+
+function ShowLanguagePrefixedInvalid() {
+    const [language, setLanguage] = React.useState(navigator.language);
+
+    // Makes an infinite loop
+    setLanguage(navigator.language); // Noncompliant {{Move the setState hook to the render function or body of a component}}
+//  ^^^^^^^^^^^
+
+    return (
+        <section>
+            <h1>Your language is {language}!</h1>
+            <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+        </section>
+    );
 }
 
 function ShowLanguageValid() {
@@ -41,7 +56,7 @@ const ShowLanguageInvalidArrow = () => {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+  setLanguage(navigator.language); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -69,7 +84,7 @@ const ShowLanguageInvalidExpression = function() {
   const [language, setLanguage] = useState("fr-FR");
 
   // Makes an infinite loop
-  setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+  setLanguage(navigator.language); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //^^^^^^^^^^^
 
   return (
@@ -97,7 +112,7 @@ exports.MemberInvalid = () => {
     const [language, setLanguage] = useState("fr-FR");
 
     // Makes an infinite loop
-    setLanguage(navigator.language); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+    setLanguage(navigator.language); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //  ^^^^^^^^^^^
 
     return (
@@ -132,9 +147,9 @@ function MultipleHookInvalid() {
   }
 
   // Makes an infinite loop
-  setA("A"); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+  setA("A"); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //^^^^
-  setB("B"); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+  setB("B"); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //^^^^
   setC("C");
 
@@ -174,7 +189,7 @@ function NestedInvalid() {
   const [language, setLanguage] = useState(navigator.language);
 
   if (language === 'fr') {
-    setLanguage('en'); // Noncompliant {{React's setState hook should only be used in the render function or body of a component}}
+    setLanguage('en'); // Noncompliant {{Move the setState hook to the render function or body of a component}}
 //  ^^^^^^^^^^^
   }
 
