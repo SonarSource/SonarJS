@@ -114,6 +114,9 @@ const isSupportedAwsFunction: Predicate = function (pair, ancestors) {
   }
 };
 
+/**
+ * Parses YAML file and extracts JS code according to the provided predicate
+ */
 function parseYaml(predicate: Predicate, filePath: string): EmbeddedJS[] | ParsingError {
   const text = getFileContent(filePath);
 

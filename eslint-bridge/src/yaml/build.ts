@@ -45,8 +45,9 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     const { code } = embeddedJS;
 
     /**
-     * The file path is purposely left empty as it is ignored by `buildSourceCode` if the file content is provided, which
-     * happens to be the case here since `code` denotes an embedded JavaScript snippet extracted from the YAML file.
+     * The file path is purposely left empty as it is ignored by `buildSourceCode` if
+     * the file content is provided, which happens to be the case here since `code`
+     * denotes an embedded JavaScript snippet extractedfrom the YAML file.
      */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js');
@@ -97,7 +98,8 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     patchASTLocations(patchedSourceCode, embeddedJS.offset);
 
     /**
-     * 4. Rebuilds the SourceCode from the patched values because it builds internal properties that are depending on them
+     * 4. Rebuilds the SourceCode from the patched values because
+     * it builds internal properties that are depending on them
      */
     return new SourceCode({
       text: patchedSourceCode.text,
