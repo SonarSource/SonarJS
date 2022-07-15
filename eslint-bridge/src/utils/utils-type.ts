@@ -41,6 +41,14 @@ export function isNumber(node: estree.Node, services: RequiredParserServices) {
   return (typ.getFlags() & ts.TypeFlags.NumberLike) !== 0;
 }
 
+export function isBigIntType(type: ts.Type) {
+  return (type.getFlags() & ts.TypeFlags.BigIntLike) !== 0;
+}
+
+export function isNumberType(type: ts.Type) {
+  return (type.getFlags() & ts.TypeFlags.NumberLike) !== 0;
+}
+
 export function isStringType(type: ts.Type) {
   return (type.flags & ts.TypeFlags.StringLike) > 0 || type.symbol?.name === 'String';
 }

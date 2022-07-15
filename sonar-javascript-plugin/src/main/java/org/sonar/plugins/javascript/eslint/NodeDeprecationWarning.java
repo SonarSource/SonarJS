@@ -32,8 +32,6 @@ import static java.util.Map.entry;
 
 /**
  * Currently supported versions ('supported' means that we execute the analysis):
- * 10 - deprecated (support will be removed not earlier than March 1, 2022)
- * 11 - deprecated (support will be removed not earlier than March 1, 2022), not recommended
  * 12 - deprecated (support will be removed not earlier than Aug 1, 2022)
  * 13 - deprecated (support will be removed not earlier than Aug 1, 2022), not recommended
  * 14 - nothing to warn, recommended version
