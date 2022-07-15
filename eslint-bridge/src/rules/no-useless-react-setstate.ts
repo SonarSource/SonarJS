@@ -28,9 +28,28 @@ import {
 import * as estree from 'estree';
 
 type Reference = {
-  setter: Scope.Variable | null;
-  value: Scope.Variable | null;
+  setter: Scope.Variable | undefined;
+  value: Scope.Variable | undefined;
 };
+
+const declarationSelector = [
+  ':matches(',
+  [
+    'VariableDeclarator[init.callee.name="useState"]',
+    'VariableDeclarator[init.callee.object.type="Identifier"][init.callee.property.name="useState"]',
+  ].join(','),
+  ')',
+  '[id.type="ArrayPattern"]',
+  '[id.elements.length=2]',
+  '[id.elements.0.type="Identifier"]',
+  '[id.elements.1.type="Identifier"]',
+].join('');
+
+const callSelector = [
+  'CallExpression[callee.type="Identifier"]',
+  '[arguments.length=1]',
+  '[arguments.0.type="Identifier"]',
+].join('');
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -41,43 +60,15 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const referencesBySetterName: { [key: string]: Reference } = {};
 
-    const declaratorSelector = [
-      ':matches(',
-      [
-        'VariableDeclarator[init.callee.name="useState"]',
-        'VariableDeclarator[init.callee.property.name="useState"]',
-      ].join(','),
-      ')',
-      '[id.type="ArrayPattern"]',
-      '[id.elements.length=2]',
-      '[id.elements.0.type="Identifier"]',
-      '[id.elements.1.type="Identifier"]',
-    ].join('');
-
-    const callSelector = [
-      'CallExpression[callee.type="Identifier"]',
-      '[arguments.length=1]',
-      '[arguments.0.type="Identifier"]',
-    ].join('');
-
     return {
-      [declaratorSelector](node: estree.VariableDeclarator) {
+      [declarationSelector](node: estree.VariableDeclarator) {
         if (isReactCall(context, node.init as estree.CallExpression)) {
-          const ids = node.id as estree.ArrayPattern;
-          const setter = (ids.elements[1] as estree.Identifier).name;
+          const { elements } = node.id as estree.ArrayPattern;
+          const setter = (elements[1] as estree.Identifier).name;
           referencesBySetterName[setter] = {
-            setter: null,
-            value: null,
+            setter: getVariableFromName(context, setter),
+            value: getVariableFromName(context, (elements[0] as estree.Identifier).name),
           };
-          const scope = context.getScope();
-          scope.references.forEach(ref => {
-            if (ref.identifier === ids.elements[0] && ref.resolved) {
-              referencesBySetterName[setter].value = ref.resolved;
-            }
-            if (ref.identifier === ids.elements[1] && ref.resolved) {
-              referencesBySetterName[setter].setter = ref.resolved;
-            }
-          });
         }
       },
       [callSelector](node: estree.CallExpression) {
@@ -85,6 +76,8 @@ export const rule: Rule.RuleModule = {
         const value = getVariableFromName(context, (node.arguments[0] as estree.Identifier).name);
         const key = setter?.name as string;
         if (
+          setter &&
+          value &&
           referencesBySetterName.hasOwnProperty(key) &&
           referencesBySetterName[key].setter === setter &&
           referencesBySetterName[key].value === value
@@ -100,14 +93,13 @@ export const rule: Rule.RuleModule = {
 };
 
 function isReactCall(context: Rule.RuleContext, callExpr: estree.CallExpression): boolean {
-  let usesReactState = false;
-
   if (callExpr.callee.type === 'Identifier') {
-    const module = getModuleNameOfImportedIdentifier(context, callExpr.callee);
-    usesReactState = module?.value === 'react';
+    return getModuleNameOfImportedIdentifier(context, callExpr.callee)?.value === 'react';
   } else if (callExpr.callee.type === 'MemberExpression') {
-    const module = getModuleNameOfIdentifier(context, callExpr.callee.object as estree.Identifier);
-    usesReactState = module?.value === 'react';
+    return (
+      getModuleNameOfIdentifier(context, callExpr.callee.object as estree.Identifier)?.value ===
+      'react'
+    );
   }
-  return usesReactState;
+  return false;
 }
