@@ -67,10 +67,7 @@ export const rule: Rule.RuleModule = {
      *   // [...]
      * }
      */
-    function isReactName(identifier: estree.Identifier | undefined): boolean {
-      if (identifier === undefined) {
-        return false;
-      }
+    function isReactName(identifier: estree.Identifier): boolean {
       const module = getModuleNameOfImportedIdentifier(context, identifier);
       return module?.value === REACT_MODULE;
     }
@@ -90,7 +87,7 @@ export const rule: Rule.RuleModule = {
       } else if (isMemberExpression(node.callee, REACT_ROOT, HOOK_FUNCTION)) {
         identifier = (node.callee as estree.MemberExpression).property as estree.Identifier;
       }
-      return isReactName(identifier) && node.arguments.length === 1;
+      return identifier !== undefined && isReactName(identifier) && node.arguments.length === 1;
     }
 
     /**
@@ -98,10 +95,7 @@ export const rule: Rule.RuleModule = {
      */
     function getReactComponentScope(): Scope | undefined {
       const scope = context.getScope();
-      const isReact =
-        scope.type === 'function' &&
-        isFunctionNode(scope.block) &&
-        matches(scope.block, REACT_PATTERN, 1);
+      const isReact = isFunctionNode(scope.block) && matches(scope.block, REACT_PATTERN, 1);
       return isReact ? scope : undefined;
     }
 
