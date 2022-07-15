@@ -58,12 +58,12 @@ export const rule: Rule.RuleModule = {
 
     /**
      * Tells if a name comes from the 'react' module. It uses {@link getModuleNameOfImportedIdentifier()} to get the
-     * module name. In the example below <code>isReactName(context, "useState")</code> will return true.
+     * module name. In the example below <code>isReactName(node)</code> will return true.
      * @example
      * import { useState } from "react";
      *
      * function ShowLanguageInvalid() {
-     *   const [language, setLanguage] = useState('fr-FR');
+     *   const [language, setLanguage] = useState('fr-FR'); // 'useState' id is a React name.
      *   // [...]
      * }
      */
@@ -73,11 +73,10 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Check if a node or a string is a reference to the React <code>useState(value)</code> function. It can be used on:
+     * Check if a node is a reference to the React <code>useState(value)</code> function. It can be used on:
      * <ul>
-     *   <li>an Identifier
-     *   <li>a member expression
-     *   <li>a function call
+     *   <li>an Identifier like <code>useState(value)</value>
+     *   <li>a member expression like <code>React.useState(value)</value>
      * </ul>
      */
     function isHookCall(node: estree.CallExpression): boolean {
@@ -100,7 +99,7 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Returns the closest enclosing scope of type function or undefined if there isn't any.
+     * Returns the closest enclosing scope of type 'function' or undefined if there isn't any.
      */
     function isInsideFunction(scope: Scope | undefined): boolean {
       function functionScope(current: Scope | null): Scope | undefined {
@@ -175,7 +174,7 @@ export const rule: Rule.RuleModule = {
  * Check if the node is an eslint Rule.Node that's to say it has a parent property.
  */
 function isRuleNode(node: estree.Node): node is Rule.Node {
-  return (node as any).parent !== undefined;
+  return (node as Rule.Node).parent !== undefined;
 }
 
 /**
