@@ -145,3 +145,7 @@ function NestedValid() {
   );
 }
 
+// Global hook calls are not checked
+const [count, setCount] = useState(0);
+setCount(1);
+
