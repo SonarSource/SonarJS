@@ -31,14 +31,18 @@ import { EmbeddedJS } from './embedded-js';
 export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
- * These formats are given by the YAML parser
+ * YAML string formats given by the YAML parser
  */
 const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
   'PLAIN',
   'BLOCK_FOLDED',
   'BLOCK_LITERAL',
 ];
-const SUPPORTED_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
+
+/**
+ * The list of supported YAML string formats
+ */
+const SUPPORTED_STRING_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
@@ -115,7 +119,7 @@ export function parseYaml(
    * Checks if the node denotes a supported YAML string format
    */
   function isSupportedFormat(pair: any) {
-    return SUPPORTED_FORMATS.includes(pair.value?.type);
+    return SUPPORTED_STRING_FORMATS.includes(pair.value?.type);
   }
 
   /**
