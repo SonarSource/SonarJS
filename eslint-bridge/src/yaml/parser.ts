@@ -40,10 +40,6 @@ const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
 ];
 const SUPPORTED_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
 
-function isSupportedFormat(pair: any) {
-  return SUPPORTED_FORMATS.includes(pair.value?.type);
-}
-
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
@@ -114,6 +110,13 @@ export function parseYaml(
   }
 
   return embeddedJSs;
+
+  /**
+   * Checks if the node denotes a supported YAML string format
+   */
+  function isSupportedFormat(pair: any) {
+    return SUPPORTED_FORMATS.includes(pair.value?.type);
+  }
 
   /**
    * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
