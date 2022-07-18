@@ -281,6 +281,7 @@ public final class CheckList {
       RequireRenderReturnCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
+      RulesOfHooksCheck.class,
       SameLineConditionalCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
