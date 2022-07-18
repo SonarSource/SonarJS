@@ -34,7 +34,7 @@ import { parseAwsFromYaml } from './parser';
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
   const embeddedJSsOrError = parseAwsFromYaml(filePath);
 
-  const containsError = !Array.isArray(embeddedJSsOrError);
+  const containsError = isParsingError(embeddedJSsOrError);
   if (containsError) {
     return embeddedJSsOrError;
   }
@@ -206,5 +206,11 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
     }
     return message;
+  }
+
+  function isParsingError(
+    maybeParsingError: EmbeddedJS[] | ParsingError,
+  ): maybeParsingError is ParsingError {
+    return 'code' in maybeParsingError;
   }
 }
