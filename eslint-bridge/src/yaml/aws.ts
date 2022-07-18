@@ -46,6 +46,7 @@ export function isAwsFunction(_key: any, pair: any, ancestors: any) {
     function isZipFile(pair: any) {
       return pair.key.value === 'ZipFile';
     }
+
     function hasCode(ancestors: any[], level = 2) {
       return ancestors[ancestors.length - level]?.key?.value === 'Code';
     }
