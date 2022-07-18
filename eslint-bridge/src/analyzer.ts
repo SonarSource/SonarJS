@@ -22,6 +22,7 @@ import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
 import { SourceCode } from 'eslint';
+import { Position } from 'estree';
 import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
@@ -29,7 +30,6 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
-import { Location } from 'vue-eslint-parser/ast';
 import { buildSourceCodesFromYaml } from './yaml';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
@@ -161,7 +161,7 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
       return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
     });
 
-    function isBeforeOrEqual(a: Location, b: Location) {
+    function isBeforeOrEqual(a: Position, b: Position) {
       if (a.line < b.line) {
         return true;
       } else if (a.line > b.line) {
