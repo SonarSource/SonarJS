@@ -239,6 +239,7 @@ public final class CheckList {
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
+      NoUnusedClassComponentMethodsCheck.class,
       NoUselessCatchCheck.class,
       NoUselessReactSetstateCheck.class,
       NoVueBypassSanitizationCheck.class,
