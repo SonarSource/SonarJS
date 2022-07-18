@@ -30,7 +30,7 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
-import { buildSourceCodesFromYaml } from './yaml';
+import { buildSourceCodesFromYaml, isParsingError } from './yaml';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -130,7 +130,7 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   checkLinterState();
   const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
-  const containsErrors = !Array.isArray(sourceCodesOrError);
+  const containsErrors = isParsingError(sourceCodesOrError);
   if (containsErrors) {
     const parsingError = sourceCodesOrError;
     return Promise.resolve({

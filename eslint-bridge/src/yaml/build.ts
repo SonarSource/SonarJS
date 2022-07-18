@@ -24,6 +24,7 @@ import { ParsingError } from '../analyzer';
 import { buildSourceCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
 import { parseAwsFromYaml } from './aws';
+import { isParsingError } from './error';
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
@@ -206,11 +207,5 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
     }
     return message;
-  }
-
-  function isParsingError(
-    maybeParsingError: EmbeddedJS[] | ParsingError,
-  ): maybeParsingError is ParsingError {
-    return 'code' in maybeParsingError;
   }
 }
