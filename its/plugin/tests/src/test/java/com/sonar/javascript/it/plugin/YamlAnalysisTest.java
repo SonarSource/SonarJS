@@ -21,12 +21,10 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
@@ -40,8 +38,8 @@ public class YamlAnalysisTest {
 
   @Test
   void singleLineInlineAwsLambdaForJs() {
-    String projectKey = "yaml-aws-lambda";
-    SonarScanner build = SonarScanner.create()
+    var projectKey = "yaml-aws-lambda";
+    var build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -52,7 +50,7 @@ public class YamlAnalysisTest {
       "eslint-based-rules-profile", "js"));
     orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey);
+    var issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
       tuple(4, "cloudformation:S6295"),
       tuple(11, "javascript:S3923")
