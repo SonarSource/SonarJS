@@ -25,7 +25,10 @@ import { ParsingError } from '../analyzer';
 import { getFileContent, ParseExceptionCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
 
-export type NodeSelectorPredicate = (pair: any, ancestors: any) => boolean;
+/**
+ * A function predicate to visit a YAML node
+ */
+export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
  * These formats are given by the YAML parser
@@ -45,7 +48,7 @@ function isSupportedFormat(pair: any) {
  * Parses YAML file and extracts JS code according to the provided predicate
  */
 export function parseYaml(
-  predicate: NodeSelectorPredicate,
+  predicate: YamlVisitorPredicate,
   filePath: string,
 ): EmbeddedJS[] | ParsingError {
   const text = getFileContent(filePath);
@@ -80,8 +83,8 @@ export function parseYaml(
      * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
      */
     yaml.visit(doc, {
-      Pair(_, pair: any, ancestors: any) {
-        if (predicate(pair, ancestors) && isSupportedFormat(pair)) {
+      Pair(key: any, pair: any, ancestors: any) {
+        if (predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
           const { value, srcToken } = pair;
           const code = srcToken.value.source;
           const format = pair.value.type;

@@ -22,7 +22,7 @@ import { parseYaml } from './parser';
 /**
  * Checks if the given YAML AST node is an AWS Lambda or Serverless function
  */
-export function isAwsFunction(pair: any, ancestors: any) {
+export function isAwsFunction(_key: any, pair: any, ancestors: any) {
   return isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors);
 
   /**
