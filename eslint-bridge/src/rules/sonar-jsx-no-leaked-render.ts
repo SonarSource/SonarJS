@@ -80,7 +80,7 @@ function report(node: estree.Node, context: Rule.RuleContext) {
           if (
             !!previousToken &&
             !!nextToken &&
-            typeof node.range !== 'undefined' &&
+            node.range !== undefined &&
             previousToken.value === '(' &&
             previousToken.range[1] <= node.range[0] &&
             nextToken.value === ')' &&
