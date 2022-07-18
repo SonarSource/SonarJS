@@ -20,6 +20,12 @@
 import { parseYaml } from './parser';
 
 /**
+ * Extracts from a YAML file all the embedded JavaScript code snippets either
+ * in AWS Lambda Functions or AWS Serverless Functions.
+ */
+export const parseAwsFromYaml = parseYaml.bind(null, isAwsFunction);
+
+/**
  * Checks if the given YAML AST node is an AWS Lambda or Serverless function
  */
 export function isAwsFunction(_key: any, pair: any, ancestors: any) {
@@ -89,9 +95,3 @@ export function isAwsFunction(_key: any, pair: any, ancestors: any) {
     );
   }
 }
-
-/**
- * Extracts from a YAML file all the embedded JavaScript code snippets either
- * in AWS Lambda Functions or AWS Serverless Functions.
- */
-export const parseAwsFromYaml = parseYaml.bind(null, isAwsFunction);
