@@ -110,6 +110,8 @@ export function parseYaml(
     });
   }
 
+  return embeddedJSs;
+
   /**
    * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
    * as it changes depending on the type of the embedding format.
@@ -122,6 +124,4 @@ export function parseYaml(
       return offset;
     }
   }
-
-  return embeddedJSs;
 }
