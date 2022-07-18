@@ -244,6 +244,42 @@ describe('server', () => {
     expect(parsedResponse).toEqual(expectedResponse);
   }, 10_000);
 
+  it('should respond to Yaml analysis request', async () => {
+    expect.assertions(2);
+    expect(server.listening).toEqual(true);
+
+    await post(
+      JSON.stringify({
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
+      }),
+      '/init-linter',
+    );
+    const response = await post(
+      JSON.stringify({
+        filePath: join(__dirname, './fixtures/yaml/valid-lambda.yaml'),
+        fileType: 'MAIN',
+      }),
+      '/analyze-yaml',
+    );
+    const parsedResponse = JSON.parse(response);
+    const expectedResponse = {
+      issues: [
+        {
+          column: 17,
+          endColumn: 46,
+          line: 8,
+          endLine: 8,
+          message:
+            "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+          quickFixes: [],
+          ruleId: 'no-all-duplicated-branches',
+          secondaryLocations: [],
+        },
+      ],
+    };
+    expect(parsedResponse).toEqual(expectedResponse);
+  });
+
   it('should respond OK! when started', done => {
     expect(server.listening).toEqual(true);
     const req = http.request(
