@@ -99,7 +99,7 @@ function report(node: estree.Node, context: Rule.RuleContext) {
 
 function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
   const type = getTypeFromTreeNode(node, context.parserServices);
-  return isStringType(type) || isNumber(node, context);
+  return isStringType(type) || isBigIntType(type) || isNumberType(type);
 }
 
 function isNumber(node: estree.Node, context: Rule.RuleContext) {
