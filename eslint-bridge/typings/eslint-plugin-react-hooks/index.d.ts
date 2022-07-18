@@ -1,3 +1,4 @@
 declare module 'eslint-plugin-react-hooks' {
-  export const rules: any;
+  import { Rule } from "eslint";
+  export const rules: { [name: string]: Rule.RuleModule };
 }

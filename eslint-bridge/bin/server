@@ -9,12 +9,12 @@
 * workDir - working directory from SonarQube API
 * shouldUseTypeScriptParserForJS - whether TypeScript parser should be used for JS code (default true, can be set to false in case of perf issues)
 * sonarlint - when running in SonarLint (used to not compute metrics, highlighting, etc)
-* additionalRules - ; or : delimited paths to additional rule bundles
+* bundles - ; or : delimited paths to additional rule bundles
 */
 
 const server = require('../lib/server');
 const path = require('path');
-const context = require('../lib/context');
+const context = require('../lib/helpers');
 
 const port = process.argv[2];
 const host = process.argv[3];
@@ -22,10 +22,10 @@ const workDir = process.argv[4];
 const shouldUseTypeScriptParserForJS = process.argv[5] === 'true';
 const sonarlint = process.argv[6] === 'true';
 
-let additionalRules = [];
+let bundles = [];
 if (process.argv[7]) {
-  additionalRules = process.argv[7].split(path.delimiter);
+  bundles = process.argv[7].split(path.delimiter);
 }
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint });
-server.start(port, host, additionalRules);
+server.start(port, host, bundles);

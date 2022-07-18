@@ -17,151 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Server } from 'http';
-import express from 'express';
-import {
-  AnalysisResponse,
-  analyzeCss,
-  analyzeJavaScript,
-  analyzeTypeScript,
-  analyzeYaml,
-  EMPTY_RESPONSE,
-  initLinter,
-  loadCustomRuleBundle,
-  Rule,
-} from './analyzer';
-import { AddressInfo } from 'net';
-import { ParseExceptionCode, unloadTypeScriptEslint } from './parser';
-import { getFilesForTsConfig } from './tsconfig';
-import { createProgram, deleteProgram } from './programManager';
 
+import http from 'http';
+import express from 'express';
+import router from './routing';
+import { debug } from './helpers';
+import { loadBundles } from './linting/eslint';
+
+/**
+ * The maximum request body size
+ */
 const MAX_REQUEST_SIZE = '50mb';
 
-export function start(
-  port = 0,
-  host = '127.0.0.1',
-  additionalRuleBundles: string[] = [],
-): Promise<Server> {
-  return startServer(
-    analyzeJavaScript,
-    analyzeTypeScript,
-    analyzeCss,
-    port,
-    host,
-    additionalRuleBundles,
-  );
-}
+/**
+ * Starts the bridge
+ *
+ * The bridge is an Express.js web server that exposes several services
+ * through a REST API. Once started, the bridge first begins by loading
+ * any provided rule bundles and then waits for incoming requests.
+ *
+ * Communication between two ends is entirely done with the JSON format.
+ *
+ * Altough a web server, the bridge is not exposed to the outside world
+ * but rather exclusively communicate either with the JavaScript plugin
+ * which embedds it or directly with SonarLint.
+ *
+ * @param port the port to listen to
+ * @param host the host to listen to
+ * @param bundles the rule bundles to load
+ * @returns an http server
+ */
+export function start(port = 0, host = '127.0.0.1', bundles: string[] = []): Promise<http.Server> {
+  loadBundles(bundles);
 
-type AnalysisFunction = (input: any) => Promise<AnalysisResponse>;
-
-// exported for test
-export function startServer(
-  analyzeJS: AnalysisFunction,
-  analyzeTS: AnalysisFunction,
-  analyzeCSS: AnalysisFunction,
-  port = 0,
-  host = '127.0.0.1',
-  additionalRuleBundles: string[] = [],
-): Promise<Server> {
-  loadAdditionalRuleBundles(additionalRuleBundles);
   return new Promise(resolve => {
-    console.log('DEBUG starting eslint-bridge server at port', port);
-    let server: Server;
+    debug(`starting eslint-bridge server at port ${port}`);
+
     const app = express();
+    let server: http.Server;
 
-    // for parsing application/json requests
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-
-    app.post('/init-linter', (req, res) => {
-      initLinter(
-        req.body.rules as Rule[],
-        req.body.environments as string[],
-        req.body.globals as string[],
-      );
-      res.send('OK!');
-    });
-
-    app.post('/analyze-js', analyze(analyzeJS));
-
-    app.post('/analyze-ts', analyze(analyzeTS));
-
-    app.post('/analyze-css', analyze(analyzeCSS));
-
-    app.post('/analyze-yaml', analyze(analyzeYaml));
-
-    app.post('/create-program', (req, res) => {
-      try {
-        const { tsConfig } = req.body;
-        res.json(createProgram(tsConfig));
-      } catch (e) {
-        console.error(e.stack);
-        res.json({ error: e.message });
-      }
-    });
-
-    app.post('/analyze-with-program', analyze(analyzeTS));
-
-    app.post('/delete-program', (req, res) => {
-      const { programId } = req.body;
-      deleteProgram(programId);
-      res.send('OK!');
-    });
-
-    app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
-      unloadTypeScriptEslint();
-      response.send('OK!');
-    });
-
-    app.post('/tsconfig-files', (request: express.Request, response: express.Response) => {
-      try {
-        const tsconfig = request.body.tsconfig;
-        response.json(getFilesForTsConfig(tsconfig));
-      } catch (e) {
-        console.error(e.stack);
-        response.json({ error: e.message });
-      }
-    });
-
-    app.get('/status', (_: express.Request, resp: express.Response) => resp.send('OK!'));
-
-    app.post('/close', (_req: express.Request, resp: express.Response) => {
-      console.log('DEBUG eslint-bridge server will shutdown');
-      resp.end(() => {
+    app.use(router);
+    app.post('/close', (_request: express.Request, response: express.Response) => {
+      debug('eslint-bridge server will shutdown');
+      response.end(() => {
         server.close();
       });
     });
 
     server = app.listen(port, host, () => {
-      console.log(
-        'DEBUG eslint-bridge server is running at port',
-        (server.address() as AddressInfo).port,
-      );
+      debug(`eslint-bridge server is running at port ${port}`);
       resolve(server);
     });
   });
-}
-
-function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
-  return async (request: express.Request, response: express.Response) => {
-    try {
-      const analysisResult = await analysisFunction(request.body);
-      response.json(analysisResult);
-    } catch (e) {
-      console.error(e.stack);
-      response.json({
-        ...EMPTY_RESPONSE,
-        parsingError: {
-          message: e.message,
-          code: ParseExceptionCode.GeneralError,
-        },
-      });
-    }
-  };
-}
-
-function loadAdditionalRuleBundles(additionalRuleBundles: string[]) {
-  for (const bundle of additionalRuleBundles) {
-    const ruleIds = loadCustomRuleBundle(bundle);
-    console.log(`DEBUG Loaded rules ${ruleIds} from ${bundle}`);
-  }
 }

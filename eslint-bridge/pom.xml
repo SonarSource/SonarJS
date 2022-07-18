@@ -78,7 +78,7 @@
           </includes>
           <excludes>
             <exclude>tests/**/fixtures/**/*</exclude>
-            <exclude>tests/rules/comment-based/**/*</exclude>
+            <exclude>tests/linting/**/comment-based/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>

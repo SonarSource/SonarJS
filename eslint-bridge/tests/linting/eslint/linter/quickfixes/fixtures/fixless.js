@@ -1,0 +1,3 @@
+myLabel: while (true) {
+  foo();
+}
