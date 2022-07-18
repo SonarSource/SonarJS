@@ -46,7 +46,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     /**
      * The file path is purposely left empty as it is ignored by `buildSourceCode` if
      * the file content is provided, which happens to be the case here since `code`
-     * denotes an embedded JavaScript snippet extractedfrom the YAML file.
+     * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
     const input = { filePath: '', fileContent: code, fileType: FileType.MAIN, tsConfigs: [] };
     const sourceCodeOrError = buildSourceCode(input, 'js');
