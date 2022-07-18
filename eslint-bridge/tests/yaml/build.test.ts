@@ -21,9 +21,9 @@
 import { SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { join } from 'path';
-import { ParsingError } from '../../src/analyzer';
-import { ParseExceptionCode } from '../../src/parser';
-import { buildSourceCodesFromYaml } from '../../src/yaml';
+import { ParsingError } from 'analyzer';
+import { ParseExceptionCode } from 'parser';
+import { buildSourceCodesFromYaml } from 'yaml';
 
 describe('buildSourceCodesFromYaml()', () => {
   const fixturesPath = join(__dirname, '../fixtures/yaml/');
