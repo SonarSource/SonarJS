@@ -44,8 +44,8 @@ If everything looks good to you, you can copy the file with the actual issues lo
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
 
 From `its/ruling/`:
-* for JS `cp -R target/actual/ts/ src/test/expected/ts`
-* for TS `cp -R target/actual/js/ src/test/expected/js`
+* for JS `cp -R target/actual/js/ src/test/expected/js`
+* for TS `cp -R target/actual/ts/ src/test/expected/ts`
 * for CSS `cp -R target/actual/css/ src/test/expected/css`
 
 You can review the Ruling difference by running `diff -rq src/test/expected/js target/actual/js` from `its/ruling`.

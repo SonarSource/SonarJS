@@ -82,14 +82,21 @@ public class AnalysisProcessor {
       return;
     }
 
-    // it's important to have an order here:
-    // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
-    saveMetrics(response.metrics);
-    saveIssues(response.issues);
-    saveHighlights(response.highlights);
-    saveHighlightedSymbols(response.highlightedSymbols);
-    saveCpd(response.cpdTokens);
-    monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
+    if (YamlSensor.LANGUAGE.equals(file.language())) {
+      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
+      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
+      // from Cloudformation configurations, we can only save issues for these files.
+      saveIssues(response.issues);
+    } else {
+      // it's important to have an order here:
+      // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
+      saveMetrics(response.metrics);
+      saveIssues(response.issues);
+      saveHighlights(response.highlights);
+      saveHighlightedSymbols(response.highlightedSymbols);
+      saveCpd(response.cpdTokens);
+      monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
+    }
   }
 
   private void processParsingError(EslintBridgeServer.ParsingError parsingError) {

@@ -24,6 +24,7 @@ import {
   analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
+  analyzeYaml,
   EMPTY_RESPONSE,
   initLinter,
   loadCustomRuleBundle,
@@ -85,6 +86,8 @@ export function startServer(
     app.post('/analyze-ts', analyze(analyzeTS));
 
     app.post('/analyze-css', analyze(analyzeCSS));
+
+    app.post('/analyze-yaml', analyze(analyzeYaml));
 
     app.post('/create-program', (req, res) => {
       try {

@@ -1,0 +1,37 @@
+<p>React components have a built-in <code>state</code> data. This data is used to store component property values. When <code>state</code> changes,
+the component is re-rendered. For functional components to manage <code>state</code>, React provides the <code>useState</code> hook, which returns the
+state value and a setter function to update its value.</p>
+<p>When the setter function is called with the state variable as a parameter, nothing will happen. This can happen by mistake when attempting to reset
+a default value or invert a boolean, among others.</p>
+<p>This rule raises an issue when calling the setter function with the state variable provided by the same <code>useState</code> React hook.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState("fr-FR");
+    return (
+      &lt;section&gt;
+        &lt;h1&gt;Your language is {language}!&lt;/h1&gt;
+        &lt;button onClick={() =&gt; setLanguage(navigator.language)}&gt;Detect language&lt;/button&gt;
+        &lt;button onClick={() =&gt; setLanguage(language)}&gt;Je préfère le Français&lt;/button&gt;{/* Non compliant: This button does nothing */}
+      &lt;/section&gt;
+    );
+};
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState("fr-FR");
+    return (
+      &lt;section&gt;
+        &lt;h1&gt;Your language is {language}!&lt;/h1&gt;
+        &lt;button onClick={() =&gt; setLanguage(navigator.language)}&gt;Detect language&lt;/button&gt;
+        &lt;button onClick={() =&gt; setLanguage("fr-FR")}&gt;Je préfère le Français&lt;/button&gt;
+      &lt;/section&gt;
+    );
+};
+</pre>
+

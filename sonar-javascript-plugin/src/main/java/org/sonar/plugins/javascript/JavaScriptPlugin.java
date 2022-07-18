@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
 import org.sonar.plugins.javascript.eslint.TypeScriptChecks;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
+import org.sonar.plugins.javascript.eslint.YamlSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
@@ -123,7 +124,8 @@ public class JavaScriptPlugin implements Plugin {
       AnalysisWarningsWrapper.class,
       Monitoring.class,
       AnalysisWithProgram.class,
-      AnalysisProcessor.class
+      AnalysisProcessor.class,
+      YamlSensor.class
     );
 
     context.addExtensions(
