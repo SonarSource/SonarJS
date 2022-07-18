@@ -12,7 +12,7 @@ function notAReactComponent() {
 function ShowLanguageInvalid() {
   const [language, setLanguage] = useState("fr-FR");
 
-  setLanguage(navigator.language); // Noncompliant {{Move the state setter call to a callback}}
+  setLanguage(navigator.language); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //^^^^^^^^^^^
 
   return (

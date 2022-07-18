@@ -50,7 +50,8 @@ const HOOK_FUNCTION = 'useState';
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      noHookSetterInBody: 'Move the state setter call to a callback',
+      noHookSetterInBody:
+        'Remove this state setter call, perhaps move it to an event handler or JSX attribute',
     },
   },
   create(context: Rule.RuleContext) {
