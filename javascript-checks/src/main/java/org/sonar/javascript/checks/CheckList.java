@@ -214,6 +214,7 @@ public final class CheckList {
       NoExclusiveTestsCheck.class,
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
+      NoHookSetterInBodyCheck.class,
       NoInMisuseCheck.class,
       NoIncompleteAssertionsCheck.class,
       NoInferrableTypesCheck.class,
