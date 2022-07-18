@@ -33,16 +33,24 @@ export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => bool
 /**
  * YAML string formats given by the YAML parser
  */
-const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
+const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, QUOTE_SINGLE, QUOTE_DOUBLE] = [
   'PLAIN',
   'BLOCK_FOLDED',
   'BLOCK_LITERAL',
+  'QUOTE_SINGLE',
+  'QUOTE_DOUBLE',
 ];
 
 /**
  * The list of supported YAML string formats
  */
-const SUPPORTED_STRING_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
+const SUPPORTED_STRING_FORMATS = [
+  PLAIN_FORMAT,
+  BLOCK_FOLDED_FORMAT,
+  BLOCK_LITERAL_FORMAT,
+  QUOTE_SINGLE,
+  QUOTE_DOUBLE,
+];
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
@@ -87,6 +95,7 @@ export function parseYaml(
         if (predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
           const { value, srcToken } = pair;
           const code = srcToken.value.source;
+
           const format = pair.value.type;
 
           /**
@@ -100,7 +109,7 @@ export function parseYaml(
           const lineStarts = lineCounter.lineStarts;
 
           embeddedJSs.push({
-            code,
+            code: fixCode(code, value.type),
             line,
             column,
             offset: fixOffset(offsetStart, value.type),
@@ -123,13 +132,29 @@ export function parseYaml(
   }
 
   /**
+   * Fixes code string for certain formats, due to parsing errors
+   */
+  function fixCode(code: string, format: string): string {
+    if (format === QUOTE_SINGLE) {
+      return code.substring(code.indexOf("'") + 1, code.lastIndexOf("'"));
+    } else if (format === QUOTE_DOUBLE) {
+      return code.substring(code.indexOf('"') + 1, code.lastIndexOf('"'));
+    } else {
+      return code;
+    }
+  }
+
+  /**
    * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
    * as it changes depending on the type of the embedding format.
    */
   function fixOffset(offset: number, format: string): number {
     if ([BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT].includes(format)) {
-      /* +1 for the block marker (`>` or `|`) and +1 for the line break */
+      // +1 for the block marker (`>` or `|`) and +1 for the line break
       return offset + 2;
+    } else if ([QUOTE_SINGLE, QUOTE_DOUBLE].includes(format)) {
+      // +1 for the starting quote (' or ")
+      return offset + 1;
     } else {
       return offset;
     }
