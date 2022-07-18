@@ -99,7 +99,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
 
     /**
      * 4. Rebuilds the SourceCode from the patched values because
-     * it builds internal properties that are depending on them
+     *    it builds internal properties that are depending on them
      */
     return new SourceCode({
       text: patchedSourceCode.text,
