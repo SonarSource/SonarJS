@@ -130,8 +130,7 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
 export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
   checkLinterState();
   const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
-  const containsErrors = isParsingError(sourceCodesOrError);
-  if (containsErrors) {
+  if (isParsingError(sourceCodesOrError)) {
     const parsingError = sourceCodesOrError;
     return Promise.resolve({
       ...EMPTY_RESPONSE,

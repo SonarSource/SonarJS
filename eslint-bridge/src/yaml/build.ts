@@ -34,9 +34,7 @@ import { isParsingError } from './error';
  */
 export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | ParsingError {
   const embeddedJSsOrError = parseAwsFromYaml(filePath);
-
-  const containsError = isParsingError(embeddedJSsOrError);
-  if (containsError) {
+  if (isParsingError(embeddedJSsOrError)) {
     return embeddedJSsOrError;
   }
   const embeddedJSs = embeddedJSsOrError;
