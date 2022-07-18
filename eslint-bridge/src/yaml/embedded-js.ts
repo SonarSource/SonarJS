@@ -27,7 +27,7 @@
  * @param offset Offset where JS code starts
  * @param lineStarts Offset at each line start
  * @param text Whole YAML file content
- * @param format Format of the YAML string that embedds the JS code
+ * @param format Format of the YAML string that embeds the JS code
  */
 export type EmbeddedJS = {
   code: string;

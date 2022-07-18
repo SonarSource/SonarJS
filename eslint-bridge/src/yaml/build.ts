@@ -67,14 +67,14 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
    * Patching an ESLint SourceCode instance denoting an embedded JavaScript snippet implies
    * fixing all location-related data structures in the abstract syntax tree as well as the
    * behavior of the instance methods because they are relative to the beginning of the code
-   * code snippet that was parsed, not relative to the whole YAML file content. By doing so,
+   * snippet that was parsed, not relative to the whole YAML file content. By doing so,
    * location-related information within reported issues and quick fixes will be relative to
    * the YAML file (YAML referential).
    */
   function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
     /**
      * 1. Recomputes the lines from the original YAML file content, as the lines in the original
-     *    SourceCode includes only those from the embedded JavaScript code snippet and these
+     *    SourceCode include only those from the embedded JavaScript code snippet and these
      *    lines are used internally by the SourceCode for various purposes.
      */
     const lines = computeLines();
@@ -91,7 +91,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     });
 
     /**
-     * 3. Patches the location information of the SourceCode abstract syntax tree as it sill
+     * 3. Patches the location information of the SourceCode's abstract syntax tree as it sill
      *    in the JavaScript referential
      */
     patchASTLocations(patchedSourceCode, embeddedJS.offset);
@@ -108,7 +108,7 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
       visitorKeys: patchedSourceCode.visitorKeys,
     });
 
-    /* taken from eslint/lib/source-code/source-code.js#constructor */
+    /* Taken from eslint/lib/source-code/source-code.js#constructor */
     function computeLines() {
       const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
       const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
@@ -198,9 +198,9 @@ export function buildSourceCodesFromYaml(filePath: string): SourceCode[] | Parsi
     /* Extracts location information of the form `(<line>:<column>)` */
     const regex = /((?<line>\d+):(?<column>\d+))/;
     const found = message.match(regex);
-    if (found) {
-      const line = found.groups!.line;
-      const column = Number(found.groups!.column);
+    if (found !== null && found.groups) {
+      const line = found.groups.line;
+      const column = Number(found.groups.column);
       const patchedColumn = embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;
       return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
     }
