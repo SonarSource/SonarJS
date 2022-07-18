@@ -150,8 +150,8 @@ export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<Analysis
    * Filters out issues outside of JS code.
    *
    * This is necessary because we patch the SourceCode object
-   * to include all the YAML file in its properties outside of its AST.
-   * So rules that operate on SourceCode.text get flagged
+   * to include all the YAML files in its properties outside of its AST.
+   * So rules that operate on SourceCode.text get flagged.
    */
   function removeYamlIssues(sourceCode: SourceCode, issues: Issue[]) {
     const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
