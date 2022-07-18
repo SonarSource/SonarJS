@@ -23,7 +23,7 @@ import { FileType, visit } from '../utils';
 import { ParsingError } from '../analyzer';
 import { buildSourceCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
-import { parseAwsFromYaml } from './parser';
+import { parseAwsFromYaml } from './aws';
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.

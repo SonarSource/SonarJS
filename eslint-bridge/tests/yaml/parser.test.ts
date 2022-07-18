@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { parseAwsFromYaml } from 'yaml/parser';
+import { parseAwsFromYaml } from 'yaml/aws';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse YAML syntax', () => {

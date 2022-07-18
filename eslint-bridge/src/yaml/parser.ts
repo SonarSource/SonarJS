@@ -25,6 +25,8 @@ import { ParsingError } from '../analyzer';
 import { getFileContent, ParseExceptionCode } from '../parser';
 import { EmbeddedJS } from './embedded-js';
 
+export type NodeSelectorPredicate = (pair: any, ancestors: any) => boolean;
+
 /**
  * These formats are given by the YAML parser
  */
@@ -35,89 +37,17 @@ const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
 ];
 const SUPPORTED_FORMATS = [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT];
 
-type Predicate = (pair: yaml.Pair<any, any>, ancestors: any) => boolean;
-
-/**
- * Checks if the given YAML AST node is a supported AWS Lambda or Serverless function
- */
-const isSupportedAwsFunction: Predicate = function (pair, ancestors) {
-  return (
-    (isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors)) &&
-    isSupportedFormat(pair)
-  );
-
-  /**
-   * Embedded JavaScript code inside an AWS Lambda Function has the following structure:
-   *
-   * SomeLambdaFunction:
-   *   Type: "AWS::Lambda::Function"
-   *   Properties:
-   *     Runtime: <nodejs-version>
-   *     Code:
-   *       ZipFile: <embedded-js-code>
-   */
-  function isInlineAwsLambda(pair: any, ancestors: any[]) {
-    return (
-      isZipFile(pair) &&
-      hasCode(ancestors) &&
-      hasNodeJsRuntime(ancestors) &&
-      hasType(ancestors, 'AWS::Lambda::Function')
-    );
-
-    function isZipFile(pair: any) {
-      return pair.key.value === 'ZipFile';
-    }
-    function hasCode(ancestors: any[], level = 2) {
-      return ancestors[ancestors.length - level]?.key?.value === 'Code';
-    }
-  }
-
-  /**
-   * Embedded JavaScript code inside an AWS Serverless Function has the following structure:
-   *
-   * SomeServerlessFunction:
-   *   Type: "AWS::Serverless::Function"
-   *   Properties:
-   *     Runtime: <nodejs-version>
-   *     InlineCode: <embedded-js-code>
-   */
-  function isInlineAwsServerless(pair: any, ancestors: any[]) {
-    return (
-      isInlineCode(pair) &&
-      hasNodeJsRuntime(ancestors, 1) &&
-      hasType(ancestors, 'AWS::Serverless::Function', 3)
-    );
-
-    /**
-     * We need to check the pair directly instead of ancestors,
-     * otherwise it will validate all siblings.
-     */
-    function isInlineCode(pair: any) {
-      return pair.key.value === 'InlineCode';
-    }
-  }
-
-  function hasNodeJsRuntime(ancestors: any[], level = 3) {
-    return ancestors[ancestors.length - level]?.items?.some(
-      (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
-    );
-  }
-
-  function hasType(ancestors: any[], value: string, level = 5) {
-    return ancestors[ancestors.length - level]?.items?.some(
-      (item: any) => item?.key.value === 'Type' && item?.value.value === value,
-    );
-  }
-
-  function isSupportedFormat(pair: yaml.Pair<any, any>) {
-    return SUPPORTED_FORMATS.includes(pair.value?.type);
-  }
-};
+function isSupportedFormat(pair: any) {
+  return SUPPORTED_FORMATS.includes(pair.value?.type);
+}
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-function parseYaml(predicate: Predicate, filePath: string): EmbeddedJS[] | ParsingError {
+export function parseYaml(
+  predicate: NodeSelectorPredicate,
+  filePath: string,
+): EmbeddedJS[] | ParsingError {
   const text = getFileContent(filePath);
 
   /**
@@ -151,7 +81,7 @@ function parseYaml(predicate: Predicate, filePath: string): EmbeddedJS[] | Parsi
      */
     yaml.visit(doc, {
       Pair(_, pair: any, ancestors: any) {
-        if (predicate(pair, ancestors)) {
+        if (predicate(pair, ancestors) && isSupportedFormat(pair)) {
           const { value, srcToken } = pair;
           const code = srcToken.value.source;
           const format = pair.value.type;
@@ -195,9 +125,3 @@ function parseYaml(predicate: Predicate, filePath: string): EmbeddedJS[] | Parsi
 
   return embeddedJSs;
 }
-
-/**
- * Extracts from a YAML file all the embedded JavaScript code snippets either
- * in AWS Lambda Functions or AWS Serverless Functions.
- */
-export const parseAwsFromYaml = parseYaml.bind(null, isSupportedAwsFunction);

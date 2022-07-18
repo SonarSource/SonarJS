@@ -19,9 +19,9 @@
  */
 
 import { join } from 'path';
-import { analyzeYaml, initLinter } from '../../src/analyzer';
-import { setContext } from '../../src/context';
-import { ParseExceptionCode } from '../../src/parser';
+import { analyzeYaml, initLinter } from 'analyzer';
+import { setContext } from 'context';
+import { ParseExceptionCode } from 'parser';
 
 describe('analyzeYaml()', () => {
   const fixturesPath = join(__dirname, '../fixtures/yaml');
