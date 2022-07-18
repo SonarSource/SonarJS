@@ -19,6 +19,8 @@
  */
 
 /**
+ * An extracted embedded JavaScript code snippet from a YAML file
+ *
  * @param code JS code
  * @param line Line where JS code starts
  * @param column Column where JS code starts
