@@ -17,21 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import { Rule } from 'eslint';
+import { Node } from 'estree';
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6441")
-public class NoUnusedClassComponentMethodsCheck implements EslintBasedCheck {
+const detectReactSelector = [
+  ':matches(',
+  [
+    'CallExpression[callee.name="require"][arguments.0.value="react"]',
+    'CallExpression[callee.name="require"][arguments.0.value="create-react-class"]',
+    'ImportDeclaration[source.value="react"]',
+  ].join(','),
+  ')',
+].join('');
 
-  @Override
-  public String eslintKey() {
-    return "sonar-no-unused-class-component-methods";
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reactDetected: 'React detected',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      [detectReactSelector](node: Node) {
+        context.report({
+          messageId: 'reactDetected',
+          node,
+        });
+      },
+    };
+  },
+};
