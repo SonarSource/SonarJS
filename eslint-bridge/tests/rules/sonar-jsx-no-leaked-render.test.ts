@@ -52,6 +52,18 @@ ruleTesterTs.run('', rule, {
         }
       `,
     },
+    {
+      code: `
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -70,7 +82,7 @@ ruleTesterTs.run('', rule, {
           line: 5,
           column: 16,
           endLine: 5,
-          endColumn: 55,
+          endColumn: 21,
           suggestions: [
             {
               output: `
@@ -100,11 +112,10 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 6,
           column: 16,
           endLine: 6,
-          endColumn: 55,
+          endColumn: 21,
           suggestions: [
             {
               output: `
@@ -134,11 +145,10 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
           column: 16,
           endLine: 5,
-          endColumn: 67,
+          endColumn: 33,
           suggestions: [
             {
               output: `
@@ -157,7 +167,7 @@ ruleTesterTs.run('', rule, {
     },
     {
       code: `
-        const Component = (test: boolean, count: number, collection) => {
+        const Component = (test: number, count: number, collection) => {
           return (
             <div>
               {(test || (count)) && <List elements={collection} />}
@@ -167,15 +177,33 @@ ruleTesterTs.run('', rule, {
       `,
       errors: [
         {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
           line: 5,
-          column: 16,
+          column: 17,
           endLine: 5,
-          endColumn: 67,
+          endColumn: 21,
           suggestions: [
             {
               output: `
-        const Component = (test: boolean, count: number, collection) => {
+        const Component = (test: number, count: number, collection) => {
+          return (
+            <div>
+              {(!!(test) || (count)) && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+            },
+          ],
+        },
+        {
+          line: 5,
+          column: 26,
+          endLine: 5,
+          endColumn: 31,
+          suggestions: [
+            {
+              output: `
+        const Component = (test: number, count: number, collection) => {
           return (
             <div>
               {(test || !!(count)) && <List elements={collection} />}
@@ -187,6 +215,34 @@ ruleTesterTs.run('', rule, {
           ],
         },
       ],
+    },
+    {
+      code: `
+        import react from 'react-native';
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const react = require('react-native');
+        const Component = (collection) => {
+          let test = '';
+          return (
+            <div>
+              {test && <List elements={collection} />}
+            </div>
+          )
+        }
+      `,
+      errors: 1,
     },
   ],
 });

@@ -26,6 +26,7 @@ import { decorateNoEmptyFunction } from './no-empty-function-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
+import { decorateSonarNoUnusedClassComponentMethod } from '../sonar-no-unused-class-component-methods';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
@@ -41,6 +42,10 @@ export const externalRuleDecorators = [
   { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
   { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
   { decorate: decorateNoUnreachable, ruleKey: 'no-unreachable' },
+  {
+    decorate: decorateSonarNoUnusedClassComponentMethod,
+    ruleKey: 'sonar-no-unused-class-component-methods',
+  },
   { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
   { decorate: decoratePreferForOf, ruleKey: 'prefer-for-of' },
   { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
