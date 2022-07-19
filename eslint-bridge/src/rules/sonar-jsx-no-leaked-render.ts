@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6439/javascript
 
-import { Rule, SourceCode } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getTypeFromTreeNode,
@@ -28,6 +28,15 @@ import {
   isRequiredParserServices,
   isStringType,
 } from '../utils';
+
+const detectReactNativeSelector = [
+  ':matches(',
+  [
+    'CallExpression[callee.name="require"][arguments.0.value="react-native"]',
+    'ImportDeclaration[source.value="react-native"]',
+  ].join(','),
+  ')',
+].join('');
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -41,42 +50,51 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(context.parserServices)) {
       return {};
     }
+    let usesReactNative = false;
+
     return {
+      [detectReactNativeSelector]() {
+        usesReactNative = true;
+      },
       'JSXExpressionContainer > LogicalExpression[operator="&&"]'(node: estree.LogicalExpression) {
         const leftSide = node.left;
-
-        if (containsNonBoolean(context, leftSide)) {
-          return;
-        }
-
-        context.report({
-          messageId: 'nonBooleanMightRender',
-          node,
-          suggest: [
-            {
-              messageId: 'suggestConversion',
-              fix: fixer => fixer.replaceText(node, fixNestedLogicalExpression(context, node)),
-            },
-          ],
-        });
+        checkNonBoolean(context, usesReactNative ? isStringOrNumber : isNumber, leftSide);
       },
     };
   },
 };
 
-function isParenthesized(sourceCode: SourceCode, node: estree.Node) {
-  const previousToken = sourceCode.getTokenBefore(node);
-  const nextToken = sourceCode.getTokenAfter(node);
+function report(node: estree.Node, context: Rule.RuleContext) {
+  context.report({
+    messageId: 'nonBooleanMightRender',
+    node,
+    suggest: [
+      {
+        messageId: 'suggestConversion',
+        fix: fixer => {
+          const sourceCode = context.getSourceCode();
+          const previousToken = sourceCode.getTokenBefore(node);
+          const nextToken = sourceCode.getTokenAfter(node);
 
-  return (
-    !!previousToken &&
-    !!nextToken &&
-    typeof node.range !== 'undefined' &&
-    previousToken.value === '(' &&
-    previousToken.range[1] <= node.range[0] &&
-    nextToken.value === ')' &&
-    nextToken.range[0] >= node.range[1]
-  );
+          const fixes = [];
+          if (
+            !!previousToken &&
+            !!nextToken &&
+            node.range !== undefined &&
+            previousToken.value === '(' &&
+            previousToken.range[1] <= node.range[0] &&
+            nextToken.value === ')' &&
+            nextToken.range[0] >= node.range[1]
+          ) {
+            fixes.push(fixer.remove(previousToken));
+            fixes.push(fixer.remove(nextToken));
+          }
+          fixes.push(fixer.replaceText(node, `!!(${sourceCode.getText(node)})`));
+          return fixes;
+        },
+      },
+    ],
+  });
 }
 
 function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
@@ -84,26 +102,20 @@ function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
   return isStringType(type) || isBigIntType(type) || isNumberType(type);
 }
 
-function containsNonBoolean(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (node.type === 'LogicalExpression') {
-    return containsNonBoolean(context, node.left) && containsNonBoolean(context, node.right);
-  }
-  return !isStringOrNumber(node, context);
+function isNumber(node: estree.Node, context: Rule.RuleContext) {
+  const type = getTypeFromTreeNode(node, context.parserServices);
+  return isBigIntType(type) || isNumberType(type);
 }
 
-function fixNestedLogicalExpression(context: Rule.RuleContext, node: estree.Node): string {
-  const sourceCode = context.getSourceCode();
-  const addParentheses = isParenthesized(sourceCode, node);
+function checkNonBoolean(
+  context: Rule.RuleContext,
+  isLeakingType: (node: estree.Node, context: Rule.RuleContext) => boolean,
+  node: estree.Node,
+): void {
   if (node.type === 'LogicalExpression') {
-    return `${addParentheses ? '(' : ''}${fixNestedLogicalExpression(context, node.left)} ${
-      node.operator
-    } ${fixNestedLogicalExpression(context, node.right)}${addParentheses ? ')' : ''}`;
+    checkNonBoolean(context, isLeakingType, node.left);
+    checkNonBoolean(context, isLeakingType, node.right);
+  } else if (isLeakingType(node, context)) {
+    report(node, context);
   }
-  let text = sourceCode.getText(node);
-  if (isStringOrNumber(node, context)) {
-    text = `!!(${text})`;
-  } else if (addParentheses) {
-    text = `(${text})`;
-  }
-  return text;
 }

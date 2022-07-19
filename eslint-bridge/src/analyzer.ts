@@ -22,6 +22,7 @@ import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
 import { SourceCode } from 'eslint';
+import { Position } from 'estree';
 import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
@@ -29,6 +30,7 @@ import { hrtime } from 'process';
 import * as stylelint from 'stylelint';
 import { QuickFix } from './quickfix';
 import { rule as functionCalcNoInvalid } from './rules/stylelint/function-calc-no-invalid';
+import { buildSourceCodesFromYaml, isParsingError } from './yaml';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -125,6 +127,51 @@ export function analyzeTypeScript(input: TsConfigBasedAnalysisInput): Promise<An
   return Promise.resolve(analyze(input, 'ts'));
 }
 
+export function analyzeYaml(input: TsConfigBasedAnalysisInput): Promise<AnalysisResponse> {
+  checkLinterState();
+  const sourceCodesOrError = buildSourceCodesFromYaml(input.filePath);
+  if (isParsingError(sourceCodesOrError)) {
+    const parsingError = sourceCodesOrError;
+    return Promise.resolve({
+      ...EMPTY_RESPONSE,
+      parsingError,
+    });
+  }
+  const sourceCodes = sourceCodesOrError;
+  const aggregatedIssues: Issue[] = [];
+  for (const sourceCode of sourceCodes) {
+    const { issues } = linter.analyze(sourceCode, input.filePath, input.fileType);
+    const filteredIssues = removeYamlIssues(sourceCode, issues);
+    aggregatedIssues.push(...filteredIssues);
+  }
+  return Promise.resolve({ issues: aggregatedIssues });
+
+  /**
+   * Filters out issues outside of JS code.
+   *
+   * This is necessary because we patch the SourceCode object
+   * to include all the YAML files in its properties outside of its AST.
+   * So rules that operate on SourceCode.text get flagged.
+   */
+  function removeYamlIssues(sourceCode: SourceCode, issues: Issue[]) {
+    const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
+    return issues.filter(issue => {
+      const issueStart = { line: issue.line, column: issue.column };
+      return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
+    });
+
+    function isBeforeOrEqual(a: Position, b: Position) {
+      if (a.line < b.line) {
+        return true;
+      } else if (a.line > b.line) {
+        return false;
+      } else {
+        return a.column <= b.column;
+      }
+    }
+  }
+}
+
 export function analyzeCss(input: CssAnalysisInput): Promise<AnalysisResponse> {
   const { filePath, fileContent, rules } = input;
   const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
@@ -194,9 +241,7 @@ function analyze(
   input: TsConfigBasedAnalysisInput | ProgramBasedAnalysisInput,
   language: 'ts' | 'js',
 ): AnalysisResponse {
-  if (!linter) {
-    throw new Error('Linter is undefined. Did you call /init-linter?');
-  }
+  checkLinterState();
   const { result, duration: parseTime } = measureDuration(() => buildSourceCode(input, language));
   if (result instanceof SourceCode) {
     const { result: response, duration: analysisTime } = measureDuration(() =>
@@ -208,6 +253,12 @@ function analyze(
       ...EMPTY_RESPONSE,
       parsingError: result,
     };
+  }
+}
+
+function checkLinterState() {
+  if (!linter) {
+    throw new Error('Linter is undefined. Did you call /init-linter?');
   }
 }
 

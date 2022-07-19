@@ -23,7 +23,7 @@ import { Linter, SourceCode } from 'eslint';
 import * as VueJS from 'vue-eslint-parser';
 import * as tsEslintParser from '@typescript-eslint/parser';
 import { getContext } from './context';
-import { JsTsAnalysisInput } from './analyzer';
+import { JsTsAnalysisInput, ParsingError } from './analyzer';
 import { getProgramById } from './programManager';
 
 const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser' };
@@ -95,7 +95,7 @@ function parseForEslint(
   { fileContent, filePath }: JsTsAnalysisInput,
   parse: (code: string, options: {}) => any,
   options: {},
-) {
+): SourceCode | ParsingError {
   try {
     const text = fileContent || getFileContent(filePath);
     const result = parse(text, options);
