@@ -230,11 +230,14 @@ class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
     verify(eslintBridgeServerMock, never()).analyzeWithProgram(any());
 
+    String errorLog;
     if (isWindows()) {
-      assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.toRealPath().resolve("wrong.json") + "'"); // toRealPath avoids 8.3 paths on Windows
+      // toRealPath avoids 8.3 paths on Windows
+      errorLog = "Provided tsconfig.json path doesn't exist. Path: '" + baseDir.toRealPath().resolve("wrong.json") + "'";
     } else {
-      assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'"); // toRealPath avoids 8.3 paths on Windows
+      errorLog = "Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'";
     }
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(errorLog);
     
   }
 
