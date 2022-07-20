@@ -26,6 +26,7 @@ import { readAssertions } from '../testing-framework/assertions';
 import { buildSourceCode } from 'parser';
 import { readFileSync } from 'fs';
 import { FileType } from '../../src/analyzer';
+import { externalRuleDecorators } from 'rules/decorators';
 
 /**
  * Return test files for specific rule based on rule key
@@ -51,6 +52,20 @@ function testFilesForRule(rule: string): string[] {
     return fs.readdirSync(dir);
   }
   return [];
+}
+
+/**
+ * Takes the external rule decorators and apply them on the rules when applicable.
+ */
+function decorateRules(rules: Record<string, Rule.RuleModule>): Record<string, Rule.RuleModule> {
+  const decoratedRules = Object.create(rules);
+  externalRuleDecorators.forEach(externalRuleDecorator => {
+    const rule = rules[externalRuleDecorator.ruleKey];
+    if (rule != null) {
+      decoratedRules[externalRuleDecorator.ruleKey] = externalRuleDecorator.decorate(rule);
+    }
+  });
+  return decoratedRules;
 }
 
 function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
@@ -90,4 +105,4 @@ export function parseForESLint(
 
 // loading the above parseForESLint() function
 const ruleTester = new RuleTester({ parser: __filename });
-runRuleTests(rules, ruleTester);
+runRuleTests(decorateRules(rules), ruleTester);
