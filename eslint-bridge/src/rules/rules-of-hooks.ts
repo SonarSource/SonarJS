@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import { rule as detectReact } from '../utils/rule-detect-react';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import { interceptReport, mergeRules } from '../utils';
+import * as estree from 'estree';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
@@ -30,7 +31,18 @@ export const rule: Rule.RuleModule = {
   meta: rulesOfHooks.meta,
   create(context: Rule.RuleContext) {
     const detectReactListener = detectReact.create(context);
-    const rulesOfHooksListener = rulesOfHooks.create(context);
+
+    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by 'interceptReport();.
+    let contextWithDeprecated: Rule.RuleContext = context;
+    if (!('getSource' in context)) {
+      contextWithDeprecated = Object.assign(Object.create(context), {
+        getSource(node: estree.Node) {
+          return context.getSourceCode().getText(node);
+        },
+      });
+    }
+    const rulesOfHooksListener = rulesOfHooks.create(contextWithDeprecated);
+
     return mergeRules(detectReactListener, rulesOfHooksListener);
   },
 };
