@@ -58,7 +58,7 @@ ruleTester.run(`Function parameters with default values should be last`, rule, {
           column: 11,
           endColumn: 22,
           message:
-            'Method or property "handleClick" of class "Foo2" is not used inside component body',
+            'Remove this property or method or refactor "Foo2", as "handleClick" is not used inside component body',
         },
       ],
     },
