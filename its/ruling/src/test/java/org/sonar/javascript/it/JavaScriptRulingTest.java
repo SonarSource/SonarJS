@@ -128,7 +128,8 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-kubernetes-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
       "S124",
@@ -161,6 +162,7 @@ class JavaScriptRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "terraform", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "cloudformation", "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "kubernetes", "empty-profile");
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
