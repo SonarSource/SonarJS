@@ -29,9 +29,10 @@ const noUnusedClassComponentMethod = reactRules['no-unused-class-component-metho
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      unused: 'Method or property "{{name}}" is not used inside component body',
+      unused:
+        'Remove this property or method or refactor this component, as "{{name}}" is not used inside component body',
       unusedWithClass:
-        'Method or property "{{name}}" of class "{{className}}" is not used inside component body',
+        'Remove this property or method or refactor "{{className}}", as "{{name}}" is not used inside component body',
     },
   },
   create(context: Rule.RuleContext) {
