@@ -32,7 +32,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const detectReactListener = detectReact.create(context);
 
-    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by 'interceptReport();.
+    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by
+    // 'interceptReport()'.
     let contextWithDeprecated: Rule.RuleContext = context;
     if (!('getSource' in context)) {
       contextWithDeprecated = Object.assign(Object.create(context), {
