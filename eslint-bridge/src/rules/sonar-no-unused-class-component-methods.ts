@@ -27,9 +27,12 @@ import { interceptReport, mergeRules } from '../utils';
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 
 export const rule: Rule.RuleModule = {
-  // meta of no-dupe-keys and jsx-no-duplicate-props is required for issue messages
   meta: {
-    messages: { ...detectReact.meta!.messages, ...noUnusedClassComponentMethod.meta!.messages },
+    messages: {
+      unused: 'Method or property "{{name}}" is not used inside component body',
+      unusedWithClass:
+        'Method or property "{{name}}" of class "{{className}}" is not used inside component body',
+    },
   },
   create(context: Rule.RuleContext) {
     const detectReactListener: Rule.RuleListener = detectReact.create(context);
@@ -50,15 +53,9 @@ function reportExempting(): (
 ) => void {
   let react = false;
   return (context, reportDescriptor) => {
-    if (
-      ('messageId' in reportDescriptor && reportDescriptor.messageId === 'reactDetected') ||
-      ('message' in reportDescriptor && reportDescriptor.message === 'React detected')
-    ) {
+    if ('messageId' in reportDescriptor && reportDescriptor.messageId === 'reactDetected') {
       react = true;
     } else if (react) {
-      if ('message' in reportDescriptor) {
-        reportDescriptor.message = `${reportDescriptor.message} inside component scope.`;
-      }
       context.report(reportDescriptor);
     }
   };
