@@ -27,9 +27,7 @@ import { interceptReport, mergeRules } from '../utils';
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    messages: { ...detectReact.meta!.messages, ...rulesOfHooks.meta!.messages },
-  },
+  meta: rulesOfHooks.meta,
   create(context: Rule.RuleContext) {
     const detectReactListener = detectReact.create(context);
     const rulesOfHooksListener = rulesOfHooks.create(context);
@@ -44,10 +42,7 @@ export function decorateRulesOfHooks(ruleModule: Rule.RuleModule): Rule.RuleModu
 function reportIfReact() {
   let isReact = false;
   return (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
-    if (
-      ('messageId' in descriptor && descriptor.messageId === 'reactDetected') ||
-      ('message' in descriptor && descriptor.message === 'React detected')
-    ) {
+    if ('messageId' in descriptor && descriptor.messageId === 'reactDetected') {
       isReact = true;
     } else if (isReact) {
       context.report(descriptor);
