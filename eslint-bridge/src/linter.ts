@@ -19,7 +19,6 @@
  */
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
 import {
   decorateJavascriptEslint,
@@ -89,7 +88,6 @@ export class LinterWrapper {
     this.linter.defineRules(sonarjsRules);
     this.linter.defineRules(internalRules);
     this.linter.defineRules(reactRules);
-    this.linter.defineRule('rules-of-hooks', reactHooksRules['rules-of-hooks']);
 
     const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
 

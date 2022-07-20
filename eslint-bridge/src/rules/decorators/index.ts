@@ -30,6 +30,7 @@ import { decorateSonarNoUnusedClassComponentMethod } from '../sonar-no-unused-cl
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
+import { decorateRulesOfHooks } from '../rules-of-hooks';
 import { decorateUseIsNan } from './use-isnan-decorator';
 
 export const externalRuleDecorators = [
@@ -49,5 +50,6 @@ export const externalRuleDecorators = [
   { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
   { decorate: decoratePreferForOf, ruleKey: 'prefer-for-of' },
   { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
+  { decorate: decorateRulesOfHooks, ruleKey: 'rules-of-hooks' },
   { decorate: decorateUseIsNan, ruleKey: 'use-isnan' },
 ];
