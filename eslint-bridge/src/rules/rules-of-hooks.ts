@@ -22,43 +22,37 @@
 import { Rule } from 'eslint';
 import { rule as detectReact } from '../utils/rule-detect-react';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
-import { interceptReport, mergeRules } from '../utils';
-import * as estree from 'estree';
+import { mergeRules } from '../utils';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
 export const rule: Rule.RuleModule = {
   meta: rulesOfHooks.meta,
   create(context: Rule.RuleContext) {
-    const detectReactListener = detectReact.create(context);
-
-    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by
-    // 'interceptReport()'.
-    let contextWithDeprecated: Rule.RuleContext = context;
-    if (!('getSource' in context)) {
-      contextWithDeprecated = Object.assign(Object.create(context), {
-        getSource(node: estree.Node) {
-          return context.getSourceCode().getText(node);
-        },
-      });
+    function overrideContext(overrides: any) {
+      Object.setPrototypeOf(overrides, context);
+      return overrides;
     }
-    const rulesOfHooksListener = rulesOfHooks.create(contextWithDeprecated);
+
+    let isReact = false;
+
+    const detectReactListener = detectReact.create(
+      overrideContext({
+        report(_descriptor: Rule.ReportDescriptor): void {
+          isReact = true;
+        },
+      }),
+    );
+    const rulesOfHooksListener = rulesOfHooks.create(
+      overrideContext({
+        report(descriptor: Rule.ReportDescriptor): void {
+          if (isReact) {
+            context.report(descriptor);
+          }
+        },
+      }),
+    );
 
     return mergeRules(detectReactListener, rulesOfHooksListener);
   },
 };
-
-export function decorateRulesOfHooks(ruleModule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(ruleModule, reportIfReact());
-}
-
-function reportIfReact() {
-  let isReact = false;
-  return (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
-    if ('messageId' in descriptor && descriptor.messageId === 'reactDetected') {
-      isReact = true;
-    } else if (isReact) {
-      context.report(descriptor);
-    }
-  };
-}
