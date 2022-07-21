@@ -5,8 +5,8 @@
 </ul>
 <p>Some APIs enable the execution of dynamic code by providing it as strings at runtime. These APIs might be useful in some very specific
 meta-programming use-cases. However most of the time their use is frowned upon as they also increase the risk of <a
-href="https://www.owasp.org/index.php/Code_Injection">Injected Code</a>. Such attacks can either run on the server or in the client (exemple: XSS
-attack) and have a huge impact on an application’s security.</p>
+href="https://owasp.org/www-community/attacks/Code_Injection">Injected Code</a>. Such attacks can either run on the server or in the client (exemple:
+XSS attack) and have a huge impact on an application’s security.</p>
 <p>This rule raises issues on calls to <code>eval</code> and <code>Function</code> constructor. This rule does not detect code injections. It only
 highlights the use of APIs which should be used sparingly and very carefully. The goal is to guide security code reviews.</p>
 <h2>Ask Yourself Whether</h2>
@@ -35,7 +35,7 @@ safe.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 2021 Category A3</a> - Injection </li>
-  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A1-Injection">OWASP Top 10 2017 Category A1</a> - Injection </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A1_2017-Injection">OWASP Top 10 2017 Category A1</a> - Injection </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/95">MITRE, CWE-95</a> - Improper Neutralization of Directives in Dynamically Evaluated Code
   ('Eval Injection') </li>
 </ul>

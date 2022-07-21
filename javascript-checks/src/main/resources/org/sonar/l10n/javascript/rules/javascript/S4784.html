@@ -8,9 +8,9 @@
 every additional <code>a</code> character added to the input, the time required to evaluate the regex doubles. However, the equivalent regular
 expression, <code>a+s</code> (without grouping) is efficiently evaluated in milliseconds and scales linearly with the input size.</p>
 <p>Evaluating such regular expressions opens the door to <a
-href="https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS">Regular expression Denial of Service (ReDoS)</a> attacks. In the
-context of a web application, attackers can force the web server to spend all of its resources evaluating regular expressions thereby making the
-service inaccessible to genuine users.</p>
+href="https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS">Regular expression Denial of Service (ReDoS)</a> attacks.
+In the context of a web application, attackers can force the web server to spend all of its resources evaluating regular expressions thereby making
+the service inaccessible to genuine users.</p>
 <p>This rule flags any execution of a hardcoded regular expression which has at least 3 characters and at least two instances of any of the following
 characters: <code>*+{</code>.</p>
 <p>Example: <code>(a+)*</code></p>
@@ -41,9 +41,9 @@ str.split("(a+)+b"); // Sensitive
 <p>It is a good idea to test your regular expression if it has the same pattern on both side of a "<code>|</code>".</p>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A1-Injection">OWASP Top 10 2017 Category A1</a> - Injection </li>
-  <li> <a href="https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS">MITRE, CWE-624</a> - Executable Regular Expression Error
-  </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A1_2017-Injection">OWASP Top 10 2017 Category A1</a> - Injection </li>
+  <li> <a href="https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS">MITRE, CWE-624</a> - Executable Regular
+  Expression Error </li>
   <li> OWASP Regular expression Denial of Service - ReDoS </li>
 </ul>
 <h2>Deprecated</h2>
