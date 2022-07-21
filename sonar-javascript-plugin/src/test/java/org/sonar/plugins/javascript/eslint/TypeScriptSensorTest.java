@@ -230,13 +230,27 @@ class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
     verify(eslintBridgeServerMock, never()).analyzeWithProgram(any());
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.toRealPath().resolve("wrong.json") + "'"); // toRealPath avoids 8.3 paths on Windows
+    String errorLog = "Provided tsconfig.json path doesn't exist. Path: '%s'";
+    if (isWindows()) {
+      // toRealPath avoids 8.3 paths on Windows
+      errorLog = String.format(errorLog, baseDir.toRealPath().resolve("wrong.json"));
+    } else {
+      errorLog = String.format(errorLog, baseDir.resolve("wrong.json"));
+    }
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(errorLog);
+    
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
-    // toRealPath avoids 8.3 paths on Windows, which clashes with tests where test file location is checked
-    // https://en.wikipedia.org/wiki/8.3_filename
-    SensorContextTester ctx = SensorContextTester.create(baseDir.toRealPath());
+    SensorContextTester ctx = null;
+    if (isWindows()) {
+      // toRealPath avoids 8.3 paths on Windows, which clashes with tests where test file location is checked
+      // https://en.wikipedia.org/wiki/8.3_filename
+      ctx = SensorContextTester.create(baseDir.toRealPath());
+    } else {
+      ctx = SensorContextTester.create(baseDir);
+    }
+    
     ctx.fileSystem().setWorkDir(workDir);
     return ctx;
   }
@@ -636,6 +650,11 @@ class TypeScriptSensorTest {
 
   private void setSonarLintRuntime(SensorContextTester context) {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
+  }
+
+  private boolean isWindows() {
+    var osName = System.getProperty("os.name");
+    return osName.toLowerCase().startsWith("win");
   }
 
   private static TypeScriptChecks checks(String... ruleKeys) {

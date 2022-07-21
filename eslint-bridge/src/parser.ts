@@ -208,6 +208,9 @@ function babelConfig(config: Linter.ParserOptions) {
     ],
     babelrc: false,
     configFile: false,
+    parserOpts: {
+      allowReturnOutsideFunction: true,
+    },
   };
   return { ...config, requireConfigFile: false, babelOptions };
 }
