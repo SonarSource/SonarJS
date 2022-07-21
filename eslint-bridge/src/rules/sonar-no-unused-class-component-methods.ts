@@ -22,9 +22,14 @@
 import { Rule } from 'eslint';
 import { rule as detectReact } from '../utils/rule-detect-react';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { interceptReport, mergeRules } from '../utils';
+import { mergeRules } from '../utils';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
+
+function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleContext {
+  Object.setPrototypeOf(overrides, context);
+  return overrides;
+}
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -36,28 +41,27 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const detectReactListener: Rule.RuleListener = detectReact.create(context);
+    let isReact = false;
+
+    const detectReactListener: Rule.RuleListener = detectReact.create(
+      overrideContext(context, {
+        report(_descriptor: Rule.ReportDescriptor): void {
+          isReact = true;
+        },
+      }),
+    );
+
     const noUnusedClassComponentMethodListener: Rule.RuleListener =
-      noUnusedClassComponentMethod.create(context);
+      noUnusedClassComponentMethod.create(
+        overrideContext(context, {
+          report(descriptor: Rule.ReportDescriptor): void {
+            if (isReact) {
+              context.report(descriptor);
+            }
+          },
+        }),
+      );
 
     return mergeRules(detectReactListener, noUnusedClassComponentMethodListener);
   },
 };
-
-export function decorateSonarNoUnusedClassComponentMethod(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting());
-}
-
-function reportExempting(): (
-  context: Rule.RuleContext,
-  reportDescriptor: Rule.ReportDescriptor,
-) => void {
-  let react = false;
-  return (context, reportDescriptor) => {
-    if ('messageId' in reportDescriptor && reportDescriptor.messageId === 'reactDetected') {
-      react = true;
-    } else if (react) {
-      context.report(reportDescriptor);
-    }
-  };
-}
