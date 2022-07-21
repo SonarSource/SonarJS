@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { rule as detectReact } from '../utils/rule-detect-react';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { interceptReport, mergeRules } from '../utils';
+import { mergeRules } from '../utils';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 
@@ -36,28 +36,33 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const detectReactListener: Rule.RuleListener = detectReact.create(context);
+    function overrideContext(overrides: any) {
+      Object.setPrototypeOf(overrides, context);
+      return overrides;
+    }
+
+    let isReact = false;
+
+    const detectReactContext = overrideContext({
+      report(_descriptor: Rule.ReportDescriptor): void {
+        isReact = true;
+      },
+    });
+
+    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by
+    // 'interceptReport()'.
+    const contextIfReact: Rule.RuleContext = overrideContext({
+      report(descriptor: Rule.ReportDescriptor): void {
+        if (isReact) {
+          context.report(descriptor);
+        }
+      },
+    });
+
+    const detectReactListener: Rule.RuleListener = detectReact.create(detectReactContext);
     const noUnusedClassComponentMethodListener: Rule.RuleListener =
-      noUnusedClassComponentMethod.create(context);
+      noUnusedClassComponentMethod.create(contextIfReact);
 
     return mergeRules(detectReactListener, noUnusedClassComponentMethodListener);
   },
 };
-
-export function decorateSonarNoUnusedClassComponentMethod(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting());
-}
-
-function reportExempting(): (
-  context: Rule.RuleContext,
-  reportDescriptor: Rule.ReportDescriptor,
-) => void {
-  let react = false;
-  return (context, reportDescriptor) => {
-    if ('messageId' in reportDescriptor && reportDescriptor.messageId === 'reactDetected') {
-      react = true;
-    } else if (react) {
-      context.report(reportDescriptor);
-    }
-  };
-}

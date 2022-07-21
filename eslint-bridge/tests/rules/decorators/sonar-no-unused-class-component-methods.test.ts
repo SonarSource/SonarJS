@@ -18,12 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import {
-  decorateSonarNoUnusedClassComponentMethod,
-  rule as sonarNoUnusedClassComponentMethods,
-} from 'rules/sonar-no-unused-class-component-methods';
+import { rule } from 'rules/sonar-no-unused-class-component-methods';
 
-const rule = decorateSonarNoUnusedClassComponentMethod(sonarNoUnusedClassComponentMethods);
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
 ruleTester.run(`Function parameters with default values should be last`, rule, {
