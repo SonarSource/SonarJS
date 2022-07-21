@@ -26,6 +26,11 @@ import { mergeRules } from '../utils';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 
+function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleContext {
+  Object.setPrototypeOf(overrides, context);
+  return overrides;
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
@@ -36,32 +41,26 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    function overrideContext(overrides: any) {
-      Object.setPrototypeOf(overrides, context);
-      return overrides;
-    }
-
     let isReact = false;
 
-    const detectReactContext = overrideContext({
-      report(_descriptor: Rule.ReportDescriptor): void {
-        isReact = true;
-      },
-    });
+    const detectReactListener: Rule.RuleListener = detectReact.create(
+      overrideContext(context, {
+        report(_descriptor: Rule.ReportDescriptor): void {
+          isReact = true;
+        },
+      }),
+    );
 
-    // We may need to add deprecated API that the react plugin still relies on if the rule is decorated by
-    // 'interceptReport()'.
-    const contextIfReact: Rule.RuleContext = overrideContext({
-      report(descriptor: Rule.ReportDescriptor): void {
-        if (isReact) {
-          context.report(descriptor);
-        }
-      },
-    });
-
-    const detectReactListener: Rule.RuleListener = detectReact.create(detectReactContext);
     const noUnusedClassComponentMethodListener: Rule.RuleListener =
-      noUnusedClassComponentMethod.create(contextIfReact);
+      noUnusedClassComponentMethod.create(
+        overrideContext(context, {
+          report(descriptor: Rule.ReportDescriptor): void {
+            if (isReact) {
+              context.report(descriptor);
+            }
+          },
+        }),
+      );
 
     return mergeRules(detectReactListener, noUnusedClassComponentMethodListener);
   },
