@@ -17,7 +17,8 @@ than the user session.</p>
 <p>Do not try to encode sensitive information in a non human-readable format before writing them in a cookie. The encoding can be reverted and the
 original information will be exposed.</p>
 <p>Using cookies only for session IDs doesn’t make them secure. Follow <a
-href="https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Cookies">OWASP best practices</a> when you configure your cookies.</p>
+href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#Cookies">OWASP best practices</a> when you configure your
+cookies.</p>
 <p>As a side note, every information read from a cookie should be <a
 href="https://www.owasp.org/index.php/Input_Validation_Cheat_Sheet">Sanitized</a>.</p>
 <h2>Sensitive Code Example</h2>
@@ -48,8 +49,8 @@ document.cookie = "name=John"; // Sensitive
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
-  </li>
+  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/312">MITRE, CWE-312</a> - Cleartext Storage of Sensitive Information </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/315">MITRE, CWE-315</a> - Cleartext Storage of Sensitive Information in a Cookie </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#COOKIE_USAGE">COOKIE_USAGE</a> </li>

@@ -3,6 +3,9 @@
 <code>false</code> otherwise. As React renders boolean values to nothing, when condition is <code>false</code>, nothing will be rendered as intended.
 But if the condition has a non-boolean value which evaluates to <code>false</code> (e.g. <code>0</code>), that value will leak into the rendered
 result.</p>
+<p>This rule will report when the condition has type <code>number</code> or <code>bigint</code>.</p>
+<p>If React Native is used, the type <code>string</code> will also raise an error, as your render method will crash if you render <code>0</code>,
+<code>''</code>, or <code>NaN</code>.</p>
 <p>Note that along with short-circuit evaluation, in order to achieve conditional rendering it’s possible to use ternary operator (<code>myCondition ?
 &lt;MyElement /&gt; : null</code>), which is less error-prone in this case as both return values are explicit.</p>
 <h2>Noncompliant Code Example</h2>
