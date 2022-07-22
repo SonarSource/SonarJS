@@ -6,7 +6,7 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": ["react"],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6442",
   "sqKey": "S6442",
