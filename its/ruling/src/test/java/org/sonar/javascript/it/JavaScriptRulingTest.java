@@ -21,22 +21,29 @@ package org.sonar.javascript.it;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.build.SonarScannerInstaller;
+import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -57,6 +64,7 @@ class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   static final String LITS_VERSION = "0.10.0.2181";
+  static final String SCANNER_VERSION = "4.7.0.2747";
 
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -92,7 +100,7 @@ class JavaScriptRulingTest {
       jsProject("sizzle", "external/**", "test"),
       jsProject("underscore", "", "test"),
       jsProject("yaml", "", "")
-      );
+    );
   }
 
   private static Arguments jsProject(String project, String exclusions, String testDir) {
@@ -141,6 +149,14 @@ class JavaScriptRulingTest {
       "S124",
       "CommentRegexTestTS",
       "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
+
+    // install scanner before jobs to avoid race condition when unzipping in parallel
+    installScanner();
+  }
+
+  private static void installScanner() {
+    var installer = new SonarScannerInstaller(orchestrator.getConfiguration().locators());
+    installer.install(Version.create(SCANNER_VERSION), null, Path.of("target").toFile(), false);
   }
 
   @AfterAll
@@ -150,6 +166,7 @@ class JavaScriptRulingTest {
 
   @ParameterizedTest
   @MethodSource
+  @Execution(ExecutionMode.CONCURRENT)
   void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
     runRulingTest(project, language, sourceDir, exclusions, testDir);
   }
@@ -178,6 +195,7 @@ class JavaScriptRulingTest {
       .setSourceDirs("./")
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
+      .setScannerVersion(SCANNER_VERSION)
       .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("sonar.lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
