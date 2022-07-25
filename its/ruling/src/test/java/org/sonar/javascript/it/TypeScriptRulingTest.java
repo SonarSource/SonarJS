@@ -20,6 +20,8 @@
 package org.sonar.javascript.it;
 
 import java.util.stream.Stream;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -57,6 +59,7 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
 
   @ParameterizedTest
   @MethodSource
+  @Execution(ExecutionMode.CONCURRENT)
   @Override
   void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
     runRulingTest(project, language, sourceDir, exclusions, testDir);
