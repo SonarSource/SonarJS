@@ -185,7 +185,6 @@ ruling_task:
   gke_container:
     matrix:
       - dockerfile: .cirrus/nodejs-12.Dockerfile
-      - dockerfile: .cirrus/nodejs-14.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 4
     memory: 12G
