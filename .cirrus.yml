@@ -29,7 +29,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     image_project: release-engineering-ci-prod
     image_family: lt-base-windows-jdk11
     platform: windows
-    zone: europe-west4-b
+    zone: europe-west3-a
     preemptible: false
     disk: 128
     type: c2-standard-8
