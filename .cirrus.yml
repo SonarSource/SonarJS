@@ -152,6 +152,8 @@ plugin_qa_nodejs_task:
     SQ_VERSION: LATEST_RELEASE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  node_version_script:
+    - node -v
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
