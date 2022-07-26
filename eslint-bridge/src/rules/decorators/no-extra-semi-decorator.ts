@@ -24,7 +24,8 @@ import { interceptReport } from '../../utils';
 type NullableToken = AST.Token | null | undefined;
 type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;
 
-// core implementation of this rule raises issues when using semicolon-free style and using semicolon to protect code on purpose.
+// core implementation of this rule raises issues when using semicolon-free style and
+// using semicolon to protect code on purpose.
 export function decorateNoExtraSemi(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isProtectionSemicolon));
 }
@@ -37,8 +38,9 @@ function reportExempting(exemptionCondition: NodeCondition) {
   };
 }
 
-// Checks that a node is a semicolon inserted to prevent the compiler from merging the following statement with the previous.
-function isProtectionSemicolon(context: Rule.RuleContext, node: estree.Node): boolean {
+// Checks that a node is a semicolon inserted to prevent the compiler from merging the
+// following statement with the previous.
+export function isProtectionSemicolon(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'EmptyStatement') {
     return false;
   }
