@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
-import { decorateNoExtraSemi } from 'rules/decorators/no-extra-semi-decorator';
+import { Linter, Rule, RuleTester } from 'eslint';
+import {
+  decorateNoExtraSemi,
+  isProtectionSemicolon,
+} from 'rules/decorators/no-extra-semi-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const rule = decorateNoExtraSemi(new Linter().getRules().get('no-extra-semi'));
@@ -55,5 +58,36 @@ ruleTester.run('Extra semicolons should be removed', rule, {
         },
       ],
     },
+    {
+      code: `
+        function foo() {
+          const b = 0;
+          ;foo()
+        }
+      `,
+      output: `
+        function foo() {
+          const b = 0;
+          foo()
+        }
+      `,
+      errors: [
+        {
+          message: 'Unnecessary semicolon.',
+        },
+      ],
+    },
   ],
+});
+
+it('no-extra-semi handles null nodes', () => {
+  const context = {
+    getSourceCode: jest.fn().mockReturnValue({
+      getTokenBefore: jest.fn().mockReturnValue(null),
+      getTokenAfter: jest.fn().mockReturnValue({ type: 'Punctuator', value: '[' }),
+    }),
+  } as unknown as Rule.RuleContext;
+
+  expect(isProtectionSemicolon(context, { type: 'BreakStatement' })).toBe(false);
+  expect(isProtectionSemicolon(context, { type: 'EmptyStatement' })).toBe(false);
 });
