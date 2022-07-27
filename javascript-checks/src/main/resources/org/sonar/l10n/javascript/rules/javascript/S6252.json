@@ -1,0 +1,35 @@
+{
+  "title": "Disabling versioning of S3 buckets is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6252",
+  "sqKey": "S6252",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ],
+    "PCI DSS 3.2": [
+      "10.2.7"
+    ],
+    "PCI DSS 4.0": [
+      "10.2.1.7"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
