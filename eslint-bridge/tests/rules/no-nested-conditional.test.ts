@@ -19,7 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
+});
 import { rule } from 'rules/no-nested-conditional';
 
 ruleTester.run('Ternary operators should not be nested', rule, {
@@ -77,6 +79,25 @@ ruleTester.run('Ternary operators should not be nested', rule, {
       var arr = condition
       ? [1, 2]
       : [1, condition2 ? 1 : 2]  // OK, nesting is broken by array literal`,
+    },
+    {
+      code: `
+        function Component(isLoading, isEditing) {
+          const [saving, setSaving] = useState(false);
+          return (
+            <>
+              {isLoading ? (
+                <Loader active />
+              ) : (
+                <Section label={isEditing ? 'Editing is open' : 'Editing is not open'}>
+                  <a>{isEditing ? 'Close now' : 'Start now'}</a>
+                  <Checkbox onClick={!saving ? setSaving(saving => !saving) : null} />
+                </Section>
+              )}
+            </>
+          );
+        }
+      `,
     },
   ],
   invalid: [

@@ -59,5 +59,6 @@ function breaksNesting(node: estree.Node) {
     'ObjectExpression',
     'FunctionExpression',
     'ArrowFunctionExpression',
+    'JSXExpressionContainer',
   ].includes(node.type);
 }
