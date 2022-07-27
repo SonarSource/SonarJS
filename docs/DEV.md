@@ -77,6 +77,7 @@ npm run new-rule S1234 no-invalid-something [eslint]
 This script:
 * generates a Java check class for the rule `NoInvalidSomethingCheck.java`
 * generates a `no-invalid-something.ts` file for the rule implementation
+* generates a `comment-based/no-invalid-something.js` test file 
 * updates the `main.ts` file to include the new rule
 * updates the `CheckList.java` to include the new rule
 
