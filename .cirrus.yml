@@ -20,7 +20,7 @@ container_definition: &CONTAINER_DEFINITION
   builder_image_project: release-engineering-ci-staging
   builder_image_name: family/docker-builder
   cluster_name: cirrus-ci
-  location: europe-west4-a
+  location: europe-west4
   namespace: default
   use_in_memory_disk: true
 
