@@ -39,6 +39,23 @@ const s3 = require('aws-cdk-lib/aws-s3');
 new s3.Bucket();
 `,
     },
+    {
+      code: `
+const s3 = require('foo');
+new s3.Bucket(42);
+`,
+    },
+    {
+      code: `
+const s3 = require('aws-cdk-lib/aws-s3');
+new s3.Foo(42);
+`,
+    },
+    {
+      code: `
+new s3.Bucket(42);
+`,
+    },
   ],
   invalid: [
     {
