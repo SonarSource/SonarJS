@@ -36,6 +36,7 @@ export const rule: Rule.RuleModule = {
         if (!isAwsFunction(node, context, ['aws-cdk-lib/aws-s3'], 'Bucket')) {
           return;
         }
+
         // check if has params arg
         const requiredArg = findRequiredArgument(node.arguments);
         if (requiredArg == null) {
@@ -52,7 +53,6 @@ export const rule: Rule.RuleModule = {
             node: requiredArg.value,
           });
         }
-        // if yes, check if XX is defined as needed
       },
     };
   },

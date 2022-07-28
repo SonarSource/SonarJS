@@ -17,7 +17,7 @@ new s3.Bucket(this, 'id', {
 //           ^^^^^
 });
 
-/* // Sensitive: Make sure using unversioned S3 bucket is safe here
+// Sensitive: Make sure using unversioned S3 bucket is safe here
 const versioned = false;
 
 new s3.Bucket(this, 'id', {
@@ -30,4 +30,4 @@ new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
   versioned, // Noncompliant
 //^^^^^^^^^
-}); */
+});
