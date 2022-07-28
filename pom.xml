@@ -63,7 +63,7 @@
     <sonar-orchestrator.version>3.35.0.2707</sonar-orchestrator.version>
     <sonarlint.version>6.3.0.36253</sonarlint.version>
     <gson.version>2.8.9</gson.version>
-    <analyzer-commons.version>1.24.0.965</analyzer-commons.version>
+    <analyzer-commons.version>1.26.0.1029</analyzer-commons.version>
     <sslr.version>1.22</sslr.version>
     <sonarlint.plugin.api.version>6.3.0.36253</sonarlint.plugin.api.version>
 
