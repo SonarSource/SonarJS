@@ -80,13 +80,8 @@ function reportUnusedArgument(
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
   }
 
-  for (const param of parametersVariable) {
-    if (
-      isUnusedVariable(param) &&
-      !isIgnoredParameter(param) &&
-      !isParameterProperty(param) &&
-      !isThisParameter(param)
-    ) {
+  for (const param of rightMostUnusedVariables(parametersVariable)) {
+    if (!isIgnoredParameter(param) && !isParameterProperty(param) && !isThisParameter(param)) {
       context.report({
         messageId: 'removeOrRenameParameter',
         node: param.identifiers[0],
@@ -184,4 +179,10 @@ function isParameterProperty(variable: Scope.Variable) {
 
 function isThisParameter(variable: Scope.Variable) {
   return variable.name === 'this';
+}
+
+function rightMostUnusedVariables(array: Scope.Variable[]): Scope.Variable[] {
+  const copy = [...array].reverse();
+  const index = copy.findIndex(variable => !isUnusedVariable(variable));
+  return index === -1 ? array : copy.slice(0, index).reverse();
 }

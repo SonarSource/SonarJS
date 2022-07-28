@@ -78,6 +78,34 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     {
       code: `function fun(this: void) {}`,
     },
+    {
+      code: `function foo(a, b, c) { return b + c; }`, // OK as 'a' is before used parameters 'b' and 'c'.
+    },
+    {
+      code: `const fn = (a, b, c) => b + c;`, // OK as 'a' is before used parameters 'b' and 'c'.
+    },
+    {
+      code: `function fun(a, b, c) {
+              a = 1;
+              c = 1;
+            }`,
+    },
+    {
+      // parameter with type annotation
+      code: `function fun(a: T1, b: T2, c: T3) { a = c; }`,
+    },
+    {
+      // destructured parameter
+      code: `function fun(a, { b }, c) { a = c; }`,
+    },
+    {
+      // unused parameter first
+      code: `function fun(a, b, c) { b = c; }`,
+    },
+    {
+      // unused parameter in between
+      code: `function fun(a, b, c) { a = c; }`,
+    },
   ],
   invalid: [
     {
@@ -129,10 +157,6 @@ ruleTester.run('Unused function parameters should be removed', rule, {
              b = 1;
            }`,
       errors: [
-        {
-          message:
-            'Remove the unused function parameter "a" or rename it to "_a" to make intention explicit.',
-        },
         {
           message:
             'Remove the unused function parameter "c" or rename it to "_c" to make intention explicit.',
@@ -191,76 +215,6 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     {
       code: `watch('!a', (value, previous) => logger.log(value));`,
       errors: 1,
-    },
-    {
-      code: `function fun(a, b, c) {
-              a = 1;
-              c = 1;
-            }`,
-      errors: 1,
-    },
-    {
-      // parameter with type annotation
-      code: `function fun(a: T1, b: T2, c: T3) { a = c; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Rename "b" to "_b"',
-              output: 'function fun(a: T1, _b: T2, c: T3) { a = c; }',
-            },
-            {
-              desc: 'Remove "b" (beware of call sites)',
-              output: 'function fun(a: T1, c: T3) { a = c; }',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      // destructured parameter
-      code: `function fun(a, { b }, c) { a = c; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: 'function fun(a, { _b }, c) { a = c; }',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      // unused parameter first
-      code: `function fun(a, b, c) { b = c; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: 'function fun(_a, b, c) { b = c; }',
-            },
-            {
-              output: 'function fun(b, c) { b = c; }',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      // unused parameter inbetween
-      code: `function fun(a, b, c) { a = c; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: 'function fun(a, _b, c) { a = c; }',
-            },
-            {
-              output: 'function fun(a, c) { a = c; }',
-            },
-          ],
-        },
-      ],
     },
     {
       // unused parameter last
@@ -369,6 +323,36 @@ ruleTester.run('Unused function parameters should be removed', rule, {
             },
             {
               output: '(): (number | string) => foo()',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `function foo(a, b, c) { return b + 1; }`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'function foo(a, b, _c) { return b + 1; }',
+            },
+            {
+              output: 'function foo(a, b) { return b + 1; }',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `const fn = (a, b, c) => b + 1;`,
+      errors: [
+        {
+          suggestions: [
+            {
+              output: 'const fn = (a, b, _c) => b + 1;',
+            },
+            {
+              output: 'const fn = (a, b) => b + 1;',
             },
           ],
         },

@@ -19,8 +19,4 @@
 'searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts':[
 3,
 ],
-'searchkit:packages/searchkit-sdk/src/facets/HierarchicalMenuFacet.ts':[
-33,
-36,
-],
 }
