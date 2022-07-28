@@ -47,6 +47,6 @@ export function S3BucketTemplate(
 
   function isS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
     const { module, method } = getModuleAndCalledMethod(node.callee, context);
-    return module?.value === 'aws-cdk-lib/aws-s3' || isIdentifier(method, 'Bucket');
+    return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
   }
 }
