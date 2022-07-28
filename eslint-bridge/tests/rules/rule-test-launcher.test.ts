@@ -61,7 +61,6 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     }
     describe(`Running tests for rule ${rule}`, () => {
       files.forEach(filename => {
-        if (! filename.startsWith('aws-s3')) { return; }
         const code = readFileSync(filename, { encoding: 'utf8' });
         const tests = {
           valid: [],
