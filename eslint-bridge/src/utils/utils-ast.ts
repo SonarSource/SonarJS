@@ -268,6 +268,8 @@ export function getValueOfExpression<T extends estree.Node['type']>(
   return undefined;
 }
 
+
+
 // see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
 function isNodeType<T extends estree.Node['type']>(
   node: estree.Node,
@@ -475,6 +477,10 @@ export function checkSensitiveCall(
   }
 }
 
+export function isBooleanLiteral(node: estree.Node): node is estree.Literal & { value: boolean } {
+  return isLiteral(node) && typeof node.value === 'boolean';
+}
+
 export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
   return isLiteral(node) && typeof node.value === 'string';
 }
@@ -513,3 +519,5 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
 export function isThisExpression(node: estree.Node): node is estree.ThisExpression {
   return node.type === 'ThisExpression';
 }
+
+

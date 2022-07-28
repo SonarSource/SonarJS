@@ -1,33 +1,51 @@
 const cdk = require('aws-cdk-lib');
 const s3 = require('aws-cdk-lib/aws-s3');
 
-// Sensitive: Omitting "versioned" disables S3 bucket versioning. Make sure it is safe here
-new s3.Bucket(this, 'id', { // Noncompliant
+new s3. Bucket(this, 'id', { // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
   bucketName: 'bucket'
 });
 /* new cdk.aws_s3.Bucket(this, 'id', { // Noncompliant
   bucketName: 'bucket'
 }); */
 
+new s3.Bucket(this, 'id', {
+  bucketName: 'bucket',
+  versioned: true,
+});
 
-// Sensitive: Make sure using unversioned S3 bucket is safe here
 new s3.Bucket(this, 'id', { 
   bucketName: 'bucket',
-  versioned: false // Noncompliant
+  versioned: false // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
 //           ^^^^^
 });
 
-// Sensitive: Make sure using unversioned S3 bucket is safe here
-const versioned = false;
 
-new s3.Bucket(this, 'id', {
+(() => {
+  const versioned = true;
+  new s3.Bucket(this, 'id', {
+    bucketName: 'bucket',
+    versioned: versioned,
+  });
+  
+  new s3.Bucket(this, 'id', {
+    bucketName: 'bucket',
+    versioned,
+  });
+})
+
+(() => {
+  const versioned = false;
+  new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
     versioned: versioned, // Noncompliant
-//             ^^^^^^^^^
-});
+  //           ^^^^^^^^^
+  });
+  new s3.Bucket(this, 'id', {
+    bucketName: 'bucket',
+    versioned, // Noncompliant
+  //^^^^^^^^^
+  });
+})
 
-new s3.Bucket(this, 'id', {
-  bucketName: 'bucket',
-  versioned, // Noncompliant
-//^^^^^^^^^
-});
+
+ 

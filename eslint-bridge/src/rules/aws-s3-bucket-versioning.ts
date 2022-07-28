@@ -21,34 +21,45 @@
 
 import { Rule } from 'eslint';
 import { S3BucketTemplate } from '../utils/s3-rule-template';
+import * as estree from 'estree';
+import { getValueOfExpression, isBooleanLiteral } from '../utils';
 
 const messages = {
-  default: 'Make sure an unversioned S3 bucket is safe here.',
-  omitted: 'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
+  default: 'Make sure using unversioned S3 bucket is safe here.',
+  omitted:
+    'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-// check if has params arg
-const requiredArg = findRequiredArgument(node.arguments);
-if (requiredArg == null) {
-  context.report({
-    message: messages['omitted'],
-    node,
-  });
-  return;
-}
-
-if (requiredArg.value.computed !== true) {
-  context.report({
-    message: messages['default'],
-    node: requiredArg.value,
-  });
-}
+  const requiredArg = findRequiredArgument(node.arguments);
+  if (requiredArg == null) {
+    context.report({
+      message: messages['omitted'],
+      node,
+    });
+    return;
+  }
+  const argumentValue = extractBoolean(context, requiredArg.value);
+  if (argumentValue !== true) {
+    context.report({
+      message: messages['default'],
+      node: requiredArg.value,
+    });
+  }
 });
 
 function findRequiredArgument(args: any[]) {
   if (args.length < 3) {
-    return false;
+    return null;
   }
   return args[2]?.properties.find((prop: any) => prop.key?.name === 'versioned');
+}
+
+export function extractBoolean(context: Rule.RuleContext, node: estree.Node): boolean | undefined {
+  const literalNodeOrNothing = getValueOfExpression(context, node, 'Literal');
+  if (literalNodeOrNothing === undefined || !isBooleanLiteral(literalNodeOrNothing)) {
+    return undefined;
+  } else {
+    return literalNodeOrNothing.value;
+  }
 }
