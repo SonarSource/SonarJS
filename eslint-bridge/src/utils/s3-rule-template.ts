@@ -20,7 +20,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleAndCalledMethod, isIdentifier } from '.';
+import { getModuleAndCalledMethod, getModuleNameOfIdentifier, isIdentifier } from '.';
 
 export function S3BucketTemplate(
   callback: (node: estree.NewExpression, context: Rule.RuleContext) => void,
@@ -37,7 +37,7 @@ export function S3BucketTemplate(
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {
-          if (isS3BucketConstructor(node, context)) {
+          if (isS3BucketConstructor(node, context) || isWeirdS3BucketConstructor(node, context)) {
             callback(node, context);
           }
         },
@@ -45,8 +45,49 @@ export function S3BucketTemplate(
     },
   };
 
+  /**
+   * Finds something like this:
+   *
+   * const s3 = require('aws-cdk-lib/aws-s3');
+   * new s3.Bucket();
+   */
   function isS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
     const { module, method } = getModuleAndCalledMethod(node.callee, context);
     return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
+  }
+  /**
+   * Finds something like this:
+   *
+   * const s3 = require('aws-cdk-lib');
+   * new s3.aws_s3.Bucket();
+   */
+  function isWeirdS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
+    if (node.callee.type != 'MemberExpression') {
+      return false;
+    }
+    const callee: estree.MemberExpression = node.callee;
+    if (callee.object.type != 'MemberExpression') {
+      return false;
+    }
+    const property = callee.object.property;
+    const grandParent = get2LevelsCaller(callee);
+    if (grandParent != null && checkMidProp(property, 'aws_s3')) {
+      const module = getModuleNameOfIdentifier(context, grandParent);
+      return module?.value === 'aws-cdk-lib';
+    }
+    return false;
+
+    function get2LevelsCaller(callee: estree.MemberExpression) {
+      if (
+        callee.type === 'MemberExpression' &&
+        callee.object.type === 'MemberExpression' &&
+        callee.object.object.type === 'Identifier'
+      ) {
+        return callee.object.object;
+      }
+    }
+    function checkMidProp(property: any, name: string): boolean {
+      return property.type === 'Identifier' && property.name === name;
+    }
   }
 }

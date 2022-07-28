@@ -70,5 +70,17 @@ new s3.Bucket(42);
         },
       ],
     },
+    {
+      code: `
+const cdk = require('aws-cdk-lib');
+new cdk.aws_s3.Bucket(42);
+`,
+      errors: [
+        {
+          message: 'Found invalid pattern',
+          line: 3,
+        },
+      ],
+    },
   ],
 });
