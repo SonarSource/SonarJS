@@ -20,59 +20,35 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { getModuleAndCalledMethod, isIdentifier } from '../utils';
-import * as estree from 'estree';
+import { S3BucketTemplate } from '../utils/s3-rule-template';
 
-export const rule: Rule.RuleModule = {
-  meta: {
-    messages: {
-      default: 'Make sure an unversioned S3 bucket is safe here.',
-      omitted: 'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
-    },
-  },
-  create(context: Rule.RuleContext) {
-    return {
-      NewExpression: (node: estree.NewExpression) => {
-        if (!isAwsFunction(node, context, ['aws-cdk-lib/aws-s3'], 'Bucket')) {
-          return;
-        }
-
-        // check if has params arg
-        const requiredArg = findRequiredArgument(node.arguments);
-        if (requiredArg == null) {
-          context.report({
-            messageId: 'omitted',
-            node,
-          });
-          return;
-        }
-
-        if (requiredArg.value.computed !== true) {
-          context.report({
-            messageId: 'default',
-            node: requiredArg.value,
-          });
-        }
-      },
-    };
-  },
+const messages = {
+  default: 'Make sure an unversioned S3 bucket is safe here.',
+  omitted: 'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
 };
+
+export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
+// check if has params arg
+const requiredArg = findRequiredArgument(node.arguments);
+if (requiredArg == null) {
+  context.report({
+    message: messages['omitted'],
+    node,
+  });
+  return;
+}
+
+if (requiredArg.value.computed !== true) {
+  context.report({
+    message: messages['default'],
+    node: requiredArg.value,
+  });
+}
+});
 
 function findRequiredArgument(args: any[]) {
   if (args.length < 3) {
     return false;
   }
   return args[2]?.properties.find((prop: any) => prop.key?.name === 'versioned');
-}
-
-function isAwsFunction(
-  node: estree.CallExpression,
-  context: Rule.RuleContext,
-  pModules: string[],
-  functionName: string,
-): boolean {
-  return pModules.some(pModule => {
-    const { module, method } = getModuleAndCalledMethod(node.callee, context);
-    return module?.value === pModule || isIdentifier(method, functionName);
-  });
 }
