@@ -4,9 +4,9 @@ const s3 = require('aws-cdk-lib/aws-s3');
 new s3. Bucket(this, 'id', { // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
   bucketName: 'bucket'
 });
-/* new cdk.aws_s3.Bucket(this, 'id', { // Noncompliant
+new cdk.aws_s3.Bucket(this, 'id', { // Noncompliant
   bucketName: 'bucket'
-}); */
+});
 
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
