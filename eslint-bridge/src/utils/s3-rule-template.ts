@@ -31,7 +31,10 @@ export function S3BucketTemplate(
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {
-          if (isS3BucketConstructor(node, context) || is3BucketConstructorFromIntermediateProp(node, context)) {
+          if (
+            isS3BucketConstructor(node, context) ||
+            is3BucketConstructorFromIntermediateProp(node, context)
+          ) {
             callback(node, context);
           }
         },
@@ -56,7 +59,10 @@ export function S3BucketTemplate(
    * const s3 = require('aws-cdk-lib');
    * new s3.aws_s3.Bucket();
    */
-  function is3BucketConstructorFromIntermediateProp(node: estree.NewExpression, context: Rule.RuleContext) {
+  function is3BucketConstructorFromIntermediateProp(
+    node: estree.NewExpression,
+    context: Rule.RuleContext,
+  ) {
     if (node.callee.type !== 'MemberExpression') {
       return false;
     }
