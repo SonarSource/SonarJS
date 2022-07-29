@@ -268,8 +268,6 @@ export function getValueOfExpression<T extends estree.Node['type']>(
   return undefined;
 }
 
-
-
 // see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
 function isNodeType<T extends estree.Node['type']>(
   node: estree.Node,
@@ -520,4 +518,6 @@ export function isThisExpression(node: estree.Node): node is estree.ThisExpressi
   return node.type === 'ThisExpression';
 }
 
-
+export function isProperty(node: estree.Node): node is estree.Property {
+  return node.type === 'Property';
+}

@@ -22,7 +22,9 @@
 import { Rule } from 'eslint';
 import { S3BucketTemplate } from '../utils/s3-rule-template';
 import * as estree from 'estree';
-import { getValueOfExpression, isBooleanLiteral } from '../utils';
+import { getValueOfExpression, isBooleanLiteral, isProperty, isIdentifier } from '../utils';
+
+const VERSIONED_KEY = 'versioned';
 
 const messages = {
   default: 'Make sure using unversioned S3 bucket is safe here.',
@@ -31,7 +33,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-  const requiredArg = findRequiredArgument(node.arguments as estree.Expression[]);
+  const requiredArg = findRequiredArgument(context, node.arguments as estree.Expression[]);
   if (requiredArg == null) {
     context.report({
       message: messages['omitted'],
@@ -39,8 +41,9 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
     });
     return;
   }
-  const argumentValue = extractBoolean(context, requiredArg.value);
-  if (argumentValue !== true) {
+  
+  const argumentValue = getValueOfExpression(context, requiredArg.value, 'Literal');
+  if (argumentValue?.value !== true) {
     context.report({
       message: messages['default'],
       node: requiredArg.value,
@@ -48,21 +51,21 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
   }
 });
 
-function findRequiredArgument(args: estree.Expression[]) {
-  if (hasEnoughArgs(args)) {
+function findRequiredArgument(context: Rule.RuleContext, args: estree.Expression[]) {
+  if (!hasEnoughArgs(args)) {
     return null;
   }
-  const options = args[2];
-  if (options.type !== 'ObjectExpression') {
+  const optionsArg = args[2];
+  const options = getValueOfExpression(context, optionsArg, 'ObjectExpression');
+  if (options == null) {
     return null;
   }
-  const prop = options.properties.find((prop: any) => {
-    return prop.type === 'Property' && prop.key.name === 'versioned';
-  });
-  return prop as estree.Property;
+  return options.properties.find(
+    property => isProperty(property) && isIdentifier(property.key, VERSIONED_KEY),
+  ) as estree.Property | undefined;
 
-  function hasEnoughArgs(args: estree.Expression[]) {
-    return args.length > 3;
+  function hasEnoughArgs(args: any[]) {
+    return args.length >= 3;
   }
 }
 
