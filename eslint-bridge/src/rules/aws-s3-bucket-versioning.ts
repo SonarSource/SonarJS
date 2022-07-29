@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { S3BucketTemplate } from '../utils/s3-rule-template';
 import * as estree from 'estree';
-import { getValueOfExpression, isBooleanLiteral, isProperty, isIdentifier } from '../utils';
+import { getValueOfExpression, isProperty, isIdentifier } from '../utils';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -66,14 +66,5 @@ function findRequiredArgument(context: Rule.RuleContext, args: estree.Expression
 
   function hasEnoughArgs(args: any[]) {
     return args.length >= 3;
-  }
-}
-
-export function extractBoolean(context: Rule.RuleContext, node: estree.Node): boolean | undefined {
-  const literalNodeOrNothing = getValueOfExpression(context, node, 'Literal');
-  if (literalNodeOrNothing === undefined || !isBooleanLiteral(literalNodeOrNothing)) {
-    return undefined;
-  } else {
-    return literalNodeOrNothing.value;
   }
 }
