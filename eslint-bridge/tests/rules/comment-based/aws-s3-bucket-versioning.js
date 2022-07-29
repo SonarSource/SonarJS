@@ -53,4 +53,6 @@ const undefinedParam = new s3.Bucket(this, 'id', {
   versioned: undefined // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
 //           ^^^^^^^^^
 });
- 
+
+const wrongTypeOptions = new s3.Bucket(this, 'id', 'notAnObject');  // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
+//                           ^^^^^^^^^
