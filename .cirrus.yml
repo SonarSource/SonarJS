@@ -34,6 +34,8 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     disk: 128
     type: c2-standard-8
     use_ssd: true
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
@@ -102,9 +104,6 @@ build_win_task:
     - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
-  maven_cache:
-    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
-    folder: ~/.m2/repository
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -166,9 +165,6 @@ plugin_qa_win_task:
     matrix:
       - TEST: "!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest"
       - TEST: "CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest"
-  maven_cache:
-    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
-    folder: ~/.m2/repository
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
