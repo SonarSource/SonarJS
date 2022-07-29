@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
     });
     return;
   }
-  
+
   const argumentValue = getValueOfExpression(context, requiredArg.value, 'Literal');
   if (argumentValue?.value !== true) {
     context.report({
