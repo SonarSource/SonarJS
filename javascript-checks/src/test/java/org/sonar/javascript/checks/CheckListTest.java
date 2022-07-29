@@ -91,7 +91,6 @@ class CheckListTest {
   void test_eslint_key() throws IllegalAccessException, InstantiationException {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
     List<String> keys = new ArrayList<>();
-    
 
     for (Class<? extends JavaScriptCheck> cls : checks) {
       if (isEslintBasedCheck(cls)) {
