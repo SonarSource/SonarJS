@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ class ProjectWithDifferentEncodingTest {
   @Test
   void test() {
     String projectKey = "project-with-different-encoding";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-16")
       .setSourceDirs(".")
@@ -53,7 +54,7 @@ class ProjectWithDifferentEncodingTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issues.Issue> issuesList = newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList();
+    List<Issues.Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
       .containsExactly(tuple(2, projectKey + ":fileWithUtf16.js", "javascript:S3923"));
   }

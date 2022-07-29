@@ -22,8 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,10 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarsource.analyzer.commons.ProfileGenerator;
-import org.sonarsource.analyzer.commons.ProfileGenerator.RulesConfiguration;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -50,13 +47,11 @@ class CssIssuesTest {
 
   @BeforeAll
   public static void prepare() {
-    RulesConfiguration rulesConfiguration = new RulesConfiguration();
+    ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration();
     rulesConfiguration.add("S4660", "ignorePseudoElements", "ng-deep, /^custom-/");
-    File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "css", "css", rulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(profile));
-
+    var profile = ProfileGenerator.generateProfile(orchestrator, "css", "css", rulesConfiguration, emptySet());
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "rules");
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", profile);
 
     SonarScanner scanner = CssTestsUtils.createScanner(PROJECT_KEY);
     scanner.setProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css");

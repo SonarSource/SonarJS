@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
@@ -40,7 +41,7 @@ class ECMAScriptModulesTest {
   @Test
   void test() {
     String projectKey = "esm-project";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")

@@ -22,7 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarsource.analyzer.commons.ProfileGenerator;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
@@ -45,6 +43,7 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,18 +63,17 @@ class TestCodeAnalysisTest {
     String sourceDir = "src";
     String testDir = "test";
 
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(project)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(sourceDir)
       .setTestDirs(testDir)
       .setProjectDir(TestUtils.projectDir(project));
 
-    File jsProfile = ProfileGenerator.generateProfile(
-      orchestrator.getServer().getUrl(), "js", "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
-    orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
+    var jsProfile = ProfileGenerator.generateProfile(
+      orchestrator, "js", "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
 
-    OrchestratorStarter.setProfile(project, "rules", "js");
+    OrchestratorStarter.setProfile(project, jsProfile, "js");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
 
