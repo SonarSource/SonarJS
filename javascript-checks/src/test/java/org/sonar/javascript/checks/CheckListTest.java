@@ -29,7 +29,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
-import org.sonar.javascript.checks.fixtures.NumbersRuleKeyCheck;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
@@ -93,7 +92,6 @@ class CheckListTest {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
     List<String> keys = new ArrayList<>();
     
-    checks.add((EslintBasedCheck) new NumbersRuleKeyCheck());
 
     for (Class<? extends JavaScriptCheck> cls : checks) {
       if (isEslintBasedCheck(cls)) {
