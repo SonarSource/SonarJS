@@ -24,16 +24,10 @@ import { getModuleAndCalledMethod, getModuleNameOfIdentifier, isIdentifier } fro
 
 export function S3BucketTemplate(
   callback: (node: estree.NewExpression, context: Rule.RuleContext) => void,
+  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: ['sonar-runtime'],
-        },
-      ],
-    },
+    ...metadata,
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {
@@ -55,6 +49,7 @@ export function S3BucketTemplate(
     const { module, method } = getModuleAndCalledMethod(node.callee, context);
     return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
   }
+
   /**
    * Finds something like this:
    *

@@ -23,6 +23,7 @@ import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
 import { decorateNoEmptyFunction } from './no-empty-function-decorator';
+import { decorateNoExtraSemi } from './no-extra-semi-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
@@ -38,6 +39,7 @@ export const externalRuleDecorators = [
   { decorate: decorateNoDuplicateImports, ruleKey: 'no-duplicate-imports' },
   { decorate: decorateNoEmpty, ruleKey: 'no-empty' },
   { decorate: decorateNoEmptyFunction, ruleKey: 'no-empty-function' },
+  { decorate: decorateNoExtraSemi, ruleKey: 'no-extra-semi' },
   { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
   { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
   { decorate: decorateNoUnreachable, ruleKey: 'no-unreachable' },
