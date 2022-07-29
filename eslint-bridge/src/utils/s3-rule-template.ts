@@ -70,7 +70,7 @@ export function S3BucketTemplate(
     if (callee.object.type !== 'MemberExpression') {
       return false;
     }
-    if (! isIdentifier(callee.property, 'Bucket')) {
+    if (!isIdentifier(callee.property, 'Bucket')) {
       return false;
     }
     const property = callee.object.property;
