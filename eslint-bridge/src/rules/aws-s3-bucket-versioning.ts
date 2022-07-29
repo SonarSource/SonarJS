@@ -31,7 +31,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-  const requiredArg = findRequiredArgument(node.arguments);
+  const requiredArg = findRequiredArgument(node.arguments as estree.Expression[]);
   if (requiredArg == null) {
     context.report({
       message: messages['omitted'],
@@ -48,11 +48,22 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
   }
 });
 
-function findRequiredArgument(args: any[]) {
-  if (args.length < 3) {
+function findRequiredArgument(args: estree.Expression[]) {
+  if (hasEnoughArgs(args)) {
     return null;
   }
-  return args[2]?.properties.find((prop: any) => prop.key?.name === 'versioned');
+  const options = args[2];
+  if (options.type !== 'ObjectExpression') {
+    return null;
+  }
+  const prop = options.properties.find((prop: any) => {
+    return prop.type === 'Property' && prop.key.name === 'versioned';
+  });
+  return prop as estree.Property;
+
+  function hasEnoughArgs(args: estree.Expression[]) {
+    return args.length > 3;
+  }
 }
 
 export function extractBoolean(context: Rule.RuleContext, node: estree.Node): boolean | undefined {
