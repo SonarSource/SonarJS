@@ -20,23 +20,70 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { interceptReport } from '../../utils';
+import { FunctionNodeType, interceptReport, isFunctionNode } from '../../utils';
 import { suggestEmptyBlockQuickFix } from './no-empty-decorator';
-
-type FunctionLike =
-  | estree.ArrowFunctionExpression
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression;
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoEmptyFunction(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const func = (reportDescriptor as any).node as FunctionLike;
-    const name = reportDescriptor.data!.name;
-    const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
-    const closingBrace = context.getSourceCode().getLastToken(func.body)!;
-    suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
-  });
+  return interceptReport(rule, reportWithQuickFixIfValid);
+}
+
+function reportWithQuickFixIfValid(
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
+) {
+  if (!('node' in reportDescriptor) || !isFunctionNode(reportDescriptor.node)) {
+    return;
+  }
+
+  const functionNode = reportDescriptor.node;
+  if (!isException(context, functionNode)) {
+    reportWithQuickFix(context, reportDescriptor, functionNode);
+  }
+}
+
+function isException(context: Rule.RuleContext, functionNode: FunctionNodeType): boolean {
+  return !isWhitelisted(context, functionNode) && isBlacklisted(functionNode);
+}
+
+function isWhitelisted(context: Rule.RuleContext, functionNode: FunctionNodeType): boolean {
+  return (
+    isFunctionDeclaration(functionNode) ||
+    isMethodDeclaration(context, functionNode) ||
+    isFunctionProperty(context, functionNode)
+  );
+}
+
+function isFunctionDeclaration(functionNode: FunctionNodeType): boolean {
+  return functionNode.type === 'FunctionDeclaration';
+}
+
+function isMethodDeclaration(context: Rule.RuleContext, functionNode: FunctionNodeType): boolean {
+  const [_, methodNode] = context.getAncestors().reverse();
+  return methodNode?.type === 'MethodDefinition' && methodNode?.value === functionNode;
+}
+
+function isFunctionProperty(context: Rule.RuleContext, functionNode: FunctionNodeType): boolean {
+  const [_, propertyNode, objectNode] = context.getAncestors().reverse();
+  return (
+    objectNode?.type === 'ObjectExpression' &&
+    propertyNode?.type === 'Property' &&
+    propertyNode?.value === functionNode
+  );
+}
+
+function isBlacklisted(node: FunctionNodeType): boolean {
+  return node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
+}
+
+function reportWithQuickFix(
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
+  func: FunctionNodeType,
+): void {
+  const name = reportDescriptor.data!.name;
+  const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
+  const closingBrace = context.getSourceCode().getLastToken(func.body)!;
+  suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
 }
