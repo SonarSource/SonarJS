@@ -28,13 +28,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TypeScriptRuleTest {
@@ -53,23 +53,17 @@ class TypeScriptRuleTest {
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
       .build();
 
-    orchestrator.start();
+    // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
+    synchronized (OrchestratorStarter.class) {
+      orchestrator.start();
+    }
 
-    File tsProfile = ProfileGenerator.generateProfile(
-      orchestrator.getServer().getUrl(),
-      "ts", "typescript",
-      new ProfileGenerator.RulesConfiguration(),
-      Collections.singleton("S124"));
-
-    File jsProfile = ProfileGenerator.generateProfile(
-      orchestrator.getServer().getUrl(),
-      "js", "javascript",
-      new ProfileGenerator.RulesConfiguration(),
-      Collections.singleton("CommentRegularExpression"));
+    ProfileGenerator.generateProfile(orchestrator, "ts", "typescript", new ProfileGenerator.RulesConfiguration(),
+      singleton("S124"));
+    ProfileGenerator.generateProfile(orchestrator, "js", "javascript", new ProfileGenerator.RulesConfiguration(),
+      singleton("CommentRegularExpression"));
 
     orchestrator.getServer()
-      .restoreProfile(FileLocation.of(jsProfile))
-      .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/ts-rules-project-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
@@ -90,7 +84,7 @@ class TypeScriptRuleTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "empty-profile");
 
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(PROJECT_KEY)
       .setSourceDirs(".")

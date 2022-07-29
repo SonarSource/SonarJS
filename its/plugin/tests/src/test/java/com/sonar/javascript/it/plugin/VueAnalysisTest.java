@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
@@ -38,7 +39,7 @@ class VueAnalysisTest {
   @Test
   void sonarqube() {
     String projectKey = "vue-js-project";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -63,7 +64,7 @@ class VueAnalysisTest {
   @Test
   void jsWithinVueAsJavaScript() {
     String projectKey = "vue-js-project-with-lang-js";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -80,7 +81,7 @@ class VueAnalysisTest {
   @Test
   void tsWithinVueAsTypeScript() {
     String projectKey = "vue-js-project-with-lang-ts";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")

@@ -64,7 +64,10 @@ class EslintCustomRulesTest {
       .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-typescript-custom-rules.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
       .build();
-    orchestrator.start();
+    // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
+    synchronized (OrchestratorStarter.class) {
+      orchestrator.start();
+    }
     return orchestrator;
   }
 
