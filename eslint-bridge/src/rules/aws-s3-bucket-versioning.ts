@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
   if (requiredArg == null) {
     context.report({
       message: messages['omitted'],
-      node,
+      node: node.callee,
     });
     return;
   }
