@@ -70,6 +70,9 @@ export function S3BucketTemplate(
     if (callee.object.type !== 'MemberExpression') {
       return false;
     }
+    if (! isIdentifier(callee.property, 'Bucket')) {
+      return false;
+    }
     const property = callee.object.property;
     const grandParent = get2LevelsUpCaller(callee);
     if (grandParent != null && checkMidProp(property, 'aws_s3')) {

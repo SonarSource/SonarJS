@@ -73,6 +73,12 @@ const cdk = require('whatever');
 new cdk.aws_s3.Bucket(42);
 `,
     },
+    {
+      code: `
+const cdk = require('aws-cdk-lib');
+new cdk.aws_s3.whatever(42);
+`,
+    },
   ],
   invalid: [
     {
