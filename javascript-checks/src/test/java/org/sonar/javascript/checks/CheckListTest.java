@@ -97,7 +97,7 @@ class CheckListTest {
       if (isEslintBasedCheck(cls)) {
         EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
         keys.add(eslintBasedCheck.eslintKey());
-        assertThat(eslintBasedCheck.eslintKey()).as("Invalid key for " + eslintBasedCheck.getClass()).matches("[a-z\\-]+");
+        assertThat(eslintBasedCheck.eslintKey()).as("Invalid key for " + eslintBasedCheck.getClass()).matches("[a-z\\d\\-]+");
       }
     }
 
