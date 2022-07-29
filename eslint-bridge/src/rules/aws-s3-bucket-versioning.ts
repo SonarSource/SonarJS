@@ -64,7 +64,7 @@ function findRequiredArgument(context: Rule.RuleContext, args: estree.Expression
     property => isProperty(property) && isIdentifier(property.key, VERSIONED_KEY),
   ) as estree.Property | undefined;
 
-  function hasEnoughArgs(args: any[]) {
+  function hasEnoughArgs(args: estree.Expression[]) {
     return args.length >= 3;
   }
 }
