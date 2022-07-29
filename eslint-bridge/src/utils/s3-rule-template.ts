@@ -31,7 +31,7 @@ export function S3BucketTemplate(
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {
-          if (isS3BucketConstructor(node, context) || isWeirdS3BucketConstructor(node, context)) {
+          if (isS3BucketConstructor(node, context) || is3BucketConstructorFromIntermediateProp(node, context)) {
             callback(node, context);
           }
         },
@@ -56,29 +56,31 @@ export function S3BucketTemplate(
    * const s3 = require('aws-cdk-lib');
    * new s3.aws_s3.Bucket();
    */
-  function isWeirdS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
-    if (node.callee.type != 'MemberExpression') {
+  function is3BucketConstructorFromIntermediateProp(node: estree.NewExpression, context: Rule.RuleContext) {
+    if (node.callee.type !== 'MemberExpression') {
       return false;
     }
     const callee: estree.MemberExpression = node.callee;
-    if (callee.object.type != 'MemberExpression') {
+    if (callee.object.type !== 'MemberExpression') {
       return false;
     }
     const property = callee.object.property;
-    const grandParent = get2LevelsCaller(callee);
+    const grandParent = get2LevelsUpCaller(callee);
     if (grandParent != null && checkMidProp(property, 'aws_s3')) {
       const module = getModuleNameOfIdentifier(context, grandParent);
       return module?.value === 'aws-cdk-lib';
     }
     return false;
 
-    function get2LevelsCaller(callee: estree.MemberExpression) {
+    function get2LevelsUpCaller(callee: estree.MemberExpression) {
       if (
         callee.type === 'MemberExpression' &&
         callee.object.type === 'MemberExpression' &&
         callee.object.object.type === 'Identifier'
       ) {
         return callee.object.object;
+      } else {
+        return null;
       }
     }
     function checkMidProp(property: any, name: string): boolean {
