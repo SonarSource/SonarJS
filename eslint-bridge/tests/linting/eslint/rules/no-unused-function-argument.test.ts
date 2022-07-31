@@ -70,10 +70,22 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     },
     {
       code: `
-      class C {
-        constructor(readonly a: number) {} // OK, a is a parameter property
-      }
-      `,
+        class C {
+          constructor(readonly a: number) {} // OK, a is a parameter property
+        }`,
+    },
+    {
+      code: `
+        class D {
+          constructor(
+            public readonly a: number = 42,
+            public b: string = 'foo',
+            protected readonly c: number = Math.random(),
+            protected d: boolean = true,
+            private readonly e: object = {},
+            private f: string[] = [],
+          ) {} // OK, all parameter properties with assignment
+        }`,
     },
     {
       code: `function fun(this: void) {}`,
