@@ -75,19 +75,14 @@ export function S3BucketTemplate(
  */
 export function getProps(context: Rule.RuleContext, bucket: estree.NewExpression, key: string) {
   const args = bucket.arguments as estree.Expression[];
-  if (!hasEnoughArgs(args)) {
-    return null;
-  }
+
   const optionsArg = args[2];
   const options = getValueOfExpression(context, optionsArg, 'ObjectExpression');
   if (options == null) {
     return null;
   }
+
   return options.properties.find(
     property => isProperty(property) && isIdentifier(property.key, key),
   ) as estree.Property | undefined;
-
-  function hasEnoughArgs(args: estree.Expression[]) {
-    return args.length >= 3;
-  }
 }
