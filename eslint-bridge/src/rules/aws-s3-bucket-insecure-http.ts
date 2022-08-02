@@ -20,32 +20,30 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6249/javascript
 
 import { Rule } from 'eslint';
-import { Property } from 'estree';
-import { getValueOfExpression, isIdentifier, isProperty, S3BucketTemplate } from '../utils';
+import { getProps, getValueOfExpression, S3BucketTemplate } from '../utils';
+
+const ENFORCE_SSL_KEY = 'enforceSSL';
+
+const messages = {
+  default: "Make sure authorizing HTTP requests is safe here.",
+  omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here."
+};
 
 export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-  const configuration = getValueOfExpression(context, node.arguments[2], 'ObjectExpression');
-
-  if (configuration) {
-    const enforceSSLProperty = configuration.properties.find(
-      property => isProperty(property) && isIdentifier(property.key, 'enforceSSL'),
-    ) as Property | undefined;
-
-    if (enforceSSLProperty) {
-      const enforceSSLValue = getValueOfExpression(context, enforceSSLProperty.value, 'Literal');
-
-      if (enforceSSLValue?.value === false) {
-        context.report({
-          message: 'Make sure authorizing HTTP requests is safe here.',
-          node: enforceSSLProperty,
-        });
-      }
-      return;
-    }
+  const enforceSSLProperty = getProps(context, node, ENFORCE_SSL_KEY);
+  if (enforceSSLProperty == null) {
+    context.report({
+      message: messages['omitted'],
+      node: node.callee,
+    });
+    return;
   }
 
-  context.report({
-    message: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.",
-    node: node.callee,
-  });
+  const enforceSSLValue = getValueOfExpression(context, enforceSSLProperty.value, 'Literal');
+  if (enforceSSLValue?.value === false) {
+    context.report({
+      message: messages['default'],
+      node: enforceSSLProperty,
+    });
+  }
 });
