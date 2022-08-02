@@ -28,14 +28,14 @@ import { getModuleAndCalledMethod, getValueOfExpression, isIdentifier, isPropert
  * The rule template allows to detect sensitive configuration passed on
  * the invocation of S3 Bucket's constructor from AWS CDK:
  *
- * ```new s3.Bucket(_, _, configuration)```
+ * ```new s3.Bucket(...)```
  *
  * @param callback the callback invoked on visiting S3 Bucket's instantiation
  * @param metadata the instantiated rule metadata
  * @returns the instantiated rule definition
  */
 export function S3BucketTemplate(
-  callback: (bucket: estree.NewExpression, context: Rule.RuleContext) => void,
+  callback: (bucketConstructor: estree.NewExpression, context: Rule.RuleContext) => void,
   metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
@@ -73,7 +73,7 @@ export function S3BucketTemplate(
  * @param key the key of the property to extract
  * @returns the extracted property
  */
-export function getProps(context: Rule.RuleContext, bucket: estree.NewExpression, key: string) {
+export function getProperty(context: Rule.RuleContext, bucket: estree.NewExpression, key: string) {
   const args = bucket.arguments as estree.Expression[];
 
   const optionsArg = args[2];
