@@ -13,7 +13,7 @@ const enforceSSLFalse = new s3.Bucket(this, 'enforce.ssl.false', {
   versioned: true,
   publicReadAccess: false,
   enforceSSL: false // Noncompliant {{Make sure authorizing HTTP requests is safe here.}}
-//^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^
 });
 
 const enforceSSLTrue = new s3.Bucket(this, 'enforce.ssl.true', {

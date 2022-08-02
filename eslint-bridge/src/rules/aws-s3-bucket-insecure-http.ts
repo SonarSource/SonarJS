@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
       if (enforceSSLValue?.value === false) {
         context.report({
           message: 'Make sure authorizing HTTP requests is safe here.',
-          node: enforceSSLProperty.key,
+          node: enforceSSLProperty,
         });
       }
       return;
