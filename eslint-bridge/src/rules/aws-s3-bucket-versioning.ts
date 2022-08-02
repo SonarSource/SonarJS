@@ -20,9 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { S3BucketTemplate } from '../utils/s3-rule-template';
-import * as estree from 'estree';
-import { getValueOfExpression, isProperty, isIdentifier } from '../utils';
+import { getValueOfExpression, getProperty, S3BucketTemplate } from '../utils';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -30,41 +28,24 @@ const messages = {
   default: 'Make sure using unversioned S3 bucket is safe here.',
   omitted:
     'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
+  secondary: 'Propagated setting.',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-  const requiredArg = findRequiredArgument(context, node.arguments as estree.Expression[]);
-  if (requiredArg == null) {
+export const rule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
+  const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
+  if (versionedProperty == null) {
     context.report({
       message: messages['omitted'],
-      node: node.callee,
+      node: bucketConstructor.callee,
     });
     return;
   }
 
-  const argumentValue = getValueOfExpression(context, requiredArg.value, 'Literal');
+  const argumentValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
   if (argumentValue?.value !== true) {
     context.report({
       message: messages['default'],
-      node: requiredArg.value,
+      node: versionedProperty,
     });
   }
 });
-
-function findRequiredArgument(context: Rule.RuleContext, args: estree.Expression[]) {
-  if (!hasEnoughArgs(args)) {
-    return null;
-  }
-  const optionsArg = args[2];
-  const options = getValueOfExpression(context, optionsArg, 'ObjectExpression');
-  if (options == null) {
-    return null;
-  }
-  return options.properties.find(
-    property => isProperty(property) && isIdentifier(property.key, VERSIONED_KEY),
-  ) as estree.Property | undefined;
-
-  function hasEnoughArgs(args: estree.Expression[]) {
-    return args.length >= 3;
-  }
-}
