@@ -61,42 +61,12 @@ new s3.Bucket(42);
 new Bucket(42);
 `,
     },
-    {
-      code: `
-const cdk = require('aws-cdk-lib');
-new cdk.whatever.Bucket(42);
-`,
-    },
-    {
-      code: `
-const cdk = require('whatever');
-new cdk.aws_s3.Bucket(42);
-`,
-    },
-    {
-      code: `
-const cdk = require('aws-cdk-lib');
-new cdk.aws_s3.whatever(42);
-`,
-    },
   ],
   invalid: [
     {
       code: `
 const s3 = require('aws-cdk-lib/aws-s3');
 new s3.Bucket(42);
-`,
-      errors: [
-        {
-          message: 'Found invalid pattern',
-          line: 3,
-        },
-      ],
-    },
-    {
-      code: `
-const cdk = require('aws-cdk-lib');
-new cdk.aws_s3.Bucket(42);
 `,
       errors: [
         {
