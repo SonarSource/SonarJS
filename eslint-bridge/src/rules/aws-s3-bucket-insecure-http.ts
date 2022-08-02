@@ -25,7 +25,7 @@ import { getProps, getValueOfExpression, S3BucketTemplate } from '../utils';
 const ENFORCE_SSL_KEY = 'enforceSSL';
 
 const messages = {
-  default: 'Make sure authorizing HTTP requests is safe here.',
+  authorized: 'Make sure authorizing HTTP requests is safe here.',
   omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.",
 };
 
@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
   const enforceSSLValue = getValueOfExpression(context, enforceSSLProperty.value, 'Literal');
   if (enforceSSLValue?.value === false) {
     context.report({
-      message: messages['default'],
+      message: messages['authorized'],
       node: enforceSSLProperty,
     });
   }
