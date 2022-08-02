@@ -513,3 +513,7 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
 export function isThisExpression(node: estree.Node): node is estree.ThisExpression {
   return node.type === 'ThisExpression';
 }
+
+export function isProperty(node: estree.Node): node is estree.Property {
+  return node.type === 'Property';
+}

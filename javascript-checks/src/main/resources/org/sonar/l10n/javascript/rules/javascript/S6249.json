@@ -1,0 +1,47 @@
+{
+  "title": "Authorizing HTTP communications with S3 buckets is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "owasp-a6",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6249",
+  "sqKey": "S6249",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      319
+    ],
+    "PCI DSS 3.2": [
+      "4.1",
+      "6.5.4"
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ],
+    "CIS": [
+      "2.1.12"
+    ],
+    "OWASP Top 10 2021": [
+      "A2",
+      "A5"
+    ],
+    "PCI DSS 4.0": [
+      "4.2.1",
+      "6.2.4"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
