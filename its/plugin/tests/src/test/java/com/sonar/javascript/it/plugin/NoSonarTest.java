@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ class NoSonarTest {
   @BeforeAll
   public static void startServer() {
     String projectKey = "nosonar-project";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
@@ -58,7 +59,7 @@ class NoSonarTest {
   void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
-    assertThat(newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
+    assertThat(newWsClient(orchestrator).issues().search(request).getIssuesList()).hasSize(1);
   }
 
 }

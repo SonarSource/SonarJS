@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -39,7 +40,7 @@ public class YamlAnalysisTest {
   @Test
   void singleLineInlineAwsLambdaForJs() {
     var projectKey = "yaml-aws-lambda";
-    var build = SonarScanner.create()
+    var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
