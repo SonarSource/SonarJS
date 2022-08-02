@@ -22,8 +22,20 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getModuleAndCalledMethod, getValueOfExpression, isIdentifier, isProperty } from '.';
 
+/**
+ * A rule template for AWS S3 Buckets
+ *
+ * The rule template allows to detect sensitive configuration passed on
+ * the invocation of S3 Bucket's constructor from AWS CDK:
+ *
+ * ```new s3.Bucket(_, _, configuration)```
+ *
+ * @param callback the callback invoked on visiting S3 Bucket's instantiation
+ * @param metadata the instantiated rule metadata
+ * @returns the instantiated rule definition
+ */
 export function S3BucketTemplate(
-  callback: (node: estree.NewExpression, context: Rule.RuleContext) => void,
+  callback: (bucket: estree.NewExpression, context: Rule.RuleContext) => void,
   metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
@@ -47,7 +59,7 @@ export function S3BucketTemplate(
 
 /**
  * Extracts a property from the configuration argument of S3 Bucket's constructor
- * 
+ *
  * ```
  * new s3.Bucket(_, _, { // config
  *  key1: value1,
@@ -55,7 +67,7 @@ export function S3BucketTemplate(
  *  keyN: valueN
  * });
  * ```
- * 
+ *
  * @param context the rule context
  * @param bucket the invocation of S3 Bucket's constructor
  * @param key the key of the property to extract

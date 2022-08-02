@@ -25,16 +25,16 @@ import { getProps, getValueOfExpression, S3BucketTemplate } from '../utils';
 const ENFORCE_SSL_KEY = 'enforceSSL';
 
 const messages = {
-  default: "Make sure authorizing HTTP requests is safe here.",
-  omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here."
+  default: 'Make sure authorizing HTTP requests is safe here.',
+  omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.",
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate((node, context) => {
-  const enforceSSLProperty = getProps(context, node, ENFORCE_SSL_KEY);
+export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
+  const enforceSSLProperty = getProps(context, bucket, ENFORCE_SSL_KEY);
   if (enforceSSLProperty == null) {
     context.report({
       message: messages['omitted'],
-      node: node.callee,
+      node: bucket.callee,
     });
     return;
   }
