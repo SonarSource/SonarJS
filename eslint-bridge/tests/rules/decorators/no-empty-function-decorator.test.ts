@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
-import { decorateNoEmptyFunction } from 'rules/decorators/no-empty-function-decorator';
+import { Linter, Rule, RuleTester } from 'eslint';
+import {
+  decorateNoEmptyFunction,
+  reportWithQuickFixIfApplicable,
+} from 'rules/decorators/no-empty-function-decorator';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },
@@ -120,6 +123,12 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
         const onSomething = () => {};
       `,
     },
+    {
+      code: `(function() {})`,
+    },
+    {
+      code: `() => {}`,
+    },
   ],
   invalid: [
     {
@@ -193,4 +202,8 @@ class C {
       ],
     },
   ],
+});
+
+it('handles non function nodes', () => {
+  reportWithQuickFixIfApplicable({} as Rule.RuleContext, {} as Rule.ReportDescriptor); // The call must not fail.
 });
