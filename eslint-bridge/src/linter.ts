@@ -319,7 +319,7 @@ export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inp
   return options;
 }
 
-function hasSonarRuntimeOption(
+export function hasSonarRuntimeOption(
   ruleModule: ESLintRule.RuleModule | undefined,
   ruleId: string,
 ): boolean {
