@@ -19,7 +19,6 @@
  */
 
 import express from 'express';
-import { AnalysisErrorCode } from './errors';
 import { Analysis } from './analysis';
 
 /**
@@ -34,19 +33,17 @@ import { Analysis } from './analysis';
  * @param analysis the analysis function to run
  */
 export function runner(analysis: Analysis): express.RequestHandler {
-  return async (request: express.Request, response: express.Response) => {
+  return async (
+    request: express.Request,
+    response: express.Response,
+    next: express.NextFunction,
+  ) => {
     try {
       const input = request.body;
       const output = await analysis(input);
       response.json(output);
     } catch (e) {
-      console.error(e.stack);
-      response.json({
-        parsingError: {
-          message: e.message,
-          code: AnalysisErrorCode.GeneralError,
-        },
-      });
+      next(e);
     }
   };
 }

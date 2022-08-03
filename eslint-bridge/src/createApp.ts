@@ -1,5 +1,6 @@
 import express from 'express';
 import router from './routing';
+import { errorMiddleware } from './errors';
 
 /**
  * The maximum request body size
@@ -11,5 +12,6 @@ export default function () {
 
   app.use(express.json({ limit: MAX_REQUEST_SIZE }));
   app.use(router);
+  app.use(errorMiddleware);
   return app;
 }
