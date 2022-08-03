@@ -54,8 +54,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
     );
     if (encryptedValue && isUnencrypted(encryptedValue)) {
       const secondary = { locations: [] as Node[], messages: [] as string[] };
-      const propagatedProperty = encryptedProperty.value !== encryptedValue;
-      if (propagatedProperty) {
+      const isPropagatedProperty = encryptedProperty.value !== encryptedValue;
+      if (isPropagatedProperty) {
         secondary.locations = [(encryptedValue as any).parent as Node];
         secondary.messages = ['Propagated setting.'];
       }
