@@ -11,8 +11,8 @@ new s3.Bucket(this, 'id2', {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
 
-  const encryption = s3.BucketEncryption.UNENCRYPTED;
-//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
+const encryption = s3.BucketEncryption.UNENCRYPTED;
+//    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
 new s3.Bucket(this, 'id3', {
   bucketName: 'bucketNoncompliant3',
   encryption: encryption, // Noncompliant {{Objects in the bucket are not encrypted. Make sure it is safe here.}}
