@@ -18,11 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner, analyzeYAML, YamlAnalysisInput } from 'services/analysis';
+import express from 'express';
+import { createProgram } from 'services/program';
 
 /**
- * Handles YAML analysis requests
+ * Handles TypeScript Program creation requests
  */
-export const onAnalyzeYaml = runner(input =>
-  Promise.resolve(analyzeYAML(input as YamlAnalysisInput)),
-);
+export default function (request: express.Request, response: express.Response) {
+  try {
+    const { tsConfig } = request.body;
+    response.json(createProgram(tsConfig));
+  } catch (e) {
+    console.error(e.stack);
+    response.json({ error: e.message });
+  }
+}

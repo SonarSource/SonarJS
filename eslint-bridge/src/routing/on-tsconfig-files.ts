@@ -19,13 +19,22 @@
  */
 
 import express from 'express';
-import { deleteProgram } from 'services/program';
+import { getFilesForTsConfig } from 'services/tsconfig';
 
 /**
- * Handles TypeScript Program deletion requests
+ * Handles TSConfig files resolving requests
+ *
+ * TSConfig-based analysis either for JavaScript or TypeScript requires first
+ * resolving the files to be analyzed based on provided TSConfigs. The logic
+ * of the whole resolving lies in the bridge since it includes and bundles
+ * TypeScript dependency, which is able to parse and analyze TSConfig files.
  */
-export function onDeleteProgram(request: express.Request, response: express.Response) {
-  const { programId } = request.body;
-  deleteProgram(programId);
-  response.send('OK!');
+export default function (request: express.Request, response: express.Response) {
+  try {
+    const tsconfig = request.body.tsconfig;
+    response.json(getFilesForTsConfig(tsconfig));
+  } catch (e) {
+    console.error(e.stack);
+    response.json({ error: e.message });
+  }
 }

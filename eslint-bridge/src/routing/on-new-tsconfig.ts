@@ -19,19 +19,12 @@
  */
 
 import express from 'express';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
+import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
 
 /**
- * Handles initialization requests of the global ESLint linter wrapper
- *
- * The bridge relies on a global ESLint linter wrapper for JavaScript
- * and TypeScript analysis. Before any analysis, the linter wrapper
- * must be initialized explicitly, which includes the rules from the
- * active quality profile the linter must consider as well as global
- * variables ann JavaScript execution environments.
+ * Handles new TSConfig-based analysis requests
  */
-export function onInitLinter(request: express.Request, response: express.Response) {
-  const { rules, environments, globals } = request.body;
-  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[]);
+export default function (_request: express.Request, response: express.Response) {
+  clearTypeScriptESLintParserCaches();
   response.send('OK!');
 }

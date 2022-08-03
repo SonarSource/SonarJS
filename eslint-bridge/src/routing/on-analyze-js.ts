@@ -21,8 +21,8 @@
 import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
 
 /**
- * Handles TypeScript analysis requests
+ * Handles JavaScript analysis requests
  */
-export const onAnalyzeTs = runner(input =>
-  Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'ts')),
+export default runner(input =>
+  Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'js')),
 );

@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { onAnalyzeTs } from './on-analyze-ts';
+import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
 
 /**
- * Handles TypeScript program-based analysis requests
+ * Handles TypeScript analysis requests
  */
-export const onAnalyzeWithProgram = onAnalyzeTs;
+export default runner(input =>
+  Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'ts')),
+);

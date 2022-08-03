@@ -19,17 +19,19 @@
  */
 
 import express from 'express';
-import { createProgram } from 'services/program';
+import { initializeLinter, RuleConfig } from 'linting/eslint';
 
 /**
- * Handles TypeScript Program creation requests
+ * Handles initialization requests of the global ESLint linter wrapper
+ *
+ * The bridge relies on a global ESLint linter wrapper for JavaScript
+ * and TypeScript analysis. Before any analysis, the linter wrapper
+ * must be initialized explicitly, which includes the rules from the
+ * active quality profile the linter must consider as well as global
+ * variables ann JavaScript execution environments.
  */
-export function onCreateProgram(request: express.Request, response: express.Response) {
-  try {
-    const { tsConfig } = request.body;
-    response.json(createProgram(tsConfig));
-  } catch (e) {
-    console.error(e.stack);
-    response.json({ error: e.message });
-  }
+export default function (request: express.Request, response: express.Response) {
+  const { rules, environments, globals } = request.body;
+  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[]);
+  response.send('OK!');
 }

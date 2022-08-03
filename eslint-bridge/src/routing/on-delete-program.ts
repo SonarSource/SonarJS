@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './on-analyze-css';
-export * from './on-analyze-js';
-export * from './on-analyze-ts';
-export * from './on-analyze-with-program';
-export * from './on-analyze-yaml';
-export * from './on-create-program';
-export * from './on-delete-program';
-export * from './on-init-linter';
-export * from './on-new-tsconfig';
-export * from './on-status';
-export * from './on-tsconfig-files';
+import express from 'express';
+import { deleteProgram } from 'services/program';
+
+/**
+ * Handles TypeScript Program deletion requests
+ */
+export default function (request: express.Request, response: express.Response) {
+  const { programId } = request.body;
+  deleteProgram(programId);
+  response.send('OK!');
+}

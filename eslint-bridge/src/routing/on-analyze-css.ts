@@ -23,4 +23,4 @@ import { runner, analyzeCSS, CssAnalysisInput } from 'services/analysis';
 /**
  * Handles CSS analysis requests
  */
-export const onAnalyzeCss = runner(input => analyzeCSS(input as CssAnalysisInput));
+export default runner(input => analyzeCSS(input as CssAnalysisInput));

@@ -19,12 +19,13 @@
  */
 
 import express from 'express';
-import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
 
 /**
- * Handles new TSConfig-based analysis requests
+ * Handles status requests
+ *
+ * This endpoint handler allows the sensor to make sure that the bridge is alive
+ * and can continue handle analysis requests or any other kind of request.
  */
-export function onNewTSConfig(_request: express.Request, response: express.Response) {
-  clearTypeScriptESLintParserCaches();
+export default function (_request: express.Request, response: express.Response) {
   response.send('OK!');
 }
