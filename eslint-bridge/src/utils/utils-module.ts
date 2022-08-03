@@ -200,6 +200,16 @@ export function getModuleAndCalledMethod(callee: estree.Node, context: Rule.Rule
 
 /**
  * Checks that an ESLint member expression matches a fully qualified name
+ *
+ * A fully qualified name here denotes a value that is accessed through an imported
+ * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
+ * or an import statement:
+ *
+ * ```
+ * const foo = require('lib');
+ * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * ```
+ *
  * @param expr the member expression
  * @param qualifiers the qualifiers to match
  */
