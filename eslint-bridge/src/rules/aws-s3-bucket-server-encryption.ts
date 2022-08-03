@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import { MemberExpression, Node } from 'estree';
 import {
+  getNodeParent,
   getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
@@ -57,7 +58,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       const secondary = { locations: [] as Node[], messages: [] as string[] };
       const isPropagatedProperty = encryptedProperty.value !== encryptedValue;
       if (isPropagatedProperty) {
-        secondary.locations = [(encryptedValue as any).parent as Node];
+        secondary.locations = [getNodeParent(encryptedValue)];
         secondary.messages = [messages['propagated']];
       }
       context.report({
