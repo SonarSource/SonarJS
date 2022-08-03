@@ -19,24 +19,83 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
-import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../../utils';
+import { Rule } from 'eslint';
+import { FunctionNodeType, interceptReport, isFunctionNode, isIdentifier } from '../../utils';
 import { suggestEmptyBlockQuickFix } from './no-empty-decorator';
 
-type FunctionLike =
-  | estree.ArrowFunctionExpression
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression;
+type RuleFunctionNode = FunctionNodeType & Rule.Node;
+
+function isRuleFunctionNode(node: estree.Node): node is RuleFunctionNode {
+  return isFunctionNode(node) && 'parent' in node;
+}
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoEmptyFunction(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const func = (reportDescriptor as any).node as FunctionLike;
-    const name = reportDescriptor.data!.name;
-    const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
-    const closingBrace = context.getSourceCode().getLastToken(func.body)!;
-    suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
-  });
+  return interceptReport(rule, reportWithQuickFixIfApplicable);
+}
+
+export function reportWithQuickFixIfApplicable(
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
+) {
+  if (!('node' in reportDescriptor) || !isRuleFunctionNode(reportDescriptor.node)) {
+    return;
+  }
+
+  const functionNode = reportDescriptor.node;
+  if (isApplicable(functionNode)) {
+    reportWithQuickFix(context, reportDescriptor, functionNode);
+  }
+}
+
+// This function limits the issues to variable/function/method declarations which name is not like /^on[A-Z].
+// Any lambda expression or arrow function is thus ignored.
+function isApplicable(functionNode: RuleFunctionNode) {
+  // Matches identifiers like onClick and more generally onXxx
+  function isCallbackIdentifier(node: estree.Node | null) {
+    return node !== null && isIdentifier(node) && /^on[A-Z]/.test(node.name);
+  }
+
+  // Matches: function foo() {}
+  // But not: function onClose() {}
+  function isFunctionDeclaration() {
+    return functionNode.type === 'FunctionDeclaration' && !isCallbackIdentifier(functionNode.id);
+  }
+
+  // Matches: class A { foo() {} }
+  // But not: class A { onClose() {} }
+  function isMethodDefinition() {
+    const methodNode = functionNode.parent;
+    return (
+      methodNode.type === 'MethodDefinition' &&
+      methodNode.value === functionNode &&
+      !isCallbackIdentifier(methodNode.key)
+    );
+  }
+
+  // Matches: const foo = () => {};
+  // But not: const onClose = () => {};
+  function isVariableDeclarator() {
+    const variableNode = functionNode.parent;
+    return (
+      variableNode.type === 'VariableDeclarator' &&
+      variableNode.init === functionNode &&
+      !isCallbackIdentifier(variableNode.id)
+    );
+  }
+
+  return isFunctionDeclaration() || isMethodDefinition() || isVariableDeclarator();
+}
+
+function reportWithQuickFix(
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
+  func: FunctionNodeType,
+) {
+  const name = reportDescriptor.data!.name;
+  const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
+  const closingBrace = context.getSourceCode().getLastToken(func.body)!;
+  suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
 }
