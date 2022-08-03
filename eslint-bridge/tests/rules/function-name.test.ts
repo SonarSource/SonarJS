@@ -64,6 +64,24 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
       }`,
       options: [{ format: DEFAULT_FORMAT }],
     },
+    {
+      code: `
+      const Welcome = () => {
+        const greeting = 'Hello, world!';
+
+        return <h1>{greeting}</h1>
+      }`,
+      options: [{ format: DEFAULT_FORMAT }],
+    },
+    {
+      code: `
+      const Welcome = function() {
+        const greeting = 'Hello, world!';
+
+        return <h1>{greeting}</h1>
+      }`,
+      options: [{ format: DEFAULT_FORMAT }],
+    },
   ],
   invalid: [
     {
@@ -109,6 +127,19 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
     {
       code: `
       var MyObj1 = function Object () {
+          this.a = 1;
+      };
+      `,
+      options: [{ format: DEFAULT_FORMAT }],
+      errors: [
+        {
+          line: 2,
+        },
+      ],
+    },
+    {
+      code: `
+      var MyObj1 = () => {
           this.a = 1;
       };
       `,
