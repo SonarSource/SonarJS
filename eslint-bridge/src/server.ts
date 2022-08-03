@@ -21,13 +21,9 @@
 import 'module-alias/register';
 import http from 'http';
 import express from 'express';
-import router from 'routing';
 import { debug } from 'helpers';
 
-/**
- * The maximum request body size
- */
-const MAX_REQUEST_SIZE = '50mb';
+import createApp from './createApp';
 
 /**
  * Starts the bridge
@@ -50,18 +46,15 @@ export function start(port = 0, host = '127.0.0.1'): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
 
-    const app = express();
     let server: http.Server;
 
-    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-    app.use(router);
+    const app = createApp();
     app.post('/close', (_request: express.Request, response: express.Response) => {
       debug('eslint-bridge server will shutdown');
       response.end(() => {
         server.close();
       });
     });
-
     server = app.listen(port, host, () => {
       debug(`eslint-bridge server is running at port ${port}`);
       resolve(server);
