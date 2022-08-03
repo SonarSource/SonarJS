@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from '../../services/analysis';
-import { analyze, JsTsAnalysisInput } from '../../services/analysis/analyzers/js';
+import express from 'express';
+import { clearTypeScriptESLintParserCaches } from '../parsing/jsts/parsers';
 
 /**
- * Handles JavaScript analysis requests
+ * Handles new TSConfig-based analysis requests
  */
-export const onAnalyzeJs = runner(input =>
-  Promise.resolve(analyze(input as JsTsAnalysisInput, 'js')),
-);
+export default function (_request: express.Request, response: express.Response) {
+  clearTypeScriptESLintParserCaches();
+  response.send('OK!');
+}

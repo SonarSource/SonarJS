@@ -18,13 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import express from 'express';
-import { clearTypeScriptESLintParserCaches } from '../../parsing/jsts/parsers';
+import { runner } from '../services/analysis';
+import { analyze, YamlAnalysisInput } from '../services/analysis/analyzers/yaml';
 
 /**
- * Handles new TSConfig-based analysis requests
+ * Handles YAML analysis requests
  */
-export function onNewTSConfig(_request: express.Request, response: express.Response) {
-  clearTypeScriptESLintParserCaches();
-  response.send('OK!');
-}
+export default runner(input => Promise.resolve(analyze(input as YamlAnalysisInput)));

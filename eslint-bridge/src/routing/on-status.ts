@@ -19,13 +19,13 @@
  */
 
 import express from 'express';
-import { deleteProgram } from '../../services';
 
 /**
- * Handles TypeScript Program deletion requests
+ * Handles status requests
+ *
+ * This endpoint handler allows the sensor to make sure that the bridge is alive
+ * and can continue handle analysis requests or any other kind of request.
  */
-export function onDeleteProgram(request: express.Request, response: express.Response) {
-  const { programId } = request.body;
-  deleteProgram(programId);
+export default function (_request: express.Request, response: express.Response) {
   response.send('OK!');
 }

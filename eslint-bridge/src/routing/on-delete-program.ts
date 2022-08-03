@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from '../../services/analysis';
-import { analyze, JsTsAnalysisInput } from '../../services/analysis/analyzers/js';
+import express from 'express';
+import { deleteProgram } from '../services';
 
 /**
- * Handles TypeScript analysis requests
+ * Handles TypeScript Program deletion requests
  */
-export const onAnalyzeTs = runner(input =>
-  Promise.resolve(analyze(input as JsTsAnalysisInput, 'ts')),
-);
+export default function (request: express.Request, response: express.Response) {
+  const { programId } = request.body;
+  deleteProgram(programId);
+  response.send('OK!');
+}

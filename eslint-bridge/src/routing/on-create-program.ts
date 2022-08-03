@@ -18,10 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from '../../services/analysis';
-import { analyze, CssAnalysisInput } from '../../services/analysis/analyzers/css';
+import express from 'express';
+import { createProgram } from '../services';
 
 /**
- * Handles CSS analysis requests
+ * Handles TypeScript Program creation requests
  */
-export const onAnalyzeCss = runner(input => analyze(input as CssAnalysisInput));
+export default function (request: express.Request, response: express.Response) {
+  try {
+    const { tsConfig } = request.body;
+    response.json(createProgram(tsConfig));
+  } catch (e) {
+    console.error(e.stack);
+    response.json({ error: e.message });
+  }
+}

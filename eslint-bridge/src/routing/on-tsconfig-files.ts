@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { getFilesForTsConfig } from '../../services';
+import { getFilesForTsConfig } from '../services';
 
 /**
  * Handles TSConfig files resolving requests
@@ -29,7 +29,7 @@ import { getFilesForTsConfig } from '../../services';
  * of the whole resolving lies in the bridge since it includes and bundles
  * TypeScript dependency, which is able to parse and analyze TSConfig files.
  */
-export function onTSConfigFiles(request: express.Request, response: express.Response) {
+export default function (request: express.Request, response: express.Response) {
   try {
     const tsconfig = request.body.tsconfig;
     response.json(getFilesForTsConfig(tsconfig));
