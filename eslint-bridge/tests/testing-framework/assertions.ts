@@ -41,22 +41,26 @@ function convertToTestCaseErrors(
   issue: LineIssues,
   usesSecondaryLocations: boolean,
 ): RuleTester.TestCaseError[] {
-  const toMessage = usesSecondaryLocations ? toEncodedMessage : message => message;
+  const encodeMessageIfNeeded = usesSecondaryLocations ? toEncodedMessage : message => message;
   const line = issue.line;
   const primary = issue.primaryLocation;
   const messages = [...issue.messages.values()];
   if (primary === null) {
-    return messages.map(message => (message ? { line, message: toMessage(message) } : { line }));
+    return messages.map(message =>
+      message ? { line, message: encodeMessageIfNeeded(message) } : { line },
+    );
   } else {
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
       return messages.map(message =>
-        message ? { ...primary.range, message: toMessage(message) } : { ...primary.range },
+        message
+          ? { ...primary.range, message: encodeMessageIfNeeded(message) }
+          : { ...primary.range },
       );
     } else {
       return messages.map(message => ({
         ...primary.range,
-        message: toMessage(
+        message: encodeMessageIfNeeded(
           message,
           secondary.map(s => s.range.toLocationHolder()),
           secondary.map(s => s.message),
