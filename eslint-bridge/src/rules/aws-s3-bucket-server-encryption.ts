@@ -34,6 +34,7 @@ const ENCRYPTED_KEY = 'encryption';
 const messages = {
   unencrypted: 'Objects in the bucket are not encrypted. Make sure it is safe here.',
   omitted: 'Omitting "encryption" disables server-side encryption. Make sure it is safe here.',
+  propagated: 'Propagated setting.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
@@ -57,7 +58,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       const isPropagatedProperty = encryptedProperty.value !== encryptedValue;
       if (isPropagatedProperty) {
         secondary.locations = [(encryptedValue as any).parent as Node];
-        secondary.messages = ['Propagated setting.'];
+        secondary.messages = [messages['propagated']];
       }
       context.report({
         message: toEncodedMessage(messages['unencrypted'], secondary.locations, secondary.messages),
