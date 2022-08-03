@@ -223,4 +223,18 @@ describe('router', () => {
     expect(error).toEqual('Debug Failure.');
     expect(console.error).toHaveBeenCalled();
   });
+
+  it('should handle errors using the error middleware', async () => {
+    // rules don't matter
+    initializeLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    console.error = jest.fn();
+    const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
+    const data = { tsConfig };
+    const response = (await request(server, host, '/analyze-yaml', 'POST', data)) as string;
+    const { parsingError } = JSON.parse(response);
+    expect(parsingError).toBeDefined();
+    expect(console.error).toHaveBeenCalled();
+  });
 });

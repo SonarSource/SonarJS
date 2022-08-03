@@ -48,9 +48,8 @@ export function request(
   };
 
   return new Promise((resolve, reject) => {
-    let response = '';
-
     const request = http.request(options, res => {
+      let response = '';
       res.on('data', chunk => {
         response += chunk;
       });
