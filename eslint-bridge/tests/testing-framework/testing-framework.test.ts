@@ -24,10 +24,10 @@ import { readFileSync } from 'fs';
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${__dirname}/fixtures`);
 
-  function assertions(filename: string) {
+  function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);
     const code = readFileSync(filePath, { encoding: 'utf8' });
-    return readAssertions(code);
+    return readAssertions(code, usesSecondaryLocations);
   }
 
   it('non compliant', () => {
@@ -69,7 +69,7 @@ describe('Comment-based Testing Framework', () => {
   });
 
   it('secondary', () => {
-    expect(assertions('secondary.js')).toEqual([
+    expect(assertions('secondary.js', true)).toEqual([
       {
         column: 7,
         line: 3,
@@ -98,8 +98,22 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
+  it('missing secondary', () => {
+    expect(assertions('missing_secondary.js', true)).toEqual(
+      expect.arrayContaining([
+        {
+          line: 6,
+          message: JSON.stringify({
+            message: 'Rule message',
+            secondaryLocations: [],
+          }),
+        },
+      ]),
+    );
+  });
+
   it('line adjustment', () => {
-    expect(assertions('adjustment.js')).toEqual([
+    expect(assertions('adjustment.js', true)).toEqual([
       {
         line: 2,
       },

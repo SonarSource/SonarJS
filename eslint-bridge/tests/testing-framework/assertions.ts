@@ -24,31 +24,43 @@ import { FileIssues, LineIssues } from './issues';
 /**
  * Produces array of errors for the ESLint RuleTester from the file contents of a comment-based test file
  * @param fileContent The comment-based file as a string
+ * @param usesSonarRuntime A flag that indicates if the tested rule uses sonar-runtime parameter
  * @returns array of errors
  */
-export function readAssertions(fileContent: string): RuleTester.TestCaseError[] {
+export function readAssertions(
+  fileContent: string,
+  usesSonarRuntime: boolean,
+): RuleTester.TestCaseError[] {
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const errors: RuleTester.TestCaseError[] = [];
-  expectedIssues.forEach(issue => errors.push(...convertToTestCaseErrors(issue)));
+  expectedIssues.forEach(issue => errors.push(...convertToTestCaseErrors(issue, usesSonarRuntime)));
   return errors;
 }
 
-function convertToTestCaseErrors(issue: LineIssues): RuleTester.TestCaseError[] {
+function convertToTestCaseErrors(
+  issue: LineIssues,
+  usesSecondaryLocations: boolean,
+): RuleTester.TestCaseError[] {
+  const encodeMessageIfNeeded = usesSecondaryLocations ? toEncodedMessage : message => message;
   const line = issue.line;
   const primary = issue.primaryLocation;
   const messages = [...issue.messages.values()];
   if (primary === null) {
-    return messages.map(message => (message ? { line, message } : { line }));
+    return messages.map(message =>
+      message ? { line, message: encodeMessageIfNeeded(message) } : { line },
+    );
   } else {
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
       return messages.map(message =>
-        message ? { ...primary.range, message } : { ...primary.range },
+        message
+          ? { ...primary.range, message: encodeMessageIfNeeded(message) }
+          : { ...primary.range },
       );
     } else {
       return messages.map(message => ({
         ...primary.range,
-        message: toEncodedMessage(
+        message: encodeMessageIfNeeded(
           message,
           secondary.map(s => s.range.toLocationHolder()),
           secondary.map(s => s.message),
