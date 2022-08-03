@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
-import estree from 'estree';
+import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { FunctionNodeType, interceptReport, isFunctionNode, isIdentifier } from '../../utils';
 import { suggestEmptyBlockQuickFix } from './no-empty-decorator';
@@ -52,21 +52,21 @@ export function reportWithQuickFixIfApplicable(
 
 // This function limits the issues to variable/function/method declarations which name is not like /^on[A-Z].
 // Any lambda expression or arrow function is thus ignored.
-function isApplicable(functionNode: RuleFunctionNode): boolean {
+function isApplicable(functionNode: RuleFunctionNode) {
   // Matches identifiers like onClick and more generally onXxx
-  function isCallbackIdentifier(node: estree.Node | null): boolean {
+  function isCallbackIdentifier(node: estree.Node | null) {
     return node !== null && isIdentifier(node) && /^on[A-Z]/.test(node.name);
   }
 
   // Matches: function foo() {}
   // But not: function onClose() {}
-  function isFunctionDeclaration(): boolean {
+  function isFunctionDeclaration() {
     return functionNode.type === 'FunctionDeclaration' && !isCallbackIdentifier(functionNode.id);
   }
 
-  // Matches: Class A { foo() {} }
-  // But not: Class A { onClose() {} }
-  function isMethodDefinition(): boolean {
+  // Matches: class A { foo() {} }
+  // But not: class A { onClose() {} }
+  function isMethodDefinition() {
     const methodNode = functionNode.parent;
     return (
       methodNode.type === 'MethodDefinition' &&
@@ -77,7 +77,7 @@ function isApplicable(functionNode: RuleFunctionNode): boolean {
 
   // Matches: const foo = () => {};
   // But not: const onClose = () => {};
-  function isVariableDeclarator(): boolean {
+  function isVariableDeclarator() {
     const variableNode = functionNode.parent;
     return (
       variableNode.type === 'VariableDeclarator' &&
@@ -93,7 +93,7 @@ function reportWithQuickFix(
   context: Rule.RuleContext,
   reportDescriptor: Rule.ReportDescriptor,
   func: FunctionNodeType,
-): void {
+) {
   const name = reportDescriptor.data!.name;
   const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
   const closingBrace = context.getSourceCode().getLastToken(func.body)!;
