@@ -20,7 +20,6 @@
 
 import 'module-alias/register';
 import http from 'http';
-
 import { createApp } from './app';
 import express from 'express';
 import { debug } from 'helpers';

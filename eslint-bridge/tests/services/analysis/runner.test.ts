@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { runner, AnalysisOutput, AnalysisErrorCode } from 'services/analysis';
+import { runner, AnalysisOutput } from 'services/analysis';
 
 describe('runner', () => {
   it('should run an analysis', async () => {
