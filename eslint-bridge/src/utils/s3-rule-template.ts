@@ -52,7 +52,7 @@ export function S3BucketTemplate(
   };
 
   /**
-   * Finds something like this:
+   * Detects S3 Bucket's constructor invocation from 'aws-cdk-lib/aws-s3':
    *
    * const s3 = require('aws-cdk-lib/aws-s3');
    * new s3.Bucket();

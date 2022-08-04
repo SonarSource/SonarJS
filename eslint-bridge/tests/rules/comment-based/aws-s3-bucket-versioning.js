@@ -4,7 +4,7 @@ const s3 = require('aws-cdk-lib/aws-s3');
 const noOptions = new s3.Bucket(this, 'id'); // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
 //                    ^^^^^^^^^
 
-const noOtionsParam = new s3.Bucket(this, 'id', { // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
+const noOptionsParam = new s3.Bucket(this, 'id', { // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
 //                        ^^^^^^^^^
   bucketName: 'bucket'
 });
