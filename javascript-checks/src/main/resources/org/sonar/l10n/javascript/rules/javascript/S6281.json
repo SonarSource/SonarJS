@@ -1,0 +1,49 @@
+{
+  "title": "Allowing public ACLs or policies on a S3 bucket is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "owasp-a6",
+    "owasp-a5"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6281",
+  "sqKey": "S6281",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "OWASP": [
+      "A6",
+      "A5"
+    ],
+    "CIS": [
+      "3.3"
+    ],
+    "OWASP Top 10 2021": [
+      "A1",
+      "A5"
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "4.1.1",
+      "4.1.2"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
