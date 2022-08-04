@@ -2,7 +2,7 @@ import express from 'express';
 import { AnalysisErrorCode } from '../services/analysis/errors';
 import { ErrorType, SonarError } from './builder';
 
-export function errorMiddleware (
+export function errorMiddleware(
   error: Error,
   _request: express.Request,
   response: express.Response,
@@ -18,7 +18,7 @@ export function errorMiddleware (
     errorType = 'General';
   }
 
-  switch(errorType) {
+  switch (errorType) {
     case 'General': {
       response.json({ error: error.message });
       break;
@@ -33,5 +33,4 @@ export function errorMiddleware (
       break;
     }
   }
-
-};
+}

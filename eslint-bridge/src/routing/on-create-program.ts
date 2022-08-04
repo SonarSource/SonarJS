@@ -24,7 +24,11 @@ import { createProgram } from '../services';
 /**
  * Handles TypeScript Program creation requests
  */
-export default function (request: express.Request, response: express.Response, next: express.NextFunction) {
+export default function (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction,
+) {
   try {
     const { tsConfig } = request.body;
     response.json(createProgram(tsConfig));
