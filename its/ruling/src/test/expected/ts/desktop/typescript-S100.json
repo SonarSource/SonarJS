@@ -7,14 +7,8 @@
 'desktop:app/src/main-process/shell.ts':[
 17,
 ],
-'desktop:app/src/ui/changes/commit-warning.tsx':[
-33,
-],
 'desktop:app/src/ui/lib/highlight-text.tsx':[
 10,
-],
-'desktop:app/src/ui/suggested-actions/suggested-action-group.tsx':[
-33,
 ],
 'desktop:app/src/ui/tutorial/tutorial-panel.tsx':[
 314,
