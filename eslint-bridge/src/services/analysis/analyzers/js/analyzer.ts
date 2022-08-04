@@ -28,7 +28,7 @@ import {
 } from '../../../../linting/eslint/linter/visitors';
 import { getCpdTokens } from '../../../../linting/eslint/linter/visitors/cpd';
 import { getSyntaxHighlighting } from '../../../../linting/eslint/linter/visitors/syntax-highlighting';
-import { buildSourceCode, Language } from '../../../../parsing/jsts/';
+import { buildSourceCode, Language } from '../../../../parsing/jsts';
 import { AnalysisErrorCode } from '../../errors';
 import { measureDuration } from '../../../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './dto';

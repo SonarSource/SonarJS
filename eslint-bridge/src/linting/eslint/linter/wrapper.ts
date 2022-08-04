@@ -26,7 +26,7 @@ import { rules as internalRules } from '../rules';
 import { rules as internalCustomRules, CustomRule } from './custom-rules';
 import { createLinterConfig, RuleConfig } from './config';
 import { FileType } from '../../../helpers';
-import { SymbolHighlight } from './visitors/';
+import { SymbolHighlight } from './visitors';
 import { decorateExternalRules } from './decoration';
 import {
   Issue,

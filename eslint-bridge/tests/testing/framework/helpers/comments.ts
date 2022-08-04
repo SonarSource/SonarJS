@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from 'parsing/jsts/';
+import { buildSourceCode } from 'parsing/jsts';
 import { LineIssues } from './issues';
 import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
 import * as estree from 'estree';

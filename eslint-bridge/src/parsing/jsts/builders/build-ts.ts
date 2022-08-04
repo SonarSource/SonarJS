@@ -19,7 +19,7 @@
  */
 
 import { JsTsAnalysisInput } from '../../../services/analysis/analyzers/js';
-import { buildParserOptions, parsers, parseForESLint } from '../parsers/';
+import { buildParserOptions, parsers, parseForESLint } from '../parsers';
 
 /**
  * Builds an instance of ESLint SourceCode for TypeScript
