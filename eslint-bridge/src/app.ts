@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import router from './routing';
-import { AnalysisErrorCode } from './services/analysis/errors';
+import { errorMiddleware } from './errors';
 
 /**
  * The maximum request body size
@@ -35,18 +35,4 @@ export const createApp = function () {
   return app;
 };
 
-const errorMiddleware = function (
-  error: Error,
-  _request: express.Request,
-  response: express.Response,
-  // the fourth parameter is necessary to identify this as an error middleware
-  _next: express.NextFunction,
-) {
-  console.error(error.stack);
-  response.json({
-    parsingError: {
-      message: error.message,
-      code: AnalysisErrorCode.GeneralError,
-    },
-  });
-};
+

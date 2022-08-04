@@ -24,12 +24,11 @@ import { createProgram } from 'services/program';
 /**
  * Handles TypeScript Program creation requests
  */
-export default function (request: express.Request, response: express.Response) {
+export default function (request: express.Request, response: express.Response, next: express.NextFunction) {
   try {
     const { tsConfig } = request.body;
     response.json(createProgram(tsConfig));
-  } catch (e) {
-    console.error(e.stack);
-    response.json({ error: e.message });
+  } catch (error) {
+    next(error);
   }
 }

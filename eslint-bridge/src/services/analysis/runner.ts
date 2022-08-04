@@ -19,6 +19,7 @@
  */
 
 import express from 'express';
+import { buildError } from '../../errors';
 import { Analysis } from './analysis';
 
 /**
@@ -42,8 +43,8 @@ export function runner(analysis: Analysis): express.RequestHandler {
       const input = request.body;
       const output = await analysis(input);
       response.json(output);
-    } catch (e) {
-      next(e);
+    } catch (error) {
+      next(buildError(error, 'Parsing'));
     }
   };
 }
