@@ -188,6 +188,7 @@ class JavaScriptRulingTest {
       actualExclusions += ", " + testDir + "/**/*";
     }
 
+    var differencesPath = Path.of("target", languageToAnalyze + "-" + projectKey + "-differences").toAbsolutePath();
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -198,7 +199,7 @@ class JavaScriptRulingTest {
       .setScannerVersion(SCANNER_VERSION)
       .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
-      .setProperty("sonar.lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
@@ -208,8 +209,7 @@ class JavaScriptRulingTest {
       .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);
-
-    assertThat(new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)).isEmpty();
+    assertThat(differencesPath).hasContent("");
   }
 
   private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {
