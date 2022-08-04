@@ -20,7 +20,7 @@
 
 import express from 'express';
 import { runner } from 'services';
-import { AnalysisOutput, AnalysisErrorCode } from 'services/analysis';
+import { AnalysisOutput } from 'services/analysis';
 
 describe('runner', () => {
   it('should run an analysis', async () => {

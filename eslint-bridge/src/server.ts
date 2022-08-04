@@ -21,7 +21,7 @@
 import http from 'http';
 import { debug } from './helpers';
 import { loadBundles } from './linting/eslint';
-import { createApp } from './app';
+import { createApp } from './app';
 import express from 'express';
 
 /**
