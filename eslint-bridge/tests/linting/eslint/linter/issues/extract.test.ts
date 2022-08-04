@@ -23,14 +23,14 @@ import {
   extractHighlightedSymbols,
   Issue,
 } from 'linting/eslint/linter/issues';
-import { ruleId as cognitiveComplexityRuleId } from 'linting/eslint/linter/custom-rules/cognitive-complexity';
-import { ruleId as symbolHighlightingRuleId } from 'linting/eslint/linter/custom-rules/symbol-highlighting';
+import { rule as cognitiveComplexityRule } from 'linting/eslint/linter/custom-rules/cognitive-complexity';
+import { rule as symbolHighlightingRule } from 'linting/eslint/linter/custom-rules/symbol-highlighting';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {
     const issues: Issue[] = [
       {
-        ruleId: symbolHighlightingRuleId,
+        ruleId: symbolHighlightingRule.ruleId,
         line: 1,
         column: 2,
         message: JSON.stringify({
@@ -53,7 +53,7 @@ describe('extract', () => {
   it('should extract cognitive complexity', () => {
     const issues: Issue[] = [
       {
-        ruleId: cognitiveComplexityRuleId,
+        ruleId: cognitiveComplexityRule.ruleId,
         line: 1,
         column: 2,
         message: '42',
@@ -66,7 +66,7 @@ describe('extract', () => {
   it('should return undefined on NaN cognitive complexity', () => {
     const issues: Issue[] = [
       {
-        ruleId: cognitiveComplexityRuleId,
+        ruleId: cognitiveComplexityRule.ruleId,
         line: 1,
         column: 2,
         message: 'nan',
@@ -83,7 +83,7 @@ describe('extract', () => {
   it('should preserve non-extracted issues', () => {
     const issues: Issue[] = [
       {
-        ruleId: symbolHighlightingRuleId,
+        ruleId: symbolHighlightingRule.ruleId,
         line: 1,
         column: 2,
         message: JSON.stringify({
@@ -100,7 +100,7 @@ describe('extract', () => {
         secondaryLocations: [],
       },
       {
-        ruleId: cognitiveComplexityRuleId,
+        ruleId: cognitiveComplexityRule.ruleId,
         line: 1,
         column: 2,
         message: '42',

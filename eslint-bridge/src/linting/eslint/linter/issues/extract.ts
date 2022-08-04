@@ -19,8 +19,8 @@
  */
 
 import { Issue } from './issue';
-import { ruleId as cognitiveComplexityRuleId } from '../custom-rules/cognitive-complexity';
-import { ruleId as symbolHighlightingRuleId } from '../custom-rules/symbol-highlighting';
+import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity';
+import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting';
 import { SymbolHighlight } from '../visitors';
 
 /**
@@ -36,7 +36,7 @@ import { SymbolHighlight } from '../visitors';
  * @returns the symbol highlighting
  */
 export function extractHighlightedSymbols(issues: Issue[]) {
-  const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRuleId);
+  const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRule.ruleId);
   if (issue) {
     return JSON.parse(issue.message) as SymbolHighlight[];
   }
@@ -55,7 +55,7 @@ export function extractHighlightedSymbols(issues: Issue[]) {
  * @returns the cognitive complexity
  */
 export function extractCognitiveComplexity(issues: Issue[]) {
-  const issue = findAndRemoveFirstIssue(issues, cognitiveComplexityRuleId);
+  const issue = findAndRemoveFirstIssue(issues, cognitiveComplexityRule.ruleId);
   if (issue && !isNaN(Number(issue.message))) {
     return Number(issue.message);
   }

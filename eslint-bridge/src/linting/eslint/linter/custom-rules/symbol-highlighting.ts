@@ -22,15 +22,10 @@ import { CustomRule } from './custom-rule';
 import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting';
 
 /**
- * The ESLint rule key of the internal _symbol-highlighting_ custom rule
- */
-export const ruleId = 'internal-symbol-highlighting';
-
-/**
- * The internal _cognitive complexity_ custom rule
+ * The internal _symbol highlighting_ custom rule
  */
 export const rule: CustomRule = {
-  ruleId,
+  ruleId: 'internal-symbol-highlighting',
   ruleModule: symbolHighlightingRule,
   ruleConfig: [],
 };
