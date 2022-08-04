@@ -28,7 +28,7 @@ import { parseTypeScriptSourceFile } from '../helpers';
 import path from 'path';
 
 /**
- * Detects missing of secondary location support for rules using secondary locations.
+ * Detects missing secondary location support for rules using secondary locations.
  *
  * A rule is considered to be using secondary location if its implementation calls at
  * some point `toEncodedMessage` from `linting/eslint/rules/helpers/location.ts`.
@@ -47,7 +47,6 @@ import path from 'path';
  * missing something are collected. The presence of such rules eventually makes the
  * test fail, and the names of the problematical rules are reported.
  */
-
 describe('sonar-runtime', () => {
   it('should be enabled for rules using secondary locations', () => {
     const misconfiguredRules = [];
