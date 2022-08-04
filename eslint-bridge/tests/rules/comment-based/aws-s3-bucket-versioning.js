@@ -5,7 +5,7 @@ const noOptions = new s3.Bucket(this, 'id'); // Noncompliant {{Omitting the "ver
 //                    ^^^^^^^^^
 
 const noOptionsParam = new s3.Bucket(this, 'id', { // Noncompliant {{Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.}}
-//                        ^^^^^^^^^
+//                         ^^^^^^^^^
   bucketName: 'bucket'
 });
 
