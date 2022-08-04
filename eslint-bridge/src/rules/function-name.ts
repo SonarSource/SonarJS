@@ -26,7 +26,7 @@ import { last } from '../utils';
 
 interface FunctionKnowledge {
   returnsJSX: boolean;
-  id: TSESTree.Node | null;
+  id: TSESTree.Node;
 }
 
 export const rule: Rule.RuleModule = {
@@ -79,9 +79,9 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function checkName(id: TSESTree.Node | null) {
+    function checkName(id: TSESTree.Node) {
       const [{ format }] = context.options;
-      if (id && id.type === 'Identifier' && !id.name.match(format)) {
+      if (id.type === 'Identifier' && !id.name.match(format)) {
         context.report({
           messageId: 'renameFunction',
           data: {
@@ -99,16 +99,16 @@ function isFunctionExpression(node: TSESTree.Node | null) {
   return node && (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression');
 }
 
-function isReactFunctionComponent(knowledge: FunctionKnowledge) {
-  return nameStartsWithCapital(knowledge.id) && knowledge.returnsJSX;
+function isReactFunctionComponent(knowledge: FunctionKnowledge | null) {
+  return knowledge !== null && nameStartsWithCapital(knowledge.id) && knowledge.returnsJSX;
 }
 
-function nameStartsWithCapital(node: TSESTree.Node | undefined | null) {
-  return node != null && node.type === 'Identifier' && node.name[0] === node.name[0].toUpperCase();
+function nameStartsWithCapital(node: TSESTree.Node) {
+  return node.type === 'Identifier' && node.name[0] === node.name[0].toUpperCase();
 }
 
 function createKnowledge(node: TSESTree.Node): FunctionKnowledge | null {
-  if (node.type === 'FunctionDeclaration') {
+  if (node.type === 'FunctionDeclaration' && node.id !== null) {
     return {
       returnsJSX: false,
       id: node.id,
