@@ -17,16 +17,117 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
-import { decorateNoEmptyFunction } from 'rules/decorators/no-empty-function-decorator';
+import { Linter, Rule, RuleTester } from 'eslint';
+import {
+  decorateNoEmptyFunction,
+  reportWithQuickFixIfApplicable,
+} from 'rules/decorators/no-empty-function-decorator';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },
+});
 const rule = decorateNoEmptyFunction(new Linter().getRules().get('no-empty-function'));
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [
     {
+      code: `function onSomething() {}`,
+    },
+    {
       code: `function f() { /* documented */ }`,
+    },
+    {
+      code: `
+        class Foo {
+          f() { /* documented */ }
+        }
+      `,
+    },
+    {
+      code: `
+        class Foo {
+          onSomething() {}
+        }
+      `,
+    },
+    {
+      code: `
+        class Foo {
+          onSomething = function() {}
+        }
+      `,
+    },
+    {
+      code: `
+        class Foo {
+          onSomething = () => {}
+        }
+      `,
+    },
+    {
+      code: `
+        const obj = {
+          foo: function() {
+          }
+        };
+      `,
+    },
+    {
+      code: `
+        class Foo {
+          static defaultProps = {
+            foo1: () => {},
+            foo2() {}
+          }
+        }
+      `,
+    },
+    {
+      code: `
+        Foo.defaultProps = {
+          foo1: () => {},
+          foo2() {}
+        };
+      `,
+    },
+    {
+      code: `
+        function Foo() {
+          return <div onclick={() => {}} onfocus="{() => {}"></div>;
+        }
+      `,
+    },
+    {
+      code: `
+        function Foo() {
+          return <div onclick={() => {}} onfocus="{function() {}"></div>;
+        }
+      `,
+    },
+    {
+      code: `
+        function foo({ bar = () => {} }) {
+          bar();
+        }
+      `,
+    },
+    {
+      code: `
+        function foo(bar = () => {}) {
+          bar();
+        }
+      `,
+    },
+    {
+      code: `
+        const onSomething = () => {};
+      `,
+    },
+    {
+      code: `(function() {})`,
+    },
+    {
+      code: `() => {}`,
     },
   ],
   invalid: [
@@ -88,30 +189,6 @@ class C {
       ],
     },
     {
-      code: `
-const obj = {
-  foo: function() {
-    }
-};
-`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `
-const obj = {
-  foo: function() {
-      // TODO document why this method 'foo' is empty
-    
-    }
-};
-`,
-            },
-          ],
-        },
-      ],
-    },
-    {
       code: `const arrow = () => {}`,
       errors: [
         {
@@ -125,4 +202,8 @@ const obj = {
       ],
     },
   ],
+});
+
+it('handles non function nodes', () => {
+  reportWithQuickFixIfApplicable({} as Rule.RuleContext, {} as Rule.ReportDescriptor); // The call must not fail.
 });

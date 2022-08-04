@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import assert from 'assert';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
@@ -195,4 +196,48 @@ export function getModuleAndCalledMethod(callee: estree.Node, context: Rule.Rule
     method = callee;
   }
   return { module, method };
+}
+
+/**
+ * Checks that an ESLint member expression matches a fully qualified name
+ *
+ * A fully qualified name here denotes a value that is accessed through an imported
+ * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
+ * or an import statement:
+ *
+ * ```
+ * const foo = require('lib');
+ * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * ```
+ *
+ * @param expr the member expression
+ * @param qualifiers the qualifiers to match
+ */
+export function hasFullyQualifiedName(
+  context: Rule.RuleContext,
+  expr: estree.MemberExpression,
+  ...qualifiers: string[]
+) {
+  assert(qualifiers.length >= 2, 'A fully qualified name should include two qualifiers at least.');
+
+  let node: estree.Node = expr;
+  while (node.type === 'MemberExpression') {
+    const qualifier = qualifiers.pop();
+    if (!qualifier || !isIdentifier(node.property, qualifier)) {
+      return false;
+    }
+    node = node.object;
+  }
+
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  const module = getModuleNameOfImportedIdentifier(context, node);
+  const qualifier = qualifiers.pop();
+  if (!qualifier || module?.value !== qualifier) {
+    return false;
+  }
+
+  return qualifiers.length === 0;
 }

@@ -1,13 +1,4 @@
 {
-'jquery:src/ajax.js':[
-750,
-],
-'jquery:src/core.js':[
-202,
-],
-'jquery:src/manipulation/_evalUrl.js':[
-18,
-],
 'jquery:src/selector.js':[
 1041,
 ],

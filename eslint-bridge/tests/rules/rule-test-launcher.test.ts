@@ -26,6 +26,7 @@ import { readAssertions } from '../testing-framework/assertions';
 import { buildSourceCode } from 'parser';
 import { readFileSync } from 'fs';
 import { FileType } from '../../src/analyzer';
+import { hasSonarRuntimeOption } from '../../src/linter';
 
 /**
  * Return test files for specific rule based on rule key
@@ -61,12 +62,14 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     }
     describe(`Running tests for rule ${rule}`, () => {
       files.forEach(filename => {
+        const ruleModule = rules[rule];
         const code = readFileSync(filename, { encoding: 'utf8' });
+        const errors = readAssertions(code, hasSonarRuntimeOption(ruleModule, rule));
         const tests = {
           valid: [],
-          invalid: [{ code, errors: readAssertions(code), filename }],
+          invalid: [{ code, errors, filename }],
         };
-        ruleTester.run(filename, rules[rule], tests);
+        ruleTester.run(filename, ruleModule, tests);
       });
     });
   }

@@ -70,6 +70,7 @@ public final class CheckList {
       AssertionsInTestsCheck.class,
       AssociativeArraysCheck.class,
       AwsS3BucketInsecureHttpCheck.class,
+      AwsS3BucketServerEncryptionCheck.class,
       AwsS3BucketVersioningCheck.class,
       BitwiseOperatorsCheck.class,
       BoolParamDefaultCheck.class,
