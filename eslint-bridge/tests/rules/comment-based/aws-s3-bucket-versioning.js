@@ -26,7 +26,7 @@ const notVersioned = new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
     versioned: versioned,
   });
-  
+
   const isVersionedShorthand = new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
     versioned,
@@ -48,7 +48,7 @@ const notVersioned = new s3.Bucket(this, 'id', {
   });
 })
 
-const undefinedParam = new s3.Bucket(this, 'id', { 
+const undefinedParam = new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
   versioned: undefined,
 });
@@ -56,13 +56,9 @@ const undefinedParam = new s3.Bucket(this, 'id', {
 const wrongTypeOptions = new s3.Bucket(this, 'id', 'notAnObject');  // Noncompliant
 //                           ^^^^^^^^^
 
-/* // not handled yet
-const params = { 
+const params = {
   bucketName: 'bucket',
-  versioned: false,
-//^^^^^^^^^^^^^^^^< {{Propagated setting.}}
+  versioned: false, // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+//^^^^^^^^^^^^^^^^
 };
-// 
-new s3.Bucket(this, 'id', params); // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-//                        ^^^^^^
-*/
+const optionsInExternalObject = new s3.Bucket(this, 'id', params);

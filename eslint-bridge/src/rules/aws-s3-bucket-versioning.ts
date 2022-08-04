@@ -48,8 +48,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       });
       return;
     }
-    const propertyValue = versionedProperty.value;
-    const propertyLiteralValue = getValueOfExpression(context, propertyValue, 'Literal');
+    const propertyLiteralValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
 
     if (propertyLiteralValue?.value === false) {
       const secondary = { locations: [] as Node[], messages: [] as string[] };
