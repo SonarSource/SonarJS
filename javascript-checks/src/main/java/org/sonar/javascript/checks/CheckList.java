@@ -69,6 +69,7 @@ public final class CheckList {
       ArrowFunctionConventionCheck.class,
       AssertionsInTestsCheck.class,
       AssociativeArraysCheck.class,
+      AwsS3BucketAccessCheck.class,
       AwsS3BucketInsecureHttpCheck.class,
       AwsS3BucketServerEncryptionCheck.class,
       BitwiseOperatorsCheck.class,

@@ -27,6 +27,7 @@ import { rule as arrayCallBackWithoutReturn } from './array-callback-without-ret
 import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
 import { rule as assertionsInTests } from './assertions-in-tests';
+import { rule as awsS3BucketAccess } from './aws-s3-bucket-access';
 import { rule as awsS3BucketInsecureHttp } from './aws-s3-bucket-insecure-http';
 import { rule as awsS3BucketServerEncryption } from './aws-s3-bucket-server-encryption';
 import { rule as bitwiseOperators } from './bitwise-operators';
@@ -233,6 +234,7 @@ ruleModules['array-callback-without-return'] = arrayCallBackWithoutReturn;
 ruleModules['array-constructor'] = arrayConstructor;
 ruleModules['arrow-function-convention'] = arrowFunctionConvention;
 ruleModules['assertions-in-tests'] = assertionsInTests;
+ruleModules['aws-s3-bucket-access'] = awsS3BucketAccess;
 ruleModules['aws-s3-bucket-insecure-http'] = awsS3BucketInsecureHttp;
 ruleModules['aws-s3-bucket-server-encryption'] = awsS3BucketServerEncryption;
 ruleModules['bitwise-operators'] = bitwiseOperators;
