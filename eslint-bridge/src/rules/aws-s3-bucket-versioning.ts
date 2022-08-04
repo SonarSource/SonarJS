@@ -20,32 +20,58 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { getValueOfExpression, getProperty, S3BucketTemplate } from '../utils';
+import { Node } from 'estree';
+import {
+  getValueOfExpression,
+  getProperty,
+  S3BucketTemplate,
+  toEncodedMessage,
+  getNodeParent,
+} from '../utils';
 
 const VERSIONED_KEY = 'versioned';
 
 const messages = {
-  default: 'Make sure using unversioned S3 bucket is safe here.',
+  unversioned: 'Make sure using unversioned S3 bucket is safe here.',
   omitted:
     'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
   secondary: 'Propagated setting.',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
-  const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
-  if (versionedProperty == null) {
-    context.report({
-      message: messages['omitted'],
-      node: bucketConstructor.callee,
-    });
-    return;
-  }
+export const rule: Rule.RuleModule = S3BucketTemplate(
+  (bucketConstructor, context) => {
+    const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
+    if (versionedProperty == null) {
+      context.report({
+        message: toEncodedMessage(messages.omitted),
+        node: bucketConstructor.callee,
+      });
+      return;
+    }
+    const propertyValue = versionedProperty.value;
+    const propertyLiteralValue = getValueOfExpression(context, propertyValue, 'Literal');
 
-  const argumentValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
-  if (argumentValue?.value !== true) {
-    context.report({
-      message: messages['default'],
-      node: versionedProperty,
-    });
-  }
-});
+    if (propertyLiteralValue?.value === false) {
+      const secondary = { locations: [] as Node[], messages: [] as string[] };
+      const isPropagatedProperty = versionedProperty.value !== propertyLiteralValue;
+      if (isPropagatedProperty) {
+        secondary.locations = [getNodeParent(propertyLiteralValue)];
+        secondary.messages = [messages.secondary];
+      }
+      context.report({
+        message: toEncodedMessage(messages.unversioned, secondary.locations, secondary.messages),
+        node: versionedProperty,
+      });
+    }
+  },
+  {
+    meta: {
+      schema: [
+        {
+          // internal parameter for rules having secondary locations
+          enum: ['sonar-runtime'],
+        },
+      ],
+    },
+  },
+);
