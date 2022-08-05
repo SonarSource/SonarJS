@@ -20,6 +20,5 @@
 
 export * from './extract';
 export * from './issue';
-export * from './location';
 export * from './message';
 export * from './transform';

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Location } from '../issues';
+import { Location } from '../issues/location';
 
 /**
  * A SonarLint quick fix
