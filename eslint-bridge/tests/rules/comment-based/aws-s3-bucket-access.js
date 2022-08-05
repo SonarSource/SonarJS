@@ -55,6 +55,9 @@ const bucketNoncompliant = new s3.Bucket(this, 'id', {
 bucketNoncompliant.grantPublicAccess(); // Noncompliant {{Make sure allowing unrestricted access to objects from this bucket is safe here.}}
 //                 ^^^^^^^^^^^^^^^^^
 
+bucketDeployment.otherMethod();
+someObject.grantPublicAccess();
+
 // s3BucketDeployment
 
 const bucketDeployment = new s3.BucketDeployment(this, 'id', {
