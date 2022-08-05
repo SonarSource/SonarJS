@@ -29,6 +29,7 @@ import {
   isIdentifier,
   isMethodCall,
   isS3BucketConstructor,
+  isS3BucketDeploymentConstructor,
   mergeRules,
   S3BucketTemplate,
   toEncodedMessage,
@@ -49,10 +50,10 @@ const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    return mergeRules(
+    return mergeRules(mergeRules(
       s3BucketConstructorRule.create(context),
-      handleGrantPublicAccess.create(context),
-    );
+      s3BucketDeploymentConstructorRule.create(context),
+    ), handleGrantPublicAccess.create(context));
   },
   meta: {
     schema: [
@@ -92,22 +93,34 @@ const handleGrantPublicAccess: Rule.RuleModule = {
   },
 };
 
-const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate(
-  (bucketConstructor, context) => {
-    checkBooleanParam(
-      context,
-      bucketConstructor,
-      PUBLIC_READ_ACCESS_KEY,
-      INVALID_PUBLIC_READ_ACCESS_VALUE,
-    );
-    for (const value of INVALID_ACCESS_CONTROL_VALUES) {
-      checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
-        'BucketAccessControl',
-        value,
-      ]);
-    }
+const s3BucketDeploymentConstructorRule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      NewExpression: (node: estree.NewExpression) => {
+        if (isS3BucketDeploymentConstructor(context, node)) {
+          for (const value of INVALID_ACCESS_CONTROL_VALUES) {
+            checkConstantParam(context, node, ACCESS_CONTROL_KEY, ['BucketAccessControl', value]);
+          }
+        }
+      },
+    };
+  },
+};
+
+const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
+  checkBooleanParam(
+    context,
+    bucketConstructor,
+    PUBLIC_READ_ACCESS_KEY,
+    INVALID_PUBLIC_READ_ACCESS_VALUE,
+  );
+  for (const value of INVALID_ACCESS_CONTROL_VALUES) {
+    checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
+      'BucketAccessControl',
+      value,
+    ]);
   }
-);
+});
 
 function checkBooleanParam(
   context: Rule.RuleContext,

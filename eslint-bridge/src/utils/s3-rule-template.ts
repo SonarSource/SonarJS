@@ -70,6 +70,20 @@ export function isS3BucketConstructor(context: Rule.RuleContext, node: estree.Ne
 }
 
 /**
+ * Detects S3 BucketDeployment's constructor invocation from 'aws-cdk-lib/aws-s3':
+ *
+ * const s3 = require('aws-cdk-lib/aws-s3');
+ * new s3.BucketDeployment();
+ */
+export function isS3BucketDeploymentConstructor(
+  context: Rule.RuleContext,
+  node: estree.NewExpression,
+) {
+  const { module, method } = getModuleAndCalledMethod(node.callee, context);
+  return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'BucketDeployment');
+}
+
+/**
  * Extracts a property from the configuration argument of S3 Bucket's constructor
  *
  * ```
