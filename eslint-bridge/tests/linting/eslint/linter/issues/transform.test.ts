@@ -22,7 +22,8 @@ import { Linter, SourceCode } from 'eslint';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../testing/helpers';
 import { transformMessages } from 'linting/eslint/linter/issues';
-import { rule as ruleModule } from 'linting/eslint/rules/no-duplicate-in-composite';
+import { rule as noDuplicateInComposite } from 'linting/eslint/rules/no-duplicate-in-composite';
+import { rule as noUnusedFunctionArgument } from 'linting/eslint/rules/no-unused-function-argument';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', () => {
@@ -44,6 +45,30 @@ describe('transformMessages', () => {
         endLine: 1,
         endColumn: 11,
         message: 'Unexpected var, use let or const instead.',
+      }),
+    );
+  });
+
+  it('should normalize ESLint locations', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'location.js');
+    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+
+    const ruleId = 'no-unused-function-argument';
+    const config = { rules: { [ruleId]: 'error' } } as any;
+
+    const linter = new Linter();
+    linter.defineRule(ruleId, noUnusedFunctionArgument);
+
+    const messages = linter.verify(sourceCode, config);
+
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId,
+        line: 1,
+        column: 11,
+        endLine: 1,
+        endColumn: 12,
       }),
     );
   });
@@ -90,7 +115,7 @@ describe('transformMessages', () => {
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, ruleModule);
+    linter.defineRule(ruleId, noDuplicateInComposite);
 
     const messages = linter.verify(sourceCode, config);
 

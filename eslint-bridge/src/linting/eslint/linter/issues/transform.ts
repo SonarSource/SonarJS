@@ -21,7 +21,6 @@
 import { Linter, Rule, SourceCode } from 'eslint';
 import { decodeSonarRuntime } from './decode';
 import { Issue } from './issue';
-import { normalizeLocation } from './normalize';
 import { convertMessage } from './message';
 
 /**
@@ -46,4 +45,21 @@ export function transformMessages(
     .map(issue => (issue ? decodeSonarRuntime(ctx.rules.get(issue.ruleId), issue) : null))
     .filter((issue): issue is Issue => issue !== null)
     .map(normalizeLocation);
+}
+
+/**
+ * Normalizes an issue location
+ *
+ * SonarQube uses 0-based column indexing when it comes to issue locations
+ * while ESLint uses 1-based column indexing for message locations.
+ *
+ * @param issue the issue to normalize
+ * @returns the normalized issue
+ */
+function normalizeLocation(issue: Issue): Issue {
+  issue.column -= 1;
+  if (issue.endColumn) {
+    issue.endColumn -= 1;
+  }
+  return issue;
 }
