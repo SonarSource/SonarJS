@@ -32,6 +32,7 @@ describe('analyze()', () => {
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
+      bundles: [],
     });
   });
 

@@ -43,7 +43,12 @@ describe('buildSourceCode', () => {
   it('should build JavaScript source code with TypeScript ESLint parser', () => {
     console.log = jest.fn();
 
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
 
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
     const fileType = 'MAIN';

@@ -25,6 +25,7 @@ describe('context', () => {
     workDir: '/',
     shouldUseTypeScriptParserForJS: false,
     sonarlint: false,
+    bundles: [],
   };
 
   beforeEach(() => {
@@ -40,6 +41,7 @@ describe('context', () => {
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: true,
+      bundles: ['custom-rule'],
     };
     setContext(newContext);
     expect(getContext()).toEqual(newContext);

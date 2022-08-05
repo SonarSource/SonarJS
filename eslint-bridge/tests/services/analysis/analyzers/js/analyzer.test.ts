@@ -31,7 +31,12 @@ import {
 
 describe('analyze', () => {
   beforeEach(() => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: false, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: false,
+      bundles: [],
+    });
   });
 
   it('should fail on uninitialized linter', () => {
@@ -307,7 +312,12 @@ describe('analyze', () => {
   });
 
   it('should analyze using type information', () => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
     const rules = [
       { key: 'different-types-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -738,7 +748,12 @@ describe('analyze', () => {
   });
 
   it('should compute metrics in SonarLint context', () => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: false, sonarlint: true });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: true,
+      bundles: [],
+    });
 
     const rules = [] as RuleConfig[];
     initializeLinter(rules);

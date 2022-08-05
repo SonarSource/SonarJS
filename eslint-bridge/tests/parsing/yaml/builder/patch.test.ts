@@ -28,7 +28,12 @@ import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
   });
 
   it('should patch source code', () => {

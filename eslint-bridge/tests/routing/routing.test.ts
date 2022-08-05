@@ -35,7 +35,12 @@ describe('router', () => {
   let close: () => Promise<void>;
 
   beforeEach(async () => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
     server = await start(port, host);
     close = promisify(server.close.bind(server));
   });

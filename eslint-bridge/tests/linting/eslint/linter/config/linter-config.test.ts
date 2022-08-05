@@ -24,7 +24,12 @@ import { createLinterConfig, RuleConfig } from 'linting/eslint';
 
 describe('createLinterConfig', () => {
   beforeEach(() => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: false, sonarlint: false });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: false,
+      bundles: [],
+    });
   });
 
   it('should enable environments', () => {
@@ -70,7 +75,12 @@ describe('createLinterConfig', () => {
   });
 
   it('should not enable internal custom rules in SonarLint context', () => {
-    setContext({ workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: false, sonarlint: true });
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: true,
+      bundles: [],
+    });
     const { rules } = createLinterConfig([], new Map(), [], []);
     expect(rules).toEqual({});
   });

@@ -37,7 +37,12 @@ describe('extendRuleConfig', () => {
   });
 
   it('should include the context', () => {
-    const ctx = { workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false };
+    const ctx = {
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    };
     setContext(ctx);
 
     const ruleModule = { meta: { schema: [{ title: SONAR_CONTEXT }] } } as any as Rule.RuleModule;
@@ -52,7 +57,12 @@ describe('extendRuleConfig', () => {
   });
 
   it('should include the context and `sonar-runtime`', () => {
-    const ctx = { workDir: '/tmp/dir', shouldUseTypeScriptParserForJS: true, sonarlint: false };
+    const ctx = {
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    };
     setContext(ctx);
 
     const ruleModule = {

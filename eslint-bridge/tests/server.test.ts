@@ -33,6 +33,7 @@ describe('server', () => {
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
+      bundles: [],
     });
   });
 
@@ -89,46 +90,6 @@ describe('server', () => {
         ruleId,
       }),
     );
-
-    await close();
-  });
-
-  it('should load bundles', async () => {
-    expect.assertions(2);
-
-    const bundles = ['custom-rule-bundle'];
-    const server = await start(port, host, bundles);
-    const close = promisify(server.close.bind(server));
-
-    expect(server.listening).toBeTruthy();
-
-    const config = {
-      rules: [{ key: 'custom-rule', configurations: [], fileTypeTarget: 'MAIN' }],
-    };
-
-    const initLinterRequest = request(server, host, '/init-linter', 'POST', config);
-    await initLinterRequest;
-
-    const filePath = path.join(__dirname, 'fixtures', 'custom.js');
-    const fileType = 'MAIN';
-    const analysisInput = { filePath, fileType };
-
-    const analyzeJsRequest = request(server, host, '/analyze-js', 'POST', analysisInput);
-    const response = (await analyzeJsRequest) as any;
-
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual({
-      ruleId: 'custom-rule',
-      line: 1,
-      column: 0,
-      endLine: 1,
-      endColumn: 3,
-      message: 'call',
-      quickFixes: [],
-      secondaryLocations: [],
-    });
 
     await close();
   });

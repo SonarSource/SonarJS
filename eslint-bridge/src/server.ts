@@ -22,7 +22,6 @@ import http from 'http';
 import express from 'express';
 import router from './routing';
 import { debug } from './helpers';
-import { loadBundles } from './linting/eslint';
 
 /**
  * The maximum request body size
@@ -44,12 +43,9 @@ const MAX_REQUEST_SIZE = '50mb';
  *
  * @param port the port to listen to
  * @param host the host to listen to
- * @param bundles the rule bundles to load
  * @returns an http server
  */
-export function start(port = 0, host = '127.0.0.1', bundles: string[] = []): Promise<http.Server> {
-  loadBundles(bundles);
-
+export function start(port = 0, host = '127.0.0.1'): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
 

@@ -24,11 +24,13 @@
  * @param workDir the working directory of the analyzed project
  * @param shouldUseTypeScriptParserForJS a flag for parsing JavaScript code with TypeScript ESLint parser
  * @param sonarlint a flag for indicating whether the bridge is used in SonarLint context
+ * @param bundles a set of rule bundles to load
  */
 export interface Context {
   workDir: string;
   shouldUseTypeScriptParserForJS: boolean;
   sonarlint: boolean;
+  bundles: string[];
 }
 
 /**

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { debug } from '../../helpers';
+import { debug, getContext } from '../../helpers';
 import { LinterWrapper } from './linter';
 import { RuleConfig } from './linter/config';
 import { CustomRule } from './linter/custom-rules/custom-rule';
@@ -36,11 +36,6 @@ export * from './rules';
 export let linter: LinterWrapper;
 
 /**
- * The set of custom rules
- */
-export const customRules: CustomRule[] = [];
-
-/**
  * Initializes the global linter wrapper
  * @param inputRules the rules from the active quality profiles
  * @param environments the JavaScript execution environments
@@ -51,6 +46,9 @@ export function initializeLinter(
   environments: string[] = [],
   globals: string[] = [],
 ) {
+  const { bundles } = getContext();
+  const customRules = loadBundles(bundles);
+
   debug(`initializing linter with ${inputRules.map(rule => rule.key)}`);
   linter = new LinterWrapper(inputRules, customRules, environments, globals);
 }
@@ -72,12 +70,15 @@ export function assertLinterInitialized() {
  * wrapper using the same feeding channel as rules from the active quality profile.
  *
  * @param bundles the path of rule bundles to load
+ * @returns a set of custom rules
  */
-export function loadBundles(bundles: string[]) {
+function loadBundles(bundles: string[]) {
+  const customRules: CustomRule[] = [];
   for (const ruleBundle of bundles) {
     const bundle = require(ruleBundle);
     customRules.push(...bundle.rules);
     const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
     debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
   }
+  return customRules;
 }
