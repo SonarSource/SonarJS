@@ -20,27 +20,80 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6265/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../utils';
-import * as estree from 'estree';
+import {
+  getNodeParent,
+  getProperty,
+  getValueOfExpression,
+  hasFullyQualifiedName,
+  S3BucketTemplate,
+  toEncodedMessage,
+} from '../utils';
+import { NewExpression, Node } from 'estree';
 
-const message = `TODO: add message`;
-
-export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
-  },  
-  create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {};
-  },
+const messages = {
+  accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
+  unrestricted: 'Make sure allowing unrestricted access to objects from this bucket is safe here.',
+  secondary: 'Propagated setting.',
 };
+
+const props = [{
+  name: 'accessControl',
+  values: ['PUBLIC_READ', 'PUBLIC_READ_WRITE', 'AUTHENTICATED_READ'],
+}]
+/* const propNames = {
+  ACCESS_CONTROL: 'accessControl',
+  PUBLIC_READ_ACCESS: 'publicReadAccess',
+};
+const accessControlSensitiveValues = ['PUBLIC_READ']; */
+
+export const rule: Rule.RuleModule = S3BucketTemplate(
+  (bucketConstructor, context) => {
+    for (const prop of props) {
+      for (const value of prop.values) {
+        checkParam(context, bucketConstructor, prop.name, ['BucketAccessControl', value]);
+      }
+    }
+  },
+  {
+    meta: {
+      schema: [
+        {
+          // internal parameter for rules having secondary locations
+          enum: ['sonar-runtime'],
+        },
+      ],
+    },
+  },
+);
+
+function checkParam(context: Rule.RuleContext, bucketConstructor: NewExpression, propName: string, paramQualifiers: string[]) {
+  const property = getProperty(context, bucketConstructor, propName);
+    if (property == null) {
+      return;
+    }
+    // s3.BucketAccessControl.PUBLIC_READ
+    const propertyLiteralValue = getValueOfExpression(context, property.value, 'MemberExpression');
+    if (
+      propertyLiteralValue !== undefined &&
+      hasFullyQualifiedName(
+        context,
+        propertyLiteralValue,
+        'aws-cdk-lib/aws-s3', ...paramQualifiers,
+      )
+    ) {
+      const secondary = { locations: [] as Node[], messages: [] as string[] };
+      const isPropagatedProperty = property.value !== propertyLiteralValue;
+      if (isPropagatedProperty) {
+        secondary.locations = [getNodeParent(propertyLiteralValue)];
+        secondary.messages = [messages.secondary];
+      }
+      context.report({
+        message: toEncodedMessage(
+          messages.accessLevel(paramQualifiers[paramQualifiers.length-1]),
+          secondary.locations,
+          secondary.messages,
+        ),
+        node: property,
+      });
+    }
+}
