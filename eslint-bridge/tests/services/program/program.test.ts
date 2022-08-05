@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { createProgram, deleteProgram, getProgramById } from 'services';
-import { toUnixPath } from '../../testing';
+import { toUnixPath } from '../../tools';
 
 describe('program', () => {
   it('should create a program', () => {

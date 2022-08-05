@@ -20,7 +20,7 @@
 
 import { Linter, SourceCode } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../testing/helpers';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools/helpers';
 import { transformMessages } from 'linting/eslint/linter/issues';
 import { rule as noDuplicateInComposite } from 'linting/eslint/rules/no-duplicate-in-composite';
 import { rule as noUnusedFunctionArgument } from 'linting/eslint/rules/no-unused-function-argument';

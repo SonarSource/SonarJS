@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { TypeScriptRuleTester } from '../../../../testing';
+import { TypeScriptRuleTester } from '../../../../tools';
 import { decorateNoRedeclare } from 'linting/eslint/rules/decorators/no-redeclare-decorator';
 
 const ruleTester = new TypeScriptRuleTester();

@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/deprecation';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];

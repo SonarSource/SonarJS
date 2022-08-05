@@ -24,7 +24,7 @@ import { LinterWrapper, RuleConfig } from 'linting/eslint';
 import { quickFixRules } from 'linting/eslint/linter/quickfixes';
 import fs from 'fs';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../testing/helpers';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools/helpers';
 import { Language } from 'parsing/jsts';
 import { CustomRule } from 'linting/eslint/linter/custom-rules';
 

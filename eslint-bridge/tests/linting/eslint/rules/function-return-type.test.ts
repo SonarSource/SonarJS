@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/function-return-type';
 import { RuleTester } from 'eslint';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../testing';
+import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('Functions should always return the same type [js]', rule, {

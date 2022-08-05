@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from 'linting/eslint/rules/array-callback-without-return';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const typeScriptRuleTester = new TypeScriptRuleTester();
 typeScriptRuleTester.run(

@@ -21,7 +21,7 @@
 import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from 'linting/eslint/linter/issues';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', () => {

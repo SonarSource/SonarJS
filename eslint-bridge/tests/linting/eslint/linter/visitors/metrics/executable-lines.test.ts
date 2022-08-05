@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { findExecutableLines } from 'linting/eslint/linter/visitors/metrics/executable-lines';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../../../testing/helpers';
+import { parseTypeScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('findExecutableLines', () => {
   it('should find the number of executable lines', () => {

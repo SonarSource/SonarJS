@@ -25,7 +25,7 @@ import path from 'path';
 import { start } from 'server';
 import { createProgram } from 'services';
 import { promisify } from 'util';
-import { request, toUnixPath } from '../testing/helpers';
+import { request, toUnixPath } from '../tools/helpers';
 
 describe('router', () => {
   const host = '127.0.0.1';

@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/existing-groups';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const typeAwareRuleTester = new TypeScriptRuleTester();
 typeAwareRuleTester.run('Existing regular expression groups', rule, {

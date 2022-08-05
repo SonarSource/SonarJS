@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from 'linting/eslint/rules/sonar-jsx-no-leaked-render';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({

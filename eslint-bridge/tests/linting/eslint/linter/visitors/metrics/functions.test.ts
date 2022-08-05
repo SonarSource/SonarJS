@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { countFunctions } from 'linting/eslint/linter/visitors/metrics/functions';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('countFunctions', () => {
   it('should count the number of functions', () => {

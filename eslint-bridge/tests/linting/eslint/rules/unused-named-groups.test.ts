@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/unused-named-groups';
 import { RuleTester } from 'eslint';
-import { JavaScriptRuleTester } from '../../../testing';
+import { JavaScriptRuleTester } from '../../../tools';
 
 const typeAwareRuleTester = new JavaScriptRuleTester();
 typeAwareRuleTester.run('Regular expressions named groups should be used', rule, {

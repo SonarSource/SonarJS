@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/no-global-this';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterJS = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTS = new TypeScriptRuleTester();

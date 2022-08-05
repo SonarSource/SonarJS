@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/argument-type';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const eslintRuleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },

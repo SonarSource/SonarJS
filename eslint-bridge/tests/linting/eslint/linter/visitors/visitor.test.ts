@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { childrenOf, visit } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../../testing/helpers';
+import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 
 describe('visitor', () => {
   describe('visit', () => {

@@ -22,7 +22,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { Linter, SourceCode } from 'eslint';
 import { sanitizeTypeScriptESLintRule } from 'linting/eslint/linter/decoration/sanitize';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../../testing/helpers';
+import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 
 const cases = [
   {

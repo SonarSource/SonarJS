@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { countClasses } from 'linting/eslint/linter/visitors/metrics/classes';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('countClasses', () => {
   it('should count the number of classes', () => {

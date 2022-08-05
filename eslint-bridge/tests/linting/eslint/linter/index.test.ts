@@ -22,7 +22,7 @@ import path from 'path';
 import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
 import { initializeLinter, linter, LinterWrapper } from 'linting/eslint';
-import { parseJavaScriptSourceFile } from '../../../testing';
+import { parseJavaScriptSourceFile } from '../../../tools';
 
 describe('initializeLinter', () => {
   beforeEach(() => {

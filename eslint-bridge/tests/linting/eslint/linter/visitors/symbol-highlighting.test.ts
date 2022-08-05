@@ -22,7 +22,7 @@ import { Linter, SourceCode } from 'eslint';
 import { rule, SymbolHighlight } from 'linting/eslint/linter/visitors';
 import { Location } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../../testing/helpers';
+import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 
 describe('symbol highlighting rule', () => {
   it('should highlight variables', () => {

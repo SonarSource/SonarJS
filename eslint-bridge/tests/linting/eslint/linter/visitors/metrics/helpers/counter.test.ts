@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { visitAndCountIf } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../../tools/helpers';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', () => {

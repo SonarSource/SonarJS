@@ -21,7 +21,7 @@
 import { Linter, Rule, SourceCode } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../testing/helpers';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools/helpers';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
 describe('decorateExternalRules', () => {

@@ -22,7 +22,7 @@ import { extractTokensAndComments } from 'linting/eslint/linter/visitors/metrics
 import { SourceCode } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../../tools/helpers';
 
 describe('extractTokensAndComments', () => {
   it('should extract tokens and comments', () => {

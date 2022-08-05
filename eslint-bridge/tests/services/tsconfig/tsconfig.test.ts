@@ -21,7 +21,7 @@ import * as ts from 'typescript';
 import * as path from 'path';
 import { getFilesForTsConfig } from 'services';
 import { AnalysisErrorCode } from 'services/analysis';
-import { toUnixPath } from '../../testing';
+import { toUnixPath } from '../../tools';
 
 const defaultParseConfigHost: ts.ParseConfigHost = {
   useCaseSensitiveFileNames: true,

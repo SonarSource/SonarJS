@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { BabelRuleTester } from '../../../testing';
+import { BabelRuleTester } from '../../../tools';
 import { rule } from 'linting/eslint/rules/declarations-in-global-scope';
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');

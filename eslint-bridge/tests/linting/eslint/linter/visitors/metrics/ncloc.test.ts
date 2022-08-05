@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { findNcloc } from 'linting/eslint/linter/visitors/metrics/ncloc';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('findNcloc', () => {
   it('should find the line numbers of code', () => {

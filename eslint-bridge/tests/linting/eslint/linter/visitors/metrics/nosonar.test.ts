@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { findNoSonarLines } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', () => {

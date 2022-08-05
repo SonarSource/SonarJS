@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/no-vue-bypass-sanitization';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const parserOptions = {
   ecmaVersion: 2018,

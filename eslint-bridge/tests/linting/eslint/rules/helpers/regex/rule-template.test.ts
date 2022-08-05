@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import { AST } from 'regexpp';
 import { createRegExpRule } from 'linting/eslint/rules/helpers/regex';
-import { JavaScriptRuleTester } from '../../../../../testing';
+import { JavaScriptRuleTester } from '../../../../../tools';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {

@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/in-operator-type-error';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('"in" should not be used with primitive types [js]', rule, {

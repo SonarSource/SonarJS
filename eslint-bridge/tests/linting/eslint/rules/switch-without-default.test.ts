@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/switch-without-default';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const tests = {
   valid: [

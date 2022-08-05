@@ -24,7 +24,7 @@ import { rule as noLabelsRule } from 'linting/eslint/rules/no-labels';
 import { rule as noExclusiveTests } from 'linting/eslint/rules/no-exclusive-tests';
 import { transformFixes } from 'linting/eslint/linter/quickfixes';
 import { decorateNoEmptyFunction } from 'linting/eslint/rules/decorators/no-empty-function-decorator';
-import { parseJavaScriptSourceFile } from '../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('transformFixes', () => {
   it('should transform an ESLint core fix', () => {

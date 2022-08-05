@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { countStatements } from 'linting/eslint/linter/visitors/metrics/statements';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('countStatements', () => {
   it('should count the number of statements', () => {

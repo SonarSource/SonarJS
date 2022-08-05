@@ -22,7 +22,7 @@ import { start } from 'server';
 import { promisify } from 'util';
 import path from 'path';
 import { setContext } from 'helpers';
-import { request } from './testing/helpers';
+import { request } from './tools/helpers';
 
 describe('server', () => {
   const host = '127.0.0.1';

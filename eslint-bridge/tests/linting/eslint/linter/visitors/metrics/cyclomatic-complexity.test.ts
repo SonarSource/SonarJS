@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { computeCyclomaticComplexity } from 'linting/eslint/linter/visitors/metrics/cyclomatic-complexity';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 const cases = [
   { fixture: 'conjunction', expectedComplexity: 1 },

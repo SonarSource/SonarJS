@@ -25,7 +25,7 @@ import {
   TextType,
 } from 'linting/eslint/linter/visitors/syntax-highlighting';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', () => {

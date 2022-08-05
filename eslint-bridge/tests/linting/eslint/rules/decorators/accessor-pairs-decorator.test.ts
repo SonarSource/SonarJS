@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { JavaScriptRuleTester } from '../../../../testing';
+import { JavaScriptRuleTester } from '../../../../tools';
 import { decorateAccessorPairs } from 'linting/eslint/rules/decorators/accessor-pairs-decorator';
 
 const ruleTester = new JavaScriptRuleTester();

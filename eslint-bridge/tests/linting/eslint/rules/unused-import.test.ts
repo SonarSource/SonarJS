@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from 'linting/eslint/rules/unused-import';
 import path from 'path';
-import { BabelRuleTester } from '../../../testing';
+import { BabelRuleTester } from '../../../tools';
 
 const babelRuleTester = BabelRuleTester();
 

@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { findCommentLines } from 'linting/eslint/linter/visitors/metrics/comments';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../testing/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 const cases = [
   {

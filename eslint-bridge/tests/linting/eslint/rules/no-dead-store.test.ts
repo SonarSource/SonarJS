@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BabelRuleTester, TypeScriptRuleTester } from '../../../testing';
+import { BabelRuleTester, TypeScriptRuleTester } from '../../../tools';
 import { rule } from 'linting/eslint/rules/no-dead-store';
 
 const babelRuleTester = BabelRuleTester();

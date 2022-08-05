@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/file-permissions';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 let tests = {
   valid: [

@@ -19,7 +19,7 @@
  */
 import { rule } from 'linting/eslint/rules/new-operator-misuse';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../testing';
+import { TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('"new" operators should be used with functions [js]', rule, {
