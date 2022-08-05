@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6245/javascript
 
 import { Rule } from 'eslint';
-import { MemberExpression, Node } from 'estree';
+import { MemberExpression } from 'estree';
 import {
-  getNodeParent,
+  findPropagatedSetting,
   getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
@@ -35,7 +35,6 @@ const ENCRYPTED_KEY = 'encryption';
 const messages = {
   unencrypted: 'Objects in the bucket are not encrypted. Make sure it is safe here.',
   omitted: 'Omitting "encryption" disables server-side encryption. Make sure it is safe here.',
-  propagated: 'Propagated setting.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
@@ -55,14 +54,13 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       'MemberExpression',
     );
     if (encryptedValue && isUnencrypted(encryptedValue)) {
-      const secondary = { locations: [] as Node[], messages: [] as string[] };
-      const isPropagatedProperty = encryptedProperty.value !== encryptedValue;
-      if (isPropagatedProperty) {
-        secondary.locations = [getNodeParent(encryptedValue)];
-        secondary.messages = [messages['propagated']];
-      }
+      const propagated = findPropagatedSetting(encryptedProperty, encryptedValue);
       context.report({
-        message: toEncodedMessage(messages['unencrypted'], secondary.locations, secondary.messages),
+        message: toEncodedMessage(
+          messages['unencrypted'],
+          propagated.locations,
+          propagated.messages,
+        ),
         node: encryptedProperty,
       });
     }

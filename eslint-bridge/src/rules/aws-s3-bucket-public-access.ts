@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6281/javascript
 
 import { Rule } from 'eslint';
-import { NewExpression, Node, ObjectExpression, Property } from 'estree';
+import { NewExpression, ObjectExpression, Property } from 'estree';
 import {
-  getNodeParent,
+  findPropagatedSetting,
   getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
@@ -45,7 +45,6 @@ const messages = {
     'No Public Access Block configuration prevents public ACL/policies ' +
     'to be set on this S3 bucket. Make sure it is safe here.',
   public: 'Make sure allowing public ACL/policies to be set is safe here.',
-  propagated: 'Propagated setting.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
@@ -78,9 +77,9 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           'BLOCK_ACLS',
         )
       ) {
-        const secondary = findSecondaryLocation(blockPublicAccess, blockPublicAccessMember);
+        const propagated = findPropagatedSetting(blockPublicAccess, blockPublicAccessMember);
         context.report({
-          message: toEncodedMessage(messages['public'], secondary.locations, secondary.messages),
+          message: toEncodedMessage(messages['public'], propagated.locations, propagated.messages),
           node: blockPublicAccess,
         });
       }
@@ -128,15 +127,15 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
             'Literal',
           );
           if (blockPublicAccessValue?.value === false) {
-            const secondary = findSecondaryLocation(
+            const propagated = findPropagatedSetting(
               blockPublicAccessProperty,
               blockPublicAccessValue,
             );
             context.report({
               message: toEncodedMessage(
                 messages['public'],
-                secondary.locations,
-                secondary.messages,
+                propagated.locations,
+                propagated.messages,
               ),
               node: blockPublicAccessProperty,
             });
@@ -150,16 +149,6 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           hasFullyQualifiedName(context, expr.callee, 'aws-cdk-lib/aws-s3', 'BlockPublicAccess')
         );
       }
-    }
-
-    function findSecondaryLocation(sensitiveProperty: Property, propagatedValue: Node) {
-      const secondary = { locations: [] as Node[], messages: [] as string[] };
-      const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
-      if (isPropagatedProperty) {
-        secondary.locations = [getNodeParent(propagatedValue)];
-        secondary.messages = [messages['propagated']];
-      }
-      return secondary;
     }
   },
   {

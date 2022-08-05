@@ -20,7 +20,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleAndCalledMethod, getValueOfExpression, isIdentifier, isProperty } from '.';
+import {
+  getModuleAndCalledMethod,
+  getNodeParent,
+  getValueOfExpression,
+  isIdentifier,
+  isProperty,
+} from '.';
 
 /**
  * A rule template for AWS S3 Buckets
@@ -85,4 +91,20 @@ export function getProperty(context: Rule.RuleContext, bucket: estree.NewExpress
   return options.properties.find(
     property => isProperty(property) && isIdentifier(property.key, key),
   ) as estree.Property | undefined;
+}
+
+/**
+ * Finds the propagated setting of a sensitive property
+ */
+export function findPropagatedSetting(
+  sensitiveProperty: estree.Property,
+  propagatedValue: estree.Node,
+) {
+  const propagated = { locations: [] as estree.Node[], messages: [] as string[] };
+  const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
+  if (isPropagatedProperty) {
+    propagated.locations = [getNodeParent(propagatedValue)];
+    propagated.messages = ['Propagated setting.'];
+  }
+  return propagated;
 }
