@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './decode';
 export * from './extract';
 export * from './issue';
 export * from './location';

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { decodeSonarRuntime, Issue } from 'linting/eslint';
+import { Issue } from 'linting/eslint/linter/issues';
+import { decodeSonarRuntime } from 'linting/eslint/linter/issues/decode';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 describe('decodeSonarRuntime', () => {
