@@ -17,62 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6245/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { MemberExpression } from 'estree';
+import { Node } from 'estree';
 import {
-  findPropagatedSetting,
-  getProperty,
   getValueOfExpression,
-  hasFullyQualifiedName,
+  getProperty,
   S3BucketTemplate,
   toEncodedMessage,
+  getNodeParent,
 } from '../utils';
 
-const ENCRYPTED_KEY = 'encryption';
+const VERSIONED_KEY = 'versioned';
 
 const messages = {
-  unencrypted: 'Objects in the bucket are not encrypted. Make sure it is safe here.',
-  omitted: 'Omitting "encryption" disables server-side encryption. Make sure it is safe here.',
+  unversioned: 'Make sure using unversioned S3 bucket is safe here.',
+  omitted:
+    'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
+  secondary: 'Propagated setting.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
-  (bucket, context) => {
-    const encryptedProperty = getProperty(context, bucket, ENCRYPTED_KEY);
-    if (encryptedProperty == null) {
+  (bucketConstructor, context) => {
+    const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
+    if (versionedProperty == null) {
       context.report({
-        message: toEncodedMessage(messages['omitted'], [], []),
-        node: bucket.callee,
+        message: toEncodedMessage(messages.omitted),
+        node: bucketConstructor.callee,
       });
       return;
     }
+    const propertyLiteralValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
 
-    const encryptedValue = getValueOfExpression(
-      context,
-      encryptedProperty.value,
-      'MemberExpression',
-    );
-    if (encryptedValue && isUnencrypted(encryptedValue)) {
-      const propagated = findPropagatedSetting(encryptedProperty, encryptedValue);
+    if (propertyLiteralValue?.value === false) {
+      const secondary = { locations: [] as Node[], messages: [] as string[] };
+      const isPropagatedProperty = versionedProperty.value !== propertyLiteralValue;
+      if (isPropagatedProperty) {
+        secondary.locations = [getNodeParent(propertyLiteralValue)];
+        secondary.messages = [messages.secondary];
+      }
       context.report({
-        message: toEncodedMessage(
-          messages['unencrypted'],
-          propagated.locations,
-          propagated.messages,
-        ),
-        node: encryptedProperty,
+        message: toEncodedMessage(messages.unversioned, secondary.locations, secondary.messages),
+        node: versionedProperty,
       });
-    }
-
-    function isUnencrypted(encrypted: MemberExpression) {
-      return hasFullyQualifiedName(
-        context,
-        encrypted,
-        'aws-cdk-lib/aws-s3',
-        'BucketEncryption',
-        'UNENCRYPTED',
-      );
     }
   },
   {
