@@ -49,7 +49,6 @@ const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    //return s3BucketConstructorRule.create(context);
     return mergeRules(
       s3BucketConstructorRule.create(context),
       handleGrantPublicAccess.create(context),
@@ -69,21 +68,19 @@ const handleGrantPublicAccess: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        // 1. check that we're calling grantPublicAccess
-        //2. on object that is of class new s3.Bucket
         if (!isMethodCall(node)) {
           return;
         }
         const { object, property } = node.callee;
-        const isGrantPublicAccess = isIdentifier(property, 'grantPublicAccess');
-        if (!isGrantPublicAccess) {
+        const isGrantPublicAccessMethodCall = isIdentifier(property, 'grantPublicAccess');
+        if (!isGrantPublicAccessMethodCall) {
           return;
         }
-        const objectAssignment = getUniqueWriteUsageOrNode(context, object);
-        const isS3bucket =
-          objectAssignment.type === 'NewExpression' &&
-          isS3BucketConstructor(context, objectAssignment);
-        if (!isS3bucket) {
+        const variableAssignment = getUniqueWriteUsageOrNode(context, object);
+        const isS3bucketInstance =
+          variableAssignment.type === 'NewExpression' &&
+          isS3BucketConstructor(context, variableAssignment);
+        if (!isS3bucketInstance) {
           return;
         }
         context.report({
