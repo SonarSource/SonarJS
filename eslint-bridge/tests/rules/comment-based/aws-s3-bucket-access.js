@@ -25,15 +25,16 @@ const invalidParam1Secondary = new s3.Bucket(this, 'id', {
 //^^^^^^^^^^^^^
 });
 
-/*
+
 const otherInvalidParam = new s3.Bucket(this, 'id', {
   bucketName: 'bucketnoncompliant',
   publicReadAccess: true // Noncompliant
 });
+
 
 const publicReadAccess = true; // Secondary Location
 const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
   bucketName: 'bucketnoncompliant',
   publicReadAccess, // Noncompliant
 });
- */
+

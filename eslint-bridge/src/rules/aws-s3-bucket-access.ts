@@ -36,22 +36,25 @@ const messages = {
   secondary: 'Propagated setting.',
 };
 
-const props = [{
-  name: 'accessControl',
-  values: ['PUBLIC_READ', 'PUBLIC_READ_WRITE', 'AUTHENTICATED_READ'],
-}]
-/* const propNames = {
-  ACCESS_CONTROL: 'accessControl',
-  PUBLIC_READ_ACCESS: 'publicReadAccess',
-};
-const accessControlSensitiveValues = ['PUBLIC_READ']; */
+const INVALID_ACCESS_CONTROL_VALUES = ['PUBLIC_READ', 'PUBLIC_READ_WRITE', 'AUTHENTICATED_READ'];
+const ACCESS_CONTROL_KEY = 'accessControl';
+
+const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
+const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucketConstructor, context) => {
-    for (const prop of props) {
-      for (const value of prop.values) {
-        checkParam(context, bucketConstructor, prop.name, ['BucketAccessControl', value]);
-      }
+    checkBooleanParam(
+      context,
+      bucketConstructor,
+      PUBLIC_READ_ACCESS_KEY,
+      INVALID_PUBLIC_READ_ACCESS_VALUE,
+    );
+    for (const value of INVALID_ACCESS_CONTROL_VALUES) {
+      checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
+        'BucketAccessControl',
+        value,
+      ]);
     }
   },
   {
@@ -66,29 +69,49 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
   },
 );
 
-function checkParam(context: Rule.RuleContext, bucketConstructor: NewExpression, propName: string, paramQualifiers: string[]) {
+function checkBooleanParam(
+  context: Rule.RuleContext,
+  bucketConstructor: NewExpression,
+  propName: string,
+  propValue: boolean,
+) {
   const property = getProperty(context, bucketConstructor, propName);
-    if (property == null) {
-      return;
-    }
-    // s3.BucketAccessControl.PUBLIC_READ
-    const propertyLiteralValue = getValueOfExpression(context, property.value, 'MemberExpression');
-    if (
-      propertyLiteralValue !== undefined &&
-      hasFullyQualifiedName(
-        context,
-        propertyLiteralValue,
-        'aws-cdk-lib/aws-s3', ...paramQualifiers,
-      )
-    ) {
-      const secondary = findPropagatedSetting(property, propertyLiteralValue);
-      context.report({
-        message: toEncodedMessage(
-          messages.accessLevel(paramQualifiers[paramQualifiers.length-1]),
-          secondary.locations,
-          secondary.messages,
-        ),
-        node: property,
-      });
-    }
+  if (property == null) {
+    return;
+  }
+  const propertyLiteralValue = getValueOfExpression(context, property.value, 'Literal');
+  if (propertyLiteralValue !== undefined && propertyLiteralValue.value === propValue) {
+    const secondary = findPropagatedSetting(property, propertyLiteralValue);
+    context.report({
+      message: toEncodedMessage(messages.unrestricted, secondary.locations, secondary.messages),
+      node: property,
+    });
+  }
+}
+
+function checkConstantParam(
+  context: Rule.RuleContext,
+  bucketConstructor: NewExpression,
+  propName: string,
+  paramQualifiers: string[],
+) {
+  const property = getProperty(context, bucketConstructor, propName);
+  if (property == null) {
+    return;
+  }
+  const propertyLiteralValue = getValueOfExpression(context, property.value, 'MemberExpression');
+  if (
+    propertyLiteralValue !== undefined &&
+    hasFullyQualifiedName(context, propertyLiteralValue, 'aws-cdk-lib/aws-s3', ...paramQualifiers)
+  ) {
+    const secondary = findPropagatedSetting(property, propertyLiteralValue);
+    context.report({
+      message: toEncodedMessage(
+        messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
+        secondary.locations,
+        secondary.messages,
+      ),
+      node: property,
+    });
+  }
 }
