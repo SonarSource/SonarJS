@@ -19,8 +19,7 @@
  */
 
 import { debug, getContext } from '../../helpers';
-import { LinterWrapper } from './linter';
-import { RuleConfig } from './linter/config';
+import { LinterWrapper, RuleConfig } from './linter';
 import { CustomRule } from './linter/custom-rules/custom-rule';
 
 export * from './linter';
