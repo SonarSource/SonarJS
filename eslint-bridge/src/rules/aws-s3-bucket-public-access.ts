@@ -78,7 +78,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           'BLOCK_ACLS',
         )
       ) {
-        const secondary = traceSecondaryLocations(blockPublicAccess, blockPublicAccessMember);
+        const secondary = findSecondaryLocation(blockPublicAccess, blockPublicAccessMember);
         context.report({
           message: toEncodedMessage(messages['public'], secondary.locations, secondary.messages),
           node: blockPublicAccess,
@@ -128,7 +128,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
             'Literal',
           );
           if (blockPublicAccessValue?.value === false) {
-            const secondary = traceSecondaryLocations(
+            const secondary = findSecondaryLocation(
               blockPublicAccessProperty,
               blockPublicAccessValue,
             );
@@ -152,7 +152,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       }
     }
 
-    function traceSecondaryLocations(sensitiveProperty: Property, propagatedValue: Node) {
+    function findSecondaryLocation(sensitiveProperty: Property, propagatedValue: Node) {
       const secondary = { locations: [] as Node[], messages: [] as string[] };
       const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
       if (isPropagatedProperty) {
