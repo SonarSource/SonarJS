@@ -21,14 +21,14 @@
 
 import { Rule } from 'eslint';
 import {
-  getNodeParent,
+  findPropagatedSetting,
   getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
   S3BucketTemplate,
   toEncodedMessage,
 } from '../utils';
-import { NewExpression, Node } from 'estree';
+import { NewExpression } from 'estree';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -81,12 +81,7 @@ function checkParam(context: Rule.RuleContext, bucketConstructor: NewExpression,
         'aws-cdk-lib/aws-s3', ...paramQualifiers,
       )
     ) {
-      const secondary = { locations: [] as Node[], messages: [] as string[] };
-      const isPropagatedProperty = property.value !== propertyLiteralValue;
-      if (isPropagatedProperty) {
-        secondary.locations = [getNodeParent(propertyLiteralValue)];
-        secondary.messages = [messages.secondary];
-      }
+      const secondary = findPropagatedSetting(property, propertyLiteralValue);
       context.report({
         message: toEncodedMessage(
           messages.accessLevel(paramQualifiers[paramQualifiers.length-1]),
