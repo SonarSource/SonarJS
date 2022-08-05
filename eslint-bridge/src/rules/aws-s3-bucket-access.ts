@@ -42,8 +42,8 @@ const messages = {
   secondary: 'Propagated setting.',
 };
 
-const INVALID_ACCESS_CONTROL_VALUES = ['PUBLIC_READ', 'PUBLIC_READ_WRITE', 'AUTHENTICATED_READ'];
 const ACCESS_CONTROL_KEY = 'accessControl';
+const INVALID_ACCESS_CONTROL_VALUES = ['PUBLIC_READ', 'PUBLIC_READ_WRITE', 'AUTHENTICATED_READ'];
 
 const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
@@ -68,33 +68,20 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-const handleGrantPublicAccess: Rule.RuleModule = {
-  create(context: Rule.RuleContext) {
-    return {
-      CallExpression: (node: estree.CallExpression) => {
-        if (!isMethodCall(node)) {
-          return;
-        }
-        const { object, property } = node.callee;
-        const isGrantPublicAccessMethodCall = isIdentifier(property, 'grantPublicAccess');
-        if (!isGrantPublicAccessMethodCall) {
-          return;
-        }
-        const variableAssignment = getUniqueWriteUsageOrNode(context, object);
-        const isS3bucketInstance =
-          variableAssignment.type === 'NewExpression' &&
-          isS3BucketConstructor(context, variableAssignment);
-        if (!isS3bucketInstance) {
-          return;
-        }
-        context.report({
-          message: toEncodedMessage(messages.unrestricted),
-          node: property,
-        });
-      },
-    };
-  },
-};
+const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
+  for (const value of INVALID_ACCESS_CONTROL_VALUES) {
+    checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
+      'BucketAccessControl',
+      value,
+    ]);
+  }
+  checkBooleanParam(
+    context,
+    bucketConstructor,
+    PUBLIC_READ_ACCESS_KEY,
+    INVALID_PUBLIC_READ_ACCESS_VALUE,
+  );
+});
 
 const s3BucketDeploymentConstructorRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -109,21 +96,6 @@ const s3BucketDeploymentConstructorRule: Rule.RuleModule = {
     };
   },
 };
-
-const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
-  checkBooleanParam(
-    context,
-    bucketConstructor,
-    PUBLIC_READ_ACCESS_KEY,
-    INVALID_PUBLIC_READ_ACCESS_VALUE,
-  );
-  for (const value of INVALID_ACCESS_CONTROL_VALUES) {
-    checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
-      'BucketAccessControl',
-      value,
-    ]);
-  }
-});
 
 function checkBooleanParam(
   context: Rule.RuleContext,
@@ -171,3 +143,31 @@ function checkConstantParam(
     });
   }
 }
+
+const handleGrantPublicAccess: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      CallExpression: (node: estree.CallExpression) => {
+        if (!isMethodCall(node)) {
+          return;
+        }
+        const { object, property } = node.callee;
+        const isGrantPublicAccessMethodCall = isIdentifier(property, 'grantPublicAccess');
+        if (!isGrantPublicAccessMethodCall) {
+          return;
+        }
+        const variableAssignment = getUniqueWriteUsageOrNode(context, object);
+        const isS3bucketInstance =
+          variableAssignment.type === 'NewExpression' &&
+          isS3BucketConstructor(context, variableAssignment);
+        if (!isS3bucketInstance) {
+          return;
+        }
+        context.report({
+          message: toEncodedMessage(messages.unrestricted),
+          node: property,
+        });
+      },
+    };
+  },
+};
