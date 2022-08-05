@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
         'MemberExpression',
       );
       if (
-        blockPublicAccessMember &&
+        blockPublicAccessMember !== undefined &&
         hasFullyQualifiedName(
           context,
           blockPublicAccessMember,
@@ -99,7 +99,10 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
         blockPublicAccess.value,
         'NewExpression',
       );
-      if (blockPublicAccessNew && isS3BlockPublicAccessConstructor(blockPublicAccessNew)) {
+      if (
+        blockPublicAccessNew !== undefined &&
+        isS3BlockPublicAccessConstructor(blockPublicAccessNew)
+      ) {
         const blockPublicAccessConfig = getValueOfExpression(
           context,
           blockPublicAccessNew.arguments[0],
@@ -124,7 +127,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
         const blockPublicAccessProperty = blockPublicAccessConfig.properties.find(
           property => isProperty(property) && isIdentifier(property.key, key),
         ) as Property | undefined;
-        if (blockPublicAccessProperty) {
+        if (blockPublicAccessProperty !== undefined) {
           const blockPublicAccessValue = getValueOfExpression(
             context,
             blockPublicAccessProperty.value,
