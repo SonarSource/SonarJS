@@ -21,7 +21,7 @@
 
 import { Linter, Rule } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../linter/visitors';
+import { childrenOf } from 'linting/eslint';
 import { interceptReport } from './decorators/helpers';
 import { isUndefined } from './helpers';
 

@@ -19,7 +19,7 @@
  */
 
 import { analyze, CssAnalysisInput } from 'services/analysis/analyzers/css';
-import { RuleConfig } from 'linting/stylelint/linter';
+import { RuleConfig } from 'linting/stylelint';
 import path from 'path';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];

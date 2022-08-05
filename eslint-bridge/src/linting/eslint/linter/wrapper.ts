@@ -22,10 +22,10 @@ import { Linter, Rule, SourceCode } from 'eslint';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { rules as internalRules } from '../rules';
-import { rules as internalCustomRules, CustomRule } from './custom-rules';
+import { rules as internalRules } from 'linting/eslint';
+import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { createLinterConfig, RuleConfig } from './config';
-import { FileType } from '../../../helpers';
+import { FileType } from 'helpers';
 import { SymbolHighlight } from './visitors';
 import { decorateExternalRules } from './decoration';
 import {

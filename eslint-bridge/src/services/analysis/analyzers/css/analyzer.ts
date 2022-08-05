@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { readFile } from '../../../../helpers';
-import { createStylelintConfig, linter } from '../../../../linting/stylelint';
+import { readFile } from 'helpers';
+import { createStylelintConfig, linter } from 'linting/stylelint';
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
 
 /**

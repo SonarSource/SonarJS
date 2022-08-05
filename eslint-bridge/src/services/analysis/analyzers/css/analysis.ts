@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { RuleConfig } from '../../../../linting/stylelint/linter/config';
-import { Issue } from '../../../../linting/stylelint/linter/issues/issue';
-import { AnalysisInput, AnalysisOutput } from '../..';
+import { Issue, RuleConfig } from 'linting/stylelint';
+import { AnalysisInput, AnalysisOutput } from 'services/analysis';
 
 /**
  * A CSS analysis input

@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { deleteProgram } from '../../services';
+import { deleteProgram } from 'services/program';
 
 /**
  * Handles TypeScript Program deletion requests

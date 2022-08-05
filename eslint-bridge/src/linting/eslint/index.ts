@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { debug, getContext } from '../../helpers';
-import { LinterWrapper, RuleConfig } from './linter';
-import { CustomRule } from './linter/custom-rules/custom-rule';
+import { debug, getContext } from 'helpers';
+import { CustomRule, LinterWrapper, RuleConfig } from './linter';
 
 export * from './linter';
 export * from './rules';

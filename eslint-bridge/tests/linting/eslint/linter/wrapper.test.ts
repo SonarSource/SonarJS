@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SourceCode } from 'eslint';
-import { setContext } from 'helpers';
-import { LinterWrapper, RuleConfig } from 'linting/eslint';
-import { quickFixRules } from 'linting/eslint/linter/quickfixes';
 import fs from 'fs';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools/helpers';
+import { SourceCode } from 'eslint';
+import { setContext } from 'helpers';
+import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
 import { Language } from 'parsing/jsts';
-import { CustomRule } from 'linting/eslint/linter/custom-rules';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools/helpers';
 
 describe('LinterWrapper', () => {
   beforeAll(() => {

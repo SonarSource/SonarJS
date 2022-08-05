@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SourceCode } from 'eslint';
-import { computeMetrics } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../tools/helpers';
+import { SourceCode } from 'eslint';
+import { computeMetrics } from 'linting/eslint';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 describe('computeMetrics', () => {
   it('should compute metrics', () => {

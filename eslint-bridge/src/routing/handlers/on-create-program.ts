@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { createProgram } from '../../services';
+import { createProgram } from 'services/program';
 
 /**
  * Handles TypeScript Program creation requests

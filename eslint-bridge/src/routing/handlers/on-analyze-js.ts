@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from '../../services/analysis';
-import { analyze, JsTsAnalysisInput } from '../../services/analysis/analyzers/js';
+import { runner } from 'services/analysis';
+import { analyze, JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 /**
  * Handles JavaScript analysis requests

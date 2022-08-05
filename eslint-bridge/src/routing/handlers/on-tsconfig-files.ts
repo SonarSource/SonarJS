@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { getFilesForTsConfig } from '../../services';
+import { getFilesForTsConfig } from 'services/tsconfig';
 
 /**
  * Handles TSConfig files resolving requests

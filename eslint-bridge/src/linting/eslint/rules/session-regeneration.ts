@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../linter/visitors';
+import { childrenOf } from 'linting/eslint';
 import {
   isIdentifier,
   getPropertyWithValue,

@@ -29,7 +29,7 @@ import {
   getModuleNameOfNode,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 export const rule: Rule.RuleModule = {
   meta: {

@@ -30,7 +30,7 @@ import {
   checkSensitiveCall,
   getModuleNameOfNode,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 

@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import path from 'path';
-import { AnalysisErrorCode, createProgram } from 'services';
+import { AnalysisErrorCode } from 'services/analysis';
 import {
   analyze,
   EMPTY_ANALYSIS_OUTPUT,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
 } from 'services/analysis/analyzers/js';
+import { createProgram } from 'services/program';
 
 describe('analyze', () => {
   beforeEach(() => {

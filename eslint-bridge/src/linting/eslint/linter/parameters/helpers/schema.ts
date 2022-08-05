@@ -19,7 +19,7 @@
  */
 
 import { Rule } from 'eslint';
-import { debug } from '../../../../../helpers';
+import { debug } from 'helpers';
 
 /**
  * Extracts the schema of a rule

@@ -28,7 +28,7 @@ import {
   getObjectExpressionProperty,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];

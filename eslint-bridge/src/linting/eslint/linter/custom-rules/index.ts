@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CustomRule } from './custom-rule';
 import { rule as cognitiveComplexity } from './cognitive-complexity';
+import { CustomRule } from './custom-rule';
 import { rule as symbolHighlighting } from './symbol-highlighting';
 
 export * from './custom-rule';
@@ -27,4 +27,4 @@ export * from './custom-rule';
 /**
  * The set of internal custom rules
  */
-export const rules: CustomRule[] = [cognitiveComplexity, symbolHighlighting];
+export const customRules: CustomRule[] = [cognitiveComplexity, symbolHighlighting];

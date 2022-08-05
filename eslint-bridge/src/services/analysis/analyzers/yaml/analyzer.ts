@@ -20,10 +20,9 @@
 
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { assertLinterInitialized, linter } from '../../../../linting/eslint';
-import { Issue } from '../../../../linting/eslint/linter/issues';
-import { buildSourceCodes } from '../../../../parsing/yaml';
-import { isAnalysisError } from '../../errors';
+import { assertLinterInitialized, linter, Issue } from 'linting/eslint';
+import { buildSourceCodes } from 'parsing/yaml';
+import { isAnalysisError } from 'services/analysis';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 
 /**

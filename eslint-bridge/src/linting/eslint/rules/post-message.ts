@@ -28,7 +28,7 @@ import {
   getTypeAsString,
   resolveFunction,
 } from './helpers';
-import { childrenOf } from '../linter/visitors';
+import { childrenOf } from 'linting/eslint';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';

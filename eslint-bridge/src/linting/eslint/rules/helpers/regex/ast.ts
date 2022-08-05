@@ -20,8 +20,7 @@
 
 import { ParserServices } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { isIdentifier } from '../ast';
-import { isString } from '../type';
+import { isIdentifier, isString } from 'linting/eslint/rules/helpers';
 
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (

@@ -29,7 +29,7 @@ import {
   getObjectExpressionProperty,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';
 export const rule: Rule.RuleModule = {

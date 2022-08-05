@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { initializeLinter, RuleConfig } from '../../linting/eslint';
+import { initializeLinter, RuleConfig } from 'linting/eslint';
 
 /**
  * Handles initialization requests of the global ESLint linter wrapper

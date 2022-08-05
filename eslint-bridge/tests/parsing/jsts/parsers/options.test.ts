@@ -20,7 +20,7 @@
 
 import { buildParserOptions } from 'parsing/jsts';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
-import { createProgram, getProgramById } from 'services';
+import { createProgram, getProgramById } from 'services/program';
 import path from 'path';
 
 describe('buildParserOptions', () => {

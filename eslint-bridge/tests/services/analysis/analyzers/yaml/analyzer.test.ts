@@ -19,9 +19,9 @@
  */
 
 import { join } from 'path';
-import { analyze } from 'services/analysis/analyzers/yaml';
 import { setContext } from 'helpers';
-import { AnalysisErrorCode } from 'services';
+import { AnalysisErrorCode } from 'services/analysis';
+import { analyze } from 'services/analysis/analyzers/yaml';
 import { initializeLinter } from 'linting/eslint';
 
 describe('analyze()', () => {

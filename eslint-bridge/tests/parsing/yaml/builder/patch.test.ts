@@ -20,10 +20,10 @@
 
 import path from 'path';
 import { SourceCode } from 'eslint';
-import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
-import { AnalysisError } from 'services';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
+import { AnalysisError } from 'services/analysis';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 describe('patchSourceCode', () => {

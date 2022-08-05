@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { createStylelintConfig, RuleConfig } from 'linting/stylelint/linter';
+import { createStylelintConfig, RuleConfig } from 'linting/stylelint';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {

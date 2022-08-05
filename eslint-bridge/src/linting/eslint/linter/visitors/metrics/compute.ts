@@ -19,14 +19,14 @@
  */
 
 import { SourceCode } from 'eslint';
-import { countClasses } from '../classes';
-import { findCommentLines } from '../comments';
-import { computeCyclomaticComplexity } from '../cyclomatic-complexity';
-import { findExecutableLines } from '../executable-lines';
-import { countFunctions } from '../functions';
-import { Metrics } from '../metrics';
-import { findNcloc } from '../ncloc';
-import { countStatements } from '../statements';
+import { countClasses } from './classes';
+import { findCommentLines } from './comments';
+import { computeCyclomaticComplexity } from './cyclomatic-complexity';
+import { findExecutableLines } from './executable-lines';
+import { countFunctions } from './functions';
+import { Metrics } from './metrics';
+import { findNcloc } from './ncloc';
+import { countStatements } from './statements';
 
 /**
  * Computes the metrics of an ESLint source code

@@ -30,7 +30,7 @@ import {
   RuleContext,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const message = 'Make sure this function is not called after the loop completes.';
 

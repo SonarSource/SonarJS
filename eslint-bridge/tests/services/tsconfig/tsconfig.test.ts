@@ -19,8 +19,8 @@
  */
 import * as ts from 'typescript';
 import * as path from 'path';
-import { getFilesForTsConfig } from 'services';
 import { AnalysisErrorCode } from 'services/analysis';
+import { getFilesForTsConfig } from 'services/tsconfig';
 import { toUnixPath } from '../../tools';
 
 const defaultParseConfigHost: ts.ParseConfigHost = {

@@ -31,7 +31,7 @@ import {
   getVariableFromName,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';

@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { EmbeddedJS, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
-import { AnalysisError, AnalysisErrorCode } from 'services';
+import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 
 describe('parseYaml', () => {
   it('should return embedded JavScript', () => {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { YamlVisitorPredicate } from '../parser';
+import { YamlVisitorPredicate } from 'parsing/yaml';
 
 /**
  * Checks if the given YAML AST node is an AWS Lambda or Serverless function

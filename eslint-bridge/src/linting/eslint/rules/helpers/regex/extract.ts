@@ -28,7 +28,7 @@ import {
   isRegexLiteral,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '../ast';
+} from 'linting/eslint/rules/helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRegExpConstructor } from './ast';
 import { getFlags } from './flags';

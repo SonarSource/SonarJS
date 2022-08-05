@@ -20,7 +20,7 @@
 
 import { Linter, Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decorators as internalDecorators } from '../../rules/decorators';
+import { decorators as internalDecorators } from 'linting/eslint/rules/decorators';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 
 /**

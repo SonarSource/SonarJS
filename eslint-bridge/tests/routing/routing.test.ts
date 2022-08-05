@@ -23,7 +23,7 @@ import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
 import { start } from 'server';
-import { createProgram } from 'services';
+import { createProgram } from 'services/program';
 import { promisify } from 'util';
 import { request, toUnixPath } from '../tools/helpers';
 

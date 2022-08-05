@@ -20,7 +20,7 @@
 
 import * as path from 'path';
 import * as ts from 'typescript';
-import { AnalysisErrorCode } from '../analysis';
+import { AnalysisErrorCode } from 'services/analysis';
 
 /**
  * Gets the files resolved by a TSConfig

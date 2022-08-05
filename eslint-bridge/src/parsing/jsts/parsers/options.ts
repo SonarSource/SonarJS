@@ -19,8 +19,8 @@
  */
 
 import { Linter } from 'eslint';
-import { getProgramById } from '../../../services';
-import { JsTsAnalysisInput } from '../../../services/analysis/analyzers/js';
+import { getProgramById } from 'services/program';
+import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 /**
  * Builds ESLint parser options

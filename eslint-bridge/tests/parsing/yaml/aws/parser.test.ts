@@ -19,9 +19,8 @@
  */
 
 import path from 'path';
-import { parseAwsFromYaml } from 'parsing/yaml/aws';
-import { EmbeddedJS } from 'parsing/yaml';
-import { AnalysisError, AnalysisErrorCode } from 'services';
+import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
+import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', () => {

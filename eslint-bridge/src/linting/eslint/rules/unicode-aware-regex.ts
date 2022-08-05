@@ -24,7 +24,7 @@ import { Character, Quantifier, RegExpLiteral } from 'regexpp/ast';
 import { SourceLocation } from 'estree';
 import { toEncodedMessage } from './helpers';
 import { createRegExpRule, getRegexpLocation } from './helpers/regex';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { createProgram, deleteProgram, getProgramById } from 'services';
+import { createProgram, deleteProgram, getProgramById } from 'services/program';
 import { toUnixPath } from '../../tools';
 
 describe('program', () => {

@@ -28,8 +28,8 @@ import {
   getObjectExpressionProperty,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
-import { childrenOf } from '../linter/visitors';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { childrenOf } from 'linting/eslint';
 
 export const rule: Rule.RuleModule = {
   meta: {

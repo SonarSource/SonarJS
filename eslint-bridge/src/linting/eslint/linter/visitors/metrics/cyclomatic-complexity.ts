@@ -19,7 +19,7 @@
  */
 
 import { SourceCode } from 'eslint';
-import { visit } from '../visitor';
+import { visit } from 'linting/eslint';
 
 /**
  * The ESLint loop node types

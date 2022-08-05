@@ -32,7 +32,7 @@
 import path from 'path';
 import fs from 'fs';
 import ts from 'typescript';
-import { debug } from '../../helpers';
+import { debug } from 'helpers';
 
 /**
  * A cache of created TypeScript's Program instances

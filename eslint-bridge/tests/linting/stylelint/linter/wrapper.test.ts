@@ -21,7 +21,7 @@
 import path from 'path';
 import stylelint from 'stylelint';
 import { readFile } from 'helpers';
-import { createStylelintConfig, LinterWrapper, RuleConfig } from 'linting/stylelint/linter';
+import { createStylelintConfig, LinterWrapper, RuleConfig } from 'linting/stylelint';
 
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {

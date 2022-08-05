@@ -20,8 +20,8 @@
 
 import http from 'http';
 import express from 'express';
-import router from './routing';
-import { debug } from './helpers';
+import router from 'routing';
+import { debug } from 'helpers';
 
 /**
  * The maximum request body size

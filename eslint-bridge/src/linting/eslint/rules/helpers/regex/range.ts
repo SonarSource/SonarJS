@@ -21,8 +21,7 @@
 import { AST } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
-import { isRegexLiteral, isStringLiteral } from '../ast';
-import { last } from '../collection';
+import { last, isRegexLiteral, isStringLiteral } from 'linting/eslint/rules/helpers';
 import { tokenizeString } from './tokenizer';
 
 /**

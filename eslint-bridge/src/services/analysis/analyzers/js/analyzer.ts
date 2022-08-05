@@ -19,20 +19,20 @@
  */
 
 import { SourceCode } from 'eslint';
-import { getContext } from '../../../../helpers';
-import { assertLinterInitialized, linter } from '../../../../linting/eslint';
+import { getContext } from 'helpers';
 import {
-  findNoSonarLines,
+  assertLinterInitialized,
   computeMetrics,
+  findNoSonarLines,
+  getCpdTokens,
+  getSyntaxHighlighting,
+  linter,
   SymbolHighlight,
-} from '../../../../linting/eslint/linter/visitors';
-import { getCpdTokens } from '../../../../linting/eslint/linter/visitors/cpd';
-import { getSyntaxHighlighting } from '../../../../linting/eslint/linter/visitors/syntax-highlighting';
-import { buildSourceCode, Language } from '../../../../parsing/jsts';
-import { AnalysisErrorCode } from '../../errors';
-import { measureDuration } from '../../../monitoring';
+} from 'linting/eslint';
+import { buildSourceCode, Language } from 'parsing/jsts';
+import { AnalysisErrorCode, AnalysisOutput } from 'services/analysis';
+import { measureDuration } from 'services/monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
-import { AnalysisOutput } from '../../';
 
 /**
  * An empty JavaScript / TypeScript analysis output

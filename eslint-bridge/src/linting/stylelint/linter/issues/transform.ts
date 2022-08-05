@@ -19,7 +19,7 @@
  */
 
 import stylelint from 'stylelint';
-import { debug } from '../../../../helpers';
+import { debug } from 'helpers';
 import { Issue } from './issue';
 
 /**

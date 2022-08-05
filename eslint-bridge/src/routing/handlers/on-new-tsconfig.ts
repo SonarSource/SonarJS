@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { clearTypeScriptESLintParserCaches } from '../../parsing/jsts/parsers';
+import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
 
 /**
  * Handles new TSConfig-based analysis requests

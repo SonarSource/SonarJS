@@ -18,16 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FileType } from '../../../../helpers';
-import { Issue } from '../../../../linting/eslint/linter/issues';
-import {
-  CpdToken,
-  SyntaxHighlight,
-  SymbolHighlight,
-  Metrics,
-} from '../../../../linting/eslint/linter/visitors';
-import { AnalysisInput, AnalysisOutput } from '../..';
-import { Perf } from '../../../monitoring';
+import { FileType } from 'helpers';
+import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from 'linting/eslint';
+import { AnalysisInput, AnalysisOutput } from 'services/analysis';
+import { Perf } from 'services/monitoring';
 
 /**
  * A partial JavaScript / TypeScript analysis input

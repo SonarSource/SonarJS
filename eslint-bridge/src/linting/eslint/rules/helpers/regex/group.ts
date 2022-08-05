@@ -19,7 +19,7 @@
  */
 
 import * as estree from 'estree';
-import { isStringLiteral } from '../ast';
+import { isStringLiteral } from 'linting/eslint/rules/helpers';
 
 export interface GroupReference {
   raw: string;

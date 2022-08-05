@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { AnalysisError, isAnalysisError } from '../../../services';
-import { JsTsAnalysisInput } from '../../../services/analysis/analyzers/js';
-import { buildSourceCode } from '../../jsts';
-import { parseAwsFromYaml } from '../aws';
+import { AnalysisError, isAnalysisError } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { buildSourceCode } from 'parsing/jsts';
+import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
 
 /**

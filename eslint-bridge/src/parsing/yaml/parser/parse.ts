@@ -22,8 +22,8 @@
 import * as yaml from 'yaml-node12';
 import assert from 'assert';
 import { EmbeddedJS } from './embedded-js';
-import { readFile } from '../../../helpers';
-import { AnalysisError, AnalysisErrorCode } from '../../../services';
+import { readFile } from 'helpers';
+import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 
 /**

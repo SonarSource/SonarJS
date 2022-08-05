@@ -19,7 +19,7 @@
  */
 
 import { Rule } from 'eslint';
-import { FileType, getContext } from '../../../../helpers';
+import { FileType, getContext } from 'helpers';
 import { hasSonarRuntimeOption, SONAR_RUNTIME, hasSonarContextOption } from '../parameters';
 
 /**

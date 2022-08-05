@@ -19,9 +19,9 @@
  */
 
 import { SourceCode } from 'eslint';
-import { readFile } from '../../../helpers';
-import { parseAnalysisErrorCode, AnalysisError } from '../../../services/analysis/errors';
-import { JsTsAnalysisInput } from '../../../services/analysis/analyzers/js';
+import { readFile } from 'helpers';
+import { parseAnalysisErrorCode, AnalysisError } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 import { ParseFunction } from './eslint';
 
 /**

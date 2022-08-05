@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { checkSensitiveCall, isCallToFQN, getModuleNameOfNode } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 

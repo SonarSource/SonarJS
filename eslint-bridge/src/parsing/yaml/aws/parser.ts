@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { parseYaml } from '../parser/parse';
+import { parseYaml } from 'parsing/yaml/parser';
 import { isAwsFunction } from './function';
 
 /**

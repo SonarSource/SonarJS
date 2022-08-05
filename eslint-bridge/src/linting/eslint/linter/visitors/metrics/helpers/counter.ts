@@ -20,7 +20,7 @@
 
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
-import { visit } from '../../visitor';
+import { visit } from 'linting/eslint';
 
 /**
  * Counts the number of nodes matching a predicate

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getContext } from '../../../helpers';
-import { JsTsAnalysisInput } from '../../../services/analysis/analyzers/js';
+import { getContext } from 'helpers';
+import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 import { buildJs } from './build-js';
 import { buildTs } from './build-ts';
 import { buildVue } from './build-vue';
-import { Language } from '../language';
+import { Language } from 'parsing/jsts';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript

@@ -19,9 +19,9 @@
  */
 
 import { SourceCode } from 'eslint';
-import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts/parsers';
+import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
-import { AnalysisError, AnalysisErrorCode } from 'services';
+import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 const parseFunctions = [

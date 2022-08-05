@@ -19,8 +19,8 @@
  */
 
 import { Linter, Rule } from 'eslint';
-import { getContext } from '../../../../helpers';
-import { rules as internalCustomRules } from '../custom-rules';
+import { getContext } from 'helpers';
+import { customRules as internalCustomRules } from '../custom-rules';
 import { extendRuleConfig, RuleConfig } from './rule-config';
 
 /**

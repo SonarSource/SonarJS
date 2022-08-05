@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Issue } from '../../../../linting/eslint/linter/issues';
-import { AnalysisInput, AnalysisOutput } from '../../analysis';
+import { Issue } from 'linting/eslint';
+import { AnalysisInput, AnalysisOutput } from 'services/analysis';
 
 /**
  * A YAML analysis input
