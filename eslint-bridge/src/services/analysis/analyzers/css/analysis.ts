@@ -20,7 +20,7 @@
 
 import { RuleConfig } from '../../../../linting/stylelint/linter/config';
 import { Issue } from '../../../../linting/stylelint/linter/issues/issue';
-import { AnalysisInput, AnalysisOutput } from '../../';
+import { AnalysisInput, AnalysisOutput } from '../..';
 
 /**
  * A CSS analysis input

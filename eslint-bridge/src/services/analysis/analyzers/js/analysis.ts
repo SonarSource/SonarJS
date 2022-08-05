@@ -26,7 +26,7 @@ import {
   SymbolHighlight,
   Metrics,
 } from '../../../../linting/eslint/linter/visitors';
-import { AnalysisInput, AnalysisOutput } from '../../';
+import { AnalysisInput, AnalysisOutput } from '../..';
 import { Perf } from '../../../monitoring';
 
 /**

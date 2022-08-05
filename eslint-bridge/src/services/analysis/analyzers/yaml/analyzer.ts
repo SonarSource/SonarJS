@@ -24,7 +24,7 @@ import { assertLinterInitialized, linter } from '../../../../linting/eslint';
 import { Issue } from '../../../../linting/eslint/linter/issues';
 import { buildSourceCodes } from '../../../../parsing/yaml';
 import { isAnalysisError } from '../../errors';
-import { YamlAnalysisInput, YamlAnalysisOutput } from './dto';
+import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 
 /**
  * An empty YAML analysis output

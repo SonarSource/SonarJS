@@ -19,6 +19,5 @@
  */
 
 export * from './analysis';
-export * from './dto';
 export * from './errors';
 export * from './runner';

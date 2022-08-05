@@ -20,7 +20,7 @@
 
 import { readFile } from '../../../../helpers';
 import { createStylelintConfig, linter } from '../../../../linting/stylelint';
-import { CssAnalysisInput, CssAnalysisOutput } from './dto';
+import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
 
 /**
  * Analyzes a CSS analysis input

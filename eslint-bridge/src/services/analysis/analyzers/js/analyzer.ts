@@ -31,7 +31,7 @@ import { getSyntaxHighlighting } from '../../../../linting/eslint/linter/visitor
 import { buildSourceCode, Language } from '../../../../parsing/jsts';
 import { AnalysisErrorCode } from '../../errors';
 import { measureDuration } from '../../../monitoring';
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from './dto';
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 import { AnalysisOutput } from '../../';
 
 /**

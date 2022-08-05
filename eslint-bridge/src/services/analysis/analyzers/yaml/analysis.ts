@@ -18,32 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AnalysisError } from './errors';
+import { Issue } from '../../../../linting/eslint/linter/issues';
+import { AnalysisInput, AnalysisOutput } from '../../analysis';
 
 /**
- * An analysis input
+ * A YAML analysis input
  *
- * An analysis always operates on a file, be it from its path
- * or its content for any type of analysis.
- *
- * @param filePath the path of the file to analyze
- * @param fileContent the content of the file to analyze
+ * (currently empty but might change later on)
  */
-export interface AnalysisInput {
-  filePath: string;
-  fileContent: string | undefined;
-}
+export interface YamlAnalysisInput extends AnalysisInput {}
 
 /**
- * An analysis output
+ * A YAML analysis output
  *
- * An analysis outputs a result that depends on the kind of analysis.
- * Still, any analysis is subject to errors (which was initially named
- * `parsingError` and cannot be changed without breaking the protocol of
- * the bridge with any other components, e.g. SonarLint).
+ * A YAML analysis only returns issues that were found during
+ * linting. Because the JavaScript analyzer doesn't "own" the
+ * `YAML` language, it cannot save anything else than issues
+ * using SonarQube API, especially analysis data like metrics.
  *
- * @param parsingError an analysis error, if any
+ * @param issues the found issues
  */
-export interface AnalysisOutput {
-  parsingError?: AnalysisError;
+export interface YamlAnalysisOutput extends AnalysisOutput {
+  issues: Issue[];
 }
