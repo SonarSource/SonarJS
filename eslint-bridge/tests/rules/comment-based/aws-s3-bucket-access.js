@@ -63,6 +63,7 @@ someObject.grantPublicAccess();
 const bucketDeployment = new s3.BucketDeployment(this, 'id', {
   bucketName: 'BucketDeployment'
 });
+const bucketDeploymentFromSomethingElse = new something.BucketDeployment();
 
 /// accessControl param
 
