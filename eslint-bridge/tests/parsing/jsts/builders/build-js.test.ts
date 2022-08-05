@@ -19,14 +19,14 @@
  */
 
 import { SourceCode } from 'eslint';
-import { buildJs } from 'parsing/jsts';
+import { buildJs } from 'parsing/jsts/builders/build-js';
 import path from 'path';
 import { AnalysisErrorCode } from 'services/analysis';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
 
 describe('buildJs', () => {
   it('should build JavaScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'file.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -41,7 +41,7 @@ describe('buildJs', () => {
   });
 
   it('should fail building malformed JavaScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'malformed.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -58,7 +58,7 @@ describe('buildJs', () => {
   it('should build JavaScript code with TypeScript ESLint parser', () => {
     console.log = jest.fn();
 
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'file.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -76,7 +76,7 @@ describe('buildJs', () => {
   it('should fail building JavaScript code with TypeScript ESLint parser', () => {
     console.log = jest.fn();
 
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'malformed.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -88,7 +88,7 @@ describe('buildJs', () => {
   });
 
   it('should build module JavaScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'module.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'module.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -99,7 +99,7 @@ describe('buildJs', () => {
   });
 
   it('should build script JavaScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'javascript', 'script.js');
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'script.js');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;

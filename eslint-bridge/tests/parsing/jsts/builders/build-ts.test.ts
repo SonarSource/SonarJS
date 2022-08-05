@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildTs } from 'parsing/jsts';
+import { buildTs } from 'parsing/jsts/builders/build-ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
@@ -26,9 +26,9 @@ import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 
 describe('buildTs', () => {
   it('should build TypeScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'typescript', 'file.ts');
+    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.ts');
     const fileType = 'MAIN';
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'typescript', 'tsconfig.json')];
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
@@ -43,9 +43,9 @@ describe('buildTs', () => {
   });
 
   it('should fail building malformed TypeScript code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'typescript', 'malformed.ts');
+    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
     const fileType = 'MAIN';
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'typescript', 'tsconfig.json')];
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
@@ -59,9 +59,9 @@ describe('buildTs', () => {
   });
 
   it('should build TypeScript Vue.js code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'typescript', 'file.vue');
+    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.vue');
     const fileType = 'MAIN';
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'typescript', 'tsconfig.json')];
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = true;
@@ -78,9 +78,9 @@ describe('buildTs', () => {
   });
 
   it('should fail building excluded TypeScript code from TSConfig', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'typescript', 'excluded.ts');
+    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts');
     const fileType = 'MAIN';
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'typescript', 'tsconfig.json')];
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;

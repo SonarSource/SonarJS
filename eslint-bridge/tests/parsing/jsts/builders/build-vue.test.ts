@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildVue } from 'parsing/jsts';
+import { buildVue } from 'parsing/jsts/builders/build-vue';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
@@ -26,7 +26,7 @@ import { AnalysisErrorCode } from 'services/analysis';
 
 describe('buildVue', () => {
   it('should build Vue.js code with JavaScript parser', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'vue', 'js.vue');
+    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'js.vue');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -44,7 +44,7 @@ describe('buildVue', () => {
   });
 
   it('should fail building malformed Vue.js code', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'vue', 'malformed.vue');
+    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -59,7 +59,7 @@ describe('buildVue', () => {
   });
 
   it('should build Vue.js code with TypeScript ESLint parser', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'vue', 'ts.vue');
+    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'ts.vue');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
@@ -72,7 +72,7 @@ describe('buildVue', () => {
   it('should fail building malformed Vue.js code with TypeScript ESLint parser', () => {
     console.log = jest.fn();
 
-    const filePath = path.join(__dirname, 'fixtures', 'vue', 'malformed.vue');
+    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const fileType = 'MAIN';
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
