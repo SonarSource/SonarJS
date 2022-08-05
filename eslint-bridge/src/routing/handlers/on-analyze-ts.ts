@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from 'services/analysis';
-import { analyze, JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
 
 /**
  * Handles TypeScript analysis requests
  */
 export const onAnalyzeTs = runner(input =>
-  Promise.resolve(analyze(input as JsTsAnalysisInput, 'ts')),
+  Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'ts')),
 );

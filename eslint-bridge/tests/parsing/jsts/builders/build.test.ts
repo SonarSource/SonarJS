@@ -22,7 +22,7 @@ import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { AST } from 'vue-eslint-parser';
 
 describe('buildSourceCode', () => {

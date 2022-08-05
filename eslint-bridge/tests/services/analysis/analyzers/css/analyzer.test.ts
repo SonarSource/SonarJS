@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { analyze, CssAnalysisInput } from 'services/analysis/analyzers/css';
+import { analyzeCSS, CssAnalysisInput } from 'services/analysis';
 import { RuleConfig } from 'linting/stylelint';
 import path from 'path';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
-describe('analyze', () => {
+describe('analyzeCSS', () => {
   it('should analyze a css file', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.css');
-    expect(analyze(input(filePath, undefined, rules))).resolves.toEqual({
+    expect(analyzeCSS(input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         {
           ruleId: 'block-no-empty',
@@ -41,7 +41,7 @@ describe('analyze', () => {
 
   it('should analyze css content', () => {
     const fileContent = 'p {}';
-    expect(analyze(input('/some/fake/path', fileContent, rules))).resolves.toEqual({
+    expect(analyzeCSS(input('/some/fake/path', fileContent, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -52,7 +52,7 @@ describe('analyze', () => {
 
   it('should analyze less syntax', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.less');
-    expect(analyze(input(filePath, undefined, rules))).resolves.toEqual({
+    expect(analyzeCSS(input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -63,7 +63,7 @@ describe('analyze', () => {
 
   it('should return a parsing error in the form of an issue', () => {
     const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
-    expect(analyze(input(filePath))).resolves.toEqual({
+    expect(analyzeCSS(input(filePath))).resolves.toEqual({
       issues: [
         {
           ruleId: 'CssSyntaxError',

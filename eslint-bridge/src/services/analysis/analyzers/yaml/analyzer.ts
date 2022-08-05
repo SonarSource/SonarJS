@@ -28,7 +28,7 @@ import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 /**
  * An empty YAML analysis output
  */
-export const EMPTY_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
+export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
   issues: [],
 };
 
@@ -52,14 +52,14 @@ export const EMPTY_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export function analyze(input: YamlAnalysisInput): YamlAnalysisOutput {
+export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   assertLinterInitialized();
 
   const sourceCodesOrError = buildSourceCodes(input.filePath);
   if (isAnalysisError(sourceCodesOrError)) {
     const parsingError = sourceCodesOrError;
     return {
-      ...EMPTY_ANALYSIS_OUTPUT,
+      ...EMPTY_YAML_ANALYSIS_OUTPUT,
       parsingError,
     };
   }

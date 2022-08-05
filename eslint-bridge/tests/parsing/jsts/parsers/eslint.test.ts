@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { buildSourceCode, Language } from 'parsing/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

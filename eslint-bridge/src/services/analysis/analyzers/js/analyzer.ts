@@ -37,7 +37,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 /**
  * An empty JavaScript / TypeScript analysis output
  */
-export const EMPTY_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
+export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
   issues: [],
   highlights: [],
   highlightedSymbols: [],
@@ -75,7 +75,7 @@ export const EMPTY_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
  * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyze(
+export function analyzeJSTS(
   input: JsTsAnalysisInput,
   language: Language,
 ): JsTsAnalysisOutput | AnalysisOutput {
@@ -89,7 +89,7 @@ export function analyze(
   } else {
     return {
       parsingError: built,
-      ...EMPTY_ANALYSIS_OUTPUT,
+      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     };
   }
 }

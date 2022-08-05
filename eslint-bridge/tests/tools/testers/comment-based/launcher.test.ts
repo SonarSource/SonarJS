@@ -79,7 +79,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
 
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
- * as we use in our 'services/analysis/analyzers/js/analyzer.ts' module
+ * as we use in our 'services/analysis/analyzer.ts' module
  */
 export function parseForESLint(
   fileContent: string,

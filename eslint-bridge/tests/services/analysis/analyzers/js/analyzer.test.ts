@@ -21,16 +21,16 @@
 import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import { AnalysisErrorCode } from 'services/analysis';
 import {
-  analyze,
-  EMPTY_ANALYSIS_OUTPUT,
+  analyzeJSTS,
+  AnalysisErrorCode,
+  EMPTY_JSTS_ANALYSIS_OUTPUT,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
-} from 'services/analysis/analyzers/js';
+} from 'services/analysis';
 import { createProgram } from 'services/program';
 
-describe('analyze', () => {
+describe('analyzeJSTS', () => {
   beforeEach(() => {
     setContext({
       workDir: '/tmp/dir',
@@ -43,7 +43,7 @@ describe('analyze', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     const language = 'js';
-    expect(() => analyze(input, language)).toThrow(
+    expect(() => analyzeJSTS(input, language)).toThrow(
       'Linter is undefined. Did you call /init-linter?',
     );
   });
@@ -64,7 +64,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-default-last',
@@ -88,7 +88,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'bool-param-default',
@@ -112,7 +112,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-dupe-keys',
@@ -135,7 +135,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyze(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -159,7 +159,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyze(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -183,7 +183,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyze(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(2);
     expect(issues.map(issue => issue.ruleId)).toEqual(
       expect.arrayContaining(['no-exclusive-tests', 'no-throw-literal']),
@@ -206,7 +206,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'object-shorthand',
@@ -230,7 +230,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-extra-semi',
@@ -254,7 +254,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-template',
@@ -278,7 +278,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-useless-intersection',
@@ -304,7 +304,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-array-delete',
@@ -334,7 +334,7 @@ describe('analyze', () => {
 
     const {
       issues: [issue],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'different-types-comparison',
@@ -356,7 +356,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyze(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(issues).toEqual([
       {
         ruleId: 'no-octal',
@@ -387,7 +387,7 @@ describe('analyze', () => {
 
     const {
       issues: [{ secondaryLocations }],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -415,7 +415,7 @@ describe('analyze', () => {
 
     const {
       issues: [{ quickFixes }],
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -460,7 +460,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyze(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       input,
       language,
     ) as JsTsAnalysisOutput;
@@ -709,7 +709,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyze(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       input,
       language,
     ) as JsTsAnalysisOutput;
@@ -767,7 +767,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyze(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       input,
       language,
     ) as JsTsAnalysisOutput;
@@ -798,7 +798,7 @@ describe('analyze', () => {
 
     const {
       perf: { parseTime, analysisTime },
-    } = analyze(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
     expect(parseTime).toBeGreaterThan(0);
     expect(analysisTime).toBeGreaterThan(0);
   });
@@ -815,7 +815,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const error = analyze(input, language);
+    const error = analyzeJSTS(input, language);
     expect(error).toEqual(
       expect.objectContaining({
         parsingError: {
@@ -839,7 +839,7 @@ describe('analyze', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const error = analyze(input, language);
-    expect(error).toEqual(expect.objectContaining(EMPTY_ANALYSIS_OUTPUT));
+    const error = analyzeJSTS(input, language);
+    expect(error).toEqual(expect.objectContaining(EMPTY_JSTS_ANALYSIS_OUTPUT));
   });
 });

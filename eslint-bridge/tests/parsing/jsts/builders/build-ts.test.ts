@@ -21,8 +21,7 @@
 import { buildTs } from 'parsing/jsts/builders/build-ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
-import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
+import { AnalysisError, AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
 
 describe('buildTs', () => {
   it('should build TypeScript code', () => {

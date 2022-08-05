@@ -21,8 +21,7 @@
 import { buildVue } from 'parsing/jsts/builders/build-vue';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
-import { AnalysisErrorCode } from 'services/analysis';
+import { AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
 
 describe('buildVue', () => {
   it('should build Vue.js code with JavaScript parser', () => {

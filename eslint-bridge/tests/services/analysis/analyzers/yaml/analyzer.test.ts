@@ -20,11 +20,10 @@
 
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { AnalysisErrorCode } from 'services/analysis';
-import { analyze } from 'services/analysis/analyzers/yaml';
+import { AnalysisErrorCode, analyzeYAML } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
 
-describe('analyze()', () => {
+describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
 
   beforeAll(() => {
@@ -38,7 +37,7 @@ describe('analyze()', () => {
 
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
-    expect(() => analyze(input)).toThrow('Linter is undefined. Did you call /init-linter?');
+    expect(() => analyzeYAML(input)).toThrow('Linter is undefined. Did you call /init-linter?');
   });
 
   it('should analyze YAML file', async () => {
@@ -47,7 +46,7 @@ describe('analyze()', () => {
     ]);
     const {
       issues: [issue],
-    } = analyze({
+    } = analyzeYAML({
       filePath: join(fixturesPath, 'file.yaml'),
       fileContent: undefined,
     });
@@ -66,7 +65,7 @@ describe('analyze()', () => {
     initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues, parsingError } = analyze({
+    const { issues, parsingError } = analyzeYAML({
       filePath: join(fixturesPath, 'malformed.yaml'),
       fileContent: undefined,
     });
@@ -78,7 +77,7 @@ describe('analyze()', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyze({
+    const result = analyzeYAML({
       filePath: join(fixturesPath, 'quickfix.yaml'),
       fileContent: undefined,
     });
@@ -110,7 +109,7 @@ describe('analyze()', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyze({
+    const { issues } = analyzeYAML({
       filePath: join(fixturesPath, 'enforce-trailing-comma.yaml'),
       fileContent: undefined,
     });
@@ -135,7 +134,7 @@ describe('analyze()', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyze({
+    const result = analyzeYAML({
       filePath: join(fixturesPath, 'secondary.yaml'),
       fileContent: undefined,
     });
@@ -158,7 +157,7 @@ describe('analyze()', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyze({
+    const result = analyzeYAML({
       filePath: join(fixturesPath, 'regex.yaml'),
       fileContent: undefined,
     });
@@ -180,7 +179,7 @@ describe('analyze()', () => {
       { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyze({
+    const { issues } = analyzeYAML({
       filePath: join(fixturesPath, 'outside.yaml'),
       fileContent: undefined,
     });

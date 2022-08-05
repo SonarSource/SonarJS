@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
 
 /**

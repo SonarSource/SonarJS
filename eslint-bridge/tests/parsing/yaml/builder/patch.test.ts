@@ -23,8 +23,7 @@ import { SourceCode } from 'eslint';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
-import { AnalysisError } from 'services/analysis';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { AnalysisError, JsTsAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {

@@ -20,7 +20,7 @@
 
 import { SourceCode } from 'eslint';
 import { debug } from 'helpers';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
 
 /**

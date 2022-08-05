@@ -21,8 +21,7 @@
 import { SourceCode } from 'eslint';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
-import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { AnalysisError, AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
 
 const parseFunctions = [
   { parser: parsers.javascript, usingBabel: true },

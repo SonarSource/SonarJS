@@ -21,8 +21,7 @@
 import { SourceCode } from 'eslint';
 import { buildJs } from 'parsing/jsts/builders/build-js';
 import path from 'path';
-import { AnalysisErrorCode } from 'services/analysis';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
 
 describe('buildJs', () => {
   it('should build JavaScript code', () => {

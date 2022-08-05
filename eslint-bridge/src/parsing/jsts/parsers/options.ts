@@ -20,7 +20,7 @@
 
 import { Linter } from 'eslint';
 import { getProgramById } from 'services/program';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 
 /**
  * Builds ESLint parser options

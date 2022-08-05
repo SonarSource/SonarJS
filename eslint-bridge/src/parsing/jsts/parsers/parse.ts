@@ -20,8 +20,7 @@
 
 import { SourceCode } from 'eslint';
 import { readFile } from 'helpers';
-import { parseAnalysisErrorCode, AnalysisError } from 'services/analysis';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { parseAnalysisErrorCode, AnalysisError, JsTsAnalysisInput } from 'services/analysis';
 import { ParseFunction } from './eslint';
 
 /**

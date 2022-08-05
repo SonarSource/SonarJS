@@ -19,7 +19,7 @@
  */
 
 import { getContext } from 'helpers';
-import { JsTsAnalysisInput } from 'services/analysis/analyzers/js';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { buildJs } from './build-js';
 import { buildTs } from './build-ts';
 import { buildVue } from './build-vue';

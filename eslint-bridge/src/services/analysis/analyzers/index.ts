@@ -18,9 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner, analyzeCSS, CssAnalysisInput } from 'services/analysis';
-
-/**
- * Handles CSS analysis requests
- */
-export const onAnalyzeCss = runner(input => analyzeCSS(input as CssAnalysisInput));
+export * from './css';
+export * from './js';
+export * from './yaml';

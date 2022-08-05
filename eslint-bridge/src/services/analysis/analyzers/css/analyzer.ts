@@ -32,7 +32,7 @@ import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
  * @param input the CSS analysis input to analyze
  * @returns a promise of the CSS analysis output
  */
-export function analyze(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
+export function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
   const { filePath, fileContent, rules } = input;
   const code = typeof fileContent == 'string' ? fileContent : readFile(filePath);
   const config = createStylelintConfig(rules);

@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner } from 'services/analysis';
-import { analyze, YamlAnalysisInput } from 'services/analysis/analyzers/yaml';
+import { runner, analyzeYAML, YamlAnalysisInput } from 'services/analysis';
 
 /**
  * Handles YAML analysis requests
  */
-export const onAnalyzeYaml = runner(input => Promise.resolve(analyze(input as YamlAnalysisInput)));
+export const onAnalyzeYaml = runner(input =>
+  Promise.resolve(analyzeYAML(input as YamlAnalysisInput)),
+);
