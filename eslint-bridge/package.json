@@ -59,6 +59,7 @@
     "eslint-plugin-sonarjs": "0.14.0",
     "express": "4.18.1",
     "functional-red-black-tree": "1.0.1",
+    "module-alias": "2.2.2",
     "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
     "postcss-scss": "4.0.3",
@@ -89,6 +90,7 @@
     "eslint-plugin-sonarjs",
     "express",
     "functional-red-black-tree",
+    "module-alias",
     "postcss-html",
     "postcss-less",
     "postcss-scss",
@@ -112,5 +114,12 @@
   "files": [
     "lib/",
     "bin/"
-  ]
+  ],
+  "_moduleAliases": {
+    "helpers": "lib/helpers",
+    "linting": "lib/linting",
+    "parsing": "lib/parsing",
+    "routing": "lib/routing",
+    "services": "lib/services"
+  }
 }
