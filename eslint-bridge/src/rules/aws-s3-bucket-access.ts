@@ -23,12 +23,17 @@ import { Rule } from 'eslint';
 import {
   findPropagatedSetting,
   getProperty,
+  getUniqueWriteUsageOrNode,
   getValueOfExpression,
   hasFullyQualifiedName,
+  isIdentifier,
+  isMethodCall,
+  isS3BucketConstructor,
+  mergeRules,
   S3BucketTemplate,
   toEncodedMessage,
 } from '../utils';
-import { NewExpression } from 'estree';
+import estree from 'estree';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -42,7 +47,55 @@ const ACCESS_CONTROL_KEY = 'accessControl';
 const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    //return s3BucketConstructorRule.create(context);
+    return mergeRules(
+      s3BucketConstructorRule.create(context),
+      handleGrantPublicAccess.create(context),
+    );
+  },
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
+};
+
+const handleGrantPublicAccess: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      CallExpression: (node: estree.CallExpression) => {
+        // 1. check that we're calling grantPublicAccess
+        //2. on object that is of class new s3.Bucket
+        if (!isMethodCall(node)) {
+          return;
+        }
+        const { object, property } = node.callee;
+        const isGrantPublicAccess = isIdentifier(property, 'grantPublicAccess');
+        if (!isGrantPublicAccess) {
+          return;
+        }
+        const objectAssignment = getUniqueWriteUsageOrNode(context, object);
+        const isS3bucket =
+          objectAssignment.type === 'NewExpression' &&
+          isS3BucketConstructor(context, objectAssignment);
+        if (!isS3bucket) {
+          return;
+        }
+        context.report({
+          message: toEncodedMessage(messages.unrestricted),
+          node: property,
+        });
+      },
+    };
+  },
+};
+
+const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate(
   (bucketConstructor, context) => {
     checkBooleanParam(
       context,
@@ -71,7 +124,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
 
 function checkBooleanParam(
   context: Rule.RuleContext,
-  bucketConstructor: NewExpression,
+  bucketConstructor: estree.NewExpression,
   propName: string,
   propValue: boolean,
 ) {
@@ -91,7 +144,7 @@ function checkBooleanParam(
 
 function checkConstantParam(
   context: Rule.RuleContext,
-  bucketConstructor: NewExpression,
+  bucketConstructor: estree.NewExpression,
   propName: string,
   paramQualifiers: string[],
 ) {

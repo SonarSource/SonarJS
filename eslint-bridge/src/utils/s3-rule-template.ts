@@ -49,24 +49,24 @@ export function S3BucketTemplate(
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {
-          if (isS3BucketConstructor(node, context)) {
+          if (isS3BucketConstructor(context, node)) {
             callback(node, context);
           }
         },
       };
     },
   };
+}
 
-  /**
-   * Detects S3 Bucket's constructor invocation from 'aws-cdk-lib/aws-s3':
-   *
-   * const s3 = require('aws-cdk-lib/aws-s3');
-   * new s3.Bucket();
-   */
-  function isS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
-    const { module, method } = getModuleAndCalledMethod(node.callee, context);
-    return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
-  }
+/**
+ * Detects S3 Bucket's constructor invocation from 'aws-cdk-lib/aws-s3':
+ *
+ * const s3 = require('aws-cdk-lib/aws-s3');
+ * new s3.Bucket();
+ */
+export function isS3BucketConstructor(context: Rule.RuleContext, node: estree.NewExpression) {
+  const { module, method } = getModuleAndCalledMethod(node.callee, context);
+  return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
 }
 
 /**

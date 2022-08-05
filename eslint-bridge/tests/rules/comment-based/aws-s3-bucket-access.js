@@ -8,6 +8,7 @@ const invalidParam1 = new s3.Bucket(this, 'id', {
   bucketName: 'bucketnoncompliant',
   accessControl: s3.BucketAccessControl.PUBLIC_READ // Noncompliant {{Make sure granting PUBLIC_READ access is safe here.}}
 });
+
 const invalidParam2 = new s3.Bucket(this, 'id', {
   bucketName: 'bucketnoncompliant',
   accessControl: s3.BucketAccessControl.PUBLIC_READ_WRITE // Noncompliant {{Make sure granting PUBLIC_READ_WRITE access is safe here.}}
@@ -38,3 +39,8 @@ const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
   publicReadAccess, // Noncompliant
 });
 
+const bucketNoncompliant = new s3.Bucket(this, 'id', {
+  bucketName: 'bucketnoncompliant'
+});
+bucketNoncompliant.grantPublicAccess(); // Noncompliant {{Make sure allowing unrestricted access to objects from this bucket is safe here.}}
+//                 ^^^^^^^^^^^^^^^^^
