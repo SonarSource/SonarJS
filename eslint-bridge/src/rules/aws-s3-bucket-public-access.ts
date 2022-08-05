@@ -79,12 +79,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           'BLOCK_ACLS',
         )
       ) {
-        const secondary = { locations: [] as Node[], messages: [] as string[] };
-        const isPropagatedProperty = blockPublicAccess.value !== blockPublicAccessMember;
-        if (isPropagatedProperty) {
-          secondary.locations = [getNodeParent(blockPublicAccessMember)];
-          secondary.messages = [messages['propagated']];
-        }
+        const secondary = traceSecondaryLocations(blockPublicAccess, blockPublicAccessMember);
         context.report({
           message: toEncodedMessage(messages['public'], secondary.locations, secondary.messages),
           node: blockPublicAccess,
@@ -134,12 +129,10 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
             'Literal',
           );
           if (blockPublicAccessValue?.value === false) {
-            const secondary = { locations: [] as Node[], messages: [] as string[] };
-            const isPropagatedProperty = blockPublicAccessProperty.value !== blockPublicAccessValue;
-            if (isPropagatedProperty) {
-              secondary.locations = [getNodeParent(blockPublicAccessValue)];
-              secondary.messages = [messages['propagated']];
-            }
+            const secondary = traceSecondaryLocations(
+              blockPublicAccessProperty,
+              blockPublicAccessValue,
+            );
             context.report({
               message: toEncodedMessage(
                 messages['public'],
@@ -156,6 +149,16 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
         const { module, method } = getModuleAndCalledMethod(expr.callee, context);
         return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'BlockPublicAccess');
       }
+    }
+
+    function traceSecondaryLocations(sensitiveProperty: Property, propagatedValue: Node) {
+      const secondary = { locations: [] as Node[], messages: [] as string[] };
+      const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
+      if (isPropagatedProperty) {
+        secondary.locations = [getNodeParent(propagatedValue)];
+        secondary.messages = [messages['propagated']];
+      }
+      return secondary;
     }
   },
   {
