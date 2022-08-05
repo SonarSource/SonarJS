@@ -185,6 +185,18 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
     },
     {
       code: `
+        class A {}
+        class B {}
+        function Factory() {
+          if (condition) {
+            return new A();
+          } else {
+            return new B();
+          }
+        }`,
+    },
+    {
+      code: `
         /** @returns {(number|string)} - a union of number and string */
         function foo() {
           if (condition) {
@@ -211,6 +223,32 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
         return value;
       }
       `,
+    },
+    {
+      code: `
+          function createTypedArrayFactory(type, len) {
+            if (type === 'float32') {
+              return new Float32Array(len);
+            }
+            if (type === 'int16') {
+              return new Int16Array(len);
+            }
+            if (type === 'uint8c') {
+              return new Uint8ClampedArray(len);
+            }
+            return Array.from(Array(len));
+          }
+      `,
+    },
+    {
+      code: `
+        function foo() {
+          if (condition) {
+            return [1, 2, 3];
+          } else {
+            return ['foo', 'bar', 'baz'];
+          }
+        }`,
     },
   ],
   invalid: [
@@ -395,28 +433,28 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
                 endLine: 4,
               },
               {
-                message: `Returns number[]`,
+                message: `Returns array`,
                 column: 12,
                 line: 6,
                 endColumn: 26,
                 endLine: 6,
               },
               {
-                message: `Returns string[]`,
+                message: `Returns array`,
                 column: 12,
                 line: 8,
                 endColumn: 29,
                 endLine: 8,
               },
               {
-                message: `Returns boolean[]`,
+                message: `Returns array`,
                 column: 12,
                 line: 10,
                 endColumn: 28,
                 endLine: 10,
               },
               {
-                message: `Returns object[]`,
+                message: `Returns array`,
                 column: 12,
                 line: 12,
                 endColumn: 38,
@@ -447,30 +485,6 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             } else {
               return 'str';
             }
-          }
-        }`,
-      errors: 1,
-    },
-    {
-      code: `
-        class A {}
-        class B {}
-        function Factory() {
-          if (condition) {
-            return new A();
-          } else {
-            return new B();
-          }
-        }`,
-      errors: 1,
-    },
-    {
-      code: `
-        function foo() {
-          if (condition) {
-            return [1, 2, 3];
-          } else {
-            return ['foo', 'bar', 'baz'];
           }
         }`,
       errors: 1,
