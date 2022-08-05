@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import { NewExpression, Node, ObjectExpression, Property } from 'estree';
 import {
-  getModuleAndCalledMethod,
   getNodeParent,
   getProperty,
   getValueOfExpression,
@@ -146,8 +145,10 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       }
 
       function isS3BlockPublicAccessConstructor(expr: NewExpression) {
-        const { module, method } = getModuleAndCalledMethod(expr.callee, context);
-        return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'BlockPublicAccess');
+        return (
+          expr.callee.type === 'MemberExpression' &&
+          hasFullyQualifiedName(context, expr.callee, 'aws-cdk-lib/aws-s3', 'BlockPublicAccess')
+        );
       }
     }
 
