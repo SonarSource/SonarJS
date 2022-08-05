@@ -106,17 +106,7 @@ const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate(
         value,
       ]);
     }
-  },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: ['sonar-runtime'],
-        },
-      ],
-    },
-  },
+  }
 );
 
 function checkBooleanParam(
