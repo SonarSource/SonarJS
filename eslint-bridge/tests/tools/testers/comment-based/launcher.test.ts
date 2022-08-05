@@ -35,6 +35,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
 import { rules } from 'linting/eslint';
+import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode } from 'parsing/jsts';
 import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
@@ -66,12 +67,14 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     }
     describe(`Running comment-based tests for rule ${rule}`, () => {
       files.forEach(filename => {
+        const ruleModule = rules[rule];
         const code = fs.readFileSync(filename, { encoding: 'utf8' });
+        const errors = extractExpectations(code, hasSonarRuntimeOption(ruleModule, rule));
         const tests = {
           valid: [],
-          invalid: [{ code, errors: extractExpectations(code), filename }],
+          invalid: [{ code, errors, filename }],
         };
-        ruleTester.run(filename, rules[rule], tests);
+        ruleTester.run(filename, ruleModule, tests);
       });
     });
   }

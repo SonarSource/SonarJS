@@ -19,6 +19,7 @@
  */
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
+import { Node } from 'estree';
 import { functionLike } from './ast';
 
 export function findFirstMatchingLocalAncestor(
@@ -56,4 +57,22 @@ export function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) 
 export function getParent(context: Rule.RuleContext) {
   const ancestors = context.getAncestors();
   return ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined;
+}
+
+/**
+ * Returns the parent of an ESLint node
+ *
+ * This function assumes that an ESLint node exposes a parent property,
+ * which is always defined. However, it's better to use `getParent` if
+ * it is possible to retrieve the parent based on the rule context.
+ *
+ * It should eventually disappear once we come up with a proper solution
+ * against the conflicting typings between ESLint and TypeScript ESLint
+ * when it comes to the parent of a node.
+ *
+ * @param node an ESLint node
+ * @returns the parent node
+ */
+export function getNodeParent(node: Node) {
+  return (node as TSESTree.Node).parent as Node;
 }

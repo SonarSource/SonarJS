@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './ast';
 export * from './ancestor';
+export * from './ast';
+export * from './aws';
 export * from './chai';
 export * from './collection';
 export * from './express';

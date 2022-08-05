@@ -19,7 +19,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { S3BucketTemplate } from 'linting/eslint/rules/helpers/s3-rule-template';
+import { S3BucketTemplate } from 'linting/eslint/rules/helpers/aws';
 
 const rule = S3BucketTemplate((node, context) => {
   if (node.arguments.length > 0) {
@@ -54,6 +54,11 @@ new s3.Foo(42);
     {
       code: `
 new s3.Bucket(42);
+`,
+    },
+    {
+      code: `
+new Bucket(42);
 `,
     },
   ],

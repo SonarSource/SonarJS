@@ -43,7 +43,7 @@ export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AS
  */
 export function toEncodedMessage(
   message: string,
-  secondaryLocationsHolder: Array<LocationHolder>,
+  secondaryLocationsHolder: Array<LocationHolder> = [],
   secondaryMessages?: (string | undefined)[],
   cost?: number,
 ): string {

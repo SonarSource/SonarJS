@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -44,7 +45,7 @@ class TypeScriptAnalysisTest {
   @Test
   void test() throws Exception {
     String projectKey = "tsproject";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -79,7 +80,7 @@ class TypeScriptAnalysisTest {
   @Test
   void should_use_custom_tsconfig() throws Exception {
     String projectKey = "tsproject-custom";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -106,7 +107,7 @@ class TypeScriptAnalysisTest {
     File dir = TestUtils.projectDir("missing-tsconfig");
 
     String projectKey = "missing-tsconfig";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -131,7 +132,7 @@ class TypeScriptAnalysisTest {
     File dir = TestUtils.projectDir("missing-tsconfig-vue");
 
     String projectKey = "missing-tsconfig-vue";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -155,7 +156,7 @@ class TypeScriptAnalysisTest {
     File dir = TestUtils.projectDir("tsproject-extended");
 
     String projectKey = "tsproject-extended";
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -179,7 +180,7 @@ class TypeScriptAnalysisTest {
     String projectKey = "solution-tsconfig";
     File dir = TestUtils.projectDir(projectKey);
 
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -202,7 +203,7 @@ class TypeScriptAnalysisTest {
     String projectKey = "solution-tsconfig-custom";
     File dir = TestUtils.projectDir(projectKey);
 
-    SonarScanner build = SonarScanner.create()
+    SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")

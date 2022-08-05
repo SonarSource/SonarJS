@@ -25,12 +25,12 @@ import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/lo
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import {
-  isRequiredParserServices,
-  getTypeFromTreeNode,
-  toEncodedMessage,
-  isAny,
   getParent,
+  getTypeFromTreeNode,
+  isAny,
+  isRequiredParserServices,
   RuleContext,
+  toEncodedMessage,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -116,15 +116,16 @@ export const rule: Rule.RuleModule = {
 
 function hasMultipleReturnTypes(signature: ts.Signature, checker: ts.TypeChecker) {
   const returnType = checker.getBaseTypeOfLiteralType(checker.getReturnTypeOfSignature(signature));
-  return isUnion(returnType, checker) && !hasReturnTypeJSDoc(signature);
+  return isMixingTypes(returnType, checker) && !hasReturnTypeJSDoc(signature);
 }
 
-function isUnion(type: ts.Type, checker: ts.TypeChecker): boolean {
-  const distinct = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
-  const stringify = (tp: ts.Type) => prettyPrint(tp, checker);
-  const isNotNullLike = (tp: ts.Type) => !isNullLike(tp);
+function isMixingTypes(type: ts.Type, checker: ts.TypeChecker): boolean {
   return (
-    type.isUnion() && type.types.filter(isNotNullLike).map(stringify).filter(distinct).length > 1
+    type.isUnion() &&
+    type.types
+      .filter(tp => !isNullLike(tp))
+      .map(tp => prettyPrint(tp, checker))
+      .filter(distinct).length > 1
   );
 }
 
@@ -132,11 +133,15 @@ function hasReturnTypeJSDoc(signature: ts.Signature) {
   return signature.getJsDocTags().some(tag => ['return', 'returns'].includes(tag.name));
 }
 
+function isObjectLikeType(type: ts.Type) {
+  return !!(type.getFlags() & ts.TypeFlags.Object);
+}
+
+function distinct<T>(value: T, index: number, self: T[]) {
+  return self.indexOf(value) === index;
+}
+
 function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
-  const distinct = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
-  if (type.symbol && (type.symbol.flags & ts.SymbolFlags.ObjectLiteral) !== 0) {
-    return 'object';
-  }
   if (type.isUnionOrIntersection()) {
     const delimiter = type.isUnion() ? ' | ' : ' & ';
     return type.types
@@ -149,34 +154,18 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
     if (ts.isFunctionTypeNode(typeNode)) {
       return 'function';
     }
-    if (ts.isArrayTypeNode(typeNode)) {
-      return arrayTypeToString(typeNode, checker);
+    if (ts.isArrayTypeNode(typeNode) || isTypedArray(type, checker)) {
+      return 'array';
     }
+  }
+  if (isObjectLikeType(type)) {
+    return 'object';
   }
   return checker.typeToString(checker.getBaseTypeOfLiteralType(type));
 }
 
-function arrayTypeToString(type: ts.ArrayTypeNode, checker: ts.TypeChecker) {
-  let elementType = prettyPrint(checker.getTypeFromTypeNode(type.elementType), checker);
-  // TypeScript seems to fail resolving the element type of arrays. When this happens, we
-  // manually resolve it for straightforward cases.
-  if (elementType === 'any' && type.elementType.kind !== ts.SyntaxKind.AnyKeyword) {
-    switch (type.elementType.kind) {
-      case ts.SyntaxKind.NumberKeyword:
-        elementType = 'number';
-        break;
-      case ts.SyntaxKind.StringKeyword:
-        elementType = 'string';
-        break;
-      case ts.SyntaxKind.BooleanKeyword:
-        elementType = 'boolean';
-        break;
-      case ts.SyntaxKind.TypeLiteral:
-        elementType = 'object';
-        break;
-    }
-  }
-  return `${elementType}[]`;
+function isTypedArray(type: ts.Type, checker: ts.TypeChecker) {
+  return checker.typeToString(type).endsWith('Array');
 }
 
 function isNullLike(type: ts.Type) {

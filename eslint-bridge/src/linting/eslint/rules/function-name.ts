@@ -25,8 +25,8 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { last } from './helpers';
 
 interface FunctionKnowledge {
-  startsWithCapital: boolean;
   returnsJSX: boolean;
+  id: TSESTree.Node;
 }
 
 export const rule: Rule.RuleModule = {
@@ -46,33 +46,21 @@ export const rule: Rule.RuleModule = {
           checkName(prop.key);
         }
       },
-      VariableDeclarator: (node: estree.Node) => {
-        const variable = node as TSESTree.VariableDeclarator;
-        if (isFunctionExpression(variable.init)) {
-          checkName(variable.id);
-        }
-      },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
         functionStack.push(node);
-        if (node.type === 'FunctionDeclaration') {
-          functionKnowledge.set(node, {
-            startsWithCapital: nameStartsWithCapital(node as TSESTree.FunctionDeclaration),
-            returnsJSX: false,
-          });
+        const knowledge = createKnowledge(node as TSESTree.Node);
+        if (knowledge != null) {
+          functionKnowledge.set(node, knowledge);
         }
       },
-      'FunctionDeclaration:exit': (node: estree.Node) => {
+      'FunctionDeclaration,FunctionExpression,ArrowFunctionExpression:exit': (
+        node: estree.Node,
+      ) => {
         functionStack.pop();
         const knowledge = functionKnowledge.get(node);
-        if (!isReactFunctionComponent(knowledge)) {
-          checkName((node as TSESTree.FunctionDeclaration).id);
+        if (knowledge != null && !isReactFunctionComponent(knowledge)) {
+          checkName(knowledge.id);
         }
-      },
-      'FunctionExpression:exit': () => {
-        functionStack.pop();
-      },
-      'ArrowFunctionExpression:exit': () => {
-        functionStack.pop();
       },
       ReturnStatement: (node: estree.Node) => {
         const returnStatement = node as estree.ReturnStatement;
@@ -91,9 +79,9 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function checkName(id: TSESTree.Node | null) {
+    function checkName(id: TSESTree.Node) {
       const [{ format }] = context.options;
-      if (id && id.type === 'Identifier' && !id.name.match(format)) {
+      if (id.type === 'Identifier' && !id.name.match(format)) {
         context.report({
           messageId: 'renameFunction',
           data: {
@@ -111,10 +99,29 @@ function isFunctionExpression(node: TSESTree.Node | null) {
   return node && (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression');
 }
 
-function isReactFunctionComponent(knowledge: FunctionKnowledge | undefined) {
-  return knowledge !== undefined && knowledge.startsWithCapital && knowledge.returnsJSX;
+function isReactFunctionComponent(knowledge: FunctionKnowledge | null) {
+  return knowledge !== null && nameStartsWithCapital(knowledge.id) && knowledge.returnsJSX;
 }
 
-function nameStartsWithCapital(node: TSESTree.FunctionDeclaration) {
-  return node.id !== null && node.id.name[0] === node.id.name[0].toUpperCase();
+function nameStartsWithCapital(node: TSESTree.Node) {
+  return node.type === 'Identifier' && node.name[0] === node.name[0].toUpperCase();
+}
+
+function createKnowledge(node: TSESTree.Node): FunctionKnowledge | null {
+  if (node.type === 'FunctionDeclaration' && node.id !== null) {
+    return {
+      returnsJSX: false,
+      id: node.id,
+    };
+  }
+
+  const parent = node.parent;
+  if (parent?.type === 'VariableDeclarator') {
+    return {
+      returnsJSX: false,
+      id: parent.id,
+    };
+  }
+
+  return null;
 }

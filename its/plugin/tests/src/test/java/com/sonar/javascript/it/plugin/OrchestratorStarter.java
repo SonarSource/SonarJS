@@ -26,7 +26,6 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -40,10 +39,12 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
 public final class OrchestratorStarter implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
+  static final String SCANNER_VERSION = "4.7.0.2747";
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
@@ -65,18 +66,31 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
     .build();
 
-  private static boolean started;
+  private static volatile boolean started;
 
   private OrchestratorStarter() {
   }
 
+  /**
+   * make sure that whole test suite uses the same version of the scanner
+   */
+  static SonarScanner getSonarScanner() {
+    return SonarScanner.create()
+        .setScannerVersion(SCANNER_VERSION);
+  }
+
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
-    if (!started) {
-      started = true;
-      // this will register "this.close()" method to be called when GLOBAL context is shutdown
-      context.getRoot().getStore(GLOBAL).put(OrchestratorStarter.class, this);
-      ORCHESTRATOR.start();
+    synchronized (OrchestratorStarter.class) {
+      if (!started) {
+        started = true;
+        // this will register "this.close()" method to be called when GLOBAL context is shutdown
+        context.getRoot().getStore(GLOBAL).put(OrchestratorStarter.class, this);
+        ORCHESTRATOR.start();
+
+        // to avoid a race condition in scanner file cache mechanism we analyze single project before any test to populate the cache
+        testProject();
+      }
     }
   }
 
@@ -88,10 +102,9 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   public static SonarScanner createScanner() {
-    SonarScanner scanner = SonarScanner.create();
+    SonarScanner scanner = getSonarScanner();
     scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**, **/jest/**/*, **/babylon/**/*");
     scanner.setSourceEncoding("UTF-8");
-
     return scanner;
   }
 
@@ -144,5 +157,19 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
   }
 
+  private static void testProject() {
+    var projectKey = "eslint_based_rules";
+    var projectDir = TestUtils.projectDir(projectKey);
+    var build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(projectDir);
+    OrchestratorStarter.setProfile(projectKey, "empty-profile", "js");
+
+    var buildResult = ORCHESTRATOR.executeBuild(build);
+    assertThat(buildResult.isSuccess()).isTrue();
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
+  }
 
 }

@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { getModuleAndCalledMethod, isIdentifier } from '.';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-export function S3BucketTemplate(
-  callback: (node: estree.NewExpression, context: Rule.RuleContext) => void,
-  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
-): Rule.RuleModule {
-  return {
-    ...metadata,
-    create(context: Rule.RuleContext) {
-      return {
-        NewExpression: (node: estree.NewExpression) => {
-          if (isS3BucketConstructor(node, context)) {
-            callback(node, context);
-          }
-        },
-      };
-    },
-  };
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6281")
+public class AwsS3BucketPublicAccessCheck implements EslintBasedCheck {
 
-  function isS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
-    const { module, method } = getModuleAndCalledMethod(node.callee, context);
-    return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
+  @Override
+  public String eslintKey() {
+    return "aws-s3-bucket-public-access";
   }
 }

@@ -34,17 +34,47 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     disk: 128
     type: c2-standard-8
     use_ssd: true
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
+plugin_qa_body: &PLUGIN_QA_BODY
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  gke_container:
+    dockerfile: .cirrus/nodejs.Dockerfile
+    <<: *CONTAINER_DEFINITION
+    cpu: 15
+    memory: 30G
+  env:
+    CIRRUS_CLONE_DEPTH: 10
+    SONARSOURCE_QA: true
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  node_version_script:
+    - node -v
+  qa_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
+  cleanup_before_cache_script: cleanup_maven_repository
+  always:
+    surefire_report_artifacts:
+      path: "its/plugin/tests/target/site/**/*"
+      type: text/html
+    surefire_artifacts:
+      path: "its/plugin/tests/target/surefire-reports/**/*"
+      type: text/xml
 
 build_task:
   gke_container:
     dockerfile: .cirrus/nodejs.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 15
-    memory: 24G
+    memory: 30G
   env:
     GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
     # analysis on next
@@ -74,9 +104,6 @@ build_win_task:
     - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
-  maven_cache:
-    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
-    folder: ~/.m2/repository
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -109,56 +136,22 @@ ws_scan_task:
       path: "whitesource/**/*"
 
 plugin_qa_task:
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
+  <<: *PLUGIN_QA_BODY
   gke_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
-    <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 8G
-  env:
-    CIRRUS_CLONE_DEPTH: 10
-    SONARSOURCE_QA: true
-    matrix:
-      - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: DEV
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-  qa_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
-  cleanup_before_cache_script: cleanup_maven_repository
-
-plugin_qa_nodejs_task:
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
-  gke_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       matrix:
         - NODE_VERSION: v12.22.12
         - NODE_VERSION: v14.20.0
         - NODE_VERSION: v16.16.0
         - NODE_VERSION: v18.6.0
-    <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 8G
   env:
-    CIRRUS_CLONE_DEPTH: 10
-    SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-  node_version_script:
-    - node -v
-  qa_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
-  cleanup_before_cache_script: cleanup_maven_repository
+
+
+plugin_qa_sq_dev_task:
+  <<: *PLUGIN_QA_BODY
+  env:
+    SQ_VERSION: DEV
 
 # Plugin QA for Windows is splint into 2 parts to make it faster
 plugin_qa_win_task:
@@ -172,16 +165,20 @@ plugin_qa_win_task:
     matrix:
       - TEST: "!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest"
       - TEST: "CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest"
-  maven_cache:
-    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
-    folder: ~/.m2/repository
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
   # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false "-Dtest=${TEST}" -B -e -V verify
+    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
+  always:
+    surefire_report_artifacts:
+      path: "its/plugin/tests/target/site/**/*"
+      type: text/html
+    surefire_artifacts:
+      path: "its/plugin/tests/target/surefire-reports/**/*"
+      type: text/xml
 
 ruling_task:
   depends_on:
@@ -220,8 +217,8 @@ promote_task:
     - ws_scan
     - build_win
     - plugin_qa
+    - plugin_qa_sq_dev
     - plugin_qa_win
-    - plugin_qa_nodejs
     - ruling
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
