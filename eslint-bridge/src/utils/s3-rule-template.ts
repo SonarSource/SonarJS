@@ -51,6 +51,12 @@ export function S3BucketTemplate(
     },
   };
 
+  /**
+   * Detects S3 Bucket's constructor invocation from 'aws-cdk-lib/aws-s3':
+   *
+   * const s3 = require('aws-cdk-lib/aws-s3');
+   * new s3.Bucket();
+   */
   function isS3BucketConstructor(node: estree.NewExpression, context: Rule.RuleContext) {
     const { module, method } = getModuleAndCalledMethod(node.callee, context);
     return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');

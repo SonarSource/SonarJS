@@ -56,6 +56,11 @@ new s3.Foo(42);
 new s3.Bucket(42);
 `,
     },
+    {
+      code: `
+new Bucket(42);
+`,
+    },
   ],
   invalid: [
     {
