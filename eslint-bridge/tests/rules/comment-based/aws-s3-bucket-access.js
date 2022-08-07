@@ -1,12 +1,12 @@
 const s3 = require('aws-cdk-lib/aws-s3');
 
-/// s3Bucket constructor
+// 1. s3Bucket constructor
 
 const missingParams = new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
 });
 
-/// accessControl param
+/// 1.1 accessControl param
 
 const invalidParam1 = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
@@ -22,7 +22,7 @@ const invalidParam3 = new s3.Bucket(this, 'id', {
   accessControl: s3.BucketAccessControl.AUTHENTICATED_READ // Noncompliant {{Make sure granting AUTHENTICATED_READ access is safe here.}}
 });
 
-//// secondary
+//// 1.1.1 secondary
 
 const accessControl = s3.BucketAccessControl.PUBLIC_READ;
 //    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
@@ -32,14 +32,14 @@ const invalidParam1Secondary = new s3.Bucket(this, 'id', {
 //^^^^^^^^^^^^^
 });
 
-/// publicReadAccess param
+/// 1.2 publicReadAccess param
 
 const otherInvalidParam = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
   publicReadAccess: true // Noncompliant
 });
 
-//// secondary
+//// 1.2.1 secondary
 
 const publicReadAccess = true; // Secondary Location
 const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
@@ -47,7 +47,7 @@ const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
   publicReadAccess, // Noncompliant
 });
 
-// s3Bucket.grantPublicAccess()
+// 2.1 s3Bucket.grantPublicAccess()
 
 const bucketNoncompliant = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
@@ -58,14 +58,14 @@ bucketNoncompliant.grantPublicAccess(); // Noncompliant {{Make sure allowing unr
 bucketDeployment.otherMethod();
 someObject.grantPublicAccess();
 
-// s3BucketDeployment
+// 3. s3BucketDeployment
 
 const bucketDeployment = new s3.BucketDeployment(this, 'id', {
   bucketName: 'BucketDeployment'
 });
 const bucketDeploymentFromSomethingElse = new something.BucketDeployment();
 
-/// accessControl param
+/// 3.1 accessControl param
 
 const invalidBucketDeploymentParam1 = new s3.BucketDeployment(this, 'id', {
   bucketName: 'BucketDeployment',
@@ -83,7 +83,7 @@ const invalidBucketDeploymentParam3 = new s3.BucketDeployment(this, 'id', {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
 
-//// secondary
+//// 3.1.1 secondary
 
 const accessControlBucketDeployment = s3.BucketAccessControl.PUBLIC_READ;
 //    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
