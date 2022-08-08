@@ -1,5 +1,9 @@
 const s3 = require('aws-cdk-lib/aws-s3');
 
+const missingParams = new s3.Bucket(this, 'id', { // Compliant
+  bucketName: 'bucket',
+});
+
 new s3.Bucket(this, 'id', {
   bucketName: 'bucketnoncompliant',
   accessControl: s3.BucketAccessControl.PUBLIC_READ_WRITE // Sensitive

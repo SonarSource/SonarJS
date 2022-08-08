@@ -39,7 +39,6 @@ import estree from 'estree';
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
   unrestricted: 'Make sure allowing unrestricted access to objects from this bucket is safe here.',
-  secondary: 'Propagated setting.',
 };
 
 const ACCESS_CONTROL_KEY = 'accessControl';
@@ -108,7 +107,7 @@ function checkBooleanParam(
     return;
   }
   const propertyLiteralValue = getValueOfExpression(context, property.value, 'Literal');
-  if (propertyLiteralValue !== undefined && propertyLiteralValue.value === propValue) {
+  if (propertyLiteralValue?.value === propValue) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
     context.report({
       message: toEncodedMessage(messages.unrestricted, secondary.locations, secondary.messages),

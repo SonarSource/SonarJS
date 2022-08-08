@@ -27,11 +27,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6265")
-public class AwsS3BucketAccessCheck implements EslintBasedCheck {
+public class AwsS3BucketGrantedAccessCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "aws-s3-bucket-access";
+    return "aws-s3-bucket-granted-access";
   }
 
 }
