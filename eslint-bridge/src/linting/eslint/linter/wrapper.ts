@@ -192,6 +192,13 @@ export class LinterWrapper {
   private getExternalRules() {
     const externalRules: { [key: string]: Rule.RuleModule } = {};
     const coreESLintRules = Object.fromEntries(new Linter().getRules());
+    /**
+     * The order of defining rules from external dependencies is important here.
+     * Core ESLint rules could be overriden by the implementation from specific
+     * dependencies, which should be the default behaviour in most cases. If for
+     * some reason a different behaviour is needed for a particular rule, one can
+     * specify it in `decorateExternalRules`.
+     */
     const dependencies = [coreESLintRules, typescriptESLintRules, reactESLintRules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
