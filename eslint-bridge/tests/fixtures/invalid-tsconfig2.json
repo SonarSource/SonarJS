@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "targetSomething": "es6",
-    "allowJsSomething": true
-  },
-  "exclude": ["excluded.ts"]
-}

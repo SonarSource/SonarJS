@@ -17,7 +17,7 @@
     <sonar.tests>tests</sonar.tests>
     <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
     <sonar.typescript.tsconfigPath>${project.basedir}/tests/tsconfig.json</sonar.typescript.tsconfigPath>
-    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/rules/comment-based/**/*</sonar.test.exclusions>
+    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
   </properties>
 
   <build>
@@ -78,7 +78,7 @@
           </includes>
           <excludes>
             <exclude>tests/**/fixtures/**/*</exclude>
-            <exclude>tests/rules/comment-based/**/*</exclude>
+            <exclude>tests/linting/**/comment-based/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>

@@ -1,0 +1,4 @@
+foo:
+  embedded: f(x)
+bar:
+  embbeded: g(y)

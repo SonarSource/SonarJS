@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SomeLambdaFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Runtime: "nodejs16.0"
+      InlineCode: >
+        function f(g, x) {
+          return g(x);
+        }

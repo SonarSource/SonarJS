@@ -78,7 +78,7 @@ This script:
 * generates a Java check class for the rule `NoInvalidSomethingCheck.java`
 * generates a `no-invalid-something.ts` file for the rule implementation
 * generates a `comment-based/no-invalid-something.js` test file 
-* updates the `main.ts` file to include the new rule
+* updates the `index.ts` file to include the new rule
 * updates the `CheckList.java` to include the new rule
 
 3. Update generated files
@@ -106,7 +106,7 @@ This script:
 
 #### Comment-based testing
 
-These tests are located in `eslint-bridge/tests/rules/comment-based/`, they follow the following structure:
+These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-based/`, they follow the following structure:
 
 ```javascript
 some.clean.code();
