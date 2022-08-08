@@ -50,10 +50,8 @@ const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return mergeRules(
-      mergeRules(
-        s3BucketConstructorRule.create(context),
-        s3BucketDeploymentConstructorRule.create(context),
-      ),
+      s3BucketConstructorRule.create(context),
+      s3BucketDeploymentConstructorRule.create(context),
       handleGrantPublicAccess.create(context),
     );
   },
