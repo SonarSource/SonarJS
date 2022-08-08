@@ -6,9 +6,9 @@ module.exports = {
     },
   },
   moduleFileExtensions: ['js', 'ts', 'json'],
-  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests/fixtures'],
+  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests/**/fixtures'],
   modulePathIgnorePatterns: [
-    '<rootDir>/tests/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
+    '<rootDir>/tests/linting/eslint/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
   ],
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {

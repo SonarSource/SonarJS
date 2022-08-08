@@ -29,7 +29,7 @@ const checkListPath = path.join(
   'javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java',
 );
 
-const mainPath = path.join(rootFolder, 'eslint-bridge/src/rules/main.ts');
+const mainPath = path.join(rootFolder, 'eslint-bridge/src/linting/eslint/rules/index.ts');
 
 run();
 
@@ -76,11 +76,14 @@ function run() {
 
     inflateTemplate(
       ruleTemplatePath,
-      path.join(rootFolder, `eslint-bridge/src/rules/${ruleNameDash}.ts`),
+      path.join(rootFolder, `eslint-bridge/src/linting/eslint/rules/${ruleNameDash}.ts`),
       ruleMetadata,
     );
 
-    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/comment-based`);
+    const testPath = path.join(
+      rootFolder,
+      `eslint-bridge/tests/linting/eslint/rules/comment-based`,
+    );
     try {
       fs.mkdirSync(testPath);
     } catch {
@@ -200,7 +203,7 @@ function run() {
     imports.push(`import { rule as ${camelCaseRuleName} } from './${ruleNameDash}';`);
     imports.sort();
 
-    rules.push(`ruleModules['${ruleNameDash}'] = ${camelCaseRuleName};`);
+    rules.push(`rules['${ruleNameDash}'] = ${camelCaseRuleName};`);
     rules.sort();
 
     fs.writeFileSync(mainPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));
@@ -251,7 +254,7 @@ function run() {
     }
 
     function processHead2(line: string) {
-      if (line.trim().startsWith('ruleModules[')) {
+      if (line.trim().startsWith('rules[')) {
         state++;
         rules.push(line);
       } else {
@@ -269,7 +272,7 @@ function run() {
     }
 
     function processRule(line: string) {
-      if (!line.trim().startsWith('ruleModules[')) {
+      if (!line.trim().startsWith('rules[')) {
         state++;
         tail.push(line);
       } else {

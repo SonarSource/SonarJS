@@ -1,0 +1,1 @@
+if (!prop in obj) {}

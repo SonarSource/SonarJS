@@ -1,0 +1,1 @@
+this.window = 42;

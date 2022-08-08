@@ -7,8 +7,8 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "*": ["*", "../src/*"]
-    }
+      "*": ["../src/*"]
+    },
   },
   "references": [
     {
