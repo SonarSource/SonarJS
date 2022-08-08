@@ -34,6 +34,10 @@ const invalidParam1Secondary = new s3.Bucket(this, 'id', {
 
 /// 1.2 publicReadAccess param
 
+const otherParamValid = new s3.Bucket(this, 'id', {
+  bucketName: 'Bucket',
+  publicReadAccess: false
+});
 const otherInvalidParam = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
   publicReadAccess: true // Noncompliant
