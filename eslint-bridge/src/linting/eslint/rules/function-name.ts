@@ -21,13 +21,36 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { last } from './helpers';
+import { last, functionLike } from './helpers';
 
 interface FunctionKnowledge {
+  node: estree.Identifier;
+  func: estree.Function;
   returnsJSX: boolean;
-  id: TSESTree.Node;
 }
+
+const functionExitSelector = [
+  ':matches(',
+  ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'].join(','),
+  ')',
+  ':exit',
+].join('');
+
+const functionExpressionProperty = [
+  'Property',
+  '[key.type="Identifier"]',
+  ':matches(',
+  ['[value.type="FunctionExpression"]', '[value.type="ArrowFunctionExpression"]'].join(','),
+  ')',
+].join('');
+
+const functionExpressionVariable = [
+  'VariableDeclarator',
+  '[id.type="Identifier"]',
+  ':matches(',
+  ['[init.type="FunctionExpression"]', '[init.type="ArrowFunctionExpression"]'].join(','),
+  ')',
+].join('');
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -37,91 +60,79 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const functionStack: estree.Node[] = [];
-    const functionKnowledge = new Map<estree.Node, FunctionKnowledge>();
+    const [{ format }] = context.options;
+    const knowledgeStack: FunctionKnowledge[] = [];
     return {
-      Property: (node: estree.Node) => {
-        const prop = node as TSESTree.Property;
-        if (isFunctionExpression(prop.value)) {
-          checkName(prop.key);
+      [functionExpressionProperty]: (node: estree.Property) => {
+        knowledgeStack.push({
+          node: node.key as estree.Identifier,
+          func: node.value as estree.Function,
+          returnsJSX: returnsJSX(node.value as estree.Function),
+        });
+      },
+      [functionExpressionVariable]: (node: estree.VariableDeclarator) => {
+        knowledgeStack.push({
+          node: node.id as estree.Identifier,
+          func: node.init as estree.Function,
+          returnsJSX: returnsJSX(node.init as estree.Function),
+        });
+      },
+      'MethodDefinition[key.type="Identifier"]': (node: estree.MethodDefinition) => {
+        knowledgeStack.push({
+          node: node.key as estree.Identifier,
+          func: node.value as estree.Function,
+          returnsJSX: false,
+        });
+      },
+      'FunctionDeclaration[id.type="Identifier"]': (node: estree.FunctionDeclaration) => {
+        knowledgeStack.push({
+          node: node.id as estree.Identifier,
+          func: node as estree.Function,
+          returnsJSX: false,
+        });
+      },
+      [functionExitSelector]: (func: estree.Function) => {
+        if (func === last(knowledgeStack)?.func) {
+          const knowledge = knowledgeStack.pop();
+          if (knowledge && !knowledge.returnsJSX) {
+            const { node } = knowledge;
+            if (!node.name.match(format)) {
+              context.report({
+                messageId: 'renameFunction',
+                data: {
+                  function: node.name,
+                  format,
+                },
+                node,
+              });
+            }
+          }
         }
       },
-      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
-        functionStack.push(node);
-        const knowledge = createKnowledge(node as TSESTree.Node);
-        if (knowledge != null) {
-          functionKnowledge.set(node, knowledge);
+      ReturnStatement: (node: estree.ReturnStatement) => {
+        const knowledge = last(knowledgeStack);
+        const ancestors = context.getAncestors();
+
+        for (let i = ancestors.length - 1; i >= 0; i--) {
+          if (functionLike.has(ancestors[i].type)) {
+            const enclosingFunction = ancestors[i];
+            if (
+              knowledge &&
+              knowledge.func === enclosingFunction &&
+              node.argument &&
+              (node.argument as any).type === 'JSXElement'
+            ) {
+              knowledge.returnsJSX = true;
+            }
+            return;
+          }
         }
-      },
-      'FunctionDeclaration,FunctionExpression,ArrowFunctionExpression:exit': (
-        node: estree.Node,
-      ) => {
-        functionStack.pop();
-        const knowledge = functionKnowledge.get(node);
-        if (knowledge != null && !isReactFunctionComponent(knowledge)) {
-          checkName(knowledge.id);
-        }
-      },
-      ReturnStatement: (node: estree.Node) => {
-        const returnStatement = node as estree.ReturnStatement;
-        const knowledge = functionKnowledge.get(last(functionStack));
-        if (
-          knowledge &&
-          returnStatement.argument &&
-          (returnStatement.argument as any).type === 'JSXElement'
-        ) {
-          knowledge.returnsJSX = true;
-        }
-      },
-      MethodDefinition: (node: estree.Node) => {
-        const key = (node as TSESTree.MethodDefinition).key;
-        checkName(key);
       },
     };
-
-    function checkName(id: TSESTree.Node) {
-      const [{ format }] = context.options;
-      if (id.type === 'Identifier' && !id.name.match(format)) {
-        context.report({
-          messageId: 'renameFunction',
-          data: {
-            function: id.name,
-            format,
-          },
-          node: id,
-        });
-      }
-    }
   },
 };
 
-function isFunctionExpression(node: TSESTree.Node | null) {
-  return node && (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression');
-}
-
-function isReactFunctionComponent(knowledge: FunctionKnowledge | null) {
-  return knowledge !== null && nameStartsWithCapital(knowledge.id) && knowledge.returnsJSX;
-}
-
-function nameStartsWithCapital(node: TSESTree.Node) {
-  return node.type === 'Identifier' && node.name[0] === node.name[0].toUpperCase();
-}
-
-function createKnowledge(node: TSESTree.Node): FunctionKnowledge | null {
-  if (node.type === 'FunctionDeclaration' && node.id !== null) {
-    return {
-      returnsJSX: false,
-      id: node.id,
-    };
-  }
-
-  const parent = node.parent;
-  if (parent?.type === 'VariableDeclarator') {
-    return {
-      returnsJSX: false,
-      id: parent.id,
-    };
-  }
-
-  return null;
+//handling arrow functions without return statement
+function returnsJSX(node: estree.Function) {
+  return (node.body as any).type === 'JSXElement';
 }
