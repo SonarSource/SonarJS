@@ -24,6 +24,10 @@
     ],
     "OWASP Top 10 2021": [
       "A3"
+    ],
+    "ASVS 4.0": [
+      "12.3.5",
+      "5.3.8"
     ]
   },
   "compatibleLanguages": [

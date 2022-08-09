@@ -27,5 +27,16 @@ function getName() {
 }
 </pre>
 <h2>Exceptions</h2>
-<p>Functions with fewer than 3 lines are ignored.</p>
+<ul>
+  <li> Functions with fewer than 3 lines are ignored. </li>
+  <li> This rule does not apply to function expressions and arrow functions because they don’t have explicit names and are often used in a way where
+  refactoring is not applicable. </li>
+</ul>
+<pre>
+list.map((item) =&gt; ({
+  name: item.name,
+  address: item.address,
+  country: item.country
+}));
+</pre>
 

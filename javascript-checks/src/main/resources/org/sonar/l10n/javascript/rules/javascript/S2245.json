@@ -33,6 +33,9 @@
     ],
     "OWASP Top 10 2021": [
       "A2"
+    ],
+    "ASVS 4.0": [
+      "6.2.4"
     ]
   },
   "compatibleLanguages": [

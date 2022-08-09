@@ -21,4 +21,20 @@ var foo = () =&gt; {
     do_something();
 };
 </pre>
+<h2>Exceptions</h2>
+<ul>
+  <li> This rule does not apply to function expressions and arrow functions as they can denote default values. </li>
+</ul>
+<pre>
+static defaultProps = {
+  listStyle: () =&gt; {}
+};
+</pre>
+<ul>
+  <li> The rule allows for empty functions with a name starting with the prefix <code>on</code> like <code>onClick</code>. </li>
+</ul>
+<pre>
+function onClick() {
+}
+</pre>
 
