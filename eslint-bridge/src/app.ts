@@ -34,5 +34,3 @@ export const createApp = function () {
   app.use(errorMiddleware);
   return app;
 };
-
-

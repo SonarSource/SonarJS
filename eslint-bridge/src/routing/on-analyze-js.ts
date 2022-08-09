@@ -23,6 +23,4 @@ import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
 /**
  * Handles JavaScript analysis requests
  */
-export default runner(input =>
-  Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'js')),
-);
+export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'js')));
