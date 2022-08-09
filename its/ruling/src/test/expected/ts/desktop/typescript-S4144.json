@@ -2,10 +2,4 @@
 'desktop:app/src/main-process/ordered-webrequest.ts':[
 84,
 ],
-'desktop:app/src/ui/add-repository/create-repository.tsx':[
-482,
-],
-'desktop:app/src/ui/preferences/integrations.tsx':[
-132,
-],
 }
