@@ -1,8 +1,0 @@
-{
-'postgraphql:src/postgraphql/schema/procedures/createPgProcedureObjectTypeGqlFieldEntry.ts':[
-83,
-],
-'postgraphql:src/postgraphql/schema/procedures/createPgProcedureQueryGqlFieldEntry.ts':[
-79,
-],
-}
