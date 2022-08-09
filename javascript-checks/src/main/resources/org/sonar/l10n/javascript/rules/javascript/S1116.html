@@ -18,4 +18,18 @@ var x = 1;
 function foo() {
 }
 </pre>
+<h2>Exceptions</h2>
+<p>This rule does not apply when the semicolon is after a line break and before <code>(</code> or <code>[</code> as it is often used in semicolon-less
+style.</p>
+<pre>
+var hello = 'Hello'
+var world = 'World!'
+var helloWorld = hello + ' ' + world
+;[...helloWorld].forEach(c =&gt; console.log(c))
+</pre>
+<pre>
+var a = 1
+var b = 2 * a
+;(a + b).toString()
+</pre>
 
