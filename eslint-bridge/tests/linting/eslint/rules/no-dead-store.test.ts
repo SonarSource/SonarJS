@@ -201,6 +201,23 @@ const valid = [
     x = 5;
   }`,
   },
+  {
+    code: `
+    function read_write() {
+      var i = 42;
+      var j = i++; // Noncompliant
+      doSomething(j);
+    }`,
+  },
+  {
+    code: `
+    function foo() {
+      let x = 42;
+      console.log(x);
+      x = null;
+    }
+  `,
+  },
 ];
 
 const invalid = [
@@ -247,12 +264,6 @@ const invalid = [
       while (condition()) {
         j = k + 1; // Noncompliant
       }
-    }`),
-  noncompliant(`
-    function read_write() {
-      var i = 42;
-      var j = i++; // Noncompliant
-      doSomething(j);
     }`),
   noncompliant(`
     function write_in_nested_function_expression_but_never_read() {
@@ -331,8 +342,7 @@ const invalid = [
 
         x1 = -1;   // Noncompliant
         x2 = 0;   // Noncompliant
-        x3 = 1;   // Noncompliant
-        x4 = null;   // Noncompliant
+        x3 = 1;   // Noncompliant        
         x5 = true;   // Noncompliant
         x6 = false;   // Noncompliant
         x7 = "";   // Noncompliant

@@ -1,15 +1,6 @@
 {
-'prototype:src/prototype/dom/dom.js':[
-462,
-473,
-2384,
-2856,
-],
 'prototype:src/prototype/dom/event.js':[
 65,
-1181,
-1182,
-1250,
 ],
 'prototype:src/prototype/dom/selector.js':[
 150,
