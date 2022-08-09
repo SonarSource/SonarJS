@@ -22,8 +22,9 @@ import path from 'path';
 import { EmbeddedJS, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
 import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 
+
 describe('parseYaml', () => {
-  it('should return embedded JavScript', () => {
+  it('should return embedded JavaScript', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
     const predicate = (_key: any, node: any, _ancestors: any) => node.key.value === 'embedded';
     const [embedded] = parseYaml(predicate, filePath) as EmbeddedJS[];
@@ -37,6 +38,17 @@ describe('parseYaml', () => {
         text: 'foo:\n  embedded: f(x)\nbar:\n  embbeded: g(y)\n',
       }),
     );
+  });
+
+  it('should ignore Helm template directives files', () => {
+    const defaultPredicate = (_a, _b, _c) => true;
+    const filePath = path.join(__dirname, 'fixtures/parse/helm-directives.yaml');
+    const error = parseYaml(defaultPredicate, filePath);
+    expect(error).toEqual({
+      code: AnalysisErrorCode.UnsupportedYaml,
+      line: 3,
+      message: 'Unsupported YAML code'
+    });
   });
 
   it('should return parsing errors', () => {
