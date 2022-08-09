@@ -22,7 +22,6 @@ import path from 'path';
 import { EmbeddedJS, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
 import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 
-
 describe('parseYaml', () => {
   it('should return embedded JavaScript', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
@@ -45,9 +44,9 @@ describe('parseYaml', () => {
     const filePath = path.join(__dirname, 'fixtures/parse/helm-directives.yaml');
     const error = parseYaml(defaultPredicate, filePath);
     expect(error).toEqual({
-      code: AnalysisErrorCode.UnsupportedYaml,
+      code: AnalysisErrorCode.IgnoreError,
       line: 3,
-      message: 'Unsupported YAML code'
+      message: 'Unsupported YAML code',
     });
   });
 

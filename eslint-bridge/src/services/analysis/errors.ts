@@ -46,7 +46,7 @@ export enum AnalysisErrorCode {
   UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
   FailingTypeScript = 'FAILING_TYPESCRIPT',
   GeneralError = 'GENERAL_ERROR',
-  UnsupportedYaml = 'UNSUPPORTED_YAML',
+  IgnoreError = 'IGNORE_FILE',
 }
 
 /**
