@@ -25,14 +25,9 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
 
 public class JavaScriptFilePredicate {
-
-  private static final Logger LOG = Loggers.get(JavaScriptFilePredicate.class);
 
   private static final String regex = "\\<script[.\\s]*lang=['\"]ts['\"][.\\s]*\\>";
   private static final Pattern pattern = Pattern.compile(regex);
