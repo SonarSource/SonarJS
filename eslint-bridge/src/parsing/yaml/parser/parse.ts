@@ -26,18 +26,6 @@ import { readFile } from 'helpers';
 import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 
-const DIRECTIVE_IN_COMMENT = `#.*\\{\\{`;
-const DIRECTIVE_IN_SINGLE_QUOTE = `'[^']*\\{\\{[^']*'`;
-const DIRECTIVE_IN_DOUBLE_QUOTE = `\"[^\"]*\\{\\{[^\"]*\"`;
-const CODEFRESH_VARIABLES = `\\{\\{[\\w\\s]+}}`;
-const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = [
-  DIRECTIVE_IN_COMMENT,
-  DIRECTIVE_IN_SINGLE_QUOTE,
-  DIRECTIVE_IN_DOUBLE_QUOTE,
-  CODEFRESH_VARIABLES,
-].join('|');
-const helmDirectiveRegex = new RegExp(HELM_DIRECTIVE_IN_COMMENT_OR_STRING);
-
 /**
  * A function predicate to visit a YAML node
  */
@@ -136,6 +124,19 @@ export function parseYaml(
     }
   }
 }
+
+// Helm template directives regexp
+const DIRECTIVE_IN_COMMENT = `#.*\\{\\{`;
+const DIRECTIVE_IN_SINGLE_QUOTE = `'[^']*\\{\\{[^']*'`;
+const DIRECTIVE_IN_DOUBLE_QUOTE = `\"[^\"]*\\{\\{[^\"]*\"`;
+const CODEFRESH_VARIABLES = `\\{\\{[\\w\\s]+}}`;
+const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = [
+  DIRECTIVE_IN_COMMENT,
+  DIRECTIVE_IN_SINGLE_QUOTE,
+  DIRECTIVE_IN_DOUBLE_QUOTE,
+  CODEFRESH_VARIABLES,
+].join('|');
+const helmDirectiveRegex = new RegExp('(' + HELM_DIRECTIVE_IN_COMMENT_OR_STRING + ')');
 
 function findUnsupportedYaml(text: string): number {
   const lines = text.split('\n');

@@ -39,17 +39,6 @@ describe('parseYaml', () => {
     );
   });
 
-  it('should ignore Helm template directives files', () => {
-    const defaultPredicate = (_a, _b, _c) => true;
-    const filePath = path.join(__dirname, 'fixtures/parse/helm-directives.yaml');
-    const error = parseYaml(defaultPredicate, filePath);
-    expect(error).toEqual({
-      code: AnalysisErrorCode.IgnoreError,
-      line: 3,
-      message: 'Unsupported YAML code',
-    });
-  });
-
   it('should return parsing errors', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
     const predicate = (() => false) as YamlVisitorPredicate;
@@ -58,6 +47,47 @@ describe('parseYaml', () => {
       code: AnalysisErrorCode.Parsing,
       line: 2,
       message: 'Missing closing "quote',
+    });
+  });
+
+  describe('Helm template directives', () => {
+    it('should ignore when they appear in plain', () => {
+      const defaultPredicate = (_a, _b, _c) => false;
+      const filePath = path.join(__dirname, 'fixtures/parse/helm-directives/plain.yaml');
+      const error = parseYaml(defaultPredicate, filePath);
+      expect(error).toEqual({
+        code: AnalysisErrorCode.IgnoreError,
+        line: 3,
+        message: 'Unsupported YAML code',
+      });
+    });
+
+    it('should parse when they are in single quotes', () => {
+      const defaultPredicate = (_a, _b, _c) => false;
+      const filePath = path.join(__dirname, 'fixtures/parse/helm-directives/single-quote.yaml');
+      const parseResult = parseYaml(defaultPredicate, filePath);
+      expect(parseResult).toEqual([]);
+    });
+
+    it('should parse when they are in double quotes', () => {
+      const defaultPredicate = (_a, _b, _c) => false;
+      const filePath = path.join(__dirname, 'fixtures/parse/helm-directives/double-quote.yaml');
+      const parseResult = parseYaml(defaultPredicate, filePath);
+      expect(parseResult).toEqual([]);
+    });
+
+    it('should parse when they are in comments', () => {
+      const defaultPredicate = (_a, _b, _c) => false;
+      const filePath = path.join(__dirname, 'fixtures/parse/helm-directives/comment.yaml');
+      const parseResult = parseYaml(defaultPredicate, filePath);
+      expect(parseResult).toEqual([]);
+    });
+
+    it('should parse when they are in in codefresh variables', () => {
+      const defaultPredicate = (_a, _b, _c) => false;
+      const filePath = path.join(__dirname, 'fixtures/parse/helm-directives/code-fresh.yaml');
+      const parseResult = parseYaml(defaultPredicate, filePath);
+      expect(parseResult).toEqual([]);
     });
   });
 });
