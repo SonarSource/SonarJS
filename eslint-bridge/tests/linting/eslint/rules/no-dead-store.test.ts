@@ -205,7 +205,7 @@ const valid = [
     code: `
     function read_write() {
       var i = 42;
-      var j = i++; // Noncompliant
+      var j = i++;
       doSomething(j);
     }`,
   },
