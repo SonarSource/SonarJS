@@ -67,8 +67,7 @@ public class JavaScriptFilePredicate {
         }
         return true;
       } catch (IOException e) {
-        LOG.error(String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()));
-        return false;
+        throw new IllegalStateException(String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()), e);
       }
     });
   }
