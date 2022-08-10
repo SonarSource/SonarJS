@@ -18,15 +18,6 @@
 'ant-design:components/list/Item.tsx':[
 70,
 ],
-'ant-design:components/modal/__tests__/hook.test.tsx':[
-75,
-],
-'ant-design:components/progress/Line.tsx':[
-66,
-],
-'ant-design:components/space/Item.tsx':[
-14,
-],
 'ant-design:components/table/Column.tsx':[
 10,
 ],
@@ -35,8 +26,5 @@
 ],
 'ant-design:components/tag/index.tsx':[
 35,
-],
-'ant-design:components/typography/Base/Ellipsis.tsx':[
-69,
 ],
 }
