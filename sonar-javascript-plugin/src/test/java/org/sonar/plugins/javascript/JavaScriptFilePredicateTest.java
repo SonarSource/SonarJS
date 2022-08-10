@@ -137,12 +137,12 @@ class JavaScriptFilePredicateTest {
   void testYamlPredicate() throws IOException {
 
     var baseYamlFile = ""
-    .concat("apiVersion: apps/v1")
-    .concat(newLine)
-    .concat("kind: Deployment")
-    .concat(newLine)
-    .concat("metadata:")
-    .concat(" name: ");
+      .concat("apiVersion: apps/v1")
+      .concat(newLine)
+      .concat("kind: Deployment")
+      .concat(newLine)
+      .concat("metadata:")
+      .concat(" name: ");
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "plain.yaml", baseYamlFile.concat("{{ .Values.count }}")));
