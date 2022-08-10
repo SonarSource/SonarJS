@@ -23,7 +23,6 @@ import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
 import { start } from 'server';
-import { AnalysisErrorCode } from 'services/analysis';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
 import { request, toUnixPath } from '../tools/helpers';
@@ -228,22 +227,5 @@ describe('router', () => {
     const { error } = JSON.parse(response);
     expect(error).toEqual('Debug Failure.');
     expect(console.error).toHaveBeenCalled();
-  });
-
-  it('should return an ignore error', async () => {
-    // rules don't matter
-    initializeLinter([
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
-    const filePath = path.join(__dirname, 'fixtures/unsupported.yaml');
-    const data = { filePath };
-    const response = (await request(server, host, '/analyze-yaml', 'POST', data)) as string;
-    const { parsingError } = JSON.parse(response);
-    console.log('we have', parsingError);
-    expect(parsingError).toEqual(
-      expect.objectContaining({
-        code: AnalysisErrorCode.IgnoreError,
-      }),
-    );
   });
 });

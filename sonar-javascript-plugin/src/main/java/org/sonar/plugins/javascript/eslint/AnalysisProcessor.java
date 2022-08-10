@@ -43,7 +43,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingError;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
@@ -108,8 +107,6 @@ public class AnalysisProcessor {
       LOG.error("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code == EslintBridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
-    } else if (parsingError.code == EslintBridgeServer.ParsingErrorCode.IGNORE_FILE) {
-      return;
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
       if (contextUtils.failFast()) {

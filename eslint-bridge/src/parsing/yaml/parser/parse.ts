@@ -40,15 +40,6 @@ export function parseYaml(
 ): EmbeddedJS[] | AnalysisError {
   const text = readFile(filePath);
 
-  const erronousLine = findUnsupportedYaml(text);
-  if (erronousLine >= 0) {
-    return {
-      code: AnalysisErrorCode.IgnoreError,
-      message: 'Unsupported YAML code',
-      line: erronousLine,
-    };
-  }
-
   /**
    * Builds the abstract syntax tree of the YAML file
    *
@@ -123,27 +114,4 @@ export function parseYaml(
       return offset;
     }
   }
-}
-
-// Helm template directives regexp
-const DIRECTIVE_IN_COMMENT = `#.*\\{\\{`;
-const DIRECTIVE_IN_SINGLE_QUOTE = `'[^']*\\{\\{[^']*'`;
-const DIRECTIVE_IN_DOUBLE_QUOTE = `\"[^\"]*\\{\\{[^\"]*\"`;
-const CODEFRESH_VARIABLES = `\\{\\{[\\w\\s]+}}`;
-const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = [
-  DIRECTIVE_IN_COMMENT,
-  DIRECTIVE_IN_SINGLE_QUOTE,
-  DIRECTIVE_IN_DOUBLE_QUOTE,
-  CODEFRESH_VARIABLES,
-].join('|');
-const helmDirectiveRegex = new RegExp('(' + HELM_DIRECTIVE_IN_COMMENT_OR_STRING + ')');
-
-function findUnsupportedYaml(text: string): number {
-  const lines = text.split('\n');
-  for (const [lineNumber, line] of lines.entries()) {
-    if (line.includes('{{') && !helmDirectiveRegex.test(line)) {
-      return lineNumber;
-    }
-  }
-  return -1;
 }

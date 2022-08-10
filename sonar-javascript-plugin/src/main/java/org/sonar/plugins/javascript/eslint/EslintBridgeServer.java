@@ -114,8 +114,7 @@ public interface EslintBridgeServer extends Startable {
     MISSING_TYPESCRIPT,
     UNSUPPORTED_TYPESCRIPT,
     FAILING_TYPESCRIPT,
-    GENERAL_ERROR,
-    IGNORE_FILE,
+    GENERAL_ERROR
   }
 
   class Issue {
