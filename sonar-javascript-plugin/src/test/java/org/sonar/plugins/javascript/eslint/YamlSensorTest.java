@@ -168,6 +168,18 @@ class YamlSensorTest {
   }
 
   @Test
+  void should_do_nothing_for_ignore_errors() throws IOException {
+    when(eslintBridgeServerMock.analyzeYaml(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { code: \"IGNORE_FILE\", message: \"Unsupported YAML code\"} }", AnalysisResponse.class));
+
+    createInputFile(context);
+    createSensor().execute(context);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(0);
+  }
+
+  @Test
   void should_not_explode_if_no_response() throws Exception {
     when(eslintBridgeServerMock.analyzeYaml(any())).thenThrow(new IOException("error"));
 
