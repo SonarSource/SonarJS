@@ -120,7 +120,7 @@ export const rule: Rule.RuleModule = {
               knowledge &&
               knowledge.func === enclosingFunction &&
               node.argument &&
-              (node.argument as any).type === 'JSXElement'
+              (node.argument as any).type.startsWith('JSX')
             ) {
               knowledge.returnsJSX = true;
             }
@@ -134,5 +134,5 @@ export const rule: Rule.RuleModule = {
 
 //handling arrow functions without return statement
 function returnsJSX(node: estree.Function) {
-  return (node.body as any).type === 'JSXElement';
+  return (node.body as any).type.startsWith('JSX');
 }
