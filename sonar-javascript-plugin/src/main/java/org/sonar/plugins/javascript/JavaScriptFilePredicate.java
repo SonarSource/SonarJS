@@ -20,14 +20,19 @@
 package org.sonar.plugins.javascript;
 
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.eslint.YamlSensor;
 
 public class JavaScriptFilePredicate {
+
+  private static final Logger LOG = Loggers.get(JavaScriptFilePredicate.class);
 
   private static final String regex = "\\<script[.\\s]*lang=['\"]ts['\"][.\\s]*\\>";
   private static final Pattern pattern = Pattern.compile(regex);
@@ -40,7 +45,33 @@ public class JavaScriptFilePredicate {
     }
   };
 
+  // Helm template directives - for YAML files
+  private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
+  private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
+  private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
+  private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
+  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("("+
+    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
+
   private JavaScriptFilePredicate() {
+  }
+
+  public static FilePredicate getYamlPredicate(FileSystem fs) {
+    return fs.predicates().and(fs.predicates().hasLanguage(YamlSensor.LANGUAGE), inputFile -> {
+      try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+        while (scanner.hasNextLine()) {
+          String line = scanner.nextLine();
+          if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+            return false;
+          }
+        }
+        return true;
+      } catch (IOException e) {
+        LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
+        LOG.error(e.getMessage());
+        return false;
+      }
+    });
   }
 
   public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
