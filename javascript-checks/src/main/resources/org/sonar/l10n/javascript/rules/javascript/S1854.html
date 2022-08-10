@@ -12,9 +12,13 @@ i = a + b;
 i += compute();
 </pre>
 <h2>Exceptions</h2>
-<p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>undefined</code>, [], {}, <code>true</code>, <code>false</code> and
-<code>""</code>. Variables that start with an underscore (e.g. '<code>_unused</code>') are ignored.</p>
-<p>This rule also ignores variables declared with object destructuring using rest syntax (used to exclude some properties from object):</p>
+<ul>
+  <li> This rule ignores initializations to -1, 0, 1, <code>undefined</code>, [], {}, <code>true</code>, <code>false</code> and <code>""</code>. </li>
+  <li> Variables that start with an underscore (e.g. '<code>_unused</code>') are ignored. </li>
+  <li> Assignment of <code>null</code> is ignored because it is sometimes used to help garbage collection </li>
+  <li> Increment and decrement expressions are ignored because they are often used idiomatically instead of <code>x+1</code> </li>
+  <li> This rule also ignores variables declared with object destructuring using rest syntax (used to exclude some properties from object): </li>
+</ul>
 <pre>
 let {a, b, ...rest} = obj; // 'a' and 'b' are ok
 doSomething(rest);
