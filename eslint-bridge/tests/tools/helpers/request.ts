@@ -32,13 +32,12 @@ import http from 'http';
  */
 export function request(
   server: http.Server,
-  host: string,
   path: string,
   method: string,
   data: any = {},
 ) {
   const options = {
-    host,
+    host: 'localhost',
     path,
     method,
     port: (<AddressInfo>server.address()).port,

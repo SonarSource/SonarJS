@@ -53,7 +53,7 @@ describe('router', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.css');
     const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
     const data = { filePath, rules };
-    const response = (await request(server, host, '/analyze-css', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-css', 'POST', data)) as string;
     expect(JSON.parse(response)).toEqual({
       issues: [
         {
@@ -73,7 +73,7 @@ describe('router', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.js');
     const fileType = 'MAIN';
     const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, host, '/analyze-js', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-js', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -97,7 +97,7 @@ describe('router', () => {
     const fileType = 'MAIN';
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const data = { filePath, fileType, tsConfigs: [tsConfig] };
-    const response = (await request(server, host, '/analyze-ts', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -122,7 +122,7 @@ describe('router', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const { programId } = createProgram(tsConfig);
     const data = { filePath, fileType, programId };
-    const response = (await request(server, host, '/analyze-with-program', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -144,7 +144,7 @@ describe('router', () => {
     ]);
     const filePath = path.join(__dirname, 'fixtures', 'file.yaml');
     const data = { filePath };
-    const response = (await request(server, host, '/analyze-yaml', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -164,7 +164,7 @@ describe('router', () => {
   it('should route /create-program requests', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const data = { tsConfig };
-    const response = (await request(server, host, '/create-program', 'POST', data)) as string;
+    const response = (await request(server, '/create-program', 'POST', data)) as string;
     const programId = Number(JSON.parse(response).programId);
     expect(programId).toBeDefined();
     expect(programId).toBeGreaterThan(0);
@@ -174,7 +174,7 @@ describe('router', () => {
     console.error = jest.fn();
     const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
     const data = { tsConfig };
-    const response = (await request(server, host, '/create-program', 'POST', data)) as string;
+    const response = (await request(server, '/create-program', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toBeDefined();
     expect(console.error).toHaveBeenCalled();
@@ -184,13 +184,13 @@ describe('router', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const { programId } = createProgram(tsConfig);
     const data = { programId };
-    const response = (await request(server, host, '/delete-program', 'POST', data)) as string;
+    const response = (await request(server, '/delete-program', 'POST', data)) as string;
     expect(response).toEqual('OK!');
   });
 
   it('should route /init-linter requests', async () => {
     const data = { rules: [], environments: [], globals: [] };
-    const response = await request(server, host, '/init-linter', 'POST', data);
+    const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK!');
   });
 
@@ -200,19 +200,19 @@ describe('router', () => {
      * @see https://github.com/facebook/jest/issues/6725
      */
     const data = {};
-    const response = await request(server, host, '/new-tsconfig', 'POST', data);
+    const response = await request(server, '/new-tsconfig', 'POST', data);
     expect(response).toEqual('OK!');
   });
 
   it('should route /status requests', async () => {
-    const response = await request(server, host, '/status', 'GET');
+    const response = await request(server, '/status', 'GET');
     expect(response).toEqual('OK!');
   });
 
   it('should route /tsconfig-files requests', async () => {
     const tsconfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const data = { tsconfig };
-    const response = (await request(server, host, '/tsconfig-files', 'POST', data)) as string;
+    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     expect(JSON.parse(response)).toEqual({
       files: [toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'))],
       projectReferences: [],
@@ -223,7 +223,7 @@ describe('router', () => {
     console.error = jest.fn();
     const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
     const data = { tsConfig };
-    const response = (await request(server, host, '/tsconfig-files', 'POST', data)) as string;
+    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toEqual('Debug Failure.');
     expect(console.error).toHaveBeenCalled();
@@ -237,7 +237,7 @@ describe('router', () => {
     console.error = jest.fn();
     const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
     const data = { tsConfig };
-    const response = (await request(server, host, '/analyze-yaml', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
     const { parsingError } = JSON.parse(response);
     expect(parsingError).toBeDefined();
     expect(console.error).toHaveBeenCalled();

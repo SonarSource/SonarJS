@@ -73,13 +73,13 @@ describe('server', () => {
       rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
     };
 
-    const initLinterRequest = request(server, host, '/init-linter', 'POST', config);
+    const initLinterRequest = request(server, '/init-linter', 'POST', config);
     await initLinterRequest;
 
     const filePath = path.join(__dirname, 'fixtures', 'routing.js');
     const analysisInput = { filePath, fileType };
 
-    const analyzeJsRequest = request(server, host, '/analyze-js', 'POST', analysisInput);
+    const analyzeJsRequest = request(server, '/analyze-js', 'POST', analysisInput);
     const response = (await analyzeJsRequest) as any;
 
     const {
@@ -101,7 +101,7 @@ describe('server', () => {
 
     const server = await start(port, host);
 
-    const closeRequest = request(server, host, '/close', 'POST');
+    const closeRequest = request(server, '/close', 'POST');
     await closeRequest;
 
     expect(server.listening).toBeFalsy();
