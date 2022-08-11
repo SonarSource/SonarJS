@@ -19,4 +19,4 @@
  */
 
 export * from './middleware';
-export * from './builder';
+export * from './errors';

@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { AnalysisErrorCode } from 'services/analysis/errors';
-import { ErrorType, SonarError } from './builder';
+import { ErrorType, SonarError } from './errors';
 
 /**
  * ExpressJs error handling middleware
