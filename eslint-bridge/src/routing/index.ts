@@ -19,7 +19,6 @@
  */
 
 import express from 'express';
-
 import onAnalyzeCss from './on-analyze-css';
 import onAnalyzeJs from './on-analyze-js';
 import onAnalyzeTs from './on-analyze-ts';
