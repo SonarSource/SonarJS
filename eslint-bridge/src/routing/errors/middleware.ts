@@ -21,6 +21,10 @@ import express from 'express';
 import { AnalysisErrorCode } from 'services/analysis/errors';
 import { ErrorType, SonarError } from './builder';
 
+/**
+ * ExpressJs error handling middleware
+ * https://expressjs.com/en/guide/error-handling.html
+ */
 export function errorMiddleware(
   error: Error,
   _request: express.Request,
