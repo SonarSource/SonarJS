@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { AnalysisErrorCode } from '../services/analysis/errors';
+import { AnalysisErrorCode } from 'services/analysis/errors';
 import { ErrorType, SonarError } from './builder';
 
 export function errorMiddleware(

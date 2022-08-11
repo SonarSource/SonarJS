@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { buildError } from '../../errors';
+import { buildError } from 'routing/errors';
 import { Analysis } from './analysis';
 
 /**

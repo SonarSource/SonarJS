@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import router from './routing';
-import { errorMiddleware } from './errors';
+import router from 'routing';
+import { errorMiddleware } from 'routing/errors';
 
 /**
  * The maximum request body size
