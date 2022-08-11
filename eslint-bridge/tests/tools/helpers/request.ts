@@ -22,13 +22,7 @@ import { AddressInfo } from 'net';
 import http from 'http';
 
 /**
- *
- * @param server
- * @param host
- * @param path
- * @param method
- * @param data
- * @returns
+ * Sends an HTTP request to a server's endpoint
  */
 export function request(
   server: http.Server,
