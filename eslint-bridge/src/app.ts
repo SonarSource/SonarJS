@@ -26,6 +26,11 @@ import { errorMiddleware } from 'routing/errors';
  */
 const MAX_REQUEST_SIZE = '50mb';
 
+/**
+ * Creates an express app, loads routing and error middleware
+ *
+ * @returns an 'express' app
+ */
 export const createApp = function () {
   const app = express();
 

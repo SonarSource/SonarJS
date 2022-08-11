@@ -38,7 +38,8 @@ import path from 'path';
  * few conditions required for secondary locations to correctly be supported:
  *
  * - the rule calls `toEncodedMessage` from `./helpers`,
- * - the rule includes `meta: { schema: [{ enum: ['sonar-runtime'] }] }` metadata.
+ * - the rule includes `meta: { schema: [{ enum: ['SONAR_RUNTIME'] }] }` metadata.
+ *   SONAR_RUNTIME is available in 'linting/eslint/linter/parameters'
  *
  * The source code of the exported rules violating these conditions will trigger an
  * issue during analysis.
