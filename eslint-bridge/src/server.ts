@@ -53,7 +53,11 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * @param shutdownTimeout timeout in ms to shut down the server since last heartbeat request
  * @returns an http server
  */
-export function start(port = 0, host = '127.0.0.1', shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<http.Server> {
+export function start(
+  port = 0,
+  host = '127.0.0.1',
+  shutdownTimeout = SHUTDOWN_TIMEOUT,
+): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
 

@@ -114,15 +114,15 @@ describe('server', () => {
 
     const server = await start(port, host, 200);
 
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
     await request(server, host, '/heartbeat', 'GET');
 
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
     await request(server, host, '/heartbeat', 'GET');
 
-    await new Promise((r) => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 300));
     expect(server.listening).toBeFalsy();
 
     expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
