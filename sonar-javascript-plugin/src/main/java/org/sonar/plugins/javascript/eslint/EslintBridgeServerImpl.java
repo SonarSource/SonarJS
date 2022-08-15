@@ -152,6 +152,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     } else {
       status = Status.STARTED;
+      if (heartbeatFuture == null) {
+        LOG.info("Starting heartbeat service");
+        heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
+      }
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
@@ -413,8 +417,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void start() {
     // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
-    LOG.info("Starting heartbeat service");
-    heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
   }
 
   @Override
