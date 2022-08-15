@@ -34,6 +34,10 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -83,6 +87,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final Path deployLocation;
   private final Monitoring monitoring;
 
+  private final ScheduledExecutorService heartbeatService;
+  private final Runnable heartbeat;
+
+  private ScheduledFuture heartbeatFuture;
+
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
                                 NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
@@ -105,6 +114,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.monitoring = monitoring;
+    this.heartbeat = () -> {
+      try {
+        LOG.warn("Pinging the server");
+        request("", "heartbeat");
+      } catch (IOException e) {
+        LOG.warn("Failed to ping the server", e);
+      }
+    };
+    this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
   }
 
   int getTimeoutSeconds() {
@@ -371,6 +389,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       nodeCommand.waitFor();
       nodeCommand = null;
     }
+    if (heartbeatFuture != null) {
+      LOG.info("Closing heartbeat service");
+      heartbeatFuture.cancel(true);
+    }
   }
 
   /**
@@ -392,6 +414,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void start() {
     // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
+
+    if (heartbeatFuture == null) {
+      LOG.info("Starting heartbeat service");
+      heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
+    }
   }
 
   @Override

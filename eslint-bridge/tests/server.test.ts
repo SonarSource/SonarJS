@@ -23,6 +23,7 @@ import { promisify } from 'util';
 import path from 'path';
 import { setContext } from 'helpers';
 import { request } from './tools/helpers';
+import { AddressInfo } from 'net';
 
 describe('server', () => {
   const host = '127.0.0.1';
@@ -53,7 +54,7 @@ describe('server', () => {
     );
     expect(console.log).toHaveBeenNthCalledWith(
       2,
-      `DEBUG eslint-bridge server is running at port ${port}`,
+      `DEBUG eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`,
     );
 
     await close();
@@ -106,5 +107,24 @@ describe('server', () => {
 
     expect(server.listening).toBeFalsy();
     expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server will shutdown');
+  });
+
+  it('should timeout', async () => {
+    console.log = jest.fn();
+
+    const server = await start(port, host, 200);
+
+    await new Promise((r) => setTimeout(r, 100));
+    expect(server.listening).toBeTruthy();
+    await request(server, host, '/heartbeat', 'GET');
+
+    await new Promise((r) => setTimeout(r, 100));
+    expect(server.listening).toBeTruthy();
+    await request(server, host, '/heartbeat', 'GET');
+
+    await new Promise((r) => setTimeout(r, 300));
+    expect(server.listening).toBeFalsy();
+
+    expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
   });
 });
