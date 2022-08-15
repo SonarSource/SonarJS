@@ -2,4 +2,3 @@ lib/
 node_modules/
 coverage/
 test-report.xml
-bundle/
