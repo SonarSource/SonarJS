@@ -27,4 +27,4 @@ if (process.argv[7]) {
 }
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
-server.start(port, host, bundles);
+server.start(port, host);
