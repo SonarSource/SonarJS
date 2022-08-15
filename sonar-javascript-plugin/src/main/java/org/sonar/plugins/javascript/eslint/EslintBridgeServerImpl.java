@@ -89,8 +89,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private final ScheduledExecutorService heartbeatService;
   private final Runnable heartbeat;
-
-  private ScheduledFuture heartbeatFuture;
+  private ScheduledFuture<?> heartbeatFuture;
 
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
@@ -414,11 +413,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void start() {
     // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
-
-    if (heartbeatFuture == null) {
-      LOG.info("Starting heartbeat service");
-      heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
-    }
+    LOG.info("Starting heartbeat service");
+    heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
   }
 
   @Override
