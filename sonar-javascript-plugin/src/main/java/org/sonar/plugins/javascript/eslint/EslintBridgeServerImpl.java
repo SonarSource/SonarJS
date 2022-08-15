@@ -31,9 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -91,6 +89,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final Runnable heartbeat;
   private ScheduledFuture<?> heartbeatFuture;
 
+  private TimerTask heartbeatTask;
+  private Timer heartbeatTimer;
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
                                 NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
@@ -122,6 +122,21 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       }
     };
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
+
+    this.heartbeatTask = new TimerTask()
+    {
+      public void run()
+      {
+        try {
+          LOG.warn("Pinging the server");
+          request("", "heartbeat");
+        } catch (IOException e) {
+          LOG.warn("Failed to ping the server", e);
+        }
+      }
+    };
+    this.heartbeatTimer = new Timer();
+
   }
 
   int getTimeoutSeconds() {
@@ -152,10 +167,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     } else {
       status = Status.STARTED;
-      if (heartbeatFuture == null) {
-        LOG.info("Starting heartbeat service");
-        heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
-      }
+//      if (heartbeatFuture == null) {
+//        LOG.info("Starting heartbeat service");
+//        heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
+//      }
+      heartbeatTimer.scheduleAtFixedRate(heartbeatTask, 0, 1000);
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
@@ -396,6 +412,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.info("Closing heartbeat service");
       heartbeatFuture.cancel(true);
     }
+    heartbeatTask.cancel();
+    heartbeatTimer.cancel();
   }
 
   /**
