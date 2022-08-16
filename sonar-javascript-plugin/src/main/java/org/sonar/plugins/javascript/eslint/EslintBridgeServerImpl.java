@@ -148,7 +148,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     } else {
       status = Status.STARTED;
-      if (heartbeatFuture == null || heartbeatFuture.isCancelled()) {
+      if (heartbeatFuture == null) {
         LOG.info("Starting heartbeat service");
         heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, 5, 5, TimeUnit.SECONDS);
       }

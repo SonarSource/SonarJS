@@ -85,7 +85,7 @@ export function start(
     });
 
     server.on('listening', () => {
-      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
+      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo).port}`);
       resolve(server);
     });
 

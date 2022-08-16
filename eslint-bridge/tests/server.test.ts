@@ -43,7 +43,7 @@ describe('server', () => {
 
     console.log = jest.fn();
 
-    const server = await start(port, host);
+    const server = await start(undefined, undefined);
     const close = promisify(server.close.bind(server));
 
     expect(server.listening).toBeTruthy();

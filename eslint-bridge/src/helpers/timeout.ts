@@ -42,15 +42,12 @@ function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) 
       server.close();
     }
   }, shutdownTimeout);
-  let requests = 0;
   timeout.init();
   return {
     middleware(_request: express.Request, res: express.Response, next: express.NextFunction) {
       timeout.cancel();
-      requests++;
       res.on('finish', function () {
-        requests--;
-        if (requests === 0) timeout.init();
+        timeout.init();
       });
       next();
     },
