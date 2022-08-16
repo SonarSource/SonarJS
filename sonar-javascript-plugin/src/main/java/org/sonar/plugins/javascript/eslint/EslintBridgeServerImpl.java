@@ -88,7 +88,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final Monitoring monitoring;
 
   private final ScheduledExecutorService heartbeatService;
-  private final Runnable heartbeat;
   private ScheduledFuture<?> heartbeatFuture;
 
   // Used by pico container for dependency injection
@@ -113,15 +112,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.monitoring = monitoring;
-    this.heartbeat = () -> {
-      try {
-        LOG.warn("Pinging the server");
-        request("", "heartbeat");
-      } catch (IOException e) {
-        LOG.warn("Failed to ping the server", e);
-      }
-    };
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
+  }
+
+  void heartbeat() {
+    LOG.warn("Pinging the server");
+    isAlive();
   }
 
   int getTimeoutSeconds() {
@@ -154,7 +150,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       status = Status.STARTED;
       if (heartbeatFuture == null || heartbeatFuture.isCancelled()) {
         LOG.info("Starting heartbeat service");
-        heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
+        heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, 5, 5, TimeUnit.SECONDS);
       }
     }
     PROFILER.stopDebug();
@@ -417,11 +413,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void start() {
     // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
-
-    if (heartbeatFuture == null || heartbeatFuture.isCancelled()) {
-      LOG.info("Starting heartbeat service");
-      heartbeatFuture = heartbeatService.scheduleAtFixedRate(heartbeat, 5, 5, TimeUnit.SECONDS);
-    }
   }
 
   @Override
