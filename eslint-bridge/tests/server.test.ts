@@ -116,11 +116,11 @@ describe('server', () => {
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
-    await request(server, host, '/heartbeat', 'GET');
+    await request(server, host, '/status', 'GET');
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
-    await request(server, host, '/heartbeat', 'GET');
+    await request(server, host, '/status', 'GET');
 
     await new Promise(r => setTimeout(r, 300));
     expect(server.listening).toBeFalsy();

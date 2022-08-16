@@ -37,31 +37,24 @@ class Timeout {
 }
 
 function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) {
-  let closed = false;
   const timeout = new Timeout(() => {
     if (server.listening) {
       server.close();
     }
   }, shutdownTimeout);
+  let requests = 0;
   timeout.init();
   return {
     middleware(_request: express.Request, res: express.Response, next: express.NextFunction) {
-      if (!closed) {
-        timeout.cancel();
-        res.on('finish', function () {
-          timeout.init();
-        });
-      }
+      timeout.cancel();
+      requests++;
+      res.on('finish', function () {
+        requests--;
+        if (requests === 0) timeout.init();
+      });
       next();
     },
-    heartBeatHandler(_req: express.Request, res: express.Response) {
-      if (!closed) {
-        timeout.init();
-      }
-      res.end();
-    },
     cancel() {
-      closed = true;
       timeout.cancel();
     },
   };

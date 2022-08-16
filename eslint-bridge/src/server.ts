@@ -66,7 +66,6 @@ export function start(
     const timeoutMiddleware = timeoutTimeoutMiddleware(server, shutdownTimeout);
 
     app.use(timeoutMiddleware.middleware);
-    app.all('/heartbeat', timeoutMiddleware.heartBeatHandler);
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(router);
     app.post('/close', (_request: express.Request, response: express.Response) => {
