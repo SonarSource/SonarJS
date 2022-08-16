@@ -77,6 +77,7 @@ export function start(
     });
 
     server.on('close', () => {
+      timeoutMiddleware.close();
       debug('eslint-bridge server closed');
     });
 
