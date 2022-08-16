@@ -43,9 +43,13 @@ describe('analyzeJSTS', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     const language = 'js';
-    expect(() => analyzeJSTS(input, language)).toThrow(
-      'Linter is undefined. Did you call /init-linter?',
-    );
+    expect(analyzeJSTS(input, language)).toStrictEqual({
+      parsingError: {
+        code: AnalysisErrorCode.LinterInitialization,
+        message: 'Linter is undefined. Did you call /init-linter?',
+      },
+      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+    });
   });
 
   it('should analyze JavaScript code', () => {

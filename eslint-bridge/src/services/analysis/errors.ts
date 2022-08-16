@@ -38,7 +38,7 @@ export type AnalysisError = {
  * The possible codes of analysis errors
  *
  * The `GeneralError` value denotes a runtime error which is either
- * unpredicatble or occurs rarely to deserve its own category.
+ * unpredictable or occurs rarely to deserve its own category.
  */
 export enum AnalysisErrorCode {
   Parsing = 'PARSING',
@@ -46,6 +46,7 @@ export enum AnalysisErrorCode {
   UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
   FailingTypeScript = 'FAILING_TYPESCRIPT',
   GeneralError = 'GENERAL_ERROR',
+  LinterInitialization = 'LINTER_INITIALIZATION',
 }
 
 /**

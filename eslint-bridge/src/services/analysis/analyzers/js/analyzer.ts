@@ -21,16 +21,21 @@
 import { SourceCode } from 'eslint';
 import { getContext } from 'helpers';
 import {
-  assertLinterInitialized,
   computeMetrics,
   findNoSonarLines,
   getCpdTokens,
   getSyntaxHighlighting,
+  isLinterInitializationError,
   linter,
   SymbolHighlight,
 } from 'linting/eslint';
 import { buildSourceCode, Language } from 'parsing/jsts';
-import { AnalysisErrorCode, AnalysisOutput } from 'services/analysis';
+import {
+  AnalysisErrorCode,
+  AnalysisOutput,
+  createError,
+  createLinterInitializationError,
+} from 'services/analysis';
 import { measureDuration } from 'services/monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
@@ -79,7 +84,9 @@ export function analyzeJSTS(
   input: JsTsAnalysisInput,
   language: Language,
 ): JsTsAnalysisOutput | AnalysisOutput {
-  assertLinterInitialized();
+  if (isLinterInitializationError()) {
+    return createLinterInitializationError(EMPTY_JSTS_ANALYSIS_OUTPUT);
+  }
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);
   if (built instanceof SourceCode) {
@@ -87,10 +94,7 @@ export function analyzeJSTS(
     const { result: output, duration: analysisTime } = measureDuration(analysis);
     return { ...output, perf: { parseTime, analysisTime } };
   } else {
-    return {
-      parsingError: built,
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    };
+    return createError(EMPTY_JSTS_ANALYSIS_OUTPUT, built);
   }
 }
 

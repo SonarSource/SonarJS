@@ -20,7 +20,7 @@
 
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { AnalysisErrorCode, analyzeYAML } from 'services/analysis';
+import { AnalysisErrorCode, analyzeYAML, EMPTY_YAML_ANALYSIS_OUTPUT } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
 
 describe('analyzeYAML', () => {
@@ -37,7 +37,13 @@ describe('analyzeYAML', () => {
 
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
-    expect(() => analyzeYAML(input)).toThrow('Linter is undefined. Did you call /init-linter?');
+    expect(analyzeYAML(input)).toStrictEqual({
+      parsingError: {
+        code: AnalysisErrorCode.LinterInitialization,
+        message: 'Linter is undefined. Did you call /init-linter?',
+      },
+      ...EMPTY_YAML_ANALYSIS_OUTPUT,
+    });
   });
 
   it('should analyze YAML file', async () => {

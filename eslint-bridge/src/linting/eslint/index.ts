@@ -52,12 +52,10 @@ export function initializeLinter(
 }
 
 /**
- * Throws a runtime error if the global linter wrapper is not inizialized
+ * Returns true if the global linter wrapper is initialized.
  */
-export function assertLinterInitialized() {
-  if (!linter) {
-    throw new Error('Linter is undefined. Did you call /init-linter?');
-  }
+export function isLinterInitializationError() {
+  return !linter;
 }
 
 /**

@@ -20,9 +20,9 @@
 
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { assertLinterInitialized, linter, Issue } from 'linting/eslint';
+import { isLinterInitializationError, Issue, linter } from 'linting/eslint';
 import { buildSourceCodes } from 'parsing/yaml';
-import { isAnalysisError } from 'services/analysis';
+import { createError, createLinterInitializationError, isAnalysisError } from 'services/analysis';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 
 /**
@@ -39,10 +39,10 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * within various file formats, YAML here. The function first starts by parsing
  * the YAML fle to validate its syntax and to get in return an abstract syntax
  * tree. This abstract syntax tree is then used to extract embedded JavaScript
- * code. As YAML files might embedds several JavaScript snippets, the function
+ * code. As YAML files might embed several JavaScript snippets, the function
  * builds an ESLint SourceCode instance for each snippet using the same utility
  * as for building source code for regular JavaScript analysis inputs. However,
- * since a YAML file can potentially produce multuple ESLint SourceCode instances,
+ * since a YAML file can potentially produce multiple ESLint SourceCode instances,
  * the function stops to the first JavaScript parsing error and returns it without
  * considering any other. If all abstract syntax trees are valid, the function
  * then proceeds with linting each of them, aggregates, and returns the results.
@@ -53,16 +53,15 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @returns the YAML analysis output
  */
 export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
-  assertLinterInitialized();
+  if (isLinterInitializationError()) {
+    return createLinterInitializationError(EMPTY_YAML_ANALYSIS_OUTPUT);
+  }
 
   const sourceCodesOrError = buildSourceCodes(input.filePath);
   if (isAnalysisError(sourceCodesOrError)) {
-    const parsingError = sourceCodesOrError;
-    return {
-      ...EMPTY_YAML_ANALYSIS_OUTPUT,
-      parsingError,
-    };
+    return createError(EMPTY_YAML_ANALYSIS_OUTPUT, sourceCodesOrError);
   }
+
   const sourceCodes = sourceCodesOrError;
   const aggregatedIssues: Issue[] = [];
   for (const sourceCode of sourceCodes) {
@@ -77,7 +76,7 @@ export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
    * Filters out issues outside of JS code.
    *
    * This is necessary because we patch the SourceCode object
-   * to include all the YAML files in its properties outside of its AST.
+   * to include all the YAML files in its properties outside its AST.
    * So rules that operate on SourceCode.text get flagged.
    */
   function removeYamlIssues(sourceCode: SourceCode, issues: Issue[]) {
