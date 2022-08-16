@@ -20,6 +20,7 @@
 
 import { debug, getContext } from 'helpers';
 import { CustomRule, LinterWrapper, RuleConfig } from './linter';
+import { AnalysisErrorCode, ServerError } from '../../services/analysis';
 
 export * from './linter';
 export * from './rules';
@@ -52,10 +53,15 @@ export function initializeLinter(
 }
 
 /**
- * Returns true if the global linter wrapper is initialized.
+ * Throws a runtime error if the global linter wrapper is not initialized.
  */
-export function isLinterInitializationError() {
-  return !linter;
+export function assertLinterInitialized() {
+  if (!linter) {
+    throw new ServerError(
+      'Linter is undefined. Did you call /init-linter?',
+      AnalysisErrorCode.LinterInitialization,
+    );
+  }
 }
 
 /**

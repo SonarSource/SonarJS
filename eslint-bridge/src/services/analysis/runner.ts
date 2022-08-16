@@ -44,7 +44,7 @@ export function runner(analysis: Analysis): express.RequestHandler {
       response.json({
         parsingError: {
           message: e.message,
-          code: AnalysisErrorCode.GeneralError,
+          code: e.code ?? AnalysisErrorCode.GeneralError,
         },
       });
     }

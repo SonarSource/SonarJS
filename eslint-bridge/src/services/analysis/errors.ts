@@ -72,3 +72,13 @@ export function parseAnalysisErrorCode(error: string): AnalysisErrorCode {
 export function isAnalysisError<T>(maybeError: T | AnalysisError): maybeError is AnalysisError {
   return 'code' in maybeError;
 }
+
+/**
+ * This error adds a code property that will be returned
+ * as part of the AnalysisOutput parsingError property.
+ */
+export class ServerError extends Error {
+  constructor(message: string, public readonly code: string) {
+    super(message);
+  }
+}

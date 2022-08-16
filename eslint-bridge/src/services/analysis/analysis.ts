@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AnalysisError, AnalysisErrorCode } from './errors';
+import { AnalysisError } from './errors';
 
 /**
  * An analysis function
@@ -57,27 +57,4 @@ export interface AnalysisInput {
  */
 export interface AnalysisOutput {
   parsingError?: AnalysisError;
-}
-
-/**
- * Returns an error analysis output containing the given empty output and a parsing error.
- */
-export function createError<T extends AnalysisOutput>(
-  emptyOutput: T,
-  parsingError: AnalysisError,
-): T {
-  return {
-    ...emptyOutput,
-    parsingError,
-  };
-}
-
-/**
- * Returns an error analysis output containing the given empty output and a linter initialization parsing error.
- */
-export function createLinterInitializationError<T extends AnalysisOutput>(emptyOutput: T): T {
-  return createError(emptyOutput, {
-    code: AnalysisErrorCode.LinterInitialization,
-    message: 'Linter is undefined. Did you call /init-linter?',
-  });
 }

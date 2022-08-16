@@ -21,12 +21,7 @@
 import path from 'path';
 import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
-import {
-  initializeLinter,
-  isLinterInitializationError,
-  linter,
-  LinterWrapper,
-} from 'linting/eslint';
+import { initializeLinter, linter, LinterWrapper } from 'linting/eslint';
 import { parseJavaScriptSourceFile } from '../../../tools';
 
 describe('initializeLinter', () => {
@@ -45,9 +40,8 @@ describe('initializeLinter', () => {
     console.log = jest.fn();
 
     expect(linter).toBeUndefined();
-    expect(isLinterInitializationError()).toBe(true);
+
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    expect(isLinterInitializationError()).toBe(false);
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
