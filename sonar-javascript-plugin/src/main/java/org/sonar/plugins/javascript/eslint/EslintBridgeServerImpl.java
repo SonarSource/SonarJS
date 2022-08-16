@@ -379,6 +379,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void clean() {
+    LOG.info("Closing heartbeat service");
+    heartbeatService.shutdownNow();
     if (nodeCommand != null) {
       try {
         request("", "close");
@@ -387,10 +389,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       }
       nodeCommand.waitFor();
       nodeCommand = null;
-    }
-    if (heartbeatFuture != null) {
-      LOG.info("Closing heartbeat service");
-      heartbeatFuture.cancel(true);
     }
   }
 
