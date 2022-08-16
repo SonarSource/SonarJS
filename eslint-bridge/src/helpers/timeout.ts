@@ -39,7 +39,9 @@ class Timeout {
 function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) {
   let closed = false;
   const timeout = new Timeout(() => {
-    server.close();
+    if (server.listening) {
+      server.close();
+    }
   }, shutdownTimeout);
   timeout.init();
   return {
@@ -58,7 +60,7 @@ function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) 
       }
       res.end();
     },
-    close() {
+    cancel() {
       closed = true;
       timeout.cancel();
     },
