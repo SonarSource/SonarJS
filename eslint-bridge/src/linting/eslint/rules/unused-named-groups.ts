@@ -44,6 +44,7 @@ import {
   isStringReplaceCall,
 } from './helpers/regex';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -192,6 +193,9 @@ function extractGroupNodes(
     const { property } = memberExpr;
     const ancestors = intellisense.context.getAncestors();
     let parent = ancestors.pop();
+    while ((parent as TSESTree.Node).type === 'TSNonNullExpression') {
+      parent = ancestors.pop();
+    }
     if (parent) {
       switch (property.name) {
         case 'groups':
