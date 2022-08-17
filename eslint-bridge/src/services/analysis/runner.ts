@@ -21,6 +21,13 @@
 import express from 'express';
 import { AnalysisErrorCode } from './errors';
 import { Analysis } from './analysis';
+import { LinterError } from 'linting/eslint';
+
+function getCodeFromError(error: Error) {
+  return error instanceof LinterError
+    ? AnalysisErrorCode.LinterInitialization
+    : AnalysisErrorCode.GeneralError;
+}
 
 /**
  * Runs an analysis
@@ -44,7 +51,7 @@ export function runner(analysis: Analysis): express.RequestHandler {
       response.json({
         parsingError: {
           message: e.message,
-          code: AnalysisErrorCode.GeneralError,
+          code: getCodeFromError(e),
         },
       });
     }

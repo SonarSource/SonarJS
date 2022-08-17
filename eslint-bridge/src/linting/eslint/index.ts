@@ -51,12 +51,14 @@ export function initializeLinter(
   linter = new LinterWrapper(inputRules, customRules, environments, globals);
 }
 
+export class LinterError extends Error {}
+
 /**
- * Throws a runtime error if the global linter wrapper is not inizialized
+ * Throws a runtime error if the global linter wrapper is not initialized.
  */
 export function assertLinterInitialized() {
   if (!linter) {
-    throw new Error('Linter is undefined. Did you call /init-linter?');
+    throw new LinterError('Linter is undefined. Did you call /init-linter?');
   }
 }
 
