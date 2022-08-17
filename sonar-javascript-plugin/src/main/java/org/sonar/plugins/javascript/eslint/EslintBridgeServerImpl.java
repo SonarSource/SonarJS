@@ -34,6 +34,10 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -83,6 +87,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final Path deployLocation;
   private final Monitoring monitoring;
 
+  private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
+  private final ScheduledExecutorService heartbeatService;
+  private ScheduledFuture<?> heartbeatFuture;
+
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
                                 NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
@@ -105,6 +113,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.monitoring = monitoring;
+    this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
+  }
+
+  void heartbeat() {
+    LOG.debug("Pinging the server");
+    isAlive();
   }
 
   int getTimeoutSeconds() {
@@ -135,6 +149,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     } else {
       status = Status.STARTED;
+      if (heartbeatFuture == null) {
+        LOG.info("Starting heartbeat service");
+        heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+      }
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
@@ -362,7 +380,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void clean() {
-    if (nodeCommand != null) {
+    LOG.info("Closing heartbeat service");
+    heartbeatService.shutdownNow();
+    if (nodeCommand != null && isAlive()) {
       try {
         request("", "close");
       } catch (IOException e) {
