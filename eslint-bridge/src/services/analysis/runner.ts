@@ -23,7 +23,7 @@ import { AnalysisErrorCode } from './errors';
 import { Analysis } from './analysis';
 import { LinterError } from 'linting/eslint';
 
-function getCodeFromError(error: any) {
+function getCodeFromError(error: Error) {
   return error instanceof LinterError
     ? AnalysisErrorCode.LinterInitialization
     : AnalysisErrorCode.GeneralError;
