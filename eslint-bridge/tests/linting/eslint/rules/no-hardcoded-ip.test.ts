@@ -46,7 +46,7 @@ ruleTesterTs.run('Hardcoded ip addresses should be avoided', rule, {
       address = "192.0.2.5",
       address = "198.51.100.5",
       address = "203.0.113.5",
-      address = "2001:db8:acad:1::ff"`
+      address = "2001:db8:acad:1::ff"`,
     },
   ],
   invalid: [
