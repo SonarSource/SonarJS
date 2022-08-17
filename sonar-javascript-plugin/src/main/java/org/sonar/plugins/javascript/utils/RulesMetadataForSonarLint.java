@@ -92,13 +92,15 @@ public class RulesMetadataForSonarLint {
       .filter(EslintBasedCheck.class::isAssignableFrom)
       .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::javaScriptCheck));
 
+    RuleScopeDictionary ruleScopeDictionary = new RuleScopeDictionary(METADATA_LOCATION);
+
     context.repository(repositoryKey).rules().stream()
       .map(r -> {
         EslintBasedCheck check = ruleKeyToCheck.get(r.key());
         if (check != null) {
-          return Rule.fromSqRule(repositoryKey, r, check.eslintKey(), check.configurations());
+          return Rule.fromSqRule(repositoryKey, r, check.eslintKey(), check.configurations(), ruleScopeDictionary.getScopeFor(r.key()));
         } else {
-          return Rule.fromSqRule(repositoryKey, r, null, Collections.emptyList());
+          return Rule.fromSqRule(repositoryKey, r, null, Collections.emptyList(), RuleScope.MAIN);
         }
       })
       .forEach(rules::add);
@@ -174,7 +176,7 @@ public class RulesMetadataForSonarLint {
     private String eslintKey;
     private boolean activatedByDefault;
 
-    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, String eslintKey, List<Object> defaultParams) {
+    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, String eslintKey, List<Object> defaultParams, RuleScope scope) {
       Rule rule = new Rule();
       rule.ruleKey = RuleKey.of(repository, sqRule.key()).toString();
       rule.type = sqRule.type();
@@ -184,7 +186,7 @@ public class RulesMetadataForSonarLint {
       rule.status = sqRule.status();
       rule.tags = sqRule.tags();
       rule.params = sqRule.params();
-      rule.scope = sqRule.scope();
+      rule.scope = scope;
       rule.eslintKey = eslintKey;
       rule.activatedByDefault = sqRule.activatedByDefault();
       rule.defaultParams = defaultParams;
