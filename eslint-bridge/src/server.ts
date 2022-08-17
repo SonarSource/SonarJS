@@ -22,7 +22,7 @@ import 'module-alias/register';
 import http from 'http';
 import express from 'express';
 import router from 'routing';
-import { debug, timeoutTimeoutMiddleware } from 'helpers';
+import { debug, timeoutMiddleware } from 'helpers';
 import { AddressInfo } from 'net';
 
 /**
@@ -31,7 +31,7 @@ import { AddressInfo } from 'net';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * Default timeout to shutdown server since last heartbeat request
+ * Default timeout to shut down server since last request
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -50,7 +50,7 @@ const SHUTDOWN_TIMEOUT = 15_000;
  *
  * @param port the port to listen to
  * @param host the host to listen to
- * @param shutdownTimeout timeout in ms to shut down the server since last heartbeat request
+ * @param shutdownTimeout timeout in ms to shut down the server since last request
  * @returns an http server
  */
 export function start(
@@ -63,9 +63,9 @@ export function start(
 
     const app = express();
     const server = http.createServer(app);
-    const timeoutMiddleware = timeoutTimeoutMiddleware(server, shutdownTimeout);
+    const timeoutMW = timeoutMiddleware(server, shutdownTimeout);
 
-    app.use(timeoutMiddleware.middleware);
+    app.use(timeoutMW.middleware);
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(router);
     app.post('/close', (_request: express.Request, response: express.Response) => {
@@ -76,7 +76,7 @@ export function start(
     });
 
     server.on('close', () => {
-      timeoutMiddleware.cancel();
+      timeoutMW.cancel();
       debug('eslint-bridge server closed');
     });
 

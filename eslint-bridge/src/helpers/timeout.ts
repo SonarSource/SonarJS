@@ -36,7 +36,7 @@ class Timeout {
   }
 }
 
-function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) {
+function timeoutMiddleware(server: http.Server, shutdownTimeout: number) {
   const timeout = new Timeout(() => {
     if (server.listening) {
       server.close();
@@ -57,4 +57,4 @@ function timeoutTimeoutMiddleware(server: http.Server, shutdownTimeout: number) 
   };
 }
 
-export { timeoutTimeoutMiddleware };
+export { timeoutMiddleware };

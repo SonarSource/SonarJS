@@ -87,6 +87,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final Path deployLocation;
   private final Monitoring monitoring;
 
+  private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
 
@@ -116,7 +117,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   void heartbeat() {
-    LOG.info("Pinging the server");
+    LOG.debug("Pinging the server");
     isAlive();
   }
 
@@ -150,7 +151,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       status = Status.STARTED;
       if (heartbeatFuture == null) {
         LOG.info("Starting heartbeat service");
-        heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, 5, 5, TimeUnit.SECONDS);
+        heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
       }
     }
     PROFILER.stopDebug();
@@ -381,7 +382,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   public void clean() {
     LOG.info("Closing heartbeat service");
     heartbeatService.shutdownNow();
-    if (nodeCommand != null) {
+    if (nodeCommand != null && isAlive()) {
       try {
         request("", "close");
       } catch (IOException e) {
