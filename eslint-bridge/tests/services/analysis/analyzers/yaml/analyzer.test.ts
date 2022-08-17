@@ -20,8 +20,8 @@
 
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { AnalysisErrorCode, analyzeYAML, ServerError } from 'services/analysis';
-import { initializeLinter } from 'linting/eslint';
+import { AnalysisErrorCode, analyzeYAML } from 'services/analysis';
+import { initializeLinter, LinterError } from 'linting/eslint';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -38,10 +38,7 @@ describe('analyzeYAML', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     expect(() => analyzeYAML(input)).toThrow(
-      new ServerError(
-        'Linter is undefined. Did you call /init-linter?',
-        AnalysisErrorCode.LinterInitialization,
-      ),
+      new LinterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
