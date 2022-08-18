@@ -57,7 +57,7 @@ class RuleScopeDictionary {
   private Map<String, Object> getMetadataFromJsonAt(String jsonPath) {
     try (var input = getClass().getClassLoader().getResourceAsStream(jsonPath);
          var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-        return (Map<String, Object>) parser.parse(reader);
+      return (Map<String, Object>) parser.parse(reader);
     } catch (ParseException | IOException e) {
       throw new IllegalStateException("Can't read resource at " + jsonPath, e);
     }
