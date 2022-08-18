@@ -21,8 +21,8 @@ package org.sonar.plugins.javascript.utils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import org.sonar.api.rule.RuleScope;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
@@ -40,7 +40,7 @@ class RuleScopeDictionary {
   }
 
   static RuleScope getScopeFromString(String value) {
-    var normalized = value.toUpperCase();
+    var normalized = value.toUpperCase(Locale.getDefault());
     if ("TESTS".equals(normalized)) {
       normalized = "TEST";
     }
@@ -51,31 +51,15 @@ class RuleScopeDictionary {
     var jsonPath = resourceFolder + RESOURCE_SEP + ruleKey + ".json";
     var metadata = getMetadataFromJsonAt(jsonPath);
 
-    if (!(metadata instanceof Map)) {
-      throw new IllegalStateException(String.format("The JSON for rule %s at %s doesn't contain an object", ruleKey, jsonPath));
-    }
-
-    var object = (Map<String, Object>) metadata;
-    if (!(object.get("scope") instanceof String)) {
-      throw new IllegalStateException(String.format("The JSON for rule %s at %s doesn't contain a valid scope property", ruleKey, jsonPath));
-    }
-
-    return getScopeFromString((String) object.get("scope"));
+    return getScopeFromString((String) metadata.get("scope"));
   }
 
-  private Object getMetadataFromJsonAt(String jsonPath) {
-    try (var input = getClass().getClassLoader().getResourceAsStream(jsonPath)) {
-      if (input == null) {
-        throw new IllegalStateException("The JSON doesn't exist at path " + jsonPath);
-      }
-
-      try (var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-        return parser.parse(reader);
-      }
-    } catch (ParseException e) {
+  private Map<String, Object> getMetadataFromJsonAt(String jsonPath) {
+    try (var input = getClass().getClassLoader().getResourceAsStream(jsonPath);
+         var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+        return (Map<String, Object>) parser.parse(reader);
+    } catch (ParseException | IOException e) {
       throw new IllegalStateException("Can't read resource at " + jsonPath, e);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
     }
   }
 
