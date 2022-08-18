@@ -10,7 +10,7 @@
     "ctest": "jest tests/rules/rule-test-launcher.test.ts --verbose=false",
     "format": "prettier --write \"{src,tests,tools}/**/!(*.lint).ts\"",
     "compile": "tsc -b src tests",
-    "bundle": "ncc build -e @babel/core -e @babel/eslint-parser -e @babel/preset-env -e @babel/preset-flow -e @babel/preset-react -e eslint -e @typescript-eslint/parser -e typescript bin/server",
+    "bundle": "ncc build -e @babel/core -e @babel/eslint-parser -e @babel/preset-env -e @babel/preset-flow -e @babel/preset-react -e eslint -e @typescript-eslint/parser -e typescript -e stylelint -e postcss-html -e postcss-less -e postcss-scss -e postcss-syntax -e postcss-value-parser bin/server",
     "jar": "npm run bundle && npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes",
     "new-rule": "ts-node tools/newRule.ts"
   },
@@ -84,7 +84,13 @@
     "@typescript-eslint/parser",
     "eslint",
     "run-node",
-    "typescript"
+    "stylelint",
+    "typescript",
+    "postcss-html",
+    "postcss-less",
+    "postcss-scss",
+    "postcss-syntax",
+    "postcss-value-parser"
   ],
   "prettier": {
     "printWidth": 100,
