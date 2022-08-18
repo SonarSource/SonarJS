@@ -81,6 +81,14 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
+        const matched = 'str'.matchAll(/(?<foo>\\w)/);
+        if (matched) {
+          matched.groups!.foo;
+        }
+      `,
+    },
+    {
+      code: `
         function foo(unknownPattern) {
           const matched = 'str'.matchAll(unknownPattern);
           if (matched) {
