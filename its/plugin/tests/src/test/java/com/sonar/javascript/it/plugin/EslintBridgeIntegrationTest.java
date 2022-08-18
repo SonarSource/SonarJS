@@ -158,7 +158,7 @@ class EslintBridgeIntegrationTest {
 
     void start(Path dest) throws IOException {
       port = findOpenPort();
-      String[] cmd = {"node", dest.resolve("package/bin/server").toString(), String.valueOf(port), "127.0.0.1",
+      String[] cmd = {"node", dest.resolve("package/dist/index.js").toString(), String.valueOf(port), "127.0.0.1",
         temp.toString(), "true", "true"};
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.inheritIO();

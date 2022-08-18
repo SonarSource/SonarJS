@@ -10,7 +10,7 @@
     "ctest": "jest tests/rules/rule-test-launcher.test.ts --verbose=false",
     "format": "prettier --write \"{src,tests,tools}/**/!(*.lint).ts\"",
     "compile": "tsc -b src tests",
-    "bundle": "ncc build -e @babel/core -e @babel/eslint-parser -e @babel/preset-env -e @babel/preset-flow -e @babel/preset-react -e eslint bin/server",
+    "bundle": "ncc build -e @babel/core -e @babel/eslint-parser -e @babel/preset-env -e @babel/preset-flow -e @babel/preset-react -e eslint -e @typescript-eslint/parser -e typescript bin/server",
     "jar": "npm run bundle && npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes",
     "new-rule": "ts-node tools/newRule.ts"
   },
@@ -81,8 +81,10 @@
     "@babel/preset-env",
     "@babel/preset-flow",
     "@babel/preset-react",
+    "@typescript-eslint/parser",
     "eslint",
-    "run-node"
+    "run-node",
+    "typescript"
   ],
   "prettier": {
     "printWidth": 100,
