@@ -23,6 +23,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
@@ -84,6 +87,11 @@ class RulesMetadataForSonarLintTest {
     RulesMetadataForSonarLint.main(new String[]{path.toString()});
     JsonArray jsonArray = new Gson().fromJson(Files.newBufferedReader(path), JsonArray.class);
     assertThat(jsonArray.size()).isGreaterThan(470);
+
+    var scopes = StreamSupport.stream(jsonArray.spliterator(), false)
+      .map(element -> element.getAsJsonObject().get("scope").getAsString())
+      .collect(Collectors.toSet());
+    assertThat(scopes).isEqualTo(Set.of("ALL", "MAIN", "TEST"));
   }
 
 }
