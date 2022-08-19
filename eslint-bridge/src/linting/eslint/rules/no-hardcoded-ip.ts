@@ -25,7 +25,13 @@ import { isIP } from 'net';
 
 const netMaskRegex = /(^[^\/]+)\/\d{1,3}$/;
 const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
-const acceptedIpStarts = [
+const ipV4Octets = 4;
+const ipV4MappedToV6Prefix = '::ffff:0:';
+const acceptedIpV6Starts = [
+  // https://datatracker.ietf.org/doc/html/rfc3849
+  '2001:db8:',
+];
+const acceptedIpV4Starts = [
   '127.',
   '0.',
   // avoid FP for OID http://www.oid-info.com/introduction.htm
@@ -34,8 +40,6 @@ const acceptedIpStarts = [
   '192.0.2.',
   '198.51.100.',
   '203.0.113.',
-  // https://datatracker.ietf.org/doc/html/rfc3849
-  '2001:db8:',
 ];
 
 export const rule: Rule.RuleModule = {
@@ -47,12 +51,16 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function isException(ip: string) {
       return (
-        acceptedIpStarts.some(prefix => ip.startsWith(prefix)) || acceptedIpAddresses.includes(ip)
+        acceptedIpV6Starts.some(prefix => ip.startsWith(prefix)) ||
+        acceptedIpV4Starts.some(
+          prefix => ip.startsWith(ipV4MappedToV6Prefix + prefix) || ip.startsWith(prefix),
+        ) ||
+        acceptedIpAddresses.includes(ip)
       );
     }
     function isIPV4OctalOrHex(ip: string) {
       const digits = ip.split('.');
-      if (digits.length !== 4) {
+      if (digits.length !== ipV4Octets) {
         return false;
       }
       const decimalDigits = [];
