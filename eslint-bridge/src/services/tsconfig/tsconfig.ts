@@ -73,7 +73,7 @@ export function getFilesForTsConfig(
     parsed.errors.forEach(d => {
       error += diagnosticToString(d);
     });
-    return { error, errorCode: AnalysisErrorCode.GeneralError };
+    return { error, errorCode: AnalysisErrorCode.UnexpectedError };
   }
 
   const projectReferences = parsed.projectReferences

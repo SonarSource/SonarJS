@@ -27,7 +27,7 @@
 export enum ErrorCode {
   Parsing = 'PARSING',
   FailingTypeScript = 'FAILING_TYPESCRIPT',
-  GeneralError = 'GENERAL_ERROR',
+  UnexpectedError = 'UNEXPECTED_ERROR',
   LinterInitialization = 'LINTER_INITIALIZATION',
 }
 

@@ -38,10 +38,10 @@ export function errorMiddleware(
   if (error instanceof APIError) {
     errorCode = error.code;
   } else {
-    errorCode = ErrorCode.GeneralError;
+    errorCode = ErrorCode.UnexpectedError;
   }
 
-  if (errorCode === ErrorCode.GeneralError) {
+  if (errorCode === ErrorCode.UnexpectedError) {
     response.json({
       error: error.message,
       // sadly tests aren't ready for a proper format

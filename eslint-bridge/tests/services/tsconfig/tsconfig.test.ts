@@ -45,7 +45,7 @@ describe('getFilesForTsConfig', () => {
     const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
     expect(result).toEqual({
       error: "The 'files' list in config file 'tsconfig.json' is empty.",
-      errorCode: AnalysisErrorCode.GeneralError,
+      errorCode: AnalysisErrorCode.UnexpectedError,
     });
   });
 
