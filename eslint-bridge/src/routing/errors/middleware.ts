@@ -38,10 +38,10 @@ export function errorMiddleware(
   if (error instanceof APIError) {
     errorCode = error.code;
   } else {
-    errorCode = ErrorCode.UnexpectedError;
+    errorCode = ErrorCode.Unexpected;
   }
 
-  if (errorCode === ErrorCode.UnexpectedError) {
+  if (errorCode === ErrorCode.Unexpected) {
     response.json({
       error: error.message,
       // sadly tests aren't ready for a proper format
@@ -50,6 +50,11 @@ export function errorMiddleware(
         message: error.message,
       }, */
     });
+
+    /*
+     * `ParsingError` and cannot be changed without breaking the protocol of
+     * the bridge with any other components, e.g. SonarLint).
+     */
   } else if ([ErrorCode.Parsing, ErrorCode.FailingTypeScript].includes(errorCode)) {
     response.json({
       parsingError: {

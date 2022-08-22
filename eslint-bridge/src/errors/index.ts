@@ -21,17 +21,13 @@
 /**
  * The possible codes of analysis errors
  *
- * The `GeneralError` value denotes a runtime error which is either
+ * The `Unexpected` value denotes a runtime error which is either
  * unpredictable or occurs rarely to deserve its own category.
- *
- * Still, any analysis is subject to errors (which was initially named
- * `parsingError` and cannot be changed without breaking the protocol of
- * the bridge with any other components, e.g. SonarLint).
  */
 export enum ErrorCode {
   Parsing = 'PARSING',
   FailingTypeScript = 'FAILING_TYPESCRIPT',
-  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unexpected = 'UNEXPECTED_ERROR',
   LinterInitialization = 'LINTER_INITIALIZATION',
 }
 
