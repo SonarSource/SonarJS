@@ -21,12 +21,7 @@
 import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import {
-  analyzeJSTS,
-  EMPTY_JSTS_ANALYSIS_OUTPUT,
-  JsTsAnalysisInput,
-  JsTsAnalysisOutput,
-} from 'services/analysis';
+import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
 import { buildLinterError, buildParsingError } from 'errors';
 
@@ -818,21 +813,5 @@ describe('analyzeJSTS', () => {
     expect(() => analyzeJSTS(input, language)).toThrow(
       buildParsingError('Unexpected token (3:0)', { line: 3 }),
     );
-  });
-
-  it('should return an empty analysis output on parsing errors', () => {
-    const rules = [];
-    initializeLinter(rules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const language = 'js';
-
-    const error = analyzeJSTS(input, language);
-    expect(error).toEqual(expect.objectContaining(EMPTY_JSTS_ANALYSIS_OUTPUT));
   });
 });

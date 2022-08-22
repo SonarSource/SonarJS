@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { buildFailingTypeScriptError } from 'errors';
 import { SourceCode } from 'eslint';
 import { getContext } from 'helpers';
 import {
@@ -30,34 +31,8 @@ import {
   SymbolHighlight,
 } from 'linting/eslint';
 import { buildSourceCode, Language } from 'parsing/jsts';
-import { AnalysisErrorCode, AnalysisOutput } from 'services/analysis';
 import { measureDuration } from 'services/monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
-
-/**
- * An empty JavaScript / TypeScript analysis output
- */
-export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
-  issues: [],
-  highlights: [],
-  highlightedSymbols: [],
-  metrics: {
-    ncloc: [],
-    commentLines: [],
-    nosonarLines: [],
-    executableLines: [],
-    functions: 0,
-    statements: 0,
-    classes: 0,
-    complexity: 0,
-    cognitiveComplexity: 0,
-  },
-  cpdTokens: [],
-  perf: {
-    parseTime: 0,
-    analysisTime: 0,
-  },
-};
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -75,23 +50,13 @@ export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
  * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(
-  input: JsTsAnalysisInput,
-  language: Language,
-): JsTsAnalysisOutput | AnalysisOutput {
+export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
   assertLinterInitialized();
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);
-  if (built instanceof SourceCode) {
-    const analysis = () => analyzeFile(input, built);
-    const { result: output, duration: analysisTime } = measureDuration(analysis);
-    return { ...output, perf: { parseTime, analysisTime } };
-  } else {
-    return {
-      parsingError: built,
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    };
-  }
+  const analysis = () => analyzeFile(input, built);
+  const { result: output, duration: analysisTime } = measureDuration(analysis);
+  return { ...output, perf: { parseTime, analysisTime } };
 }
 
 /**
@@ -123,8 +88,7 @@ function analyzeFile(input: JsTsAnalysisInput, sourceCode: SourceCode): JsTsAnal
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
-      const parsingError = { message: e.message, code: AnalysisErrorCode.FailingTypeScript };
-      return { issues: [], parsingError };
+      throw buildFailingTypeScriptError(e.message);
     } else {
       throw e;
     }

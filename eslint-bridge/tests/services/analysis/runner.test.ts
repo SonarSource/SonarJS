@@ -19,7 +19,7 @@
  */
 
 import express from 'express';
-import { AnalysisErrorCode, AnalysisOutput, runner } from 'services/analysis';
+import { AnalysisOutput, runner } from 'services/analysis';
 
 describe('runner', () => {
   it('should run an analysis', async () => {
@@ -38,31 +38,5 @@ describe('runner', () => {
     await handler(request, response);
 
     expect(response.json).toHaveBeenCalledWith('DONE');
-  });
-
-  it('should catch an analysis failure', async () => {
-    console.error = jest.fn();
-
-    const mockRequest = () => ({ body: {} } as express.Request);
-    const mockResponse = () => ({ json: jest.fn() } as any as express.Response);
-
-    const analysis = _ => Promise.reject({ message: 'failed', stack: 'some stack trace' });
-
-    const request = mockRequest();
-    const response = mockResponse();
-
-    const handler = runner(analysis) as (
-      request: express.Request,
-      response: express.Response,
-    ) => Promise<void>;
-    await handler(request, response);
-
-    expect(console.error).toHaveBeenCalledWith('some stack trace');
-    expect(response.json).toHaveBeenCalledWith({
-      parsingError: {
-        code: AnalysisErrorCode.GeneralError,
-        message: 'failed',
-      },
-    });
   });
 });

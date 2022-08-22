@@ -31,11 +31,15 @@ export enum ErrorCode {
   LinterInitialization = 'LINTER_INITIALIZATION',
 }
 
-export type ErrorType = 'Parsing' | 'General' | 'Linter';
-
 type ErrorData = {
   line?: number;
 };
+
+export function buildFailingTypeScriptError(message: string, data: ErrorData = {}) {
+  const error = new APIError(ErrorCode.FailingTypeScript, message, data);
+  error.data = data;
+  return error;
+}
 
 export function buildParsingError(message: string, data: ErrorData = {}) {
   const error = new APIError(ErrorCode.Parsing, message, data);

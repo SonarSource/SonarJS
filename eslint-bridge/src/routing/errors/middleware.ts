@@ -19,6 +19,7 @@
  */
 import express from 'express';
 import { APIError, ErrorCode } from 'errors';
+import { JsTsAnalysisOutput } from 'services/analysis';
 
 /**
  * ExpressJs error handling middleware
@@ -49,7 +50,15 @@ export function errorMiddleware(
         message: error.message,
       }, */
     });
-  } else if ([ErrorCode.LinterInitialization, ErrorCode.Parsing].includes(errorCode)) {
+  } else if ([ErrorCode.Parsing, ErrorCode.FailingTypeScript].includes(errorCode)) {
+    response.json({
+      parsingError: {
+        message: error.message,
+        code: errorCode,
+      },
+      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+    });
+  } else if (errorCode === ErrorCode.LinterInitialization) {
     response.json({
       parsingError: {
         message: error.message,
@@ -58,3 +67,28 @@ export function errorMiddleware(
     });
   }
 }
+
+/**
+ * An empty JavaScript / TypeScript analysis output
+ */
+export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
+  issues: [],
+  highlights: [],
+  highlightedSymbols: [],
+  metrics: {
+    ncloc: [],
+    commentLines: [],
+    nosonarLines: [],
+    executableLines: [],
+    functions: 0,
+    statements: 0,
+    classes: 0,
+    complexity: 0,
+    cognitiveComplexity: 0,
+  },
+  cpdTokens: [],
+  perf: {
+    parseTime: 0,
+    analysisTime: 0,
+  },
+};
