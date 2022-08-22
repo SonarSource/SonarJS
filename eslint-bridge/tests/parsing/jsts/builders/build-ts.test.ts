@@ -80,13 +80,8 @@ describe('buildTs', () => {
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    try {
-      buildTs(input, isVueFile);
-      fail('it should have thrown');
-    } catch (error) {
-      expect(error.message).toMatch(
-        /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
-      );
-    }
+    expect(() => buildTs(input, isVueFile)).toThrow(
+      /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
+    );
   });
 });
