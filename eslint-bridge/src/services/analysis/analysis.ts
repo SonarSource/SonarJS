@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AnalysisError } from './errors';
-
 /**
  * An analysis function
  *
@@ -55,6 +53,4 @@ export interface AnalysisInput {
  *
  * @param parsingError an analysis error, if any
  */
-export interface AnalysisOutput {
-  parsingError?: AnalysisError;
-}
+export interface AnalysisOutput {}

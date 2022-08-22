@@ -20,7 +20,6 @@
 
 import * as path from 'path';
 import * as ts from 'typescript';
-import { AnalysisErrorCode } from 'services/analysis';
 
 /**
  * Gets the files resolved by a TSConfig
@@ -40,14 +39,12 @@ export function getFilesForTsConfig(
     fileExists: ts.sys.fileExists,
     readFile: ts.sys.readFile,
   },
-):
-  | { files: string[]; projectReferences: string[] }
-  | { error: string; errorCode?: AnalysisErrorCode } {
+): { files: string[]; projectReferences: string[] } {
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error !== undefined) {
     console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
-    return { error: diagnosticToString(config.error) };
+    throw Error(diagnosticToString(config.error));
   }
 
   const parsed = ts.parseJsonConfigFileContent(
@@ -73,7 +70,7 @@ export function getFilesForTsConfig(
     parsed.errors.forEach(d => {
       error += diagnosticToString(d);
     });
-    return { error, errorCode: AnalysisErrorCode.UnexpectedError };
+    throw new Error(error);
   }
 
   const projectReferences = parsed.projectReferences

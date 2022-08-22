@@ -84,7 +84,9 @@ describe('buildTs', () => {
       buildTs(input, isVueFile);
       fail('it should have thrown');
     } catch (error) {
-      expect(error.message).toMatch(/^"parserOptions.project" has been set for @typescript-eslint\/parser/);
+      expect(error.message).toMatch(
+        /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
+      );
     }
   });
 });
