@@ -41,7 +41,8 @@ describe('router', () => {
       sonarlint: false,
       bundles: [],
     });
-    server = await start(port, host);
+    jest.setTimeout(60 * 1000);
+    server = await start(port, host, 60 * 60 * 1000);
     close = promisify(server.close.bind(server));
   });
 

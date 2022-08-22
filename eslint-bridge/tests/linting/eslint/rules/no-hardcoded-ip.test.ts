@@ -25,8 +25,9 @@ const ruleTesterTs = new TypeScriptRuleTester();
 ruleTesterTs.run('Hardcoded ip addresses should be avoided', rule, {
   valid: [
     {
-      code: `        
+      code: `
       address = "127.0.0.0";
+      address = "::ffff:0:127.0.0.0";
       address = "127.0.255.0";
       address = "255.255.255.255";
       address = "2.5.1.1";
@@ -42,7 +43,12 @@ ruleTesterTs.run('Hardcoded ip addresses should be avoided', rule, {
       address = "::1/128";
       address = "::";
       address = "0:0:0:0:0:0:0:0";
-      address = 42`,
+      address = 42,
+      address = "192.0.2.5",
+      address = "198.51.100.5",
+      address = "::ffff:0:198.51.100.5",
+      address = "203.0.113.5",
+      address = "2001:db8:acad:1::ff"`,
     },
   ],
   invalid: [
@@ -72,6 +78,10 @@ ruleTesterTs.run('Hardcoded ip addresses should be avoided', rule, {
     },
     {
       code: `address = "10.10.10.1/32";`,
+      errors: 1,
+    },
+    {
+      code: `address = "::ffff:0:10.10.10.1";`,
       errors: 1,
     },
   ],

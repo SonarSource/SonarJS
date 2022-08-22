@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export type ErrorType = 'Parsing' | 'General';
+export type ErrorType = 'Parsing' | 'General' | 'Linter';
 
 export function buildError(error: Error, type: ErrorType) {
-  return new SonarError(error, type);
+  return new APIError(error, type);
 }
 
-export class SonarError extends Error {
+export class APIError extends Error {
   type: ErrorType;
   constructor(error: Error, type: ErrorType) {
     super(error.message);

@@ -133,6 +133,32 @@ class JavaScriptFilePredicateTest {
     assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "h.tsx");
   }
 
+  @Test
+  void testYamlPredicate() throws IOException {
+
+    var baseYamlFile = ""
+      .concat("apiVersion: apps/v1")
+      .concat(newLine)
+      .concat("kind: Deployment")
+      .concat(newLine)
+      .concat("metadata:")
+      .concat(" name: ");
+
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    fs.add(createInputFile(baseDir, "plain.yaml", baseYamlFile.concat("{{ .Values.count }}")));
+    fs.add(createInputFile(baseDir, "single-quote.yaml", baseYamlFile.concat("'{{ .Values.count }}'")));
+    fs.add(createInputFile(baseDir, "double-quote.yaml", baseYamlFile.concat("\"{{ .Values.count }}\"")));
+    fs.add(createInputFile(baseDir, "comment.yaml", baseYamlFile.concat("# {{ .Values.count }}")));
+    fs.add(createInputFile(baseDir, "code-fresh.yaml", baseYamlFile.concat("custom-label: {{MY_CUSTOM_LABEL}}")));
+
+    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs);
+    List<File> files = new ArrayList<>();
+    fs.files(predicate).forEach(files::add);
+
+    List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
+    assertThat(filenames).containsExactlyInAnyOrder("single-quote.yaml", "double-quote.yaml", "comment.yaml", "code-fresh.yaml");
+  }
+
   private static final InputFile createInputFile(Path baseDir, String relativePath) {
     return createInputFile(baseDir, relativePath, "");
   }

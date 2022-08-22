@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { AnalysisErrorCode } from 'services/analysis/errors';
-import { ErrorType, SonarError } from './errors';
+import { ErrorType, APIError } from './errors';
 
 /**
  * ExpressJs error handling middleware
@@ -35,25 +35,20 @@ export function errorMiddleware(
   console.error(error.stack);
 
   let errorType: ErrorType;
-  if (error instanceof SonarError) {
+  if (error instanceof APIError) {
     errorType = error.type;
   } else {
     errorType = 'General';
   }
 
-  switch (errorType) {
-    case 'General': {
-      response.json({ error: error.message });
-      break;
-    }
-    case 'Parsing': {
-      response.json({
-        parsingError: {
-          message: error.message,
-          code: AnalysisErrorCode.GeneralError,
-        },
-      });
-      break;
-    }
+  if (errorType === 'General') {
+    response.json({ error: error.message });
+  } else if (errorType === 'Parsing' || errorType === 'Linter') {
+    response.json({
+      parsingError: {
+        message: error.message,
+        code: AnalysisErrorCode.GeneralError,
+      },
+    });
   }
 }

@@ -17,6 +17,9 @@
   "securityStandards": {
     "CWE": [
       477
+    ],
+    "ASVS 4.0": [
+      "1.14.6"
     ]
   },
   "quickfix": "unknown",

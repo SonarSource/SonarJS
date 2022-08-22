@@ -38,14 +38,13 @@ export type AnalysisError = {
  * The possible codes of analysis errors
  *
  * The `GeneralError` value denotes a runtime error which is either
- * unpredicatble or occurs rarely to deserve its own category.
+ * unpredictable or occurs rarely to deserve its own category.
  */
 export enum AnalysisErrorCode {
   Parsing = 'PARSING',
-  MissingTypeScript = 'MISSING_TYPESCRIPT',
-  UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
   FailingTypeScript = 'FAILING_TYPESCRIPT',
   GeneralError = 'GENERAL_ERROR',
+  LinterInitialization = 'LINTER_INITIALIZATION',
 }
 
 /**
@@ -58,11 +57,7 @@ export enum AnalysisErrorCode {
  * @returns the corresponding analysis error code
  */
 export function parseAnalysisErrorCode(error: string): AnalysisErrorCode {
-  if (error.startsWith("Cannot find module 'typescript'")) {
-    return AnalysisErrorCode.MissingTypeScript;
-  } else if (error.startsWith('You are using version of TypeScript')) {
-    return AnalysisErrorCode.UnsupportedTypeScript;
-  } else if (error.startsWith('Debug Failure')) {
+  if (error.startsWith('Debug Failure')) {
     return AnalysisErrorCode.FailingTypeScript;
   } else {
     return AnalysisErrorCode.Parsing;

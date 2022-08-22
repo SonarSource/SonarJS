@@ -25,18 +25,6 @@ describe('parseAnalysisErrorCode', () => {
     expect(parseAnalysisErrorCode('Unexpected token )')).toEqual(AnalysisErrorCode.Parsing);
   });
 
-  it('should decode missing TypeScript errors', () => {
-    expect(parseAnalysisErrorCode("Cannot find module 'typescript'")).toEqual(
-      AnalysisErrorCode.MissingTypeScript,
-    );
-  });
-
-  it('should decode unsupported TypeScript errors', () => {
-    expect(parseAnalysisErrorCode('You are using version of TypeScript')).toEqual(
-      AnalysisErrorCode.UnsupportedTypeScript,
-    );
-  });
-
   it('should decode runtime TypeScript errors', () => {
     expect(parseAnalysisErrorCode('Debug Failure. TypeScript unexpectedly failed')).toEqual(
       AnalysisErrorCode.FailingTypeScript,

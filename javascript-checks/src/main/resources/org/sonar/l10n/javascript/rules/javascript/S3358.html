@@ -17,4 +17,20 @@ function getReadableStatus(job) {
   return job.hasErrors() ? "Failed" : "Succeeded";
 }
 </pre>
+<h2>Exceptions</h2>
+<p>This rule does not apply in JSX expressions to support conditional rendering and conditional attributes.</p>
+<pre>
+return (
+&lt;&gt;
+  {isLoading ? (
+    &lt;Loader active /&gt;
+  ) : (
+    &lt;Panel label={isEditing ? 'Open' : 'Not open'}&gt;
+      &lt;a&gt;{isEditing ? 'Close now' : 'Start now'}&lt;/a&gt;
+      &lt;Checkbox onClick={!saving ? setSaving(saving =&gt; !saving) : null} /&gt;
+    &lt;/Panel&gt;
+  )}
+&lt;/&gt;
+);
+</pre>
 

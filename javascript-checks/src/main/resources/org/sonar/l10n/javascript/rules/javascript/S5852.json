@@ -22,6 +22,9 @@
     ],
     "OWASP": [
       "A1"
+    ],
+    "ASVS 4.0": [
+      "12.1.1"
     ]
   },
   "compatibleLanguages": [

@@ -22,7 +22,24 @@ import { start } from 'server';
 import { promisify } from 'util';
 import path from 'path';
 import { setContext } from 'helpers';
-import { request } from './tools/helpers';
+import { AddressInfo } from 'net';
+import { request } from './tools';
+import http from 'http';
+
+async function requestAnalyzeJs(server: http.Server, host: string, fileType: string): Promise<any> {
+  const filePath = path.join(__dirname, 'fixtures', 'routing.js');
+  const analysisInput = { filePath, fileType };
+
+  return await request(server, '/analyze-js', 'POST', analysisInput);
+}
+
+function requestInitLinter(server: http.Server, host: string, fileType: string, ruleId: string) {
+  const config = {
+    rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
+  };
+
+  return request(server, '/init-linter', 'POST', config);
+}
 
 describe('server', () => {
   const host = '127.0.0.1';
@@ -42,7 +59,7 @@ describe('server', () => {
 
     console.log = jest.fn();
 
-    const server = await start(port, host);
+    const server = await start(undefined, undefined);
     const close = promisify(server.close.bind(server));
 
     expect(server.listening).toBeTruthy();
@@ -53,7 +70,37 @@ describe('server', () => {
     );
     expect(console.log).toHaveBeenNthCalledWith(
       2,
-      `DEBUG eslint-bridge server is running at port ${port}`,
+      `DEBUG eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`,
+    );
+
+    await close();
+  });
+
+  it('should fail when linter is not initialized', async () => {
+    expect.assertions(3);
+
+    const server = await start(port, host);
+    const close = promisify(server.close.bind(server));
+
+    const ruleId = 'no-extra-semi';
+    const fileType = 'MAIN';
+
+    expect(JSON.parse(await requestAnalyzeJs(server, host, fileType))).toStrictEqual({
+      parsingError: {
+        code: 'LINTER_INITIALIZATION',
+        message: 'Linter is undefined. Did you call /init-linter?',
+      },
+    });
+
+    expect(await requestInitLinter(server, host, fileType, ruleId)).toBe('OK!');
+
+    const {
+      issues: [issue],
+    } = JSON.parse(await requestAnalyzeJs(server, host, fileType));
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId,
+      }),
     );
 
     await close();
@@ -69,18 +116,9 @@ describe('server', () => {
 
     const ruleId = 'no-extra-semi';
     const fileType = 'MAIN';
-    const config = {
-      rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
-    };
 
-    const initLinterRequest = request(server, '/init-linter', 'POST', config);
-    await initLinterRequest;
-
-    const filePath = path.join(__dirname, 'fixtures', 'routing.js');
-    const analysisInput = { filePath, fileType };
-
-    const analyzeJsRequest = request(server, '/analyze-js', 'POST', analysisInput);
-    const response = (await analyzeJsRequest) as any;
+    await requestInitLinter(server, host, fileType, ruleId);
+    const response = await requestAnalyzeJs(server, host, fileType);
 
     const {
       issues: [issue],
@@ -106,5 +144,24 @@ describe('server', () => {
 
     expect(server.listening).toBeFalsy();
     expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server will shutdown');
+  });
+
+  it('should timeout', async () => {
+    console.log = jest.fn();
+
+    const server = await start(port, host, 200);
+
+    await new Promise(r => setTimeout(r, 100));
+    expect(server.listening).toBeTruthy();
+    await request(server, host, '/status', 'GET');
+
+    await new Promise(r => setTimeout(r, 100));
+    expect(server.listening).toBeTruthy();
+    await request(server, host, '/status', 'GET');
+
+    await new Promise(r => setTimeout(r, 300));
+    expect(server.listening).toBeFalsy();
+
+    expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
   });
 });

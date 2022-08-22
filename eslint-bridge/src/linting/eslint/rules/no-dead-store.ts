@@ -31,7 +31,14 @@ import {
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
-import { isUnaryExpression, isArrayExpression, LiveVariables, lva, ReferenceLike } from './helpers';
+import {
+  isUnaryExpression,
+  isArrayExpression,
+  LiveVariables,
+  lva,
+  ReferenceLike,
+  isNullLiteral,
+} from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -160,7 +167,23 @@ export const rule: Rule.RuleModule = {
         !isReferenceWithBasicValue(ref) &&
         !isDefaultParameter(ref) &&
         !referencesUsedInDestructuring.has(ref) &&
-        !variable.name.startsWith('_')
+        !variable.name.startsWith('_') &&
+        !isIncrementOrDecrement(ref) &&
+        !isNullAssignment(ref)
+      );
+    }
+
+    function isIncrementOrDecrement(ref: ReferenceLike) {
+      const parent = (ref.identifier as TSESTree.Identifier).parent;
+      return parent && parent.type === 'UpdateExpression';
+    }
+
+    function isNullAssignment(ref: ReferenceLike) {
+      const parent = (ref.identifier as TSESTree.Identifier).parent;
+      return (
+        parent &&
+        parent.type === 'AssignmentExpression' &&
+        isNullLiteral(parent.right as estree.Node)
       );
     }
 

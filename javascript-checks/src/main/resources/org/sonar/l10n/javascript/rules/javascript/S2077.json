@@ -19,10 +19,8 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      564,
-      89,
       20,
-      943
+      89
     ],
     "OWASP": [
       "A1"
@@ -35,6 +33,12 @@
     ],
     "PCI DSS 4.0": [
       "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "5.1.3",
+      "5.1.4",
+      "5.3.4",
+      "5.3.5"
     ]
   },
   "compatibleLanguages": [

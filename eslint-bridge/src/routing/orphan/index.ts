@@ -18,35 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AddressInfo } from 'net';
-import http from 'http';
-
-/**
- * Sends an HTTP request to a server's endpoint
- */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: 'localhost',
-    path,
-    method,
-    port: (<AddressInfo>server.address()).port,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
-
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
-
-    request.write(JSON.stringify(data));
-    request.end();
-  });
-}
+export * from './orphanCloserMiddleware';

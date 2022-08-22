@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { setContext } from 'helpers';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
+import { initializeLinter, LinterError, RuleConfig } from 'linting/eslint';
 import {
   analyzeJSTS,
   AnalysisErrorCode,
@@ -44,7 +44,7 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      'Linter is undefined. Did you call /init-linter?',
+      new LinterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 

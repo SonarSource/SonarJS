@@ -78,7 +78,11 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
       const Welcome = function() {
         const greeting = 'Hello, world!';
 
-        return <h1>{greeting}</h1>
+        return (
+          <>
+            <h1>{greeting}</h1>
+          </>
+        )
       }`,
       options: [{ format: DEFAULT_FORMAT }],
     },

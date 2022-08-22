@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import express from 'express';
-import router from 'routing';
-import { errorMiddleware } from 'routing/errors';
+
 
 /**
- * The maximum request body size
+ * Timeout wrapp
  */
-const MAX_REQUEST_SIZE = '50mb';
+export default class Timeout {
+  private timeout: NodeJS.Timeout | null = null;
+  constructor(private readonly f: () => void, private readonly ms: number) {}
+  init() {
+    this.cancel();
+    this.timeout = setTimeout(this.f, this.ms);
+  }
+  cancel() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
+  }
+}
 
-/**
- * Creates an express app, loads routing and error middleware
- *
- * @returns an 'express' app
- */
-export const createApp = function () {
-  const app = express();
 
-  app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-  app.use(router);
-  app.use(errorMiddleware);
-  return app;
-};

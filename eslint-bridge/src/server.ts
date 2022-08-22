@@ -17,12 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import express from 'express';
+import router from 'express';
+import { errorMiddleware } from 'routing/errors';
+/**
+ * The maximum request body size
+ */
+const MAX_REQUEST_SIZE = '50mb';
 import 'module-alias/register';
 import http from 'http';
-import { createApp } from './app';
-import express from 'express';
 import { debug } from 'helpers';
+import { AddressInfo } from 'net';
+import { orphanCloserMiddleware } from 'routing/orphan';
+
+/**
+ * Default timeout to shut down server since last request
+ */
+const SHUTDOWN_TIMEOUT = 15_000;
 
 /**
  * Starts the bridge
@@ -33,30 +44,52 @@ import { debug } from 'helpers';
  *
  * Communication between two ends is entirely done with the JSON format.
  *
- * Altough a web server, the bridge is not exposed to the outside world
+ * Although a web server, the bridge is not exposed to the outside world
  * but rather exclusively communicate either with the JavaScript plugin
- * which embedds it or directly with SonarLint.
+ * which embeds it or directly with SonarLint.
  *
  * @param port the port to listen to
  * @param host the host to listen to
+ * @param shutdownTimeout timeout in ms to shut down the server since last request
  * @returns an http server
  */
-export function start(port = 0, host = '127.0.0.1'): Promise<http.Server> {
+export function start(
+  port = 0,
+  host = '127.0.0.1',
+  shutdownTimeout = SHUTDOWN_TIMEOUT,
+): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
+    const app = express();
+    const server = http.createServer(app);
 
-    let server: http.Server;
+    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
+    app.use(router);
+    const timeoutMW = orphanCloserMiddleware(server, shutdownTimeout);
+    app.use(timeoutMW.middleware);
+    app.use(errorMiddleware);
 
-    const app = createApp();
     app.post('/close', (_request: express.Request, response: express.Response) => {
       debug('eslint-bridge server will shutdown');
       response.end(() => {
         server.close();
       });
     });
-    server = app.listen(port, host, () => {
-      debug(`eslint-bridge server is running at port ${port}`);
+
+    server.on('close', () => {
+      timeoutMW.cancel();
+      debug('eslint-bridge server closed');
+    });
+
+    server.on('error', (err: Error) => {
+      debug(`eslint-bridge server error: ${err}`);
+    });
+
+    server.on('listening', () => {
+      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo).port}`);
       resolve(server);
     });
+
+    server.listen(port, host);
   });
 }
