@@ -58,8 +58,10 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
     debug(`starting eslint-bridge server at port ${port}`);
     const app = express();
     const server = http.createServer(app);
-    const timeoutMW = orphanCloserMiddleware(server, shutdownTimeout);
-    app.use(timeoutMW.middleware);
+    const orphanCloserMW = orphanCloserMiddleware(server, shutdownTimeout);
+
+    // The order of the middlewares registration is important
+    app.use(orphanCloserMW.middleware);
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(router);
     app.use(errorMiddleware);
@@ -72,7 +74,7 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
     });
 
     server.on('close', () => {
-      timeoutMW.cancel();
+      orphanCloserMW.cancel();
       debug('eslint-bridge server closed');
     });
 
