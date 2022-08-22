@@ -84,8 +84,6 @@ describe('server', () => {
     const ruleId = 'no-extra-semi';
     const fileType = 'MAIN';
 
-    console.log('got', await requestAnalyzeJs(server, fileType));
-
     expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
       parsingError: {
         code: 'LINTER_INITIALIZATION',
