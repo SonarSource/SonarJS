@@ -32,7 +32,7 @@ import { orphanCloserMiddleware } from 'routing/orphan';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * Default timeout to shut down server since last request
+ * Default timeout to shut down server since last request - orphan process cleanup
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
