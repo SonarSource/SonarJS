@@ -20,8 +20,8 @@
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
 import { visit } from 'linting/eslint';
-import { AnalysisError } from 'services/analysis';
 import { EmbeddedJS } from 'parsing/yaml';
+import { APIError, buildParsingError } from 'errors';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser
@@ -131,22 +131,15 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
  * point, location information in the parsing error is relative to the beginning of the code
  * snippet, which should be patched.
  */
-export function patchParsingError(
-  parsingError: AnalysisError,
-  embeddedJS: EmbeddedJS,
-): AnalysisError {
-  const { code, line, message } = parsingError;
+export function patchParsingError(parsingError: APIError, embeddedJS: EmbeddedJS): APIError {
+  const { message, data } = parsingError;
   let patchedLine: number | undefined;
   let patchedMessage = message;
-  if (line) {
-    patchedLine = embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + line;
+  if (data?.line !== undefined) {
+    patchedLine = embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + data.line;
     patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
   }
-  return {
-    code,
-    line: patchedLine,
-    message: patchedMessage,
-  };
+  return buildParsingError(patchedMessage, { line: patchedLine });
 }
 
 /**

@@ -19,16 +19,7 @@
  */
 
 import express from 'express';
-/* import { buildError } from 'routing/errors'; */
 import { Analysis } from './analysis';
-import { LinterError } from 'linting/eslint';
-import { AnalysisErrorCode } from './errors';
-
-function getCodeFromError(error: Error) {
-  return error instanceof LinterError
-    ? AnalysisErrorCode.LinterInitialization
-    : AnalysisErrorCode.GeneralError;
-}
 
 /**
  * Runs an analysis
@@ -45,22 +36,14 @@ export function runner(analysis: Analysis): express.RequestHandler {
   return async (
     request: express.Request,
     response: express.Response,
-    /* next: express.NextFunction, */
+    next: express.NextFunction,
   ) => {
     try {
       const input = request.body;
       const output = await analysis(input);
       response.json(output);
-    /* } catch (error) {
-      next(error); */
-    } catch (e) {
-      console.error(e.stack);
-      response.json({
-        parsingError: {
-          message: e.message,
-          code: getCodeFromError(e),
-        },
-      });
+    } catch (error) {
+      next(error);
     }
   };
 }

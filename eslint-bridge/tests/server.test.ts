@@ -26,14 +26,14 @@ import { AddressInfo } from 'net';
 import { request } from './tools';
 import http from 'http';
 
-async function requestAnalyzeJs(server: http.Server, host: string, fileType: string): Promise<any> {
+async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
   const filePath = path.join(__dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 
   return await request(server, '/analyze-js', 'POST', analysisInput);
 }
 
-function requestInitLinter(server: http.Server, host: string, fileType: string, ruleId: string) {
+function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
   const config = {
     rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
   };
@@ -42,7 +42,6 @@ function requestInitLinter(server: http.Server, host: string, fileType: string, 
 }
 
 describe('server', () => {
-  const host = '127.0.0.1';
   const port = 0;
 
   beforeAll(() => {
@@ -79,24 +78,26 @@ describe('server', () => {
   it('should fail when linter is not initialized', async () => {
     expect.assertions(3);
 
-    const server = await start(port, host);
+    const server = await start(port);
     const close = promisify(server.close.bind(server));
 
     const ruleId = 'no-extra-semi';
     const fileType = 'MAIN';
 
-    expect(JSON.parse(await requestAnalyzeJs(server, host, fileType))).toStrictEqual({
+    console.log('got', await requestAnalyzeJs(server, fileType));
+
+    expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
       parsingError: {
         code: 'LINTER_INITIALIZATION',
         message: 'Linter is undefined. Did you call /init-linter?',
       },
     });
 
-    expect(await requestInitLinter(server, host, fileType, ruleId)).toBe('OK!');
+    expect(await requestInitLinter(server, fileType, ruleId)).toBe('OK!');
 
     const {
       issues: [issue],
-    } = JSON.parse(await requestAnalyzeJs(server, host, fileType));
+    } = JSON.parse(await requestAnalyzeJs(server, fileType));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -109,7 +110,7 @@ describe('server', () => {
   it('should route service requests', async () => {
     expect.assertions(2);
 
-    const server = await start(port, host);
+    const server = await start(port);
     const close = promisify(server.close.bind(server));
 
     expect(server.listening).toBeTruthy();
@@ -117,8 +118,8 @@ describe('server', () => {
     const ruleId = 'no-extra-semi';
     const fileType = 'MAIN';
 
-    await requestInitLinter(server, host, fileType, ruleId);
-    const response = await requestAnalyzeJs(server, host, fileType);
+    await requestInitLinter(server, fileType, ruleId);
+    const response = await requestAnalyzeJs(server, fileType);
 
     const {
       issues: [issue],
@@ -137,7 +138,7 @@ describe('server', () => {
 
     console.log = jest.fn();
 
-    const server = await start(port, host);
+    const server = await start(port);
 
     const closeRequest = request(server, '/close', 'POST');
     await closeRequest;
@@ -149,15 +150,15 @@ describe('server', () => {
   it('should timeout', async () => {
     console.log = jest.fn();
 
-    const server = await start(port, host, 200);
+    const server = await start(port, 200);
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
-    await request(server, host, '/status', 'GET');
+    await request(server, '/status', 'GET');
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
-    await request(server, host, '/status', 'GET');
+    await request(server, '/status', 'GET');
 
     await new Promise(r => setTimeout(r, 300));
     expect(server.listening).toBeFalsy();

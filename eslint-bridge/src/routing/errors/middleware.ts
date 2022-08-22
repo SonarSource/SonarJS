@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { AnalysisErrorCode } from 'services/analysis/errors';
-import { ErrorType, APIError } from './errors';
+import { APIError, ErrorCode } from 'errors';
 
 /**
  * ExpressJs error handling middleware
@@ -34,20 +33,27 @@ export function errorMiddleware(
 ) {
   console.error(error.stack);
 
-  let errorType: ErrorType;
+  let errorCode: ErrorCode;
   if (error instanceof APIError) {
-    errorType = error.type;
+    errorCode = error.code;
   } else {
-    errorType = 'General';
+    errorCode = ErrorCode.GeneralError;
   }
 
-  if (errorType === 'General') {
-    response.json({ error: error.message });
-  } else if (errorType === 'Parsing' || errorType === 'Linter') {
+  if (errorCode === ErrorCode.GeneralError) {
+    response.json({
+      error: error.message,
+      // sadly tests aren't ready for a proper format
+      /* error: {
+        code: errorCode,
+        message: error.message,
+      }, */
+    });
+  } else if ([ErrorCode.LinterInitialization, ErrorCode.Parsing].includes(errorCode)) {
     response.json({
       parsingError: {
         message: error.message,
-        code: AnalysisErrorCode.GeneralError,
+        code: errorCode,
       },
     });
   }

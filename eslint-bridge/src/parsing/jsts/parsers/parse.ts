@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { buildParsingError } from 'errors';
 import { SourceCode } from 'eslint';
 import { readFile } from 'helpers';
-import { parseAnalysisErrorCode, AnalysisError, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { ParseFunction } from './eslint';
 
 /**
@@ -34,7 +35,7 @@ export function parseForESLint(
   input: JsTsAnalysisInput,
   parse: ParseFunction,
   options: {},
-): SourceCode | AnalysisError {
+): SourceCode {
   const { fileContent, filePath } = input;
   try {
     const code = fileContent || readFile(filePath);
@@ -45,10 +46,6 @@ export function parseForESLint(
       parserServices: result.services,
     });
   } catch ({ lineNumber, message }) {
-    return {
-      line: lineNumber,
-      message,
-      code: parseAnalysisErrorCode(message),
-    };
+    throw buildParsingError(message, { line: lineNumber });
   }
 }

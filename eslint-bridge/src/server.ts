@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import router from 'express';
+import router from 'routing';
 import { errorMiddleware } from 'routing/errors';
-/**
- * The maximum request body size
- */
-const MAX_REQUEST_SIZE = '50mb';
 import 'module-alias/register';
 import http from 'http';
 import { debug } from 'helpers';
 import { AddressInfo } from 'net';
 import { orphanCloserMiddleware } from 'routing/orphan';
+
+/**
+ * The maximum request body size
+ */
+const MAX_REQUEST_SIZE = '50mb';
 
 /**
  * Default timeout to shut down server since last request
@@ -49,24 +50,18 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * which embeds it or directly with SonarLint.
  *
  * @param port the port to listen to
- * @param host the host to listen to
  * @param shutdownTimeout timeout in ms to shut down the server since last request
  * @returns an http server
  */
-export function start(
-  port = 0,
-  host = '127.0.0.1',
-  shutdownTimeout = SHUTDOWN_TIMEOUT,
-): Promise<http.Server> {
+export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
     const app = express();
     const server = http.createServer(app);
-
-    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-    app.use(router);
     const timeoutMW = orphanCloserMiddleware(server, shutdownTimeout);
     app.use(timeoutMW.middleware);
+    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
+    app.use(router);
     app.use(errorMiddleware);
 
     app.post('/close', (_request: express.Request, response: express.Response) => {
@@ -90,6 +85,6 @@ export function start(
       resolve(server);
     });
 
-    server.listen(port, host);
+    server.listen(port);
   });
 }

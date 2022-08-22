@@ -22,7 +22,6 @@ import { SourceCode } from 'eslint';
 import { Position } from 'estree';
 import { assertLinterInitialized, linter, Issue } from 'linting/eslint';
 import { buildSourceCodes } from 'parsing/yaml';
-import { isAnalysisError } from 'services/analysis';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 
 /**
@@ -55,15 +54,7 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
 export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   assertLinterInitialized();
 
-  const sourceCodesOrError = buildSourceCodes(input.filePath);
-  if (isAnalysisError(sourceCodesOrError)) {
-    const parsingError = sourceCodesOrError;
-    return {
-      ...EMPTY_YAML_ANALYSIS_OUTPUT,
-      parsingError,
-    };
-  }
-  const sourceCodes = sourceCodesOrError;
+  const sourceCodes = buildSourceCodes(input.filePath);
   const aggregatedIssues: Issue[] = [];
   for (const sourceCode of sourceCodes) {
     const { issues } = linter.lint(sourceCode, input.filePath, 'MAIN');

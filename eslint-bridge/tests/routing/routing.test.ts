@@ -28,7 +28,6 @@ import { promisify } from 'util';
 import { request, toUnixPath } from '../tools/helpers';
 
 describe('router', () => {
-  const host = '127.0.0.1';
   const port = 0;
 
   let server: http.Server;
@@ -42,7 +41,7 @@ describe('router', () => {
       bundles: [],
     });
     jest.setTimeout(60 * 1000);
-    server = await start(port, host, 60 * 60 * 1000);
+    server = await start(port, 60 * 60 * 1000);
     close = promisify(server.close.bind(server));
   });
 
@@ -231,16 +230,12 @@ describe('router', () => {
   });
 
   it('should handle errors using the error middleware', async () => {
-    // rules don't matter
-    initializeLinter([
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
     console.error = jest.fn();
     const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
-    const { parsingError } = JSON.parse(response);
-    expect(parsingError).toBeDefined();
+    const { error } = JSON.parse(response);
+    expect(error).toBeDefined();
     expect(console.error).toHaveBeenCalled();
   });
 });

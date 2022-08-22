@@ -20,8 +20,9 @@
 
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { AnalysisErrorCode, analyzeYAML } from 'services/analysis';
-import { initializeLinter, LinterError } from 'linting/eslint';
+import { analyzeYAML } from 'services/analysis';
+import { initializeLinter } from 'linting/eslint';
+import { buildLinterError, buildParsingError } from 'errors';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -38,7 +39,7 @@ describe('analyzeYAML', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     expect(() => analyzeYAML(input)).toThrow(
-      new LinterError('Linter is undefined. Did you call /init-linter?'),
+      buildLinterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
@@ -67,14 +68,12 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues, parsingError } = analyzeYAML({
-      filePath: join(fixturesPath, 'malformed.yaml'),
-      fileContent: undefined,
-    });
-    expect(issues).toHaveLength(0);
-    expect(parsingError).toHaveProperty('code', AnalysisErrorCode.Parsing);
-    expect(parsingError).toHaveProperty('line', 2);
-    expect(parsingError).toHaveProperty('message', 'Map keys must be unique');
+    expect(() =>
+      analyzeYAML({
+        filePath: join(fixturesPath, 'malformed.yaml'),
+        fileContent: undefined,
+      }),
+    ).toThrow(buildParsingError('Map keys must be unique', { line: 2 }));
   });
 
   it('should not break when using a rule with a quickfix', async () => {

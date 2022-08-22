@@ -23,7 +23,7 @@ import { SourceCode } from 'eslint';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
-import { AnalysisError, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
@@ -77,11 +77,21 @@ describe('patchSourceCode', () => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', 'parsing-error');
 
     const filePath = `${fixture}.yaml`;
-    const patchedParsingError = buildSourceCodes(filePath) as AnalysisError;
+    let patchedParsingError;
+    try {
+      buildSourceCodes(filePath);
+    } catch (error) {
+      patchedParsingError = error;
+    }
 
     const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
-    const referenceParsingError = buildSourceCode(input, 'js') as AnalysisError;
 
+    let referenceParsingError;
+    try {
+      buildSourceCode(input, 'js');
+    } catch (error) {
+      referenceParsingError = error;
+    }
     expect(patchedParsingError).toEqual(referenceParsingError);
   });
 

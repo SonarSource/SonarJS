@@ -26,6 +26,7 @@
       "parsing": ["./parsing"],
       "routing": ["./routing"],
       "services": ["./services"],
+      "errors": ["./errors"]
     }
   }
 }

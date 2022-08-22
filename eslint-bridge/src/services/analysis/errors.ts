@@ -63,12 +63,3 @@ export function parseAnalysisErrorCode(error: string): AnalysisErrorCode {
     return AnalysisErrorCode.Parsing;
   }
 }
-
-/**
- * A type guard for potential analysis errors
- * @param maybeError the potential error to type guard
- * @returns true if it is an actual error
- */
-export function isAnalysisError<T>(maybeError: T | AnalysisError): maybeError is AnalysisError {
-  return 'code' in maybeError;
-}

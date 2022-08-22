@@ -22,7 +22,7 @@ import { SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { join } from 'path';
 import { buildSourceCodes } from 'parsing/yaml';
-import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
+import { buildParsingError } from 'errors';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
@@ -45,32 +45,23 @@ describe('buildSourceCodes()', () => {
 
   it('should return YAML parsing errors on invalid YAML file', () => {
     const filePath = join(fixturesPath, 'malformed.yaml');
-    const parsingError = buildSourceCodes(filePath) as AnalysisError;
-    expect(parsingError).toEqual({
-      code: AnalysisErrorCode.Parsing,
-      line: 2,
-      message: 'Map keys must be unique',
-    });
+    expect(() => buildSourceCodes(filePath)).toThrow(
+      buildParsingError('Map keys must be unique', { line: 2 }),
+    );
   });
 
   it('should return a parsing error on invalid plain inline JS', () => {
     const filePath = join(fixturesPath, 'invalid-plain-inline-js.yaml');
-    const parsingError = buildSourceCodes(filePath) as AnalysisError;
-    expect(parsingError).toEqual({
-      code: AnalysisErrorCode.Parsing,
-      line: 7,
-      message: `Unexpected token ','. (7:22)`,
-    });
+    expect(() => buildSourceCodes(filePath)).toThrow(
+      buildParsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
+    );
   });
 
   it('should return a parsing error on invalid block inline JS', () => {
     const filePath = join(fixturesPath, 'invalid-block-inline-js.yaml');
-    const parsingError = buildSourceCodes(filePath) as AnalysisError;
-    expect(parsingError).toEqual({
-      code: AnalysisErrorCode.Parsing,
-      line: 8,
-      message: `Unexpected token ','. (8:15)`,
-    });
+    expect(() => buildSourceCodes(filePath)).toThrow(
+      buildParsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
+    );
   });
 
   it('it should not build a source code for an unsupported format', () => {

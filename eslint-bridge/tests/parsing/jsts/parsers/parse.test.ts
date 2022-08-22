@@ -18,14 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { buildParsingError } from 'errors';
 import { SourceCode } from 'eslint';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
-import { AnalysisError, AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
 
 const parseFunctions = [
-  { parser: parsers.javascript, usingBabel: true },
-  { parser: parsers.typescript, usingBabel: false },
+  {
+    parser: parsers.javascript,
+    usingBabel: true,
+    errorMessage: 'Unterminated string constant. (1:0)',
+  },
+  { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
 ];
 
 describe('parseForESLint', () => {
@@ -61,19 +66,15 @@ describe('parseForESLint', () => {
 
   test.each(parseFunctions)(
     'should fail parsing an invalid input with $parser.parser',
-    ({ parser, usingBabel }) => {
+    ({ parser, usingBabel, errorMessage }) => {
       const filePath = path.join(__dirname, 'fixtures', 'parse', 'invalid.js');
       const fileType = 'MAIN';
 
       const input = { filePath, fileType } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const parsingError = parseForESLint(input, parser.parse, options) as AnalysisError;
 
-      expect(parsingError).toEqual(
-        expect.objectContaining({
-          code: AnalysisErrorCode.Parsing,
-          line: 1,
-        }),
+      expect(() => parseForESLint(input, parser.parse, options)).toThrow(
+        buildParsingError(errorMessage, { line: 1 }),
       );
     },
   );

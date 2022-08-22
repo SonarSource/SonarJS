@@ -17,16 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+/**
+ * The possible codes of analysis errors
+ *
+ * The `GeneralError` value denotes a runtime error which is either
+ * unpredictable or occurs rarely to deserve its own category.
+ */
+export enum ErrorCode {
+  Parsing = 'PARSING',
+  FailingTypeScript = 'FAILING_TYPESCRIPT',
+  GeneralError = 'GENERAL_ERROR',
+  LinterInitialization = 'LINTER_INITIALIZATION',
+}
+
 export type ErrorType = 'Parsing' | 'General' | 'Linter';
 
-export function buildError(error: Error, type: ErrorType) {
-  return new APIError(error, type);
+type ErrorData = {
+  line?: number;
+};
+
+export function buildParsingError(message: string, data: ErrorData = {}) {
+  const error = new APIError(ErrorCode.Parsing, message, data);
+  error.data = data;
+  return error;
+}
+export function buildLinterError(message: string) {
+  return new APIError(ErrorCode.LinterInitialization, message);
 }
 
 export class APIError extends Error {
-  type: ErrorType;
-  constructor(error: Error, type: ErrorType) {
-    super(error.message);
-    this.type = type;
+  code: ErrorCode;
+  data: ErrorData;
+  constructor(code: ErrorCode, message: string, data: ErrorData = {}) {
+    super(message);
+    this.code = code;
+    this.data = data;
   }
 }

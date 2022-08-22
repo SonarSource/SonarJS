@@ -20,15 +20,15 @@
 
 import path from 'path';
 import { setContext } from 'helpers';
-import { initializeLinter, LinterError, RuleConfig } from 'linting/eslint';
+import { initializeLinter, RuleConfig } from 'linting/eslint';
 import {
   analyzeJSTS,
-  AnalysisErrorCode,
   EMPTY_JSTS_ANALYSIS_OUTPUT,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
 } from 'services/analysis';
 import { createProgram } from 'services/program';
+import { buildLinterError, buildParsingError } from 'errors';
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      new LinterError('Linter is undefined. Did you call /init-linter?'),
+      buildLinterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
@@ -815,15 +815,8 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const error = analyzeJSTS(input, language);
-    expect(error).toEqual(
-      expect.objectContaining({
-        parsingError: {
-          code: AnalysisErrorCode.Parsing,
-          line: 3,
-          message: 'Unexpected token (3:0)',
-        },
-      }),
+    expect(() => analyzeJSTS(input, language)).toThrow(
+      buildParsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
 
