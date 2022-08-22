@@ -80,10 +80,11 @@ describe('buildTs', () => {
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    const errorMessage =
-      `"parserOptions.project" has been set for @typescript-eslint/parser.\n` +
-      `The file does not match your project config: tests/parsing/jsts/builders/fixtures/build-ts/excluded.ts.\n` +
-      `The file must be included in at least one of the projects provided.`;
-    expect(() => buildTs(input, isVueFile)).toThrow(buildParsingError(errorMessage));
+    try {
+      buildTs(input, isVueFile);
+      fail('it should have thrown');
+    } catch (error) {
+      expect(error.message).toMatch(/^"parserOptions.project" has been set for @typescript-eslint\/parser/);
+    }
   });
 });
