@@ -85,14 +85,7 @@ describe('patchSourceCode', () => {
     }
 
     const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
-
-    let referenceParsingError;
-    try {
-      buildSourceCode(input, 'js');
-    } catch (error) {
-      referenceParsingError = error;
-    }
-    expect(patchedParsingError).toEqual(referenceParsingError);
+    expect(() => buildSourceCode(input, 'js')).toThrow(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {
