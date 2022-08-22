@@ -40,13 +40,11 @@ type ErrorData = {
 };
 
 export function buildFailingTypeScriptError(message: string, data: ErrorData = {}) {
-  const error = new APIError(ErrorCode.FailingTypeScript, message, data);
-  return error;
+  return new APIError(ErrorCode.FailingTypeScript, message, data);
 }
 
 export function buildParsingError(message: string, data: ErrorData = {}) {
-  const error = new APIError(ErrorCode.Parsing, message, data);
-  return error;
+  return new APIError(ErrorCode.Parsing, message, data);
 }
 export function buildLinterError(message: string) {
   return new APIError(ErrorCode.LinterInitialization, message);
