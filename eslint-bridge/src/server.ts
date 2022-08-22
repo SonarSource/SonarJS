@@ -23,7 +23,6 @@ import { errorMiddleware } from 'routing/errors';
 import 'module-alias/register';
 import http from 'http';
 import { debug } from 'helpers';
-import { AddressInfo } from 'net';
 import { orphanCloserMiddleware } from 'routing/orphan';
 
 /**
@@ -32,7 +31,7 @@ import { orphanCloserMiddleware } from 'routing/orphan';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * Default timeout to shut down server since last request - orphan process cleanup
+ * Orphan process cleanup: Default timeout to shut down server since last request
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -83,7 +82,7 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
     });
 
     server.on('listening', () => {
-      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo).port}`);
+      debug(`eslint-bridge server is running at port ${port}`);
       resolve(server);
     });
 

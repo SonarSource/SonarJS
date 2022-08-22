@@ -135,7 +135,7 @@ export function patchParsingError(parsingError: APIError, embeddedJS: EmbeddedJS
   const { message, data } = parsingError;
   let patchedLine: number | undefined;
   let patchedMessage = message;
-  if (data?.line !== undefined) {
+  if (data.line !== undefined) {
     patchedLine = embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + data.line;
     patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
   }

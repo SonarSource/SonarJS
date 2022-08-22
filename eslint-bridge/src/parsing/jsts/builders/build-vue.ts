@@ -37,15 +37,14 @@ import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
  * @returns the parsed Vue.js JavaScript code
  */
 export function buildVue(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean): SourceCode {
-  let options;
   if (tryTypeScriptESLintParser) {
     try {
-      options = buildParserOptions(input, false, parsers.typescript.parser);
+      const options = buildParserOptions(input, false, parsers.typescript.parser);
       return parseForESLint(input, parsers.vuejs.parse, options);
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
     }
   }
-  options = buildParserOptions(input, true, parsers.javascript.parser);
+  const options = buildParserOptions(input, true, parsers.javascript.parser);
   return parseForESLint(input, parsers.vuejs.parse, options);
 }
