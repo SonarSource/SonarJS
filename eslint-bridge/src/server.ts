@@ -83,7 +83,8 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
     });
 
     server.on('listening', () => {
-      // since we often use the 0 as the default port, Node assigns it a random port instead, which we get using server.address()
+      // Since we use the 0 as the default port, Node assigns it a random port instead,
+      // which we get using server.address()
       debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
       resolve(server);
     });
