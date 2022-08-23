@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// module-alias must be imported first
+import 'module-alias/register';
 import express from 'express';
+import http from 'http';
 import router from 'routing';
 import { errorMiddleware } from 'routing/errors';
-import 'module-alias/register';
-import http from 'http';
 import { debug } from 'helpers';
 import { orphanCloserMiddleware } from 'routing/orphan';
 import { AddressInfo } from 'net';
