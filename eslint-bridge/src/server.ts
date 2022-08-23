@@ -37,11 +37,11 @@ import { AddressInfo } from 'net';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * The default timeout to shut down server if unresponsive
+ * The default timeout to shut down server if no request is received
  *
- * If the server becomes unresponsive for whatever reason, the bridge needs
- * to properly shut down after a lapse of time to avoid becoming an orphan
- * process when the JavaScript plugin finishes analyzing.
+ * Normally, the Java plugin sends keepalive requests to the eslint-bridge
+ * If the Java plugin crashes, this timeout will run out and shut down
+ * the eslint-bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
