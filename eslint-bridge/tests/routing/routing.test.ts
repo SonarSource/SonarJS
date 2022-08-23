@@ -229,15 +229,4 @@ describe('router', () => {
     expect(error).toEqual('Debug Failure.');
     expect(console.error).toHaveBeenCalled();
   });
-
-  it('should return an empty analysis output on parsing errors', async () => {
-    initializeLinter([]);
-
-    const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
-    const fileType = 'MAIN';
-    const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as string;
-    const parsedResponse = JSON.parse(response);
-    expect(parsedResponse).toEqual(expect.objectContaining(EMPTY_JSTS_ANALYSIS_OUTPUT));
-  });
 });
