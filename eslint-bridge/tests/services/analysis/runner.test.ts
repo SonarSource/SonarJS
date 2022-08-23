@@ -39,4 +39,29 @@ describe('runner', () => {
 
     expect(response.json).toHaveBeenCalledWith('DONE');
   });
+
+  it('should forward the caught runtime error to the next middleware', async () => {
+    const mockRequest = () => ({ body: 'whatever' } as express.Request);
+    const mockResponse = () =>
+      ({
+        json: () => {
+          throw 'Something went wrong';
+        },
+      } as any as express.Response);
+
+    const analysis = input => Promise.resolve(input as AnalysisOutput);
+
+    const request = mockRequest();
+    const response = mockResponse();
+    const next = jest.fn();
+
+    const handler = runner(analysis) as (
+      request: express.Request,
+      response: express.Response,
+      next: express.NextFunction,
+    ) => Promise<void>;
+    await handler(request, response, next);
+
+    expect(next).toHaveBeenCalledWith('Something went wrong');
+  });
 });
