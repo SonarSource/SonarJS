@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildParsingError } from 'errors';
+import { buildFailingTypeScriptError, buildParsingError } from 'errors';
 import { SourceCode } from 'eslint';
 import { readFile } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
@@ -46,6 +46,10 @@ export function parseForESLint(
       parserServices: result.services,
     });
   } catch ({ lineNumber, message }) {
-    throw buildParsingError(message, { line: lineNumber });
+    if (message.startsWith('Debug Failure')) {
+      throw buildFailingTypeScriptError(message, { line: lineNumber });
+    } else {
+      throw buildParsingError(message, { line: lineNumber });
+    }
   }
 }
