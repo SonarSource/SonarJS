@@ -50,12 +50,7 @@ describe('errorMiddleware', () => {
     });
   });
   it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
-    errorMiddleware(
-      buildFailingTypeScriptError(message),
-      null,
-      mockResponse as Response,
-      null,
-    );
+    errorMiddleware(buildFailingTypeScriptError(message), null, mockResponse as Response, null);
     expect(mockResponse.json).toBeCalledWith({
       parsingError: {
         message,
