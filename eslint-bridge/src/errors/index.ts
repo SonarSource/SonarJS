@@ -38,7 +38,6 @@ type ErrorData = {
 export function buildFailingTypeScriptError(message: string, data: ErrorData = {}) {
   return new APIError(ErrorCode.FailingTypeScript, message, data);
 }
-
 export function buildParsingError(message: string, data: ErrorData = {}) {
   return new APIError(ErrorCode.Parsing, message, data);
 }

@@ -90,6 +90,8 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
       resolve(server);
     });
 
-    server.listen(port);
+    // We fix `host` to `127.0.0.1` here because the Java plugin makes calls to it
+    // Calls don't get redirected when falling back on the default value `0.0.0.0`
+    server.listen(port, '127.0.0.1');
   });
 }
