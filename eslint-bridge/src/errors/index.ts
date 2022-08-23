@@ -33,23 +33,23 @@ export enum ErrorCode {
 }
 
 type ErrorData = {
-  line?: number;
+  line: number;
 };
 
-export function buildFailingTypeScriptError(message: string, data: ErrorData = {}) {
-  return new APIError(ErrorCode.FailingTypeScript, message, data);
-}
-export function buildParsingError(message: string, data: ErrorData = {}) {
-  return new APIError(ErrorCode.Parsing, message, data);
+export function buildFailingTypeScriptError(message: string) {
+  return new APIError(ErrorCode.FailingTypeScript, message);
 }
 export function buildLinterError(message: string) {
   return new APIError(ErrorCode.LinterInitialization, message);
 }
+export function buildParsingError(message: string, data: ErrorData) {
+  return new APIError(ErrorCode.Parsing, message, data);
+}
 
 export class APIError extends Error {
   code: ErrorCode;
-  data: ErrorData;
-  constructor(code: ErrorCode, message: string, data: ErrorData = {}) {
+  data?: ErrorData;
+  constructor(code: ErrorCode, message: string, data?: ErrorData) {
     super(message);
     this.code = code;
     this.data = data;

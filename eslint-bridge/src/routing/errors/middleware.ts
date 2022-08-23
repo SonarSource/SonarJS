@@ -50,16 +50,16 @@ export function errorMiddleware(
      * `ParsingError` and cannot be changed without breaking the protocol of
      * the bridge with any other components, e.g. SonarLint).
      */
-  } else if ([ErrorCode.Parsing, ErrorCode.FailingTypeScript].includes(errorCode)) {
+  } else if (errorCode === ErrorCode.Parsing) {
     response.json({
       parsingError: {
         message: apiError.message,
         code: errorCode,
-        line: apiError.data.line,
+        line: apiError.data?.line,
       },
       ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     });
-  } else if (errorCode === ErrorCode.LinterInitialization) {
+  } else if ([ErrorCode.FailingTypeScript, ErrorCode.LinterInitialization].includes(errorCode)) {
     response.json({
       parsingError: {
         message: apiError.message,

@@ -49,9 +49,9 @@ describe('errorMiddleware', () => {
       ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     });
   });
-  it('should return empty JS/TS analysis properties and a complete parsingError for FAILING_TYPESCRIPT errors', () => {
+  it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
     errorMiddleware(
-      buildFailingTypeScriptError(message, { line: 12 }),
+      buildFailingTypeScriptError(message),
       null,
       mockResponse as Response,
       null,
@@ -59,10 +59,8 @@ describe('errorMiddleware', () => {
     expect(mockResponse.json).toBeCalledWith({
       parsingError: {
         message,
-        line,
         code: ErrorCode.FailingTypeScript,
       },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     });
   });
   it('should return a parsingError with properties "message" and "code" for LINTER_INITIALIZATION errors', () => {

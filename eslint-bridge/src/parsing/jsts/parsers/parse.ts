@@ -47,7 +47,7 @@ export function parseForESLint(
     });
   } catch ({ lineNumber, message }) {
     if (message.startsWith('Debug Failure')) {
-      throw buildFailingTypeScriptError(message, { line: lineNumber });
+      throw buildFailingTypeScriptError(message);
     } else {
       throw buildParsingError(message, { line: lineNumber });
     }
