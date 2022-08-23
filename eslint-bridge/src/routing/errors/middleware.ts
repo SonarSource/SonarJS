@@ -32,7 +32,6 @@ export function errorMiddleware(
   // the fourth parameter is necessary to identify this as an error middleware
   _next: express.NextFunction,
 ) {
-
   let apiError: APIError;
   if (error instanceof APIError) {
     apiError = error;
