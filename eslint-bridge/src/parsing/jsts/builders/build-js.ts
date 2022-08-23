@@ -48,17 +48,24 @@ export function buildJs(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boo
     }
   }
 
+  let moduleError;
   try {
     return parseForESLint(input, parsers.javascript.parse, buildParserOptions(input, true));
-  } catch (_) {}
+  } catch (error) {
+    moduleError = error;
+  }
 
-  /**
-   * We prefer displaying parsing error as module if parsing as script also failed,
-   * as it is more likely that the expected source type is module.
-   */
-  return parseForESLint(
-    input,
-    parsers.javascript.parse,
-    buildParserOptions(input, true, undefined, 'script'),
-  );
+  try {
+    return parseForESLint(
+      input,
+      parsers.javascript.parse,
+      buildParserOptions(input, true, undefined, 'script'),
+    );
+  } catch (_) {
+    /**
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
+     */
+    throw moduleError;
+  }
 }
