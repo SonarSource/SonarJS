@@ -52,9 +52,14 @@ const SHUTDOWN_TIMEOUT = 15_000;
  *
  * @param port the port to listen to
  * @param shutdownTimeout timeout in ms to shut down the server since last request
+ * @param host only for usage from outside of NodeJS - Java plugin, SonarLint, ...
  * @returns an http server
  */
-export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<http.Server> {
+export function start(
+  port = 0,
+  shutdownTimeout = SHUTDOWN_TIMEOUT,
+  host = '127.0.0.1',
+): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
     const app = express();
@@ -90,8 +95,6 @@ export function start(port = 0, shutdownTimeout = SHUTDOWN_TIMEOUT): Promise<htt
       resolve(server);
     });
 
-    // We fix `host` to `127.0.0.1` here because the Java plugin makes calls to it
-    // Calls don't get redirected when falling back on the default value `0.0.0.0`
-    server.listen(port, '127.0.0.1');
+    server.listen(port, host);
   });
 }
