@@ -22,7 +22,6 @@ import { setContext } from 'helpers';
 import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from 'routing/errors';
 import { start } from 'server';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
@@ -228,16 +227,5 @@ describe('router', () => {
     const { error } = JSON.parse(response);
     expect(error).toEqual('Debug Failure.');
     expect(console.error).toHaveBeenCalled();
-  });
-
-  it('should return an empty analysis output on parsing errors', async () => {
-    initializeLinter([]);
-
-    const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
-    const fileType = 'MAIN';
-    const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as string;
-    const parsedResponse = JSON.parse(response);
-    expect(parsedResponse).toEqual(expect.objectContaining(EMPTY_JSTS_ANALYSIS_OUTPUT));
   });
 });
