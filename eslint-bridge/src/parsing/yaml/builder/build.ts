@@ -22,7 +22,6 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
-import { buildParsingError } from 'errors';
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
@@ -48,8 +47,7 @@ export function buildSourceCodes(filePath: string): SourceCode[] {
       const patchedSourceCode = patchSourceCode(sourceCode, embeddedJS);
       sourceCodes.push(patchedSourceCode);
     } catch (error) {
-      const patchedError = patchParsingError(error, embeddedJS);
-      throw buildParsingError(patchedError.message, { line: patchedError.data.line });
+      throw patchParsingError(error, embeddedJS);
     }
   }
   return sourceCodes;
