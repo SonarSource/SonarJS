@@ -21,7 +21,7 @@ import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
 import { visit } from 'linting/eslint';
 import { EmbeddedJS } from 'parsing/yaml';
-import { APIError, buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser
@@ -132,14 +132,14 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
  * snippet, which should be patched.
  */
 export function patchParsingError(parsingError: APIError, embeddedJS: EmbeddedJS): APIError {
-  const { message, data } = parsingError;
-  let patchedLine: number | undefined;
-  let patchedMessage = message;
-  if (data.line !== undefined) {
-    patchedLine = embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + data.line;
-    patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
+  if (typeof parsingError.data?.line === 'number') {
+    const { message, data } = parsingError;
+    const patchedLine =
+      embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + data.line;
+    parsingError.message = patchParsingErrorMessage(message, patchedLine, embeddedJS);
+    parsingError.data.line = patchedLine;
   }
-  return buildParsingError(patchedMessage, { line: patchedLine });
+  return parsingError;
 }
 
 /**
