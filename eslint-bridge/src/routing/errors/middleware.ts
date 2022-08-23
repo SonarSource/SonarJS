@@ -32,12 +32,12 @@ export function errorMiddleware(
   // the fourth parameter is necessary to identify this as an error middleware
   _next: express.NextFunction,
 ) {
-  console.error(error.stack);
 
   let apiError: APIError;
   if (error instanceof APIError) {
     apiError = error;
   } else {
+    console.error(error.stack);
     apiError = new APIError(ErrorCode.Unexpected, error.message);
   }
   const errorCode: ErrorCode = apiError.code;
