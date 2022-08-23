@@ -45,11 +45,6 @@ export function errorMiddleware(
   if (errorCode === ErrorCode.Unexpected) {
     response.json({
       error: apiError.message,
-      // sadly tests aren't ready for a proper format
-      /* error: {
-        code: errorCode,
-        message: error.message,
-      }, */
     });
 
     /*
