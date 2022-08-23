@@ -18,43 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import http from 'http';
-import express from 'express';
-
-class Timeout {
+/**
+ * Wrapper of Node.js timeout.
+ *
+ * The purpose of this wrapper is to rely on a single reference of Node.js timeout,
+ * start the timeout to execute a function at a given delay, and stop it on demand.
+ */
+export default class Timeout {
   private timeout: NodeJS.Timeout | null = null;
-  constructor(private readonly f: () => void, private readonly ms: number) {}
-  init() {
-    this.cancel();
-    this.timeout = setTimeout(this.f, this.ms);
+
+  /**
+   * Builds a wrapper of Node.js timeout.
+   * @param f the function to be executed after the timer expires.
+   * @param delay The time in milliseconds that the timer should wait.
+   */
+  constructor(private readonly f: () => void, private readonly delay: number) {}
+
+  /**
+   * Starts the timeout.
+   */
+  start() {
+    this.stop();
+    this.timeout = setTimeout(this.f, this.delay);
   }
-  cancel() {
+
+  /**
+   * Stops the timeout.
+   */
+  stop() {
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = null;
     }
   }
 }
-
-function timeoutMiddleware(server: http.Server, shutdownTimeout: number) {
-  const timeout = new Timeout(() => {
-    if (server.listening) {
-      server.close();
-    }
-  }, shutdownTimeout);
-  timeout.init();
-  return {
-    middleware(_request: express.Request, res: express.Response, next: express.NextFunction) {
-      timeout.cancel();
-      res.on('finish', function () {
-        timeout.init();
-      });
-      next();
-    },
-    cancel() {
-      timeout.cancel();
-    },
-  };
-}
-
-export { timeoutMiddleware };

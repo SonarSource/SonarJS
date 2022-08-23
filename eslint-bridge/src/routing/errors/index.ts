@@ -18,18 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import express from 'express';
-import { createProgram } from 'services/program';
-
-/**
- * Handles TypeScript Program creation requests
- */
-export function onCreateProgram(request: express.Request, response: express.Response) {
-  try {
-    const { tsConfig } = request.body;
-    response.json(createProgram(tsConfig));
-  } catch (e) {
-    console.error(e.stack);
-    response.json({ error: e.message });
-  }
-}
+export * from './middleware';

@@ -116,6 +116,7 @@
     "bin/"
   ],
   "_moduleAliases": {
+    "errors": "lib/errors",
     "helpers": "lib/helpers",
     "linting": "lib/linting",
     "parsing": "lib/parsing",

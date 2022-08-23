@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { APIError } from 'errors';
 import { debug, getContext } from 'helpers';
 import { CustomRule, LinterWrapper, RuleConfig } from './linter';
 
@@ -51,14 +52,12 @@ export function initializeLinter(
   linter = new LinterWrapper(inputRules, customRules, environments, globals);
 }
 
-export class LinterError extends Error {}
-
 /**
  * Throws a runtime error if the global linter wrapper is not initialized.
  */
 export function assertLinterInitialized() {
   if (!linter) {
-    throw new LinterError('Linter is undefined. Did you call /init-linter?');
+    throw APIError.linterError('Linter is undefined. Did you call /init-linter?');
   }
 }
 

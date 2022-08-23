@@ -39,37 +39,33 @@ import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
  * @param tryTypeScriptESLintParser a flag for parsing with TypeScript ESLint parser
  * @returns the parsed JavaScript code
  */
-export function buildJs(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean) {
+export function buildJs(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean): SourceCode {
   if (tryTypeScriptESLintParser) {
-    const parsed = parseForESLint(
-      input,
-      parsers.typescript.parse,
-      buildParserOptions(input, false),
-    );
-    if (parsed instanceof SourceCode) {
-      return parsed;
+    try {
+      return parseForESLint(input, parsers.typescript.parse, buildParserOptions(input, false));
+    } catch (error) {
+      debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
     }
-    debug(`Failed to parse ${input.filePath} with TypeScript parser: ${parsed.message}`);
   }
 
-  const parsedAsModule = parseForESLint(
-    input,
-    parsers.javascript.parse,
-    buildParserOptions(input, true),
-  );
-  if (parsedAsModule instanceof SourceCode) {
-    return parsedAsModule;
+  let moduleError;
+  try {
+    return parseForESLint(input, parsers.javascript.parse, buildParserOptions(input, true));
+  } catch (error) {
+    moduleError = error;
   }
 
-  const parsedAsScript = parseForESLint(
-    input,
-    parsers.javascript.parse,
-    buildParserOptions(input, true, undefined, 'script'),
-  );
-
-  /**
-   * We prefer displaying parsing error as module if parsing as script also failed,
-   * as it is more likely that the expected source type is module.
-   */
-  return parsedAsScript instanceof SourceCode ? parsedAsScript : parsedAsModule;
+  try {
+    return parseForESLint(
+      input,
+      parsers.javascript.parse,
+      buildParserOptions(input, true, undefined, 'script'),
+    );
+  } catch (_) {
+    /**
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
+     */
+    throw moduleError;
+  }
 }

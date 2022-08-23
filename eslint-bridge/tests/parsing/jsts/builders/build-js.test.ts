@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
 import { buildJs } from 'parsing/jsts/builders/build-js';
 import path from 'path';
-import { AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
 
 describe('buildJs', () => {
   it('should build JavaScript code', () => {
@@ -45,13 +46,9 @@ describe('buildJs', () => {
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
-    const error = buildJs(input, tryTypeScriptParser);
-
-    expect(error).toEqual({
-      line: 3,
-      message: 'Unexpected token (3:0)',
-      code: AnalysisErrorCode.Parsing,
-    });
+    expect(() => buildJs(input, tryTypeScriptParser)).toThrow(
+      APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
+    );
   });
 
   it('should build JavaScript code with TypeScript ESLint parser', () => {
@@ -80,7 +77,7 @@ describe('buildJs', () => {
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = true;
-    buildJs(input, tryTypeScriptParser);
+    expect(() => buildJs(input, tryTypeScriptParser)).toThrow();
 
     const log = `DEBUG Failed to parse ${input.filePath} with TypeScript parser: '}' expected.`;
     expect(console.log).toHaveBeenCalledWith(log);

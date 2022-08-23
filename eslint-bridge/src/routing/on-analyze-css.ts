@@ -18,16 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { parseAnalysisErrorCode, AnalysisErrorCode } from 'services/analysis';
+import { runner, analyzeCSS, CssAnalysisInput } from 'services/analysis';
 
-describe('parseAnalysisErrorCode', () => {
-  it('should decode parsing errors', () => {
-    expect(parseAnalysisErrorCode('Unexpected token )')).toEqual(AnalysisErrorCode.Parsing);
-  });
-
-  it('should decode runtime TypeScript errors', () => {
-    expect(parseAnalysisErrorCode('Debug Failure. TypeScript unexpectedly failed')).toEqual(
-      AnalysisErrorCode.FailingTypeScript,
-    );
-  });
-});
+/**
+ * Handles CSS analysis requests
+ */
+export default runner(input => analyzeCSS(input as CssAnalysisInput));

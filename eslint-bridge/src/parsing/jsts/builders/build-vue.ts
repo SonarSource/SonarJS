@@ -36,16 +36,15 @@ import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
  * @param tryTypeScriptESLintParser a flag for parsing with TypeScript ESLint parser
  * @returns the parsed Vue.js JavaScript code
  */
-export function buildVue(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean) {
-  let options, parsed;
+export function buildVue(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean): SourceCode {
   if (tryTypeScriptESLintParser) {
-    options = buildParserOptions(input, false, parsers.typescript.parser);
-    parsed = parseForESLint(input, parsers.vuejs.parse, options);
-    if (parsed instanceof SourceCode) {
-      return parsed;
+    try {
+      const options = buildParserOptions(input, false, parsers.typescript.parser);
+      return parseForESLint(input, parsers.vuejs.parse, options);
+    } catch (error) {
+      debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
     }
-    debug(`Failed to parse ${input.filePath} with TypeScript parser: ${parsed.message}`);
   }
-  options = buildParserOptions(input, true, parsers.javascript.parser);
+  const options = buildParserOptions(input, true, parsers.javascript.parser);
   return parseForESLint(input, parsers.vuejs.parse, options);
 }

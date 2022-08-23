@@ -19,22 +19,13 @@
  */
 
 import express from 'express';
-import { getFilesForTsConfig } from 'services/tsconfig';
 
 /**
- * Handles TSConfig files resolving requests
+ * Handles status requests
  *
- * TSConfig-based analysis either for JavaScript or TypeScript requires first
- * resolving the files to be analyzed based on provided TSConfigs. The logic
- * of the whole resolving lies in the bridge since it includes and bundles
- * TypeScript dependency, which is able to parse and analyze TSConfig files.
+ * This endpoint handler allows the sensor to make sure that the bridge is alive
+ * and can continue handle analysis requests or any other kind of request.
  */
-export function onTSConfigFiles(request: express.Request, response: express.Response) {
-  try {
-    const tsconfig = request.body.tsconfig;
-    response.json(getFilesForTsConfig(tsconfig));
-  } catch (e) {
-    console.error(e.stack);
-    response.json({ error: e.message });
-  }
+export default function (_request: express.Request, response: express.Response) {
+  response.send('OK!');
 }

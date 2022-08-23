@@ -18,14 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import express from 'express';
-import { deleteProgram } from 'services/program';
-
-/**
- * Handles TypeScript Program deletion requests
- */
-export function onDeleteProgram(request: express.Request, response: express.Response) {
-  const { programId } = request.body;
-  deleteProgram(programId);
-  response.send('OK!');
-}
+export * from './error';

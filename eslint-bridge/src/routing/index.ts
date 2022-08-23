@@ -19,26 +19,23 @@
  */
 
 import express from 'express';
-import {
-  onAnalyzeCss,
-  onAnalyzeJs,
-  onAnalyzeTs,
-  onAnalyzeWithProgram,
-  onAnalyzeYaml,
-  onCreateProgram,
-  onDeleteProgram,
-  onInitLinter,
-  onNewTSConfig,
-  onStatus,
-  onTSConfigFiles,
-} from './handlers';
+import onAnalyzeCss from './on-analyze-css';
+import onAnalyzeJs from './on-analyze-js';
+import onAnalyzeTs from './on-analyze-ts';
+import onAnalyzeYaml from './on-analyze-yaml';
+import onCreateProgram from './on-create-program';
+import onDeleteProgram from './on-delete-program';
+import onInitLinter from './on-init-linter';
+import onNewTSConfig from './on-new-tsconfig';
+import onStatus from './on-status';
+import onTSConfigFiles from './on-tsconfig-files';
 
 const router = express.Router();
 
 router.post('/analyze-css', onAnalyzeCss);
 router.post('/analyze-js', onAnalyzeJs);
 router.post('/analyze-ts', onAnalyzeTs);
-router.post('/analyze-with-program', onAnalyzeWithProgram);
+router.post('/analyze-with-program', onAnalyzeTs);
 router.post('/analyze-yaml', onAnalyzeYaml);
 router.post('/create-program', onCreateProgram);
 router.post('/delete-program', onDeleteProgram);

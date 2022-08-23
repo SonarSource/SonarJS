@@ -18,11 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+/**
+ * `module-alias` must be imported first for module aliasing to work.
+ */
 import 'module-alias/register';
-import http from 'http';
+
 import express from 'express';
+import http from 'http';
 import router from 'routing';
-import { debug, timeoutMiddleware } from 'helpers';
+import { errorMiddleware } from 'routing/errors';
+import { debug } from 'helpers';
+import { timeoutMiddleware } from 'routing/timeout';
 import { AddressInfo } from 'net';
 
 /**
@@ -31,7 +37,11 @@ import { AddressInfo } from 'net';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * Default timeout to shut down server since last request
+ * The default timeout to shut down server if no request is received
+ *
+ * Normally, the Java plugin sends keepalive requests to the eslint-bridge
+ * If the Java plugin crashes, this timeout will run out and shut down
+ * the eslint-bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -49,25 +59,40 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * which embeds it or directly with SonarLint.
  *
  * @param port the port to listen to
- * @param host the host to listen to
- * @param shutdownTimeout timeout in ms to shut down the server since last request
+ * @param host only for usage from outside of NodeJS - Java plugin, SonarLint, ...
+ * @param timeout timeout in ms to shut down the server if unresponsive
  * @returns an http server
  */
 export function start(
   port = 0,
   host = '127.0.0.1',
-  shutdownTimeout = SHUTDOWN_TIMEOUT,
+  timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
 
     const app = express();
     const server = http.createServer(app);
-    const timeoutMW = timeoutMiddleware(server, shutdownTimeout);
 
-    app.use(timeoutMW.middleware);
+    /**
+     * Builds a timeout middleware to shut down the server
+     * in case the process becomes orphan.
+     */
+    const orphanTimeout = timeoutMiddleware(() => {
+      if (server.listening) {
+        server.close();
+      }
+    }, timeout);
+
+    /**
+     * The order of the middlewares registration is important, as the
+     * error handling one should be last.
+     */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
+    app.use(orphanTimeout.middleware);
     app.use(router);
+    app.use(errorMiddleware);
+
     app.post('/close', (_request: express.Request, response: express.Response) => {
       debug('eslint-bridge server will shutdown');
       response.end(() => {
@@ -76,8 +101,8 @@ export function start(
     });
 
     server.on('close', () => {
-      timeoutMW.cancel();
       debug('eslint-bridge server closed');
+      orphanTimeout.stop();
     });
 
     server.on('error', (err: Error) => {
@@ -85,7 +110,11 @@ export function start(
     });
 
     server.on('listening', () => {
-      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo).port}`);
+      /**
+       * Since we use 0 as the default port, Node.js assigns a random port to the server,
+       * which we get using server.address().
+       */
+      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
       resolve(server);
     });
 

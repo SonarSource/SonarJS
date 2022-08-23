@@ -19,8 +19,7 @@
  */
 
 import express from 'express';
-import { AnalysisErrorCode, AnalysisOutput, runner } from 'services/analysis';
-import { LinterError } from 'linting/eslint';
+import { AnalysisOutput, runner } from 'services/analysis';
 
 describe('runner', () => {
   it('should run an analysis', async () => {
@@ -41,48 +40,28 @@ describe('runner', () => {
     expect(response.json).toHaveBeenCalledWith('DONE');
   });
 
-  it('should catch an analysis failure', async () => {
-    console.error = jest.fn();
+  it('should forward the caught runtime error to the next middleware', async () => {
+    const mockRequest = () => ({ body: 'whatever' } as express.Request);
+    const mockResponse = () =>
+      ({
+        json: () => {
+          throw 'Something went wrong';
+        },
+      } as any as express.Response);
 
-    const mockRequest = () => ({ body: {} } as express.Request);
-    const mockResponse = () => ({ json: jest.fn() } as any as express.Response);
-
-    const analysis = _ => Promise.reject({ message: 'failed', stack: 'some stack trace' });
+    const analysis = input => Promise.resolve(input as AnalysisOutput);
 
     const request = mockRequest();
     const response = mockResponse();
+    const next = jest.fn();
 
     const handler = runner(analysis) as (
       request: express.Request,
       response: express.Response,
+      next: express.NextFunction,
     ) => Promise<void>;
-    await handler(request, response);
+    await handler(request, response, next);
 
-    expect(console.error).toHaveBeenCalledWith('some stack trace');
-    expect(response.json).toHaveBeenCalledWith({
-      parsingError: {
-        code: AnalysisErrorCode.GeneralError,
-        message: 'failed',
-      },
-    });
-  });
-
-  it('should catch a linter failure', async () => {
-    const errorLogger = jest.fn();
-    const jsonSerializer = jest.fn();
-
-    const error = new LinterError('Linter is undefined. Did you call /init-linter?');
-    const handler = runner(() => Promise.reject(error)) as (request, response) => Promise<void>;
-
-    console.error = errorLogger;
-    await handler({ body: {} }, { json: jsonSerializer });
-
-    expect(errorLogger).toHaveBeenCalledWith(error.stack);
-    expect(jsonSerializer).toHaveBeenCalledWith({
-      parsingError: {
-        code: AnalysisErrorCode.LinterInitialization,
-        message: 'Linter is undefined. Did you call /init-linter?',
-      },
-    });
+    expect(next).toHaveBeenCalledWith('Something went wrong');
   });
 });

@@ -17,14 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import express from 'express';
-import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
+import Timeout from './timeout';
 
 /**
- * Handles new TSConfig-based analysis requests
+ * Express.js middleware that timeouts after a lapse of time and triggers a function.
+ * @param f the timeout function
+ * @param delay the timeout delay
+ * @returns the timeout middleware with capability to stop the internal timeout
  */
-export function onNewTSConfig(_request: express.Request, response: express.Response) {
-  clearTypeScriptESLintParserCaches();
-  response.send('OK!');
+export function timeoutMiddleware(f: () => void, delay: number) {
+  const timeout = new Timeout(f, delay);
+  timeout.start();
+
+  return {
+    middleware(_request: express.Request, response: express.Response, next: express.NextFunction) {
+      timeout.stop();
+
+      response.on('finish', function () {
+        timeout.start();
+      });
+      next();
+    },
+    stop() {
+      timeout.stop();
+    },
+  };
 }

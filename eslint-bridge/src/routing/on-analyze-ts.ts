@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { runner, analyzeCSS, CssAnalysisInput } from 'services/analysis';
+import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
 
 /**
- * Handles CSS analysis requests
+ * Handles TypeScript analysis requests
  */
-export const onAnalyzeCss = runner(input => analyzeCSS(input as CssAnalysisInput));
+export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'ts')));

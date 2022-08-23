@@ -23,8 +23,8 @@ import * as yaml from 'yaml-node12';
 import assert from 'assert';
 import { EmbeddedJS } from './embedded-js';
 import { readFile } from 'helpers';
-import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
+import { APIError } from 'errors';
 
 /**
  * A function predicate to visit a YAML node
@@ -34,10 +34,7 @@ export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => bool
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(
-  predicate: YamlVisitorPredicate,
-  filePath: string,
-): EmbeddedJS[] | AnalysisError {
+export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -59,11 +56,7 @@ export function parseYaml(
      */
     if (doc.errors.length > 0) {
       const error = doc.errors[0];
-      return {
-        line: lineCounter.linePos(error.pos[0]).line,
-        message: error.message,
-        code: AnalysisErrorCode.Parsing,
-      };
+      throw APIError.parsingError(error.message, { line: lineCounter.linePos(error.pos[0]).line });
     }
 
     /**

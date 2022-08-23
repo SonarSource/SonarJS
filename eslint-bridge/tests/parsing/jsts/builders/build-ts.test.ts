@@ -21,7 +21,8 @@
 import { buildTs } from 'parsing/jsts/builders/build-ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { AnalysisError, AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
+import { APIError } from 'errors';
 
 describe('buildTs', () => {
   it('should build TypeScript code', () => {
@@ -48,13 +49,9 @@ describe('buildTs', () => {
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    const error = buildTs(input, isVueFile);
-
-    expect(error).toEqual({
-      line: 2,
-      message: "'}' expected.",
-      code: AnalysisErrorCode.Parsing,
-    });
+    expect(() => buildTs(input, isVueFile)).toThrow(
+      APIError.parsingError(`'}' expected.`, { line: 2 }),
+    );
   });
 
   it('should build TypeScript Vue.js code', () => {
@@ -83,9 +80,8 @@ describe('buildTs', () => {
 
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    const { code, message } = buildTs(input, isVueFile) as AnalysisError;
-
-    expect(code).toEqual(AnalysisErrorCode.Parsing);
-    expect(message).toMatch(/^"parserOptions.project" has been set for @typescript-eslint\/parser/);
+    expect(() => buildTs(input, isVueFile)).toThrow(
+      /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
+    );
   });
 });

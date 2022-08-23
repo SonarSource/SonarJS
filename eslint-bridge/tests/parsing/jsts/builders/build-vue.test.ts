@@ -21,7 +21,8 @@
 import { buildVue } from 'parsing/jsts/builders/build-vue';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { AnalysisErrorCode, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
+import { APIError } from 'errors';
 
 describe('buildVue', () => {
   it('should build Vue.js code with JavaScript parser', () => {
@@ -48,13 +49,9 @@ describe('buildVue', () => {
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
-    const error = buildVue(input, tryTypeScriptParser);
-
-    expect(error).toEqual({
-      line: 7,
-      message: 'Unexpected token (3:0)',
-      code: AnalysisErrorCode.Parsing,
-    });
+    expect(() => buildVue(input, tryTypeScriptParser)).toThrow(
+      APIError.parsingError('Unexpected token (3:0)', { line: 7 }),
+    );
   });
 
   it('should build Vue.js code with TypeScript ESLint parser', () => {
@@ -76,7 +73,7 @@ describe('buildVue', () => {
 
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = true;
-    buildVue(input, tryTypeScriptParser);
+    expect(() => buildVue(input, tryTypeScriptParser)).toThrow();
 
     const log = `DEBUG Failed to parse ${input.filePath} with TypeScript parser: Expression expected.`;
     expect(console.log).toHaveBeenCalledWith(log);

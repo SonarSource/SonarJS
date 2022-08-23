@@ -18,20 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import express from 'express';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
-
-/**
- * Handles initialization requests of the global ESLint linter wrapper
- *
- * The bridge relies on a global ESLint linter wrapper for JavaScript
- * and TypeScript analysis. Before any analysis, the linter wrapper
- * must be initialized explicitly, which includes the rules from the
- * active quality profile the linter must consider as well as global
- * variables ann JavaScript execution environments.
- */
-export function onInitLinter(request: express.Request, response: express.Response) {
-  const { rules, environments, globals } = request.body;
-  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[]);
-  response.send('OK!');
-}
+export * from './middleware';

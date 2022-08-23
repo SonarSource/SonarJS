@@ -20,15 +20,10 @@
 
 import path from 'path';
 import { setContext } from 'helpers';
-import { initializeLinter, LinterError, RuleConfig } from 'linting/eslint';
-import {
-  analyzeJSTS,
-  AnalysisErrorCode,
-  EMPTY_JSTS_ANALYSIS_OUTPUT,
-  JsTsAnalysisInput,
-  JsTsAnalysisOutput,
-} from 'services/analysis';
+import { initializeLinter, RuleConfig } from 'linting/eslint';
+import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
+import { APIError } from 'errors';
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -44,7 +39,7 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      new LinterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
@@ -815,31 +810,8 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const error = analyzeJSTS(input, language);
-    expect(error).toEqual(
-      expect.objectContaining({
-        parsingError: {
-          code: AnalysisErrorCode.Parsing,
-          line: 3,
-          message: 'Unexpected token (3:0)',
-        },
-      }),
+    expect(() => analyzeJSTS(input, language)).toThrow(
+      APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
-  });
-
-  it('should return an empty analysis output on parsing errors', () => {
-    const rules = [];
-    initializeLinter(rules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const language = 'js';
-
-    const error = analyzeJSTS(input, language);
-    expect(error).toEqual(expect.objectContaining(EMPTY_JSTS_ANALYSIS_OUTPUT));
   });
 });

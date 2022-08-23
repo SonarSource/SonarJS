@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { onAnalyzeTs } from './on-analyze-ts';
+import express from 'express';
+import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
 
 /**
- * Handles TypeScript program-based analysis requests
+ * Handles new TSConfig-based analysis requests
  */
-export const onAnalyzeWithProgram = onAnalyzeTs;
+export default function (_request: express.Request, response: express.Response) {
+  clearTypeScriptESLintParserCaches();
+  response.send('OK!');
+}

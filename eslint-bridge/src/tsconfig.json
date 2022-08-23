@@ -21,11 +21,12 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "errors": ["./errors"],
       "helpers": ["./helpers"],
       "linting": ["./linting"],
       "parsing": ["./parsing"],
       "routing": ["./routing"],
-      "services": ["./services"],
+      "services": ["./services"]
     }
   }
 }

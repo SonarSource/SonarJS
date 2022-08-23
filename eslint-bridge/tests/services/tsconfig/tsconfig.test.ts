@@ -19,7 +19,6 @@
  */
 import * as ts from 'typescript';
 import * as path from 'path';
-import { AnalysisErrorCode } from 'services/analysis';
 import { getFilesForTsConfig } from 'services/tsconfig';
 import { toUnixPath } from '../../tools';
 
@@ -42,11 +41,9 @@ describe('getFilesForTsConfig', () => {
 
   it('should report errors', () => {
     const readFile = _path => `{ "files": [] }`;
-    const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
-    expect(result).toEqual({
-      error: "The 'files' list in config file 'tsconfig.json' is empty.",
-      errorCode: AnalysisErrorCode.GeneralError,
-    });
+    expect(() =>
+      getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile }),
+    ).toThrow(`The 'files' list in config file 'tsconfig.json' is empty.`);
   });
 
   it('should return projectReferences', () => {

@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { EmbeddedJS, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
-import { AnalysisError, AnalysisErrorCode } from 'services/analysis';
+import { APIError } from 'errors';
 
 describe('parseYaml', () => {
   it('should return embedded JavScript', () => {
@@ -42,11 +42,8 @@ describe('parseYaml', () => {
   it('should return parsing errors', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
     const predicate = (() => false) as YamlVisitorPredicate;
-    const error = parseYaml(predicate, filePath) as AnalysisError;
-    expect(error).toEqual({
-      code: AnalysisErrorCode.Parsing,
-      line: 2,
-      message: 'Missing closing "quote',
-    });
+    expect(() => parseYaml(predicate, filePath)).toThrow(
+      APIError.parsingError('Missing closing "quote', { line: 2 }),
+    );
   });
 });

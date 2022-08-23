@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { AnalysisError, isAnalysisError, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
@@ -29,12 +29,8 @@ import { patchParsingError, patchSourceCode } from './patch';
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(filePath: string): SourceCode[] | AnalysisError {
-  const embeddedJSsOrError = parseAwsFromYaml(filePath);
-  if (isAnalysisError(embeddedJSsOrError)) {
-    return embeddedJSsOrError;
-  }
-  const embeddedJSs = embeddedJSsOrError;
+export function buildSourceCodes(filePath: string): SourceCode[] {
+  const embeddedJSs = parseAwsFromYaml(filePath);
 
   const sourceCodes: SourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
@@ -46,14 +42,12 @@ export function buildSourceCodes(filePath: string): SourceCode[] | AnalysisError
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
     const input = { filePath: '', fileContent: code, fileType: 'MAIN' } as JsTsAnalysisInput;
-    const sourceCodeOrError = buildSourceCode(input, 'js');
-    if (sourceCodeOrError instanceof SourceCode) {
-      const sourceCode = sourceCodeOrError;
+    try {
+      const sourceCode = buildSourceCode(input, 'js');
       const patchedSourceCode = patchSourceCode(sourceCode, embeddedJS);
       sourceCodes.push(patchedSourceCode);
-    } else {
-      const parsingError = sourceCodeOrError;
-      return patchParsingError(parsingError, embeddedJS);
+    } catch (error) {
+      throw patchParsingError(error, embeddedJS);
     }
   }
   return sourceCodes;
