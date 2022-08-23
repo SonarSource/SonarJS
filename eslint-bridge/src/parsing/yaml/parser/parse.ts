@@ -24,7 +24,7 @@ import assert from 'assert';
 import { EmbeddedJS } from './embedded-js';
 import { readFile } from 'helpers';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 /**
  * A function predicate to visit a YAML node
@@ -56,7 +56,7 @@ export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): Em
      */
     if (doc.errors.length > 0) {
       const error = doc.errors[0];
-      throw buildParsingError(error.message, { line: lineCounter.linePos(error.pos[0]).line });
+      throw APIError.parsingError(error.message, { line: lineCounter.linePos(error.pos[0]).line });
     }
 
     /**

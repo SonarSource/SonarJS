@@ -26,21 +26,6 @@ import { AddressInfo } from 'net';
 import { request } from './tools';
 import http from 'http';
 
-async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
-  const filePath = path.join(__dirname, 'fixtures', 'routing.js');
-  const analysisInput = { filePath, fileType };
-
-  return await request(server, '/analyze-js', 'POST', analysisInput);
-}
-
-function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
-  const config = {
-    rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
-  };
-
-  return request(server, '/init-linter', 'POST', config);
-}
-
 describe('server', () => {
   const port = 0;
 
@@ -148,7 +133,7 @@ describe('server', () => {
   it('should timeout', async () => {
     console.log = jest.fn();
 
-    const server = await start(port, 200);
+    const server = await start(port, '127.0.0.1', 200);
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
@@ -164,3 +149,18 @@ describe('server', () => {
     expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
   });
 });
+
+async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
+  const filePath = path.join(__dirname, 'fixtures', 'routing.js');
+  const analysisInput = { filePath, fileType };
+
+  return await request(server, '/analyze-js', 'POST', analysisInput);
+}
+
+function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
+  const config = {
+    rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
+  };
+
+  return request(server, '/init-linter', 'POST', config);
+}

@@ -22,7 +22,7 @@ import { buildVue } from 'parsing/jsts/builders/build-vue';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { JsTsAnalysisInput } from 'services/analysis';
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('buildVue', () => {
   it('should build Vue.js code with JavaScript parser', () => {
@@ -50,7 +50,7 @@ describe('buildVue', () => {
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
     expect(() => buildVue(input, tryTypeScriptParser)).toThrow(
-      buildParsingError('Unexpected token (3:0)', { line: 7 }),
+      APIError.parsingError('Unexpected token (3:0)', { line: 7 }),
     );
   });
 

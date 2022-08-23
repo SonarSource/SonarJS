@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildLinterError } from 'errors';
+import { APIError } from 'errors';
 import { debug, getContext } from 'helpers';
 import { CustomRule, LinterWrapper, RuleConfig } from './linter';
 
@@ -57,7 +57,7 @@ export function initializeLinter(
  */
 export function assertLinterInitialized() {
   if (!linter) {
-    throw buildLinterError('Linter is undefined. Did you call /init-linter?');
+    throw APIError.linterError('Linter is undefined. Did you call /init-linter?');
   }
 }
 

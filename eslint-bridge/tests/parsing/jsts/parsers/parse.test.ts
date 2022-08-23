@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
@@ -74,7 +74,7 @@ describe('parseForESLint', () => {
       const options = buildParserOptions(input, usingBabel);
 
       expect(() => parseForESLint(input, parser.parse, options)).toThrow(
-        buildParsingError(errorMessage, { line: 1 }),
+        APIError.parsingError(errorMessage, { line: 1 }),
       );
     },
   );

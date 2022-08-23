@@ -22,7 +22,7 @@ import { SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { join } from 'path';
 import { buildSourceCodes } from 'parsing/yaml';
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
@@ -46,21 +46,21 @@ describe('buildSourceCodes()', () => {
   it('should return YAML parsing errors on invalid YAML file', () => {
     const filePath = join(fixturesPath, 'malformed.yaml');
     expect(() => buildSourceCodes(filePath)).toThrow(
-      buildParsingError('Map keys must be unique', { line: 2 }),
+      APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
 
   it('should return a parsing error on invalid plain inline JS', () => {
     const filePath = join(fixturesPath, 'invalid-plain-inline-js.yaml');
     expect(() => buildSourceCodes(filePath)).toThrow(
-      buildParsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
+      APIError.parsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
     );
   });
 
   it('should return a parsing error on invalid block inline JS', () => {
     const filePath = join(fixturesPath, 'invalid-block-inline-js.yaml');
     expect(() => buildSourceCodes(filePath)).toThrow(
-      buildParsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
+      APIError.parsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
     );
   });
 

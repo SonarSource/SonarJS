@@ -18,35 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AddressInfo } from 'net';
-import http from 'http';
-
 /**
- * Sends an HTTP request to a server's endpoint running on localhost.
+ * Wrapper of Node.js timeout.
+ *
+ * The purpose of this wrapper is to rely on a single reference of Node.js timeout,
+ * start the timeout to execute a function at a given delay, and stop it on demand.
  */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: '127.0.0.1',
-    path,
-    method,
-    port: (<AddressInfo>server.address()).port,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+export default class Timeout {
+  private timeout: NodeJS.Timeout | null = null;
 
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
+  /**
+   * Builds a wrapper of Node.js timeout.
+   * @param f the function to be executed after the timer expires.
+   * @param delay The time in milliseconds that the timer should wait.
+   */
+  constructor(private readonly f: () => void, private readonly delay: number) {}
 
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
+  /**
+   * Starts the timeout.
+   */
+  start() {
+    this.stop();
+    this.timeout = setTimeout(this.f, this.delay);
+  }
 
-    request.write(JSON.stringify(data));
-    request.end();
-  });
+  /**
+   * Stops the timeout.
+   */
+  stop() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
+  }
 }

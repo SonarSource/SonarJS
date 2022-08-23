@@ -18,20 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/**
- * Timeout wrapp
- */
-export default class Timeout {
-  private timeout: NodeJS.Timeout | null = null;
-  constructor(private readonly f: () => void, private readonly ms: number) {}
-  init() {
-    this.cancel();
-    this.timeout = setTimeout(this.f, this.ms);
-  }
-  cancel() {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-      this.timeout = null;
-    }
-  }
-}
+export * from './middleware';

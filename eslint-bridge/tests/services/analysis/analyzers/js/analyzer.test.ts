@@ -23,7 +23,7 @@ import { setContext } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
 import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
-import { buildLinterError, buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      buildLinterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
@@ -811,7 +811,7 @@ describe('analyzeJSTS', () => {
     const language = 'js';
 
     expect(() => analyzeJSTS(input, language)).toThrow(
-      buildParsingError('Unexpected token (3:0)', { line: 3 }),
+      APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
 });

@@ -18,40 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/**
- * The possible codes of analysis errors
- *
- * The `Unexpected` value denotes a runtime error which is either
- * unpredictable or occurs rarely to deserve its own category.
- */
-export enum ErrorCode {
-  Parsing = 'PARSING',
-  FailingTypeScript = 'FAILING_TYPESCRIPT',
-  // We are stuck with this name because of possible external dependents
-  Unexpected = 'GENERAL_ERROR',
-  LinterInitialization = 'LINTER_INITIALIZATION',
-}
-
-type ErrorData = {
-  line: number;
-};
-
-export function buildFailingTypeScriptError(message: string) {
-  return new APIError(ErrorCode.FailingTypeScript, message);
-}
-export function buildLinterError(message: string) {
-  return new APIError(ErrorCode.LinterInitialization, message);
-}
-export function buildParsingError(message: string, data: ErrorData) {
-  return new APIError(ErrorCode.Parsing, message, data);
-}
-
-export class APIError extends Error {
-  code: ErrorCode;
-  data?: ErrorData;
-  constructor(code: ErrorCode, message: string, data?: ErrorData) {
-    super(message);
-    this.code = code;
-    this.data = data;
-  }
-}
+export * from './error';

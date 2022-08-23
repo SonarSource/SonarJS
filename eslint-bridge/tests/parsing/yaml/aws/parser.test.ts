@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', () => {
@@ -41,7 +41,7 @@ describe('parseAwsFromYaml()', () => {
   it('should fail parsing invalid YAML syntax', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'invalid.yaml');
     expect(() => parseAwsFromYaml(filePath)).toThrow(
-      buildParsingError('Missing closing "quote', { line: 7 }),
+      APIError.parsingError('Missing closing "quote', { line: 7 }),
     );
   });
 });

@@ -46,11 +46,6 @@ export interface AnalysisInput {
 /**
  * An analysis output
  *
- * An analysis outputs a result that depends on the kind of analysis.
- * Still, any analysis is subject to errors (which was initially named
- * `parsingError` and cannot be changed without breaking the protocol of
- * the bridge with any other components, e.g. SonarLint).
- *
- * @param parsingError an analysis error, if any
+ * A common interface for all kinds of analysis output.
  */
 export interface AnalysisOutput {}

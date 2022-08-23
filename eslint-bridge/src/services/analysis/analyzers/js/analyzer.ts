@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildFailingTypeScriptError } from 'errors';
+import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
 import { getContext } from 'helpers';
 import {
@@ -88,7 +88,7 @@ function analyzeFile(input: JsTsAnalysisInput, sourceCode: SourceCode): JsTsAnal
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
-      throw buildFailingTypeScriptError(e.message);
+      throw APIError.failingTypeScriptError(e.message);
     } else {
       throw e;
     }

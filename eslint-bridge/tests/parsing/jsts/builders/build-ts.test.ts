@@ -22,7 +22,7 @@ import { buildTs } from 'parsing/jsts/builders/build-ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { JsTsAnalysisInput } from 'services/analysis';
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('buildTs', () => {
   it('should build TypeScript code', () => {
@@ -50,7 +50,7 @@ describe('buildTs', () => {
     const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
     expect(() => buildTs(input, isVueFile)).toThrow(
-      buildParsingError(`'}' expected.`, { line: 2 }),
+      APIError.parsingError(`'}' expected.`, { line: 2 }),
     );
   });
 

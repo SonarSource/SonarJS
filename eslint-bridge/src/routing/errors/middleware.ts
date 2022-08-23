@@ -22,55 +22,52 @@ import { APIError, ErrorCode } from 'errors';
 import { JsTsAnalysisOutput } from 'services/analysis';
 
 /**
- * ExpressJs error handling middleware
- * https://expressjs.com/en/guide/error-handling.html
+ * Express.js middleware for handling error while serving requests.
+ *
+ * The purpose of this middleware is to catch any error occuring within
+ * the different layers of the bridge to centralize and customize error
+ * information that is sent back.
+ *
+ * The fourth parameter is necessary to identify this as an error middleware.
+ * @see https://expressjs.com/en/guide/error-handling.html
  */
 export function errorMiddleware(
   error: Error,
   _request: express.Request,
   response: express.Response,
-  // the fourth parameter is necessary to identify this as an error middleware
   _next: express.NextFunction,
 ) {
-  let apiError: APIError;
-  if (error instanceof APIError) {
-    apiError = error;
-  } else {
-    console.error(error.stack);
-    apiError = new APIError(ErrorCode.Unexpected, error.message);
-  }
-  const errorCode: ErrorCode = apiError.code;
-
-  if (errorCode === ErrorCode.Unexpected) {
-    response.json({
-      error: apiError.message,
-    });
-
-    /*
-     * `ParsingError` and cannot be changed without breaking the protocol of
-     * the bridge with any other components, e.g. SonarLint).
-     */
-  } else if (errorCode === ErrorCode.Parsing) {
-    response.json({
-      parsingError: {
-        message: apiError.message,
-        code: errorCode,
-        line: apiError.data?.line,
-      },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    });
-  } else if ([ErrorCode.FailingTypeScript, ErrorCode.LinterInitialization].includes(errorCode)) {
-    response.json({
-      parsingError: {
-        message: apiError.message,
-        code: errorCode,
-      },
-    });
+  const { code, message, data } =
+    error instanceof APIError ? error : APIError.unexpectedError(error.message);
+  switch (code) {
+    case ErrorCode.Parsing:
+      response.json({
+        parsingError: {
+          message,
+          code,
+          line: data?.line,
+        },
+        ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+      });
+      break;
+    case ErrorCode.FailingTypeScript:
+    case ErrorCode.LinterInitialization:
+      response.json({
+        parsingError: {
+          message,
+          code,
+        },
+      });
+      break;
+    default:
+      console.error(error.stack);
+      response.json({ error: error.message });
+      break;
   }
 }
 
 /**
- * An empty JavaScript / TypeScript analysis output
+ * An empty JavaScript / TypeScript analysis output sent back on paring errors.
  */
 export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
   issues: [],

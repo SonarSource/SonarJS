@@ -22,7 +22,7 @@ import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeYAML } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
-import { buildLinterError, buildParsingError } from 'errors';
+import { APIError } from 'errors';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -39,7 +39,7 @@ describe('analyzeYAML', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     expect(() => analyzeYAML(input)).toThrow(
-      buildLinterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
     );
   });
 
@@ -73,7 +73,7 @@ describe('analyzeYAML', () => {
         filePath: join(fixturesPath, 'malformed.yaml'),
         fileContent: undefined,
       }),
-    ).toThrow(buildParsingError('Map keys must be unique', { line: 2 }));
+    ).toThrow(APIError.parsingError('Map keys must be unique', { line: 2 }));
   });
 
   it('should not break when using a rule with a quickfix', async () => {

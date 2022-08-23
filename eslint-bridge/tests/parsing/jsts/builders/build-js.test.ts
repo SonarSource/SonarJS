@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { buildParsingError } from 'errors';
+import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
 import { buildJs } from 'parsing/jsts/builders/build-js';
 import path from 'path';
@@ -47,7 +47,7 @@ describe('buildJs', () => {
     const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
     expect(() => buildJs(input, tryTypeScriptParser)).toThrow(
-      buildParsingError('Unexpected token (3:0)', { line: 3 }),
+      APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
 

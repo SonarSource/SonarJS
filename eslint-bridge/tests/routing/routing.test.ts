@@ -42,7 +42,7 @@ describe('router', () => {
       bundles: [],
     });
     jest.setTimeout(60 * 1000);
-    server = await start(port, 60 * 60 * 1000);
+    server = await start(port, '127.0.0.1', 60 * 60 * 1000);
     close = promisify(server.close.bind(server));
   });
 

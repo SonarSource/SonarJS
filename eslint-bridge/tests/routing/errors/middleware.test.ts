@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  buildFailingTypeScriptError,
-  buildLinterError,
-  buildParsingError,
-  ErrorCode,
-} from 'errors';
-import { Response } from 'express';
+import { ErrorCode, APIError } from 'errors';
+import * as express from 'express';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from 'routing/errors';
 
 describe('errorMiddleware', () => {
-  const message = 'hello';
-  const line = 12;
+  const mockRequest = {} as express.Request;
+  const mockNext = {} as express.NextFunction;
 
-  let mockResponse: Partial<Response>;
+  let mockResponse: Partial<express.Response>;
   beforeEach(() => {
     mockResponse = {
       json: jest.fn(),
@@ -39,38 +34,61 @@ describe('errorMiddleware', () => {
   });
 
   it('should return empty JS/TS analysis properties and a complete parsingError for PARSING errors', () => {
-    errorMiddleware(buildParsingError(message, { line }), null, mockResponse as Response, null);
+    errorMiddleware(
+      APIError.parsingError('Unexpected token "{"', { line: 42 }),
+      mockRequest,
+      mockResponse as express.Response,
+      mockNext,
+    );
     expect(mockResponse.json).toBeCalledWith({
       parsingError: {
-        message,
-        line,
+        message: 'Unexpected token "{"',
+        line: 42,
         code: ErrorCode.Parsing,
       },
       ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     });
   });
+
   it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
-    errorMiddleware(buildFailingTypeScriptError(message), null, mockResponse as Response, null);
+    errorMiddleware(
+      APIError.failingTypeScriptError('TypeScript failed for some reason'),
+      mockRequest,
+      mockResponse as express.Response,
+      mockNext,
+    );
     expect(mockResponse.json).toBeCalledWith({
       parsingError: {
-        message,
+        message: 'TypeScript failed for some reason',
         code: ErrorCode.FailingTypeScript,
       },
     });
   });
+
   it('should return a parsingError with properties "message" and "code" for LINTER_INITIALIZATION errors', () => {
-    errorMiddleware(buildLinterError(message), null, mockResponse as Response, null);
+    errorMiddleware(
+      APIError.linterError('Uninitialized linter'),
+      mockRequest,
+      mockResponse as express.Response,
+      mockNext,
+    );
     expect(mockResponse.json).toBeCalledWith({
       parsingError: {
-        message,
+        message: 'Uninitialized linter',
         code: ErrorCode.LinterInitialization,
       },
     });
   });
+
   it('should return a propery "error" containing the error message for any other error', () => {
-    errorMiddleware(new Error(message), null, mockResponse as Response, null);
+    errorMiddleware(
+      new Error('Something unexpected happened.'),
+      mockRequest,
+      mockResponse as express.Response,
+      mockNext,
+    );
     expect(mockResponse.json).toBeCalledWith({
-      error: message,
+      error: 'Something unexpected happened.',
     });
   });
 });
