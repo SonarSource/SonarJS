@@ -22,7 +22,6 @@ import { setContext } from 'helpers';
 import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from 'routing/errors';
 import { start } from 'server';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
