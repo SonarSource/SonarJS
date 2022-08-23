@@ -34,16 +34,17 @@ export function errorMiddleware(
 ) {
   console.error(error.stack);
 
-  let errorCode: ErrorCode;
+  let apiError: APIError;
   if (error instanceof APIError) {
-    errorCode = error.code;
+    apiError = error;
   } else {
-    errorCode = ErrorCode.Unexpected;
+    apiError = new APIError(ErrorCode.Unexpected, error.message);
   }
+  const errorCode: ErrorCode = apiError.code;
 
   if (errorCode === ErrorCode.Unexpected) {
     response.json({
-      error: error.message,
+      error: apiError.message,
       // sadly tests aren't ready for a proper format
       /* error: {
         code: errorCode,
@@ -58,15 +59,16 @@ export function errorMiddleware(
   } else if ([ErrorCode.Parsing, ErrorCode.FailingTypeScript].includes(errorCode)) {
     response.json({
       parsingError: {
-        message: error.message,
+        message: apiError.message,
         code: errorCode,
+        line: apiError.data.line,
       },
       ...EMPTY_JSTS_ANALYSIS_OUTPUT,
     });
   } else if (errorCode === ErrorCode.LinterInitialization) {
     response.json({
       parsingError: {
-        message: error.message,
+        message: apiError.message,
         code: errorCode,
       },
     });
