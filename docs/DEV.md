@@ -27,7 +27,7 @@ The "Plugin Test" is an integration test which verifies plugin features such as 
 ```sh
 cd its/plugin
 mvn clean install
-```  
+```
 
 ### Ruling Tests
 The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files).
@@ -38,7 +38,7 @@ mvn verify -Dtest=TypeScriptRulingTest -Dmaven.test.redirectTestOutputToFile=fal
 mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
-This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect. You can inspect new/lost issues checking the SonarQube UI (use DEBUG mode and put a breakpoint on the assertion) at the end of analysis. 
+This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect. You can inspect new/lost issues checking the SonarQube UI (use DEBUG mode and put a breakpoint on the assertion) at the end of analysis.
 
 If everything looks good to you, you can copy the file with the actual issues located at `its/ruling/target/actual/`
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
@@ -50,7 +50,7 @@ From `its/ruling/`:
 
 You can review the Ruling difference by running `diff -rq src/test/expected/js target/actual/js` from `its/ruling`.
 
-To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube. 
+To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
 ## Adding a rule
@@ -77,7 +77,7 @@ npm run new-rule S1234 no-invalid-something [eslint]
 This script:
 * generates a Java check class for the rule `NoInvalidSomethingCheck.java`
 * generates a `no-invalid-something.ts` file for the rule implementation
-* generates a `comment-based/no-invalid-something.js` test file 
+* generates a `comment-based/no-invalid-something.js` test file
 * updates the `index.ts` file to include the new rule
 * updates the `CheckList.java` to include the new rule
 
@@ -94,9 +94,9 @@ This script:
       ```
 4. Implement the rule logic in `no-invalid-something.ts`
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   * Note that there are some helper functions in `eslint-bridge/src/utils/`
-   * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/6798d21cd9fec8da929334460b364d548b0a608c/eslint-bridge/src/rules/regex-rule-template.ts#L53)
-   * If possible implement quickfixes for the rule (then add its rule key in `eslint-bridge/src/quickfix.ts`).
+   * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`
+   * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/2831eb9a53da914d58b8e063a017c68e71eab839/eslint-bridge/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
+   * If possible implement quickfixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
 
 ### Testing the rule
 
@@ -110,7 +110,7 @@ These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-bas
 
 ```javascript
 some.clean.code();
-some.faulty.code(); // Noncompliant {{Optional message to assert}} 
+some.faulty.code(); // Noncompliant {{Optional message to assert}}
 //   ^^^^^^
 ```
 
@@ -123,7 +123,7 @@ npm run ctest -- -t="no-invalid-something"
 
 #### Ruling
 
-Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild the jar before that!). 
+Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild the jar before that!).
 
 If your rule does not raise any issue, you should write your own code that triggers your rule in:
 - `its/sources/file-for-rules/S1234.js` for code
