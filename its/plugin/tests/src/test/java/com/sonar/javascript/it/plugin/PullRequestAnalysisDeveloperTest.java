@@ -37,6 +37,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -45,7 +46,8 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-class PullRequestAnalysisTest {
+@EnabledIfSystemProperty(named = "sonar.edition", matches = "developer")
+class PullRequestAnalysisDeveloperTest {
 
   private static final String PROJECT_KEY = "pr-analysis";
 
