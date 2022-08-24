@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -88,12 +89,15 @@ class PullRequestAnalysisTest {
   void should_analyse_pull_requests() {
     gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
     scanWith(getMasterScanner());
+    assertThat(getIssues(PROJECT_KEY + ":hello.js")).isEmpty();
 
     gitExecutor.execute(git -> git.checkout().setName(PR1.BRANCH));
     scanWith(getBranchScanner(PR1.BRANCH));
+    assertThat(getIssues(PROJECT_KEY + ":hello.js", PR1.BRANCH)).hasSize(1);
 
     gitExecutor.execute(git -> git.checkout().setName(PR2.BRANCH));
     scanWith(getBranchScanner(PR2.BRANCH));
+    assertThat(getIssues(PROJECT_KEY + ":hello.js", PR2.BRANCH)).isEmpty();
 
     Collections.reverse(scanTimes);
     assertThat(scanTimes).allMatch(time -> time > 0L);
