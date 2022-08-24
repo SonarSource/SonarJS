@@ -57,7 +57,6 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   private static OrchestratorBuilder getBaseOrchestratorBuilder() {
     var base = BASE_ORCHESTRATOR_BUILDER;
     var edition = System.getProperty("sonar.edition", "community").toLowerCase(Locale.ROOT);
-    System.out.printf("ORCHESTRATOR USING EDITION %s%n", edition);
     return "developer".equals(edition) ? base.setEdition(Edition.DEVELOPER).activateLicense() : base;
   }
 
