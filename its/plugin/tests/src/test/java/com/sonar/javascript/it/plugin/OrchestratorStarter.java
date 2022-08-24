@@ -183,7 +183,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(projectDir);
-    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "empty-profile", "js");
 
     var buildResult = ORCHESTRATOR.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
