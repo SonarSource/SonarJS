@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -50,6 +51,8 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setEdition(Edition.DEVELOPER)
+    .activateLicense()
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
@@ -80,7 +83,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   @Override
-  public void beforeAll(ExtensionContext context) throws Exception {
+  public void beforeAll(ExtensionContext context) {
     synchronized (OrchestratorStarter.class) {
       if (!started) {
         started = true;
@@ -96,7 +99,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
 
   @Override
-  public void close() throws Throwable {
+  public void close() {
     // this is executed once all tests are finished
     ORCHESTRATOR.stop();
   }
@@ -152,8 +155,15 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   static List<Issue> getIssues(String componentKey) {
+    return getIssues(componentKey, null);
+  }
+
+  static List<Issue> getIssues(String componentKey, String branch) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
     return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
   }
 
@@ -165,7 +175,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(projectDir);
-    OrchestratorStarter.setProfile(projectKey, "empty-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
     var buildResult = ORCHESTRATOR.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
