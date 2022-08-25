@@ -15,6 +15,7 @@ env:
 
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
+
   GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
 
 container_definition: &CONTAINER_DEFINITION
@@ -77,7 +78,6 @@ build_task:
     cpu: 15
     memory: 30G
   env:
-    GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
     # analysis on next
     SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
