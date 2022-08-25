@@ -153,6 +153,7 @@ class PullRequestAnalysisDeveloperTest {
     stopWatch.stop();
     scanTimes.add(stopWatch.getTime());
     assertThat(result.isSuccess()).isTrue();
+    assertThat(result.getLogsLines("INFO: 2 source files to be analyzed"::equals)).hasSize(1);
   }
 
   static class FileGenerator {
