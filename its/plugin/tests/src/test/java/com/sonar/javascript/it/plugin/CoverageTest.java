@@ -133,26 +133,6 @@ class CoverageTest {
   }
 
   @Test
-  void no_coverage_information_saved() {
-    final String projectKey = "NoCoverageInfo";
-    SonarScanner build = OrchestratorStarter.createScanner()
-      .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(projectKey)
-      .setProjectName(projectKey)
-      .setProjectVersion("1.0")
-      .setProperty("sonar.exclusions", "dir/**")
-      .setSourceDirs(".");
-    OrchestratorStarter.setEmptyProfile(projectKey);
-    orchestrator.executeBuild(build);
-
-
-    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
-    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
-    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
-    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
-  }
-
-  @Test
   // SONARJS-301
   public void print_log_for_not_found_resource() {
     final String projectKey = "PrintLogForNotFoundResource";
