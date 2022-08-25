@@ -15,7 +15,7 @@ env:
 
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
-  GITHUB_TOKEN: ENCRYPTED[e2f71f361c42540b80f1f1135d3c8cfdb624509ccec0dc2e640ceec6883a8821ddc454f28b74a5604b9ae000681accf4]
+  GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
 
 container_definition: &CONTAINER_DEFINITION
   builder_image_project: release-engineering-ci-prod
