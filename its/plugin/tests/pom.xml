@@ -75,25 +75,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>developer-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>${maven.test.skip}</skip>
-              <includes>
-                <include>**/*DeveloperTest.java</include>
-              </includes>
-              <systemPropertyVariables>
-                <sonar.edition>developer</sonar.edition>
-              </systemPropertyVariables>
-              <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
-            </configuration>
-          </execution>
-        </executions>
         <configuration>
           <includes>
             <include>**/*Test.java</include>

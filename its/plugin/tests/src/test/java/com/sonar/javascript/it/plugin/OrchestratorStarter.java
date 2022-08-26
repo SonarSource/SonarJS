@@ -20,14 +20,12 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -51,16 +49,9 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
-  private static final OrchestratorBuilder BASE_ORCHESTRATOR_BUILDER = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"));
-
-  private static OrchestratorBuilder getBaseOrchestratorBuilder() {
-    var base = BASE_ORCHESTRATOR_BUILDER;
-    var edition = System.getProperty("sonar.edition", "community").toLowerCase(Locale.ROOT);
-    return "developer".equals(edition) ? base.setEdition(Edition.DEVELOPER).activateLicense() : base;
-  }
-
-  public static final Orchestrator ORCHESTRATOR = getBaseOrchestratorBuilder()
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setEdition(Edition.DEVELOPER).activateLicense()
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
