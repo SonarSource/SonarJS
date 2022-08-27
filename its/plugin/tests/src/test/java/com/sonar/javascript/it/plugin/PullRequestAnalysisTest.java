@@ -45,7 +45,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
-class PullRequestAnalysisDeveloperTest {
+class PullRequestAnalysisTest {
 
   private static final String PROJECT_KEY = "pr-analysis";
 
@@ -107,7 +107,7 @@ class PullRequestAnalysisDeveloperTest {
   @Test
   void should_analyse_pull_requests() {
     gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-    scanWith(getMasterScanner());
+    scanWith(getMainScanner());
     assertThat(getIssues(PROJECT_KEY + ":hello.js")).isEmpty();
 
     gitExecutor.execute(git -> git.checkout().setName(PR1.BRANCH));
@@ -122,7 +122,7 @@ class PullRequestAnalysisDeveloperTest {
     assertThat(scanTimes).allMatch(time -> time > 0L);
   }
 
-  private SonarScanner getMasterScanner() {
+  private SonarScanner getMainScanner() {
     return getScanner().setProperty("sonar.branch.name", Main.BRANCH);
   }
 
@@ -202,7 +202,7 @@ class PullRequestAnalysisDeveloperTest {
   }
 
   static class Main {
-    static final String BRANCH = "master";
+    static final String BRANCH = "main";
     static final List<String> PACKAGE_JSON = List.of("{\"name\":\"pr-analysis-test\",\"version\":\"1.0.0\",\"main\":\"index.js\"}");
     static final List<String> HELLO_JS = List.of(
       "exports.hello = function(name) {",
