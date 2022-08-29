@@ -138,15 +138,18 @@ class PRAnalysisTest {
 
     try (var gitExecutor = createProjectIn(projectPath, language)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      assertThat(scanWith(getMainScannerIn(projectPath, projectKey, language))).has(allOf(expectedLog("DEBUG: Saving issue for rule no-extra-semi", Main.RULE_EXECUTIONS),
-        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Main.SOURCE_FILES), 1)));
+      assertThat(scanWith(getMainScannerIn(projectPath, projectKey, language))).has(allOf(
+        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Main.RULE_EXECUTIONS),
+        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Main.SOURCE_FILES), 1)
+      ));
       assertThat(getIssues(projectKey + ":index." + language, Main.BRANCH))
         .hasSize(Main.ISSUES);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       assertThat(scanWith(getBranchScannerIn(projectPath, projectKey, language))).has(allOf(
         expectedLog("DEBUG: Saving issue for rule no-extra-semi", PR.RULE_EXECUTIONS),
-        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 1)));
+        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 1)
+      ));
       assertThat(getIssues(projectKey + ":hello." + language, PR.BRANCH))
         .hasSize(PR.ISSUES);
     }
