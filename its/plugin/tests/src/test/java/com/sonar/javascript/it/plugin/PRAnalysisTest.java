@@ -138,7 +138,7 @@ class PRAnalysisTest {
         expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES),
         expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 1)
       ));
-      assertThat(getIssues(projectKey, Master.BRANCH))
+      assertThat(getIssues(projectKey))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":index." + language);
