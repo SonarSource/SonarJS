@@ -81,31 +81,26 @@ class PRAnalysisTest {
     return executor;
   }
 
-  private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey, String language) {
-    return getScanner(projectDir, projectKey, language).setProperty("sonar.branch.name", Master.BRANCH);
+  private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
+    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Master.BRANCH);
   }
 
-  private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey, String language) {
-    return getScanner(projectDir, projectKey, language)
+  private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
+    return getScanner(projectDir, projectKey)
       .setProperty("sonar.pullrequest.key", PR.BRANCH)
       .setProperty("sonar.pullrequest.branch", PR.BRANCH)
       .setProperty("sonar.pullrequest.base", Master.BRANCH);
   }
 
-  private static SonarScanner getScanner(Path projectDir, String projectKey, String language) {
-    var scanner = getSonarScanner()
+  private static SonarScanner getScanner(Path projectDir, String projectKey) {
+    return getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setDebugLogs(true)
       .setSourceDirs(".")
       .setProjectDir(projectDir.toFile())
       .setProperty("sonar.scm.provider", "git")
-      .setProperty("sonar.scm.disabled", "false")
-      .setProperty("sonar.analysisCache.enabled", "true");
-    if ("ts".equals(language)) {
-      scanner.setProperty("sonar.typescript.tsconfigPath", "tsconfig.json");
-    }
-    return scanner;
+      .setProperty("sonar.scm.disabled", "false");
   }
 
   private static BuildResult scanWith(SonarScanner scanner) {
@@ -139,8 +134,8 @@ class PRAnalysisTest {
 
     try (var gitExecutor = createProjectIn(projectPath, language)) {
       gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
-      assertThat(scanWith(getMasterScannerIn(projectPath, projectKey, language))).has(allOf(
-        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.RULE_EXECUTIONS),
+      assertThat(scanWith(getMasterScannerIn(projectPath, projectKey))).has(allOf(
+        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES),
         expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 1)
       ));
       assertThat(getIssues(projectKey, Master.BRANCH))
@@ -149,8 +144,8 @@ class PRAnalysisTest {
         .contains(projectKey + ":index." + language);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      assertThat(scanWith(getBranchScannerIn(projectPath, projectKey, language))).has(allOf(
-        expectedLog("DEBUG: Saving issue for rule no-extra-semi", PR.RULE_EXECUTIONS),
+      assertThat(scanWith(getBranchScannerIn(projectPath, projectKey))).has(allOf(
+        expectedLog("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES),
         expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 1)
       ));
       assertThat(getIssues(projectKey, PR.BRANCH))
@@ -226,7 +221,7 @@ class PRAnalysisTest {
       "const { hello } = require('./hello');",
       "hello('World');;"); // Extra semicolon issue expected here.
     static final int SOURCE_FILES = 2;
-    public static final int RULE_EXECUTIONS = 1;
+    public static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
   static class PR {
@@ -240,6 +235,6 @@ class PRAnalysisTest {
       "  }, sleep);",
       "}");
     static final int SOURCE_FILES = 2;
-    public static final int RULE_EXECUTIONS = 2;
+    public static final int ANALYZER_REPORTED_ISSUES = 2;
   }
 }
