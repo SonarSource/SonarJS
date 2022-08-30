@@ -31,7 +31,6 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
     const sourceCodes = buildSourceCodes(filePath);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
@@ -39,7 +38,6 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
     const sourceCodes = buildSourceCodes(filePath);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 

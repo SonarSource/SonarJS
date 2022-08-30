@@ -63,11 +63,11 @@ describe('patchSourceCode', () => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', property);
 
     const filePath = `${fixture}.yaml`;
-    const [patchedSourceCode] = buildSourceCodes(filePath) as SourceCode[];
+    const [patchedSourceCode] = buildSourceCodes(filePath);
     const patchedNodes = patchedSourceCode.ast[property];
 
     const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
-    const referenceSourceCode = buildSourceCode(input, 'js') as SourceCode;
+    const referenceSourceCode = buildSourceCode(input, 'js');
     const referenceNodes = referenceSourceCode.ast[property];
 
     expect(patchedNodes).toEqual(referenceNodes);
