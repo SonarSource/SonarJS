@@ -68,6 +68,12 @@ export function parseYaml(
       throw APIError.parsingError(error.message, { line: lineCounter.linePos(error.pos[0]).line });
     }
 
+    /**
+     * When we use the predicate to match from deep in the tree to upwards,
+     * if we need to associate to a certain field that has siblings, there
+     * is no way to get the direct ancestor, so we use this iterator to match
+     * to the direct one.
+     */
     let iterator = 0;
 
     /**

@@ -23,11 +23,11 @@ import { isAwsFunction, parseYaml, pickFunctionName, YamlVisitorPredicate } from
 import { APIError } from 'errors';
 import { readFileSync } from 'fs';
 
-
-function voidPicker (_key: any, _node: any, _ancestors: any) { return {} };
+function voidPicker(_key: any, _node: any, _ancestors: any) {
+  return {};
+}
 
 describe('parseYaml', () => {
-
   it('should return embedded JavaScript', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
     const text = readFileSync(filePath, { encoding: 'utf-8' });
@@ -52,14 +52,14 @@ describe('parseYaml', () => {
       expect.objectContaining({
         extras: expect.objectContaining({
           functionName: 'SomeLambdaFunction',
-        })
+        }),
       }),
     );
     expect(secondEmbedded).toEqual(
       expect.objectContaining({
         extras: expect.objectContaining({
           functionName: 'OtherLambdaFunction',
-        })
+        }),
       }),
     );
   });

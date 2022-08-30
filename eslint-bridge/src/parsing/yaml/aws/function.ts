@@ -94,7 +94,12 @@ export const isAwsFunction: YamlVisitorPredicate = function (_key: any, pair: an
 /**
  * Picks the embeddedJS functionName for AWS lambdas and serverless functions
  */
-export const pickFunctionName: ExtrasPicker = function (_key: any, _pair: any, ancestors: any, iterator: number) {
+export const pickFunctionName: ExtrasPicker = function (
+  _key: any,
+  _pair: any,
+  ancestors: any,
+  iterator: number,
+) {
   const LEVELS_TO_FUNCTION_NAME = 5;
   return {
     functionName: ancestors[ancestors.length - LEVELS_TO_FUNCTION_NAME].items[iterator].key.value,
