@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -84,7 +85,7 @@ class TypeScriptRuleTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "empty-profile");
 
-    String perfMonitoringDir = "target/monitoring/" + PROJECT_KEY;
+    Path perfMonitoringDir = Path.of("target/monitoring/", PROJECT_KEY);
     SonarScanner build = getSonarScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(PROJECT_KEY)
@@ -94,7 +95,7 @@ class TypeScriptRuleTest {
       .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/ts/" + PROJECT_KEY).getFile().getAbsolutePath())
       .setProperty("sonar.lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
       .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty("sonar.javascript.monitoring.path", FileLocation.of(perfMonitoringDir).getFile().getAbsolutePath())
+      .setProperty("sonar.javascript.monitoring.path", perfMonitoringDir.toAbsolutePath().toString())
       .setProperty("sonar.cpd.exclusions", "**/*");
 
     orchestrator.executeBuild(build);
@@ -104,8 +105,8 @@ class TypeScriptRuleTest {
   }
 
   // asserting perf monitoring on TypeScript project as it creates all kinds of metrics
-  private void assertPerfMonitoringAvailable(String perfMonitoringDir) throws IOException {
-    String content = Files.readString(Paths.get(perfMonitoringDir, "metrics.json"));
+  private void assertPerfMonitoringAvailable(Path perfMonitoringDir) throws IOException {
+    String content = Files.readString(perfMonitoringDir.resolve("metrics.json"));
     assertThat(content)
       .contains("\"metricType\":\"FILE\"")
       .contains("\"metricType\":\"SENSOR\"")

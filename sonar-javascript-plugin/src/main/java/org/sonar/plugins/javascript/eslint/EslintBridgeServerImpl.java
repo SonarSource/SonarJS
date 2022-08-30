@@ -449,9 +449,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   static class MonitoringOutputConsumer implements Consumer<String> {
 
-    // splitting HEADER because number of spaces after "Rule" depends on the rule keys lengths
-    private static final String HEADER_HEAD = "Rule ";
-    private static final String HEADER_TAIL = "Time (ms) | Relative";
+    // number of spaces after "Rule" depends on the rule keys lengths
+    private static final Pattern HEADER = Pattern.compile("Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*");
     private static final Pattern RULE_LINE = Pattern.compile("(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%");
     private final Monitoring monitoring;
 
@@ -463,7 +462,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     @Override
     public void accept(String s) {
-      if (s.startsWith(HEADER_HEAD) && s.endsWith(HEADER_TAIL)) {
+      if (HEADER.matcher(s).matches()) {
         headerDetected = true;
         return;
       }
