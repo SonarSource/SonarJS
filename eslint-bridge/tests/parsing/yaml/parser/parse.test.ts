@@ -19,14 +19,20 @@
  */
 
 import path from 'path';
-import { EmbeddedJS, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
+import { isAwsFunction, parseYaml, pickFunctionName, YamlVisitorPredicate } from 'parsing/yaml';
 import { APIError } from 'errors';
+import { readFileSync } from 'fs';
+
+
+function voidPicker (_key: any, _node: any, _ancestors: any) { return {} };
 
 describe('parseYaml', () => {
-  it('should return embedded JavScript', () => {
+
+  it('should return embedded JavaScript', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
+    const text = readFileSync(filePath, { encoding: 'utf-8' });
     const predicate = (_key: any, node: any, _ancestors: any) => node.key.value === 'embedded';
-    const [embedded] = parseYaml(predicate, filePath) as EmbeddedJS[];
+    const [embedded] = parseYaml(predicate, voidPicker, filePath);
     expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',
@@ -34,7 +40,26 @@ describe('parseYaml', () => {
         column: 13,
         offset: 17,
         lineStarts: [0, 5, 22, 27, 44],
-        text: 'foo:\n  embedded: f(x)\nbar:\n  embbeded: g(y)\n',
+        text,
+      }),
+    );
+  });
+
+  it('should extract the functionName when one exists', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'parse', 'functionNames.yaml');
+    const [firstEmbedded, secondEmbedded] = parseYaml(isAwsFunction, pickFunctionName, filePath);
+    expect(firstEmbedded).toEqual(
+      expect.objectContaining({
+        extras: expect.objectContaining({
+          functionName: 'SomeLambdaFunction',
+        })
+      }),
+    );
+    expect(secondEmbedded).toEqual(
+      expect.objectContaining({
+        extras: expect.objectContaining({
+          functionName: 'OtherLambdaFunction',
+        })
       }),
     );
   });
@@ -42,7 +67,7 @@ describe('parseYaml', () => {
   it('should return parsing errors', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
     const predicate = (() => false) as YamlVisitorPredicate;
-    expect(() => parseYaml(predicate, filePath)).toThrow(
+    expect(() => parseYaml(predicate, voidPicker, filePath)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 2 }),
     );
   });

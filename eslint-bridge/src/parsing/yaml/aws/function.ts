@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { YamlVisitorPredicate } from 'parsing/yaml';
+import { YamlVisitorPredicate, ExtrasPicker } from 'parsing/yaml';
 
 /**
  * Checks if the given YAML AST node is an AWS Lambda or Serverless function
@@ -89,4 +89,14 @@ export const isAwsFunction: YamlVisitorPredicate = function (_key: any, pair: an
       (item: any) => item?.key.value === 'Type' && item?.value.value === value,
     );
   }
+};
+
+/**
+ * Picks the embeddedJS functionName for AWS lambdas and serverless functions
+ */
+export const pickFunctionName: ExtrasPicker = function (_key: any, _pair: any, ancestors: any, iterator: number) {
+  const LEVELS_TO_FUNCTION_NAME = 5;
+  return {
+    functionName: ancestors[ancestors.length - LEVELS_TO_FUNCTION_NAME].items[iterator].key.value,
+  };
 };

@@ -28,6 +28,7 @@
  * @param lineStarts Offset at each line start
  * @param text Whole YAML file content
  * @param format Format of the YAML string that embeds the JS code
+ * @param extras additionnal data, dependent on the ExtrasPicker
  */
 export type EmbeddedJS = {
   code: string;
@@ -37,4 +38,7 @@ export type EmbeddedJS = {
   lineStarts: number[];
   text: string;
   format: 'PLAIN' | 'BLOCK_FOLDED' | 'BLOCK_LITERAL';
+  extras: {
+    functionName?: string;
+  };
 };

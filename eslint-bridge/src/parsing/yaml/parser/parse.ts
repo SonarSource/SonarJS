@@ -32,9 +32,18 @@ import { APIError } from 'errors';
 export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
+ * A function that picks extra data
+ */
+export type ExtrasPicker = (key: any, node: any, ancestors: any, iterator: number) => {};
+
+/**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): EmbeddedJS[] {
+export function parseYaml(
+  predicate: YamlVisitorPredicate,
+  extrasPicker: ExtrasPicker,
+  filePath: string,
+): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -59,6 +68,8 @@ export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): Em
       throw APIError.parsingError(error.message, { line: lineCounter.linePos(error.pos[0]).line });
     }
 
+    let iterator = 0;
+
     /**
      * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
      */
@@ -73,7 +84,7 @@ export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): Em
            * This assertion should never fail because the visited node denotes either an AWS Lambda
            * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
            */
-          assert(code != null, 'An extracted embedded JavaScript snippet should not be undefined.');
+          assert(code != null, 'An extracted embedded JavaScript snippet should be defined.');
 
           const [offsetStart] = value.range;
           const { line, col: column } = lineCounter.linePos(offsetStart);
@@ -87,7 +98,9 @@ export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): Em
             lineStarts,
             text,
             format,
+            extras: extrasPicker(key, pair, ancestors, iterator),
           });
+          iterator++;
         }
       },
     });
