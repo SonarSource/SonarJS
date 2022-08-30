@@ -128,7 +128,7 @@ class CssRuleSensorTest {
 
   @Test
   void test_descriptor_sonarlint() {
-    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSensorDescriptor();
+    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorDescriptor();
     // should not throw as 'processesFilesIndependently' is not executed for SonarLint
     sensor.describe(sonarlintDescriptor);
     assertThat(sonarlintDescriptor.name()).isEqualTo("CSS Rules");
