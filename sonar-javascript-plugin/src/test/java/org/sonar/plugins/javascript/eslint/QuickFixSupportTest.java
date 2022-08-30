@@ -37,13 +37,13 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSensorContext;
-import org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSonarLintIssue;
-import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
-import org.sonarsource.sonarlint.core.container.analysis.filesystem.SonarLintInputFile;
-import org.sonarsource.sonarlint.core.container.analysis.filesystem.SonarLintInputProject;
-import org.sonarsource.sonarlint.core.container.global.SonarLintRuntimeImpl;
-import org.sonarsource.sonarlint.core.util.ProgressWrapper;
+import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
+import org.sonarsource.sonarlint.core.analysis.container.analysis.filesystem.SonarLintInputFile;
+import org.sonarsource.sonarlint.core.analysis.container.analysis.filesystem.SonarLintInputProject;
+import org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorContext;
+import org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSonarLintIssue;
+import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
+import org.sonarsource.sonarlint.core.plugin.commons.sonarapi.SonarLintRuntimeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
@@ -75,7 +75,7 @@ class QuickFixSupportTest {
     var runtime = new SonarLintRuntimeImpl(Version.create(8, 9), version, 1L);
     sensorStorage = mock(SensorStorage.class);
     return new DefaultSensorContext(mock(SonarLintInputProject.class), settings, settings.asConfig(),
-      fs, activeRules, sensorStorage, runtime, mock(ProgressWrapper.class));
+      fs, activeRules, sensorStorage, runtime, mock(ProgressMonitor.class));
   }
 
   @Test
@@ -96,7 +96,7 @@ class QuickFixSupportTest {
     assertThat(qf.message()).isEqualTo("QuickFix message");
     var textEdit = qf.inputFileEdits().get(0).textEdits().get(0);
     assertThat(textEdit.range())
-      .extracting(r -> r.start().line(), r -> r.start().lineOffset(), r -> r.end().line(), r -> r.end().lineOffset())
+      .extracting(r -> r.getStartLine(), r -> r.getStartLineOffset(), r -> r.getEndLine(), r -> r.getEndLineOffset())
       .containsExactly(1, 2, 3, 4);
   }
 

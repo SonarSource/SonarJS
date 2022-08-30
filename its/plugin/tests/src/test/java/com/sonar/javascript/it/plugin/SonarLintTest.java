@@ -32,15 +32,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
-import org.sonarsource.sonarlint.core.client.api.common.Language;
-import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
-import org.sonarsource.sonarlint.core.client.api.common.QuickFix;
-import org.sonarsource.sonarlint.core.client.api.common.Version;
-import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
+import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
+import org.sonarsource.sonarlint.core.analysis.api.QuickFix;
+import org.sonarsource.sonarlint.core.analysis.api.WithTextRange;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
+import org.sonarsource.sonarlint.core.commons.Language;
+import org.sonarsource.sonarlint.core.commons.Version;
+import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,12 +89,16 @@ class SonarLintTest {
       + "  var b = 42; \n"
       + "} \n");
     String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
-    assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:S1481", 2, filePath, "MINOR"),
-      tuple("javascript:S3504", 2, filePath, "CRITICAL"),
-      tuple("javascript:S1481", 4, filePath, "MINOR"),
-      tuple("javascript:S1854", 4, filePath, "MAJOR"),
-      tuple("javascript:S3504", 4, filePath, "CRITICAL"));
+    assertThat(issues).extracting(Issue::getRuleKey,
+      WithTextRange::getStartLine,
+      i -> Path.of(i.getInputFile().relativePath()).toAbsolutePath().toString(),
+      i -> i.getSeverity().toString())
+      .containsExactlyInAnyOrder(
+        tuple("javascript:S1481", 2, filePath, "MINOR"),
+        tuple("javascript:S3504", 2, filePath, "CRITICAL"),
+        tuple("javascript:S1481", 4, filePath, "MINOR"),
+        tuple("javascript:S1854", 4, filePath, "MAJOR"),
+        tuple("javascript:S3504", 4, filePath, "CRITICAL"));
 
     assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
@@ -191,7 +196,7 @@ class SonarLintTest {
     var textEdit = fileEdit.textEdits().get(0);
     assertThat(textEdit.newText()).isEqualTo(code);
     assertThat(textEdit.range())
-      .extracting(r -> r.start().line(), r -> r.start().lineOffset(), r -> r.end().line(), r -> r.end().lineOffset())
+      .extracting(r -> r.getStartLine(), r -> r.getStartLineOffset(), r -> r.getEndLine(), r -> r.getEndLineOffset())
       .containsExactly(line, column, endLine, endColumn);
   }
 
@@ -213,7 +218,7 @@ class SonarLintTest {
   }
 
   private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
-    LogOutput logOutput = (formattedMessage, level) -> {
+    ClientLogOutput logOutput = (formattedMessage, level) -> {
       LOGS.add(formattedMessage);
       System.out.println(formattedMessage);
     };
@@ -221,7 +226,7 @@ class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
-      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)

@@ -31,12 +31,17 @@
       <artifactId>sonar-orchestrator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-ws</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core</artifactId>
+    </dependency>
+    <!--
+         sonar-ws has to be after sonarlint-core for the tests to work properly.
+         There are multiple implementations brought by sonarlint and sonarqube for the
+         same plugin API classes and the classpath order is thus important.
+      -->
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-ws</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>

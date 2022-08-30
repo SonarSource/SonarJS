@@ -71,7 +71,7 @@ class CssMetricSensorTest {
 
   @Test
   void test_descriptor_sonarlint() {
-    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analyzer.sensor.DefaultSensorDescriptor();
+    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorDescriptor();
     // should not throw as 'processesFilesIndependently' is not executed for SonarLint
     new CssMetricSensor(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)), null)
       .describe(sonarlintDescriptor);
