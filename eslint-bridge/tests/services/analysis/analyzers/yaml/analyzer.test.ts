@@ -21,8 +21,10 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeYAML } from 'services/analysis';
-import { initializeLinter } from 'linting/eslint';
+import { initializeLinter, linter } from 'linting/eslint';
 import { APIError } from 'errors';
+import { Rule } from 'eslint';
+import { composeSourceCodeFilename } from 'parsing/yaml';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -185,5 +187,37 @@ describe('analyzeYAML', () => {
       fileContent: undefined,
     });
     expect(issues).toHaveLength(0);
+  });
+
+  it('should compose the filename based on itself and function name', async () => {
+    const filePath = join(fixturesPath, 'functionNames.yaml');
+    initializeLinter([{ key: 'function-name-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const filenames = composeSourceCodeFilenames(filePath, [
+      'SomeLambdaFunction',
+      'OtherLambdaFunction',
+    ]);
+    linter.linter.defineRule('function-name-rule', buildFilenameCheckRule(filenames));
+    await analyzeYAML({
+      filePath,
+      fileContent: undefined,
+    });
+
+    expect.assertions(2);
+
+    function composeSourceCodeFilenames(filePath, functionNames) {
+      return functionNames.map(composeSourceCodeFilename.bind(null, filePath));
+    }
+
+    function buildFilenameCheckRule(expectedFilenames: string[]): Rule.RuleModule {
+      return {
+        create(context: Rule.RuleContext) {
+          return {
+            Program: _node => {
+              expect(expectedFilenames.includes(context.getFilename())).toBe(true);
+            },
+          };
+        },
+      };
+    }
   });
 });
