@@ -22,21 +22,16 @@ package org.sonar.javascript.it;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
-import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
@@ -204,8 +199,6 @@ class JavaScriptRulingTest {
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty("sonar.javascript.monitoring.path", FileLocation.of("target/monitoring/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);
