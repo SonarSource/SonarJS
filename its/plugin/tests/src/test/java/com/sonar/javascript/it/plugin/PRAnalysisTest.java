@@ -61,13 +61,13 @@ class PRAnalysisTest {
     var indexFile = "index." + language;
 
     if ("ts".equals(language)) {
-      generator.write("package.json", Main.PACKAGE_JSON_TS);
-      generator.write("tsconfig.json", Main.TSCONFIG_JSON);
+      generator.write("package.json", Master.PACKAGE_JSON_TS);
+      generator.write("tsconfig.json", Master.TSCONFIG_JSON);
     } else {
-      generator.write("package.json", Main.PACKAGE_JSON_JS);
+      generator.write("package.json", Master.PACKAGE_JSON_JS);
     }
-    generator.write(helloFile, Main.HELLO);
-    generator.write(indexFile, Main.INDEX);
+    generator.write(helloFile, Master.HELLO);
+    generator.write(indexFile, Master.INDEX);
     executor.execute(git -> git.add().addFilepattern("."));
     executor.execute(git -> git.commit().setMessage("Create project"));
 
@@ -75,20 +75,20 @@ class PRAnalysisTest {
     generator.write(helloFile, PR.HELLO);
     executor.execute(git -> git.add().addFilepattern("."));
     executor.execute(git -> git.commit().setMessage("Refactor"));
-    executor.execute(git -> git.checkout().setName(Main.BRANCH));
+    executor.execute(git -> git.checkout().setName(Master.BRANCH));
 
     return executor;
   }
 
-  private static SonarScanner getMainScannerIn(Path projectDir, String projectKey, String language) {
-    return getScanner(projectDir, projectKey, language).setProperty("sonar.branch.name", Main.BRANCH);
+  private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey, String language) {
+    return getScanner(projectDir, projectKey, language).setProperty("sonar.branch.name", Master.BRANCH);
   }
 
   private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey, String language) {
     return getScanner(projectDir, projectKey, language)
       .setProperty("sonar.pullrequest.key", PR.BRANCH)
       .setProperty("sonar.pullrequest.branch", PR.BRANCH)
-      .setProperty("sonar.pullrequest.base", Main.BRANCH);
+      .setProperty("sonar.pullrequest.base", Master.BRANCH);
   }
 
   private static SonarScanner getScanner(Path projectDir, String projectKey, String language) {
@@ -137,13 +137,13 @@ class PRAnalysisTest {
       "pr-analysis-ts-profile", "ts"));
 
     try (var gitExecutor = createProjectIn(projectPath, language)) {
-      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      assertThat(scanWith(getMainScannerIn(projectPath, projectKey, language))).has(allOf(
-        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Main.RULE_EXECUTIONS),
-        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Main.SOURCE_FILES), 1)
+      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      assertThat(scanWith(getMasterScannerIn(projectPath, projectKey, language))).has(allOf(
+        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.RULE_EXECUTIONS),
+        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 1)
       ));
-      assertThat(getIssues(projectKey + ":index." + language, Main.BRANCH))
-        .hasSize(Main.ISSUES);
+      assertThat(getIssues(projectKey + ":index." + language, Master.BRANCH))
+        .hasSize(Master.ISSUES);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       assertThat(scanWith(getBranchScannerIn(projectPath, projectKey, language))).has(allOf(
@@ -181,7 +181,7 @@ class PRAnalysisTest {
       try {
         git = Git.init()
           .setDirectory(Files.createDirectories(root).toFile())
-          .setInitialBranch(Main.BRANCH)
+          .setInitialBranch(Master.BRANCH)
           .call();
       } catch (IOException | GitAPIException e) {
         throw new RuntimeException(e);
@@ -202,8 +202,8 @@ class PRAnalysisTest {
 
   }
 
-  static class Main {
-    static final String BRANCH = "main";
+  static class Master {
+    static final String BRANCH = "master";
     static final List<String> PACKAGE_JSON_JS = List.of("{\"name\":\"pr-analysis-js\",\"version\":\"1.0.0\",\"main\":\"index.js\"}");
     static final List<String> PACKAGE_JSON_TS = List.of(
       "{",
