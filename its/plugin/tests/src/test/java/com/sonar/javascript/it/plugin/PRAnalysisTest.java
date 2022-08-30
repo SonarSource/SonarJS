@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
@@ -142,16 +143,20 @@ class PRAnalysisTest {
         expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.RULE_EXECUTIONS),
         expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 1)
       ));
-      assertThat(getIssues(projectKey + ":index." + language, Master.BRANCH))
-        .hasSize(Master.ISSUES);
+      assertThat(getIssues(projectKey, Master.BRANCH))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":index." + language);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       assertThat(scanWith(getBranchScannerIn(projectPath, projectKey, language))).has(allOf(
         expectedLog("DEBUG: Saving issue for rule no-extra-semi", PR.RULE_EXECUTIONS),
         expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 1)
       ));
-      assertThat(getIssues(projectKey + ":hello." + language, PR.BRANCH))
-        .hasSize(PR.ISSUES);
+      assertThat(getIssues(projectKey, PR.BRANCH))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":hello." + language);
     }
   }
 
@@ -219,9 +224,8 @@ class PRAnalysisTest {
       "};");
     static final List<String> INDEX = List.of(
       "const { hello } = require('./hello');",
-      "hello('World');;");
+      "hello('World');;"); // Extra semicolon issue expected here.
     static final int SOURCE_FILES = 2;
-    static final int ISSUES = 1;
     public static final int RULE_EXECUTIONS = 1;
   }
 
@@ -229,14 +233,13 @@ class PRAnalysisTest {
     static final String BRANCH = "pr";
     static final List<String> HELLO = List.of(
       "exports.hello = function(name) {",
-      "  console.log('Starting...');;",
+      "  console.log('Starting...');;", // Extra semicolon issue expected here.
       "  setTimeout(() => {",
       "    console.log(`Hello, ${name.toUpperCase()}!`);",
       "    setTimeout(() => console.log('Stopped!'), 100);",
       "  }, sleep);",
       "}");
     static final int SOURCE_FILES = 2;
-    static final int ISSUES = 1;
     public static final int RULE_EXECUTIONS = 2;
   }
 }
