@@ -18,90 +18,88 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { YamlVisitorPredicate, ExtrasPicker } from 'parsing/yaml';
+import { PredicateAndPicker } from 'parsing/yaml';
+
+export const lambdaCheck: PredicateAndPicker = {
+  predicate: isInlineAwsLambda,
+  picker: pickFunctionName.bind(null, 6),
+};
+
+export const serverlessCheck: PredicateAndPicker = {
+  predicate: isInlineAwsServerless,
+  picker: pickFunctionName.bind(null, 4),
+};
 
 /**
- * Checks if the given YAML AST node is an AWS Lambda or Serverless function
+ * Checks if the given YAML AST node is an AWS Lambda function with the following structure:
+ *
+ * SomeLambdaFunction:
+ *   Type: "AWS::Lambda::Function"
+ *   Properties:
+ *     Runtime: <nodejs-version>
+ *     Code:
+ *       ZipFile: <embedded-js-code>
  */
-export const isAwsFunction: YamlVisitorPredicate = function (_key: any, pair: any, ancestors: any) {
-  return isInlineAwsLambda(pair, ancestors) || isInlineAwsServerless(pair, ancestors);
+function isInlineAwsLambda(_key: any, pair: any, ancestors: any[]) {
+  return (
+    isZipFile(pair) &&
+    hasCode(ancestors) &&
+    hasNodeJsRuntime(ancestors) &&
+    hasType(ancestors, 'AWS::Lambda::Function')
+  );
+
+  function isZipFile(pair: any) {
+    return pair.key.value === 'ZipFile';
+  }
+
+  function hasCode(ancestors: any[], level = 2) {
+    return ancestors[ancestors.length - level]?.key?.value === 'Code';
+  }
+}
+
+/**
+ * Checks if the given YAML AST node is an AWS Serverless function with the following structure:
+ *
+ * SomeServerlessFunction:
+ *   Type: "AWS::Serverless::Function"
+ *   Properties:
+ *     Runtime: <nodejs-version>
+ *     InlineCode: <embedded-js-code>
+ */
+function isInlineAwsServerless(_key: any, pair: any, ancestors: any[]) {
+  return (
+    isInlineCode(pair) &&
+    hasNodeJsRuntime(ancestors, 1) &&
+    hasType(ancestors, 'AWS::Serverless::Function', 3)
+  );
 
   /**
-   * Embedded JavaScript code inside an AWS Lambda Function has the following structure:
-   *
-   * SomeLambdaFunction:
-   *   Type: "AWS::Lambda::Function"
-   *   Properties:
-   *     Runtime: <nodejs-version>
-   *     Code:
-   *       ZipFile: <embedded-js-code>
+   * We need to check the pair directly instead of ancestors,
+   * otherwise it will validate all siblings.
    */
-  function isInlineAwsLambda(pair: any, ancestors: any[]) {
-    return (
-      isZipFile(pair) &&
-      hasCode(ancestors) &&
-      hasNodeJsRuntime(ancestors) &&
-      hasType(ancestors, 'AWS::Lambda::Function')
-    );
-
-    function isZipFile(pair: any) {
-      return pair.key.value === 'ZipFile';
-    }
-
-    function hasCode(ancestors: any[], level = 2) {
-      return ancestors[ancestors.length - level]?.key?.value === 'Code';
-    }
+  function isInlineCode(pair: any) {
+    return pair.key.value === 'InlineCode';
   }
+}
 
-  /**
-   * Embedded JavaScript code inside an AWS Serverless Function has the following structure:
-   *
-   * SomeServerlessFunction:
-   *   Type: "AWS::Serverless::Function"
-   *   Properties:
-   *     Runtime: <nodejs-version>
-   *     InlineCode: <embedded-js-code>
-   */
-  function isInlineAwsServerless(pair: any, ancestors: any[]) {
-    return (
-      isInlineCode(pair) &&
-      hasNodeJsRuntime(ancestors, 1) &&
-      hasType(ancestors, 'AWS::Serverless::Function', 3)
-    );
+function hasNodeJsRuntime(ancestors: any[], level = 3) {
+  return ancestors[ancestors.length - level]?.items?.some(
+    (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
+  );
+}
 
-    /**
-     * We need to check the pair directly instead of ancestors,
-     * otherwise it will validate all siblings.
-     */
-    function isInlineCode(pair: any) {
-      return pair.key.value === 'InlineCode';
-    }
-  }
-
-  function hasNodeJsRuntime(ancestors: any[], level = 3) {
-    return ancestors[ancestors.length - level]?.items?.some(
-      (item: any) => item?.key.value === 'Runtime' && item?.value?.value.startsWith('nodejs'),
-    );
-  }
-
-  function hasType(ancestors: any[], value: string, level = 5) {
-    return ancestors[ancestors.length - level]?.items?.some(
-      (item: any) => item?.key.value === 'Type' && item?.value.value === value,
-    );
-  }
-};
+function hasType(ancestors: any[], value: string, level = 5) {
+  return ancestors[ancestors.length - level]?.items?.some(
+    (item: any) => item?.key.value === 'Type' && item?.value.value === value,
+  );
+}
 
 /**
  * Picks the embeddedJS functionName for AWS lambdas and serverless functions
  */
-export const pickFunctionName: ExtrasPicker = function (
-  _key: any,
-  _pair: any,
-  ancestors: any,
-  iterator: number,
-) {
-  const LEVELS_TO_FUNCTION_NAME = 5;
+export function pickFunctionName(level: number, _key: any, _pair: any, ancestors: any) {
+  const ancestorsAtFunctionNameLevel = ancestors[ancestors.length - level];
   return {
-    functionName: ancestors[ancestors.length - LEVELS_TO_FUNCTION_NAME].items[iterator].key.value,
+    functionName: ancestorsAtFunctionNameLevel.key.value,
   };
-};
+}

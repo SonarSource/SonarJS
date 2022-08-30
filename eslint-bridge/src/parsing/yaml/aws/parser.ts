@@ -19,10 +19,10 @@
  */
 
 import { parseYaml } from 'parsing/yaml/parser';
-import { isAwsFunction, pickFunctionName } from './function';
+import { lambdaCheck, serverlessCheck } from './function';
 
 /**
  * Extracts from a YAML file all the embedded JavaScript code snippets either
  * in AWS Lambda Functions or AWS Serverless Functions.
  */
-export const parseAwsFromYaml = parseYaml.bind(null, isAwsFunction, pickFunctionName);
+export const parseAwsFromYaml = parseYaml.bind(null, [lambdaCheck, serverlessCheck]);

@@ -1,11 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   SomeLambdaFunction:
-    Type: "AWS::Serverless::Function"
+    Type: "AWS::Lambda::Function"
     Properties:
       Runtime: "nodejs16.0"
-      InlineCode: console.log("hello")
-  OtherLambdaFunction:
+      Code:
+        ZipFile: console.log("hello")
+  SomeServerlessFunction:
     Type: "AWS::Serverless::Function"
     Properties:
       Runtime: "nodejs16.0"

@@ -192,7 +192,7 @@ describe('analyzeYAML', () => {
   it('should provide the filename composed of itself and the AWS lambda function to the rule context', async () => {
     const filePath = join(fixturesPath, 'functionNames.yaml');
     initializeLinter([{ key: 'function-name-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const functionNames = ['SomeLambdaFunction', 'OtherLambdaFunction'];
+    const functionNames = ['SomeLambdaFunction', 'SomeServerlessFunction'];
     const filenames = composeSourceCodeFilenames(filePath, functionNames);
     linter.linter.defineRule('function-name-rule', buildFilenameCheckRule(filenames));
     const seenFunctionNames = [];

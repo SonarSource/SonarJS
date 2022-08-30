@@ -285,7 +285,7 @@ describe('YAML parsing builder', () => {
       const filePath = join(fixturesPath, 'functionNames.yaml');
       const sourceCodesMap = buildSourceCodesMap(filePath);
       const firstFunctionName = composeSourceCodeFilename(filePath, 'SomeLambdaFunction');
-      const secondFunctionName = composeSourceCodeFilename(filePath, 'OtherLambdaFunction');
+      const secondFunctionName = composeSourceCodeFilename(filePath, 'SomeServerlessFunction');
       expect(sourceCodesMap[firstFunctionName]).toBeDefined();
       expect(sourceCodesMap[secondFunctionName]).toBeDefined();
     });

@@ -26,6 +26,11 @@ import { readFile } from 'helpers';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 import { APIError } from 'errors';
 
+export type PredicateAndPicker = {
+  predicate: YamlVisitorPredicate;
+  picker: ExtrasPicker;
+};
+
 /**
  * A function predicate to visit a YAML node
  */
@@ -34,16 +39,12 @@ export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => bool
 /**
  * A function that picks extra data
  */
-export type ExtrasPicker = (key: any, node: any, ancestors: any, iterator: number) => {};
+export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(
-  predicate: YamlVisitorPredicate,
-  extrasPicker: ExtrasPicker,
-  filePath: string,
-): EmbeddedJS[] {
+export function parseYaml(pps: PredicateAndPicker[], filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -69,44 +70,37 @@ export function parseYaml(
     }
 
     /**
-     * When we use the predicate to match from deep in the tree to upwards,
-     * if we need to associate to a certain field that has siblings, there
-     * is no way to get the direct ancestor, so we use this iterator to match
-     * to the direct one.
-     */
-    let iterator = 0;
-
-    /**
      * Extract the embedded JavaScript snippets from the YAML abstract syntax tree
      */
     yaml.visit(doc, {
       Pair(key: any, pair: any, ancestors: any) {
-        if (predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
-          const { value, srcToken } = pair;
-          const code = srcToken.value.source;
-          const format = pair.value.type;
+        for (const pp of pps) {
+          if (pp.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
+            const { value, srcToken } = pair;
+            const code = srcToken.value.source;
+            const format = pair.value.type;
 
-          /**
-           * This assertion should never fail because the visited node denotes either an AWS Lambda
-           * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
-           */
-          assert(code != null, 'An extracted embedded JavaScript snippet should be defined.');
+            /**
+             * This assertion should never fail because the visited node denotes either an AWS Lambda
+             * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
+             */
+            assert(code != null, 'An extracted embedded JavaScript snippet should be defined.');
 
-          const [offsetStart] = value.range;
-          const { line, col: column } = lineCounter.linePos(offsetStart);
-          const lineStarts = lineCounter.lineStarts;
+            const [offsetStart] = value.range;
+            const { line, col: column } = lineCounter.linePos(offsetStart);
+            const lineStarts = lineCounter.lineStarts;
 
-          embeddedJSs.push({
-            code,
-            line,
-            column,
-            offset: fixOffset(offsetStart, value.type),
-            lineStarts,
-            text,
-            format,
-            extras: extrasPicker(key, pair, ancestors, iterator),
-          });
-          iterator++;
+            embeddedJSs.push({
+              code,
+              line,
+              column,
+              offset: fixOffset(offsetStart, value.type),
+              lineStarts,
+              text,
+              format,
+              extras: pp.picker(key, pair, ancestors),
+            });
+          }
         }
       },
     });
