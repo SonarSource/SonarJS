@@ -56,6 +56,7 @@
     <!-- override sonar-packaging plugin version from parent -->
     <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
+    <jgit.version>6.2.0.202206071550-r</jgit.version>
     <junit.version>5.8.1</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
@@ -142,6 +143,12 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jgit</groupId>
+        <artifactId>org.eclipse.jgit</artifactId>
+        <version>${jgit.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

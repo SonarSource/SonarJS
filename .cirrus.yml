@@ -1,5 +1,5 @@
 gcp_credentials: ENCRYPTED[!149d4005ecdba4cdd78bb5ba22756ebb98bf8e3367ee2e9ab08c5a1608c0d3e3b501904b67a1d67c0b63085e469d7dde!]
- 
+
 env:
   ARTIFACTORY_URL: ENCRYPTED[!2f8fa307d3289faa0aa6791f18b961627ae44f1ef46b136e1a1e63b0b4c86454dbb25520d49b339e2d50a1e1e5f95c88!]
   ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-lt-ef42e7
@@ -15,6 +15,7 @@ env:
 
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
+  GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
 
 container_definition: &CONTAINER_DEFINITION
   builder_image_project: release-engineering-ci-prod
@@ -36,7 +37,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     use_ssd: true
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-    
+
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
@@ -76,7 +77,6 @@ build_task:
     cpu: 15
     memory: 30G
   env:
-    GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
     # analysis on next
     SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube

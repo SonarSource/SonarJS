@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -50,6 +51,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setEdition(Edition.DEVELOPER).activateLicense()
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
@@ -64,6 +66,8 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
     .build();
 
   private static volatile boolean started;
@@ -80,7 +84,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   @Override
-  public void beforeAll(ExtensionContext context) throws Exception {
+  public void beforeAll(ExtensionContext context) {
     synchronized (OrchestratorStarter.class) {
       if (!started) {
         started = true;
@@ -96,7 +100,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
 
   @Override
-  public void close() throws Throwable {
+  public void close() {
     // this is executed once all tests are finished
     ORCHESTRATOR.stop();
   }
@@ -152,8 +156,15 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   static List<Issue> getIssues(String componentKey) {
+    return getIssues(componentKey, null);
+  }
+
+  static List<Issue> getIssues(String componentKey, String pullRequest) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
+    if (pullRequest != null) {
+      request.setPullRequest(pullRequest);
+    }
     return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
   }
 
