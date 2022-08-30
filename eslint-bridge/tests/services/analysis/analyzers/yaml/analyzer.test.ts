@@ -189,20 +189,23 @@ describe('analyzeYAML', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should compose the filename based on itself and function name', async () => {
+  it('should provide the filename composed of itself and the AWS lambda function to the rule context', async () => {
     const filePath = join(fixturesPath, 'functionNames.yaml');
     initializeLinter([{ key: 'function-name-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const filenames = composeSourceCodeFilenames(filePath, [
-      'SomeLambdaFunction',
-      'OtherLambdaFunction',
-    ]);
+    const functionNames = ['SomeLambdaFunction', 'OtherLambdaFunction'];
+    const filenames = composeSourceCodeFilenames(filePath, functionNames);
     linter.linter.defineRule('function-name-rule', buildFilenameCheckRule(filenames));
+    const seenFunctionNames = [];
     await analyzeYAML({
       filePath,
       fileContent: undefined,
     });
 
-    expect.assertions(2);
+    const [firstSeenFunction, secondSeenFunction] = seenFunctionNames;
+    expect(firstSeenFunction).toEqual(expect.stringContaining(functionNames[0]));
+    expect(secondSeenFunction).toEqual(expect.stringContaining(functionNames[1]));
+
+    expect.assertions(4);
 
     function composeSourceCodeFilenames(filePath, functionNames) {
       return functionNames.map(composeSourceCodeFilename.bind(null, filePath));
@@ -213,7 +216,9 @@ describe('analyzeYAML', () => {
         create(context: Rule.RuleContext) {
           return {
             Program: _node => {
-              expect(expectedFilenames.includes(context.getFilename())).toBe(true);
+              const composedFilename = context.getFilename();
+              expect(expectedFilenames.includes(composedFilename)).toBe(true);
+              seenFunctionNames.push(composedFilename);
             },
           };
         },
