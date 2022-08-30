@@ -34,6 +34,7 @@ import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 import org.sonarsource.sonarlint.core.analysis.api.QuickFix;
+import org.sonarsource.sonarlint.core.analysis.api.WithTextRange;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
@@ -88,12 +89,16 @@ class SonarLintTest {
       + "  var b = 42; \n"
       + "} \n");
     String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
-    assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:S1481", 2, filePath, "MINOR"),
-      tuple("javascript:S3504", 2, filePath, "CRITICAL"),
-      tuple("javascript:S1481", 4, filePath, "MINOR"),
-      tuple("javascript:S1854", 4, filePath, "MAJOR"),
-      tuple("javascript:S3504", 4, filePath, "CRITICAL"));
+    assertThat(issues).extracting(Issue::getRuleKey,
+      WithTextRange::getStartLine,
+      i -> Path.of(i.getInputFile().relativePath()).toAbsolutePath().toString(),
+      i -> i.getSeverity().toString())
+      .containsExactlyInAnyOrder(
+        tuple("javascript:S1481", 2, filePath, "MINOR"),
+        tuple("javascript:S3504", 2, filePath, "CRITICAL"),
+        tuple("javascript:S1481", 4, filePath, "MINOR"),
+        tuple("javascript:S1854", 4, filePath, "MAJOR"),
+        tuple("javascript:S3504", 4, filePath, "CRITICAL"));
 
     assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
