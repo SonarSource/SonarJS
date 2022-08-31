@@ -39,7 +39,7 @@ const linters: Linters = {};
  * @param inputRules the rules from the active quality profiles
  * @param environments the JavaScript execution environments
  * @param globals the global variables
- * @param id key of the linter
+ * @param linterId key of the linter
  */
 export function initializeLinter(
   inputRules: RuleConfig[],
@@ -79,7 +79,7 @@ function loadBundles(bundles: string[]) {
 /**
  * Returns the linter with the given ID
  *
- * @param id key of the linter
+ * @param linterId key of the linter
  *
  * Throws a runtime error if the global linter wrapper is not initialized.
  */
