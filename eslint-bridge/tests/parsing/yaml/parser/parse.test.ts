@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { parseAwsFromYaml, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
+import { parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
 import { APIError } from 'errors';
 import { readFileSync } from 'fs';
 
@@ -50,27 +50,6 @@ describe('parseYaml', () => {
     const predicate = (() => false) as YamlVisitorPredicate;
     expect(() => parseYaml([{ predicate, picker: noOpPicker }], filePath)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 2 }),
-    );
-  });
-});
-
-describe('parseAwsFromYaml()', () => {
-  it('should extract the resource name when one exists', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'functionNames.yaml');
-    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(filePath);
-    expect(firstEmbedded).toEqual(
-      expect.objectContaining({
-        extras: expect.objectContaining({
-          resourceName: 'SomeLambdaFunction',
-        }),
-      }),
-    );
-    expect(secondEmbedded).toEqual(
-      expect.objectContaining({
-        extras: expect.objectContaining({
-          resourceName: 'SomeServerlessFunction',
-        }),
-      }),
     );
   });
 });

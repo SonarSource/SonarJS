@@ -191,9 +191,9 @@ describe('analyzeYAML', () => {
 
   it('should provide a synthetic filename to the rule context', async () => {
     expect.assertions(1);
-    const resource = 'SomeLambdaFunction';
+    const resourceName = 'SomeLambdaFunction';
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
-    const syntheticFilename = composeSyntheticFilePath(filePath, resource);
+    const syntheticFilename = composeSyntheticFilePath(filePath, resourceName);
     const rule = {
       key: 'synthetic-filename',
       module: {

@@ -31,13 +31,13 @@ import { APIError } from 'errors';
  * We have bundled these together because they depend on each other
  * and should be used in pairs
  */
-export type PredicateAndPicker = {
+export type ParsingContext = {
   predicate: YamlVisitorPredicate;
   picker: ExtrasPicker;
 };
 
 /**
- * A function predicate to visit a YAML node
+ * A function predicate to select a YAML node containing JS code
  */
 export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
@@ -49,10 +49,7 @@ export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(
-  predicateAndPickerBundles: PredicateAndPicker[],
-  filePath: string,
-): EmbeddedJS[] {
+export function parseYaml(parsingContext: ParsingContext[], filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -82,8 +79,8 @@ export function parseYaml(
      */
     yaml.visit(doc, {
       Pair(key: any, pair: any, ancestors: any) {
-        for (const predicateAndPicker of predicateAndPickerBundles) {
-          if (predicateAndPicker.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
+        for (const currentContext of parsingContext) {
+          if (currentContext.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
             const { value, srcToken } = pair;
             const code = srcToken.value.source;
             const format = pair.value.type;
@@ -106,7 +103,7 @@ export function parseYaml(
               lineStarts,
               text,
               format,
-              extras: predicateAndPicker.picker(key, pair, ancestors),
+              extras: currentContext.picker(key, pair, ancestors),
             });
           }
         }

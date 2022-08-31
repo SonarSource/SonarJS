@@ -38,6 +38,25 @@ describe('parseAwsFromYaml()', () => {
     );
   });
 
+  it('should extract the resource name', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'parser', 'resource-names.yaml');
+    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(filePath);
+    expect(firstEmbedded).toEqual(
+      expect.objectContaining({
+        extras: {
+          resourceName: 'SomeLambdaFunction',
+        },
+      }),
+    );
+    expect(secondEmbedded).toEqual(
+      expect.objectContaining({
+        extras: {
+          resourceName: 'SomeServerlessFunction',
+        },
+      }),
+    );
+  });
+
   it('should fail parsing invalid YAML syntax', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'invalid.yaml');
     expect(() => parseAwsFromYaml(filePath)).toThrow(

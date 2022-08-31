@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PredicateAndPicker } from 'parsing/yaml';
+import { ParsingContext } from 'parsing/yaml';
 
-export const lambdaCheck: PredicateAndPicker = {
+export const lambdaParsingContext: ParsingContext = {
   predicate: isInlineAwsLambda,
   picker: pickResourceName.bind(null, 6),
 };
 
-export const serverlessCheck: PredicateAndPicker = {
+export const serverlessParsingContext: ParsingContext = {
   predicate: isInlineAwsServerless,
   picker: pickResourceName.bind(null, 4),
 };

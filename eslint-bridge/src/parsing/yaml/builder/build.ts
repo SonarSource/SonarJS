@@ -23,6 +23,7 @@ import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
+import path from 'path';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 
@@ -75,8 +76,10 @@ export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
  * @param functionName
  */
 export function composeSyntheticFilePath(filePath: string, functionName: string): string {
-  const extensionStart = filePath.lastIndexOf('.');
-  const filePathWithoutExtension = filePath.substring(0, extensionStart);
-  const filePathExtension = filePath.substring(extensionStart);
-  return `${filePathWithoutExtension}-${functionName}${filePathExtension}`;
+  const { dir, name, ext } = path.parse(filePath);
+  return path.format({
+    dir,
+    name: `${name}-${functionName}`,
+    ext,
+  });
 }

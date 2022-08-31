@@ -11,3 +11,4 @@ Resources:
     Properties:
       Runtime: "nodejs16.0"
       InlineCode: console.log("there")
+
