@@ -22,6 +22,7 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
+import clone from 'lodash.clone';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 
@@ -54,9 +55,10 @@ export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
     try {
       const sourceCode = buildSourceCode(input, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
-      const extendedSourceCode: ExtendedSourceCode = Object.assign({}, patchedSourceCode, { syntheticFilePath });
+      const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {
+        syntheticFilePath,
+      });
       extendedSourceCodes.push(extendedSourceCode);
-
     } catch (error) {
       throw patchParsingError(error, embeddedJS);
     }
