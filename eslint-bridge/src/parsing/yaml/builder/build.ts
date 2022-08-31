@@ -23,29 +23,26 @@ import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
 
-export type FilePathToSourceCode = {
-  [filePath: string]: SourceCode;
-};
+export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
  *
- * Returns a FilePathToSourceCode object
- * The filepath is augmented with the AWS function name
+ * The filepath is augmented with the AWS function name, returned as the syntheticFilePath property
  *
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodesMap(filePath: string): FilePathToSourceCode {
+export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
   const embeddedJSs = parseAwsFromYaml(filePath);
 
-  const sourceCodes: FilePathToSourceCode = {};
+  const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
 
-    let sourceCodeFilePath = filePath;
-    if (embeddedJS.extras.functionName != null) {
-      sourceCodeFilePath = composeAwsFunctionFilename(filePath, embeddedJS.extras.functionName);
+    let syntheticFilePath: string = filePath;
+    if (embeddedJS.extras.resourceName != null) {
+      syntheticFilePath = composeSyntheticFilePath(filePath, embeddedJS.extras.resourceName);
     }
 
     /**
@@ -53,20 +50,18 @@ export function buildSourceCodesMap(filePath: string): FilePathToSourceCode {
      * the file content is provided, which happens to be the case here since `code`
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
-    const input = {
-      filePath: '',
-      fileContent: code,
-      fileType: 'MAIN',
-    } as JsTsAnalysisInput;
+    const input = { filePath: '', fileContent: code, fileType: 'MAIN' } as JsTsAnalysisInput;
     try {
       const sourceCode = buildSourceCode(input, 'js');
-      const patchedSourceCode = patchSourceCode(sourceCode, embeddedJS);
-      sourceCodes[sourceCodeFilePath] = patchedSourceCode;
+      const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
+      const extendedSourceCode: ExtendedSourceCode = Object.assign({}, patchedSourceCode, { syntheticFilePath });
+      extendedSourceCodes.push(extendedSourceCode);
+
     } catch (error) {
       throw patchParsingError(error, embeddedJS);
     }
   }
-  return sourceCodes;
+  return extendedSourceCodes;
 }
 
 /**
@@ -76,18 +71,10 @@ export function buildSourceCodesMap(filePath: string): FilePathToSourceCode {
  *
  * @param filePath
  * @param functionName
- * @returns
  */
-export function composeAwsFunctionFilename(filePath: string, functionName: string): string {
+export function composeSyntheticFilePath(filePath: string, functionName: string): string {
   const extensionStart = filePath.lastIndexOf('.');
   const filePathWithoutExtension = filePath.substring(0, extensionStart);
   const filePathExtension = filePath.substring(extensionStart);
   return `${filePathWithoutExtension}-${functionName}${filePathExtension}`;
-}
-
-/**
- * Similar to buildSourceCodesMap(), but extracts only the values
- */
-export function buildSourceCodes(filePath: string): SourceCode[] {
-  return Object.values(buildSourceCodesMap(filePath));
 }

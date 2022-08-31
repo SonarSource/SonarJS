@@ -55,20 +55,20 @@ describe('parseYaml', () => {
 });
 
 describe('parseAwsFromYaml()', () => {
-  it('should extract the functionName when one exists', () => {
+  it('should extract the resource name when one exists', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'functionNames.yaml');
     const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(filePath);
     expect(firstEmbedded).toEqual(
       expect.objectContaining({
         extras: expect.objectContaining({
-          functionName: 'SomeLambdaFunction',
+          resourceName: 'SomeLambdaFunction',
         }),
       }),
     );
     expect(secondEmbedded).toEqual(
       expect.objectContaining({
         extras: expect.objectContaining({
-          functionName: 'SomeServerlessFunction',
+          resourceName: 'SomeServerlessFunction',
         }),
       }),
     );

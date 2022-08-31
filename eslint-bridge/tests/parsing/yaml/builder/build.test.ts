@@ -20,7 +20,7 @@
 
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes, buildSourceCodesMap, composeAwsFunctionFilename } from 'parsing/yaml';
+import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/yaml';
 import { APIError } from 'errors';
 
 describe('YAML parsing builder', () => {
@@ -271,23 +271,21 @@ describe('YAML parsing builder', () => {
       );
       expect(elseToken.range).toEqual([232, 236]);
     });
-  });
 
-  describe('composeSourceCodeFilename()', () => {
-    it('should append the function name at the end of the filename, before the extension', () => {
-      const composedFilename = composeAwsFunctionFilename('hello.yaml', 'there');
-      expect(composedFilename).toEqual('hello-there.yaml');
+    it('should compose a synthetic file path', async () => {
+      const filePath = join(fixturesPath, 'functionNames.yaml');
+      const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(filePath);
+      const firstFunctionName = composeSyntheticFilePath(filePath, 'SomeLambdaFunction');
+      const secondFunctionName = composeSyntheticFilePath(filePath, 'SomeServerlessFunction');
+      expect(firstExtendedSourceCode.syntheticFilePath).toEqual(firstFunctionName);
+      expect(secondExtendedSourceCode.syntheticFilePath).toEqual(secondFunctionName);
     });
   });
 
-  describe('buildSourceCodesMap', () => {
-    it('should compose the filename based on itself and function name', async () => {
-      const filePath = join(fixturesPath, 'functionNames.yaml');
-      const sourceCodesMap = buildSourceCodesMap(filePath);
-      const firstFunctionName = composeAwsFunctionFilename(filePath, 'SomeLambdaFunction');
-      const secondFunctionName = composeAwsFunctionFilename(filePath, 'SomeServerlessFunction');
-      expect(sourceCodesMap[firstFunctionName]).toBeDefined();
-      expect(sourceCodesMap[secondFunctionName]).toBeDefined();
+  describe('composeSyntheticFilePath()', () => {
+    it('should append the function name at the end of the filename, before the extension', () => {
+      const composedFilename = composeSyntheticFilePath('hello.yaml', 'there');
+      expect(composedFilename).toEqual('hello-there.yaml');
     });
   });
 });

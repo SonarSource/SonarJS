@@ -19,7 +19,6 @@
  */
 
 import path from 'path';
-import { SourceCode } from 'eslint';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
@@ -37,7 +36,7 @@ describe('patchSourceCode', () => {
 
   it('should patch source code', () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
-    const [patchedSourceCode] = buildSourceCodes(filePath) as SourceCode[];
+    const [patchedSourceCode] = buildSourceCodes(filePath);
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
         text: readFile(filePath),

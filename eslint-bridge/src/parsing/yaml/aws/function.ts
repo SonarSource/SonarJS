@@ -22,12 +22,12 @@ import { PredicateAndPicker } from 'parsing/yaml';
 
 export const lambdaCheck: PredicateAndPicker = {
   predicate: isInlineAwsLambda,
-  picker: pickFunctionName.bind(null, 6),
+  picker: pickResourceName.bind(null, 6),
 };
 
 export const serverlessCheck: PredicateAndPicker = {
   predicate: isInlineAwsServerless,
-  picker: pickFunctionName.bind(null, 4),
+  picker: pickResourceName.bind(null, 4),
 };
 
 /**
@@ -95,11 +95,11 @@ function hasType(ancestors: any[], value: string, level = 5) {
 }
 
 /**
- * Picks the embeddedJS functionName for AWS lambdas and serverless functions
+ * Picks the embeddedJS resource name for AWS lambdas and serverless functions
  */
-export function pickFunctionName(level: number, _key: any, _pair: any, ancestors: any) {
-  const ancestorsAtFunctionNameLevel = ancestors[ancestors.length - level];
+export function pickResourceName(level: number, _key: any, _pair: any, ancestors: any) {
+  const ancestorsAtResourcesLevel = ancestors[ancestors.length - level];
   return {
-    functionName: ancestorsAtFunctionNameLevel.key.value,
+    resourceName: ancestorsAtResourcesLevel.key.value,
   };
 }

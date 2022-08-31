@@ -21,7 +21,7 @@
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
 import { assertLinterInitialized, linter, Issue } from 'linting/eslint';
-import { buildSourceCodesMap } from 'parsing/yaml';
+import { buildSourceCodes } from 'parsing/yaml';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 
 /**
@@ -54,11 +54,11 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
 export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   assertLinterInitialized();
 
-  const sourceCodes = buildSourceCodesMap(input.filePath);
+  const extendedSourceCodes = buildSourceCodes(input.filePath);
   const aggregatedIssues: Issue[] = [];
-  for (const [filePath, sourceCode] of Object.entries(sourceCodes)) {
-    const { issues } = linter.lint(sourceCode, filePath, 'MAIN');
-    const filteredIssues = removeYamlIssues(sourceCode, issues);
+  for (const extendedSourceCode of extendedSourceCodes) {
+    const { issues } = linter.lint(extendedSourceCode, extendedSourceCode.syntheticFilePath, 'MAIN');
+    const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
   }
 
