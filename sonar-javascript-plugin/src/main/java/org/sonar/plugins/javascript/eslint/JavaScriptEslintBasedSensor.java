@@ -79,7 +79,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     boolean success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+      eslintBridgeServer.initLinter(context, checks.eslintRules(), environments, globals, analysisMode);
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
         if (context.isCancelled()) {

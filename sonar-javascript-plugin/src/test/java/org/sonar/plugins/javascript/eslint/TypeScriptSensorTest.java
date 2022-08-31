@@ -164,7 +164,7 @@ class TypeScriptSensorTest {
     createTsConfigFile();
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(eslintBridgeServerMock, times(1)).initLinter(context, any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.size());
 
     Iterator<Issue> issues = context.allIssues().iterator();
