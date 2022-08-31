@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
@@ -31,7 +32,7 @@ class AnalysisOptions {
 
   static final String UNCHANGED_LINTER_ID = "unchanged";
   static final String DEFAULT_LINTER_ID = "default";
-  private static final Logger LOG = Loggers.get(ContextUtils.class);
+  private static final Logger LOG = Loggers.get(AnalysisOptions.class);
 
   private final boolean skipUnchangedFiles;
   private final List<EslintRule> unchangedFileRules;
@@ -39,6 +40,20 @@ class AnalysisOptions {
   private AnalysisOptions(boolean skipUnchangedFiles, List<EslintRule> unchangedFileRules) {
     this.skipUnchangedFiles = skipUnchangedFiles;
     this.unchangedFileRules = List.copyOf(unchangedFileRules);
+  }
+
+  static Supplier<AnalysisOptions> singleton(Supplier<SensorContext> contextSupplier, Supplier<List<EslintRule>> rulesSupplier) {
+    return new Supplier<>() {
+      AnalysisOptions singleton;
+
+      @Override
+      public AnalysisOptions get() {
+        if (singleton == null) {
+          singleton = AnalysisOptions.create(contextSupplier.get(), rulesSupplier.get());
+        }
+        return singleton;
+      }
+    };
   }
 
   static AnalysisOptions create(SensorContext context, List<EslintRule> rules) {

@@ -177,7 +177,7 @@ class EslintBridgeServerImplTest {
     List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
     eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), AnalysisOptions.create(context, Collections.emptyList()));
     eslintBridgeServer.stop();
-    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
+    assertThat(logTester.logs()).contains("{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }
 
   @Test

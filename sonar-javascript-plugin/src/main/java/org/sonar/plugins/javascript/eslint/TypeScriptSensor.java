@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -57,6 +58,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private final AnalysisProcessor analysisProcessor;
   private final TypeScriptChecks checks;
 
+  private Supplier<AnalysisOptions> analysisOptions;
+
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
                           AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram) {
@@ -65,6 +68,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
+    analysisOptions = AnalysisOptions.singleton(() -> this.context, checks::eslintRules);
   }
 
   @Override
@@ -85,9 +89,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> allFiles) throws IOException {
-    analysisOptions = AnalysisOptions.create(context, checks.eslintRules());
-    List<InputFile> inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
-    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
+    List<InputFile> inputFiles = analysisOptions.get().getFilesToAnalyzeIn(allFiles);
+    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions.get());
     if (shouldAnalyzeWithProgram(inputFiles)) {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
@@ -149,7 +152,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisOptions.getLinterIdFor(file));
+        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisOptions.get().getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {
