@@ -65,7 +65,7 @@ import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
-import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.DEFAULT_LINTER_ID;
+import static org.sonar.plugins.javascript.eslint.AnalysisOptions.DEFAULT_LINTER_ID;
 
 class EslintBridgeServerImplTest {
 

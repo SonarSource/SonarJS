@@ -32,8 +32,10 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.HamcrestCondition;
 import org.eclipse.jgit.api.Git;
@@ -161,8 +163,8 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .hasLogs("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
         .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
-        .hasLog("INFO: Won't skip unchanged files as this is not activated in the sensor context")
-        .hasLog("DEBUG: initializing linter \"full\"")
+        .hasAtLeastLog("INFO: Won't skip unchanged files as this is not activated in the sensor context")
+        .hasLog("DEBUG: initializing linter \"default\"")
         .hasNotLog("DEBUG: initializing linter \"unchanged\"")
         .hasLogs("analyzing file linterId=default", Master.SOURCE_FILES);
       assertThat(getIssues(orchestrator, projectKey, null))
@@ -175,8 +177,8 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .hasLogs("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
-        .hasLog("Will skip unchanged files")
-        .hasLog("DEBUG: initializing linter \"full\"")
+        .hasAtLeastLog("Will skip unchanged files")
+        .hasLog("DEBUG: initializing linter \"default\"")
         .hasLog("DEBUG: initializing linter \"unchanged\"")
         .hasLog("analyzing file linterId=unchanged")
         .hasLog("analyzing file linterId=default");
@@ -198,11 +200,16 @@ class PRAnalysisTest {
       return new BuildResultAssert(buildResult);
     }
 
-    private static Matcher<BuildResult> logMatcher(String log, int times) {
-      return new CustomMatcher<>(String.format("has logs [%s] %d time(s)", log, times)) {
+    private static Matcher<BuildResult> logMatcher(String description, String log, Predicate<Integer> predicate) {
+      return new CustomMatcher<>(description) {
         @Override
         public boolean matches(Object item) {
-          return (item instanceof BuildResult) && ((BuildResult) item).getLogsLines(line -> line.contains(log)).size() == times;
+          return Optional.ofNullable(item)
+            .filter(BuildResult.class::isInstance)
+            .map(BuildResult.class::cast)
+            .map(result -> result.getLogsLines(line -> line.contains(log)).size())
+            .filter(predicate)
+            .isPresent();
         }
       };
     }
@@ -216,9 +223,12 @@ class PRAnalysisTest {
     }
 
     BuildResultAssert hasLogs(String log, int times) {
-      return has(new HamcrestCondition<>(logMatcher(log, times)));
+      return has(new HamcrestCondition<>(logMatcher(String.format("has logs [%s] %d time(s)", log, times), log, n -> n == times)));
     }
 
+    BuildResultAssert hasAtLeastLog(String log) {
+      return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), log, n -> n > 0)));
+    }
   }
 
   static class FileGenerator {
@@ -301,6 +311,6 @@ class PRAnalysisTest {
       "  }, sleep);",
       "}");
     static final int SOURCE_FILES = 2;
-    static final int ANALYZER_REPORTED_ISSUES = 2;
+    static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 }

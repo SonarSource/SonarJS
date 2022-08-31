@@ -237,17 +237,17 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException {
-    initLinter(EslintBridgeServer.DEFAULT_LINTER_ID, rules, environments, globals);
+    initLinter(AnalysisOptions.DEFAULT_LINTER_ID, rules, environments, globals);
 
     if (analysisOptions.isUnchangedAnalysisEnabled()) {
-      initLinter(EslintBridgeServer.UNCHANGED_LINTER_ID, analysisOptions.getUnchangedFileRules(), environments, globals);
+      initLinter(AnalysisOptions.UNCHANGED_LINTER_ID, analysisOptions.getUnchangedFileRules(), environments, globals);
     }
   }
 
-  private void initLinter(String endpoint, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
-    InitLinterRequest initLinterRequest = new InitLinterRequest("init-linter", rules, environments, globals);
+  private void initLinter(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
+    InitLinterRequest initLinterRequest = new InitLinterRequest(linterId, rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
-    String response = request(request, endpoint);
+    String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
     }
@@ -445,13 +445,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   static class InitLinterRequest {
 
-    String id;
+    String linterId;
     List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
 
-    InitLinterRequest(String id, List<EslintRule> rules, List<String> environments, List<String> globals) {
-      this.id = id;
+    InitLinterRequest(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) {
+      this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;

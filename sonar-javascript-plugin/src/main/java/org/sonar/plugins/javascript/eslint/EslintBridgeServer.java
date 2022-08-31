@@ -35,9 +35,6 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public interface EslintBridgeServer extends Startable {
 
-  String DEFAULT_LINTER_ID = "default";
-  String UNCHANGED_LINTER_ID = "unchanged";
-
   void startServerLazily(SensorContext context) throws IOException;
 
   void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException;
