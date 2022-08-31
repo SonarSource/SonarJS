@@ -85,7 +85,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
+    eslintBridgeServer.initLinter(context, checks.eslintRules(), environments, globals);
     if (shouldAnalyzeWithProgram(inputFiles)) {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;

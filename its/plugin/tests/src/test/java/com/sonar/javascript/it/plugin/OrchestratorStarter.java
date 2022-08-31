@@ -20,8 +20,8 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -49,26 +49,26 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-    .setEdition(Edition.DEVELOPER).activateLicense()
-    .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
-    .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
-    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
-    // required to load YAML files
-    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
-    .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
-    .build();
+  public static final Orchestrator ORCHESTRATOR = getOrchestratorBuilder().build();
+
+  static OrchestratorBuilder getOrchestratorBuilder() {
+    return Orchestrator.builderEnv()
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+      // required to load YAML files
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
+      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"));
+  }
 
   private static volatile boolean started;
 
@@ -124,8 +124,12 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   public static void setProfiles(String projectKey, Map<String, String> profiles) {
-    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    profiles.forEach((profileName, language) -> ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, language, profileName));
+    setProfiles(ORCHESTRATOR, projectKey, profiles);
+  }
+
+  static void setProfiles(Orchestrator orchestrator, String projectKey, Map<String, String> profiles) {
+    orchestrator.getServer().provisionProject(projectKey, projectKey);
+    profiles.forEach((profileName, language) -> orchestrator.getServer().associateProjectToQualityProfile(projectKey, language, profileName));
   }
 
   @CheckForNull
@@ -160,12 +164,16 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   static List<Issue> getIssues(String componentKey, String pullRequest) {
+    return getIssues(ORCHESTRATOR, componentKey, pullRequest);
+  }
+
+  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String pullRequest) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
     if (pullRequest != null) {
       request.setPullRequest(pullRequest);
     }
-    return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
+    return newWsClient(orchestrator).issues().search(request).getIssuesList();
   }
 
   private static void testProject() {

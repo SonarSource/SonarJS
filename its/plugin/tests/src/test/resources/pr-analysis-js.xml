@@ -8,5 +8,10 @@
       <key>S1116</key> <!-- empty statement -->
       <priority>INFO</priority>
     </rule>
+    <rule>
+      <repositoryKey>jssecurity</repositoryKey>
+      <key>S2076</key> <!-- OSCommandInjectionCheck -->
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>
