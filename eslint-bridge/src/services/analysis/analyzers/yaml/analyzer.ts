@@ -57,7 +57,11 @@ export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   const extendedSourceCodes = buildSourceCodes(input.filePath);
   const aggregatedIssues: Issue[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
-    const { issues } = linter.lint(extendedSourceCode, extendedSourceCode.syntheticFilePath, 'MAIN');
+    const { issues } = linter.lint(
+      extendedSourceCode,
+      extendedSourceCode.syntheticFilePath,
+      'MAIN',
+    );
     const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
   }

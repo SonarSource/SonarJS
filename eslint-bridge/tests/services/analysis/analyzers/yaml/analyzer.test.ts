@@ -189,28 +189,26 @@ describe('analyzeYAML', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should provide the filename composed of itself and the AWS lambda function to the rule context', async () => {
-    it('should provide a synthetic filename to the rule context', async () => {
-      expect.assertions(1);
-      const resource = 'SomeLambdaFunction';
-      const filePath = join(fixturesPath, 'synthetic-filename.yaml');
-      const syntheticFilename = composeSyntheticFilePath(filePath, resource);
-      const rule = {
-        key: 'synthetic-filename',
-        module: {
-          create(context: Rule.RuleContext) {
-            return {
-              Program: () => {
-                const filename = context.getFilename();
-                expect(filename).toEqual(syntheticFilename);
-              },
-            };
-          },
-        }
-      }
-      initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
-      linter.linter.defineRule(rule.key, rule.module);
-      await analyzeYAML({ filePath, fileContent: undefined});
-    });
+  it('should provide a synthetic filename to the rule context', async () => {
+    expect.assertions(1);
+    const resource = 'SomeLambdaFunction';
+    const filePath = join(fixturesPath, 'synthetic-filename.yaml');
+    const syntheticFilename = composeSyntheticFilePath(filePath, resource);
+    const rule = {
+      key: 'synthetic-filename',
+      module: {
+        create(context: Rule.RuleContext) {
+          return {
+            Program: () => {
+              const filename = context.getFilename();
+              expect(filename).toEqual(syntheticFilename);
+            },
+          };
+        },
+      },
+    };
+    initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
+    linter.linter.defineRule(rule.key, rule.module);
+    await analyzeYAML({ filePath, fileContent: undefined });
   });
 });
