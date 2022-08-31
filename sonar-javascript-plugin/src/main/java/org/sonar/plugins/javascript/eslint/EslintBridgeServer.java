@@ -35,9 +35,12 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public interface EslintBridgeServer extends Startable {
 
+  String DEFAULT_LINTER_ID = "default";
+  String UNCHANGED_LINTER_ID = "unchanged";
+
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(SensorContext context, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -70,20 +73,16 @@ public interface EslintBridgeServer extends Startable {
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
     final String programId;
-    final boolean unchanged;
+    final String linterId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId) {
-      this(filePath, fileType, fileContent, ignoreHeaderComments, tsConfigs, programId, false);
-    }
-
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId, boolean unchanged) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId, String linterId) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
       this.programId = programId;
-      this.unchanged = unchanged;
+      this.linterId = linterId;
     }
   }
 

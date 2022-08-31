@@ -51,7 +51,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
-  debug(`analyzing file with linter ${input.linterId}`);
+  debug(`analyzing file linterId=${input.linterId}`);
   const linter = getLinter(input.linterId || 'default');
 
   const building = () => buildSourceCode(input, language);

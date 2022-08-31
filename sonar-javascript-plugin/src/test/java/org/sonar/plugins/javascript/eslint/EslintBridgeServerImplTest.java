@@ -65,6 +65,7 @@ import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.DEFAULT_LINTER_ID;
 
 class EslintBridgeServerImplTest {
 
@@ -163,7 +164,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -174,7 +175,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context, emptyList());
 
     List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
-    eslintBridgeServer.initLinter(context, rules, Collections.emptyList(), Collections.emptyList());
+    eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), AnalysisOptions.create(context, Collections.emptyList()));
     eslintBridgeServer.stop();
     assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }
@@ -192,7 +193,7 @@ class EslintBridgeServerImplTest {
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
-      singletonList(tsConfig.absolutePath()), null);
+      singletonList(tsConfig.absolutePath()), null, DEFAULT_LINTER_ID);
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
 
@@ -205,7 +206,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
     assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
   }
 
@@ -223,7 +224,7 @@ class EslintBridgeServerImplTest {
     assertThat(programCreated.files.size()).isEqualTo(3);
 
     JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
-      null, true, null, programCreated.programId);
+      null, true, null, programCreated.programId, DEFAULT_LINTER_ID);
     assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
 
     assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
@@ -377,7 +378,7 @@ class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null);
+    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }

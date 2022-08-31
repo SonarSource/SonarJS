@@ -54,6 +54,7 @@ public class AnalysisWithProgram {
   private ContextUtils contextUtils;
   private AbstractChecks checks;
   private ProgressReport progressReport;
+  private AnalysisOptions analysisOptions;
 
   public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis) {
     this.eslintBridgeServer = eslintBridgeServer;
@@ -65,6 +66,7 @@ public class AnalysisWithProgram {
     this.context = context;
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
+    this.analysisOptions = AnalysisOptions.create(context, checks.eslintRules());
     var tsConfigs = new TsConfigProvider().tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
@@ -146,7 +148,7 @@ public class AnalysisWithProgram {
       progressReport.nextFile(file.absolutePath());
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, file.status() == InputFile.Status.SAME);
+        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisOptions.getLinterIdFor(file));
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {

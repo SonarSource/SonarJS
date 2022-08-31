@@ -53,7 +53,7 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @returns the YAML analysis output
  */
 export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
-  debug(`analyzing file with linter ${input.linterId}`);
+  debug(`analyzing file linterId=${input.linterId}`);
   const linter = getLinter(input.linterId || 'default');
 
   const extendedSourceCodes = buildSourceCodes(input.filePath);

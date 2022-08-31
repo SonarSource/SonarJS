@@ -61,12 +61,14 @@ public class YamlSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected void analyzeFiles(List<InputFile> allFiles) throws IOException {
+    analysisOptions = AnalysisOptions.create(context, checks.eslintRules());
+    var inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(context, checks.eslintRules(), environments, globals);
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -106,7 +108,7 @@ public class YamlSensor extends AbstractEslintSensor {
         contextUtils.ignoreHeaderComments(),
         null,
         null,
-        file.status() == InputFile.Status.SAME);
+        analysisOptions.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {

@@ -236,33 +236,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(SensorContext context, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
-    initLinter("init-linter", rules, environments, globals);
+  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException {
+    initLinter(EslintBridgeServer.DEFAULT_LINTER_ID, rules, environments, globals);
 
-    if (canSkipUnchangedFiles(context, rules)) {
-      initLinter("init-linter-unchanged", EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY), environments, globals);
+    if (analysisOptions.isUnchangedAnalysisEnabled()) {
+      initLinter(EslintBridgeServer.UNCHANGED_LINTER_ID, analysisOptions.getUnchangedFileRules(), environments, globals);
     }
-  }
-
-  private boolean canSkipUnchangedFiles(SensorContext context, List<EslintRule> rules) {
-    var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
-    if (!canSkipUnchangedFiles) {
-      LOG.info("Won't skip unchanged files as this is not activated in the sensor context");
-      return false;
-    }
-
-    var containsUcfgRule = EslintRule.containsRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
-    if (!containsUcfgRule) {
-      LOG.info("Won't skip unchanged files as there's no rule with the ESLint key '{}'", EslintRule.UCFG_ESLINT_KEY);
-      return false;
-    }
-
-    LOG.info("Will skip unchanged files");
-    return true;
   }
 
   private void initLinter(String endpoint, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments, globals);
+    InitLinterRequest initLinterRequest = new InitLinterRequest("init-linter", rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, endpoint);
     if (!"OK!".equals(response)) {
@@ -461,11 +444,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   static class InitLinterRequest {
+
+    String id;
     List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
 
-    public InitLinterRequest(List<EslintRule> rules, List<String> environments, List<String> globals) {
+    InitLinterRequest(String id, List<EslintRule> rules, List<String> environments, List<String> globals) {
+      this.id = id;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
