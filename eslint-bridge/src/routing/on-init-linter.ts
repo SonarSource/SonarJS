@@ -22,7 +22,7 @@ import express from 'express';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
 
 /**
- * Handles initialization requests of the global ESLint linter wrapper
+ * Handles initialization requests of the global ESLint linter wrappers
  *
  * The bridge relies on a global ESLint linter wrapper for JavaScript
  * and TypeScript analysis. Before any analysis, the linter wrapper
@@ -31,7 +31,7 @@ import { initializeLinter, RuleConfig } from 'linting/eslint';
  * variables ann JavaScript execution environments.
  */
 export default function (request: express.Request, response: express.Response) {
-  const { rules, environments, globals } = request.body;
-  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[]);
+  const { rules, environments, globals, linterId } = request.body;
+  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[], linterId);
   response.send('OK!');
 }

@@ -41,7 +41,7 @@ describe('analyzeYAML', () => {
   it('should fail on uninitialized linter', () => {
     const input = {} as any;
     expect(() => analyzeYAML(input)).toThrow(
-      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
 

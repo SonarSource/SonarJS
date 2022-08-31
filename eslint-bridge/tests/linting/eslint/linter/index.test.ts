@@ -21,7 +21,7 @@
 import path from 'path';
 import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
-import { initializeLinter, linter, LinterWrapper } from 'linting/eslint';
+import { initializeLinter, getLinter, LinterWrapper } from 'linting/eslint';
 import { parseJavaScriptSourceFile } from '../../../tools';
 
 describe('initializeLinter', () => {
@@ -39,9 +39,11 @@ describe('initializeLinter', () => {
 
     console.log = jest.fn();
 
-    expect(linter).toBeUndefined();
+    expect(getLinter).toThrow();
 
-    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const linter = initializeLinter([
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
@@ -72,7 +74,9 @@ describe('initializeLinter', () => {
 
     console.log = jest.fn();
 
-    initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const linter = initializeLinter([
+      { key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
 
     expect(linter).toBeDefined();
     expect(console.log).toHaveBeenCalledWith(

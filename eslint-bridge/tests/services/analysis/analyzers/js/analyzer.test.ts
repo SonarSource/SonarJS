@@ -39,7 +39,7 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
 

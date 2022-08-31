@@ -29,8 +29,6 @@ import onInitLinter from './on-init-linter';
 import onNewTSConfig from './on-new-tsconfig';
 import onStatus from './on-status';
 import onTSConfigFiles from './on-tsconfig-files';
-import { debug } from 'helpers';
-import { RuleConfig } from '../linting/eslint';
 
 const router = express.Router();
 
@@ -45,12 +43,5 @@ router.post('/init-linter', onInitLinter);
 router.post('/new-tsconfig', onNewTSConfig);
 router.get('/status', onStatus);
 router.post('/tsconfig-files', onTSConfigFiles);
-
-// TODO stub service
-router.post('/init-linter-unchanged', (request: express.Request, response: express.Response) => {
-  const { rules } = request.body as { rules: RuleConfig[] };
-  debug(`initializing linter for skipped files with rules=${rules.map(rule => rule.key)}`);
-  response.send('OK!');
-});
 
 export default router;
