@@ -49,7 +49,7 @@ export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(parsingContext: ParsingContext[], filePath: string): EmbeddedJS[] {
+export function parseYaml(parsingContexts: ParsingContext[], filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -79,7 +79,7 @@ export function parseYaml(parsingContext: ParsingContext[], filePath: string): E
      */
     yaml.visit(doc, {
       Pair(key: any, pair: any, ancestors: any) {
-        for (const currentContext of parsingContext) {
+        for (const currentContext of parsingContexts) {
           if (currentContext.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
             const { value, srcToken } = pair;
             const code = srcToken.value.source;

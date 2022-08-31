@@ -70,16 +70,13 @@ export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
 /**
  * Returns the filename composed as following:
  *
- * {filepath-without-extention}-{functionName}{filepath-extension}
- *
- * @param filePath
- * @param functionName
+ * {filepath-without-extention}-{resourceName}{filepath-extension}
  */
-export function composeSyntheticFilePath(filePath: string, functionName: string): string {
+export function composeSyntheticFilePath(filePath: string, resourceName: string): string {
   const { dir, name, ext } = path.parse(filePath);
   return path.format({
     dir,
-    name: `${name}-${functionName}`,
+    name: `${name}-${resourceName}`,
     ext,
   });
 }
