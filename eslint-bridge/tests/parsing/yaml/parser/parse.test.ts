@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { lambdaCheck, parseYaml, serverlessCheck, YamlVisitorPredicate } from 'parsing/yaml';
+import { parseAwsFromYaml, parseYaml, YamlVisitorPredicate } from 'parsing/yaml';
 import { APIError } from 'errors';
 import { readFileSync } from 'fs';
 
@@ -45,9 +45,19 @@ describe('parseYaml', () => {
     );
   });
 
+  it('should return parsing errors', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
+    const predicate = (() => false) as YamlVisitorPredicate;
+    expect(() => parseYaml([{ predicate, picker: noOpPicker }], filePath)).toThrow(
+      APIError.parsingError('Missing closing "quote', { line: 2 }),
+    );
+  });
+});
+
+describe('parseAwsFromYaml()', () => {
   it('should extract the functionName when one exists', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'functionNames.yaml');
-    const [firstEmbedded, secondEmbedded] = parseYaml([lambdaCheck, serverlessCheck], filePath);
+    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(filePath);
     expect(firstEmbedded).toEqual(
       expect.objectContaining({
         extras: expect.objectContaining({
@@ -61,14 +71,6 @@ describe('parseYaml', () => {
           functionName: 'SomeServerlessFunction',
         }),
       }),
-    );
-  });
-
-  it('should return parsing errors', () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
-    const predicate = (() => false) as YamlVisitorPredicate;
-    expect(() => parseYaml([{ predicate, picker: noOpPicker }], filePath)).toThrow(
-      APIError.parsingError('Missing closing "quote', { line: 2 }),
     );
   });
 });

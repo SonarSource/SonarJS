@@ -30,7 +30,7 @@ export type FilePathToSourceCode = {
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
  *
- * Returns an object { filePath -> SourceCode }
+ * Returns a FilePathToSourceCode object
  * The filepath is augmented with the AWS function name
  *
  * If there is at least one parsing error in any snippet, we return only the first error and
@@ -45,7 +45,7 @@ export function buildSourceCodesMap(filePath: string): FilePathToSourceCode {
 
     let sourceCodeFilePath = filePath;
     if (embeddedJS.extras.functionName != null) {
-      sourceCodeFilePath = composeSourceCodeFilename(filePath, embeddedJS.extras.functionName);
+      sourceCodeFilePath = composeAwsFunctionFilename(filePath, embeddedJS.extras.functionName);
     }
 
     /**
@@ -72,11 +72,13 @@ export function buildSourceCodesMap(filePath: string): FilePathToSourceCode {
 /**
  * Returns the filename composed as following:
  *
+ * {filepath-without-extention}-{functionName}{filepath-extension}
+ *
  * @param filePath
  * @param functionName
  * @returns
  */
-export function composeSourceCodeFilename(filePath: string, functionName: string): string {
+export function composeAwsFunctionFilename(filePath: string, functionName: string): string {
   const extensionStart = filePath.lastIndexOf('.');
   const filePathWithoutExtension = filePath.substring(0, extensionStart);
   const filePathExtension = filePath.substring(extensionStart);

@@ -20,7 +20,7 @@
 
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes, buildSourceCodesMap, composeSourceCodeFilename } from 'parsing/yaml';
+import { buildSourceCodes, buildSourceCodesMap, composeAwsFunctionFilename } from 'parsing/yaml';
 import { APIError } from 'errors';
 
 describe('YAML parsing builder', () => {
@@ -275,7 +275,7 @@ describe('YAML parsing builder', () => {
 
   describe('composeSourceCodeFilename()', () => {
     it('should append the function name at the end of the filename, before the extension', () => {
-      const composedFilename = composeSourceCodeFilename('hello.yaml', 'there');
+      const composedFilename = composeAwsFunctionFilename('hello.yaml', 'there');
       expect(composedFilename).toEqual('hello-there.yaml');
     });
   });
@@ -284,8 +284,8 @@ describe('YAML parsing builder', () => {
     it('should compose the filename based on itself and function name', async () => {
       const filePath = join(fixturesPath, 'functionNames.yaml');
       const sourceCodesMap = buildSourceCodesMap(filePath);
-      const firstFunctionName = composeSourceCodeFilename(filePath, 'SomeLambdaFunction');
-      const secondFunctionName = composeSourceCodeFilename(filePath, 'SomeServerlessFunction');
+      const firstFunctionName = composeAwsFunctionFilename(filePath, 'SomeLambdaFunction');
+      const secondFunctionName = composeAwsFunctionFilename(filePath, 'SomeServerlessFunction');
       expect(sourceCodesMap[firstFunctionName]).toBeDefined();
       expect(sourceCodesMap[secondFunctionName]).toBeDefined();
     });

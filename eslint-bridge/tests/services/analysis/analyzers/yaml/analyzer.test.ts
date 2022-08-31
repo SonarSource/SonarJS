@@ -24,7 +24,7 @@ import { analyzeYAML } from 'services/analysis';
 import { initializeLinter, linter } from 'linting/eslint';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
-import { composeSourceCodeFilename } from 'parsing/yaml';
+import { composeAwsFunctionFilename } from 'parsing/yaml';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -190,39 +190,33 @@ describe('analyzeYAML', () => {
   });
 
   it('should provide the filename composed of itself and the AWS lambda function to the rule context', async () => {
-    const filePath = join(fixturesPath, 'functionNames.yaml');
-    initializeLinter([{ key: 'function-name-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const functionNames = ['SomeLambdaFunction', 'SomeServerlessFunction'];
-    const filenames = composeSourceCodeFilenames(filePath, functionNames);
-    linter.linter.defineRule('function-name-rule', buildFilenameCheckRule(filenames));
     const seenFunctionNames = [];
+    const filenameWatchRule: Rule.RuleModule = {
+      create(context: Rule.RuleContext) {
+        return {
+          Program: _node => {
+            const composedFilename = context.getFilename();
+            seenFunctionNames.push(composedFilename);
+          },
+        };
+      },
+    };
+    initializeLinter([{ key: 'filename-watch-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    linter.linter.defineRule('filename-watch-rule', filenameWatchRule);
+    const filePath = join(fixturesPath, 'functionNames.yaml');
+    const functionNames = ['SomeLambdaFunction', 'SomeServerlessFunction'];
+    const filenames = composeAwsFunctionFilenames(filePath, functionNames);
     await analyzeYAML({
       filePath,
       fileContent: undefined,
     });
 
     const [firstSeenFunction, secondSeenFunction] = seenFunctionNames;
-    expect(firstSeenFunction).toEqual(expect.stringContaining(functionNames[0]));
-    expect(secondSeenFunction).toEqual(expect.stringContaining(functionNames[1]));
+    expect(firstSeenFunction).toEqual(filenames[0]);
+    expect(secondSeenFunction).toEqual(filenames[1]);
 
-    expect.assertions(4);
-
-    function composeSourceCodeFilenames(filePath, functionNames) {
-      return functionNames.map(composeSourceCodeFilename.bind(null, filePath));
-    }
-
-    function buildFilenameCheckRule(expectedFilenames: string[]): Rule.RuleModule {
-      return {
-        create(context: Rule.RuleContext) {
-          return {
-            Program: _node => {
-              const composedFilename = context.getFilename();
-              expect(expectedFilenames.includes(composedFilename)).toBe(true);
-              seenFunctionNames.push(composedFilename);
-            },
-          };
-        },
-      };
+    function composeAwsFunctionFilenames(filePath, functionNames) {
+      return functionNames.map(composeAwsFunctionFilename.bind(null, filePath));
     }
   });
 });

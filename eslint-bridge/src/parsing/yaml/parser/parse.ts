@@ -26,6 +26,12 @@ import { readFile } from 'helpers';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 import { APIError } from 'errors';
 
+
+/**
+ * A bundle of Yaml visitor predicate and Extras picker
+ * We have bundled these together because they depend on each other
+ * and should be used in pairs
+ */
 export type PredicateAndPicker = {
   predicate: YamlVisitorPredicate;
   picker: ExtrasPicker;
@@ -37,14 +43,14 @@ export type PredicateAndPicker = {
 export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
- * A function that picks extra data
+ * A function that picks extra data to save in EmbeddedJS
  */
 export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(pps: PredicateAndPicker[], filePath: string): EmbeddedJS[] {
+export function parseYaml(predicateAndPickerBundles: PredicateAndPicker[], filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -74,8 +80,8 @@ export function parseYaml(pps: PredicateAndPicker[], filePath: string): Embedded
      */
     yaml.visit(doc, {
       Pair(key: any, pair: any, ancestors: any) {
-        for (const pp of pps) {
-          if (pp.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
+        for (const predicateAndPicker of predicateAndPickerBundles) {
+          if (predicateAndPicker.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
             const { value, srcToken } = pair;
             const code = srcToken.value.source;
             const format = pair.value.type;
@@ -98,7 +104,7 @@ export function parseYaml(pps: PredicateAndPicker[], filePath: string): Embedded
               lineStarts,
               text,
               format,
-              extras: pp.picker(key, pair, ancestors),
+              extras: predicateAndPicker.picker(key, pair, ancestors),
             });
           }
         }
