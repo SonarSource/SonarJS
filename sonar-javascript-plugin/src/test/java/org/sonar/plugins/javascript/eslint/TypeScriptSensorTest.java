@@ -81,6 +81,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -164,7 +165,7 @@ class TypeScriptSensorTest {
     createTsConfigFile();
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(context, any(), any(), any());
+    verify(eslintBridgeServerMock, times(1)).initLinter(eq(context), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.size());
 
     Iterator<Issue> issues = context.allIssues().iterator();
