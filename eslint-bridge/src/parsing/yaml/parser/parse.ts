@@ -26,7 +26,6 @@ import { readFile } from 'helpers';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 import { APIError } from 'errors';
 
-
 /**
  * A bundle of Yaml visitor predicate and Extras picker
  * We have bundled these together because they depend on each other
@@ -50,7 +49,10 @@ export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(predicateAndPickerBundles: PredicateAndPicker[], filePath: string): EmbeddedJS[] {
+export function parseYaml(
+  predicateAndPickerBundles: PredicateAndPicker[],
+  filePath: string,
+): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**

@@ -201,7 +201,9 @@ describe('analyzeYAML', () => {
         };
       },
     };
-    initializeLinter([{ key: 'filename-watch-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([
+      { key: 'filename-watch-rule', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     linter.linter.defineRule('filename-watch-rule', filenameWatchRule);
     const filePath = join(fixturesPath, 'functionNames.yaml');
     const functionNames = ['SomeLambdaFunction', 'SomeServerlessFunction'];
