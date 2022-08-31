@@ -172,7 +172,8 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .hasLogs("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
-        .hasLog("Will skip unchanged files");
+        .hasLog("Will skip unchanged files")
+        .hasLog("DEBUG: initializing linter for skipped files with rules=ucfg");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
