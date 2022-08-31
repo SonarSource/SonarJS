@@ -70,14 +70,20 @@ public interface EslintBridgeServer extends Startable {
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
     final String programId;
+    final boolean unchanged;
 
     JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId) {
+      this(filePath, fileType, fileContent, ignoreHeaderComments, tsConfigs, programId, false);
+    }
+
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId, boolean unchanged) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
       this.programId = programId;
+      this.unchanged = unchanged;
     }
   }
 

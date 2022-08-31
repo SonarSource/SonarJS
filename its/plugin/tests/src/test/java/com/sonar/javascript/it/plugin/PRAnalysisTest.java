@@ -161,7 +161,8 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .hasLogs("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
         .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
-        .hasLog("INFO: Won't skip unchanged files as this is not activated in the sensor context");
+        .hasLog("INFO: Won't skip unchanged files as this is not activated in the sensor context")
+        .hasLogs("analyzing file unchanged=false", Master.SOURCE_FILES);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
@@ -173,7 +174,9 @@ class PRAnalysisTest {
         .hasLogs("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
         .hasLog("Will skip unchanged files")
-        .hasLog("DEBUG: initializing linter for skipped files with rules=ucfg");
+        .hasLog("DEBUG: initializing linter for skipped files with rules=ucfg")
+        .hasLog("analyzing file unchanged=true")
+        .hasLog("analyzing file unchanged=false");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)

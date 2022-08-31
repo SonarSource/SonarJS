@@ -47,7 +47,7 @@ router.get('/status', onStatus);
 router.post('/tsconfig-files', onTSConfigFiles);
 
 // TODO stub service
-router.post('/init-linter-skip', (request: express.Request, response: express.Response) => {
+router.post('/init-linter-unchanged', (request: express.Request, response: express.Response) => {
   const { rules } = request.body as { rules: RuleConfig[] };
   debug(`initializing linter for skipped files with rules=${rules.map(rule => rule.key)}`);
   response.send('OK!');

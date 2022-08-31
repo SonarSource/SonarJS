@@ -105,7 +105,8 @@ public class YamlSensor extends AbstractEslintSensor {
         fileContent,
         contextUtils.ignoreHeaderComments(),
         null,
-        null);
+        null,
+        file.status() == InputFile.Status.SAME);
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {

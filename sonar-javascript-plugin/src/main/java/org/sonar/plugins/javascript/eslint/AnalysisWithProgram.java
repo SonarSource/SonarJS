@@ -146,7 +146,7 @@ public class AnalysisWithProgram {
       progressReport.nextFile(file.absolutePath());
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId);
+        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, file.status() == InputFile.Status.SAME);
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {

@@ -20,7 +20,7 @@
 
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { getContext } from 'helpers';
+import { debug, getContext } from 'helpers';
 import {
   assertLinterInitialized,
   computeMetrics,
@@ -51,6 +51,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
+  debug(`analyzing file unchanged=${input.unchanged}`);
   assertLinterInitialized();
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);

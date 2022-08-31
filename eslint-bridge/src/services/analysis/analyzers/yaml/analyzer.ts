@@ -23,6 +23,7 @@ import { Position } from 'estree';
 import { assertLinterInitialized, linter, Issue } from 'linting/eslint';
 import { buildSourceCodes } from 'parsing/yaml';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
+import { debug } from 'helpers';
 
 /**
  * An empty YAML analysis output
@@ -53,6 +54,7 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  */
 export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   assertLinterInitialized();
+  debug(`analyzing file unchanged=${input.unchanged}`);
 
   const extendedSourceCodes = buildSourceCodes(input.filePath);
   const aggregatedIssues: Issue[] = [];

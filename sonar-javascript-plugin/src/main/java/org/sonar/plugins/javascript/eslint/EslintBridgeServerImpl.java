@@ -240,7 +240,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     initLinter("init-linter", rules, environments, globals);
 
     if (canSkipUnchangedFiles(context, rules)) {
-      initLinter("init-linter-skip", EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY), environments, globals);
+      initLinter("init-linter-unchanged", EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY), environments, globals);
     }
   }
 
