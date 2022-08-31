@@ -29,7 +29,10 @@ import static java.util.stream.Collectors.toList;
 
 class AnalysisOptions {
 
+  static final String UNCHANGED_LINTER_ID = "unchanged";
+  static final String DEFAULT_LINTER_ID = "default";
   private static final Logger LOG = Loggers.get(ContextUtils.class);
+
   private final boolean skipUnchangedFiles;
   private final List<EslintRule> unchangedFileRules;
 
@@ -75,9 +78,9 @@ class AnalysisOptions {
   String getLinterIdFor(InputFile file) {
     // IF we can skip unchanged files AND the file is unchanged THEN we can use the unchanged linter.
     if (skipUnchangedFiles && file.status() == InputFile.Status.SAME) {
-      return EslintBridgeServer.UNCHANGED_LINTER_ID;
+      return UNCHANGED_LINTER_ID;
     } else {
-      return EslintBridgeServer.DEFAULT_LINTER_ID;
+      return DEFAULT_LINTER_ID;
     }
   }
 
