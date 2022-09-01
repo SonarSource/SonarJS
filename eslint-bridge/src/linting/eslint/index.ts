@@ -53,10 +53,8 @@ export function initializeLinter(
   const { bundles } = getContext();
   const customRules = loadBundles(bundles);
 
-  if (!linters[linterId]) {
-    debug(`initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-    linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
-  }
+  debug(`initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
+  linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
 }
 
 /**
