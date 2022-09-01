@@ -101,7 +101,7 @@ class AnalysisOptions {
     initializeIfNeeded();
     // IF we can skip unchanged files AND there's no rule for unchanged files THEN we can analyse only changed files.
     if (skipUnchangedFiles && unchangedFileRules.isEmpty()) {
-      return inputFiles.stream().filter(inputFile -> inputFile.status() == InputFile.Status.CHANGED).collect(toList());
+      return inputFiles.stream().filter(inputFile -> inputFile.status() != InputFile.Status.SAME).collect(toList());
     } else {
       return inputFiles;
     }
