@@ -20,7 +20,6 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
@@ -49,26 +48,23 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
-  public static final Orchestrator ORCHESTRATOR = getOrchestratorBuilder().build();
-
-  static OrchestratorBuilder getOrchestratorBuilder() {
-    return Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
-      // required to load YAML files
-      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
-      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"));
-  }
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+    // required to load YAML files
+    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
+    .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
+    .build();
 
   private static volatile boolean started;
 
@@ -93,7 +89,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
         ORCHESTRATOR.start();
 
         // to avoid a race condition in scanner file cache mechanism we analyze single project before any test to populate the cache
-        testProject();
+//        testProject();
       }
     }
   }

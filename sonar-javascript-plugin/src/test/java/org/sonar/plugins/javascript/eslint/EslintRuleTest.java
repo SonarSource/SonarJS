@@ -40,9 +40,9 @@ class EslintRuleTest {
 
   @Test
   void should_find_first_rule() {
-    assertThat(findFirstRuleWithKey(rules(), "key1")).isEmpty();
-    assertThat(findFirstRuleWithKey(rules("key1"), "key1")).isNotEmpty();
-    assertThat(findFirstRuleWithKey(rules("key1", "key2"), "key3")).isEmpty();
+    assertThat(findFirstRuleWithKey(rules(), "key1")).isNull();
+    assertThat(findFirstRuleWithKey(rules("key1"), "key1")).isNotNull();
+    assertThat(findFirstRuleWithKey(rules("key1", "key2"), "key3")).isNull();
   }
 
   @Test

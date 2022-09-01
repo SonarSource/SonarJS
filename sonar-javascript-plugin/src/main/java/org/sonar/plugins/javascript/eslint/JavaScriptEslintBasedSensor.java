@@ -47,7 +47,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
-  private AnalysisOptions analysisOptions;
+  private AnalysisMode analysisMode;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
@@ -56,7 +56,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.analysisOptions = new AnalysisOptions(initializer -> initializer.accept(context, checks.eslintRules()));
   }
 
   @Override
@@ -74,13 +73,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     return provider.tsconfigs(context);
   }
 
-  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> allFiles) throws IOException {
-    List<InputFile> inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
+  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
+    analysisMode = AnalysisMode.getModeFor(context, checks.eslintRules());
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
         if (context.isCancelled()) {
@@ -107,7 +106,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisOptions.getLinterIdFor(file));
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {

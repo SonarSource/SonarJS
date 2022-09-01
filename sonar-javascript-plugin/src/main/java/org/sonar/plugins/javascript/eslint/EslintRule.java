@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -42,12 +41,11 @@ class EslintRule {
     return rules.stream().anyMatch(ruleMatcher(eslintKey));
   }
 
-  static List<EslintRule> findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
+  static EslintRule findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
     return rules.stream()
       .filter(ruleMatcher(eslintKey))
       .findFirst()
-      .map(Collections::singletonList)
-      .orElseGet(Collections::emptyList);
+      .orElse(null);
   }
 
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {

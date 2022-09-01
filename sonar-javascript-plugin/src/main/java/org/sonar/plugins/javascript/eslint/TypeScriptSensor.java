@@ -57,7 +57,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private final AnalysisProcessor analysisProcessor;
   private final TypeScriptChecks checks;
 
-  private AnalysisOptions analysisOptions;
+  private AnalysisMode analysisMode;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
@@ -67,7 +67,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
-    analysisOptions = new AnalysisOptions(initializer -> initializer.accept(context, checks.eslintRules()));
   }
 
   @Override
@@ -87,9 +86,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> allFiles) throws IOException {
-    List<InputFile> inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
-    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    analysisMode = AnalysisMode.getModeFor(context, checks.eslintRules());
+    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
     if (shouldAnalyzeWithProgram(inputFiles)) {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
@@ -151,7 +150,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisOptions.getLinterIdFor(file));
+        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {

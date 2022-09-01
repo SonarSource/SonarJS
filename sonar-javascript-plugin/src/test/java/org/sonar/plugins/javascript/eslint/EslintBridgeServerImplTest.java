@@ -65,7 +65,7 @@ import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
-import static org.sonar.plugins.javascript.eslint.AnalysisOptions.DEFAULT_LINTER_ID;
+import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
 
 class EslintBridgeServerImplTest {
 
@@ -175,7 +175,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context, emptyList());
 
     List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
-    eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), new AnalysisOptions(context, Collections.emptyList()));
+    eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), AnalysisMode.getModeFor(context, Collections.emptyList()));
     eslintBridgeServer.stop();
     assertThat(logTester.logs()).contains("{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }

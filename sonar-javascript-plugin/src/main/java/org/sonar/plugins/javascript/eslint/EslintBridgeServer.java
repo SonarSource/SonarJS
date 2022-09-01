@@ -37,7 +37,7 @@ public interface EslintBridgeServer extends Startable {
 
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 

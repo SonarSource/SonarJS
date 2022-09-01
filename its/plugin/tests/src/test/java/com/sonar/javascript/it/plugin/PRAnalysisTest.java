@@ -29,19 +29,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.HamcrestCondition;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.hamcrest.CustomMatcher;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
@@ -49,9 +42,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarqube.ws.Issues;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PRAnalysisTest {
@@ -61,13 +54,56 @@ class PRAnalysisTest {
   @TempDir
   private Path gitBaseDir;
 
+  @ParameterizedTest
+  @ValueSource(strings = {"js", "ts"})
+  void should_analyse_pull_requests(String language) throws IOException {
+    var projectKey = "pr-analysis-" + language;
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
+      "pr-analysis-js-profile", "js",
+      "pr-analysis-ts-profile", "ts"));
+
+    try (var gitExecutor = createProjectIn(projectPath, language)) {
+      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("INFO: Won't skip unchanged files as this is not activated in the sensor context")
+        .logsOnce("DEBUG: initializing linter \"default\"")
+        .doesNotLog("DEBUG: initializing linter \"unchanged\"")
+        .logsTimes("DEBUG: analyzing file linterId=default", Master.SOURCE_FILES)
+        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
+        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
+        .generatesUcfgFilesForAll(projectPath, "index.js", "hello.js");
+      assertThat(getIssues(orchestrator, projectKey, null))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":index." + language);
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("Will skip unchanged files")
+        .logsOnce("DEBUG: initializing linter \"default\"")
+        .logsOnce("DEBUG: initializing linter \"unchanged\"")
+        .logsOnce("DEBUG: analyzing file linterId=unchanged")
+        .logsOnce("DEBUG: analyzing file linterId=default")
+        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
+        .generatesUcfgFilesForAll(projectPath, "index.js", "hello.js");
+      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":hello." + language);
+    }
+  }
+
   @BeforeAll
   public static void startOrchestrator() {
-    orchestrator = OrchestratorStarter.getOrchestratorBuilder()
+    orchestrator = Orchestrator.builderEnv()
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-php-frontend-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
       .build();
@@ -134,99 +170,6 @@ class PRAnalysisTest {
     var result = orchestrator.executeBuild(scanner);
     assertThat(result.isSuccess()).isTrue();
     return result;
-  }
-
-  private static List<Path> findUcfgFilesIn(Path projectPath) throws IOException {
-    try (var stream = Files.find(projectPath.resolve(".scannerwork"), 3, PRAnalysisTest::isUcfgFile)) {
-      return stream.collect(toList());
-    }
-  }
-
-  private static boolean isUcfgFile(Path path, BasicFileAttributes attrs) {
-    return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfg");
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"js", "ts"})
-  void should_analyse_pull_requests(String language) throws IOException {
-    var projectKey = "pr-analysis-" + language;
-    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
-
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      "pr-analysis-js-profile", "js",
-      "pr-analysis-ts-profile", "ts"));
-
-    try (var gitExecutor = createProjectIn(projectPath, language)) {
-      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
-        .hasLogs("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
-        .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
-        .hasAtLeastLog("INFO: Won't skip unchanged files as this is not activated in the sensor context")
-        .hasLog("DEBUG: initializing linter \"default\"")
-        .hasNotLog("DEBUG: initializing linter \"unchanged\"")
-        .hasLogs("analyzing file linterId=default", Master.SOURCE_FILES);
-      assertThat(getIssues(orchestrator, projectKey, null))
-        .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":index." + language);
-      assertThat(findUcfgFilesIn(projectPath)).isNotEmpty();
-
-      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
-        .hasLogs("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
-        .hasLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
-        .hasAtLeastLog("Will skip unchanged files")
-        .hasLog("DEBUG: initializing linter \"default\"")
-        .hasLog("DEBUG: initializing linter \"unchanged\"")
-        .hasLog("analyzing file linterId=unchanged")
-        .hasLog("analyzing file linterId=default");
-      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
-        .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":hello." + language);
-      assertThat(findUcfgFilesIn(projectPath)).isNotEmpty();
-    }
-  }
-
-  static class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
-
-    BuildResultAssert(BuildResult actual) {
-      super(actual, BuildResultAssert.class);
-    }
-
-    static BuildResultAssert assertThat(BuildResult buildResult) {
-      return new BuildResultAssert(buildResult);
-    }
-
-    private static Matcher<BuildResult> logMatcher(String description, String log, Predicate<Integer> predicate) {
-      return new CustomMatcher<>(description) {
-        @Override
-        public boolean matches(Object item) {
-          return Optional.ofNullable(item)
-            .filter(BuildResult.class::isInstance)
-            .map(BuildResult.class::cast)
-            .map(result -> result.getLogsLines(line -> line.contains(log)).size())
-            .filter(predicate)
-            .isPresent();
-        }
-      };
-    }
-
-    BuildResultAssert hasLog(String log) {
-      return hasLogs(log, 1);
-    }
-
-    BuildResultAssert hasNotLog(String log) {
-      return hasLogs(log, 0);
-    }
-
-    BuildResultAssert hasLogs(String log, int times) {
-      return has(new HamcrestCondition<>(logMatcher(String.format("has logs [%s] %d time(s)", log, times), log, n -> n == times)));
-    }
-
-    BuildResultAssert hasAtLeastLog(String log) {
-      return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), log, n -> n > 0)));
-    }
   }
 
   static class FileGenerator {

@@ -43,7 +43,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class AnalysisOptionsTest {
+class AnalysisModeTest {
 
   @Mock
   SensorContext context;
@@ -63,9 +63,10 @@ class AnalysisOptionsTest {
   void should_ignore_non_compatible_versions() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
 
-    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
-    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
-    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    var rules = rules("key1", "key2");
+    var mode = AnalysisMode.getModeFor(context, rules);
+    assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
+    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context, never()).canSkipUnchangedFiles();
   }
 
@@ -74,9 +75,10 @@ class AnalysisOptionsTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
-    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
-    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
-    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    var rules = rules("key1", "key2");
+    var mode = AnalysisMode.getModeFor(context, rules);
+    assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
+    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
   }
 
@@ -85,15 +87,14 @@ class AnalysisOptionsTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
-    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
-    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    var rules = rules("key1", "key2");
+    var mode = AnalysisMode.getModeFor(context, rules);
+    assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
+    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    var filesToAnalyze = analysisOptions.getFilesToAnalyzeIn(files);
-    assertThat(filesToAnalyze).hasSize(5);
-    assertThat(filesToAnalyze.stream().map(analysisOptions::getLinterIdFor)).containsExactly("default", "default", "default", "default", "default");
+    assertThat(files.stream().map(mode::getLinterIdFor)).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals);
   }
 
   @Test
@@ -101,19 +102,17 @@ class AnalysisOptionsTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
-    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2", "ucfg"));
-    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
-    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    var rules = rules("key1", "key2", "ucfg");
+    var mode = AnalysisMode.getModeFor(context, rules);
+    assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
+    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
 
-    assertThat(analysisOptions.getFilesToAnalyzeIn(emptyList())).isEmpty();
-    assertThat(analysisOptions.getFilesToAnalyzeIn(changedFileList(2))).hasSize(2);
-
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(analysisOptions.getFilesToAnalyzeIn(files)).hasSize(6);
     for (var file : files) {
-      assertThat(analysisOptions.getLinterIdFor(file)).isEqualTo("default");
+      assertThat(mode.getLinterIdFor(file)).isEqualTo(AnalysisMode.DEFAULT_LINTER_ID);
     }
+
   }
 
   @Test
@@ -121,19 +120,21 @@ class AnalysisOptionsTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2", "ucfg"));
-    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isTrue();
+    var rules = rules("key1", "key2", "ucfg");
+    var mode = AnalysisMode.getModeFor(context, rules);
+    assertThat(mode).isEqualTo(AnalysisMode.SKIP_UNCHANGED);
     verify(context).canSkipUnchangedFiles();
 
-    assertThat(analysisOptions.getUnchangedFileRules())
+    assertThat(mode.getUnchangedFileRules(rules))
       .hasSize(1)
       .extracting(EslintRule::toString)
       .contains("ucfg");
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(analysisOptions.getFilesToAnalyzeIn(files)).hasSize(6);
-    assertThat(files.stream().map(analysisOptions::getLinterIdFor)).containsExactly("default", "default", "unchanged", "default", "default", "default");
+    assertThat(files.stream().map(mode::getLinterIdFor)).containsExactly(
+      AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.UNCHANGED_LINTER_ID,
+      AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID);
   }
 
   private static List<EslintRule> rules(String... keys) {
@@ -150,15 +151,15 @@ class AnalysisOptionsTest {
   }
 
   private static Stream<InputFile> changedFiles(int count) {
-    return files(count, AnalysisOptionsTest::changedFile);
+    return files(count, AnalysisModeTest::changedFile);
   }
 
   private static Stream<InputFile> unchangedFiles(int count) {
-    return files(count, AnalysisOptionsTest::unchangedFile);
+    return files(count, AnalysisModeTest::unchangedFile);
   }
 
   private static Stream<InputFile> addedFiles(int count) {
-    return files(count, AnalysisOptionsTest::addedFile);
+    return files(count, AnalysisModeTest::addedFile);
   }
 
   private static Stream<InputFile> files(int count, Function<String, InputFile> factory) {

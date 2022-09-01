@@ -236,11 +236,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisOptions analysisOptions) throws IOException {
-    initLinter(AnalysisOptions.DEFAULT_LINTER_ID, rules, environments, globals);
+  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException {
+    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
 
-    if (analysisOptions.isUnchangedAnalysisEnabled()) {
-      initLinter(AnalysisOptions.UNCHANGED_LINTER_ID, analysisOptions.getUnchangedFileRules(), environments, globals);
+    if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
+      initLinter(AnalysisMode.UNCHANGED_LINTER_ID, analysisMode.getUnchangedFileRules(rules), environments, globals);
     }
   }
 
