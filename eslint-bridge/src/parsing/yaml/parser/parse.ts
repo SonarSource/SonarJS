@@ -94,7 +94,6 @@ export function parseYaml(parsingContexts: ParsingContext[], filePath: string): 
             const [offsetStart] = value.range;
             const { line, col: column } = lineCounter.linePos(offsetStart);
             const lineStarts = lineCounter.lineStarts;
-            const extras = currentContext.picker(key, pair, ancestors);
 
             embeddedJSs.push({
               code,
@@ -104,7 +103,7 @@ export function parseYaml(parsingContexts: ParsingContext[], filePath: string): 
               lineStarts,
               text,
               format,
-              extras,
+              extras: currentContext.picker(key, pair, ancestors),
             });
           }
         }
