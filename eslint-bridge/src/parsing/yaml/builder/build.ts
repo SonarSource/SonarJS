@@ -56,6 +56,7 @@ export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
     try {
       const sourceCode = buildSourceCode(input, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
+      // We use lodash.clone here to remove the effects of Object.preventExtensions()
       const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {
         syntheticFilePath,
       });
