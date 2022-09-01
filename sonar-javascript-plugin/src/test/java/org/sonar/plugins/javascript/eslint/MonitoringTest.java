@@ -28,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.Sensor;
@@ -35,6 +37,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -74,6 +78,7 @@ class MonitoringTest {
       Monitoring.SensorMetric sensorMetric = gson.fromJson(br, Monitoring.SensorMetric.class);
       assertThat(sensorMetric.component).isEqualTo(TestSensor.class.getCanonicalName());
       assertThat(sensorMetric.duration).isGreaterThan(100);
+      assertThat(sensorMetric.canSkipUnchangedFiles).isFalse();
     }
   }
 
@@ -115,6 +120,7 @@ class MonitoringTest {
       assertThat(fileMetric.ordinal).isZero();
       assertThat(fileMetric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
       assertThat(fileMetric.executionId).isNotEmpty();
+      assertThat(fileMetric.canSkipUnchangedFiles).isFalse();
     }
   }
 
@@ -143,8 +149,30 @@ class MonitoringTest {
     var metric = monitoring.metrics().get(0);
     assertThat(metric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
     assertThat(metric.executionId).isNotEmpty();
+    assertThat(metric.canSkipUnchangedFiles).isFalse();
   }
 
+  @Test
+  void test_can_skip_unchanged_files() {
+    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
+    sensorContextTester.setCanSkipUnchangedFiles(true);
+    monitoring.startSensor(sensorContextTester, new TestSensor());
+    monitoring.stopSensor();
+    var metric = monitoring.metrics().get(0);
+    assertThat(metric.canSkipUnchangedFiles).isTrue();
+  }
+
+  @Test
+  void test_can_not_skip_unchanged_files() {
+    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
+    sensorContextTester.setRuntime(
+      SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+    sensorContextTester.setCanSkipUnchangedFiles(true);
+    monitoring.startSensor(sensorContextTester, new TestSensor());
+    monitoring.stopSensor();
+    var metric = monitoring.metrics().get(0);
+    assertThat(metric.canSkipUnchangedFiles).isFalse();
+  }
 
   static class TestSensor implements Sensor {
 
