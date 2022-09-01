@@ -26,11 +26,14 @@ export * from './linter';
 export * from './rules';
 type Linters = { [id: string]: LinterWrapper };
 /**
- * The global ESLint linter wrappers
+ * The global ESLint linters
  *
- * The global linter wrappers is expected to be initialized before use.
+ * Any linter is expected to be initialized before use.
  * To this end, the plugin is expected to explicitly send a request to
- * initialize the linter before starting the actual analysis of a file.
+ * initialize a linter before starting the actual analysis of a file.
+ * The global linters object will keep the already initialized linters
+ * indexed by their linterId. If no linterId is provided, `default` will
+ * be used.
  */
 const linters: Linters = {};
 
@@ -50,9 +53,10 @@ export function initializeLinter(
   const { bundles } = getContext();
   const customRules = loadBundles(bundles);
 
-  debug(`initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-  linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
-  return linters[linterId];
+  if (!linters[linterId]) {
+    debug(`initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
+    linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
+  }
 }
 
 /**

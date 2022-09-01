@@ -51,8 +51,8 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
-  debug(`analyzing file linterId=${input.linterId}`);
-  const linter = getLinter(input.linterId || 'default');
+  debug(`analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
+  const linter = getLinter(input.linterId);
 
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);

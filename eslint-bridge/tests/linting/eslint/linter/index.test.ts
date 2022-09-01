@@ -41,9 +41,11 @@ describe('initializeLinter', () => {
 
     expect(getLinter).toThrow();
 
-    const linter = initializeLinter([
+    initializeLinter([
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
+
+    const linter = getLinter();
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
@@ -76,9 +78,11 @@ describe('initializeLinter', () => {
 
     console.log = jest.fn();
 
-    const linter = initializeLinter([
+    initializeLinter([
       { key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
+
+    const linter = getLinter();
 
     expect(linter).toBeDefined();
     expect(console.log).toHaveBeenCalledWith(
