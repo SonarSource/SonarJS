@@ -21,8 +21,10 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeYAML } from 'services/analysis';
-import { initializeLinter } from 'linting/eslint';
+import { initializeLinter, linter } from 'linting/eslint';
 import { APIError } from 'errors';
+import { Rule } from 'eslint';
+import { composeSyntheticFilePath } from 'parsing/yaml';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -185,5 +187,28 @@ describe('analyzeYAML', () => {
       fileContent: undefined,
     });
     expect(issues).toHaveLength(0);
+  });
+
+  it('should provide a synthetic filename to the rule context', async () => {
+    expect.assertions(1);
+    const resourceName = 'SomeLambdaFunction';
+    const filePath = join(fixturesPath, 'synthetic-filename.yaml');
+    const syntheticFilename = composeSyntheticFilePath(filePath, resourceName);
+    const rule = {
+      key: 'synthetic-filename',
+      module: {
+        create(context: Rule.RuleContext) {
+          return {
+            Program: () => {
+              const filename = context.getFilename();
+              expect(filename).toEqual(syntheticFilename);
+            },
+          };
+        },
+      },
+    };
+    initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
+    linter.linter.defineRule(rule.key, rule.module);
+    await analyzeYAML({ filePath, fileContent: undefined });
   });
 });

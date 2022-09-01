@@ -18,20 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes } from 'parsing/yaml';
+import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/yaml';
 import { APIError } from 'errors';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
-
   it('should build source code from YAML lambda file', () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
     const sourceCodes = buildSourceCodes(filePath);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
@@ -39,7 +36,6 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
     const sourceCodes = buildSourceCodes(filePath);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0]).toBeInstanceOf(SourceCode);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
@@ -72,7 +68,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix plain-based format locations', () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = buildSourceCodes(filePath) as SourceCode[];
+    const [{ ast }] = buildSourceCodes(filePath);
 
     const {
       body: [ifStmt],
@@ -141,7 +137,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-folded-based format locations', () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = buildSourceCodes(filePath) as SourceCode[];
+    const [{ ast }] = buildSourceCodes(filePath);
     const {
       body: [ifStmt],
     } = ast;
@@ -209,7 +205,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-literal-based format locations', () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = buildSourceCodes(filePath) as SourceCode[];
+    const [{ ast }] = buildSourceCodes(filePath);
     const {
       body: [ifStmt],
     } = ast;
@@ -273,5 +269,21 @@ describe('buildSourceCodes()', () => {
       }),
     );
     expect(elseToken.range).toEqual([232, 236]);
+  });
+
+  it('should compose a synthetic file path', async () => {
+    const filePath = join(fixturesPath, 'synthetic-filename.yaml');
+    const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(filePath);
+    const firstFunctionName = composeSyntheticFilePath(filePath, 'SomeLambdaFunction');
+    const secondFunctionName = composeSyntheticFilePath(filePath, 'SomeServerlessFunction');
+    expect(firstExtendedSourceCode.syntheticFilePath).toEqual(firstFunctionName);
+    expect(secondExtendedSourceCode.syntheticFilePath).toEqual(secondFunctionName);
+  });
+});
+
+describe('composeSyntheticFilePath()', () => {
+  it('should append the function name at the end of the filename, before the extension', () => {
+    const composedFilename = composeSyntheticFilePath('hello.yaml', 'there');
+    expect(composedFilename).toEqual('hello-there.yaml');
   });
 });

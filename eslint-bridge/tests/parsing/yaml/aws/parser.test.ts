@@ -19,13 +19,13 @@
  */
 
 import path from 'path';
-import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
+import { parseAwsFromYaml } from 'parsing/yaml';
 import { APIError } from 'errors';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'valid.yaml');
-    const embedded = parseAwsFromYaml(filePath) as EmbeddedJS[];
+    const embedded = parseAwsFromYaml(filePath);
     expect(embedded).toBeDefined();
     expect(embedded).toHaveLength(1);
     expect(embedded[0]).toEqual(
@@ -34,6 +34,25 @@ describe('parseAwsFromYaml()', () => {
         line: 8,
         column: 18,
         offset: 177,
+      }),
+    );
+  });
+
+  it('should extract the resource name', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'parser', 'resource-names.yaml');
+    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(filePath);
+    expect(firstEmbedded).toEqual(
+      expect.objectContaining({
+        extras: {
+          resourceName: 'SomeLambdaFunction',
+        },
+      }),
+    );
+    expect(secondEmbedded).toEqual(
+      expect.objectContaining({
+        extras: {
+          resourceName: 'SomeServerlessFunction',
+        },
       }),
     );
   });

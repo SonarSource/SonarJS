@@ -27,14 +27,29 @@ import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './
 import { APIError } from 'errors';
 
 /**
- * A function predicate to visit a YAML node
+ * A bundle of Yaml visitor predicate and Extras picker
+ * We have bundled these together because they depend on each other
+ * and should be used in pairs
+ */
+export type ParsingContext = {
+  predicate: YamlVisitorPredicate;
+  picker: ExtrasPicker;
+};
+
+/**
+ * A function predicate to select a YAML node containing JS code
  */
 export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
+ * A function that picks extra data to save in EmbeddedJS
+ */
+export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
+
+/**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): EmbeddedJS[] {
+export function parseYaml(parsingContexts: ParsingContext[], filePath: string): EmbeddedJS[] {
   const text = readFile(filePath);
 
   /**
@@ -64,30 +79,33 @@ export function parseYaml(predicate: YamlVisitorPredicate, filePath: string): Em
      */
     yaml.visit(doc, {
       Pair(key: any, pair: any, ancestors: any) {
-        if (predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
-          const { value, srcToken } = pair;
-          const code = srcToken.value.source;
-          const format = pair.value.type;
+        for (const currentContext of parsingContexts) {
+          if (currentContext.predicate(key, pair, ancestors) && isSupportedFormat(pair)) {
+            const { value, srcToken } = pair;
+            const code = srcToken.value.source;
+            const format = pair.value.type;
 
-          /**
-           * This assertion should never fail because the visited node denotes either an AWS Lambda
-           * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
-           */
-          assert(code != null, 'An extracted embedded JavaScript snippet should not be undefined.');
+            /**
+             * This assertion should never fail because the visited node denotes either an AWS Lambda
+             * or an AWS Serverless with embedded JavaScript code that can be extracted at this point.
+             */
+            assert(code != null, 'An extracted embedded JavaScript snippet should be defined.');
 
-          const [offsetStart] = value.range;
-          const { line, col: column } = lineCounter.linePos(offsetStart);
-          const lineStarts = lineCounter.lineStarts;
+            const [offsetStart] = value.range;
+            const { line, col: column } = lineCounter.linePos(offsetStart);
+            const lineStarts = lineCounter.lineStarts;
 
-          embeddedJSs.push({
-            code,
-            line,
-            column,
-            offset: fixOffset(offsetStart, value.type),
-            lineStarts,
-            text,
-            format,
-          });
+            embeddedJSs.push({
+              code,
+              line,
+              column,
+              offset: fixOffset(offsetStart, value.type),
+              lineStarts,
+              text,
+              format,
+              extras: currentContext.picker(key, pair, ancestors),
+            });
+          }
         }
       },
     });

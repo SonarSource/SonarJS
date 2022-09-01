@@ -22,19 +22,30 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
+import clone from 'lodash.clone';
+import path from 'path';
+
+export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
  *
+ * The filepath is augmented with the AWS function name, returned as the syntheticFilePath property
+ *
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(filePath: string): SourceCode[] {
+export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
   const embeddedJSs = parseAwsFromYaml(filePath);
 
-  const sourceCodes: SourceCode[] = [];
+  const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
+
+    let syntheticFilePath: string = filePath;
+    if (embeddedJS.extras.resourceName != null) {
+      syntheticFilePath = composeSyntheticFilePath(filePath, embeddedJS.extras.resourceName);
+    }
 
     /**
      * The file path is purposely left empty as it is ignored by `buildSourceCode` if
@@ -44,11 +55,29 @@ export function buildSourceCodes(filePath: string): SourceCode[] {
     const input = { filePath: '', fileContent: code, fileType: 'MAIN' } as JsTsAnalysisInput;
     try {
       const sourceCode = buildSourceCode(input, 'js');
-      const patchedSourceCode = patchSourceCode(sourceCode, embeddedJS);
-      sourceCodes.push(patchedSourceCode);
+      const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
+      // We use lodash.clone here to remove the effects of Object.preventExtensions()
+      const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {
+        syntheticFilePath,
+      });
+      extendedSourceCodes.push(extendedSourceCode);
     } catch (error) {
       throw patchParsingError(error, embeddedJS);
     }
   }
-  return sourceCodes;
+  return extendedSourceCodes;
+}
+
+/**
+ * Returns the filename composed as following:
+ *
+ * {filepath-without-extention}-{resourceName}{filepath-extension}
+ */
+export function composeSyntheticFilePath(filePath: string, resourceName: string): string {
+  const { dir, name, ext } = path.parse(filePath);
+  return path.format({
+    dir,
+    name: `${name}-${resourceName}`,
+    ext,
+  });
 }

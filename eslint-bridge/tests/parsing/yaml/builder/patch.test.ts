@@ -19,7 +19,6 @@
  */
 
 import path from 'path';
-import { SourceCode } from 'eslint';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
@@ -37,7 +36,7 @@ describe('patchSourceCode', () => {
 
   it('should patch source code', () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
-    const [patchedSourceCode] = buildSourceCodes(filePath) as SourceCode[];
+    const [patchedSourceCode] = buildSourceCodes(filePath);
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
         text: readFile(filePath),
@@ -63,11 +62,11 @@ describe('patchSourceCode', () => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', property);
 
     const filePath = `${fixture}.yaml`;
-    const [patchedSourceCode] = buildSourceCodes(filePath) as SourceCode[];
+    const [patchedSourceCode] = buildSourceCodes(filePath);
     const patchedNodes = patchedSourceCode.ast[property];
 
     const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
-    const referenceSourceCode = buildSourceCode(input, 'js') as SourceCode;
+    const referenceSourceCode = buildSourceCode(input, 'js');
     const referenceNodes = referenceSourceCode.ast[property];
 
     expect(patchedNodes).toEqual(referenceNodes);
