@@ -34,6 +34,8 @@ type Linters = { [id: string]: LinterWrapper };
  * The global linters object will keep the already initialized linters
  * indexed by their linterId. If no linterId is provided, `default` will
  * be used.
+ * Having multiple linters (each with different set of rules enabled)
+ * is needed in order to not run all rules on 'unchanged' files
  */
 const linters: Linters = {};
 
