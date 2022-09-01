@@ -41,7 +41,7 @@ describe('initializeLinter', () => {
 
     expect(getLinter).toThrow();
 
-    const linter = initializeLinter([
+    initializeLinter([
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
 
@@ -78,7 +78,7 @@ describe('initializeLinter', () => {
 
     console.log = jest.fn();
 
-    const linter = initializeLinter([
+    initializeLinter([
       { key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
 
