@@ -74,6 +74,7 @@ class MonitoringTest {
       Monitoring.SensorMetric sensorMetric = gson.fromJson(br, Monitoring.SensorMetric.class);
       assertThat(sensorMetric.component).isEqualTo(TestSensor.class.getCanonicalName());
       assertThat(sensorMetric.duration).isGreaterThan(100);
+      assertThat(sensorMetric.canSkipUnchangedFiles).isFalse();
     }
   }
 
@@ -115,6 +116,7 @@ class MonitoringTest {
       assertThat(fileMetric.ordinal).isZero();
       assertThat(fileMetric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
       assertThat(fileMetric.executionId).isNotEmpty();
+      assertThat(fileMetric.canSkipUnchangedFiles).isFalse();
     }
   }
 
@@ -143,8 +145,19 @@ class MonitoringTest {
     var metric = monitoring.metrics().get(0);
     assertThat(metric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
     assertThat(metric.executionId).isNotEmpty();
+    assertThat(metric.canSkipUnchangedFiles).isFalse();
   }
 
+  @Test
+  void test_can_skip_unchanged_files() {
+    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
+    sensorContextTester.setCanSkipUnchangedFiles(true);
+    monitoring.startSensor(sensorContextTester, new TestSensor());
+    monitoring.startProgram("tsconfig.json");
+    monitoring.stopProgram();
+    var metric = monitoring.metrics().get(0);
+    assertThat(metric.canSkipUnchangedFiles).isTrue();
+  }
 
   static class TestSensor implements Sensor {
 
