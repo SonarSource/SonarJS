@@ -56,16 +56,20 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [];
 
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const emptyLinterInput = { filePath, fileContent, fileType, tsConfigs, linterId: 'empty' } as JsTsAnalysisInput;
+    const emptyLinterInput = {
+      filePath,
+      fileContent,
+      fileType,
+      tsConfigs,
+      linterId: 'empty',
+    } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
     } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
 
-    const {
-      issues: [empty_issue],
-    } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -73,7 +77,7 @@ describe('analyzeJSTS', () => {
       }),
     );
 
-    expect(empty_issue).toBeUndefined();
+    expect(issues).toHaveLength(0);
   });
 
   it('should analyze TypeScript code', () => {
@@ -89,22 +93,26 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
 
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const emptyLinterInput = { filePath, fileContent, fileType, tsConfigs, linterId: 'empty' } as JsTsAnalysisInput;
+    const emptyLinterInput = {
+      filePath,
+      fileContent,
+      fileType,
+      tsConfigs,
+      linterId: 'empty',
+    } as JsTsAnalysisInput;
     const language = 'ts';
 
     const {
       issues: [issue],
     } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
-    const {
-      issues: [empty_issue],
-    } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'bool-param-default',
       }),
     );
-    expect(empty_issue).toBeUndefined();
+    expect(issues).toHaveLength(0);
   });
 
   it('should analyze Vue.js code', () => {
