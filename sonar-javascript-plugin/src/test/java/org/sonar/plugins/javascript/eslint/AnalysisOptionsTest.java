@@ -39,6 +39,8 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AnalysisOptionsTest {
@@ -58,12 +60,52 @@ class AnalysisOptionsTest {
   }
 
   @Test
-  void should_reflect_non_skippable_analysis() {
-    when(context.canSkipUnchangedFiles()).thenReturn(false);
-    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
+  void should_ignore_non_compatible_versions() {
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
 
     var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
     assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
+    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    verify(context, never()).canSkipUnchangedFiles();
+  }
+
+  @Test
+  void should_reflect_non_skippable_analysis() {
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
+    when(context.canSkipUnchangedFiles()).thenReturn(false);
+
+    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
+    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
+    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    verify(context).canSkipUnchangedFiles();
+  }
+
+  @Test
+  void should_reflect_skippable_without_security_analysis() {
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+
+    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2"));
+    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
+    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    verify(context).canSkipUnchangedFiles();
+
+    var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
+    var filesToAnalyze = analysisOptions.getFilesToAnalyzeIn(files);
+    assertThat(filesToAnalyze).hasSize(5);
+    assertThat(filesToAnalyze.stream().map(analysisOptions::getLinterIdFor)).containsExactly("default", "default", "default", "default", "default");
+  }
+
+  @Test
+  void should_reflect_main_branch_analysis() {
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
+    when(context.canSkipUnchangedFiles()).thenReturn(false);
+
+    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2", "ucfg"));
+    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isFalse();
+    assertThat(analysisOptions.getUnchangedFileRules()).isEmpty();
+    verify(context).canSkipUnchangedFiles();
+
     assertThat(analysisOptions.getFilesToAnalyzeIn(emptyList())).isEmpty();
     assertThat(analysisOptions.getFilesToAnalyzeIn(changedFileList(2))).hasSize(2);
 
@@ -72,6 +114,26 @@ class AnalysisOptionsTest {
     for (var file : files) {
       assertThat(analysisOptions.getLinterIdFor(file)).isEqualTo("default");
     }
+  }
+
+  @Test
+  void should_reflect_pr_analysis() {
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+
+    var analysisOptions = new AnalysisOptions(context, rules("key1", "key2", "ucfg"));
+    assertThat(analysisOptions.isUnchangedAnalysisEnabled()).isTrue();
+    verify(context).canSkipUnchangedFiles();
+
+    assertThat(analysisOptions.getUnchangedFileRules())
+      .hasSize(1)
+      .extracting(EslintRule::toString)
+      .contains("ucfg");
+    verify(context).canSkipUnchangedFiles();
+
+    var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
+    assertThat(analysisOptions.getFilesToAnalyzeIn(files)).hasSize(6);
+    assertThat(files.stream().map(analysisOptions::getLinterIdFor)).containsExactly("default", "default", "unchanged", "default", "default", "default");
   }
 
   private static List<EslintRule> rules(String... keys) {
