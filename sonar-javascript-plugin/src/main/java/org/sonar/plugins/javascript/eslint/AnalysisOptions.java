@@ -24,6 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -31,27 +32,23 @@ import static java.util.stream.Collectors.toList;
 
 class AnalysisOptions {
 
-  // This initializer is used to initialize the class lazily allowing the owner to provide the sensor context and the check rules
-  // on the first use of the class methods.
-  @FunctionalInterface
-  interface Initializer extends Consumer<BiConsumer<SensorContext, List<EslintRule>>> {
-  }
-
   static final String UNCHANGED_LINTER_ID = "unchanged";
   static final String DEFAULT_LINTER_ID = "default";
   private static final Logger LOG = Loggers.get(AnalysisOptions.class);
-
   private final Initializer initializer;
   private boolean initialized = false;
   private boolean skipUnchangedFiles;
   private List<EslintRule> unchangedFileRules;
-
   AnalysisOptions(SensorContext context, List<EslintRule> rules) {
     this(init -> init.accept(context, rules));
   }
 
   AnalysisOptions(Initializer initializer) {
     this.initializer = initializer;
+  }
+
+  private static boolean isRuntimeApiCompatible(SensorContext context) {
+    return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
   }
 
   private void initializeIfNeeded() {
@@ -62,9 +59,16 @@ class AnalysisOptions {
   }
 
   private void initialize(SensorContext context, List<EslintRule> rules) {
+    if (!isRuntimeApiCompatible(context)) {
+      LOG.info("Won't skip unchanged files as the API is not compatible");
+      skipUnchangedFiles = false;
+      unchangedFileRules = List.of();
+      return;
+    }
+
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
-      LOG.info("Won't skip unchanged files as this is not activated in the sensor contextUtils");
+      LOG.info("Won't skip unchanged files as this is not activated in the sensor context");
       skipUnchangedFiles = false;
       unchangedFileRules = List.of();
       return;
@@ -111,6 +115,12 @@ class AnalysisOptions {
     } else {
       return DEFAULT_LINTER_ID;
     }
+  }
+
+  // This initializer is used to initialize the class lazily allowing the owner to provide the sensor context and the check rules
+  // on the first use of the class methods.
+  @FunctionalInterface
+  interface Initializer extends Consumer<BiConsumer<SensorContext, List<EslintRule>>> {
   }
 
 }

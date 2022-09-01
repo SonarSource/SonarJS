@@ -44,7 +44,6 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -55,7 +54,6 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(OrchestratorStarter.class)
 class PRAnalysisTest {
 
   private static Orchestrator orchestrator;
