@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -48,7 +47,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
-  private Supplier<AnalysisOptions> analysisOptions;
+  private AnalysisOptions analysisOptions;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
@@ -57,7 +56,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.analysisOptions = AnalysisOptions.singleton(() -> this.context, checks::eslintRules);
+    this.analysisOptions = new AnalysisOptions(creator -> creator.accept(context, checks.eslintRules()));
   }
 
   @Override
@@ -76,12 +75,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> allFiles) throws IOException {
-    List<InputFile> inputFiles = analysisOptions.get().getFilesToAnalyzeIn(allFiles);
+    List<InputFile> inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions.get());
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
         if (context.isCancelled()) {
@@ -108,7 +107,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisOptions.get().getLinterIdFor(file));
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisOptions.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
     } catch (IOException e) {

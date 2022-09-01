@@ -66,7 +66,7 @@ public class AnalysisWithProgram {
     this.context = context;
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
-    this.analysisOptions = AnalysisOptions.create(context, checks.eslintRules());
+    this.analysisOptions = new AnalysisOptions(context, checks.eslintRules());
     var tsConfigs = new TsConfigProvider().tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");

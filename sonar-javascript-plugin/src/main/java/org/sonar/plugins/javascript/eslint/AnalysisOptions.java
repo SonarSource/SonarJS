@@ -20,7 +20,8 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
@@ -34,54 +35,62 @@ class AnalysisOptions {
   static final String DEFAULT_LINTER_ID = "default";
   private static final Logger LOG = Loggers.get(AnalysisOptions.class);
 
-  private final boolean skipUnchangedFiles;
-  private final List<EslintRule> unchangedFileRules;
+  private final Consumer<BiConsumer<SensorContext, List<EslintRule>>> initializer;
+  private boolean initialized = false;
+  private boolean skipUnchangedFiles;
+  private List<EslintRule> unchangedFileRules;
 
-  private AnalysisOptions(boolean skipUnchangedFiles, List<EslintRule> unchangedFileRules) {
-    this.skipUnchangedFiles = skipUnchangedFiles;
-    this.unchangedFileRules = List.copyOf(unchangedFileRules);
+  AnalysisOptions(SensorContext context, List<EslintRule> rules) {
+    this(fn -> fn.accept(context, rules));
   }
 
-  static Supplier<AnalysisOptions> singleton(Supplier<SensorContext> contextSupplier, Supplier<List<EslintRule>> rulesSupplier) {
-    return new Supplier<>() {
-      AnalysisOptions singleton;
-
-      @Override
-      public AnalysisOptions get() {
-        if (singleton == null) {
-          singleton = AnalysisOptions.create(contextSupplier.get(), rulesSupplier.get());
-        }
-        return singleton;
-      }
-    };
+  AnalysisOptions(Consumer<BiConsumer<SensorContext, List<EslintRule>>> initializer) {
+    this.initializer = initializer;
   }
 
-  static AnalysisOptions create(SensorContext context, List<EslintRule> rules) {
+  private void initializeIfNeeded() {
+    if (!initialized) {
+      initializer.accept(this::initialize);
+    }
+  }
+
+  private void initialize(SensorContext context, List<EslintRule> rules) {
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
       LOG.info("Won't skip unchanged files as this is not activated in the sensor contextUtils");
-      return new AnalysisOptions(false, List.of());
+      setInitialized(false, List.of());
+      return;
     }
 
     var containsUcfgRule = EslintRule.containsRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     if (!containsUcfgRule) {
       LOG.info("Won't skip unchanged files as there's no rule with the ESLint key '{}'", EslintRule.UCFG_ESLINT_KEY);
-      return new AnalysisOptions(true, List.of());
+      setInitialized(true, List.of());
+      return;
     }
 
     LOG.info("Will skip unchanged files");
-    return new AnalysisOptions(true, EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY));
+    setInitialized(true, EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY));
+  }
+
+  private void setInitialized(boolean skipUnchangedFiles, List<EslintRule> unchangedFileRules) {
+    this.skipUnchangedFiles = skipUnchangedFiles;
+    this.unchangedFileRules = unchangedFileRules;
+    initialized = true;
   }
 
   boolean isUnchangedAnalysisEnabled() {
+    initializeIfNeeded();
     return skipUnchangedFiles && !unchangedFileRules.isEmpty();
   }
 
   List<EslintRule> getUnchangedFileRules() {
+    initializeIfNeeded();
     return unchangedFileRules;
   }
 
   List<InputFile> getFilesToAnalyzeIn(List<InputFile> inputFiles) {
+    initializeIfNeeded();
     // IF we can skip unchanged files AND there's no rule for unchanged files THEN we can analyse only changed files.
     if (skipUnchangedFiles && unchangedFileRules.isEmpty()) {
       return inputFiles.stream().filter(inputFile -> inputFile.status() == InputFile.Status.CHANGED).collect(toList());
@@ -91,6 +100,7 @@ class AnalysisOptions {
   }
 
   String getLinterIdFor(InputFile file) {
+    initializeIfNeeded();
     // IF we can skip unchanged files AND the file is unchanged THEN we can use the unchanged linter.
     if (skipUnchangedFiles && file.status() == InputFile.Status.SAME) {
       return UNCHANGED_LINTER_ID;

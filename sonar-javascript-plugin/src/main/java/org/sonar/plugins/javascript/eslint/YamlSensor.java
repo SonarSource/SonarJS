@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,7 +39,7 @@ public class YamlSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
   private final AnalysisProcessor analysisProcessor;
-  private Supplier<AnalysisOptions> analysisOptions;
+  private AnalysisOptions analysisOptions;
 
   public YamlSensor(
       JavaScriptChecks checks,
@@ -53,7 +52,7 @@ public class YamlSensor extends AbstractEslintSensor {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
-    this.analysisOptions = AnalysisOptions.singleton(() -> this.context, checks::eslintRules);
+    this.analysisOptions = new AnalysisOptions(creator -> creator.accept(context, checks.eslintRules()));
   }
 
   @Override
@@ -65,12 +64,12 @@ public class YamlSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> allFiles) throws IOException {
-    var inputFiles = analysisOptions.get().getFilesToAnalyzeIn(allFiles);
+    var inputFiles = analysisOptions.getFilesToAnalyzeIn(allFiles);
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions.get());
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisOptions);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -110,7 +109,7 @@ public class YamlSensor extends AbstractEslintSensor {
         contextUtils.ignoreHeaderComments(),
         null,
         null,
-        analysisOptions.get().getLinterIdFor(file));
+        analysisOptions.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {
