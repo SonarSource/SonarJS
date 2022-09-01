@@ -67,7 +67,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
-    analysisOptions = new AnalysisOptions(creator -> creator.accept(context, checks.eslintRules()));
+    analysisOptions = new AnalysisOptions(initializer -> initializer.accept(context, checks.eslintRules()));
   }
 
   @Override

@@ -31,26 +31,33 @@ import static java.util.stream.Collectors.toList;
 
 class AnalysisOptions {
 
+  // This initializer is used to initialize the class lazily allowing the owner to provide the sensor context and the check rules
+  // on the first use of the class methods.
+  @FunctionalInterface
+  interface Initializer extends Consumer<BiConsumer<SensorContext, List<EslintRule>>> {
+  }
+
   static final String UNCHANGED_LINTER_ID = "unchanged";
   static final String DEFAULT_LINTER_ID = "default";
   private static final Logger LOG = Loggers.get(AnalysisOptions.class);
 
-  private final Consumer<BiConsumer<SensorContext, List<EslintRule>>> initializer;
+  private final Initializer initializer;
   private boolean initialized = false;
   private boolean skipUnchangedFiles;
   private List<EslintRule> unchangedFileRules;
 
   AnalysisOptions(SensorContext context, List<EslintRule> rules) {
-    this(fn -> fn.accept(context, rules));
+    this(init -> init.accept(context, rules));
   }
 
-  AnalysisOptions(Consumer<BiConsumer<SensorContext, List<EslintRule>>> initializer) {
+  AnalysisOptions(Initializer initializer) {
     this.initializer = initializer;
   }
 
   private void initializeIfNeeded() {
     if (!initialized) {
       initializer.accept(this::initialize);
+      initialized = true;
     }
   }
 
@@ -58,25 +65,22 @@ class AnalysisOptions {
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
       LOG.info("Won't skip unchanged files as this is not activated in the sensor contextUtils");
-      setInitialized(false, List.of());
+      skipUnchangedFiles = false;
+      unchangedFileRules = List.of();
       return;
     }
 
     var containsUcfgRule = EslintRule.containsRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     if (!containsUcfgRule) {
       LOG.info("Won't skip unchanged files as there's no rule with the ESLint key '{}'", EslintRule.UCFG_ESLINT_KEY);
-      setInitialized(true, List.of());
+      skipUnchangedFiles = true;
+      unchangedFileRules = List.of();
       return;
     }
 
     LOG.info("Will skip unchanged files");
-    setInitialized(true, EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY));
-  }
-
-  private void setInitialized(boolean skipUnchangedFiles, List<EslintRule> unchangedFileRules) {
-    this.skipUnchangedFiles = skipUnchangedFiles;
-    this.unchangedFileRules = unchangedFileRules;
-    initialized = true;
+    skipUnchangedFiles = true;
+    unchangedFileRules = EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
   }
 
   boolean isUnchangedAnalysisEnabled() {

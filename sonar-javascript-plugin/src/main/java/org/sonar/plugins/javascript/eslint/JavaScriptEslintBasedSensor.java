@@ -56,7 +56,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.analysisOptions = new AnalysisOptions(creator -> creator.accept(context, checks.eslintRules()));
+    this.analysisOptions = new AnalysisOptions(initializer -> initializer.accept(context, checks.eslintRules()));
   }
 
   @Override
