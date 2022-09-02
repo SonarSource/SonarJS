@@ -70,7 +70,7 @@ class PRAnalysisTest {
 
       gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
-        .logsAtLeastOnce("INFO: Won't skip unchanged files as this is not activated in the sensor context")
+        .logsAtLeastOnce("DEBUG: Won't skip unchanged files as this is not activated in the sensor context")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", indexFile))
@@ -85,7 +85,7 @@ class PRAnalysisTest {
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
-        .logsAtLeastOnce("Will skip analysis of unchanged files")
+        .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
         .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"unchanged\"", indexFile))
