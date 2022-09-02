@@ -74,7 +74,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
-    analysisMode = AnalysisMode.getModeFor(context, checks.eslintRules());
+    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {

@@ -31,15 +31,15 @@ import static java.util.Collections.emptyList;
 enum AnalysisMode {
   DEFAULT, SKIP_UNCHANGED;
 
-  static final String UNCHANGED_LINTER_ID = "unchanged";
   static final String DEFAULT_LINTER_ID = "default";
+  static final String UNCHANGED_LINTER_ID = "unchanged";
   private static final Logger LOG = Loggers.get(AnalysisMode.class);
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
     return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
   }
 
-  static AnalysisMode getModeFor(SensorContext context, List<EslintRule> rules) {
+  static AnalysisMode getMode(SensorContext context, List<EslintRule> rules) {
     var logDefaultMode = "Analysis of unchanged files will not be skipped ({})";
 
     if (!isRuntimeApiCompatible(context)) {
@@ -65,17 +65,12 @@ enum AnalysisMode {
     return AnalysisMode.SKIP_UNCHANGED;
   }
 
-  List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {
-    if (this == SKIP_UNCHANGED) {
-      var rule = EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
-      return rule == null ? emptyList() : List.of(rule);
-    } else {
-      return rules;
-    }
+  static List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {
+    var rule = EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
+    return rule == null ? emptyList() : List.of(rule);
   }
 
   String getLinterIdFor(InputFile file) {
-    // IF we can skip unchanged files AND the file is unchanged THEN we can use the unchanged linter.
     if (this == SKIP_UNCHANGED && file.status() == InputFile.Status.SAME) {
       return UNCHANGED_LINTER_ID;
     } else {

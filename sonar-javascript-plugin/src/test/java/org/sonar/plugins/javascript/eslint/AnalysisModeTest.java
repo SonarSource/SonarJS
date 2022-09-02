@@ -60,13 +60,21 @@ class AnalysisModeTest {
   }
 
   @Test
+  void should_list_unchanged_file_rules() {
+    var rules = rules("key1", "key2", "ucfg");
+    assertThat(AnalysisMode.getUnchangedFileRules(rules))
+      .hasSize(1)
+      .extracting(EslintRule::toString)
+      .contains("ucfg");
+  }
+
+  @Test
   void should_ignore_non_compatible_versions() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
 
     var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getModeFor(context, rules);
+    var mode = AnalysisMode.getMode(context, rules);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
-    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context, never()).canSkipUnchangedFiles();
   }
 
@@ -76,9 +84,8 @@ class AnalysisModeTest {
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
     var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getModeFor(context, rules);
+    var mode = AnalysisMode.getMode(context, rules);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
-    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
   }
 
@@ -88,9 +95,8 @@ class AnalysisModeTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getModeFor(context, rules);
+    var mode = AnalysisMode.getMode(context, rules);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
-    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
@@ -103,16 +109,12 @@ class AnalysisModeTest {
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
     var rules = rules("key1", "key2", "ucfg");
-    var mode = AnalysisMode.getModeFor(context, rules);
+    var mode = AnalysisMode.getMode(context, rules);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
-    assertThat(mode.getUnchangedFileRules(rules)).isEqualTo(rules);
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    for (var file : files) {
-      assertThat(mode.getLinterIdFor(file)).isEqualTo(AnalysisMode.DEFAULT_LINTER_ID);
-    }
-
+    assertThat(files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)).isTrue();
   }
 
   @Test
@@ -121,14 +123,8 @@ class AnalysisModeTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var rules = rules("key1", "key2", "ucfg");
-    var mode = AnalysisMode.getModeFor(context, rules);
+    var mode = AnalysisMode.getMode(context, rules);
     assertThat(mode).isEqualTo(AnalysisMode.SKIP_UNCHANGED);
-    verify(context).canSkipUnchangedFiles();
-
-    assertThat(mode.getUnchangedFileRules(rules))
-      .hasSize(1)
-      .extracting(EslintRule::toString)
-      .contains("ucfg");
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));

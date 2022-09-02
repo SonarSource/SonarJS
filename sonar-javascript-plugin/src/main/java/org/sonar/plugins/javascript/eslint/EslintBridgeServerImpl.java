@@ -240,7 +240,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
 
     if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
-      initLinter(AnalysisMode.UNCHANGED_LINTER_ID, analysisMode.getUnchangedFileRules(rules), environments, globals);
+      initLinter(AnalysisMode.UNCHANGED_LINTER_ID, AnalysisMode.getUnchangedFileRules(rules), environments, globals);
     }
   }
 

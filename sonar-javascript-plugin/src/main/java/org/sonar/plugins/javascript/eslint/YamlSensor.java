@@ -63,7 +63,7 @@ public class YamlSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    analysisMode = AnalysisMode.getModeFor(context, checks.eslintRules());
+    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {

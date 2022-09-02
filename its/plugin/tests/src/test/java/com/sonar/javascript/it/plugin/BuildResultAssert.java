@@ -88,13 +88,13 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), line -> line.contains(log), n -> n > 0)));
   }
 
-  BuildResultAssert generatesUcfgFilesForAll(Path projectPath, Path... filenames) {
+  BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
     List<Path> ucfgFiles;
     try {
       ucfgFiles = findUcfgFilesIn(projectPath);
       for (var filename : filenames) {
         Assertions.assertThat(ucfgFiles)
-          .filteredOn(file -> file.getFileName().toString().contains(filename.getFileName().toString().replace('.', '_')))
+          .filteredOn(file -> file.getFileName().toString().contains(filename.replace('.', '_')))
           .isNotEmpty();
       }
     } catch (IOException e) {

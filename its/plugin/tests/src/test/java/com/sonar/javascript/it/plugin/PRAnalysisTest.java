@@ -56,47 +56,45 @@ class PRAnalysisTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"js", "ts"})
-  void should_analyse_pull_requests(String language) throws IOException {
+  void should_analyse_pull_requests(String language) {
     var projectKey = "pr-analysis-" + language;
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      "pr-analysis-js-profile", "js",
-      "pr-analysis-ts-profile", "ts"));
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of("pr-analysis-" + language + "-profile", language));
 
-    try (var gitExecutor = createProjectIn(projectPath, language)) {
-      var indexFile = projectPath.resolve("index." + language).toRealPath();
-      var helloFile = projectPath.resolve("hello." + language).toRealPath();
+    try (var gitExecutor = createProject(projectPath, language)) {
+      var indexFile = "index." + language;
+      var helloFile = "hello." + language;
 
       gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
-        .logsAtLeastOnce("DEBUG: Won't skip unchanged files as this is not activated in the sensor context")
+        .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
-        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", indexFile))
-        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", helloFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", indexFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
         .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":index." + language);
+        .contains(projectKey + ":" + indexFile);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
-        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"unchanged\"", indexFile))
-        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", helloFile))
+        .logsOnce(String.format("%s\" with linterId \"unchanged\"", indexFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":hello." + language);
+        .contains(projectKey + ":" + helloFile);
     }
   }
 
@@ -122,7 +120,7 @@ class PRAnalysisTest {
     orchestrator.stop();
   }
 
-  private static GitExecutor createProjectIn(Path root, String language) {
+  private static GitExecutor createProject(Path root, String language) {
     var executor = new GitExecutor(root);
     var generator = new FileGenerator(root);
     var helloFile = "hello." + language;
