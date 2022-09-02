@@ -40,21 +40,24 @@ enum AnalysisMode {
   }
 
   static AnalysisMode getModeFor(SensorContext context, List<EslintRule> rules) {
+    var logDefaultMode = "Analysis of unchanged files will not be skipped ({})";
+
     if (!isRuntimeApiCompatible(context)) {
-      LOG.debug("Won't skip unchanged files as the API is not compatible");
+      LOG.debug(logDefaultMode, "runtime API is not compatible");
       return AnalysisMode.DEFAULT;
     }
 
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
-      LOG.debug("Won't skip unchanged files as this is not activated in the sensor context");
+      LOG.debug(logDefaultMode, "current analysis requires all files to be analyzed");
       return AnalysisMode.DEFAULT;
     }
 
-    // This is not supposed to happen as pull request and security should both exist in the developer edition.
+    // This is not supposed to happen as pull request and security should both exist in the developer edition
+    // so falling back to default behaviour even if some optimization is possible
     var containsUcfgRule = EslintRule.containsRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     if (!containsUcfgRule) {
-      LOG.debug("Won't skip unchanged files as there's no rule with the ESLint key '{}'", EslintRule.UCFG_ESLINT_KEY);
+      LOG.debug(logDefaultMode, "security rules are not available");
       return AnalysisMode.DEFAULT;
     }
 
