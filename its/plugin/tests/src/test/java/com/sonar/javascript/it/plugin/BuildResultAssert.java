@@ -46,15 +46,15 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return new BuildResultAssert(buildResult);
   }
 
-  private static Matcher<BuildResult> logMatcher(String description, String log, Predicate<Integer> predicate) {
+  private static Matcher<BuildResult> logMatcher(String description, Predicate<String> logPredicate, Predicate<Integer> linesPredicate) {
     return new CustomMatcher<>(description) {
       @Override
       public boolean matches(Object item) {
         return Optional.ofNullable(item)
           .filter(BuildResult.class::isInstance)
           .map(BuildResult.class::cast)
-          .map(result -> result.getLogsLines(line -> line.contains(log)).size())
-          .filter(predicate)
+          .map(result -> result.getLogsLines(logPredicate).size())
+          .filter(linesPredicate)
           .isPresent();
       }
     };
@@ -79,20 +79,22 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
   }
 
   BuildResultAssert logsTimes(String log, int times) {
-    return has(new HamcrestCondition<>(logMatcher(String.format("has logs [%s] %d time(s)", log, times), log, n -> n == times)));
+    var matcher = logMatcher(String.format("has logs [%s] %d time(s)", log, times),
+      line -> line.contains(log), n -> n == times);
+    return has(new HamcrestCondition<>(matcher));
   }
 
   BuildResultAssert logsAtLeastOnce(String log) {
-    return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), log, n -> n > 0)));
+    return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), line -> line.contains(log), n -> n > 0)));
   }
 
-  BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
+  BuildResultAssert generatesUcfgFilesForAll(Path projectPath, Path... filenames) {
     List<Path> ucfgFiles;
     try {
       ucfgFiles = findUcfgFilesIn(projectPath);
       for (var filename : filenames) {
         Assertions.assertThat(ucfgFiles)
-          .filteredOn(file -> file.getFileName().toString().contains(filename.replace('.', '_')))
+          .filteredOn(file -> file.getFileName().toString().contains(filename.getFileName().toString().replace('.', '_')))
           .isNotEmpty();
       }
     } catch (IOException e) {
@@ -100,4 +102,5 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     }
     return this;
   }
+
 }

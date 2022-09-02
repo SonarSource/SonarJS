@@ -55,7 +55,7 @@ export function initializeLinter(
   const { bundles } = getContext();
   const customRules = loadBundles(bundles);
 
-  debug(`initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
+  debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
   linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
 }
 

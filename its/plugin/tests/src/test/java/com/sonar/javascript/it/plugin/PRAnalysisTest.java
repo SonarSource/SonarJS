@@ -65,15 +65,19 @@ class PRAnalysisTest {
       "pr-analysis-ts-profile", "ts"));
 
     try (var gitExecutor = createProjectIn(projectPath, language)) {
+      var indexFile = projectPath.resolve("index." + language).toRealPath();
+      var helloFile = projectPath.resolve("hello." + language).toRealPath();
+
       gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .logsAtLeastOnce("INFO: Won't skip unchanged files as this is not activated in the sensor context")
-        .logsOnce("DEBUG: initializing linter \"default\"")
-        .doesNotLog("DEBUG: initializing linter \"unchanged\"")
-        .logsTimes("DEBUG: analyzing file linterId=default", Master.SOURCE_FILES)
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", indexFile))
+        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
         .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
-        .generatesUcfgFilesForAll(projectPath, "index.js", "hello.js");
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
@@ -81,14 +85,14 @@ class PRAnalysisTest {
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
-        .logsAtLeastOnce("Will skip unchanged files")
-        .logsOnce("DEBUG: initializing linter \"default\"")
-        .logsOnce("DEBUG: initializing linter \"unchanged\"")
-        .logsOnce("DEBUG: analyzing file linterId=unchanged")
-        .logsOnce("DEBUG: analyzing file linterId=default")
+        .logsAtLeastOnce("Will skip analysis of unchanged files")
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .logsOnce("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"unchanged\"", indexFile))
+        .logsOnce(String.format("DEBUG: Analyzing file \"%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
-        .generatesUcfgFilesForAll(projectPath, "index.js", "hello.js");
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)

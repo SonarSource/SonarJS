@@ -48,7 +48,7 @@ describe('initializeLinter', () => {
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
     expect(console.log).toHaveBeenCalledWith(
-      'DEBUG initializing linter "default" with no-extra-semi',
+      'DEBUG Initializing linter "default" with no-extra-semi',
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
@@ -85,7 +85,7 @@ describe('initializeLinter', () => {
       'DEBUG Loaded rules custom-rule from custom-rule-bundle',
     );
     expect(console.log).toHaveBeenCalledWith(
-      'DEBUG initializing linter "default" with custom-rule',
+      'DEBUG Initializing linter "default" with custom-rule',
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
