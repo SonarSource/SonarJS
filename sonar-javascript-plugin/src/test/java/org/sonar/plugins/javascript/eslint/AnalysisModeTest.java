@@ -53,6 +53,15 @@ class AnalysisModeTest {
   }
 
   @Test
+  void should_list_unchanged_file_rules() {
+    var rules = rules("key1", "key2", "ucfg");
+    assertThat(AnalysisMode.getUnchangedFileRules(rules))
+      .hasSize(1)
+      .extracting(EslintRule::toString)
+      .contains("ucfg");
+  }
+
+  @Test
   void should_ignore_non_compatible_versions() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
 
