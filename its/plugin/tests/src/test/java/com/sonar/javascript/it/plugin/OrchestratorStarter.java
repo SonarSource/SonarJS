@@ -89,7 +89,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
         ORCHESTRATOR.start();
 
         // to avoid a race condition in scanner file cache mechanism we analyze single project before any test to populate the cache
-//        testProject();
+        testProject();
       }
     }
   }
