@@ -72,7 +72,8 @@ public interface EslintBridgeServer extends Startable {
     final String programId;
     final String linterId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId, String linterId) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId,
+      String linterId) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;

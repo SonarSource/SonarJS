@@ -94,7 +94,7 @@ class AnalysisModeTest {
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(files.stream().map(mode::getLinterIdFor)).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals);
+    assertThat(files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)).isTrue();
   }
 
   @Test
