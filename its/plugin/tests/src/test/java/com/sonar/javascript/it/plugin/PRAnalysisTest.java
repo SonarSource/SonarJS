@@ -36,7 +36,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -46,7 +45,6 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUG
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 class PRAnalysisTest {
 
