@@ -21,7 +21,7 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeYAML } from 'services/analysis';
-import { initializeLinter, linter } from 'linting/eslint';
+import { initializeLinter, getLinter } from 'linting/eslint';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
 import { composeSyntheticFilePath } from 'parsing/yaml';
@@ -208,7 +208,7 @@ describe('analyzeYAML', () => {
       },
     };
     initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
-    linter.linter.defineRule(rule.key, rule.module);
+    getLinter().linter.defineRule(rule.key, rule.module);
     await analyzeYAML({ filePath, fileContent: undefined });
   });
 });

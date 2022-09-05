@@ -25,7 +25,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -42,7 +41,6 @@ import static org.mockito.Mockito.when;
 
 class AnalysisModeTest {
 
-  @Mock
   SensorContext context = mock(SensorContext.class);
 
   @Test
