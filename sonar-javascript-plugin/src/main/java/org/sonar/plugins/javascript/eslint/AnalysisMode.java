@@ -35,7 +35,7 @@ enum AnalysisMode {
   static final String UNCHANGED_LINTER_ID = "unchanged";
   private static final Logger LOG = Loggers.get(AnalysisMode.class);
 
-  private static boolean isRuntimeApiCompatible(SensorContext context) {
+  static boolean isRuntimeApiCompatible(SensorContext context) {
     return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
   }
 
@@ -53,8 +53,8 @@ enum AnalysisMode {
       return AnalysisMode.DEFAULT;
     }
 
-    // This is not supposed to happen as pull request and security should both exist in the developer edition
-    // so falling back to default behaviour even if some optimization is possible
+    // This is not a common use case so falling back to default behaviour even if some optimization is possible
+    // (possible if all sonar-security rules are deactivated for analysis)
     var containsUcfgRule = EslintRule.containsRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     if (!containsUcfgRule) {
       LOG.debug(logDefaultMode, "security rules are not available");

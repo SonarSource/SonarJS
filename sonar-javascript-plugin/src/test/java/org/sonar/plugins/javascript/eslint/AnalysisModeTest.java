@@ -24,11 +24,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -46,18 +43,7 @@ import static org.mockito.Mockito.when;
 class AnalysisModeTest {
 
   @Mock
-  SensorContext context;
-  private AutoCloseable mocks;
-
-  @BeforeEach
-  void openMocks() {
-    mocks = MockitoAnnotations.openMocks(this);
-  }
-
-  @AfterEach()
-  void closeMocks() throws Exception {
-    mocks.close();
-  }
+  SensorContext context = mock(SensorContext.class);
 
   @Test
   void should_list_unchanged_file_rules() {

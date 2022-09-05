@@ -39,7 +39,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.ManifestUtils;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -79,7 +78,7 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    if (sensorContext.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4))) {
+    if (AnalysisMode.isRuntimeApiCompatible(sensorContext)) {
       canSkipUnchangedFiles = sensorContext.canSkipUnchangedFiles();
     } else {
       canSkipUnchangedFiles = false;
