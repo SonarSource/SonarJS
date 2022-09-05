@@ -25,6 +25,11 @@ container_definition: &CONTAINER_DEFINITION
   namespace: default
   use_in_memory_disk: true
 
+maven_cache_definition: &MAVEN_CACHE
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+    fingerprint_script: cat **/pom.xml
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
     image_project: release-engineering-ci-prod
@@ -35,8 +40,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     disk: 128
     type: c2-standard-8
     use_ssd: true
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
 
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
@@ -53,8 +56,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   node_version_script:
     - node -v
   qa_script:
@@ -85,8 +87,7 @@ build_task:
     #sign artifacts
     SIGN_KEY: ENCRYPTED[!cc216dfe592f79db8006f2a591f8f98b40aa2b078e92025623594976fd32f6864c1e6b6ba74b50647f608e2418e6c336!]
     PGP_PASSPHRASE: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
@@ -104,6 +105,7 @@ build_win_task:
     - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
+  <<: *MAVEN_CACHE
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -122,8 +124,7 @@ ws_scan_task:
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: ENCRYPTED[!3929c6148b9dfc751a2d17c590b15d755f82cd9c108f2de5f24a5b32f2a0c26144e921fab7e2c959fc2824d6d6d1550d!]
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   whitesource_script:
     - source cirrus-env QA
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -165,6 +166,7 @@ plugin_qa_win_task:
     matrix:
       - TEST: "!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest"
       - TEST: "CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest"
+  <<: *MAVEN_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
@@ -197,8 +199,7 @@ ruling_task:
       - RULING: JavaScriptRulingTest
       - RULING: TypeScriptRulingTest
       - RULING: CssRulingTest
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -232,7 +233,6 @@ promote_task:
     PROMOTE_URL: ENCRYPTED[!e22ed2e34a8f7a1aea5cff653585429bbd3d5151e7201022140218f9c5d620069ec2388f14f83971e3fd726215bc0f5e!]
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
