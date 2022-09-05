@@ -25,11 +25,10 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -37,6 +36,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -56,13 +56,14 @@ class PRAnalysisTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"js", "ts"})
-  void should_analyse_pull_requests(String language) {
-    var projectKey = "pr-analysis-" + language;
+  void should_analyse_js_ts_pull_requests(String language) {
+    var testProject = new TestProject(language);
+    var projectKey = testProject.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of("pr-analysis-" + language + "-profile", language));
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(projectKey + "-profile", language));
 
-    try (var gitExecutor = createProject(projectPath, language)) {
+    try (var gitExecutor = testProject.createIn(projectPath)) {
       var indexFile = "index." + language;
       var helloFile = "hello." + language;
 
@@ -98,6 +99,49 @@ class PRAnalysisTest {
     }
   }
 
+  @Test
+  void should_analyse_cloudformation_pull_requests() {
+    var testProject = new TestProject("cloudformation");
+    var projectKey = testProject.getProjectKey();
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
+      "pr-analysis-cloudformation-profile", "cloudformation",
+      "pr-analysis-js-profile", "js"
+    ));
+
+    try (var gitExecutor = testProject.createIn(projectPath)) {
+      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce("file1.yaml\" with linterId \"default\"")
+        .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 2)
+        .generatesUcfgFilesForAll(projectPath, "file1.yaml", "file2.yaml");
+      assertThat(getIssues(orchestrator, projectKey, null))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":file1.yaml");
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .logsOnce("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce("file1.yaml\" with linterId \"unchanged\"")
+        .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 2)
+        .generatesUcfgFilesForAll(projectPath, "file1.yaml", "file2.yaml");
+      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":file2.yaml");
+    }
+  }
+
   @BeforeAll
   public static void startOrchestrator() {
     orchestrator = Orchestrator.builderEnv()
@@ -106,8 +150,11 @@ class PRAnalysisTest {
       .setEdition(Edition.DEVELOPER).activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-cloudformation.xml"))
       .build();
     // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
     synchronized (OrchestratorStarter.class) {
@@ -118,32 +165,6 @@ class PRAnalysisTest {
   @AfterAll
   public static void stopOrchestrator() {
     orchestrator.stop();
-  }
-
-  private static GitExecutor createProject(Path root, String language) {
-    var executor = new GitExecutor(root);
-    var generator = new FileGenerator(root);
-    var helloFile = "hello." + language;
-    var indexFile = "index." + language;
-
-    if ("ts".equals(language)) {
-      generator.write("package.json", Master.PACKAGE_JSON_TS);
-      generator.write("tsconfig.json", Master.TSCONFIG_JSON);
-    } else {
-      generator.write("package.json", Master.PACKAGE_JSON_JS);
-    }
-    generator.write(helloFile, Master.HELLO);
-    generator.write(indexFile, Master.INDEX);
-    executor.execute(git -> git.add().addFilepattern("."));
-    executor.execute(git -> git.commit().setMessage("Create project"));
-
-    executor.execute(git -> git.checkout().setCreateBranch(true).setName(PR.BRANCH));
-    generator.write(helloFile, PR.HELLO);
-    executor.execute(git -> git.add().addFilepattern("."));
-    executor.execute(git -> git.commit().setMessage("Refactor"));
-    executor.execute(git -> git.checkout().setName(Master.BRANCH));
-
-    return executor;
   }
 
   private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
@@ -174,20 +195,36 @@ class PRAnalysisTest {
     return result;
   }
 
-  static class FileGenerator {
+  static class TestProject {
 
-    private final Path root;
+    private final File mainProjectDir;
+    private final File branchProjectDir;
+    private final String projectKey;
 
-    FileGenerator(Path root) {
-      this.root = root;
+    TestProject(String language) {
+      projectKey = "pr-analysis-" + language;
+      mainProjectDir = TestUtils.projectDir(projectKey + "-main");
+      branchProjectDir = TestUtils.projectDir(projectKey + "-branch");
     }
 
-    void write(String name, List<String> lines) {
-      try {
-        Files.write(root.resolve(name), lines, StandardCharsets.UTF_8);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    String getProjectKey() {
+      return projectKey;
+    }
+
+    GitExecutor createIn(Path projectDir) {
+      var executor = new GitExecutor(projectDir);
+
+      TestUtils.copyFiles(projectDir, mainProjectDir.toPath());
+      executor.execute(git -> git.add().addFilepattern("."));
+      executor.execute(git -> git.commit().setMessage("Create project"));
+
+      executor.execute(git -> git.checkout().setCreateBranch(true).setName(PR.BRANCH));
+      TestUtils.copyFiles(projectDir, branchProjectDir.toPath());
+      executor.execute(git -> git.add().addFilepattern("."));
+      executor.execute(git -> git.commit().setMessage("Refactor"));
+      executor.execute(git -> git.checkout().setName(Master.BRANCH));
+
+      return executor;
     }
 
   }
@@ -223,36 +260,12 @@ class PRAnalysisTest {
 
   static class Master {
     static final String BRANCH = "master";
-    static final List<String> PACKAGE_JSON_JS = List.of("{\"name\":\"pr-analysis-js\",\"version\":\"1.0.0\",\"main\":\"index.js\"}");
-    static final List<String> PACKAGE_JSON_TS = List.of(
-      "{",
-      "\"name\":\"pr-analysis-ts\",",
-      "\"version\":\"1.0.0\",",
-      "\"main\":\"index.ts\",",
-      "\"devDependencies\":{\"@types/node\":\"^18.7.13\"}",
-      "}");
-    static final List<String> TSCONFIG_JSON = List.of("{\"files\":[\"index.ts\",\"hello.ts\"]}");
-    static final List<String> HELLO = List.of(
-      "exports.hello = function(name) {",
-      "  console.log(`Hello, ${name}!`);",
-      "};");
-    static final List<String> INDEX = List.of(
-      "const { hello } = require('./hello');",
-      "hello('World');;"); // Extra semicolon issue expected here.
     static final int SOURCE_FILES = 2;
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
   static class PR {
     static final String BRANCH = "pr";
-    static final List<String> HELLO = List.of(
-      "exports.hello = function(name) {",
-      "  console.log('Starting...');;", // Extra semicolon issue expected here.
-      "  setTimeout(() => {",
-      "    console.log(`Hello, ${name.toUpperCase()}!`);",
-      "    setTimeout(() => console.log('Stopped!'), 100);",
-      "  }, sleep);",
-      "}");
     static final int SOURCE_FILES = 2;
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }

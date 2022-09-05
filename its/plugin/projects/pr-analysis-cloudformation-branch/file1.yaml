@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SomeLogGroup:
+    Type: AWS::Logs::LogGroup #Noncompliant (S6295)
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
+  SomeLambdaFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Runtime: "nodejs16.0"
+      InlineCode: >
+        console.log('Hello, World');

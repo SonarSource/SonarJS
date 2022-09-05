@@ -1,0 +1,6 @@
+{
+"name":"pr-analysis-ts",
+"version":"1.0.0",
+"main":"index.ts",
+"devDependencies":{"@types/node":"^18.7.13"}
+}

@@ -22,12 +22,14 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
 
@@ -64,6 +66,22 @@ public class TestUtils {
 
   public static File file(String relativePath) {
     return new File(homeDir(), relativePath);
+  }
+
+  public static void copyFiles(Path fromDirectory, Path toDirectory) {
+    try (var files = Files.list(toDirectory)) {
+      files.filter(Files::isRegularFile).forEach(file -> copyFile(file, fromDirectory));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static void copyFile(Path sourceFile, Path targetDirectory) {
+    try {
+      Files.copy(sourceFile, targetDirectory.resolve(sourceFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   static ClientInputFile prepareInputFile(File baseDir, String relativePath, String content) throws IOException {
