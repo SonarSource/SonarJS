@@ -75,7 +75,10 @@ public class YamlSensor extends AbstractEslintSensor {
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          analyze(inputFile);
+          var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+            analyze(inputFile, cacheStrategy);
+          }
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
@@ -98,7 +101,7 @@ public class YamlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  private void analyze(InputFile file) throws IOException {
+  private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
     try {
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
@@ -111,6 +114,7 @@ public class YamlSensor extends AbstractEslintSensor {
         analysisMode.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
+      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;

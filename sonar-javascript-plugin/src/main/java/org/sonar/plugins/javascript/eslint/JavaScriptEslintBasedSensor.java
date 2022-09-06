@@ -87,7 +87,10 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          analyze(inputFile, tsConfigs);
+          var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+            analyze(inputFile, tsConfigs, cacheStrategy);
+          }
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
@@ -102,13 +105,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
+  private void analyze(InputFile file, List<String> tsConfigs, CacheStrategy cacheStrategy) throws IOException {
     try {
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
         fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
+      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
