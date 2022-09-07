@@ -58,12 +58,7 @@ enum CacheStrategy {
 
   private static void log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
     if (LOG.isDebugEnabled()) {
-      var logBuilder = new StringBuilder("Cache strategy set to '");
-      logBuilder.append(strategy).append("' for file '").append(inputFile).append("'");
-      if (reason != null) {
-        logBuilder.append(" as ").append(reason);
-      }
-      LOG.debug(logBuilder.toString());
+      LOG.debug(getLogMessage(strategy, inputFile, reason));
     }
   }
 
@@ -89,6 +84,15 @@ enum CacheStrategy {
     }
 
     return report.isSuccess();
+  }
+
+  static String getLogMessage(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
+    var logBuilder = new StringBuilder("Cache strategy set to '");
+    logBuilder.append(strategy).append("' for file '").append(inputFile).append("'");
+    if (reason != null) {
+      logBuilder.append(" as ").append(reason);
+    }
+    return logBuilder.toString();
   }
 
   static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
@@ -128,7 +132,7 @@ enum CacheStrategy {
     return !isCacheReadSuccessful;
   }
 
-  void writeGeneratedFilesToCache(SensorContext context, InputFile inputFile, String[] generatedFiles) throws IOException {
+  void writeGeneratedFilesToCache(SensorContext context, InputFile inputFile, @Nullable String[] generatedFiles) throws IOException {
     if (this == CacheStrategy.WRITE_ONLY) {
       writeFilesToCache(context, inputFile, generatedFiles);
     }

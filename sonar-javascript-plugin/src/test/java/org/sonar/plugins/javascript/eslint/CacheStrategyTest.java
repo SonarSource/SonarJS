@@ -94,12 +94,13 @@ class CacheStrategyTest {
     WriteCache nextCache = mock(WriteCache.class);
     doAnswer(invocation -> {
       var inputStream = invocation.getArgument(1, InputStream.class);
-      var archive = new ZipInputStream(new BufferedInputStream(inputStream));
-      assertThat(archive.getNextEntry()).isNotNull().extracting(ZipEntry::getName).isEqualTo("ucfg/file_js_1.ucfg");
-      assertThat(new String(archive.readAllBytes(), StandardCharsets.UTF_8).trim()).isEqualTo(ucfgFiles.get(0));
-      assertThat(archive.getNextEntry()).isNotNull().extracting(ZipEntry::getName).isEqualTo("ucfg/file_js_2.ucfg");
-      assertThat(new String(archive.readAllBytes(), StandardCharsets.UTF_8).trim()).isEqualTo(ucfgFiles.get(1));
-      assertThat(archive.getNextEntry()).isNull();
+      try (var archive = new ZipInputStream(new BufferedInputStream(inputStream))) {
+        assertThat(archive.getNextEntry()).isNotNull().extracting(ZipEntry::getName).isEqualTo("ucfg/file_js_1.ucfg");
+        assertThat(new String(archive.readAllBytes(), StandardCharsets.UTF_8).trim()).isEqualTo(ucfgFiles.get(0));
+        assertThat(archive.getNextEntry()).isNotNull().extracting(ZipEntry::getName).isEqualTo("ucfg/file_js_2.ucfg");
+        assertThat(new String(archive.readAllBytes(), StandardCharsets.UTF_8).trim()).isEqualTo(ucfgFiles.get(1));
+        assertThat(archive.getNextEntry()).isNull();
+      }
       return null;
     }).when(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
 
@@ -120,6 +121,48 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
 
     strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.toArray(String[]::new));
+    verify(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
+  }
+
+  @Test
+  void should_write_an_empty_archive_in_cache() throws IOException {
+    var workDir = baseDir.resolve(".scannerwork");
+    var testFile = createFile(baseDir.resolve("src/test.js"));
+
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.uri()).thenReturn(testFile.toUri());
+    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
+    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
+
+    ReadCache previousCache = mock(ReadCache.class);
+    when(previousCache.contains(anyString())).thenReturn(false);
+
+    WriteCache nextCache = mock(WriteCache.class);
+    doAnswer(invocation -> {
+      var inputStream = invocation.getArgument(1, InputStream.class);
+      try (var archive = new ZipInputStream(new BufferedInputStream(inputStream))) {
+        assertThat(archive.getNextEntry()).isNull();
+      }
+      return null;
+    }).when(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
+
+    FileSystem fileSystem = mock(FileSystem.class);
+    when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
+    when(fileSystem.workDir()).thenReturn(workDir.toFile());
+
+    SensorContext context = mock(SensorContext.class);
+    when(context.previousCache()).thenReturn(previousCache);
+    when(context.nextCache()).thenReturn(nextCache);
+    when(context.fileSystem()).thenReturn(fileSystem);
+    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+
+    strategy.writeGeneratedFilesToCache(context, inputFile, null);
     verify(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
   }
 
@@ -176,6 +219,16 @@ class CacheStrategyTest {
 
     strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.stream().map(Path::toString).toArray(String[]::new));
     verify(nextCache, never()).write(anyString(), any(InputStream.class));
+  }
+
+  @Test
+  void should_log() {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.toString()).thenReturn("test.js");
+    assertThat(CacheStrategy.getLogMessage(CacheStrategy.READ_AND_WRITE, inputFile, "this is a test"))
+      .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
+    assertThat(CacheStrategy.getLogMessage(CacheStrategy.WRITE_ONLY, inputFile, null))
+      .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
   }
 
   private String readFile(Path file) {
