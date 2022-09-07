@@ -36,7 +36,9 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const {
+      issues: [issue],
+    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -61,7 +63,9 @@ describe('transformMessages', () => {
 
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const {
+      issues: [issue],
+    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -83,7 +87,9 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const {
+      issues: [issue],
+    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
     expect(issue).toEqual(
       expect.objectContaining({
         quickFixes: [
@@ -119,7 +125,9 @@ describe('transformMessages', () => {
 
     const messages = linter.verify(sourceCode, config);
 
-    const [{ secondaryLocations }] = transformMessages(messages, {
+    const {
+      issues: [{ secondaryLocations }],
+    } = transformMessages(messages, {
       sourceCode,
       rules: linter.getRules(),
     });

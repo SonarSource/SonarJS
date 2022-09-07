@@ -25,7 +25,7 @@ import path from 'path';
 import { start } from 'server';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
-import { request, toUnixPath } from '../tools/helpers';
+import { request, toUnixPath } from '../tools';
 
 describe('router', () => {
   const port = 0;

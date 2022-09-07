@@ -21,7 +21,7 @@
 import { Rule } from 'eslint';
 import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { Issue } from './issue';
-import { hasSonarRuntimeOption } from '../parameters/sonar-runtime';
+import { hasSonarRuntimeOption } from '../parameters';
 
 /**
  * Decodes an issue with secondary locations, if any
@@ -38,13 +38,7 @@ import { hasSonarRuntimeOption } from '../parameters/sonar-runtime';
  * @throws a runtime error in case of an invalid encoding
  * @returns the decoded issue (or the original one)
  */
-export function decodeSonarRuntime(
-  ruleModule: Rule.RuleModule | undefined,
-  issue: Issue | null,
-): Issue | null {
-  if (!issue) {
-    return null;
-  }
+export function decodeSonarRuntime(ruleModule: Rule.RuleModule | undefined, issue: Issue): Issue {
   if (hasSonarRuntimeOption(ruleModule, issue.ruleId)) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
