@@ -38,6 +38,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -57,25 +59,29 @@ enum CacheStrategy {
     return Path.of(inputFile.uri());
   }
 
-  private static Path getRelativePath(Path rootAbsolutePath, Path fileAbsolutePath) {
-    return rootAbsolutePath.relativize(fileAbsolutePath);
+  private static Path getRelativePath(Path baseAbsolutePath, Path fileAbsolutePath) {
+    return baseAbsolutePath.relativize(fileAbsolutePath);
   }
 
-  static String createCacheKey(SensorContext context, InputFile inputFile) {
-    var baseDirectoryAbsolutePath = getBaseDirectoryAbsolutePath(context);
-    var fileAbsolutePath = getAbsolutePath(inputFile);
-    var relativePath = getRelativePath(baseDirectoryAbsolutePath, fileAbsolutePath);
-    return "jssecurity:ucfgs:" + context.getSonarQubeVersion() + ":" + relativePath; // TODO check if version is necessary
+  static String createCacheKey(InputFile inputFile) {
+    return "jssecurity:ucfgs:" + inputFile.key();
   }
 
   private static void createFilesFromCache(Path workingDirectory, String cacheKey, ReadCache cache) throws IOException {
+    var counter = 0;
+    var startTime = System.currentTimeMillis();
+
     try (var archive = new ZipInputStream(new BufferedInputStream(cache.read(cacheKey)))) {
       var zipEntry = archive.getNextEntry();
       while (zipEntry != null) {
         createFile(archive, workingDirectory, Path.of(zipEntry.getName()));
         zipEntry = archive.getNextEntry();
+        counter++;
       }
     }
+
+    var duration = System.currentTimeMillis() - startTime;
+    LOG.debug("Zip archive extracted containing {} file(s) in {}ms", counter, duration);
   }
 
   private static void createFile(InputStream inputStream, Path directoryPath, Path relativeFilePath) throws IOException {
@@ -86,7 +92,7 @@ enum CacheStrategy {
 
   private static void writeFilesToCache(SensorContext context, InputFile inputFile, @Nullable String[] files) throws IOException {
     var fileAbsolutePaths = convertToPaths(files);
-    var cacheKey = createCacheKey(context, inputFile);
+    var cacheKey = createCacheKey(inputFile);
     var cache = context.nextCache();
     writeZipArchiveToCache(context, fileAbsolutePaths, cacheKey, cache);
   }
@@ -115,17 +121,19 @@ enum CacheStrategy {
   }
 
   private static void readAndWrite(SensorContext context, InputFile inputFile) throws IOException {
-    var cacheKey = createCacheKey(context, inputFile);
+    var cacheKey = createCacheKey(inputFile);
     var cache = context.previousCache();
     createFilesFromCache(getWorkingDirectoryAbsolutePath(context), cacheKey, cache);
     context.nextCache().copyFromPrevious(cacheKey);
   }
 
   private static boolean isFileInCache(SensorContext context, InputFile inputFile) {
-    return context.previousCache().contains(createCacheKey(context, inputFile));
+    return context.previousCache().contains(createCacheKey(inputFile));
   }
 
   static void createZipArchive(Path zipFile, Path directoryAbsolutePath, List<Path> fileAbsolutePaths) throws IOException {
+    var startTime = System.currentTimeMillis();
+
     try (var zipArchive = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(zipFile)))) {
       zipArchive.setLevel(Deflater.NO_COMPRESSION);
 
@@ -135,21 +143,53 @@ enum CacheStrategy {
         Files.copy(fileAbsolutePath, zipArchive);
       }
     }
+
+    var duration = System.currentTimeMillis() - startTime;
+    LOG.debug("Zip archive created containing {} file(s) in {}ms", fileAbsolutePaths.size(), duration);
   }
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
-    return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4)); // TODO
+    return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
+  }
+
+  private static void log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
+    if (LOG.isDebugEnabled()) {
+      var logBuilder = new StringBuilder("Cache Strategy set to ");
+      logBuilder.append(strategy).append(" for file ").append(inputFile);
+      if (reason != null) {
+        logBuilder.append(" as ").append(reason);
+      }
+      LOG.debug(logBuilder.toString());
+    }
   }
 
   static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
     if (!isRuntimeApiCompatible(context)) {
+      log(CacheStrategy.NO_CACHE, inputFile, "the runtime API is not compatible");
       return CacheStrategy.NO_CACHE;
-    } else if (context.canSkipUnchangedFiles() && inputFile.status() == InputFile.Status.SAME && isFileInCache(context, inputFile)) {
-      return CacheStrategy.READ_AND_WRITE;
-    } else {
-      return CacheStrategy.WRITE_ONLY;
     }
+
+    var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
+    var isFileUnchanged = inputFile.status() == InputFile.Status.SAME;
+    var isFileInCache = isFileInCache(context, inputFile);
+
+    if (canSkipUnchangedFiles && isFileUnchanged && isFileInCache) {
+      log(CacheStrategy.READ_AND_WRITE, inputFile, null);
+      return CacheStrategy.READ_AND_WRITE;
+    }
+
+    if (!canSkipUnchangedFiles) {
+      log(CacheStrategy.WRITE_ONLY, inputFile, "current analysis requires all files to be analyzed");
+    } else if (!isFileUnchanged) {
+      log(CacheStrategy.WRITE_ONLY, inputFile, "the current file is changed");
+    } else {
+      log(CacheStrategy.WRITE_ONLY, inputFile, "the current file is not cached");
+    }
+
+    return CacheStrategy.WRITE_ONLY;
   }
+
+  private static final Logger LOG = Loggers.get(AnalysisMode.class);
 
   boolean isAnalysisRequired(SensorContext context, InputFile inputFile) throws IOException {
     if (this != CacheStrategy.READ_AND_WRITE) {

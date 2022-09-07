@@ -57,6 +57,20 @@ class CacheStrategyTest {
   Path baseDir;
 
   @Test
+  void should_work_on_older_versions() throws IOException {
+    SensorContext context = mock(SensorContext.class);
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
+
+    InputFile inputFile = mock(InputFile.class);
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.NO_CACHE);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    verify(context, never()).nextCache();
+    verify(context, never()).previousCache();
+  }
+
+  @Test
   void should_write_an_archive_in_cache() throws IOException {
     var workDir = baseDir.resolve(".scannerwork");
     var testFile = createFile(baseDir.resolve("src/test.js"));
@@ -68,6 +82,7 @@ class CacheStrategyTest {
 
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.uri()).thenReturn(testFile.toUri());
+    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
     ReadCache previousCache = mock(ReadCache.class);
@@ -83,7 +98,7 @@ class CacheStrategyTest {
       assertThat(new String(archive.readAllBytes(), StandardCharsets.UTF_8).trim()).isEqualTo(ucfgFiles.get(1));
       assertThat(archive.getNextEntry()).isNull();
       return null;
-    }).when(nextCache).write(eq("jssecurity:ucfgs:9.6:src/test.js"), any(InputStream.class));
+    }).when(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
 
     FileSystem fileSystem = mock(FileSystem.class);
     when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
@@ -102,7 +117,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
 
     strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.toArray(String[]::new));
-    verify(nextCache).write(eq("jssecurity:ucfgs:9.6:src/test.js"), any(InputStream.class));
+    verify(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
   }
 
   @Test
@@ -121,11 +136,12 @@ class CacheStrategyTest {
     var testFile = createFile(baseDir.resolve("src/test.js"));
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.uri()).thenReturn(testFile.toUri());
+    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
     ReadCache previousCache = mock(ReadCache.class);
-    when(previousCache.read("jssecurity:ucfgs:9.6:src/test.js")).thenReturn(new BufferedInputStream(Files.newInputStream(zipFile)));
-    when(previousCache.contains("jssecurity:ucfgs:9.6:src/test.js")).thenReturn(true);
+    when(previousCache.read("jssecurity:ucfgs:src/test.js")).thenReturn(new BufferedInputStream(Files.newInputStream(zipFile)));
+    when(previousCache.contains("jssecurity:ucfgs:src/test.js")).thenReturn(true);
 
     WriteCache nextCache = mock(WriteCache.class);
 
@@ -145,8 +161,8 @@ class CacheStrategyTest {
     assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
     assertThat(strategy.isAnalysisRequired(context, inputFile)).isFalse();
 
-    verify(previousCache).read("jssecurity:ucfgs:9.6:src/test.js");
-    verify(nextCache).copyFromPrevious("jssecurity:ucfgs:9.6:src/test.js");
+    verify(previousCache).read("jssecurity:ucfgs:src/test.js");
+    verify(nextCache).copyFromPrevious("jssecurity:ucfgs:src/test.js");
 
     for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
       assertThat(workDir.resolve(ucfgFileRelativePath))
@@ -156,7 +172,7 @@ class CacheStrategyTest {
     }
 
     strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.stream().map(Path::toString).toArray(String[]::new));
-    verify(nextCache, never()).write(eq("jssecurity:ucfgs:9.6:src/test.js"), any(InputStream.class));
+    verify(nextCache, never()).write(anyString(), any(InputStream.class));
   }
 
   private String readFile(Path file) {

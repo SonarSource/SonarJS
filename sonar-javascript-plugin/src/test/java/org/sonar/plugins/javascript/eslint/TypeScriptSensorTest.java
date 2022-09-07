@@ -50,6 +50,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -137,6 +139,7 @@ class TypeScriptSensorTest {
 
 
     context = createSensorContext(baseDir);
+    context.setPreviousCache(mock(ReadCache.class));
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -253,6 +256,8 @@ class TypeScriptSensorTest {
     }
 
     ctx.fileSystem().setWorkDir(workDir);
+    ctx.setNextCache(mock(WriteCache.class));
+    ctx.setPreviousCache(mock(ReadCache.class));
     return ctx;
   }
 
