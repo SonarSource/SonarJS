@@ -54,6 +54,8 @@ import static org.mockito.Mockito.when;
 
 class CacheStrategyTest {
 
+  FileSerializers.ZipFileSerializer serializer = new FileSerializers.ZipFileSerializer();
+
   @TempDir
   Path baseDir;
 
@@ -132,7 +134,7 @@ class CacheStrategyTest {
       .map(this::createFile)
       .collect(toList());
     var zipFile = Files.createTempFile("archive", ".zip");
-    Files.copy(CacheStrategy.createZipArchive(zipDirectory, ucfgFiles), zipFile, StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(serializer.serializeFiles(zipDirectory, ucfgFiles), zipFile, StandardCopyOption.REPLACE_EXISTING);
 
     var testFile = createFile(baseDir.resolve("src/test.js"));
     InputFile inputFile = mock(InputFile.class);
