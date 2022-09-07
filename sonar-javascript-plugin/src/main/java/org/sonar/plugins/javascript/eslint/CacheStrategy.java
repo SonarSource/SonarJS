@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -33,6 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nullable;
+import org.apache.commons.io.output.QueueOutputStream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
@@ -51,14 +50,6 @@ enum CacheStrategy {
     return context.fileSystem().workDir().toPath();
   }
 
-  private static Path getBaseDirectoryAbsolutePath(SensorContext context) {
-    return context.fileSystem().baseDir().toPath();
-  }
-
-  private static Path getAbsolutePath(InputFile inputFile) {
-    return Path.of(inputFile.uri());
-  }
-
   private static Path getRelativePath(Path baseAbsolutePath, Path fileAbsolutePath) {
     return baseAbsolutePath.relativize(fileAbsolutePath);
   }
@@ -71,7 +62,7 @@ enum CacheStrategy {
     var counter = 0;
     var startTime = System.currentTimeMillis();
 
-    try (var archive = new ZipInputStream(new BufferedInputStream(cache.read(cacheKey)))) {
+    try (var archive = new ZipInputStream(cache.read(cacheKey))) {
       var zipEntry = archive.getNextEntry();
       while (zipEntry != null) {
         createFile(archive, workingDirectory, Path.of(zipEntry.getName()));
@@ -81,7 +72,7 @@ enum CacheStrategy {
     }
 
     var duration = System.currentTimeMillis() - startTime;
-    LOG.debug("Zip archive extracted containing {} file(s) in {}ms", counter, duration);
+    LOG.debug("Zip archive extracted for key '{}' containing {} file(s) in {}ms", cacheKey, counter, duration);
   }
 
   private static void createFile(InputStream inputStream, Path directoryPath, Path relativeFilePath) throws IOException {
@@ -102,22 +93,15 @@ enum CacheStrategy {
   }
 
   private static void writeZipArchiveToCache(SensorContext context, List<Path> fileAbsolutePaths, String cacheKey, WriteCache cache) throws IOException {
-    Path zipFile = null;
-    try {
-      zipFile = Files.createTempFile("jssecurity-ucfgs", ".zip");
-      createZipArchive(zipFile, getWorkingDirectoryAbsolutePath(context), fileAbsolutePaths);
-      writeFileToCache(zipFile, cacheKey, cache);
-    } finally {
-      if (zipFile != null) {
-        Files.deleteIfExists(zipFile);
-      }
-    }
-  }
+    var startTime = System.currentTimeMillis();
+    var directoryAbsolutePath = getWorkingDirectoryAbsolutePath(context);
 
-  private static void writeFileToCache(Path zipFile, String cacheKey, WriteCache cache) throws IOException {
-    try (var archive = new BufferedInputStream(Files.newInputStream(zipFile))) {
+    try (var archive = createZipArchive(directoryAbsolutePath, fileAbsolutePaths)) {
       cache.write(cacheKey, archive);
     }
+
+    var duration = System.currentTimeMillis() - startTime;
+    LOG.debug("Zip archive created for key '{}' containing {} file(s) in {}ms", cacheKey, fileAbsolutePaths.size(), duration);
   }
 
   private static void readAndWrite(SensorContext context, InputFile inputFile) throws IOException {
@@ -131,10 +115,8 @@ enum CacheStrategy {
     return context.previousCache().contains(createCacheKey(inputFile));
   }
 
-  static void createZipArchive(Path zipFile, Path directoryAbsolutePath, List<Path> fileAbsolutePaths) throws IOException {
-    var startTime = System.currentTimeMillis();
-
-    try (var zipArchive = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(zipFile)))) {
+  static InputStream createZipArchive(Path directoryAbsolutePath, List<Path> fileAbsolutePaths) throws IOException {
+    try (var output = new QueueOutputStream(); var zipArchive = new ZipOutputStream(output)) {
       zipArchive.setLevel(Deflater.NO_COMPRESSION);
 
       for (var fileAbsolutePath : fileAbsolutePaths) {
@@ -142,10 +124,9 @@ enum CacheStrategy {
         zipArchive.putNextEntry(new ZipEntry(entryName));
         Files.copy(fileAbsolutePath, zipArchive);
       }
-    }
 
-    var duration = System.currentTimeMillis() - startTime;
-    LOG.debug("Zip archive created containing {} file(s) in {}ms", fileAbsolutePaths.size(), duration);
+      return output.newQueueInputStream();
+    }
   }
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
@@ -154,8 +135,8 @@ enum CacheStrategy {
 
   private static void log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
     if (LOG.isDebugEnabled()) {
-      var logBuilder = new StringBuilder("Cache Strategy set to ");
-      logBuilder.append(strategy).append(" for file ").append(inputFile);
+      var logBuilder = new StringBuilder("Cache strategy set to '");
+      logBuilder.append(strategy).append("' for file '").append(inputFile).append("'");
       if (reason != null) {
         logBuilder.append(" as ").append(reason);
       }

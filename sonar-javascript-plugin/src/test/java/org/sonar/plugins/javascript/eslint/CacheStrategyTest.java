@@ -26,6 +26,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -131,7 +132,7 @@ class CacheStrategyTest {
       .map(this::createFile)
       .collect(toList());
     var zipFile = Files.createTempFile("archive", ".zip");
-    CacheStrategy.createZipArchive(zipFile, zipDirectory, ucfgFiles);
+    Files.copy(CacheStrategy.createZipArchive(zipDirectory, ucfgFiles), zipFile, StandardCopyOption.REPLACE_EXISTING);
 
     var testFile = createFile(baseDir.resolve("src/test.js"));
     InputFile inputFile = mock(InputFile.class);
