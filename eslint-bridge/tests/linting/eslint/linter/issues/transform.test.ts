@@ -141,4 +141,31 @@ describe('transformMessages', () => {
       },
     ]);
   });
+
+  it('should remove ucfg issues', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
+    const tsConfigs = [];
+    const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+
+    const ruleId = 'no-duplicate-in-composite';
+    const config = { rules: { [ruleId]: 'error' } } as any;
+
+    const linter = new Linter();
+    linter.defineRule(ruleId, noDuplicateInComposite);
+
+    const messages = linter.verify(sourceCode, config);
+    const numIssues = messages.length;
+    messages.push(
+      {ruleId: 'ucfg', message: path.join(__dirname, 'fixtures', 'secondary.ts')} as Linter.LintMessage
+    );
+
+    const {
+      issues, ucfgPaths
+    } = transformMessages(messages as Linter.LintMessage[], {
+      sourceCode,
+      rules: linter.getRules(),
+    });
+    expect(ucfgPaths.length).toEqual(1);
+    expect(issues.length).toEqual(numIssues)
+  });
 });
