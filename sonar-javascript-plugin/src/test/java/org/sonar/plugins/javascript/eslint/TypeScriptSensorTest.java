@@ -140,6 +140,7 @@ class TypeScriptSensorTest {
 
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
+    context.setNextCache(mock(WriteCache.class));
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);

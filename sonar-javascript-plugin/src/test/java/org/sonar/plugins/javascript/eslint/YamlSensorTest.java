@@ -40,6 +40,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -97,6 +98,7 @@ class YamlSensorTest {
 
     context = SensorContextTester.create(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
+    context.setNextCache(mock(WriteCache.class));
     context.fileSystem().setWorkDir(workDir);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
