@@ -119,7 +119,7 @@ class PRAnalysisTest {
         .logsOnce("file1.yaml\" with linterId \"default\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 2)
-        .generatesUcfgFilesForAll(projectPath, "file1.yaml", "file2.yaml");
+        .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
@@ -134,7 +134,7 @@ class PRAnalysisTest {
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 2)
-        .generatesUcfgFilesForAll(projectPath, "file1.yaml", "file2.yaml");
+        .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
