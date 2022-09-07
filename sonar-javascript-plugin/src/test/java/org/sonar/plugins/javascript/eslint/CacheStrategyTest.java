@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.FileSystem;
@@ -58,13 +59,34 @@ class CacheStrategyTest {
 
   @TempDir
   Path baseDir;
+  private InputFile inputFile;
+  private SensorContext context;
+  private ReadCache previousCache;
+  private WriteCache nextCache;
+  private FileSystem fileSystem;
+  private Path workDir;
+
+  @BeforeEach
+  void setUp() {
+    workDir = baseDir.resolve(".scannerwork");
+
+    fileSystem = mock(FileSystem.class);
+    when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
+    when(fileSystem.workDir()).thenReturn(workDir.toFile());
+
+    inputFile = mock(InputFile.class);
+    previousCache = mock(ReadCache.class);
+    nextCache = mock(WriteCache.class);
+    context = mock(SensorContext.class);
+
+    when(context.previousCache()).thenReturn(previousCache);
+    when(context.nextCache()).thenReturn(nextCache);
+    when(context.fileSystem()).thenReturn(fileSystem);
+  }
 
   @Test
   void should_work_on_older_versions() throws IOException {
-    SensorContext context = mock(SensorContext.class);
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
-
-    InputFile inputFile = mock(InputFile.class);
 
     var strategy = CacheStrategy.getStrategyFor(context, inputFile);
     assertThat(strategy).isEqualTo(CacheStrategy.NO_CACHE);
@@ -75,23 +97,16 @@ class CacheStrategyTest {
 
   @Test
   void should_write_an_archive_in_cache() throws IOException {
-    var workDir = baseDir.resolve(".scannerwork");
-    var testFile = createFile(baseDir.resolve("src/test.js"));
     var ucfgFiles = Stream.of("ucfg/file_js_1.ucfg", "ucfg/file_js_2.ucfg")
       .map(workDir::resolve)
       .map(this::createFile)
       .map(Path::toString)
       .collect(toList());
 
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.uri()).thenReturn(testFile.toUri());
-    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
-    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
+    setUpInputFile(InputFile.Status.SAME);
 
-    ReadCache previousCache = mock(ReadCache.class);
     when(previousCache.contains(anyString())).thenReturn(false);
 
-    WriteCache nextCache = mock(WriteCache.class);
     doAnswer(invocation -> {
       var inputStream = invocation.getArgument(1, InputStream.class);
       try (var archive = new ZipInputStream(new BufferedInputStream(inputStream))) {
@@ -104,15 +119,6 @@ class CacheStrategyTest {
       return null;
     }).when(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
 
-    FileSystem fileSystem = mock(FileSystem.class);
-    when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
-    when(fileSystem.workDir()).thenReturn(workDir.toFile());
-
-    SensorContext context = mock(SensorContext.class);
-    when(context.previousCache()).thenReturn(previousCache);
-    when(context.nextCache()).thenReturn(nextCache);
-    when(context.fileSystem()).thenReturn(fileSystem);
-    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
@@ -126,18 +132,10 @@ class CacheStrategyTest {
 
   @Test
   void should_write_an_empty_archive_in_cache() throws IOException {
-    var workDir = baseDir.resolve(".scannerwork");
-    var testFile = createFile(baseDir.resolve("src/test.js"));
+    setUpInputFile(InputFile.Status.SAME);
 
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.uri()).thenReturn(testFile.toUri());
-    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
-    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-
-    ReadCache previousCache = mock(ReadCache.class);
     when(previousCache.contains(anyString())).thenReturn(false);
 
-    WriteCache nextCache = mock(WriteCache.class);
     doAnswer(invocation -> {
       var inputStream = invocation.getArgument(1, InputStream.class);
       try (var archive = new ZipInputStream(new BufferedInputStream(inputStream))) {
@@ -146,15 +144,6 @@ class CacheStrategyTest {
       return null;
     }).when(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
 
-    FileSystem fileSystem = mock(FileSystem.class);
-    when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
-    when(fileSystem.workDir()).thenReturn(workDir.toFile());
-
-    SensorContext context = mock(SensorContext.class);
-    when(context.previousCache()).thenReturn(previousCache);
-    when(context.nextCache()).thenReturn(nextCache);
-    when(context.fileSystem()).thenReturn(fileSystem);
-    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
@@ -168,38 +157,13 @@ class CacheStrategyTest {
 
   @Test
   void should_read_an_archive_from_cache() throws IOException {
-    var workDir = baseDir.resolve(".scannerwork");
     var zipDirectory = Files.createTempDirectory("archive");
-    var ucfgFileRelativePaths = List.of("ucfg/file_js_1.ucfg", "ucfg/file_js_2.ucfg");
+    var ucfgFileRelativePaths = createArchive(zipDirectory);
 
-    var ucfgFiles = ucfgFileRelativePaths.stream()
-      .map(zipDirectory::resolve)
-      .map(this::createFile)
-      .collect(toList());
-    var zipFile = Files.createTempFile("archive", ".zip");
-    Files.copy(serializer.serializeFiles(zipDirectory, ucfgFiles), zipFile, StandardCopyOption.REPLACE_EXISTING);
+    setUpInputFile(InputFile.Status.SAME);
 
-    var testFile = createFile(baseDir.resolve("src/test.js"));
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.uri()).thenReturn(testFile.toUri());
-    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
-    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-
-    ReadCache previousCache = mock(ReadCache.class);
-    when(previousCache.read("jssecurity:ucfgs:src/test.js")).thenReturn(new BufferedInputStream(Files.newInputStream(zipFile)));
     when(previousCache.contains("jssecurity:ucfgs:src/test.js")).thenReturn(true);
 
-    WriteCache nextCache = mock(WriteCache.class);
-
-    FileSystem fileSystem = mock(FileSystem.class);
-    when(fileSystem.baseDir()).thenReturn(baseDir.toFile());
-    when(fileSystem.workDir()).thenReturn(workDir.toFile());
-
-    SensorContext context = mock(SensorContext.class);
-    when(context.previousCache()).thenReturn(previousCache);
-    when(context.nextCache()).thenReturn(nextCache);
-    when(context.fileSystem()).thenReturn(fileSystem);
-    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
@@ -217,13 +181,66 @@ class CacheStrategyTest {
         .isEqualTo(zipDirectory.resolve(ucfgFileRelativePath).toAbsolutePath().toString());
     }
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.stream().map(Path::toString).toArray(String[]::new));
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
     verify(nextCache, never()).write(anyString(), any(InputStream.class));
   }
 
   @Test
+  void should_check_file_status() throws IOException {
+    var zipDirectory = Files.createTempDirectory("archive");
+    var ucfgFileRelativePaths = createArchive(zipDirectory);
+
+    setUpInputFile(InputFile.Status.CHANGED);
+
+    when(previousCache.contains("jssecurity:ucfgs:src/test.js")).thenReturn(true);
+
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+
+    for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
+      createFile(workDir.resolve(ucfgFileRelativePath));
+    }
+
+    verify(previousCache, never()).read("jssecurity:ucfgs:src/test.js");
+    verify(nextCache, never()).copyFromPrevious("jssecurity:ucfgs:src/test.js");
+
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
+    verify(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
+  }
+
+  @Test
+  void should_check_analysis_status() throws IOException {
+    var zipDirectory = Files.createTempDirectory("archive");
+    var ucfgFileRelativePaths = createArchive(zipDirectory);
+
+    setUpInputFile(InputFile.Status.SAME);
+
+    when(previousCache.contains("jssecurity:ucfgs:src/test.js")).thenReturn(true);
+
+    when(context.canSkipUnchangedFiles()).thenReturn(false);
+    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+
+    for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
+      createFile(workDir.resolve(ucfgFileRelativePath));
+    }
+
+    verify(previousCache, never()).read("jssecurity:ucfgs:src/test.js");
+    verify(nextCache, never()).copyFromPrevious("jssecurity:ucfgs:src/test.js");
+
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
+    verify(nextCache).write(eq("jssecurity:ucfgs:src/test.js"), any(InputStream.class));
+  }
+
+  @Test
   void should_log() {
-    InputFile inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("test.js");
     assertThat(CacheStrategy.getLogMessage(CacheStrategy.READ_AND_WRITE, inputFile, "this is a test"))
       .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
@@ -237,6 +254,27 @@ class CacheStrategyTest {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  private void setUpInputFile(InputFile.Status status) {
+    var testFile = createFile(baseDir.resolve("src/test.js"));
+    when(inputFile.uri()).thenReturn(testFile.toUri());
+    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
+    when(inputFile.status()).thenReturn(status);
+  }
+
+  private List<String> createArchive(Path zipDirectory) throws IOException {
+    var ucfgFileRelativePaths = List.of("ucfg/file_js_1.ucfg", "ucfg/file_js_2.ucfg");
+
+    var ucfgFiles = ucfgFileRelativePaths.stream()
+      .map(zipDirectory::resolve)
+      .map(this::createFile)
+      .collect(toList());
+    var zipFile = Files.createTempFile("archive", ".zip");
+    Files.copy(serializer.serializeFiles(zipDirectory, ucfgFiles), zipFile, StandardCopyOption.REPLACE_EXISTING);
+
+    when(previousCache.read("jssecurity:ucfgs:src/test.js")).thenReturn(new BufferedInputStream(Files.newInputStream(zipFile)));
+    return ucfgFileRelativePaths;
   }
 
   private Path createFile(Path filePath) {
