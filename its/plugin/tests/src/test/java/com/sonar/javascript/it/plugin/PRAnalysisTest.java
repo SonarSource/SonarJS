@@ -22,6 +22,9 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Edition;
+import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,32 +33,94 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
-import org.assertj.core.api.Condition;
-import org.assertj.core.api.HamcrestCondition;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.hamcrest.CustomMatcher;
-import org.hamcrest.Matcher;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarqube.ws.Issues;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static org.assertj.core.api.Assertions.allOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(OrchestratorStarter.class)
 class PRAnalysisTest {
 
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+  private static Orchestrator orchestrator;
 
   @TempDir
   private Path gitBaseDir;
 
-  private static GitExecutor createProjectIn(Path root, String language) {
+  @ParameterizedTest
+  @ValueSource(strings = {"js", "ts"})
+  void should_analyse_pull_requests(String language) {
+    var projectKey = "pr-analysis-" + language;
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of("pr-analysis-" + language + "-profile", language));
+
+    try (var gitExecutor = createProject(projectPath, language)) {
+      var indexFile = "index." + language;
+      var helloFile = "hello." + language;
+
+      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce(String.format("%s\" with linterId \"default\"", indexFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
+        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+      assertThat(getIssues(orchestrator, projectKey, null))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":" + indexFile);
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+        .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
+        .logsOnce("DEBUG: Initializing linter \"default\"")
+        .logsOnce("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce(String.format("%s\" with linterId \"unchanged\"", indexFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+        .hasSize(1)
+        .extracting(Issues.Issue::getComponent)
+        .contains(projectKey + ":" + helloFile);
+    }
+  }
+
+  @BeforeAll
+  public static void startOrchestrator() {
+    orchestrator = Orchestrator.builderEnv()
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .setEdition(Edition.DEVELOPER).activateLicense()
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
+      .build();
+    // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
+    synchronized (OrchestratorStarter.class) {
+      orchestrator.start();
+    }
+  }
+
+  @AfterAll
+  public static void stopOrchestrator() {
+    orchestrator.stop();
+  }
+
+  private static GitExecutor createProject(Path root, String language) {
     var executor = new GitExecutor(root);
     var generator = new FileGenerator(root);
     var helloFile = "hello." + language;
@@ -107,52 +172,6 @@ class PRAnalysisTest {
     var result = orchestrator.executeBuild(scanner);
     assertThat(result.isSuccess()).isTrue();
     return result;
-  }
-
-  private static Matcher<BuildResult> logMatcher(String log, int count) {
-    return new CustomMatcher<>("has logs") {
-      @Override
-      public boolean matches(Object item) {
-        return (item instanceof BuildResult) && ((BuildResult) item).getLogsLines(line -> line.contains(log)).size() == count;
-      }
-    };
-  }
-
-  private static Condition<BuildResult> expectedLog(String log, int count) {
-    return new HamcrestCondition<>(logMatcher(log, count));
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"js", "ts"})
-  void should_analyse_pull_requests(String language) {
-    var projectKey = "pr-analysis-" + language;
-    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
-
-    OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "pr-analysis-js-profile", "js",
-      "pr-analysis-ts-profile", "ts"));
-
-    try (var gitExecutor = createProjectIn(projectPath, language)) {
-      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
-      assertThat(scanWith(getMasterScannerIn(projectPath, projectKey))).has(allOf(
-        expectedLog("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES),
-        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 1)
-      ));
-      assertThat(getIssues(projectKey))
-        .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":index." + language);
-
-      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      assertThat(scanWith(getBranchScannerIn(projectPath, projectKey))).has(allOf(
-        expectedLog("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES),
-        expectedLog(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 1)
-      ));
-      assertThat(getIssues(projectKey, PR.BRANCH))
-        .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":hello." + language);
-    }
   }
 
   static class FileGenerator {
@@ -221,7 +240,7 @@ class PRAnalysisTest {
       "const { hello } = require('./hello');",
       "hello('World');;"); // Extra semicolon issue expected here.
     static final int SOURCE_FILES = 2;
-    public static final int ANALYZER_REPORTED_ISSUES = 1;
+    static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
   static class PR {
@@ -235,6 +254,6 @@ class PRAnalysisTest {
       "  }, sleep);",
       "}");
     static final int SOURCE_FILES = 2;
-    public static final int ANALYZER_REPORTED_ISSUES = 2;
+    static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 }

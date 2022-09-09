@@ -39,15 +39,16 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      APIError.linterError('Linter is undefined. Did you call /init-linter?'),
+      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
 
-  it('should analyze JavaScript code', () => {
+  it('should analyze JavaScript code with the given linter', () => {
     const rules = [
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
+    initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.js');
     const fileContent = undefined;
@@ -55,16 +56,28 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [];
 
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
+    const emptyLinterInput = {
+      filePath,
+      fileContent,
+      fileType,
+      tsConfigs,
+      linterId: 'empty',
+    } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
     } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+
+    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-default-last',
       }),
     );
+
+    expect(issues).toHaveLength(0);
   });
 
   it('should analyze TypeScript code', () => {
@@ -72,6 +85,7 @@ describe('analyzeJSTS', () => {
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
+    initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
     const fileContent = undefined;
@@ -79,16 +93,26 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
 
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
+    const emptyLinterInput = {
+      filePath,
+      fileContent,
+      fileType,
+      tsConfigs,
+      linterId: 'empty',
+    } as JsTsAnalysisInput;
     const language = 'ts';
 
     const {
       issues: [issue],
     } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'bool-param-default',
       }),
     );
+    expect(issues).toHaveLength(0);
   });
 
   it('should analyze Vue.js code', () => {

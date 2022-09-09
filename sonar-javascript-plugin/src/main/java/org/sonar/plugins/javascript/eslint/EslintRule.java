@@ -20,10 +20,13 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 
 class EslintRule {
+  static final String UCFG_ESLINT_KEY = "ucfg";
+
   final String key;
   final List<String> fileTypeTarget;
   final List<Object> configurations;
@@ -32,6 +35,21 @@ class EslintRule {
     this.key = key;
     this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
     this.configurations = configurations;
+  }
+
+  static boolean containsRuleWithKey(List<EslintRule> rules, String eslintKey) {
+    return rules.stream().anyMatch(ruleMatcher(eslintKey));
+  }
+
+  static EslintRule findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
+    return rules.stream()
+      .filter(ruleMatcher(eslintKey))
+      .findFirst()
+      .orElse(null);
+  }
+
+  private static Predicate<EslintRule> ruleMatcher(String eslintKey) {
+    return rule -> rule.key.equals(eslintKey);
   }
 
   @Override

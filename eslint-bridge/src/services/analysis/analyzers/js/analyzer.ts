@@ -20,15 +20,15 @@
 
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { getContext } from 'helpers';
+import { debug, getContext } from 'helpers';
 import {
-  assertLinterInitialized,
   computeMetrics,
   findNoSonarLines,
   getCpdTokens,
   getSyntaxHighlighting,
-  linter,
+  getLinter,
   SymbolHighlight,
+  LinterWrapper,
 } from 'linting/eslint';
 import { buildSourceCode, Language } from 'parsing/jsts';
 import { measureDuration } from 'services/monitoring';
@@ -51,10 +51,12 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
-  assertLinterInitialized();
+  debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
+  const linter = getLinter(input.linterId);
+
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);
-  const analysis = () => analyzeFile(input, built);
+  const analysis = () => analyzeFile(linter, input, built);
   const { result: output, duration: analysisTime } = measureDuration(analysis);
   return { ...output, perf: { parseTime, analysisTime } };
 }
@@ -66,11 +68,16 @@ export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsA
  * and computing extended metrics about the code. At this point, the linting results
  * are already SonarQube-compatible and can be consumed back as such by the sensor.
  *
+ * @param linter the linter to use for the analysis
  * @param input the JavaScript / TypeScript analysis input to analyze
  * @param sourceCode the corresponding parsed ESLint SourceCode instance
  * @returns the JavaScript / TypeScript analysis output
  */
-function analyzeFile(input: JsTsAnalysisInput, sourceCode: SourceCode): JsTsAnalysisOutput {
+function analyzeFile(
+  linter: LinterWrapper,
+  input: JsTsAnalysisInput,
+  sourceCode: SourceCode,
+): JsTsAnalysisOutput {
   try {
     const { filePath, fileType } = input;
     const { issues, highlightedSymbols, cognitiveComplexity } = linter.lint(

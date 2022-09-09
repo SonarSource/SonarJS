@@ -236,8 +236,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments, globals);
+  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException {
+    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
+
+    if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
+      initLinter(AnalysisMode.UNCHANGED_LINTER_ID, AnalysisMode.getUnchangedFileRules(rules), environments, globals);
+    }
+  }
+
+  private void initLinter(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
+    InitLinterRequest initLinterRequest = new InitLinterRequest(linterId, rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
@@ -436,11 +444,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   static class InitLinterRequest {
+
+    String linterId;
     List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
 
-    public InitLinterRequest(List<EslintRule> rules, List<String> environments, List<String> globals) {
+    InitLinterRequest(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) {
+      this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;

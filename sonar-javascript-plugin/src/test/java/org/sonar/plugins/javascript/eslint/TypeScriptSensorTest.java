@@ -164,7 +164,7 @@ class TypeScriptSensorTest {
     createTsConfigFile();
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any());
+    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.size());
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -238,7 +238,7 @@ class TypeScriptSensorTest {
       errorLog = String.format(errorLog, baseDir.resolve("wrong.json"));
     }
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains(errorLog);
-    
+
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
@@ -250,7 +250,7 @@ class TypeScriptSensorTest {
     } else {
       ctx = SensorContextTester.create(baseDir);
     }
-    
+
     ctx.fileSystem().setWorkDir(workDir);
     return ctx;
   }

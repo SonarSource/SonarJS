@@ -39,6 +39,7 @@ public class YamlSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
   private final AnalysisProcessor analysisProcessor;
+  private AnalysisMode analysisMode;
 
   public YamlSensor(
       JavaScriptChecks checks,
@@ -62,11 +63,12 @@ public class YamlSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals);
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -105,7 +107,8 @@ public class YamlSensor extends AbstractEslintSensor {
         fileContent,
         contextUtils.ignoreHeaderComments(),
         null,
-        null);
+        null,
+        analysisMode.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
     } catch (IOException e) {

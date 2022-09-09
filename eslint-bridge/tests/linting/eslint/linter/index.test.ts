@@ -21,7 +21,7 @@
 import path from 'path';
 import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
-import { initializeLinter, linter, LinterWrapper } from 'linting/eslint';
+import { initializeLinter, getLinter, LinterWrapper } from 'linting/eslint';
 import { parseJavaScriptSourceFile } from '../../../tools';
 
 describe('initializeLinter', () => {
@@ -39,13 +39,17 @@ describe('initializeLinter', () => {
 
     console.log = jest.fn();
 
-    expect(linter).toBeUndefined();
+    expect(getLinter).toThrow();
 
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
+    const linter = getLinter();
+
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
-    expect(console.log).toHaveBeenCalledWith('DEBUG initializing linter with no-extra-semi');
+    expect(console.log).toHaveBeenCalledWith(
+      'DEBUG Initializing linter "default" with no-extra-semi',
+    );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
     const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
@@ -74,11 +78,15 @@ describe('initializeLinter', () => {
 
     initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
+    const linter = getLinter();
+
     expect(linter).toBeDefined();
     expect(console.log).toHaveBeenCalledWith(
       'DEBUG Loaded rules custom-rule from custom-rule-bundle',
     );
-    expect(console.log).toHaveBeenCalledWith('DEBUG initializing linter with custom-rule');
+    expect(console.log).toHaveBeenCalledWith(
+      'DEBUG Initializing linter "default" with custom-rule',
+    );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
     const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;

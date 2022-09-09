@@ -72,7 +72,7 @@ describe('server', () => {
     expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
       parsingError: {
         code: 'LINTER_INITIALIZATION',
-        message: 'Linter is undefined. Did you call /init-linter?',
+        message: 'Linter default does not exist. Did you call /init-linter?',
       },
     });
 

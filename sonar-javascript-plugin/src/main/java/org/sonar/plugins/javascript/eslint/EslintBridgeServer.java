@@ -37,7 +37,7 @@ public interface EslintBridgeServer extends Startable {
 
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -70,14 +70,17 @@ public interface EslintBridgeServer extends Startable {
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
     final String programId;
+    final String linterId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId) {
+    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId,
+      String linterId) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
       this.programId = programId;
+      this.linterId = linterId;
     }
   }
 
