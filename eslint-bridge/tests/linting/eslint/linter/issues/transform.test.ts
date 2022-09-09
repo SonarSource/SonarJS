@@ -36,9 +36,7 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const {
-      issues: [issue],
-    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -63,9 +61,7 @@ describe('transformMessages', () => {
 
     const messages = linter.verify(sourceCode, config);
 
-    const {
-      issues: [issue],
-    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -87,9 +83,7 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const {
-      issues: [issue],
-    } = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         quickFixes: [
@@ -125,12 +119,10 @@ describe('transformMessages', () => {
 
     const messages = linter.verify(sourceCode, config);
 
-    const {
-      issues: [{ secondaryLocations }],
-    } = transformMessages(messages, {
+    const [{ secondaryLocations }] = transformMessages(messages, {
       sourceCode,
       rules: linter.getRules(),
-    });
+    }).issues;
     expect(secondaryLocations).toEqual([
       {
         line: 1,
@@ -147,24 +139,19 @@ describe('transformMessages', () => {
     const tsConfigs = [];
     const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
 
-    const ruleId = 'no-duplicate-in-composite';
-    const config = { rules: { [ruleId]: 'error' } } as any;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, noDuplicateInComposite);
-
-    const messages = linter.verify(sourceCode, config);
-    const numIssues = messages.length;
-    messages.push({
-      ruleId: 'ucfg',
-      message: path.join(__dirname, 'fixtures', 'secondary.ts'),
-    } as Linter.LintMessage);
+    const messages = [
+      {
+        ruleId: 'ucfg',
+        message: path.join(__dirname, 'fixtures', 'secondary.ts'),
+      } as Linter.LintMessage,
+    ];
 
     const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], {
       sourceCode,
       rules: linter.getRules(),
     });
     expect(ucfgPaths.length).toEqual(1);
-    expect(issues.length).toEqual(numIssues);
+    expect(issues.length).toEqual(0);
   });
 });

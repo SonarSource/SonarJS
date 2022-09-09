@@ -35,6 +35,7 @@ import { SymbolHighlight } from '../visitors';
  * highlighting and cognitive complexity.
  *
  * @param issues the issues found in the code
+ * @param ucfgPaths list of paths of ucfg files written to disk
  * @param highlightedSymbols the symbol highlighting of the code
  * @param cognitiveComplexity the cognitive complexity of the code
  */
@@ -53,7 +54,7 @@ export type LintingResult = {
  * paths, decoding issues with secondary locations as well as converting
  * quick fixes.
  *
- * Besides issues, a few metrics are computing during linting in the form of
+ * Besides issues, a few metrics are computed during linting in the form of
  * an internal custom rule execution, namely cognitive complexity and symbol
  * highlighting. These custom rules also produce issues that are extracted.
  *
