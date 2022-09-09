@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 
 class CacheStrategyTest {
 
-  FileSerializers.ZipFileSerializer serializer = new FileSerializers.ZipFileSerializer();
+  ZipFileSerializer serializer = new ZipFileSerializer();
 
   @TempDir
   Path baseDir;

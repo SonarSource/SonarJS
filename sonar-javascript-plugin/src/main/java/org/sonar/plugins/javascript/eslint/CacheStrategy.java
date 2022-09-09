@@ -73,17 +73,22 @@ enum CacheStrategy {
     }
   }
 
-  private static boolean readAndWrite(SensorContext context, InputFile inputFile) throws IOException {
+  private static boolean readAndWrite(SensorContext context, InputFile inputFile) {
     var cacheKey = createCacheKey(inputFile);
     var inputStream = context.previousCache().read(cacheKey);
-    var report = SERIALIZER.deserializeFiles(inputStream, getWorkingDirectoryAbsolutePath(context));
 
-    if (report.isSuccess()) {
-      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, report.getFileCount());
-      context.nextCache().copyFromPrevious(cacheKey);
+    try {
+      var report = SERIALIZER.deserializeFiles(inputStream, getWorkingDirectoryAbsolutePath(context));
+
+      if (report.isSuccess()) {
+        LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, report.getFileCount());
+        context.nextCache().copyFromPrevious(cacheKey);
+      }
+
+      return report.isSuccess();
+    } catch (IOException e) {
+      return false;
     }
-
-    return report.isSuccess();
   }
 
   static String getLogMessage(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
@@ -122,9 +127,9 @@ enum CacheStrategy {
   }
 
   private static final Logger LOG = Loggers.get(AnalysisMode.class);
-  private static final FileSerializers.FileSerializer SERIALIZER = FileSerializers.zipper();
+  private static final ZipFileSerializer SERIALIZER = new ZipFileSerializer();
 
-  boolean isAnalysisRequired(SensorContext context, InputFile inputFile) throws IOException {
+  boolean isAnalysisRequired(SensorContext context, InputFile inputFile) {
     if (this != CacheStrategy.READ_AND_WRITE) {
       return true;
     }
