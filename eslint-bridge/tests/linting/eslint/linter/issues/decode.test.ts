@@ -54,8 +54,4 @@ describe('decodeSonarRuntime', () => {
     const issue = { ruleId: 'fake', line: 42 } as Issue;
     expect(decodeSonarRuntime({} as any, issue)).toEqual(issue);
   });
-
-  it('should return null on null issues', () => {
-    expect(decodeSonarRuntime({} as any, null)).toEqual(null);
-  });
 });

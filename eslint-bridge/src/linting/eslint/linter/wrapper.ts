@@ -26,33 +26,8 @@ import { rules as internalRules } from 'linting/eslint';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { createLinterConfig, RuleConfig } from './config';
 import { FileType } from 'helpers';
-import { SymbolHighlight } from './visitors';
 import { decorateExternalRules } from './decoration';
-import {
-  Issue,
-  transformMessages,
-  extractHighlightedSymbols,
-  extractCognitiveComplexity,
-} from './issues';
-
-/**
- * The result of linting a source code
- *
- * ESLint API returns what it calls messages as results of linting a file.
- * A linting result in the context of the analyzer includes more than that
- * as it needs not only to transform ESLint messages into SonarQube issues
- * as well as analysis data about the analyzed source code, namely symbol
- * highlighting and cognitive complexity.
- *
- * @param issues the issues found in the code
- * @param highlightedSymbols the symbol highlighting of the code
- * @param cognitiveComplexity the cognitive complexity of the code
- */
-export type LintingResult = {
-  issues: Issue[];
-  highlightedSymbols: SymbolHighlight[];
-  cognitiveComplexity?: number;
-};
+import { transformMessages, LintingResult } from './issues';
 
 /**
  * A wrapper of ESLint linter
@@ -112,14 +87,6 @@ export class LinterWrapper {
    * problems in the code. It selects which linting configuration needs to be
    * considered during linting based on the file type.
    *
-   * The result of linting a source code requires post-linting transformations
-   * to return SonarQube issues. These transformations include decoding issues
-   * with secondary locations as well as converting quick fixes.
-   *
-   * Besides issues, a few metrics are computing during linting in the form of
-   * an internal custom rule execution, namely cognitive complexity and symbol
-   * highlighting. These custom rules also produce issues that are extracted.
-   *
    * @param sourceCode the ESLint source code
    * @param filePath the path of the source file
    * @param fileType the type of the source file
@@ -130,14 +97,7 @@ export class LinterWrapper {
     const config = { ...fileTypeConfig, settings: { ...fileTypeConfig.settings, fileType } };
     const options = { filename: filePath, allowInlineConfig: false };
     const messages = this.linter.verify(sourceCode, config, options);
-    const issues = transformMessages(messages, { sourceCode, rules: this.rules });
-    const highlightedSymbols = extractHighlightedSymbols(issues);
-    const cognitiveComplexity = extractCognitiveComplexity(issues);
-    return {
-      issues,
-      highlightedSymbols,
-      cognitiveComplexity,
-    };
+    return transformMessages(messages, { sourceCode, rules: this.rules });
   }
 
   /**

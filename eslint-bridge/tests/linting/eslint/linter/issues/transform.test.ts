@@ -36,7 +36,7 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -61,7 +61,7 @@ describe('transformMessages', () => {
 
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -83,7 +83,7 @@ describe('transformMessages', () => {
     const linter = new Linter();
     const messages = linter.verify(sourceCode, config);
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() });
+    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         quickFixes: [
@@ -122,7 +122,7 @@ describe('transformMessages', () => {
     const [{ secondaryLocations }] = transformMessages(messages, {
       sourceCode,
       rules: linter.getRules(),
-    });
+    }).issues;
     expect(secondaryLocations).toEqual([
       {
         line: 1,
@@ -132,5 +132,26 @@ describe('transformMessages', () => {
         message: 'Original',
       },
     ]);
+  });
+
+  it('should remove ucfg issues', () => {
+    const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
+    const tsConfigs = [];
+    const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+
+    const linter = new Linter();
+    const messages = [
+      {
+        ruleId: 'ucfg',
+        message: path.join(__dirname, 'fixtures', 'secondary.ts'),
+      } as Linter.LintMessage,
+    ];
+
+    const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], {
+      sourceCode,
+      rules: linter.getRules(),
+    });
+    expect(ucfgPaths.length).toEqual(1);
+    expect(issues.length).toEqual(0);
   });
 });
