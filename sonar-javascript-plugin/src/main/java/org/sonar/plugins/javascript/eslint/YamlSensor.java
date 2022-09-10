@@ -68,7 +68,7 @@ public class YamlSensor extends AbstractEslintSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(context, checks.eslintRules(), environments, globals, analysisMode);
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");

@@ -73,7 +73,6 @@ import org.sonarsource.nodejs.NodeCommandException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -139,7 +138,7 @@ class JavaScriptEslintBasedSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(eq(context), any(), any(), any(), any());
+    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();
