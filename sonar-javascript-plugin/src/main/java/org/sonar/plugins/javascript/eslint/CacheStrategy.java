@@ -21,8 +21,6 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -30,26 +28,28 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static org.sonar.plugins.javascript.eslint.CacheSerialization.json;
+import static org.sonar.plugins.javascript.eslint.CacheSerialization.sequence;
 
 enum CacheStrategy {
   WRITE_ONLY, READ_AND_WRITE, NO_CACHE;
+
+  static final CacheSerialization.JsonSerialization<CacheSerialization.FilesManifest> JSON = json(CacheSerialization.FilesManifest.class);
+  static final CacheSerialization.SequenceSerialization SEQUENCE = sequence();
 
   private static Path getWorkingDirectoryAbsolutePath(SensorContext context) {
     return context.fileSystem().workDir().toPath();
   }
 
-  static String createCacheKey(InputFile inputFile) {
-    return "jssecurity:ucfgs:" + inputFile.key();
-  }
-
-  private static List<Path> convertToPaths(@Nullable String[] files) {
-    return files == null ? emptyList() : Arrays.stream(files).map(Path::of).collect(toList());
+  private static String createCacheKey(SensorContext context, String category, InputFile inputFile) {
+    return "jssecurity:ucfgs:" + context.getSonarQubeVersion() + ":" + category + ":" + inputFile.key();
   }
 
   private static boolean isFileInCache(SensorContext context, InputFile inputFile) {
-    return context.previousCache().contains(createCacheKey(inputFile));
+    var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
+    var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+    var cache = context.previousCache();
+    return cache.contains(jsonCacheKey) && cache.contains(sequenceCacheKey);
   }
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
@@ -62,33 +62,42 @@ enum CacheStrategy {
     }
   }
 
-  private static void writeFilesToCache(SensorContext context, InputFile inputFile, @Nullable String[] files) throws IOException {
-    var fileAbsolutePaths = convertToPaths(files);
-    var cacheKey = createCacheKey(inputFile);
+  private static void writeOnly(SensorContext context, InputFile inputFile, @Nullable String[] files) throws IOException {
     var workingDirectory = getWorkingDirectoryAbsolutePath(context);
+    var generatedFiles = new CacheSerialization.GeneratedFiles(workingDirectory, files);
 
-    try (var inputStream = SERIALIZER.serializeFiles(workingDirectory, fileAbsolutePaths)) {
-      context.nextCache().write(cacheKey, inputStream);
-      LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, fileAbsolutePaths.size());
-    }
+    writeOnlyLazily(context, inputFile, generatedFiles);
+  }
+
+  private static void writeOnlyLazily(SensorContext context, InputFile inputFile, CacheSerialization.GeneratedFiles generatedFiles)
+    throws IOException {
+    var cache = context.nextCache();
+
+    var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+    var manifest = SEQUENCE.writeCache(cache, sequenceCacheKey, generatedFiles);
+
+    var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
+    JSON.writeCache(cache, jsonCacheKey, manifest);
   }
 
   private static boolean readAndWrite(SensorContext context, InputFile inputFile) {
-    var cacheKey = createCacheKey(inputFile);
-    var inputStream = context.previousCache().read(cacheKey);
+    var success = false;
 
     try {
-      var report = SERIALIZER.deserializeFiles(inputStream, getWorkingDirectoryAbsolutePath(context));
+      var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
+      var manifest = JSON.readCache(context.previousCache(), jsonCacheKey, null);
+      context.nextCache().copyFromPrevious(jsonCacheKey);
 
-      if (report.isSuccess()) {
-        LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, report.getFileCount());
-        context.nextCache().copyFromPrevious(cacheKey);
-      }
+      var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+      var config = new CacheSerialization.SequenceConfig(getWorkingDirectoryAbsolutePath(context), manifest);
+      SEQUENCE.readCache(context.previousCache(), sequenceCacheKey, config);
+      context.nextCache().copyFromPrevious(sequenceCacheKey);
 
-      return report.isSuccess();
+      success = true;
     } catch (IOException e) {
-      return false;
+      LOG.error(String.format("Failure when reading cache entry for file '%s'", inputFile.key()), e);
     }
+    return success;
   }
 
   static String getLogMessage(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
@@ -127,7 +136,6 @@ enum CacheStrategy {
   }
 
   private static final Logger LOG = Loggers.get(AnalysisMode.class);
-  private static final ZipFileSerializer SERIALIZER = new ZipFileSerializer();
 
   boolean isAnalysisRequired(SensorContext context, InputFile inputFile) {
     if (this != CacheStrategy.READ_AND_WRITE) {
@@ -139,7 +147,7 @@ enum CacheStrategy {
 
   void writeGeneratedFilesToCache(SensorContext context, InputFile inputFile, @Nullable String[] generatedFiles) throws IOException {
     if (this == CacheStrategy.WRITE_ONLY) {
-      writeFilesToCache(context, inputFile, generatedFiles);
+      writeOnly(context, inputFile, generatedFiles);
     }
   }
 
