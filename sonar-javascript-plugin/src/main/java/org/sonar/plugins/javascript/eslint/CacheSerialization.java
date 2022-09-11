@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.compress.utils.CountingInputStream;
@@ -41,7 +47,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.enumeration;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -207,39 +212,28 @@ class CacheSerialization {
 
     @Override
     public FilesManifest writeCache(WriteCache cache, String cacheKey, @Nullable GeneratedFiles payload) throws IOException {
-      var files = List.copyOf(requireNonNull(payload).getFiles());
-      var filters = files.stream().map(this::open).collect(toList());
+      var iterator = new FileIterator(requireNonNull(payload).getFiles());
 
-      try (var sequence = new SequenceInputStream(enumeration(filters))) {
+      try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
         cache.write(cacheKey, sequence);
       }
 
-      LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, files.size());
+      LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, iterator.getCount());
 
-      return createManifest(payload.getDirectory(), files, filters);
+      return createManifest(payload.getDirectory(), iterator);
     }
 
-    private FilesManifest createManifest(Path directory, List<Path> files, List<CountingInputStream> filters) {
-      var fileCount = files.size();
+    private FilesManifest createManifest(Path directory, FileIterator enumeration) {
       var fileSizes = new ArrayList<FilesManifest.FileSize>();
 
-      for (int i = 0; i < fileCount; i++) {
-        var fileAbsolutePath = files.get(i);
-        var bytesRead = filters.get(i).getBytesRead();
-        var entryName = convertToEntryName(directory, fileAbsolutePath);
+      for (var file : enumeration.getFiles()) {
+        var bytesRead = enumeration.getFileSize(file);
+        var entryName = convertToEntryName(directory, file);
 
         fileSizes.add(new FilesManifest.FileSize(entryName, bytesRead));
       }
 
       return new FilesManifest(fileSizes);
-    }
-
-    private CountingInputStream open(Path file) {
-      try {
-        return new CountingInputStream(Files.newInputStream(file));
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
     }
 
     @Override
@@ -261,6 +255,78 @@ class CacheSerialization {
 
         LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, counter);
         return null;
+      }
+    }
+
+  }
+
+  @SuppressWarnings("java:S1150")
+  static class IteratorEnumeration<T> implements Enumeration<T> {
+    private final Iterator<T> iterator;
+
+    IteratorEnumeration(Iterator<T> iterator) {
+      this.iterator = iterator;
+    }
+
+    @Override
+    public boolean hasMoreElements() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public T nextElement() {
+      return iterator.next();
+    }
+  }
+
+  // This class is necessary to open files lazily and avoiding opening all files simultaneously.
+  static class FileIterator implements Iterator<InputStream> {
+
+    private final Iterator<Path> iterator;
+    private final Map<Path, Long> fileSizes;
+
+    FileIterator(Iterable<Path> files) {
+      iterator = files.iterator();
+      fileSizes = new LinkedHashMap<>();
+    }
+
+    List<Path> getFiles() {
+      return List.copyOf(fileSizes.keySet());
+    }
+
+    int getCount() {
+      return fileSizes.size();
+    }
+
+    long getFileSize(Path file) {
+      return fileSizes.get(file);
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public InputStream next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return openNextFile();
+    }
+
+    private CountingInputStream openNextFile() {
+      try {
+        var file = iterator.next();
+        return new CountingInputStream(new BufferedInputStream(Files.newInputStream(file))) {
+          @Override
+          public void close() throws IOException {
+            super.close();
+            fileSizes.put(file, getBytesRead());
+          }
+        };
+      } catch (IOException e) {
+        throw new UncheckedIOException("Failure when opening file", e);
       }
     }
 

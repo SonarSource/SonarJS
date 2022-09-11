@@ -30,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.IntStream;
 import org.apache.commons.compress.utils.CountingInputStream;
 import org.apache.commons.io.input.InfiniteCircularInputStream;
 import org.jetbrains.annotations.NotNull;
@@ -323,6 +325,17 @@ class CacheStrategyTest {
       .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
     assertThat(CacheStrategy.getLogMessage(CacheStrategy.WRITE_ONLY, inputFile, null))
       .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
+  }
+
+  @Test
+  void should_iterate_files() {
+    var ucfgFiles = createUcfgFiles(tempDir).stream().map(tempDir::resolve).collect(toList());
+    var iterator = new CacheSerialization.FileIterator(ucfgFiles);
+    IntStream.range(0, ucfgFiles.size()).forEach(i -> {
+      assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.next()).isNotNull();
+    });
+    assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
   }
 
   private String readFile(Path file) {
