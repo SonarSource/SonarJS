@@ -2,6 +2,9 @@
 'courselit:apps/web/components/admin/media/media-preview.tsx':[
 98,
 ],
+'courselit:apps/web/components/admin/settings.tsx':[
+310,
+],
 'courselit:apps/web/components/admin/users/details.tsx':[
 85,
 110,
@@ -15,5 +18,8 @@
 ],
 'courselit:apps/web/pages/api/payment/verify.ts':[
 47,
+],
+'courselit:apps/web/payments/stripe-payment.ts':[
+72,
 ],
 }
