@@ -86,7 +86,7 @@ class NodeDeprecationWarningTest {
   @Test
   void test_18() {
     deprecationWarning.logNodeDeprecation(18);
-    assertWarnings("Node.js version 18 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
+    assertWarnings();
   }
 
   @Test
