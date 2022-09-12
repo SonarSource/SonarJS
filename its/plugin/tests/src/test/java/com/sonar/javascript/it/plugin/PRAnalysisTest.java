@@ -32,10 +32,12 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -72,9 +74,15 @@ class PRAnalysisTest {
         .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce(String.format("Cache strategy set to 'WRITE_ONLY' for file '%s' as current analysis requires all files to be analyzed", indexFile))
         .logsOnce(String.format("%s\" with linterId \"default\"", indexFile))
-        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:%s' containing 1 file\\(s\\)", projectKey, indexFile)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:%s'", projectKey, indexFile)))
+        .logsOnce(String.format("Cache strategy set to 'WRITE_ONLY' for file '%s' as current analysis requires all files to be analyzed", indexFile))
+        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:%s' containing 2 file\\(s\\)", projectKey, helloFile)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:%s'", projectKey, helloFile)))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -86,8 +94,14 @@ class PRAnalysisTest {
         .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
-        .logsOnce(String.format("%s\" with linterId \"unchanged\"", indexFile))
+        .logsOnce(String.format("Cache strategy set to 'READ_AND_WRITE' for file '%s'", indexFile))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:%s' containing 1 file\\(s\\)", projectKey, indexFile)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:%s'", projectKey, indexFile)))
+        .doesNotLog(String.format("%s\" with linterId \"unchanged\"", indexFile))
+        .logsOnce(String.format("Cache strategy set to 'WRITE_ONLY' for file '%s' as the current file is changed", helloFile))
         .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:%s' containing 4 file\\(s\\)", projectKey, helloFile)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:%s'", projectKey, helloFile)))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
@@ -114,8 +128,14 @@ class PRAnalysisTest {
         .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
+        .logsOnce("Cache strategy set to 'WRITE_ONLY' for file 'file1.yaml' as current analysis requires all files to be analyzed")
         .logsOnce("file1.yaml\" with linterId \"default\"")
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:file1.yaml' containing 1 file\\(s\\)", projectKey)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:file1.yaml'", projectKey)))
+        .logsOnce("Cache strategy set to 'WRITE_ONLY' for file 'file2.yaml' as current analysis requires all files to be analyzed")
         .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:file2.yaml' containing 1 file\\(s\\)", projectKey)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:file2.yaml'", projectKey)))
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -127,8 +147,14 @@ class PRAnalysisTest {
         .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
-        .logsOnce("file1.yaml\" with linterId \"unchanged\"")
+        .logsOnce("Cache strategy set to 'READ_AND_WRITE' for file 'file1.yaml'")
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:file1.yaml' containing 1 file\\(s\\)", projectKey)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:file1.yaml'", projectKey)))
+        .doesNotLog("file1.yaml\" with linterId \"unchanged\"")
+        .logsOnce("Cache strategy set to 'WRITE_ONLY' for file 'file2.yaml' as the current file is changed")
         .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):SEQ:%s:file2.yaml' containing 1 file\\(s\\)", projectKey)))
+        .logsOnce(Pattern.compile(String.format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:([\\d.]+):JSON:%s:file2.yaml'", projectKey)))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
@@ -141,11 +167,11 @@ class PRAnalysisTest {
   @BeforeAll
   public static void startOrchestrator() {
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "DEV"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
       .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
@@ -256,13 +282,11 @@ class PRAnalysisTest {
 
   static class Master {
     static final String BRANCH = "master";
-    static final int SOURCE_FILES = 2;
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
   static class PR {
     static final String BRANCH = "pr";
-    static final int SOURCE_FILES = 2;
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 }

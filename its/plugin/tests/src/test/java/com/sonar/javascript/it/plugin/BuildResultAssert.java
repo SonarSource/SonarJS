@@ -27,6 +27,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.HamcrestCondition;
@@ -74,13 +75,25 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return logsTimes(log, 1);
   }
 
+  BuildResultAssert logsOnce(Pattern pattern) {
+    return logsTimes(pattern, 1);
+  }
+
   BuildResultAssert doesNotLog(String log) {
     return logsTimes(log, 0);
   }
 
   BuildResultAssert logsTimes(String log, int times) {
-    var matcher = logMatcher(String.format("has logs [%s] %d time(s)", log, times),
-      line -> line.contains(log), n -> n == times);
+    return logsTimesWhere(String.format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
+  }
+
+  BuildResultAssert logsTimes(Pattern pattern, int times) {
+    return logsTimesWhere(String.format("contains regexp /%s/ %d time(s)", pattern.pattern(), times), times, pattern.asPredicate());
+  }
+
+  private BuildResultAssert logsTimesWhere(String description, int times, Predicate<String> predicate) {
+    var matcher = logMatcher(description,
+      predicate, n -> n == times);
     return has(new HamcrestCondition<>(matcher));
   }
 

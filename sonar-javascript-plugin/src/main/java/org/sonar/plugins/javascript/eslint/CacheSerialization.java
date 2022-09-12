@@ -202,7 +202,9 @@ class CacheSerialization {
     @Override
     public P readCache(ReadCache cache, String cacheKey, @Nullable Void config) throws IOException {
       try (var input = cache.read(cacheKey)) {
-        return gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
+        var value = gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
+        LOG.debug("Cache entry extracted for key '{}'", cacheKey);
+        return value;
       }
     }
 

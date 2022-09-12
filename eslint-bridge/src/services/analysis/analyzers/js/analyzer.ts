@@ -80,7 +80,7 @@ function analyzeFile(
 ): JsTsAnalysisOutput {
   try {
     const { filePath, fileType } = input;
-    const { issues, highlightedSymbols, cognitiveComplexity } = linter.lint(
+    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
       sourceCode,
       filePath,
       fileType,
@@ -91,7 +91,7 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
-    return { issues, ...extendedMetrics };
+    return { issues, ucfgPaths, ...extendedMetrics };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {

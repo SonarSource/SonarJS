@@ -40,4 +40,5 @@ export interface YamlAnalysisInput extends AnalysisInput {}
  */
 export interface YamlAnalysisOutput extends AnalysisOutput {
   issues: Issue[];
+  ucfgPaths?: string[];
 }

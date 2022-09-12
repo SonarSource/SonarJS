@@ -58,17 +58,19 @@ export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
 
   const extendedSourceCodes = buildSourceCodes(input.filePath);
   const aggregatedIssues: Issue[] = [];
+  const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
-    const { issues } = linter.lint(
+    const { issues, ucfgPaths } = linter.lint(
       extendedSourceCode,
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
     const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
+    aggregatedUcfgPaths.push(...ucfgPaths);
   }
 
-  return { issues: aggregatedIssues };
+  return { issues: aggregatedIssues, ucfgPaths: aggregatedUcfgPaths };
 
   /**
    * Filters out issues outside of JS code.
