@@ -60,45 +60,6 @@ class CacheSerialization {
   private CacheSerialization() {
   }
 
-  private static String convertToEntryName(Path baseAbsolutePath, Path fileAbsolutePath) {
-    var relativePath = baseAbsolutePath.relativize(fileAbsolutePath);
-    return StreamSupport.stream(relativePath.spliterator(), false)
-      .map(Path::getFileName)
-      .map(Path::toString)
-      .collect(joining(ENTRY_SEPARATOR));
-  }
-
-  private static Path convertFromEntryName(Path baseAbsolutePath, String entryName) {
-    var fileAbsolutePath = baseAbsolutePath;
-    for (var name : entryName.split(ENTRY_SEPARATOR)) {
-      fileAbsolutePath = fileAbsolutePath.resolve(Path.of(name)); // This validates that the name is a valid OS path.
-    }
-    return fileAbsolutePath;
-  }
-
-  private static void writeFile(InputStream input, Path file, long limit, boolean shouldFinish) throws IOException {
-    Files.createDirectories(file.getParent());
-
-    try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
-      var buffer = new byte[DEFAULT_BUFFER_SIZE];
-      var read = 0;
-      var totalRead = 0L;
-      var toRead = (int) Math.min(DEFAULT_BUFFER_SIZE, limit - totalRead);
-
-      while (totalRead < limit && (read = input.read(buffer, 0, toRead)) >= 0) {
-        output.write(buffer, 0, read);
-        totalRead += read;
-        toRead = (int) Math.min(DEFAULT_BUFFER_SIZE, limit - totalRead);
-      }
-
-      if (totalRead < limit) {
-        throw new IOException(String.format("The cache stream is too small (<%d) for file %s", limit, file));
-      } else if (shouldFinish && input.read() >= 0) {
-        throw new IOException(String.format("The cache stream is too big (>%d) for file %s", limit, file));
-      }
-    }
-  }
-
   static SequenceSerialization sequence() {
     return new SequenceSerialization();
   }
@@ -212,6 +173,58 @@ class CacheSerialization {
 
   static class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest>, CacheReader<SequenceConfig, Void> {
 
+    private static String convertToEntryName(Path baseAbsolutePath, Path fileAbsolutePath) {
+      var relativePath = baseAbsolutePath.relativize(fileAbsolutePath);
+      return StreamSupport.stream(relativePath.spliterator(), false)
+        .map(Path::getFileName)
+        .map(Path::toString)
+        .collect(joining(ENTRY_SEPARATOR));
+    }
+
+    private static Path convertFromEntryName(Path baseAbsolutePath, String entryName) {
+      var fileAbsolutePath = baseAbsolutePath;
+      for (var name : entryName.split(ENTRY_SEPARATOR)) {
+        fileAbsolutePath = fileAbsolutePath.resolve(Path.of(name)); // This validates that the name is a valid OS path.
+      }
+      return fileAbsolutePath;
+    }
+
+    private static void writeFile(InputStream input, Path file, long limit, boolean shouldFinish) throws IOException {
+      Files.createDirectories(file.getParent());
+
+      try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
+        var buffer = new byte[DEFAULT_BUFFER_SIZE];
+        var read = 0;
+        var totalRead = 0L;
+        var toRead = (int) Math.min(DEFAULT_BUFFER_SIZE, limit - totalRead);
+
+        while (totalRead < limit && (read = input.read(buffer, 0, toRead)) >= 0) {
+          output.write(buffer, 0, read);
+          totalRead += read;
+          toRead = (int) Math.min(DEFAULT_BUFFER_SIZE, limit - totalRead);
+        }
+
+        if (totalRead < limit) {
+          throw new IOException(String.format("The cache stream is too small (<%d) for file %s", limit, file));
+        } else if (shouldFinish && input.read() >= 0) {
+          throw new IOException(String.format("The cache stream is too big (>%d) for file %s", limit, file));
+        }
+      }
+    }
+
+    private static FilesManifest createManifest(Path directory, FileIterator enumeration) {
+      var fileSizes = new ArrayList<FilesManifest.FileSize>();
+
+      for (var file : enumeration.getFiles()) {
+        var bytesRead = enumeration.getFileSize(file);
+        var entryName = convertToEntryName(directory, file);
+
+        fileSizes.add(new FilesManifest.FileSize(entryName, bytesRead));
+      }
+
+      return new FilesManifest(fileSizes);
+    }
+
     @Override
     public FilesManifest writeCache(WriteCache cache, String cacheKey, @Nullable GeneratedFiles payload) throws IOException {
       var iterator = new FileIterator(requireNonNull(payload).getFiles());
@@ -223,19 +236,6 @@ class CacheSerialization {
       LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, iterator.getCount());
 
       return createManifest(payload.getDirectory(), iterator);
-    }
-
-    private FilesManifest createManifest(Path directory, FileIterator enumeration) {
-      var fileSizes = new ArrayList<FilesManifest.FileSize>();
-
-      for (var file : enumeration.getFiles()) {
-        var bytesRead = enumeration.getFileSize(file);
-        var entryName = convertToEntryName(directory, file);
-
-        fileSizes.add(new FilesManifest.FileSize(entryName, bytesRead));
-      }
-
-      return new FilesManifest(fileSizes);
     }
 
     @Override
