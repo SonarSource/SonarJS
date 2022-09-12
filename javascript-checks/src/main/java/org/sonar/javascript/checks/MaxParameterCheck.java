@@ -49,6 +49,6 @@ public class MaxParameterCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "max-params";
+    return "sonar-max-params";
   }
 }

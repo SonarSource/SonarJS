@@ -2,16 +2,4 @@
 'desktop:app/src/lib/git/push.ts':[
 51,
 ],
-'desktop:app/src/lib/stores/app-store.ts':[
-486,
-],
-'desktop:app/src/models/commit.ts':[
-109,
-],
-'desktop:app/src/models/github-repository.ts':[
-15,
-],
-'desktop:app/src/models/pull-request.ts':[
-33,
-],
 }
