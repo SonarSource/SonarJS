@@ -45,6 +45,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUG
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class PRAnalysisTest {
 
