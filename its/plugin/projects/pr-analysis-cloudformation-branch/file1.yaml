@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: 2010-09-09 # This file is the same between the 2 branches.
 Resources:
   SomeLogGroup:
     Type: AWS::Logs::LogGroup #Noncompliant (S6295)

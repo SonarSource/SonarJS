@@ -5,4 +5,4 @@ Resources:
     Properties:
       Runtime: "nodejs16.0"
       InlineCode: >
-        console.log('Hello, World');;
+        console.log('Hello, World');; // Noncompliant (javascript:S1116)

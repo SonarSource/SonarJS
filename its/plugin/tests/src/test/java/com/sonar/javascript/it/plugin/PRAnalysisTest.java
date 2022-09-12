@@ -46,6 +46,7 @@ import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUG
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class PRAnalysisTest {
 
@@ -75,7 +76,6 @@ class PRAnalysisTest {
         .logsOnce(String.format("%s\" with linterId \"default\"", indexFile))
         .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
-        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -90,7 +90,6 @@ class PRAnalysisTest {
         .logsOnce(String.format("%s\" with linterId \"unchanged\"", indexFile))
         .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
-        .logsOnce(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
@@ -118,12 +117,11 @@ class PRAnalysisTest {
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .logsOnce("file1.yaml\" with linterId \"default\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
-        .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", Master.SOURCE_FILES), 2)
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":file1.yaml");
+        .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
+        .contains(tuple(projectKey + ":file1.yaml", "cloudformation:S6295"));
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
@@ -133,12 +131,11 @@ class PRAnalysisTest {
         .logsOnce("file1.yaml\" with linterId \"unchanged\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
-        .logsTimes(String.format("INFO: %1$d/%1$d source files have been analyzed", PR.SOURCE_FILES), 2)
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
-        .extracting(Issues.Issue::getComponent)
-        .contains(projectKey + ":file2.yaml");
+        .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
+        .contains(tuple(projectKey + ":file2.yaml", "javascript:S1116"));
     }
   }
 
