@@ -184,7 +184,8 @@ class CacheSerialization {
     private static Path convertFromEntryName(Path baseAbsolutePath, String entryName) {
       var fileAbsolutePath = baseAbsolutePath;
       for (var name : entryName.split(ENTRY_SEPARATOR)) {
-        fileAbsolutePath = fileAbsolutePath.resolve(Path.of(name)); // This validates that the name is a valid OS path.
+        // This validates that the name is a valid OS path.
+        fileAbsolutePath = fileAbsolutePath.resolve(Path.of(name));
       }
       return fileAbsolutePath;
     }
