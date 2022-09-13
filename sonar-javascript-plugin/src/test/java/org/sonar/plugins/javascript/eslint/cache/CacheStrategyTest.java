@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint.cache;
 import com.google.gson.Gson;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,7 +91,7 @@ class CacheStrategyTest {
     inputFile = mock(InputFile.class);
     var testFile = createFile(baseDir.resolve("src/test.js"));
     when(inputFile.uri()).thenReturn(testFile.toUri());
-    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString());
+    when(inputFile.key()).thenReturn(baseDir.relativize(testFile).toString().replace(File.separator, "/"));
 
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
