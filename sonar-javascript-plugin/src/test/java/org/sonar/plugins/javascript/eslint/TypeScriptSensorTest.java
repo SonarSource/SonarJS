@@ -557,6 +557,21 @@ class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
+  @Test
+  void log_debug_analyzed_filename() throws Exception {
+    AnalysisResponse expectedResponse = createResponse();
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+
+    TypeScriptSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+    // no idea why vue is necessary here
+    createVueInputFile();
+    createTsConfigFile();
+
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+  }
+
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
