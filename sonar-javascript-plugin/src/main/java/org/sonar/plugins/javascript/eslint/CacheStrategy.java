@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
@@ -41,19 +42,22 @@ enum CacheStrategy {
     return context.fileSystem().workDir().toPath();
   }
 
-  private static String createCacheKey(SensorContext context, String category, InputFile inputFile) {
-    return "jssecurity:ucfgs:" + context.getSonarQubeVersion() + ":" + category + ":" + inputFile.key();
+  static String createCacheKey(String category, InputFile inputFile) {
+    var implementationVersion = CacheStrategy.class.getPackage().getImplementationVersion();
+    return "jssecurity:ucfgs:" + implementationVersion + ":" + category + ":" + inputFile.key();
   }
 
   private static boolean isFileInCache(SensorContext context, InputFile inputFile) {
-    var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
-    var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+    var jsonCacheKey = createCacheKey("JSON", inputFile);
+    var sequenceCacheKey = createCacheKey("SEQ", inputFile);
     var cache = context.previousCache();
     return cache.contains(jsonCacheKey) && cache.contains(sequenceCacheKey);
   }
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
-    return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
+    var isVersionValid = context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
+    var isProductValid = context.runtime().getProduct() != SonarProduct.SONARLINT;
+    return isVersionValid && isProductValid;
   }
 
   private static void log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
@@ -73,10 +77,10 @@ enum CacheStrategy {
     throws IOException {
     var cache = context.nextCache();
 
-    var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+    var sequenceCacheKey = createCacheKey("SEQ", inputFile);
     var manifest = SEQUENCE.writeCache(cache, sequenceCacheKey, generatedFiles);
 
-    var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
+    var jsonCacheKey = createCacheKey("JSON", inputFile);
     JSON.writeCache(cache, jsonCacheKey, manifest);
   }
 
@@ -84,11 +88,14 @@ enum CacheStrategy {
     var success = false;
 
     try {
-      var jsonCacheKey = createCacheKey(context, "JSON", inputFile);
+      var jsonCacheKey = createCacheKey("JSON", inputFile);
       var manifest = JSON.readCache(context.previousCache(), jsonCacheKey, null);
+      if (manifest == null) {
+        return false;
+      }
       context.nextCache().copyFromPrevious(jsonCacheKey);
 
-      var sequenceCacheKey = createCacheKey(context, "SEQ", inputFile);
+      var sequenceCacheKey = createCacheKey("SEQ", inputFile);
       var config = new CacheSerialization.SequenceConfig(getWorkingDirectoryAbsolutePath(context), manifest);
       SEQUENCE.readCache(context.previousCache(), sequenceCacheKey, config);
       context.nextCache().copyFromPrevious(sequenceCacheKey);
@@ -135,7 +142,7 @@ enum CacheStrategy {
     return CacheStrategy.WRITE_ONLY;
   }
 
-  private static final Logger LOG = Loggers.get(AnalysisMode.class);
+  private static final Logger LOG = Loggers.get(CacheStrategy.class);
 
   boolean isAnalysisRequired(SensorContext context, InputFile inputFile) {
     if (this != CacheStrategy.READ_AND_WRITE) {
