@@ -577,6 +577,18 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
+  @Test
+  void log_debug_analyzed_filename() throws Exception {
+    AnalysisResponse responseIssues = response("{ issues: [" +
+    "{\"line\":0,\"column\":1,\"ruleId\":\"file-header\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+    "]}");
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    InputFile file = createInputFile(context);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + file.uri());
+  }
+
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
