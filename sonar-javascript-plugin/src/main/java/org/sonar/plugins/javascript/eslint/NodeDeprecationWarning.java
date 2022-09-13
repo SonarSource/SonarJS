@@ -32,29 +32,32 @@ import static java.util.Map.entry;
 
 /**
  * Currently supported versions ('supported' means that we execute the analysis):
- * 12 - deprecated (support will be removed not earlier than Aug 1, 2022)
- * 13 - deprecated (support will be removed not earlier than Aug 1, 2022), not recommended
- * 14 - nothing to warn, recommended version
- * 15 - not recommended
+ * 14 - deprecated (support will be removed not earlier than April 1, 2023)
+ * 15 - deprecated (support will be removed not earlier than April 1, 2023), not recommended
  * 16 - nothing to warn, recommended version
  * 17 - not recommended
- * 18 - not recommended
+ * 18 - nothing to warn, not recommended yet
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public class NodeDeprecationWarning {
 
   static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
-    entry(12, "August 1st, 2022"),
-    entry(13, "August 1st, 2022")
+    entry(14, "May 1st, 2023"),
+    entry(15, "May 1st, 2023")
   );
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
-  // Keep in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion
-  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(12, 22, 0);
-  static final int MIN_RECOMMENDED_NODE_VERSION = 14;
-  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
-  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(12, 14, 16);
+  /**
+   * This version should be kept in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion.
+   * 
+   * The minor version is a requirement from the ESLint version that eslint-bridge uses.
+   * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
+   */
+  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(14, 17, 0);
+  static final int MIN_RECOMMENDED_NODE_VERSION = 16;
+  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(16);
+  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {

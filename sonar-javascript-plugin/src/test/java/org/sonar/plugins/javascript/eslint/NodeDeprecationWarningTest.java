@@ -50,23 +50,14 @@ class NodeDeprecationWarningTest {
   NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
 
   @Test
-  void test_12() {
-    deprecationWarning.logNodeDeprecation(12);
-    assertWarnings("Using Node.js version 12 to execute analysis is deprecated and will stop being supported no earlier than August 1st, 2022. " +
-      "Please upgrade to a newer LTS version of Node.js [14, 16]");
-  }
-
-  @Test
-  void test_13() {
-    deprecationWarning.logNodeDeprecation(13);
-    assertWarnings("Using Node.js version 13 to execute analysis is deprecated and will stop being supported no earlier than August 1st, 2022. " +
-        "Please upgrade to a newer LTS version of Node.js [14, 16]",
-      "Node.js version 13 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
+  void test_14() {
+    deprecationWarning.logNodeDeprecation(14);
+    assertWarnings("Using Node.js version 14 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. " +
+        "Please upgrade to a newer LTS version of Node.js [16]");
   }
 
   @Test
   void test_recommended() {
-    deprecationWarning.logNodeDeprecation(14);
     deprecationWarning.logNodeDeprecation(16);
     assertWarnings();
   }
@@ -74,24 +65,26 @@ class NodeDeprecationWarningTest {
   @Test
   void test_15() {
     deprecationWarning.logNodeDeprecation(15);
-    assertWarnings("Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
+    assertWarnings("Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16]",
+      "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [16]"
+    );
   }
 
   @Test
   void test_17() {
     deprecationWarning.logNodeDeprecation(17);
-    assertWarnings("Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
+    assertWarnings("Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16]");
   }
 
   @Test
   void test_18() {
     deprecationWarning.logNodeDeprecation(18);
-    assertWarnings("Node.js version 18 is not recommended, you might experience issues. Please use a recommended version of Node.js [14, 16]");
+    assertWarnings("Node.js version 18 is not recommended, you might experience issues. Please use a recommended version of Node.js [16]");
   }
 
   @Test
   void test_all_removal_dates_defined() {
-    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION - 1)
+    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION)
       .allMatch(REMOVAL_DATE::containsKey);
     assertThat(allRemovalDates).isTrue();
   }
