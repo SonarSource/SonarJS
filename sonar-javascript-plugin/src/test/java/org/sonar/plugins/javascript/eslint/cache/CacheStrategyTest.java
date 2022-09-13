@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.plugins.javascript.eslint.cache;
 
 import com.google.gson.Gson;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,13 +60,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.CacheSerialization.json;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  static final CacheSerialization.JsonSerialization<CacheSerialization.FilesManifest> JSON = json(CacheSerialization.FilesManifest.class);
-  static final CacheSerialization.SequenceSerialization SEQUENCE = CacheSerialization.sequence();
+  static final LazySerialization LAZY = new LazySerialization();
 
   String jsonCacheKey;
   String seqCacheKey;
@@ -97,14 +96,20 @@ class CacheStrategyTest {
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
 
-    jsonCacheKey = CacheStrategy.createCacheKey("JSON", inputFile);
-    seqCacheKey = CacheStrategy.createCacheKey("SEQ", inputFile);
+    jsonCacheKey = CacheStrategy.createCacheKeyFactory(inputFile).withKeyType(CacheKeyFactory.Serialization.JSON).toString();
+    seqCacheKey = CacheStrategy.createCacheKeyFactory(inputFile).withKeyType(CacheKeyFactory.Serialization.SEQ).toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
     when(context.previousCache()).thenReturn(previousCache);
     when(context.nextCache()).thenReturn(nextCache);
     when(context.fileSystem()).thenReturn(fileSystem);
+  }
+
+  @Test
+  void should_generate_cache_keys() {
+    assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:JSON:src/test.js");
+    assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:SEQ:src/test.js");
   }
 
   @Test
@@ -155,12 +160,12 @@ class CacheStrategyTest {
 
     doAnswer(invocation -> {
       var bytes = invocation.getArgument(1, byte[].class);
-      var manifest = new Gson().fromJson(new String(bytes, StandardCharsets.UTF_8), CacheSerialization.FilesManifest.class);
+      var manifest = new Gson().fromJson(new String(bytes, StandardCharsets.UTF_8), FilesManifest.class);
       var totalSize = manifest.getFileSizes().stream().reduce(0L, (n, size) -> n + size.getSize(), Long::sum);
       assertThat(totalSize).isEqualTo(bytesRead[0]);
       assertThat(manifest.getFileSizes())
         .hasSize(3)
-        .extracting(CacheSerialization.FilesManifest.FileSize::getName)
+        .extracting(FilesManifest.FileSize::getName)
         .containsExactly("ucfg/file_js_1.ucfg", "ucfg/file_js_2.ucfg", "ucfg/d/file_js_3.ucfg");
       return null;
     }).when(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -171,7 +176,7 @@ class CacheStrategyTest {
     assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles.toArray(String[]::new));
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -187,7 +192,8 @@ class CacheStrategyTest {
     assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
 
-    assertThatThrownBy(() -> strategy.writeGeneratedFilesToCache(context, inputFile, new String[] { "inexistant.ucfg" }))
+    var generatedFiles = List.of("inexistent.ucfg");
+    assertThatThrownBy(() -> strategy.writeGeneratedFilesToCache(context, inputFile, generatedFiles))
       .isInstanceOf(UncheckedIOException.class);
     verify(nextCache, never()).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache, never()).write(eq(seqCacheKey), any(InputStream.class));
@@ -248,8 +254,44 @@ class CacheStrategyTest {
         .isEqualTo(tempDir.resolve(ucfgFileRelativePath).toAbsolutePath().toString());
     }
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
     verify(nextCache, never()).write(anyString(), any(byte[].class));
+  }
+
+  @Test
+  void should_handle_null_json() throws IOException {
+    createUcfgFilesInCache();
+
+    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(previousCache.read(jsonCacheKey)).thenReturn(InputStream.nullInputStream());
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+
+    verify(previousCache).read(jsonCacheKey);
+    verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
+    verify(previousCache, never()).read(seqCacheKey);
+    verify(nextCache, never()).copyFromPrevious(seqCacheKey);
+  }
+
+  @Test
+  void should_handle_invalid_json() throws IOException {
+    createUcfgFilesInCache();
+
+    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(previousCache.read(jsonCacheKey)).thenReturn(new ByteArrayInputStream("invalid-json".getBytes(StandardCharsets.UTF_8)));
+
+    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
+    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
+    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+
+    verify(previousCache).read(jsonCacheKey);
+    verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
+    verify(previousCache, never()).read(seqCacheKey);
+    verify(nextCache, never()).copyFromPrevious(seqCacheKey);
   }
 
   @Test
@@ -301,7 +343,7 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -327,7 +369,7 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).toArray(String[]::new));
+    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -344,7 +386,7 @@ class CacheStrategyTest {
   @Test
   void should_iterate_files() {
     var ucfgFiles = createUcfgFiles(tempDir).stream().map(tempDir::resolve).collect(toList());
-    var iterator = new CacheSerialization.FileIterator(ucfgFiles);
+    var iterator = new FileIterator(ucfgFiles);
     IntStream.range(0, ucfgFiles.size()).forEach(i -> {
       assertThat(iterator.hasNext()).isTrue();
       assertThat(iterator.next()).isNotNull();
@@ -366,7 +408,7 @@ class CacheStrategyTest {
       .map(tempDir::resolve)
       .map(this::createFile)
       .map(Path::toString)
-      .toArray(String[]::new);
+      .collect(toList());
     var binFile = Files.createTempFile("ucfgs", ".bin");
     var jsonFile = Files.createTempFile("ucfgs", ".json");
 
@@ -382,8 +424,8 @@ class CacheStrategyTest {
       Files.write(jsonFile, bytes);
       return null;
     }).when(tempCache).write(anyString(), any(byte[].class));
-    var manifest = SEQUENCE.writeCache(tempCache, "bin", new CacheSerialization.GeneratedFiles(tempDir, ucfgFiles));
-    JSON.writeCache(tempCache, "json", manifest);
+
+    LAZY.writeCache(tempCache, new CacheKeyFactory(null, "file"), new GeneratedFiles(tempDir, ucfgFiles));
 
     when(previousCache.read(jsonCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(jsonFile)));
     when(previousCache.read(seqCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(binFile)));

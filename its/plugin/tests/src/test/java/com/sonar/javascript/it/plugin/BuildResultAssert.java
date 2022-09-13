@@ -28,16 +28,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.HamcrestCondition;
+import org.assertj.core.groups.Tuple;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 
 class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
+
+  private String projectKey;
 
   private BuildResultAssert(BuildResult actual) {
     super(actual, BuildResultAssert.class);
@@ -71,6 +78,15 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfg");
   }
 
+  FileCacheStrategy cacheFileStrategy(String strategy) {
+    return new FileCacheStrategy(strategy);
+  }
+
+  BuildResultAssert withProjectKey(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
   BuildResultAssert logsOnce(String log) {
     return logsTimes(log, 1);
   }
@@ -84,11 +100,11 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
   }
 
   BuildResultAssert logsTimes(String log, int times) {
-    return logsTimesWhere(String.format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
+    return logsTimesWhere(format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
   }
 
   BuildResultAssert logsTimes(Pattern pattern, int times) {
-    return logsTimesWhere(String.format("contains regexp /%s/ %d time(s)", pattern.pattern(), times), times, pattern.asPredicate());
+    return logsTimesWhere(format("contains regexp /%s/ %d time(s)", pattern.pattern(), times), times, pattern.asPredicate());
   }
 
   private BuildResultAssert logsTimesWhere(String description, int times, Predicate<String> predicate) {
@@ -98,7 +114,7 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
   }
 
   BuildResultAssert logsAtLeastOnce(String log) {
-    return has(new HamcrestCondition<>(logMatcher(String.format("has at least log [%s]", log), line -> line.contains(log), n -> n > 0)));
+    return has(new HamcrestCondition<>(logMatcher(format("has at least log [%s]", log), line -> line.contains(log), n -> n > 0)));
   }
 
   BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
@@ -114,6 +130,60 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
       fail("Failed", e);
     }
     return this;
+  }
+
+  class FileCacheStrategy {
+
+    private final String strategy;
+    private List<String> files;
+    private List<Integer> cachedFilesCounts;
+    private String reason;
+
+    FileCacheStrategy(String strategy) {
+      this.strategy = strategy;
+    }
+
+    FileCacheStrategy forFiles(String... files) {
+      this.files = List.of(files);
+      return this;
+    }
+
+    FileCacheStrategy withCachedFilesCounts(int... cachedFilesCounts) {
+      this.cachedFilesCounts = IntStream.of(cachedFilesCounts).boxed().collect(toList());
+      return this;
+    }
+
+    FileCacheStrategy withReason(String reason) {
+      this.reason = reason;
+      return this;
+    }
+
+    BuildResultAssert isUsed() {
+      IntStream.range(0, files.size())
+        .mapToObj(i -> tuple(files.get(i), cachedFilesCounts.get(i)))
+        .forEach(this::check);
+      return BuildResultAssert.this;
+    }
+
+    private void check(Tuple tuple) {
+      var file = (String) tuple.toList().get(0);
+      var cachedFileCount = (Integer) tuple.toList().get(1);
+
+      if ("WRITE_ONLY".equals(strategy)) {
+        logsOnce(format("Cache strategy set to '%s' for file '%s' as %s", strategy, file, reason));
+        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:(.+):SEQ:%s:%s' containing %d file\\(s\\)",
+          projectKey, file, cachedFileCount)));
+        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:(.+):JSON:%s:%s'", projectKey, file)));
+      } else if ("READ_AND_WRITE".equals(strategy)) {
+        logsOnce(String.format("Cache strategy set to 'READ_AND_WRITE' for file '%s'", file));
+        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:(.+):SEQ:%s:%s' containing %d file\\(s\\)",
+          projectKey, file, cachedFileCount)));
+        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:(.+):JSON:%s:%s'", projectKey, file)));
+      } else {
+        fail("Unknown strategy " + strategy);
+      }
+    }
+
   }
 
 }
