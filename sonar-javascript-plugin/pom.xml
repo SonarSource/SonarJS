@@ -126,7 +126,7 @@
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
           <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
-          <nodeJsMinVersion>12.22.0</nodeJsMinVersion>
+          <nodeJsMinVersion>14.17.0</nodeJsMinVersion>
           <jreMinVersion>${jdk.min.version}</jreMinVersion>
         </configuration>
       </plugin>

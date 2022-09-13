@@ -141,7 +141,6 @@ plugin_qa_task:
   gke_container:
     docker_arguments:
       matrix:
-        - NODE_VERSION: v12.22.12
         - NODE_VERSION: v14.20.0
         - NODE_VERSION: v16.16.0
         - NODE_VERSION: v18.6.0

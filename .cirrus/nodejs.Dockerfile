@@ -2,7 +2,7 @@ FROM eu.gcr.io/release-engineering-ci-prod/base:j11-latest
 
 USER root
 
-ARG NODE_VERSION=v12.22.0
+ARG NODE_VERSION=v14.20.0
 
 RUN  wget -U "nodejs" -q -O nodejs.tar.gz https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz \
     && tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 --no-same-owner \
