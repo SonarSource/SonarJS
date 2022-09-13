@@ -36,7 +36,7 @@ import static java.util.Map.entry;
  * 15 - deprecated (support will be removed not earlier than April 1, 2023), not recommended
  * 16 - nothing to warn, recommended version
  * 17 - not recommended
- * 18 - nothing to warn, not recommended yet
+ * 18 - nothing to warn, recommended version
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
@@ -56,8 +56,8 @@ public class NodeDeprecationWarning {
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(14, 17, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 16;
-  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(16);
-  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16);
+  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(16, 18);
+  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16, 18);
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
