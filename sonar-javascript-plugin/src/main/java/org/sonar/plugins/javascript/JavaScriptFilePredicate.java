@@ -68,26 +68,32 @@ public class JavaScriptFilePredicate {
   }
 
   public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
-    return fs.predicates().and(
-      fs.predicates().or(
-        fs.predicates().and(
-          fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
-          fs.predicates().not(fs.predicates().hasExtension("vue"))
-        ),
-        fs.predicates().and(
-          fs.predicates().hasExtension("vue"),
-          fs.predicates().not(hasScriptTagWithLangTS))));
+    return fs.predicates().or(
+      fs.predicates().and(
+        fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
+        fs.predicates().not(fs.predicates().hasExtension("vue"))
+      ),
+      fs.predicates().and(
+        fs.predicates().hasExtension("vue"),
+        fs.predicates().not(hasScriptTagWithLangTS)
+      ),
+      fs.predicates().hasExtension("cjs"),
+      fs.predicates().hasExtension("mjs")
+    );
   }
 
   public static FilePredicate getTypeScriptPredicate(FileSystem fs) {
-    return fs.predicates().and(
-      fs.predicates().or(
-        fs.predicates().and(
-          fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
-          fs.predicates().not(fs.predicates().hasExtension("vue"))
-        ),
-        fs.predicates().and(
-          fs.predicates().hasExtension("vue"),
-          hasScriptTagWithLangTS)));
+    return fs.predicates().or(
+      fs.predicates().and(
+        fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
+        fs.predicates().not(fs.predicates().hasExtension("vue"))
+      ),
+      fs.predicates().and(
+        fs.predicates().hasExtension("vue"),
+        hasScriptTagWithLangTS
+      ),
+      fs.predicates().hasExtension("cts"),
+      fs.predicates().hasExtension("mts")
+    );
   }
 }
