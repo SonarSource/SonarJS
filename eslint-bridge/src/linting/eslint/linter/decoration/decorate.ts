@@ -20,8 +20,8 @@
 
 import { Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { eslintRules } from 'linting/eslint/rules/eslint';
 import { decorators } from 'linting/eslint/rules/decorators';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 /**
  * Decorates external rules
