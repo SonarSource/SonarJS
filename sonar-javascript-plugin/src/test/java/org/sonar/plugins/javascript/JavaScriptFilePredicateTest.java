@@ -159,28 +159,6 @@ class JavaScriptFilePredicateTest {
     assertThat(filenames).containsExactlyInAnyOrder("single-quote.yaml", "double-quote.yaml", "comment.yaml", "code-fresh.yaml");
   }
 
-  @Test
-  void testEsModulesPredicate() throws IOException {
-
-    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    fs.add(createInputFile(baseDir, "module.cjs"));
-    fs.add(createInputFile(baseDir, "module.mjs"));
-    fs.add(createInputFile(baseDir, "module.cts"));
-    fs.add(createInputFile(baseDir, "module.mts"));
-
-    FilePredicate jsPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fs);
-    FilePredicate tsPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fs);
-    List<File> jsFiles = new ArrayList<>();
-    List<File> tsFiles = new ArrayList<>();
-    fs.files(jsPredicate).forEach(jsFiles::add);
-    fs.files(tsPredicate).forEach(tsFiles::add);
-
-    List<String> jsFilenames = jsFiles.stream().map(File::getName).collect(Collectors.toList());
-    List<String> tsFilenames = tsFiles.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(jsFilenames).containsExactlyInAnyOrder("module.cjs", "module.mjs");
-    assertThat(tsFilenames).containsExactlyInAnyOrder("module.cts", "module.mts");
-  }
-
   private static final InputFile createInputFile(Path baseDir, String relativePath) {
     return createInputFile(baseDir, relativePath, "");
   }
