@@ -39,14 +39,14 @@ export const rule: Rule.RuleModule = {
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
         if ('node' in descriptor) {
-          const fun = descriptor.node as TSESTree.FunctionLike;
-          if (!isException(fun)) {
+          const functionLike = descriptor.node as TSESTree.FunctionLike;
+          if (!isException(functionLike)) {
             context.report(descriptor);
           }
         }
 
-        function isException(fun: TSESTree.FunctionLike) {
-          return fun.params.every(param => param.type === 'TSParameterProperty');
+        function isException(functionLike: TSESTree.FunctionLike) {
+          return functionLike.params.every(param => param.type === 'TSParameterProperty');
         }
       },
     );
@@ -66,15 +66,15 @@ export const rule: Rule.RuleModule = {
         };
 
         function checkFunction(node: estree.Node) {
-          const fun = node as unknown as TSESTree.FunctionLike;
+          const functionLike = node as unknown as TSESTree.FunctionLike;
           const maxParams = context.options[0] as number;
-          const numParams = fun.params.length;
-          if (fun.params.length > maxParams) {
+          const numParams = functionLike.params.length;
+          if (functionLike.params.length > maxParams) {
             context.report({
               messageId: 'exceed',
               loc: getFunctionLocationHeader(node),
               data: {
-                name: getFunctionNameWithKind(fun),
+                name: getFunctionNameWithKind(functionLike),
                 count: numParams.toString(),
                 max: maxParams.toString(),
               },
@@ -91,19 +91,19 @@ export const rule: Rule.RuleModule = {
             };
           }
 
-          function getFunctionNameWithKind(fun: TSESTree.FunctionLike) {
+          function getFunctionNameWithKind(functionLike: TSESTree.FunctionLike) {
             let name: string | undefined;
             let kind = 'function';
-            switch (fun.type) {
+            switch (functionLike.type) {
               case 'TSDeclareFunction':
                 kind = 'Function declaration';
-                if (fun.id) {
-                  name = fun.id.name;
+                if (functionLike.id) {
+                  name = functionLike.id.name;
                 }
                 break;
               case 'TSEmptyBodyFunctionExpression':
                 kind = 'Empty function';
-                const parent = fun.parent;
+                const parent = functionLike.parent;
                 if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {
                   name = parent.key.name;
                 }
