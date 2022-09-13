@@ -45,6 +45,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -497,6 +499,8 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_send_content_on_sonarlint() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setNextCache(mock(WriteCache.class));
+    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
@@ -510,6 +514,8 @@ class JavaScriptEslintBasedSensorTest {
 
     clearInvocations(eslintBridgeServerMock);
     ctx = SensorContextTester.create(baseDir);
+    ctx.setNextCache(mock(WriteCache.class));
+    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
@@ -520,6 +526,8 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_send_content_when_not_utf8() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setNextCache(mock(WriteCache.class));
+    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")

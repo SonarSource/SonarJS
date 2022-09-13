@@ -129,7 +129,10 @@ public class AnalysisWithProgram {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        analyze(inputFile, program);
+        var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
+        if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+          analyze(inputFile, program, cacheStrategy);
+        }
         counter++;
       } else {
         LOG.debug("File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.", file);
@@ -139,7 +142,7 @@ public class AnalysisWithProgram {
     LOG.info("Analyzed {} file(s) with current program", counter);
   }
 
-  private void analyze(InputFile file, TsProgram tsProgram) throws IOException {
+  private void analyze(InputFile file, TsProgram tsProgram, CacheStrategy cacheStrategy) throws IOException {
     if (context.isCancelled()) {
       throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
     }
@@ -151,6 +154,7 @@ public class AnalysisWithProgram {
         file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
+      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;
