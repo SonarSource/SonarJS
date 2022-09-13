@@ -579,10 +579,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void log_debug_analyzed_filename() throws Exception {
-    AnalysisResponse responseIssues = response("{ issues: [" +
-    "{\"line\":0,\"column\":1,\"ruleId\":\"file-header\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
-    "]}");
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     JavaScriptEslintBasedSensor sensor = createSensor();
     InputFile file = createInputFile(context);
     sensor.execute(context);
