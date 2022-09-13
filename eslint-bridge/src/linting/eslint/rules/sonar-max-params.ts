@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
           if (functionLike.params.length > maxParams) {
             context.report({
               messageId: 'exceed',
-              loc: getFunctionLocationHeader(node),
+              loc: getFunctionHeaderLocation(node),
               data: {
                 name: getFunctionNameWithKind(functionLike),
                 count: numParams.toString(),
@@ -81,7 +81,7 @@ export const rule: Rule.RuleModule = {
             });
           }
 
-          function getFunctionLocationHeader(node: estree.Node) {
+          function getFunctionHeaderLocation(node: estree.Node) {
             const sourceCode = context.getSourceCode();
             const headerStart = sourceCode.getFirstToken(node)!;
             const headerEnd = sourceCode.getFirstToken(node, token => token.value === '(')!;
