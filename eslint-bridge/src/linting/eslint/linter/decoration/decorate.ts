@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Linter, Rule } from 'eslint';
+import { Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { decorators } from 'linting/eslint/rules/decorators';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 
 /**
@@ -33,8 +34,6 @@ import { sanitizeTypeScriptESLintRule } from './sanitize';
  * @param externalRules the external rules to decorate
  */
 export function decorateExternalRules(externalRules: { [name: string]: Rule.RuleModule }) {
-  const eslintRules = new Linter().getRules();
-
   /**
    * S1537 ('comma-dangle'), S3723 ('enforce-trailing-comma')
    *
