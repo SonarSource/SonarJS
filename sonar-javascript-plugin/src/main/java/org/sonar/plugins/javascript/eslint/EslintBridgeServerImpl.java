@@ -117,7 +117,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   void heartbeat() {
-    LOG.debug("Pinging the server");
+    LOG.trace("Pinging the server");
     isAlive();
   }
 
