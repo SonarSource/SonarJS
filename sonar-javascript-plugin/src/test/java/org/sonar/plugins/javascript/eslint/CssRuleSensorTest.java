@@ -182,7 +182,7 @@ class CssRuleSensorTest {
       .containsOnly("some message");
 
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
-      .matches("(?s).*Analyzing \\S*file-with-rule-id-message\\.css.*")
+      .matches("(?s).*Analyzing file: \\S*file-with-rule-id-message\\.css.*")
       .matches("(?s).*Found 1 issue\\(s\\).*");
   }
 
