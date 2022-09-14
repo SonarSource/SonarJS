@@ -44,7 +44,7 @@ class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P>
   }
 
   @Override
-  public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
+  public boolean isKeyInCache(ReadCache cache, CacheKey cacheKey) {
     return cache.contains(cacheKey.toString());
   }
 

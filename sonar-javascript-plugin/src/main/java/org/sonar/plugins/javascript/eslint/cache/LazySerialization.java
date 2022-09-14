@@ -39,11 +39,11 @@ class LazySerialization implements CacheWriter<GeneratedFiles, Void>, CacheReade
   }
 
   @Override
-  public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
-    if (!json.isFileInCache(cache, cacheKey.withPrefix(JsonSerialization.NAME))) {
+  public boolean isKeyInCache(ReadCache cache, CacheKey cacheKey) {
+    if (!json.isKeyInCache(cache, cacheKey.withPrefix(JsonSerialization.NAME))) {
       return false;
     } else {
-      return sequence.isFileInCache(cache, cacheKey.withPrefix(SequenceSerialization.NAME));
+      return sequence.isKeyInCache(cache, cacheKey.withPrefix(SequenceSerialization.NAME));
     }
   }
 

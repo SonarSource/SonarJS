@@ -90,9 +90,9 @@ public enum CacheStrategy {
 
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     var isFileUnchanged = inputFile.status() == InputFile.Status.SAME;
-    var isFileInCache = SERIALIZATION.isFileInCache(context.previousCache(), createCacheKey(inputFile));
+    var isKeyInCache = SERIALIZATION.isKeyInCache(context.previousCache(), createCacheKey(inputFile));
 
-    if (canSkipUnchangedFiles && isFileUnchanged && isFileInCache) {
+    if (canSkipUnchangedFiles && isFileUnchanged && isKeyInCache) {
       log(CacheStrategy.READ_AND_WRITE, inputFile, null);
       return CacheStrategy.READ_AND_WRITE;
     }
