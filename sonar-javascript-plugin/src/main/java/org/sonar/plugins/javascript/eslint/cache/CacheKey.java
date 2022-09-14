@@ -19,12 +19,14 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.eslint.PluginUtils;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 class CacheKey {
@@ -32,13 +34,14 @@ class CacheKey {
   private final String file;
   private final List<String> prefixes;
 
-  static CacheKey forFile(String file) {
-    return new CacheKey(file, emptyList());
-  }
-
   private CacheKey(String file, List<String> prefixes) {
     this.file = file;
     this.prefixes = prefixes.stream().filter(Objects::nonNull).collect(toList());
+  }
+
+  static CacheKey forFile(InputFile inputFile) {
+    var version = PluginUtils.getVersion();
+    return new CacheKey(inputFile.key(), Arrays.asList("jssecurity", "ucfgs", version));
   }
 
   CacheKey withPrefix(String prefix) {

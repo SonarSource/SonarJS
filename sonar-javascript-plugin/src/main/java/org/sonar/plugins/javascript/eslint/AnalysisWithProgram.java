@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -130,8 +131,8 @@ public class AnalysisWithProgram {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
-        if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        if (cacheStrategy.isAnalysisRequired()) {
           analyze(inputFile, program, cacheStrategy);
         }
         counter++;
@@ -155,7 +156,7 @@ public class AnalysisWithProgram {
         file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
       processAnalysis.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
+      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;

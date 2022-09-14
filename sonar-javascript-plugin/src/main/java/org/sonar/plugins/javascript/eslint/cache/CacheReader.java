@@ -21,11 +21,10 @@ package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.sensor.cache.ReadCache;
 
 interface CacheReader<T, U> {
-  boolean isKeyInCache(ReadCache cache, CacheKey cacheKey);
+  boolean isKeyInCache();
 
   @Nullable
-  U readCache(ReadCache cache, CacheKey cacheKey, @Nullable T config) throws IOException;
+  U readCache(@Nullable T config) throws IOException;
 }

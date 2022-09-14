@@ -28,21 +28,22 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.sensor.cache.ReadCache;
-import org.sonar.api.batch.sensor.cache.WriteCache;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest>, CacheReader<SequenceConfig, Void> {
-
-  static final String NAME = "SEQ";
+class SequenceSerialization extends AbstractSerialization implements CacheWriter<GeneratedFiles, FilesManifest>, CacheReader<SequenceConfig, Void> {
 
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
   private static final int DEFAULT_BUFFER_SIZE = 8192;
+
+  public SequenceSerialization(SensorContext context, CacheKey cacheKey) {
+    super(context, cacheKey);
+  }
 
   private static String convertToEntryName(Path baseAbsolutePath, Path fileAbsolutePath) {
     var relativePath = baseAbsolutePath.relativize(fileAbsolutePath);
@@ -98,31 +99,21 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
   }
 
   @Override
-  public FilesManifest writeCache(WriteCache cache, CacheKey cacheKey, @Nullable GeneratedFiles payload) throws IOException {
-    var iterator = new FileIterator(requireNonNull(payload).getFiles());
+  public FilesManifest writeCache(@Nullable GeneratedFiles generatedFiles) throws IOException {
+    var iterator = new FileIterator(requireNonNull(generatedFiles).getFiles());
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
-      cache.write(cacheKey.toString(), sequence);
+      getContext().nextCache().write(getCacheKey().toString(), sequence);
     }
 
-    LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, iterator.getCount());
+    LOG.debug("Cache entry created for key '{}' containing {} file(s)", getCacheKey(), iterator.getCount());
 
-    return createManifest(payload.getDirectory(), iterator);
+    return createManifest(generatedFiles.getDirectory(), iterator);
   }
 
   @Override
-  public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
-    cache.copyFromPrevious(cacheKey.toString());
-  }
-
-  @Override
-  public boolean isKeyInCache(ReadCache cache, CacheKey cacheKey) {
-    return cache.contains(cacheKey.toString());
-  }
-
-  @Override
-  public Void readCache(ReadCache cache, CacheKey cacheKey, @Nullable SequenceConfig config) throws IOException {
-    try (var input = cache.read(cacheKey.toString())) {
+  public Void readCache(@Nullable SequenceConfig config) throws IOException {
+    try (var input = getContext().previousCache().read(getCacheKey().toString())) {
       var iterator = requireNonNull(config).getManifest().getFileSizes().iterator();
       var fileSize = iterator.hasNext() ? iterator.next() : null;
       var counter = 0;
@@ -137,7 +128,7 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
         counter++;
       }
 
-      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, counter);
+      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", getCacheKey(), counter);
       return null;
     }
   }

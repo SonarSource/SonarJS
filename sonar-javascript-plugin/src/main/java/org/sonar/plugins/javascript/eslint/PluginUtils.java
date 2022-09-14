@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint.cache;
+package org.sonar.plugins.javascript.eslint;
 
-import java.io.IOException;
-import javax.annotation.Nullable;
+public class PluginUtils {
 
-interface CacheWriter<T, U> {
-  @Nullable
-  U writeCache(@Nullable T payload) throws IOException;
+  public static String getVersion() {
+    return PluginUtils.class.getPackage().getImplementationVersion();
+  }
 
-  void copyFromPrevious();
 }

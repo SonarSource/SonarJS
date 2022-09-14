@@ -45,6 +45,7 @@ import org.sonarqube.ws.Issues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -79,9 +80,9 @@ class PRAnalysisTest {
           .forFiles(indexFile, helloFile)
           .withCachedFilesCounts(1, 2)
           .isUsed()
-        .logsOnce(String.format("%s\" with linterId \"default\"", indexFile))
+        .logsOnce(format("%s\" with linterId \"default\"", indexFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
-        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -95,13 +96,13 @@ class PRAnalysisTest {
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("READ_AND_WRITE").forFiles(indexFile).withCachedFilesCounts(1).isUsed()
-        .doesNotLog(String.format("%s\" with linterId \"unchanged\"", indexFile))
+        .doesNotLog(format("%s\" with linterId \"unchanged\"", indexFile))
         .cacheFileStrategy("WRITE_ONLY")
           .withReason("the current file is changed")
           .forFiles(helloFile)
           .withCachedFilesCounts(4)
           .isUsed()
-        .logsOnce(String.format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))

@@ -19,12 +19,32 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
-import java.io.IOException;
-import javax.annotation.Nullable;
+import org.sonar.api.batch.sensor.SensorContext;
 
-interface CacheWriter<T, U> {
-  @Nullable
-  U writeCache(@Nullable T payload) throws IOException;
+abstract class AbstractSerialization {
 
-  void copyFromPrevious();
+  private final SensorContext context;
+  private final CacheKey cacheKey;
+
+  AbstractSerialization(SensorContext context, CacheKey cacheKey) {
+    this.context = context;
+    this.cacheKey = cacheKey;
+  }
+
+  SensorContext getContext() {
+    return context;
+  }
+
+  CacheKey getCacheKey() {
+    return cacheKey;
+  }
+
+  public boolean isKeyInCache() {
+    return context.previousCache().contains(cacheKey.toString());
+  }
+
+  public void copyFromPrevious() {
+    context.nextCache().copyFromPrevious(cacheKey.toString());
+  }
+
 }

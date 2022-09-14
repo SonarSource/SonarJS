@@ -30,6 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
@@ -76,8 +77,8 @@ public class YamlSensor extends AbstractEslintSensor {
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, cacheStrategy);
           }
         } else {
@@ -115,7 +116,7 @@ public class YamlSensor extends AbstractEslintSensor {
         analysisMode.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
+      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;

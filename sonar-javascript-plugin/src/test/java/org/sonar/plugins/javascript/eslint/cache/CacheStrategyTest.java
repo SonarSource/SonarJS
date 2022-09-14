@@ -65,8 +65,7 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  static final LazySerialization LAZY = new LazySerialization();
-
+  UCFGFilesSerialization serialization;
   String jsonCacheKey;
   String seqCacheKey;
   @TempDir
@@ -96,9 +95,10 @@ class CacheStrategyTest {
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
+    serialization = new UCFGFilesSerialization(context, CacheKey.forFile(inputFile));
 
-    jsonCacheKey = CacheStrategy.createCacheKey(inputFile).withPrefix(JsonSerialization.NAME).toString();
-    seqCacheKey = CacheStrategy.createCacheKey(inputFile).withPrefix(SequenceSerialization.NAME).toString();
+    jsonCacheKey = CacheKey.forFile(inputFile).withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
+    seqCacheKey = CacheKey.forFile(inputFile).withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
@@ -118,9 +118,9 @@ class CacheStrategyTest {
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 3));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.NO_CACHE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.NO_CACHE);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(context, never()).nextCache();
     verify(context, never()).previousCache();
   }
@@ -129,9 +129,9 @@ class CacheStrategyTest {
   void should_not_fail_in_sonarlint() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.NO_CACHE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.NO_CACHE);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(context, never()).nextCache();
     verify(context, never()).previousCache();
   }
@@ -173,11 +173,11 @@ class CacheStrategyTest {
 
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFiles);
+    strategy.writeGeneratedFilesToCache(ucfgFiles);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -189,12 +189,12 @@ class CacheStrategyTest {
     when(previousCache.contains(anyString())).thenReturn(false);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var generatedFiles = List.of("inexistent.ucfg");
-    assertThatThrownBy(() -> strategy.writeGeneratedFilesToCache(context, inputFile, generatedFiles))
+    assertThatThrownBy(() -> strategy.writeGeneratedFilesToCache(generatedFiles))
       .isInstanceOf(UncheckedIOException.class);
     verify(nextCache, never()).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache, never()).write(eq(seqCacheKey), any(InputStream.class));
@@ -222,11 +222,11 @@ class CacheStrategyTest {
 
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, null);
+    strategy.writeGeneratedFilesToCache(null);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -236,12 +236,11 @@ class CacheStrategyTest {
     var ucfgFileRelativePaths = createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isFalse();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.READ_AND_WRITE);
+    assertThat(strategy.isAnalysisRequired()).isFalse();
 
     verify(previousCache).read(jsonCacheKey);
     verify(nextCache).copyFromPrevious(jsonCacheKey);
@@ -255,8 +254,9 @@ class CacheStrategyTest {
         .isEqualTo(tempDir.resolve(ucfgFileRelativePath).toAbsolutePath().toString());
     }
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
-    verify(nextCache, never()).write(anyString(), any(byte[].class));
+    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
+    verify(nextCache).write(anyString(), any(byte[].class));
+    verify(nextCache).write(anyString(), any(InputStream.class));
   }
 
   @Test
@@ -267,9 +267,9 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(InputStream.nullInputStream());
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
     verify(previousCache).read(jsonCacheKey);
     verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
@@ -285,9 +285,9 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(new ByteArrayInputStream("invalid-json".getBytes(StandardCharsets.UTF_8)));
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
     verify(previousCache).read(jsonCacheKey);
     verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
@@ -304,9 +304,9 @@ class CacheStrategyTest {
     when(previousCache.read(seqCacheKey)).thenReturn(InputStream.nullInputStream());
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
   }
 
   @Test
@@ -318,9 +318,9 @@ class CacheStrategyTest {
     when(previousCache.read(seqCacheKey)).thenReturn(new InfiniteCircularInputStream(new byte[] { 32 }));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.READ_AND_WRITE);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
   }
 
   @Test
@@ -331,9 +331,9 @@ class CacheStrategyTest {
 
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
     for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
       createFile(workDir.resolve(ucfgFileRelativePath));
@@ -344,7 +344,7 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
+    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -357,9 +357,9 @@ class CacheStrategyTest {
 
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
-    var strategy = CacheStrategy.getStrategyFor(context, inputFile);
-    assertThat(strategy).isEqualTo(CacheStrategy.WRITE_ONLY);
-    assertThat(strategy.isAnalysisRequired(context, inputFile)).isTrue();
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
 
     for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
       createFile(workDir.resolve(ucfgFileRelativePath));
@@ -370,7 +370,7 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(context, inputFile, ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
+    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -378,9 +378,9 @@ class CacheStrategyTest {
   @Test
   void should_log() {
     when(inputFile.toString()).thenReturn("test.js");
-    assertThat(CacheStrategy.getLogMessage(CacheStrategy.READ_AND_WRITE, inputFile, "this is a test"))
+    assertThat(CacheStrategies.getLogMessage(CacheStrategies.READ_AND_WRITE, inputFile, "this is a test"))
       .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
-    assertThat(CacheStrategy.getLogMessage(CacheStrategy.WRITE_ONLY, inputFile, null))
+    assertThat(CacheStrategies.getLogMessage(CacheStrategies.WRITE_ONLY, inputFile, null))
       .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
   }
 
@@ -426,7 +426,11 @@ class CacheStrategyTest {
       return null;
     }).when(tempCache).write(anyString(), any(byte[].class));
 
-    LAZY.writeCache(tempCache, CacheKey.forFile("file"), new GeneratedFiles(tempDir, ucfgFiles));
+    when(fileSystem.workDir()).thenReturn(tempDir.toFile());
+    when(context.nextCache()).thenReturn(tempCache);
+    serialization.writeCache(ucfgFiles);
+    when(fileSystem.workDir()).thenReturn(workDir.toFile());
+    when(context.nextCache()).thenReturn(nextCache);
 
     when(previousCache.read(jsonCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(jsonFile)));
     when(previousCache.read(seqCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(binFile)));
