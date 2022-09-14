@@ -165,7 +165,7 @@ class CssRuleSensorTest {
       .containsOnly("Unexpected empty block");
 
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
-      .matches("(?s).*Analyzing \\S*file\\.css.*")
+      .matches("(?s).*Analyzing file: \\S*file\\.css.*")
       .matches("(?s).*Found 1 issue\\(s\\).*");
   }
 
