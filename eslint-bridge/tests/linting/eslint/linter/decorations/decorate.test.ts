@@ -19,6 +19,7 @@
  */
 
 import { Linter, Rule, SourceCode } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools/helpers';
@@ -124,8 +125,7 @@ describe('decorateExternalRules', () => {
 
 function getExternalRules() {
   const externalRules: { [key: string]: Rule.RuleModule } = {};
-  const eslintRules = new Linter().getRules().entries();
-  for (const [name, module] of eslintRules) {
+  for (const [name, module] of Object.entries(eslintRules)) {
     externalRules[name] = module;
   }
   for (const [name, module] of Object.entries(typescriptESLintRules)) {

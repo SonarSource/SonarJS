@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { JavaScriptRuleTester } from '../../../../tools';
 import { decorateNoDupeKeys } from 'linting/eslint/rules/decorators/no-dupe-keys-decorator';
 
 const ruleTester = new JavaScriptRuleTester();
-const rule = decorateNoDupeKeys(new Linter().getRules().get('no-dupe-keys'));
+const rule = decorateNoDupeKeys(eslintRules['no-dupe-keys']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

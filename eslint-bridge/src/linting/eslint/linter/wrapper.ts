@@ -44,7 +44,7 @@ const defaultRuleBundles = [
   'externalRules',
   'pluginRules',
   'internalRules',
-  'customRules',
+  'contextRules',
   'internalCustomRules',
 ];
 

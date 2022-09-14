@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3854/javascript
 
-import { Linter, Rule } from 'eslint';
+import { Rule } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { mergeRules } from './decorators/helpers';
 
-const rules = new Linter().getRules();
-const constructorSuperRule = rules.get('constructor-super')!;
-const noThisBeforeSuperRule = rules.get('no-this-before-super')!;
+const constructorSuperRule = eslintRules['constructor-super'];
+const noThisBeforeSuperRule = eslintRules['no-this-before-super'];
 
 export const rule: Rule.RuleModule = {
   // meta of constructor-super and no-this-before-super is required for issue messages
