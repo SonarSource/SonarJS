@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as yaml from 'yaml-node12';
+import * as yaml from 'yaml';
 import path from 'path';
 import { readFile } from 'helpers';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from 'parsing/yaml';

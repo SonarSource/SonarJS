@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/* TODO replace the `yaml-node12` dependency with `yaml` once we drop Node.js 12 (i3231) */
-import * as yaml from 'yaml-node12';
+import * as yaml from 'yaml';
 import assert from 'assert';
 import { EmbeddedJS } from './embedded-js';
 import { readFile } from 'helpers';
