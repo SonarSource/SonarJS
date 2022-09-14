@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, Rule, RuleTester } from 'eslint';
+import { Rule, RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import {
   decorateNoExtraSemi,
   isProtectionSemicolon,
 } from 'linting/eslint/rules/decorators/no-extra-semi-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const rule = decorateNoExtraSemi(new Linter().getRules().get('no-extra-semi'));
+const rule = decorateNoExtraSemi(eslintRules['no-extra-semi']);
 
 ruleTester.run('Extra semicolons should be removed', rule, {
   valid: [

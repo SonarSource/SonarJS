@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Linter } from 'eslint';
+import { RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { decoratePreferTemplate } from 'linting/eslint/rules/decorators/prefer-template-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const rule = decoratePreferTemplate(new Linter().getRules().get('prefer-template'));
+const rule = decoratePreferTemplate(eslintRules['prefer-template']);
 
 ruleTester.run(`Template strings should be used instead of concatenation`, rule, {
   valid: [

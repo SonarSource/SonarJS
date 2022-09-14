@@ -19,15 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2189/javascript
 
-import { Linter, Rule } from 'eslint';
+import { Rule } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import * as estree from 'estree';
 import { childrenOf } from 'linting/eslint';
 import { interceptReport } from './decorators/helpers';
 import { isUndefined } from './helpers';
 
-const linter = new Linter();
 const noUnmodifiedLoopEslint = interceptReport(
-  linter.getRules().get('no-unmodified-loop-condition')!,
+  eslintRules['no-unmodified-loop-condition'],
   onReport,
 );
 const MESSAGE = "Correct this loop's end condition to not be invariant.";

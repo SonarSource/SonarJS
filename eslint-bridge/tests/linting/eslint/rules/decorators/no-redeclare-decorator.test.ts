@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/eslint';
 import { TypeScriptRuleTester } from '../../../../tools';
 import { decorateNoRedeclare } from 'linting/eslint/rules/decorators/no-redeclare-decorator';
 
 const ruleTester = new TypeScriptRuleTester();
-const rule = decorateNoRedeclare(new Linter().getRules().get('no-redeclare'));
+const rule = decorateNoRedeclare(eslintRules['no-redeclare']);
 
 ruleTester.run(`Variables and functions should not be redeclared`, rule, {
   valid: [

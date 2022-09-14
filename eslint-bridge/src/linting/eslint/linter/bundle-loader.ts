@@ -48,7 +48,6 @@ const loaders: { [key: string]: Function } = {
      * @returns the ESLint-based external rules
      */
     const externalRules: { [key: string]: Rule.RuleModule } = {};
-    const coreESLintRules = Object.fromEntries(eslintRules);
     /**
      * The order of defining rules from external dependencies is important here.
      * Core ESLint rules could be overriden by the implementation from specific
@@ -56,7 +55,7 @@ const loaders: { [key: string]: Function } = {
      * some reason a different behaviour is needed for a particular rule, one can
      * specify it in `decorateExternalRules`.
      */
-    const dependencies = [coreESLintRules, typescriptESLintRules, reactESLintRules];
+    const dependencies = [eslintRules, typescriptESLintRules, reactESLintRules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
         externalRules[name] = module;

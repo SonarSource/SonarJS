@@ -42,7 +42,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    */
   const commaDangleRuleId = 'comma-dangle';
   const enforceTrailingCommaRuleId = 'enforce-trailing-comma';
-  externalRules[enforceTrailingCommaRuleId] = eslintRules.get(commaDangleRuleId)!;
+  externalRules[enforceTrailingCommaRuleId] = eslintRules[commaDangleRuleId];
 
   /**
    * S3696 ('no-throw-literal')
@@ -51,7 +51,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    */
   const noThrowLiteralRuleId = 'no-throw-literal';
   delete typescriptESLintRules[noThrowLiteralRuleId];
-  externalRules[noThrowLiteralRuleId] = eslintRules.get(noThrowLiteralRuleId)!;
+  externalRules[noThrowLiteralRuleId] = eslintRules[noThrowLiteralRuleId];
 
   /**
    * TypeScript ESLint rules sanitization
