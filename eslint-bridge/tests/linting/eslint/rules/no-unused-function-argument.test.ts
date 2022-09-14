@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/no-unused-function-argument';
+import { RuleTester, Scope } from 'eslint';
+import { isParameterProperty, rule } from 'linting/eslint/rules/no-unused-function-argument';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -388,4 +388,15 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       ],
     },
   ],
+});
+
+it('should handle incomplete AST', () => {
+  expect(
+    isParameterProperty({ defs: [{ name: { parent: {} } }] } as unknown as Scope.Variable),
+  ).toBe(false);
+  expect(
+    isParameterProperty({
+      defs: [{ name: { parent: { type: 'AssignmentPattern' } } }],
+    } as unknown as Scope.Variable),
+  ).toBe(false);
 });

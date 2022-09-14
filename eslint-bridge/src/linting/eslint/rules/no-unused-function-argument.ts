@@ -176,7 +176,7 @@ function isIgnoredParameter(variable: Scope.Variable) {
   return variable.name.startsWith('_');
 }
 
-function isParameterProperty(variable: Scope.Variable) {
+export function isParameterProperty(variable: Scope.Variable) {
   return variable.defs.some(def => {
     const parent = (def.name as TSESTree.Node).parent;
 
