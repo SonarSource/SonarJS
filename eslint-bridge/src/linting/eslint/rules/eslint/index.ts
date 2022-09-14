@@ -20,4 +20,4 @@
 
 import { Linter } from 'eslint';
 
-export const eslintRules = new Linter().getRules();
+export const eslintRules = Object.fromEntries(new Linter().getRules());
