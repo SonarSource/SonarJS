@@ -1,9 +1,4 @@
 {
-'eigen:src/app/Components/FancyModal/FancyModalContext.tsx':[
-19,
-20,
-21,
-],
 'eigen:src/app/Components/HeaderArtworksFilter/HeaderArtworksFilter.tsx':[
 81,
 81,
@@ -13,9 +8,6 @@
 ],
 'eigen:src/app/utils/experiments/reporter.ts':[
 63,
-],
-'eigen:src/palette/elements/Autocomplete/Autocomplete.ts':[
-14,
 ],
 'eigen:src/palette/elements/Button/Button.tsx':[
 77,
