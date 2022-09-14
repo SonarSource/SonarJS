@@ -33,33 +33,37 @@ class LazySerialization implements CacheWriter<GeneratedFiles, Void>, CacheReade
   @Nullable
   @Override
   public Void writeCache(WriteCache cache, CacheKey cacheKey, @Nullable GeneratedFiles generatedFiles) throws IOException {
-    var manifest = sequence.writeCache(cache, cacheKey, generatedFiles);
-    json.writeCache(cache, cacheKey, manifest);
+    var manifest = sequence.writeCache(cache, cacheKey.withPrefix(SequenceSerialization.NAME), generatedFiles);
+    json.writeCache(cache, cacheKey.withPrefix(JsonSerialization.NAME), manifest);
     return null;
   }
 
   @Override
   public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
-    return json.isFileInCache(cache, cacheKey) && sequence.isFileInCache(cache, cacheKey);
+    if (!json.isFileInCache(cache, cacheKey.withPrefix(JsonSerialization.NAME))) {
+      return false;
+    } else {
+      return sequence.isFileInCache(cache, cacheKey.withPrefix(SequenceSerialization.NAME));
+    }
   }
 
   @Nullable
   @Override
   public Void readCache(ReadCache cache, CacheKey cacheKey, @Nullable Path workingDirectory) throws IOException {
-    var manifest = json.readCache(cache, cacheKey, null);
+    var manifest = json.readCache(cache, cacheKey.withPrefix(JsonSerialization.NAME), null);
     if (manifest == null) {
       throw new IOException("The manifest is null for key " + cacheKey);
     }
 
     var config = new SequenceConfig(workingDirectory, manifest);
-    sequence.readCache(cache, cacheKey, config);
+    sequence.readCache(cache, cacheKey.withPrefix(SequenceSerialization.NAME), config);
     return null;
   }
 
   @Override
   public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
-    json.copyFromPrevious(cache, cacheKey);
-    sequence.copyFromPrevious(cache, cacheKey);
+    json.copyFromPrevious(cache, cacheKey.withPrefix(JsonSerialization.NAME));
+    sequence.copyFromPrevious(cache, cacheKey.withPrefix(SequenceSerialization.NAME));
   }
 
 }

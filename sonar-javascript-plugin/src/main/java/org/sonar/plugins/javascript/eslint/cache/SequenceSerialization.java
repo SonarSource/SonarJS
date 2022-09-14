@@ -100,31 +100,29 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
   @Override
   public FilesManifest writeCache(WriteCache cache, CacheKey cacheKey, @Nullable GeneratedFiles payload) throws IOException {
     var iterator = new FileIterator(requireNonNull(payload).getFiles());
-    var seqCacheKey = cacheKey.withPrefix(NAME).toString();
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
-      cache.write(seqCacheKey, sequence);
+      cache.write(cacheKey.toString(), sequence);
     }
 
-    LOG.debug("Cache entry created for key '{}' containing {} file(s)", seqCacheKey, iterator.getCount());
+    LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, iterator.getCount());
 
     return createManifest(payload.getDirectory(), iterator);
   }
 
   @Override
   public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
-    cache.copyFromPrevious(cacheKey.withPrefix(NAME).toString());
+    cache.copyFromPrevious(cacheKey.toString());
   }
 
   @Override
   public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
-    return cache.contains(cacheKey.withPrefix(NAME).toString());
+    return cache.contains(cacheKey.toString());
   }
 
   @Override
   public Void readCache(ReadCache cache, CacheKey cacheKey, @Nullable SequenceConfig config) throws IOException {
-    var seqCacheKey = cacheKey.withPrefix(NAME).toString();
-    try (var input = cache.read(seqCacheKey)) {
+    try (var input = cache.read(cacheKey.toString())) {
       var iterator = requireNonNull(config).getManifest().getFileSizes().iterator();
       var fileSize = iterator.hasNext() ? iterator.next() : null;
       var counter = 0;
@@ -139,7 +137,7 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
         counter++;
       }
 
-      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", seqCacheKey, counter);
+      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, counter);
       return null;
     }
   }

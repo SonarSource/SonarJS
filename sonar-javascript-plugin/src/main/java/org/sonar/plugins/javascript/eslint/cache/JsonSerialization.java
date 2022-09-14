@@ -45,15 +45,14 @@ class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P>
 
   @Override
   public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
-    return cache.contains(cacheKey.withPrefix(NAME).toString());
+    return cache.contains(cacheKey.toString());
   }
 
   @Override
   public P readCache(ReadCache cache, CacheKey cacheKey, @Nullable Void config) throws IOException {
-    var jsonCacheKey = cacheKey.withPrefix(NAME).toString();
-    try (var input = cache.read(jsonCacheKey)) {
+    try (var input = cache.read(cacheKey.toString())) {
       var value = gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
-      LOG.debug("Cache entry extracted for key '{}'", jsonCacheKey);
+      LOG.debug("Cache entry extracted for key '{}'", cacheKey);
       return value;
     } catch (JsonParseException e) {
       throw new IOException("Failure when parsing cache entry JSON", e);
@@ -62,15 +61,14 @@ class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P>
 
   @Override
   public Void writeCache(WriteCache cache, CacheKey cacheKey, @Nullable P payload) {
-    var jsonCacheKey = cacheKey.withPrefix(NAME).toString();
-    cache.write(jsonCacheKey, gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
-    LOG.debug("Cache entry created for key '{}'", jsonCacheKey);
+    cache.write(cacheKey.toString(), gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
+    LOG.debug("Cache entry created for key '{}'", cacheKey);
     return null;
   }
 
   @Override
   public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
-    cache.copyFromPrevious(cacheKey.withPrefix(NAME).toString());
+    cache.copyFromPrevious(cacheKey.toString());
   }
 
 }
