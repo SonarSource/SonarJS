@@ -32,6 +32,8 @@ import org.sonar.api.utils.log.Loggers;
 
 class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P> {
 
+  static final String NAME = "JSON";
+
   private static final Logger LOG = Loggers.get(JsonSerialization.class);
 
   private final Class<P> jsonClass;
@@ -42,16 +44,16 @@ class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P>
   }
 
   @Override
-  public boolean isFileInCache(ReadCache cache, CacheKeyFactory cacheKeyFactory) {
-    return cache.contains(cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.JSON).toString());
+  public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
+    return cache.contains(cacheKey.withPrefix(NAME).toString());
   }
 
   @Override
-  public P readCache(ReadCache cache, CacheKeyFactory cacheKeyFactory, @Nullable Void config) throws IOException {
-    var cacheKey = cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.JSON).toString();
-    try (var input = cache.read(cacheKey)) {
+  public P readCache(ReadCache cache, CacheKey cacheKey, @Nullable Void config) throws IOException {
+    var jsonCacheKey = cacheKey.withPrefix(NAME).toString();
+    try (var input = cache.read(jsonCacheKey)) {
       var value = gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
-      LOG.debug("Cache entry extracted for key '{}'", cacheKey);
+      LOG.debug("Cache entry extracted for key '{}'", jsonCacheKey);
       return value;
     } catch (JsonParseException e) {
       throw new IOException("Failure when parsing cache entry JSON", e);
@@ -59,16 +61,16 @@ class JsonSerialization<P> implements CacheWriter<P, Void>, CacheReader<Void, P>
   }
 
   @Override
-  public Void writeCache(WriteCache cache, CacheKeyFactory cacheKeyFactory, @Nullable P payload) {
-    var cacheKey = cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.JSON).toString();
-    cache.write(cacheKey, gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
-    LOG.debug("Cache entry created for key '{}'", cacheKey);
+  public Void writeCache(WriteCache cache, CacheKey cacheKey, @Nullable P payload) {
+    var jsonCacheKey = cacheKey.withPrefix(NAME).toString();
+    cache.write(jsonCacheKey, gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
+    LOG.debug("Cache entry created for key '{}'", jsonCacheKey);
     return null;
   }
 
   @Override
-  public void copyFromPrevious(WriteCache cache, CacheKeyFactory cacheKeyFactory) {
-    cache.copyFromPrevious(cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.JSON).toString());
+  public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
+    cache.copyFromPrevious(cacheKey.withPrefix(NAME).toString());
   }
 
 }

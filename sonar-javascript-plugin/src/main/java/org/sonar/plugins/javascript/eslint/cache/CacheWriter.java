@@ -25,7 +25,7 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 
 interface CacheWriter<T, U> {
   @Nullable
-  U writeCache(WriteCache cache, CacheKeyFactory cacheKeyFactory, @Nullable T payload) throws IOException;
+  U writeCache(WriteCache cache, CacheKey cacheKey, @Nullable T payload) throws IOException;
 
-  void copyFromPrevious(WriteCache cache, CacheKeyFactory cacheKeyFactory);
+  void copyFromPrevious(WriteCache cache, CacheKey cacheKey);
 }

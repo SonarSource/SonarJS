@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 
 interface CacheReader<T, U> {
-  boolean isFileInCache(ReadCache cache, CacheKeyFactory cacheKeyFactory);
+  boolean isFileInCache(ReadCache cache, CacheKey cacheKey);
 
   @Nullable
-  U readCache(ReadCache cache, CacheKeyFactory cacheKeyFactory, @Nullable T config) throws IOException;
+  U readCache(ReadCache cache, CacheKey cacheKey, @Nullable T config) throws IOException;
 }

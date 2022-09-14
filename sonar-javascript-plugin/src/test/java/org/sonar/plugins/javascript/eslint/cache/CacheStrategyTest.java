@@ -97,8 +97,8 @@ class CacheStrategyTest {
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
 
-    jsonCacheKey = CacheStrategy.createCacheKeyFactory(inputFile).withKeyType(CacheKeyFactory.Serialization.JSON).toString();
-    seqCacheKey = CacheStrategy.createCacheKeyFactory(inputFile).withKeyType(CacheKeyFactory.Serialization.SEQ).toString();
+    jsonCacheKey = CacheStrategy.createCacheKey(inputFile).withPrefix(JsonSerialization.NAME).toString();
+    seqCacheKey = CacheStrategy.createCacheKey(inputFile).withPrefix(SequenceSerialization.NAME).toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
@@ -426,7 +426,7 @@ class CacheStrategyTest {
       return null;
     }).when(tempCache).write(anyString(), any(byte[].class));
 
-    LAZY.writeCache(tempCache, new CacheKeyFactory(null, "file"), new GeneratedFiles(tempDir, ucfgFiles));
+    LAZY.writeCache(tempCache, CacheKey.forFile("file"), new GeneratedFiles(tempDir, ucfgFiles));
 
     when(previousCache.read(jsonCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(jsonFile)));
     when(previousCache.read(seqCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(binFile)));

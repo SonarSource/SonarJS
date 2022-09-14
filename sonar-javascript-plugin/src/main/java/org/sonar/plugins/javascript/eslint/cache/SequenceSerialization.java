@@ -38,6 +38,8 @@ import static java.util.stream.Collectors.joining;
 
 class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest>, CacheReader<SequenceConfig, Void> {
 
+  static final String NAME = "SEQ";
+
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
   private static final int DEFAULT_BUFFER_SIZE = 8192;
@@ -96,33 +98,33 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
   }
 
   @Override
-  public FilesManifest writeCache(WriteCache cache, CacheKeyFactory cacheKeyFactory, @Nullable GeneratedFiles payload) throws IOException {
+  public FilesManifest writeCache(WriteCache cache, CacheKey cacheKey, @Nullable GeneratedFiles payload) throws IOException {
     var iterator = new FileIterator(requireNonNull(payload).getFiles());
-    var cacheKey = cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.SEQ).toString();
+    var seqCacheKey = cacheKey.withPrefix(NAME).toString();
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
-      cache.write(cacheKey, sequence);
+      cache.write(seqCacheKey, sequence);
     }
 
-    LOG.debug("Cache entry created for key '{}' containing {} file(s)", cacheKey, iterator.getCount());
+    LOG.debug("Cache entry created for key '{}' containing {} file(s)", seqCacheKey, iterator.getCount());
 
     return createManifest(payload.getDirectory(), iterator);
   }
 
   @Override
-  public void copyFromPrevious(WriteCache cache, CacheKeyFactory cacheKeyFactory) {
-    cache.copyFromPrevious(cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.SEQ).toString());
+  public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
+    cache.copyFromPrevious(cacheKey.withPrefix(NAME).toString());
   }
 
   @Override
-  public boolean isFileInCache(ReadCache cache, CacheKeyFactory cacheKeyFactory) {
-    return cache.contains(cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.SEQ).toString());
+  public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
+    return cache.contains(cacheKey.withPrefix(NAME).toString());
   }
 
   @Override
-  public Void readCache(ReadCache cache, CacheKeyFactory cacheKeyFactory, @Nullable SequenceConfig config) throws IOException {
-    var cacheKey = cacheKeyFactory.withKeyType(CacheKeyFactory.Serialization.SEQ).toString();
-    try (var input = cache.read(cacheKey)) {
+  public Void readCache(ReadCache cache, CacheKey cacheKey, @Nullable SequenceConfig config) throws IOException {
+    var seqCacheKey = cacheKey.withPrefix(NAME).toString();
+    try (var input = cache.read(seqCacheKey)) {
       var iterator = requireNonNull(config).getManifest().getFileSizes().iterator();
       var fileSize = iterator.hasNext() ? iterator.next() : null;
       var counter = 0;
@@ -137,7 +139,7 @@ class SequenceSerialization implements CacheWriter<GeneratedFiles, FilesManifest
         counter++;
       }
 
-      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", cacheKey, counter);
+      LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", seqCacheKey, counter);
       return null;
     }
   }

@@ -40,10 +40,9 @@ public enum CacheStrategy {
     return context.fileSystem().workDir().toPath();
   }
 
-  static CacheKeyFactory createCacheKeyFactory(InputFile inputFile) {
-    var versionKey = CacheStrategy.class.getPackage().getImplementationVersion();
-    var fileKey = inputFile.key();
-    return new CacheKeyFactory(versionKey, fileKey);
+  static CacheKey createCacheKey(InputFile inputFile) {
+    var version = CacheStrategy.class.getPackage().getImplementationVersion();
+    return CacheKey.forFile(inputFile.key()).withPrefix("jssecurity").withPrefix("ucfgs").withPrefix(version);
   }
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
@@ -69,18 +68,18 @@ public enum CacheStrategy {
 
   private static void writeOnly(SensorContext context, InputFile inputFile, @Nullable List<String> files) throws IOException {
     var workingDirectory = getWorkingDirectoryAbsolutePath(context);
-    var cacheKeyFactory = createCacheKeyFactory(inputFile);
+    var cacheKey = createCacheKey(inputFile);
     var generatedFiles = new GeneratedFiles(workingDirectory, files);
 
-    SERIALIZATION.writeCache(context.nextCache(), cacheKeyFactory, generatedFiles);
+    SERIALIZATION.writeCache(context.nextCache(), cacheKey, generatedFiles);
   }
 
   private static void readAndWrite(SensorContext context, InputFile inputFile) throws IOException {
     var workingDirectory = getWorkingDirectoryAbsolutePath(context);
-    var cacheKeyFactory = createCacheKeyFactory(inputFile);
+    var cacheKey = createCacheKey(inputFile);
 
-    SERIALIZATION.readCache(context.previousCache(), cacheKeyFactory, workingDirectory);
-    SERIALIZATION.copyFromPrevious(context.nextCache(), cacheKeyFactory);
+    SERIALIZATION.readCache(context.previousCache(), cacheKey, workingDirectory);
+    SERIALIZATION.copyFromPrevious(context.nextCache(), cacheKey);
   }
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
@@ -91,7 +90,7 @@ public enum CacheStrategy {
 
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     var isFileUnchanged = inputFile.status() == InputFile.Status.SAME;
-    var isFileInCache = SERIALIZATION.isFileInCache(context.previousCache(), createCacheKeyFactory(inputFile));
+    var isFileInCache = SERIALIZATION.isFileInCache(context.previousCache(), createCacheKey(inputFile));
 
     if (canSkipUnchangedFiles && isFileUnchanged && isFileInCache) {
       log(CacheStrategy.READ_AND_WRITE, inputFile, null);

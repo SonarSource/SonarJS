@@ -32,34 +32,34 @@ class LazySerialization implements CacheWriter<GeneratedFiles, Void>, CacheReade
 
   @Nullable
   @Override
-  public Void writeCache(WriteCache cache, CacheKeyFactory cacheKeyFactory, @Nullable GeneratedFiles generatedFiles) throws IOException {
-    var manifest = sequence.writeCache(cache, cacheKeyFactory, generatedFiles);
-    json.writeCache(cache, cacheKeyFactory, manifest);
+  public Void writeCache(WriteCache cache, CacheKey cacheKey, @Nullable GeneratedFiles generatedFiles) throws IOException {
+    var manifest = sequence.writeCache(cache, cacheKey, generatedFiles);
+    json.writeCache(cache, cacheKey, manifest);
     return null;
   }
 
   @Override
-  public boolean isFileInCache(ReadCache cache, CacheKeyFactory cacheKeyFactory) {
-    return json.isFileInCache(cache, cacheKeyFactory) && sequence.isFileInCache(cache, cacheKeyFactory);
+  public boolean isFileInCache(ReadCache cache, CacheKey cacheKey) {
+    return json.isFileInCache(cache, cacheKey) && sequence.isFileInCache(cache, cacheKey);
   }
 
   @Nullable
   @Override
-  public Void readCache(ReadCache cache, CacheKeyFactory cacheKeyFactory, @Nullable Path workingDirectory) throws IOException {
-    var manifest = json.readCache(cache, cacheKeyFactory, null);
+  public Void readCache(ReadCache cache, CacheKey cacheKey, @Nullable Path workingDirectory) throws IOException {
+    var manifest = json.readCache(cache, cacheKey, null);
     if (manifest == null) {
-      throw new IOException("The manifest is null for key " + cacheKeyFactory);
+      throw new IOException("The manifest is null for key " + cacheKey);
     }
 
     var config = new SequenceConfig(workingDirectory, manifest);
-    sequence.readCache(cache, cacheKeyFactory, config);
+    sequence.readCache(cache, cacheKey, config);
     return null;
   }
 
   @Override
-  public void copyFromPrevious(WriteCache cache, CacheKeyFactory cacheKeyFactory) {
-    json.copyFromPrevious(cache, cacheKeyFactory);
-    sequence.copyFromPrevious(cache, cacheKeyFactory);
+  public void copyFromPrevious(WriteCache cache, CacheKey cacheKey) {
+    json.copyFromPrevious(cache, cacheKey);
+    sequence.copyFromPrevious(cache, cacheKey);
   }
 
 }

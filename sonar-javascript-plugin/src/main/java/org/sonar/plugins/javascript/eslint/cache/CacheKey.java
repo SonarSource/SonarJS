@@ -19,46 +19,35 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
-import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.joining;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
-class CacheKeyFactory {
+class CacheKey {
 
-  private final String version;
   private final String file;
-  @Nullable
-  private final Serialization serialization;
+  private final List<String> prefixes;
 
-  CacheKeyFactory(String versionKey, String fileKey) {
-    this(versionKey, fileKey, null);
+  static CacheKey forFile(String file) {
+    return new CacheKey(file, emptyList());
   }
 
-  CacheKeyFactory(String version, String file, @Nullable Serialization serialization) {
-    this.version = version;
+  private CacheKey(String file, List<String> prefixes) {
     this.file = file;
-    this.serialization = serialization;
+    this.prefixes = prefixes.stream().filter(Objects::nonNull).collect(toList());
   }
 
-  CacheKeyFactory withKeyType(Serialization keyType) {
-    return new CacheKeyFactory(version, file, keyType);
+  CacheKey withPrefix(String prefix) {
+    return new CacheKey(file, Stream.concat(prefixes.stream(), Stream.of(prefix)).collect(toList()));
   }
 
   @Override
   public String toString() {
-    var category = CacheStrategy.class.getPackage().getImplementationVersion();
-    var subCategory = serialization;
-    return Stream.of("jssecurity", "ucfgs", category, subCategory, file)
-      .filter(not(Objects::isNull))
-      .map(Object::toString)
-      .collect(joining(":"));
-  }
-
-  enum Serialization {
-    JSON, SEQ
+    return Stream.concat(prefixes.stream(), Stream.of(file)).collect(Collectors.joining(":"));
   }
 
 }
