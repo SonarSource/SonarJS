@@ -103,6 +103,7 @@ public class YamlSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
     try {
+      LOG.debug("Analyzing file: " + file.uri());
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
         file.absolutePath(),
