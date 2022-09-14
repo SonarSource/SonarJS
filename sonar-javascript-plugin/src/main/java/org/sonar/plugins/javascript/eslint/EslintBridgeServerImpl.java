@@ -150,7 +150,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } else {
       status = Status.STARTED;
       if (heartbeatFuture == null) {
-        LOG.info("Starting heartbeat service");
+        LOG.trace("Starting heartbeat service");
         heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
       }
     }
@@ -388,7 +388,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void clean() {
-    LOG.info("Closing heartbeat service");
+    LOG.trace("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
       try {
