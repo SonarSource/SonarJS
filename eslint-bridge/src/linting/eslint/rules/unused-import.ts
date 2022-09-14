@@ -21,7 +21,6 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices, removeNodeWithLeadingWhitespaces } from './helpers';
 
@@ -43,7 +42,6 @@ export const rule: Rule.RuleModule = {
         .getAllComments()
         .findIndex(comment => comment.value.includes('@jsx jsx')) > -1;
     const unusedImports: { id: estree.Identifier; importDecl: estree.ImportDeclaration }[] = [];
-    const vueIdentifiers: Set<string> = new Set();
     const tsTypeIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
 
@@ -110,7 +108,6 @@ export const rule: Rule.RuleModule = {
             ({ id: unused }) =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
-              !vueIdentifiers.has(unused.name) &&
               !jsxFactories.has(unused.name),
           )
           .forEach(unused =>
@@ -126,44 +123,9 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    // @ts-ignore
-    if (context.parserServices.defineTemplateBodyVisitor) {
-      return context.parserServices.defineTemplateBodyVisitor(
-        {
-          VElement: (node: AST.VElement) => {
-            const { rawName } = node;
-            if (startsWithUpper(rawName)) {
-              vueIdentifiers.add(rawName);
-            } else if (isKebabCase(rawName)) {
-              vueIdentifiers.add(toPascalCase(rawName));
-            }
-          },
-          Identifier: (node: AST.ESLintIdentifier) => {
-            vueIdentifiers.add(node.name);
-          },
-        },
-        ruleListener,
-        { templateBodyTriggerSelector: 'Program' },
-      );
-    }
-
     return ruleListener;
   },
 };
-
-function startsWithUpper(str: string) {
-  return str.charAt(0) === str.charAt(0).toUpperCase();
-}
-
-function isKebabCase(str: string) {
-  return str.includes('-');
-}
-
-function toPascalCase(str: string) {
-  return str
-    .replace(/\w+/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
-    .replace(/-/g, '');
-}
 
 function getSuggestion(
   context: Rule.RuleContext,
