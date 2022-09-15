@@ -204,6 +204,18 @@ class YamlSensorTest {
     assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage()).isEqualTo("eslint-bridge server is not answering");
   }
 
+  @Test
+  void log_debug_analyzed_filename() throws Exception {
+    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+
+    YamlSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+  }
+
+
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {

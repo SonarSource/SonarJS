@@ -147,7 +147,7 @@ public class AnalysisWithProgram {
       throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
     }
     try {
-      LOG.debug("Analyzing {}", file);
+      LOG.debug("Analyzing file: {}", file.uri());
       progressReport.nextFile(file.absolutePath());
       monitoring.startFile(file);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),

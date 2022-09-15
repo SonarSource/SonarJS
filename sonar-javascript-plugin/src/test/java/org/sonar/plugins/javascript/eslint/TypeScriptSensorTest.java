@@ -557,6 +557,33 @@ class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
+  @Test
+  void log_debug_analyzed_filename_with_program() throws Exception {
+    TypeScriptSensor sensor = createSensor();
+    createTsConfigFile();
+    DefaultInputFile inputFile = createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(eslintBridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+  }
+
+  @Test
+  void log_debug_analyzed_filename_with_tsconfig() throws Exception {
+    AnalysisResponse expectedResponse = createResponse();
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    TypeScriptSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+    // having a vue file makes TypeScriptSensor#shouldAnalyzeWithProgram() return false, which leads to the path that executes TypeScript#analyze()
+    createVueInputFile();
+    createTsConfigFile();
+
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+  }
+
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),

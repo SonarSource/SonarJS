@@ -151,6 +151,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file, TsConfigFile tsConfigFile, CacheStrategy cacheStrategy) throws IOException {
     try {
+      LOG.debug("Analyzing file: " + file.uri());
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
         contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisMode.getLinterIdFor(file));

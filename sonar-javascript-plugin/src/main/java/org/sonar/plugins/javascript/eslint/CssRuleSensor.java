@@ -126,9 +126,9 @@ public class CssRuleSensor extends AbstractEslintSensor {
         LOG.debug("Skipping {} as it has not 'file' scheme", uri);
         return;
       }
+      LOG.debug("Analyzing file: {}", uri);
       String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
       EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, rules);
-      LOG.debug("Analyzing " + request.filePath);
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
       saveIssues(context, inputFile, analysisResponse.issues);
