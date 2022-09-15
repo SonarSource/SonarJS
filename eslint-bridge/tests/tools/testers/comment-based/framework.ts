@@ -36,7 +36,7 @@
 
 import { RuleTester } from 'eslint';
 import { toEncodedMessage } from 'linting/eslint/rules/helpers';
-import { FileIssues, LineIssues } from './helpers/issues';
+import { FileIssues, LineIssues } from './helpers';
 
 /**
  * Extracts issue expectations from a comment-based test file

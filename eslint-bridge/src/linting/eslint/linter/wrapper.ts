@@ -30,6 +30,7 @@ import { CustomRule } from './custom-rules';
  * @param environments the JavaScript environments
  * @param globals the global variables
  * @param ruleBundles the bundles of rules to load in the linter
+ * @param customRules array of rules to load in the linter
  */
 
 export interface WrapperOptions {
