@@ -31,9 +31,9 @@ export const messages = {
   divByZero: "Fix this 'calc' expression with division by zero.",
 };
 
-export const rule = stylelint.createPlugin(ruleName, function () {
-  return (root, result) => {
-    root.walkDecls(decl => {
+const ruleImpl: stylelint.RuleBase = () => {
+  return (root: any, result: any) => {
+    root.walkDecls((decl: any) => {
       postcssValueParser(decl.value).walk(node => {
         if (!isCalcFunction(node)) {
           return;
@@ -121,4 +121,12 @@ export const rule = stylelint.createPlugin(ruleName, function () {
       }
     });
   };
-});
+};
+
+export const rule = stylelint.createPlugin(
+  ruleName,
+  Object.assign(ruleImpl, {
+    messages,
+    ruleName,
+  }),
+);
