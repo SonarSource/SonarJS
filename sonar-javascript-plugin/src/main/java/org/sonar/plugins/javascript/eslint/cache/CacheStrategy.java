@@ -45,7 +45,7 @@ public class CacheStrategy {
 
   public void writeGeneratedFilesToCache(@Nullable List<String> generatedFiles) throws IOException {
     if (cacheWriter != null) {
-      cacheWriter.writeCache(generatedFiles);
+      cacheWriter.writeToCache(generatedFiles);
     }
   }
 

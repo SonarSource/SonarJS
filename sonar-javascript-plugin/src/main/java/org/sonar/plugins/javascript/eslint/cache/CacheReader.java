@@ -26,5 +26,5 @@ interface CacheReader<T, U> {
   boolean isKeyInCache();
 
   @Nullable
-  U readCache(@Nullable T config) throws IOException;
+  U readFromCache(@Nullable T config) throws IOException;
 }

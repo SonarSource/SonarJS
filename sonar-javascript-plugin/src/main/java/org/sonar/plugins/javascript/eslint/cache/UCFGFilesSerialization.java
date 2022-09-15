@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -39,17 +38,11 @@ class UCFGFilesSerialization extends AbstractSerialization implements CacheWrite
     sequence = new SequenceSerialization(context, cacheKey.withPrefix(SEQ_PREFIX));
   }
 
-  private static Path getWorkingDirectoryAbsolutePath(SensorContext context) {
-    return context.fileSystem().workDir().toPath();
-  }
-
   @Nullable
   @Override
-  public Void writeCache(@Nullable List<String> files) throws IOException {
-    var workingDirectory = getWorkingDirectoryAbsolutePath(getContext());
-    var generatedFiles = new GeneratedFiles(workingDirectory, files);
-    var manifest = sequence.writeCache(generatedFiles);
-    json.writeCache(manifest);
+  public Void writeToCache(@Nullable List<String> files) throws IOException {
+    var manifest = sequence.writeToCache(files);
+    json.writeToCache(manifest);
     return null;
   }
 
@@ -64,15 +57,13 @@ class UCFGFilesSerialization extends AbstractSerialization implements CacheWrite
 
   @Nullable
   @Override
-  public Void readCache(@Nullable Void config) throws IOException {
-    var workingDirectory = getWorkingDirectoryAbsolutePath(getContext());
-    var manifest = json.readCache(null);
+  public Void readFromCache(@Nullable Void config) throws IOException {
+    var manifest = json.readFromCache(null);
     if (manifest == null) {
       throw new IOException("The manifest is null for key " + getCacheKey());
     }
 
-    var sequenceConfig = new SequenceConfig(workingDirectory, manifest);
-    sequence.readCache(sequenceConfig);
+    sequence.readFromCache(manifest);
     return null;
   }
 

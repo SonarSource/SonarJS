@@ -92,7 +92,6 @@ public class CacheStrategies {
       return strategy;
     }
 
-
     var strategy = new CacheStrategy(READ_AND_WRITE, false, serialization);
     log(strategy.getName(), inputFile, null);
     return strategy;
@@ -100,7 +99,7 @@ public class CacheStrategies {
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
     try {
-      serialization.readCache(null);
+      serialization.readFromCache(null);
       serialization.copyFromPrevious();
       return true;
     } catch (IOException e) {

@@ -428,7 +428,7 @@ class CacheStrategyTest {
 
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
-    serialization.writeCache(ucfgFiles);
+    serialization.writeToCache(ucfgFiles);
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
     when(context.nextCache()).thenReturn(nextCache);
 

@@ -42,7 +42,7 @@ class JsonSerialization<P> extends AbstractSerialization implements CacheWriter<
   }
 
   @Override
-  public P readCache(@Nullable Void config) throws IOException {
+  public P readFromCache(@Nullable Void config) throws IOException {
     try (var input = getContext().previousCache().read(getCacheKey().toString())) {
       var value = gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
       LOG.debug("Cache entry extracted for key '{}'", getCacheKey());
@@ -53,7 +53,7 @@ class JsonSerialization<P> extends AbstractSerialization implements CacheWriter<
   }
 
   @Override
-  public Void writeCache(@Nullable P payload) {
+  public Void writeToCache(@Nullable P payload) {
     getContext().nextCache().write(getCacheKey().toString(), gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
     LOG.debug("Cache entry created for key '{}'", getCacheKey());
     return null;

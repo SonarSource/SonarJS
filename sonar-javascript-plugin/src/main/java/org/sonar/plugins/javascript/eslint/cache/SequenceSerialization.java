@@ -26,22 +26,25 @@ import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
-class SequenceSerialization extends AbstractSerialization implements CacheWriter<GeneratedFiles, FilesManifest>, CacheReader<SequenceConfig, Void> {
+class SequenceSerialization extends AbstractSerialization implements CacheWriter<List<String>, FilesManifest>, CacheReader<FilesManifest, Void> {
 
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
   private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-  public SequenceSerialization(SensorContext context, CacheKey cacheKey) {
+  SequenceSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
   }
 
@@ -99,8 +102,9 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
   }
 
   @Override
-  public FilesManifest writeCache(@Nullable GeneratedFiles generatedFiles) throws IOException {
-    var iterator = new FileIterator(requireNonNull(generatedFiles).getFiles());
+  public FilesManifest writeToCache(@Nullable List<String> generatedFiles) throws IOException {
+    List<Path> paths = generatedFiles == null ? emptyList() : generatedFiles.stream().map(Path::of).collect(toList());
+    var iterator = new FileIterator(paths);
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
       getContext().nextCache().write(getCacheKey().toString(), sequence);
@@ -108,18 +112,18 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
 
     LOG.debug("Cache entry created for key '{}' containing {} file(s)", getCacheKey(), iterator.getCount());
 
-    return createManifest(generatedFiles.getDirectory(), iterator);
+    return createManifest(getWorkingDirectoryAbsolutePath(), iterator);
   }
 
   @Override
-  public Void readCache(@Nullable SequenceConfig config) throws IOException {
+  public Void readFromCache(@Nullable FilesManifest manifest) throws IOException {
     try (var input = getContext().previousCache().read(getCacheKey().toString())) {
-      var iterator = requireNonNull(config).getManifest().getFileSizes().iterator();
+      var iterator = requireNonNull(manifest).getFileSizes().iterator();
       var fileSize = iterator.hasNext() ? iterator.next() : null;
       var counter = 0;
 
       while (fileSize != null) {
-        var file = convertFromEntryName(config.getDirectory(), fileSize.getName());
+        var file = convertFromEntryName(getWorkingDirectoryAbsolutePath(), fileSize.getName());
         var isLastFile = !iterator.hasNext();
 
         writeFile(input, file, fileSize.getSize(), isLastFile);
@@ -131,6 +135,10 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
       LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", getCacheKey(), counter);
       return null;
     }
+  }
+
+  private Path getWorkingDirectoryAbsolutePath() {
+    return getContext().fileSystem().workDir().toPath();
   }
 
 }

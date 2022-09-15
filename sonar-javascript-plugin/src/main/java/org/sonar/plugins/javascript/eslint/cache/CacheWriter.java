@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 interface CacheWriter<T, U> {
   @Nullable
-  U writeCache(@Nullable T payload) throws IOException;
+  U writeToCache(@Nullable T payload) throws IOException;
 
   void copyFromPrevious();
 }
