@@ -46,7 +46,7 @@ public class CacheStrategies {
     return isVersionValid && isProductValid;
   }
 
-  private static CacheStrategy log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
+  private static CacheStrategy logAndGetStategy(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(getLogMessage(strategy, inputFile, reason));
     }
@@ -64,29 +64,29 @@ public class CacheStrategies {
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
     if (!isRuntimeApiCompatible(context)) {
-      return log(noCache(), inputFile, "the runtime API is not compatible");
+      return logAndGetStategy(noCache(), inputFile, "the runtime API is not compatible");
     }
 
     var cacheKey = CacheKey.forFile(inputFile);
     var serialization = new UCFGFilesSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
-      return log(writeOnly(serialization), inputFile, "current analysis requires all files to be analyzed");
+      return logAndGetStategy(writeOnly(serialization), inputFile, "current analysis requires all files to be analyzed");
     }
 
     if (inputFile.status() != InputFile.Status.SAME) {
-      return log(writeOnly(serialization), inputFile, "the current file is changed");
+      return logAndGetStategy(writeOnly(serialization), inputFile, "the current file is changed");
     }
 
     if (!serialization.isKeyInCache()) {
-      return log(writeOnly(serialization), inputFile, "the current file is not cached");
+      return logAndGetStategy(writeOnly(serialization), inputFile, "the current file is not cached");
     }
 
     if (!writeFilesFromCache(serialization)) {
-      return log(writeOnly(serialization), inputFile, "the cache is corrupted");
+      return logAndGetStategy(writeOnly(serialization), inputFile, "the cache is corrupted");
     }
 
-    return log(readAndWrite(serialization), inputFile, null);
+    return logAndGetStategy(readAndWrite(serialization), inputFile, null);
   }
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
