@@ -61,6 +61,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {
@@ -119,7 +121,7 @@ class CacheStrategyTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.NO_CACHE);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(context, never()).nextCache();
     verify(context, never()).previousCache();
@@ -130,7 +132,7 @@ class CacheStrategyTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.NO_CACHE);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(context, never()).nextCache();
     verify(context, never()).previousCache();
@@ -174,7 +176,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeGeneratedFilesToCache(ucfgFiles);
@@ -190,7 +192,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var generatedFiles = List.of("inexistent.ucfg");
@@ -223,7 +225,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeGeneratedFilesToCache(null);
@@ -239,7 +241,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.READ_AND_WRITE);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.READ_AND_WRITE);
     assertThat(strategy.isAnalysisRequired()).isFalse();
 
     verify(previousCache).read(jsonCacheKey);
@@ -268,7 +270,7 @@ class CacheStrategyTest {
     when(previousCache.read(jsonCacheKey)).thenReturn(InputStream.nullInputStream());
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     verify(previousCache).read(jsonCacheKey);
@@ -286,7 +288,7 @@ class CacheStrategyTest {
     when(previousCache.read(jsonCacheKey)).thenReturn(new ByteArrayInputStream("invalid-json".getBytes(StandardCharsets.UTF_8)));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     verify(previousCache).read(jsonCacheKey);
@@ -305,7 +307,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
   }
 
@@ -319,7 +321,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
   }
 
@@ -332,7 +334,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
@@ -358,7 +360,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategies.WRITE_ONLY);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     for (var ucfgFileRelativePath : ucfgFileRelativePaths) {
@@ -378,9 +380,9 @@ class CacheStrategyTest {
   @Test
   void should_log() {
     when(inputFile.toString()).thenReturn("test.js");
-    assertThat(CacheStrategies.getLogMessage(CacheStrategies.READ_AND_WRITE, inputFile, "this is a test"))
+    assertThat(CacheStrategies.getLogMessage(readAndWrite(serialization), inputFile, "this is a test"))
       .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
-    assertThat(CacheStrategies.getLogMessage(CacheStrategies.WRITE_ONLY, inputFile, null))
+    assertThat(CacheStrategies.getLogMessage(writeOnly(serialization), inputFile, null))
       .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
   }
 

@@ -21,8 +21,16 @@ package org.sonar.plugins.javascript.eslint;
 
 public class PluginUtils {
 
-  public static String getVersion() {
-    return PluginUtils.class.getPackage().getImplementationVersion();
+  private static String version;
+
+  private PluginUtils() {
+  }
+
+  public static synchronized String getVersion() {
+    if (version == null) {
+      version = PluginUtils.class.getPackage().getImplementationVersion();
+    }
+    return version;
   }
 
 }

@@ -27,12 +27,13 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.eslint.AnalysisMode;
+
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 
 public class CacheStrategies {
-
-  static final String NO_CACHE = "NO_CACHE";
-  static final String READ_AND_WRITE = "READ_AND_WRITE";
-  static final String WRITE_ONLY = "WRITE_ONLY";
 
   private static final Logger LOG = Loggers.get(CacheStrategies.class);
 
@@ -45,15 +46,16 @@ public class CacheStrategies {
     return isVersionValid && isProductValid;
   }
 
-  private static void log(String strategy, InputFile inputFile, @Nullable String reason) {
+  private static CacheStrategy log(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(getLogMessage(strategy, inputFile, reason));
     }
+    return strategy;
   }
 
-  static String getLogMessage(String strategy, InputFile inputFile, @Nullable String reason) {
+  static String getLogMessage(CacheStrategy cacheStrategy, InputFile inputFile, @Nullable String reason) {
     var logBuilder = new StringBuilder("Cache strategy set to '");
-    logBuilder.append(strategy).append("' for file '").append(inputFile).append("'");
+    logBuilder.append(cacheStrategy.getName()).append("' for file '").append(inputFile).append("'");
     if (reason != null) {
       logBuilder.append(" as ").append(reason);
     }
@@ -61,40 +63,30 @@ public class CacheStrategies {
   }
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
-    var cacheKey = CacheKey.forFile(inputFile);
-
     if (!isRuntimeApiCompatible(context)) {
-      var strategy = new CacheStrategy(NO_CACHE, true, null);
-      log(strategy.getName(), inputFile, "the runtime API is not compatible");
-      return strategy;
+      return log(noCache(), inputFile, "the runtime API is not compatible");
     }
 
-    var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
-    var isFileUnchanged = inputFile.status() == InputFile.Status.SAME;
+    var cacheKey = CacheKey.forFile(inputFile);
     var serialization = new UCFGFilesSerialization(context, cacheKey);
-    if (!canSkipUnchangedFiles || !isFileUnchanged || !serialization.isKeyInCache()) {
-      var strategy = new CacheStrategy(WRITE_ONLY, true, serialization);
 
-      if (!canSkipUnchangedFiles) {
-        log(strategy.getName(), inputFile, "current analysis requires all files to be analyzed");
-      } else if (!isFileUnchanged) {
-        log(strategy.getName(), inputFile, "the current file is changed");
-      } else {
-        log(strategy.getName(), inputFile, "the current file is not cached");
-      }
+    if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
+      return log(writeOnly(serialization), inputFile, "current analysis requires all files to be analyzed");
+    }
 
-      return strategy;
+    if (inputFile.status() != InputFile.Status.SAME) {
+      return log(writeOnly(serialization), inputFile, "the current file is changed");
+    }
+
+    if (!serialization.isKeyInCache()) {
+      return log(writeOnly(serialization), inputFile, "the current file is not cached");
     }
 
     if (!writeFilesFromCache(serialization)) {
-      var strategy = new CacheStrategy(WRITE_ONLY, true, serialization);
-      log(strategy.getName(), inputFile, "the cache is corrupted");
-      return strategy;
+      return log(writeOnly(serialization), inputFile, "the cache is corrupted");
     }
 
-    var strategy = new CacheStrategy(READ_AND_WRITE, false, serialization);
-    log(strategy.getName(), inputFile, null);
-    return strategy;
+    return log(readAndWrite(serialization), inputFile, null);
   }
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {

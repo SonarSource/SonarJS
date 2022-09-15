@@ -28,14 +28,14 @@ import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
 
-enum AnalysisMode {
+public enum AnalysisMode {
   DEFAULT, SKIP_UNCHANGED;
 
   static final String DEFAULT_LINTER_ID = "default";
   static final String UNCHANGED_LINTER_ID = "unchanged";
   private static final Logger LOG = Loggers.get(AnalysisMode.class);
 
-  static boolean isRuntimeApiCompatible(SensorContext context) {
+  public static boolean isRuntimeApiCompatible(SensorContext context) {
     return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
   }
 

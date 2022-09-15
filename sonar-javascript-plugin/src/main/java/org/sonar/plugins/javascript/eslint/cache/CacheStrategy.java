@@ -25,14 +25,30 @@ import javax.annotation.Nullable;
 
 public class CacheStrategy {
 
+  static final String NO_CACHE = "NO_CACHE";
+  static final String READ_AND_WRITE = "READ_AND_WRITE";
+  static final String WRITE_ONLY = "WRITE_ONLY";
+
   private final String name;
   private final boolean analysisRequired;
   private final CacheWriter<List<String>, Void> cacheWriter;
 
-  CacheStrategy(String name, boolean analysisRequired, CacheWriter<List<String>, Void> cacheWriter) {
+  private CacheStrategy(String name, boolean analysisRequired, CacheWriter<List<String>, Void> cacheWriter) {
     this.name = name;
     this.analysisRequired = analysisRequired;
     this.cacheWriter = cacheWriter;
+  }
+
+  static CacheStrategy noCache() {
+    return new CacheStrategy(NO_CACHE, true, null);
+  }
+
+  static CacheStrategy writeOnly(UCFGFilesSerialization serialization) {
+    return new CacheStrategy(WRITE_ONLY, true, serialization);
+  }
+
+  static CacheStrategy readAndWrite(UCFGFilesSerialization serialization) {
+    return new CacheStrategy(READ_AND_WRITE, false, serialization);
   }
 
   String getName() {
