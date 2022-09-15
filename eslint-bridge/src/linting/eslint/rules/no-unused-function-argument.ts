@@ -176,10 +176,15 @@ function isIgnoredParameter(variable: Scope.Variable) {
   return variable.name.startsWith('_');
 }
 
-function isParameterProperty(variable: Scope.Variable) {
-  return variable.defs.some(
-    def => (def.name as TSESTree.Node).parent?.type === 'TSParameterProperty',
-  );
+export function isParameterProperty(variable: Scope.Variable) {
+  return variable.defs.some(def => {
+    const parent = (def.name as TSESTree.Node).parent;
+
+    return (
+      parent?.type === 'TSParameterProperty' ||
+      (parent?.type === 'AssignmentPattern' && parent.parent?.type === 'TSParameterProperty')
+    );
+  });
 }
 
 function isThisParameter(variable: Scope.Variable) {
