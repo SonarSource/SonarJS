@@ -85,9 +85,23 @@ ruleTester.run(``, rule, {
         {
           message: "Empty function 'm' has too many parameters (5). Maximum allowed is 3.",
           line: 1,
-          column: 12,
+          column: 11,
           endLine: 1,
           endColumn: 12,
+        },
+      ],
+    },
+    {
+      code: `class C { constructor(a: any, b: any, c: any, d: any, e: any); }`,
+      options: [MAX_PARAMS_3],
+      errors: [
+        {
+          message:
+            "Empty function 'constructor' has too many parameters (5). Maximum allowed is 3.",
+          line: 1,
+          column: 11,
+          endLine: 1,
+          endColumn: 22,
         },
       ],
     },
