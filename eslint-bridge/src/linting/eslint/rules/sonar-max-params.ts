@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
           const functionLike = node as unknown as TSESTree.FunctionLike;
           const maxParams = context.options[0] as number;
           const numParams = functionLike.params.length;
-          if (functionLike.params.length > maxParams) {
+          if (numParams > maxParams) {
             context.report({
               messageId: 'exceed',
               loc: getFunctionHeaderLocation(functionLike),
