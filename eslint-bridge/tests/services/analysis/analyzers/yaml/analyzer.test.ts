@@ -38,9 +38,10 @@ describe('analyzeYAML', () => {
     });
   });
 
-  it('should fail on uninitialized linter', () => {
+  it('should fail on uninitialized linter', async () => {
     const input = {} as any;
-    expect(() => analyzeYAML(input)).toThrow(
+    const error = await analyzeYAML(input).catch(err => err);
+    expect(error).toEqual(
       APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
@@ -51,7 +52,7 @@ describe('analyzeYAML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeYAML({
+    } = await analyzeYAML({
       filePath: join(fixturesPath, 'file.yaml'),
       fileContent: undefined,
     });
@@ -70,17 +71,16 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    expect(() =>
-      analyzeYAML({
-        filePath: join(fixturesPath, 'malformed.yaml'),
-        fileContent: undefined,
-      }),
-    ).toThrow(APIError.parsingError('Map keys must be unique', { line: 2 }));
+    const error = await analyzeYAML({
+      filePath: join(fixturesPath, 'malformed.yaml'),
+      fileContent: undefined,
+    }).catch(err => err);
+    expect(error).toEqual(APIError.parsingError('Map keys must be unique', { line: 2 }));
   });
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML({
+    const result = await analyzeYAML({
       filePath: join(fixturesPath, 'quickfix.yaml'),
       fileContent: undefined,
     });
@@ -112,7 +112,7 @@ describe('analyzeYAML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyzeYAML({
+    const { issues } = await analyzeYAML({
       filePath: join(fixturesPath, 'enforce-trailing-comma.yaml'),
       fileContent: undefined,
     });
@@ -137,7 +137,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML({
+    const result = await analyzeYAML({
       filePath: join(fixturesPath, 'secondary.yaml'),
       fileContent: undefined,
     });
@@ -160,7 +160,7 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeYAML({
+    const result = await analyzeYAML({
       filePath: join(fixturesPath, 'regex.yaml'),
       fileContent: undefined,
     });
@@ -182,7 +182,7 @@ describe('analyzeYAML', () => {
       { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeYAML({
+    const { issues } = await analyzeYAML({
       filePath: join(fixturesPath, 'outside.yaml'),
       fileContent: undefined,
     });

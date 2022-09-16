@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
@@ -35,16 +35,16 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
-  const embeddedJSs = parseAwsFromYaml(filePath);
+export function buildSourceCodes(input: YamlAnalysisInput): ExtendedSourceCode[] {
+  const embeddedJSs = parseAwsFromYaml(input);
 
   const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
 
-    let syntheticFilePath: string = filePath;
+    let syntheticFilePath: string = input.filePath;
     if (embeddedJS.extras.resourceName != null) {
-      syntheticFilePath = composeSyntheticFilePath(filePath, embeddedJS.extras.resourceName);
+      syntheticFilePath = composeSyntheticFilePath(input.filePath, embeddedJS.extras.resourceName);
     }
 
     /**
@@ -52,9 +52,13 @@ export function buildSourceCodes(filePath: string): ExtendedSourceCode[] {
      * the file content is provided, which happens to be the case here since `code`
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
-    const input = { filePath: '', fileContent: code, fileType: 'MAIN' } as JsTsAnalysisInput;
+    const JsTsAnalysisInput = {
+      filePath: '',
+      fileContent: code,
+      fileType: 'MAIN',
+    } as JsTsAnalysisInput;
     try {
-      const sourceCode = buildSourceCode(input, 'js');
+      const sourceCode = buildSourceCode(JsTsAnalysisInput, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
       // We use lodash.clone here to remove the effects of Object.preventExtensions()
       const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {

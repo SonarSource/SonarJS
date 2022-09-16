@@ -35,15 +35,16 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should fail on uninitialized linter', () => {
+  it('should fail on uninitialized linter', async () => {
     const input = {} as any;
     const language = 'js';
-    expect(() => analyzeJSTS(input, language)).toThrow(
+    const error = await analyzeJSTS(input, language).catch(err => err);
+    expect(error).toEqual(
       APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
 
-  it('should analyze JavaScript code with the given linter', () => {
+  it('should analyze JavaScript code with the given linter', async () => {
     const rules = [
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -67,9 +68,9 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
 
-    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(emptyLinterInput, language)) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -80,7 +81,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze TypeScript code', () => {
+  it('should analyze TypeScript code', async () => {
     const rules = [
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -104,8 +105,8 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
-    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(emptyLinterInput, language)) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -115,7 +116,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze Vue.js code', () => {
+  it('should analyze Vue.js code', async () => {
     const rules = [
       { key: 'no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -131,7 +132,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-dupe-keys',
@@ -139,7 +140,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main files', () => {
+  it('should analyze main files', async () => {
     const rules = [
       { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -154,7 +155,7 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -163,7 +164,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze test files', () => {
+  it('should analyze test files', async () => {
     const rules = [
       { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -178,7 +179,7 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -187,7 +188,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main and test files', () => {
+  it('should analyze main and test files', async () => {
     const rules = [
       { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
       { key: 'no-exclusive-tests', configurations: [], fileTypeTarget: ['TEST'] },
@@ -202,14 +203,14 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(2);
     expect(issues.map(issue => issue.ruleId)).toEqual(
       expect.arrayContaining(['no-exclusive-tests', 'no-throw-literal']),
     );
   });
 
-  it('should analyze shebang files', () => {
+  it('should analyze shebang files', async () => {
     const rules = [
       { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -225,7 +226,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'object-shorthand',
@@ -233,7 +234,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze BOM files', () => {
+  it('should analyze BOM files', async () => {
     const rules = [
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -249,7 +250,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-extra-semi',
@@ -257,7 +258,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze file contents', () => {
+  it('should analyze file contents', async () => {
     const rules = [
       { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -273,7 +274,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-template',
@@ -281,7 +282,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TSConfig', () => {
+  it('should analyze using TSConfig', async () => {
     const rules = [
       { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -297,7 +298,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-useless-intersection',
@@ -305,7 +306,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TypeScript program', () => {
+  it('should analyze using TypeScript program', async () => {
     const rules = [
       { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -323,7 +324,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-array-delete',
@@ -331,7 +332,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using type information', () => {
+  it('should analyze using type information', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -353,7 +354,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'different-types-comparison',
@@ -361,7 +362,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should report issues', () => {
+  it('should report issues', async () => {
     const rules = [
       { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -375,7 +376,7 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(issues).toEqual([
       {
         ruleId: 'no-octal',
@@ -390,7 +391,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report secondary locations', () => {
+  it('should report secondary locations', async () => {
     const rules = [
       { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -406,7 +407,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ secondaryLocations }],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -418,7 +419,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report quick fixes', () => {
+  it('should report quick fixes', async () => {
     const rules = [
       { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -434,7 +435,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ quickFixes }],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -467,7 +468,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should compute metrics on main files', () => {
+  it('should compute metrics on main files', async () => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
@@ -479,10 +480,10 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
       input,
       language,
-    ) as JsTsAnalysisOutput;
+    )) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -716,7 +717,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics on test files', () => {
+  it('should compute metrics on test files', async () => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
@@ -728,10 +729,10 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
       input,
       language,
-    ) as JsTsAnalysisOutput;
+    )) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -767,7 +768,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics in SonarLint context', () => {
+  it('should compute metrics in SonarLint context', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -786,10 +787,10 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
       input,
       language,
-    ) as JsTsAnalysisOutput;
+    )) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -799,7 +800,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should measure analysis duration', () => {
+  it('should measure analysis duration', async () => {
     const rules = [
       { key: 'no-extra-smi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -817,12 +818,12 @@ describe('analyzeJSTS', () => {
 
     const {
       perf: { parseTime, analysisTime },
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = (await analyzeJSTS(input, language)) as JsTsAnalysisOutput;
     expect(parseTime).toBeGreaterThan(0);
     expect(analysisTime).toBeGreaterThan(0);
   });
 
-  it('should return parsing errors', () => {
+  it('should return parsing errors', async () => {
     const rules = [];
     initializeLinter(rules);
 
@@ -834,8 +835,7 @@ describe('analyzeJSTS', () => {
     const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    expect(() => analyzeJSTS(input, language)).toThrow(
-      APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
-    );
+    const error = await analyzeJSTS(input, language).catch(err => err);
+    expect(error).toEqual(APIError.parsingError('Unexpected token (3:0)', { line: 3 }));
   });
 });

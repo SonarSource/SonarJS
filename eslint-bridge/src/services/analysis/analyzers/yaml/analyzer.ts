@@ -23,7 +23,7 @@ import { Position } from 'estree';
 import { getLinter, Issue } from 'linting/eslint';
 import { buildSourceCodes } from 'parsing/yaml';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
-import { debug } from 'helpers';
+import { debug, readFileAsync } from 'helpers';
 
 /**
  * An empty YAML analysis output
@@ -52,11 +52,14 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
+export async function analyzeYAML(input: YamlAnalysisInput): Promise<YamlAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
 
-  const extendedSourceCodes = buildSourceCodes(input.filePath);
+  if (!input.fileContent) {
+    input.fileContent = await readFileAsync(input.filePath);
+  }
+  const extendedSourceCodes = buildSourceCodes(input);
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {

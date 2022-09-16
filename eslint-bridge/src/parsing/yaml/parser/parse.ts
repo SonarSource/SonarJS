@@ -24,6 +24,7 @@ import { EmbeddedJS } from './embedded-js';
 import { readFile } from 'helpers';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './format';
 import { APIError } from 'errors';
+import { YamlAnalysisInput } from '../../../services/analysis';
 
 /**
  * A bundle of Yaml visitor predicate and Extras picker
@@ -48,8 +49,12 @@ export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(parsingContexts: ParsingContext[], filePath: string): EmbeddedJS[] {
-  const text = readFile(filePath);
+export function parseYaml(
+  parsingContexts: ParsingContext[],
+  input: YamlAnalysisInput,
+): EmbeddedJS[] {
+  const { fileContent, filePath } = input;
+  const text = fileContent || readFile(filePath);
 
   /**
    * Builds the abstract syntax tree of the YAML file
