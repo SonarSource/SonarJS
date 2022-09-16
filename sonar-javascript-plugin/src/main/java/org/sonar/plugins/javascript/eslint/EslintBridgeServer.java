@@ -104,7 +104,7 @@ public interface EslintBridgeServer extends Startable {
     Metrics metrics = new Metrics();
     CpdToken[] cpdTokens = {};
     Perf perf;
-    String[] ucfgPaths = {};
+    List<String> ucfgPaths = List.of();
   }
 
   class ParsingError {

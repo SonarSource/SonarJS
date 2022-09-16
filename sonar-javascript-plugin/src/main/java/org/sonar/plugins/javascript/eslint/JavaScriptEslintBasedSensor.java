@@ -39,6 +39,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
@@ -87,8 +89,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategy.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired(context, inputFile)) {
+          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, tsConfigs, cacheStrategy);
           }
         } else {
@@ -113,7 +115,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
         fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(context, file, response.ucfgPaths);
+      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
