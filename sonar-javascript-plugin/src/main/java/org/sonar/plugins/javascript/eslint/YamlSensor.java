@@ -78,6 +78,7 @@ public class YamlSensor extends AbstractEslintSensor {
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
           var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+          monitoring.addCacheStrategy(inputFile, cacheStrategy);
           if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, cacheStrategy);
           }

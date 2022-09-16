@@ -132,6 +132,7 @@ public class AnalysisWithProgram {
       }
       if (analyzedFiles.add(inputFile)) {
         var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        monitoring.addCacheStrategy(inputFile, cacheStrategy);
         if (cacheStrategy.isAnalysisRequired()) {
           analyze(inputFile, program, cacheStrategy);
         }
@@ -151,7 +152,7 @@ public class AnalysisWithProgram {
     try {
       LOG.debug("Analyzing file: {}", file.uri());
       progressReport.nextFile(file.absolutePath());
-      monitoring.startFile(file);
+      monitoring.startFile(file, cacheStrategy);
       EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
         file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
       EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);

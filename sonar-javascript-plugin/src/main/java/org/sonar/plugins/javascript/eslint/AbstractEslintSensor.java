@@ -97,6 +97,5 @@ public abstract class AbstractEslintSensor implements Sensor {
 
   protected abstract List<InputFile> getInputFiles();
 
-
 }
 

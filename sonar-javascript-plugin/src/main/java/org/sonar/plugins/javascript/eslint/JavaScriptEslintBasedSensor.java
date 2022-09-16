@@ -83,13 +83,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (InputFile inputFile : inputFiles) {
-        monitoring.startFile(inputFile);
+        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        monitoring.startFile(inputFile, cacheStrategy);
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
           if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, tsConfigs, cacheStrategy);
           }

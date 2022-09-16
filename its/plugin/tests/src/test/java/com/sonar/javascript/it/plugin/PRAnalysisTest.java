@@ -83,6 +83,8 @@ class PRAnalysisTest {
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce("INFO: Hit the cache for 0 out of 2")
+        .logsOnce("Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -104,6 +106,8 @@ class PRAnalysisTest {
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsOnce("INFO: Hit the cache for 1 out of 2")
+        .logsOnce("INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
@@ -137,6 +141,8 @@ class PRAnalysisTest {
           .isUsed()
         .logsOnce("file1.yaml\" with linterId \"default\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsOnce("INFO: Hit the cache for 0 out of 2")
+        .logsOnce("Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -158,12 +164,38 @@ class PRAnalysisTest {
           .isUsed()
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsOnce("INFO: Hit the cache for 1 out of 2")
+        .logsOnce("INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
         .contains(tuple(projectKey + ":file2.yaml", "javascript:S1116"));
     }
+  }
+
+  private SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
+    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Master.BRANCH);
+  }
+
+  private SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
+    return getScanner(projectDir, projectKey)
+      .setProperty("sonar.pullrequest.key", PR.BRANCH)
+      .setProperty("sonar.pullrequest.branch", PR.BRANCH)
+      .setProperty("sonar.pullrequest.base", Master.BRANCH);
+  }
+
+  private SonarScanner getScanner(Path projectDir, String projectKey) {
+    return getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setDebugLogs(true)
+      .setSourceDirs(".")
+      .setProjectDir(projectDir.toFile())
+      .setProperty("sonar.scm.provider", "git")
+      .setProperty("sonar.scm.disabled", "false")
+      .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty("sonar.javascript.monitoring.path", gitBaseDir.toAbsolutePath().toString());
   }
 
   @BeforeAll
@@ -189,28 +221,6 @@ class PRAnalysisTest {
   @AfterAll
   public static void stopOrchestrator() {
     orchestrator.stop();
-  }
-
-  private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
-    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Master.BRANCH);
-  }
-
-  private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
-    return getScanner(projectDir, projectKey)
-      .setProperty("sonar.pullrequest.key", PR.BRANCH)
-      .setProperty("sonar.pullrequest.branch", PR.BRANCH)
-      .setProperty("sonar.pullrequest.base", Master.BRANCH);
-  }
-
-  private static SonarScanner getScanner(Path projectDir, String projectKey) {
-    return getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setDebugLogs(true)
-      .setSourceDirs(".")
-      .setProjectDir(projectDir.toFile())
-      .setProperty("sonar.scm.provider", "git")
-      .setProperty("sonar.scm.disabled", "false");
   }
 
   private static BuildResult scanWith(SonarScanner scanner) {

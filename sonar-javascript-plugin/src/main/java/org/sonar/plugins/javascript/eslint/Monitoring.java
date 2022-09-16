@@ -32,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -41,6 +42,8 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.ManifestUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.eslint.cache.CacheReporter;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.FILE;
@@ -67,6 +70,7 @@ public class Monitoring implements Startable {
   private FileMetric fileMetric;
   private ProgramMetric programMetric;
   private final String executionId;
+  private final CacheReporter cacheReporter = new CacheReporter();
 
   public Monitoring(Configuration configuration) {
     this.configuration = configuration;
@@ -86,6 +90,7 @@ public class Monitoring implements Startable {
     sensorMetric = new SensorMetric(executionId, canSkipUnchangedFiles);
     sensorMetric.component = sensor.getClass().getCanonicalName();
     sensorMetric.projectKey = sensorContext.project().key();
+    cacheReporter.reset();
   }
 
   void stopSensor() {
@@ -94,9 +99,14 @@ public class Monitoring implements Startable {
     }
     sensorMetric.duration = sensorMetric.clock.stop();
     metrics.add(sensorMetric);
+    cacheReporter.logReport();
   }
 
   void startFile(InputFile inputFile) {
+    startFile(inputFile, null);
+  }
+
+  void startFile(InputFile inputFile, @Nullable CacheStrategy cacheStrategy) {
     if (!enabled) {
       return;
     }
@@ -104,6 +114,13 @@ public class Monitoring implements Startable {
     fileMetric.component = inputFile.toString();
     fileMetric.ordinal = sensorMetric.fileCount;
     sensorMetric.fileCount++;
+    addCacheStrategy(inputFile, cacheStrategy);
+  }
+
+  // This method is necessary only for sensors that analyzes files without calling the monitoring startFile()/stopFile().
+  // The recommended way of monitoring cache str
+  void addCacheStrategy(InputFile inputFile, @Nullable CacheStrategy cacheStrategy) {
+    cacheReporter.addStrategy(cacheStrategy, inputFile);
   }
 
   public void stopFile(InputFile inputFile, int ncloc, EslintBridgeServer.Perf perf) {

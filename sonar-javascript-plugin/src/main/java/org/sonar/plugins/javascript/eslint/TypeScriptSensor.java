@@ -139,8 +139,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
       }
       if (eslintBridgeServer.isAlive()) {
-        monitoring.startFile(inputFile);
         var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        monitoring.startFile(inputFile, cacheStrategy);
         if (cacheStrategy.isAnalysisRequired()) {
           analyze(inputFile, tsConfigFile, cacheStrategy);
         }

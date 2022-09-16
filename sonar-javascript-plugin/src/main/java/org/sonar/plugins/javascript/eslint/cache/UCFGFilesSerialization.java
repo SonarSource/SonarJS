@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 
-class UCFGFilesSerialization extends AbstractSerialization implements CacheWriter<List<String>, Void>, CacheReader<Void, Void> {
+class UCFGFilesSerialization extends AbstractSerialization {
 
   static final String SEQ_PREFIX = "SEQ";
   static final String JSON_PREFIX = "JSON";
@@ -39,32 +39,27 @@ class UCFGFilesSerialization extends AbstractSerialization implements CacheWrite
   }
 
   @Nullable
-  @Override
-  public Void writeToCache(@Nullable List<String> files) throws IOException {
+  public void writeToCache(@Nullable List<String> files) throws IOException {
     var manifest = sequence.writeToCache(files);
     json.writeToCache(manifest);
-    return null;
   }
 
   @Override
-  public boolean isKeyInCache() {
-    if (!json.isKeyInCache()) {
+  public boolean isInCache() {
+    if (!json.isInCache()) {
       return false;
     } else {
-      return sequence.isKeyInCache();
+      return sequence.isInCache();
     }
   }
 
-  @Nullable
-  @Override
-  public Void readFromCache(@Nullable Void config) throws IOException {
-    var manifest = json.readFromCache(null);
+  public void readFromCache() throws IOException {
+    var manifest = json.readFromCache();
     if (manifest == null) {
       throw new IOException("The manifest is null for key " + getCacheKey());
     }
 
     sequence.readFromCache(manifest);
-    return null;
   }
 
   @Override

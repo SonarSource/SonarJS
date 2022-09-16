@@ -31,28 +31,35 @@ public class CacheStrategy {
 
   private final String name;
   private final boolean analysisRequired;
-  private final CacheWriter<List<String>, Void> cacheWriter;
+  private final UCFGFilesSerialization serialization;
+  private final MissReason reason;
 
-  private CacheStrategy(String name, boolean analysisRequired, CacheWriter<List<String>, Void> cacheWriter) {
+  private CacheStrategy(String name, boolean analysisRequired, @Nullable UCFGFilesSerialization serialization,
+    @Nullable MissReason reason) {
     this.name = name;
     this.analysisRequired = analysisRequired;
-    this.cacheWriter = cacheWriter;
+    this.serialization = serialization;
+    this.reason = reason;
   }
 
-  static CacheStrategy noCache() {
-    return new CacheStrategy(NO_CACHE, true, null);
+  static CacheStrategy noCache(MissReason reason) {
+    return new CacheStrategy(NO_CACHE, true, null, reason);
   }
 
-  static CacheStrategy writeOnly(UCFGFilesSerialization serialization) {
-    return new CacheStrategy(WRITE_ONLY, true, serialization);
+  static CacheStrategy writeOnly(MissReason reason, UCFGFilesSerialization serialization) {
+    return new CacheStrategy(WRITE_ONLY, true, serialization, reason);
   }
 
   static CacheStrategy readAndWrite(UCFGFilesSerialization serialization) {
-    return new CacheStrategy(READ_AND_WRITE, false, serialization);
+    return new CacheStrategy(READ_AND_WRITE, false, serialization, null);
   }
 
   String getName() {
     return name;
+  }
+
+  MissReason getReason() {
+    return reason;
   }
 
   public boolean isAnalysisRequired() {
@@ -60,9 +67,27 @@ public class CacheStrategy {
   }
 
   public void writeGeneratedFilesToCache(@Nullable List<String> generatedFiles) throws IOException {
-    if (cacheWriter != null) {
-      cacheWriter.writeToCache(generatedFiles);
+    if (serialization != null) {
+      serialization.writeToCache(generatedFiles);
     }
   }
 
+  enum MissReason {
+    RUNTIME_API_INCOMPATIBLE("the runtime API is not compatible"),
+    CACHE_DISABLED("cache is disabled"),
+    ANALYSIS_MODE_INELIGIBLE("current analysis requires all files to be analyzed"),
+    FILE_CHANGED("the current file is changed"),
+    FILE_NOT_IN_CACHE("the current file is not cached"),
+    CACHE_CORRUPTED("the cache is corrupted");
+
+    private final String description;
+
+    MissReason(String description) {
+      this.description = description;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+  }
 }

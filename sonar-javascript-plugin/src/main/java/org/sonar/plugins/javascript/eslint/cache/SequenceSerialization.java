@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-class SequenceSerialization extends AbstractSerialization implements CacheWriter<List<String>, FilesManifest>, CacheReader<FilesManifest, Void> {
+class SequenceSerialization extends AbstractSerialization {
 
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
@@ -101,7 +101,6 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
     return new FilesManifest(fileSizes);
   }
 
-  @Override
   public FilesManifest writeToCache(@Nullable List<String> generatedFiles) throws IOException {
     List<Path> paths = generatedFiles == null ? emptyList() : generatedFiles.stream().map(Path::of).collect(toList());
     var iterator = new FileIterator(paths);
@@ -115,8 +114,7 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
     return createManifest(getWorkingDirectoryAbsolutePath(), iterator);
   }
 
-  @Override
-  public Void readFromCache(@Nullable FilesManifest manifest) throws IOException {
+  public void readFromCache(@Nullable FilesManifest manifest) throws IOException {
     try (var input = getContext().previousCache().read(getCacheKey().toString())) {
       var iterator = requireNonNull(manifest).getFileSizes().iterator();
       var fileSize = iterator.hasNext() ? iterator.next() : null;
@@ -133,7 +131,6 @@ class SequenceSerialization extends AbstractSerialization implements CacheWriter
       }
 
       LOG.debug("Cache entry extracted for key '{}' containing {} file(s)", getCacheKey(), counter);
-      return null;
     }
   }
 

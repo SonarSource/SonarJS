@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
-import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -29,6 +28,12 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.AnalysisMode;
 
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.ANALYSIS_MODE_INELIGIBLE;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.CACHE_DISABLED;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.FILE_CHANGED;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.RUNTIME_API_INCOMPATIBLE;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.CACHE_CORRUPTED;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.FILE_NOT_IN_CACHE;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
@@ -46,52 +51,40 @@ public class CacheStrategies {
     return isVersionValid && isProductValid;
   }
 
-  private static CacheStrategy logAndGetStrategy(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(getLogMessage(strategy, inputFile, reason));
-    }
-    return strategy;
-  }
-
-  static String getLogMessage(CacheStrategy cacheStrategy, InputFile inputFile, @Nullable String reason) {
-    var logBuilder = new StringBuilder("Cache strategy set to '");
-    logBuilder.append(cacheStrategy.getName()).append("' for file '").append(inputFile).append("'");
-    if (reason != null) {
-      logBuilder.append(" as ").append(reason);
-    }
-    return logBuilder.toString();
-  }
-
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
     if (!isRuntimeApiCompatible(context)) {
-      return logAndGetStrategy(noCache(), inputFile, "the runtime API is not compatible");
+      return noCache(RUNTIME_API_INCOMPATIBLE);
+    }
+
+    if (!context.isCacheEnabled()) {
+      return noCache(CACHE_DISABLED);
     }
 
     var cacheKey = CacheKey.forFile(inputFile);
     var serialization = new UCFGFilesSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "current analysis requires all files to be analyzed");
+      return writeOnly(ANALYSIS_MODE_INELIGIBLE, serialization);
     }
 
     if (inputFile.status() != InputFile.Status.SAME) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the current file is changed");
+      return writeOnly(FILE_CHANGED, serialization);
     }
 
-    if (!serialization.isKeyInCache()) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the current file is not cached");
+    if (!serialization.isInCache()) {
+      return writeOnly(FILE_NOT_IN_CACHE, serialization);
     }
 
     if (!writeFilesFromCache(serialization)) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the cache is corrupted");
+      return writeOnly(CACHE_CORRUPTED, serialization);
     }
 
-    return logAndGetStrategy(readAndWrite(serialization), inputFile, null);
+    return readAndWrite(serialization);
   }
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
     try {
-      serialization.readFromCache(null);
+      serialization.readFromCache();
       serialization.copyFromPrevious();
       return true;
     } catch (IOException e) {

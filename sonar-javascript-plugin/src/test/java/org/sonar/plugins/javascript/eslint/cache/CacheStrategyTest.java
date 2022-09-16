@@ -61,6 +61,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.MissReason.ANALYSIS_MODE_INELIGIBLE;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 
@@ -107,6 +108,7 @@ class CacheStrategyTest {
     when(context.previousCache()).thenReturn(previousCache);
     when(context.nextCache()).thenReturn(nextCache);
     when(context.fileSystem()).thenReturn(fileSystem);
+    when(context.isCacheEnabled()).thenReturn(true);
   }
 
   @Test
@@ -130,6 +132,17 @@ class CacheStrategyTest {
   @Test
   void should_not_fail_in_sonarlint() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
+    verify(context, never()).nextCache();
+    verify(context, never()).previousCache();
+  }
+
+  @Test
+  void should_check_if_cache_is_enabled() throws IOException {
+    when(context.isCacheEnabled()).thenReturn(false);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
@@ -380,10 +393,10 @@ class CacheStrategyTest {
   @Test
   void should_log() {
     when(inputFile.toString()).thenReturn("test.js");
-    assertThat(CacheStrategies.getLogMessage(readAndWrite(serialization), inputFile, "this is a test"))
-      .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
-    assertThat(CacheStrategies.getLogMessage(writeOnly(serialization), inputFile, null))
-      .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
+    assertThat(CacheReporter.getStrategyMessage(readAndWrite(serialization), inputFile))
+      .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js'");
+    assertThat(CacheReporter.getStrategyMessage(writeOnly(ANALYSIS_MODE_INELIGIBLE, serialization), inputFile))
+      .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js' as current analysis requires all files to be analyzed");
   }
 
   @Test

@@ -39,7 +39,7 @@ abstract class AbstractSerialization {
     return cacheKey;
   }
 
-  public boolean isKeyInCache() {
+  public boolean isInCache() {
     return context.previousCache().contains(cacheKey.toString());
   }
 
