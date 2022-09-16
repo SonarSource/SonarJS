@@ -18,22 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Linter, Rule, SourceCode } from 'eslint';
+import { Linter, SourceCode } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools/helpers';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
+
+const externalRules = { ...eslintRules, ...typescriptESLintRules };
+const decoratedExternalRules = decorateExternalRules(externalRules);
 
 describe('decorateExternalRules', () => {
   test.each(['comma-dangle', 'enforce-trailing-comma'])(
     'should make `enforce-trailing-comma` an alias for `comma-dangle`',
     ruleId => {
-      const externalRules = getExternalRules();
-      decorateExternalRules(externalRules);
-
       const linter = new Linter();
-      linter.defineRules(externalRules);
+      linter.defineRules(decoratedExternalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'enforce-trailing-comma.js');
       const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
@@ -50,11 +50,8 @@ describe('decorateExternalRules', () => {
   );
 
   it('should replace TypeScript ESLint `no-throw-literal` with ESLint implementation', () => {
-    const externalRules = getExternalRules();
-    decorateExternalRules(externalRules);
-
     const linter = new Linter();
-    linter.defineRules(externalRules);
+    linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'no-throw-literal.js');
     const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
@@ -71,11 +68,8 @@ describe('decorateExternalRules', () => {
   });
 
   it('should sanitize TypeScript ESLint rules', () => {
-    const externalRules = getExternalRules();
-    decorateExternalRules(externalRules);
-
     const linter = new Linter();
-    linter.defineRules(externalRules);
+    linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
     const tsConfigs = [];
@@ -94,13 +88,8 @@ describe('decorateExternalRules', () => {
   test.each([{ decorate: true }, { decorate: false }])(
     'should apply internal decorators',
     ({ decorate }) => {
-      const externalRules = getExternalRules();
-      if (decorate) {
-        decorateExternalRules(externalRules);
-      }
-
       const linter = new Linter();
-      linter.defineRules(externalRules);
+      linter.defineRules(decorate ? decoratedExternalRules : externalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'internal-decorator.js');
       const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
@@ -122,14 +111,3 @@ describe('decorateExternalRules', () => {
     },
   );
 });
-
-function getExternalRules() {
-  const externalRules: { [key: string]: Rule.RuleModule } = {};
-  for (const [name, module] of Object.entries(eslintRules)) {
-    externalRules[name] = module;
-  }
-  for (const [name, module] of Object.entries(typescriptESLintRules)) {
-    externalRules[name] = module;
-  }
-  return externalRules;
-}

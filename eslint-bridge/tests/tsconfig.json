@@ -17,6 +17,6 @@
   ],
   "exclude": [
     "**/fixtures/**",
-    "**/comment-based/**"
+    "**/linting/eslint/rules/comment-based/**"
   ]
 }

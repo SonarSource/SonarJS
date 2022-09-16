@@ -23,7 +23,6 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { decorators } from 'linting/eslint/rules/decorators';
 import { eslintRules } from 'linting/eslint/rules/eslint';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
-
 /**
  * Decorates external rules
  *
@@ -33,7 +32,10 @@ import { sanitizeTypeScriptESLintRule } from './sanitize';
  *
  * @param externalRules the external rules to decorate
  */
-export function decorateExternalRules(externalRules: { [name: string]: Rule.RuleModule }) {
+export function decorateExternalRules(externalRules: { [name: string]: Rule.RuleModule }): {
+  [name: string]: Rule.RuleModule;
+} {
+  const decoratedRules = { ...externalRules };
   /**
    * S1537 ('comma-dangle'), S3723 ('enforce-trailing-comma')
    *
@@ -42,7 +44,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    */
   const commaDangleRuleId = 'comma-dangle';
   const enforceTrailingCommaRuleId = 'enforce-trailing-comma';
-  externalRules[enforceTrailingCommaRuleId] = eslintRules[commaDangleRuleId];
+  decoratedRules[enforceTrailingCommaRuleId] = eslintRules[commaDangleRuleId];
 
   /**
    * S3696 ('no-throw-literal')
@@ -50,8 +52,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    * TypeScript ESLint implementation of no-throw-literal does not support JavaScript code.
    */
   const noThrowLiteralRuleId = 'no-throw-literal';
-  delete typescriptESLintRules[noThrowLiteralRuleId];
-  externalRules[noThrowLiteralRuleId] = eslintRules[noThrowLiteralRuleId];
+  decoratedRules[noThrowLiteralRuleId] = eslintRules[noThrowLiteralRuleId];
 
   /**
    * TypeScript ESLint rules sanitization
@@ -60,7 +61,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    * they unconditionally assume that TypeScript's type checker is available.
    */
   for (const ruleKey of Object.keys(typescriptESLintRules)) {
-    externalRules[ruleKey] = sanitizeTypeScriptESLintRule(externalRules[ruleKey]);
+    decoratedRules[ruleKey] = sanitizeTypeScriptESLintRule(decoratedRules[ruleKey]);
   }
 
   /**
@@ -70,6 +71,7 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    * behaviour: exceptions, quick fixes, secondary locations, etc.
    */
   for (const ruleKey in decorators) {
-    externalRules[ruleKey] = decorators[ruleKey](externalRules[ruleKey]);
+    decoratedRules[ruleKey] = decorators[ruleKey](decoratedRules[ruleKey]);
   }
+  return decoratedRules;
 }

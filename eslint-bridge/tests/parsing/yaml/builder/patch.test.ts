@@ -23,6 +23,7 @@ import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
 import { JsTsAnalysisInput } from 'services/analysis';
+import { YamlAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
@@ -36,7 +37,7 @@ describe('patchSourceCode', () => {
 
   it('should patch source code', () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
-    const [patchedSourceCode] = buildSourceCodes(filePath);
+    const [patchedSourceCode] = buildSourceCodes({ filePath } as YamlAnalysisInput);
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
         text: readFile(filePath),
@@ -62,7 +63,7 @@ describe('patchSourceCode', () => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', property);
 
     const filePath = `${fixture}.yaml`;
-    const [patchedSourceCode] = buildSourceCodes(filePath);
+    const [patchedSourceCode] = buildSourceCodes({ filePath } as YamlAnalysisInput);
     const patchedNodes = patchedSourceCode.ast[property];
 
     const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
@@ -78,7 +79,7 @@ describe('patchSourceCode', () => {
     const filePath = `${fixture}.yaml`;
     let patchedParsingError;
     try {
-      buildSourceCodes(filePath);
+      buildSourceCodes({ filePath } as YamlAnalysisInput);
     } catch (error) {
       patchedParsingError = error;
     }

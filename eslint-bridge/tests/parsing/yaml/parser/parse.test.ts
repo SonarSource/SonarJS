@@ -22,6 +22,7 @@ import path from 'path';
 import { parseYaml } from 'parsing/yaml';
 import { APIError } from 'errors';
 import { readFileSync } from 'fs';
+import { YamlAnalysisInput } from 'services/analysis';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};
@@ -37,7 +38,7 @@ describe('parseYaml', () => {
         picker: noOpPicker,
       },
     ];
-    const [embedded] = parseYaml(parsingContexts, filePath);
+    const [embedded] = parseYaml(parsingContexts, { filePath } as YamlAnalysisInput);
     expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',
@@ -58,7 +59,7 @@ describe('parseYaml', () => {
         picker: noOpPicker,
       },
     ];
-    expect(() => parseYaml(parsingContexts, filePath)).toThrow(
+    expect(() => parseYaml(parsingContexts, { filePath } as YamlAnalysisInput)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 2 }),
     );
   });

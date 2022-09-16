@@ -20,7 +20,7 @@
 
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { debug, getContext } from 'helpers';
+import { debug, getContext, readFileAsync } from 'helpers';
 import {
   computeMetrics,
   findNoSonarLines,
@@ -50,10 +50,16 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
+export async function analyzeJSTS(
+  input: JsTsAnalysisInput,
+  language: Language,
+): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
 
+  if (!input.fileContent) {
+    input.fileContent = await readFileAsync(input.filePath);
+  }
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);
   const analysis = () => analyzeFile(linter, input, built);

@@ -61,8 +61,7 @@ const loaders: { [key: string]: Function } = {
         externalRules[name] = module;
       }
     }
-    decorateExternalRules(externalRules);
-    linter.defineRules(externalRules);
+    linter.defineRules(decorateExternalRules(externalRules));
   },
   pluginRules(linter: Linter) {
     linter.defineRules(pluginRules);
