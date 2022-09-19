@@ -33,8 +33,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Rule, RuleTester } from 'eslint';
-import { rules } from 'linting/eslint';
+import { Linter, Rule, RuleTester } from 'eslint';
+import { rules as reactESLintRules } from 'eslint-plugin-react';
+import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { rules as internalRules } from 'linting/eslint';
+import { decorators, RuleDecorator } from 'linting/eslint/rules/decorators';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode } from 'parsing/jsts';
 import { FileType } from 'helpers';
@@ -59,15 +62,21 @@ function testFilesForRule(rule: string): string[] {
   return files;
 }
 
-function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
-  for (const rule in rules) {
+function runRuleTests(
+  internal: Record<string, Rule.RuleModule>,
+  external: Record<string, Rule.RuleModule>,
+  decorators: Record<string, RuleDecorator>,
+  ruleTester: RuleTester,
+) {
+  const rules = [...Object.keys(internal), ...Object.keys(decorators)];
+  for (const rule of rules) {
     const files = testFilesForRule(rule);
     if (files.length === 0) {
       continue;
     }
     describe(`Running comment-based tests for rule ${rule}`, () => {
       files.forEach(filename => {
-        const ruleModule = rules[rule];
+        const ruleModule = rule in internal ? internal[rule] : decorators[rule](external[rule]);
         const code = fs.readFileSync(filename, { encoding: 'utf8' });
         const errors = extractExpectations(code, hasSonarRuntimeOption(ruleModule, rule));
         const tests = {
@@ -98,4 +107,9 @@ export function parseForESLint(
 
 // loading the above parseForESLint() function
 const ruleTester = new RuleTester({ parser: __filename });
-runRuleTests(rules, ruleTester);
+const externalRules = {
+  ...Object.fromEntries(new Linter().getRules()),
+  ...reactESLintRules,
+  ...typescriptESLintRules,
+};
+runRuleTests(internalRules, externalRules, decorators, ruleTester);
