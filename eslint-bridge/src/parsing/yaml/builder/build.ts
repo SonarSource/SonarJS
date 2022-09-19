@@ -52,13 +52,13 @@ export function buildSourceCodes(input: YamlAnalysisInput): ExtendedSourceCode[]
      * the file content is provided, which happens to be the case here since `code`
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
-    const JsTsAnalysisInput = {
+    const jsTsAnalysisInput = {
       filePath: '',
       fileContent: code,
       fileType: 'MAIN',
     } as JsTsAnalysisInput;
     try {
-      const sourceCode = buildSourceCode(JsTsAnalysisInput, 'js');
+      const sourceCode = buildSourceCode(jsTsAnalysisInput, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
       // We use lodash.clone here to remove the effects of Object.preventExtensions()
       const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {
