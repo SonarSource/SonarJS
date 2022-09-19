@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.io.InputStream;
 import org.sonar.api.batch.sensor.SensorContext;
 
 abstract class AbstractSerialization {
@@ -31,6 +32,14 @@ abstract class AbstractSerialization {
     this.cacheKey = cacheKey;
   }
 
+  boolean isInCache() {
+    return context.previousCache().contains(cacheKey.toString());
+  }
+
+  void copyFromPrevious() {
+    context.nextCache().copyFromPrevious(cacheKey.toString());
+  }
+
   SensorContext getContext() {
     return context;
   }
@@ -39,12 +48,16 @@ abstract class AbstractSerialization {
     return cacheKey;
   }
 
-  public boolean isKeyInCache() {
-    return context.previousCache().contains(cacheKey.toString());
+  InputStream getInputStream() {
+    return context.previousCache().read(cacheKey.toString());
   }
 
-  public void copyFromPrevious() {
-    context.nextCache().copyFromPrevious(cacheKey.toString());
+  void write(byte[] bytes) {
+    context.nextCache().write(cacheKey.toString(), bytes);
+  }
+
+  void write(InputStream sequence) {
+    context.nextCache().write(cacheKey.toString(), sequence);
   }
 
 }

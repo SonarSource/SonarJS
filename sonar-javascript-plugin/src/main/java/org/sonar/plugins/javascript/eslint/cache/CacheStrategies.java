@@ -79,7 +79,7 @@ public class CacheStrategies {
       return strategy;
     }
 
-    if (!serialization.isKeyInCache()) {
+    if (!serialization.isInCache()) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.FILE_NOT_IN_CACHE);
       return strategy;
@@ -98,7 +98,7 @@ public class CacheStrategies {
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
     try {
-      serialization.readFromCache(null);
+      serialization.readFromCache();
       serialization.copyFromPrevious();
       return true;
     } catch (IOException e) {
