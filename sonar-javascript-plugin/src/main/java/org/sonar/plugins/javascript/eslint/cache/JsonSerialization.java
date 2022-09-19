@@ -24,11 +24,12 @@ import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-class JsonSerialization<P> extends AbstractSerialization {
+class JsonSerialization<P> extends AbstractSerialization implements CacheWriter<P, Void>, CacheReader<Void, P> {
 
   private static final Logger LOG = Loggers.get(JsonSerialization.class);
 
@@ -40,7 +41,8 @@ class JsonSerialization<P> extends AbstractSerialization {
     this.jsonClass = jsonClass;
   }
 
-  public P readFromCache() throws IOException {
+  @Override
+  public P readFromCache(@Nullable Void config) throws IOException {
     try (var input = getContext().previousCache().read(getCacheKey().toString())) {
       var value = gson.fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), jsonClass);
       LOG.debug("Cache entry extracted for key '{}'", getCacheKey());
@@ -50,9 +52,11 @@ class JsonSerialization<P> extends AbstractSerialization {
     }
   }
 
-  public void writeToCache(P payload) {
+  @Override
+  public Void writeToCache(@Nullable P payload) {
     getContext().nextCache().write(getCacheKey().toString(), gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
     LOG.debug("Cache entry created for key '{}'", getCacheKey());
+    return null;
   }
 
 }

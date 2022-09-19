@@ -71,7 +71,7 @@ public class CacheStrategies {
       return writeOnly(FILE_CHANGED, serialization);
     }
 
-    if (!serialization.isInCache()) {
+    if (!serialization.isKeyInCache()) {
       return writeOnly(FILE_NOT_IN_CACHE, serialization);
     }
 
@@ -84,7 +84,7 @@ public class CacheStrategies {
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
     try {
-      serialization.readFromCache();
+      serialization.readFromCache(null);
       serialization.copyFromPrevious();
       return true;
     } catch (IOException e) {
