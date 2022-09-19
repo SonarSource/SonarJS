@@ -37,7 +37,7 @@ public class CacheStrategies {
 
   private static final Logger LOG = Loggers.get(CacheStrategies.class);
 
-  private static final CacheReporter reporter = new CacheReporter();
+  private static final CacheReporter REPORTER = new CacheReporter();
 
   private CacheStrategies() {
   }
@@ -59,8 +59,8 @@ public class CacheStrategies {
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
     if (!isRuntimeApiCompatible(context)) {
-      CacheStrategy strategy = noCache();
-      reporter.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
+      var strategy = noCache();
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
       return strategy;
     }
 
@@ -68,31 +68,31 @@ public class CacheStrategies {
     var serialization = new UCFGFilesSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
-      CacheStrategy strategy = writeOnly(serialization);
-      reporter.logAndIncrement(strategy, inputFile, MissReason.ANALYSIS_MODE_INELIGIBLE);
+      var strategy = writeOnly(serialization);
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.ANALYSIS_MODE_INELIGIBLE);
       return strategy;
     }
 
     if (inputFile.status() != InputFile.Status.SAME) {
-      CacheStrategy strategy = writeOnly(serialization);
-      reporter.logAndIncrement(strategy, inputFile, MissReason.FILE_CHANGED);
+      var strategy = writeOnly(serialization);
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.FILE_CHANGED);
       return strategy;
     }
 
     if (!serialization.isKeyInCache()) {
-      CacheStrategy strategy = writeOnly(serialization);
-      reporter.logAndIncrement(strategy, inputFile, MissReason.FILE_NOT_IN_CACHE);
+      var strategy = writeOnly(serialization);
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.FILE_NOT_IN_CACHE);
       return strategy;
     }
 
     if (!writeFilesFromCache(serialization)) {
-      CacheStrategy strategy = writeOnly(serialization);
-      reporter.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
+      var strategy = writeOnly(serialization);
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
       return strategy;
     }
 
-    CacheStrategy strategy = readAndWrite(serialization);
-    reporter.logAndIncrement(strategy, inputFile, null);
+    var strategy = readAndWrite(serialization);
+    REPORTER.logAndIncrement(strategy, inputFile, null);
     return strategy;
   }
 
@@ -108,11 +108,11 @@ public class CacheStrategies {
   }
 
   public static void reset() {
-    reporter.reset();
+    REPORTER.reset();
   }
 
   public static void logReport() {
-    reporter.logReport();
+    REPORTER.logReport();
   }
 
   enum MissReason {

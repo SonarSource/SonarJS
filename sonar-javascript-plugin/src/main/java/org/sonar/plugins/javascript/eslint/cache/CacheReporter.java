@@ -32,11 +32,11 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
-public class CacheReporter {
+class CacheReporter {
 
   private static final Logger LOG = Loggers.get(CacheReporter.class);
 
-  private final Map<Optional<CacheStrategies.MissReason>, AtomicInteger> metrics = new HashMap<>();
+  private final Map<Optional<CacheStrategies.MissReason>, AtomicInteger> counters = new HashMap<>();
 
   private static String getStrategyMessage(CacheStrategy strategy, @Nullable InputFile inputFile, @Nullable CacheStrategies.MissReason missReason) {
     var logBuilder = new StringBuilder("Cache strategy set to '");
@@ -54,48 +54,49 @@ public class CacheReporter {
     return format("%s [%d/%d]", reason.name(), count, total);
   }
 
-  public void logAndIncrement(CacheStrategy strategy, InputFile inputFile, @Nullable CacheStrategies.MissReason missReason) {
+  void logAndIncrement(CacheStrategy strategy, InputFile inputFile, @Nullable CacheStrategies.MissReason missReason) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(getStrategyMessage(strategy, inputFile, missReason));
     }
-    getCount(missReason).incrementAndGet();
+    getCounter(missReason).incrementAndGet();
   }
 
-  public void reset() {
-    metrics.clear();
+  void reset() {
+    counters.clear();
   }
 
-  public void logReport() {
+  void logReport() {
     var total = getTotal();
     var hits = getHits();
     var misses = total - hits;
 
     LOG.info(format("Hit the cache for %d out of %d", hits, total));
-    LOG.info(format("Miss the cache for %d out of %d: %s", misses, total, getMissMessages(total)));
+    LOG.info(format("Miss the cache for %d out of %d%s", misses, total, getMissMessages(total)));
   }
 
   private String getMissMessages(int total) {
-    return metrics.entrySet().stream()
+    String message = counters.entrySet().stream()
       .filter(entry -> entry.getKey().isPresent())
       .map(entry -> getMissMessage(total, entry.getKey().get(), entry.getValue().intValue()))
       .sorted()
       .collect(joining(", "));
+    return message.length() > 0 ? ": " + message : "";
   }
 
   private int getTotal() {
     var total = 0;
-    for (var count : metrics.values()) {
+    for (var count : counters.values()) {
       total += count.intValue();
     }
     return total;
   }
 
   private int getHits() {
-    return getCount(null).intValue();
+    return getCounter(null).intValue();
   }
 
-  private AtomicInteger getCount(@Nullable CacheStrategies.MissReason reason) {
-    return metrics.computeIfAbsent(ofNullable(reason), key -> new AtomicInteger(0));
+  private AtomicInteger getCounter(@Nullable CacheStrategies.MissReason reason) {
+    return counters.computeIfAbsent(ofNullable(reason), key -> new AtomicInteger(0));
   }
 
 }
