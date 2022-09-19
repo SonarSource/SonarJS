@@ -37,6 +37,8 @@ public class CacheStrategies {
 
   private static final Logger LOG = Loggers.get(CacheStrategies.class);
 
+  private static final CacheReporter reporter = new CacheReporter();
+
   private CacheStrategies() {
   }
 
@@ -44,13 +46,6 @@ public class CacheStrategies {
     var isVersionValid = context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
     var isProductValid = context.runtime().getProduct() != SonarProduct.SONARLINT;
     return isVersionValid && isProductValid;
-  }
-
-  private static CacheStrategy logAndGetStrategy(CacheStrategy strategy, InputFile inputFile, @Nullable String reason) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(getLogMessage(strategy, inputFile, reason));
-    }
-    return strategy;
   }
 
   static String getLogMessage(CacheStrategy cacheStrategy, InputFile inputFile, @Nullable String reason) {
@@ -64,29 +59,41 @@ public class CacheStrategies {
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
     if (!isRuntimeApiCompatible(context)) {
-      return logAndGetStrategy(noCache(), inputFile, "the runtime API is not compatible");
+      CacheStrategy strategy = noCache();
+      reporter.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
+      return strategy;
     }
 
     var cacheKey = CacheKey.forFile(inputFile);
     var serialization = new UCFGFilesSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "current analysis requires all files to be analyzed");
+      CacheStrategy strategy = writeOnly(serialization);
+      reporter.logAndIncrement(strategy, inputFile, MissReason.ANALYSIS_MODE_INELIGIBLE);
+      return strategy;
     }
 
     if (inputFile.status() != InputFile.Status.SAME) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the current file is changed");
+      CacheStrategy strategy = writeOnly(serialization);
+      reporter.logAndIncrement(strategy, inputFile, MissReason.FILE_CHANGED);
+      return strategy;
     }
 
     if (!serialization.isKeyInCache()) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the current file is not cached");
+      CacheStrategy strategy = writeOnly(serialization);
+      reporter.logAndIncrement(strategy, inputFile, MissReason.FILE_NOT_IN_CACHE);
+      return strategy;
     }
 
     if (!writeFilesFromCache(serialization)) {
-      return logAndGetStrategy(writeOnly(serialization), inputFile, "the cache is corrupted");
+      CacheStrategy strategy = writeOnly(serialization);
+      reporter.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
+      return strategy;
     }
 
-    return logAndGetStrategy(readAndWrite(serialization), inputFile, null);
+    CacheStrategy strategy = readAndWrite(serialization);
+    reporter.logAndIncrement(strategy, inputFile, null);
+    return strategy;
   }
 
   static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
@@ -97,6 +104,33 @@ public class CacheStrategies {
     } catch (IOException e) {
       LOG.error("Failure when reading cache entry", e);
       return false;
+    }
+  }
+
+  public static void reset() {
+    reporter.reset();
+  }
+
+  public static void logReport() {
+    reporter.logReport();
+  }
+
+  enum MissReason {
+    RUNTIME_API_INCOMPATIBLE("the runtime API is not compatible"),
+    CACHE_DISABLED("cache is disabled"),
+    ANALYSIS_MODE_INELIGIBLE("current analysis requires all files to be analyzed"),
+    FILE_CHANGED("the current file is changed"),
+    FILE_NOT_IN_CACHE("the current file is not cached"),
+    CACHE_CORRUPTED("the cache is corrupted");
+
+    private final String description;
+
+    MissReason(String description) {
+      this.description = description;
+    }
+
+    public String getDescription() {
+      return description;
     }
   }
 
