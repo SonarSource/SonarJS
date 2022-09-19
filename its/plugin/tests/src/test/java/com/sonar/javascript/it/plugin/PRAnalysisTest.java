@@ -81,8 +81,9 @@ class PRAnalysisTest {
           .withCachedFilesCounts(1, 2)
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
-        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", Master.ANALYZER_REPORTED_ISSUES)
+        .logsTimes(Master.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
+        .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -103,7 +104,8 @@ class PRAnalysisTest {
           .withCachedFilesCounts(4)
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
-        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)
@@ -137,6 +139,7 @@ class PRAnalysisTest {
           .isUsed()
         .logsOnce("file1.yaml\" with linterId \"default\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
+        .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, null))
         .hasSize(1)
@@ -157,7 +160,8 @@ class PRAnalysisTest {
           .withCachedFilesCounts(1)
           .isUsed()
         .logsOnce("file2.yaml\" with linterId \"default\"")
-        .logsTimes("DEBUG: Saving issue for rule no-extra-semi", PR.ANALYZER_REPORTED_ISSUES)
+        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
         .hasSize(1)

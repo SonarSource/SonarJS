@@ -83,7 +83,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -502,7 +501,8 @@ class TypeScriptSensorTest {
   void should_stop_when_no_input_files() throws Exception {
     SensorContextTester context = createSensorContext(tempDir);
     createSensor().execute(context);
-    assertThat(logTester.logs()).containsOnly("No input files found for analysis");
+    assertThat(logTester.logs()).containsExactly("No input files found for analysis",
+      "Hit the cache for 0 out of 0", "Miss the cache for 0 out of 0");
   }
 
   @Test

@@ -29,6 +29,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonarsource.nodejs.NodeCommandException;
 
 public abstract class AbstractEslintSensor implements Sensor {
@@ -53,6 +54,7 @@ public abstract class AbstractEslintSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     monitoring.startSensor(context, this);
+    CacheStrategies.reset();
     this.context = context;
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
@@ -85,6 +87,7 @@ public abstract class AbstractEslintSensor implements Sensor {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
     } finally {
+      CacheStrategies.logReport();
       monitoring.stopSensor();
     }
   }
