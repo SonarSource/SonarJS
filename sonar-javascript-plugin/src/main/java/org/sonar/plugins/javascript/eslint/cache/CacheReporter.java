@@ -80,7 +80,7 @@ class CacheReporter {
       .map(entry -> getMissMessage(total, entry.getKey().get(), entry.getValue().intValue()))
       .sorted()
       .collect(joining(", "));
-    return message.length() > 0 ? ": " + message : "";
+    return message.length() > 0 ? (": " + message) : "";
   }
 
   private int getTotal() {
