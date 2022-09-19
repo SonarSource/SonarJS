@@ -42,6 +42,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 
+@SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
 class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
 
   private String projectKey;
@@ -87,23 +88,26 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return this;
   }
 
-  BuildResultAssert logsOnce(String log) {
-    return logsTimes(log, 1);
+  BuildResultAssert logsOnce(String... logs) {
+    return logsTimes(1, logs);
   }
 
   BuildResultAssert logsOnce(Pattern pattern) {
-    return logsTimes(pattern, 1);
+    return logsTimes(1, pattern);
   }
 
   BuildResultAssert doesNotLog(String log) {
-    return logsTimes(log, 0);
+    return logsTimes(0, log);
   }
 
-  BuildResultAssert logsTimes(String log, int times) {
-    return logsTimesWhere(format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
+  BuildResultAssert logsTimes(int times, String... logs) {
+    for (var log : logs) {
+      logsTimesWhere(format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
+    }
+    return this;
   }
 
-  BuildResultAssert logsTimes(Pattern pattern, int times) {
+  BuildResultAssert logsTimes(int times, Pattern pattern) {
     return logsTimesWhere(format("contains regexp /%s/ %d time(s)", pattern.pattern(), times), times, pattern.asPredicate());
   }
 
