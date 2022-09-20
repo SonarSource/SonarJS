@@ -21,10 +21,9 @@ package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 
-class UCFGFilesSerialization extends AbstractSerialization implements CacheWriter<List<String>, Void>, CacheReader<Void, Void> {
+class UCFGFilesSerialization extends AbstractSerialization {
 
   static final String SEQ_PREFIX = "SEQ";
   static final String JSON_PREFIX = "JSON";
@@ -38,37 +37,31 @@ class UCFGFilesSerialization extends AbstractSerialization implements CacheWrite
     sequence = new SequenceSerialization(context, cacheKey.withPrefix(SEQ_PREFIX));
   }
 
-  @Nullable
-  @Override
-  public Void writeToCache(@Nullable List<String> files) throws IOException {
+  void writeToCache(List<String> files) throws IOException {
     var manifest = sequence.writeToCache(files);
     json.writeToCache(manifest);
-    return null;
   }
 
   @Override
-  public boolean isKeyInCache() {
-    if (!json.isKeyInCache()) {
+  boolean isInCache() {
+    if (!json.isInCache()) {
       return false;
     } else {
-      return sequence.isKeyInCache();
+      return sequence.isInCache();
     }
   }
 
-  @Nullable
-  @Override
-  public Void readFromCache(@Nullable Void config) throws IOException {
-    var manifest = json.readFromCache(null);
+  void readFromCache() throws IOException {
+    var manifest = json.readFromCache();
     if (manifest == null) {
       throw new IOException("The manifest is null for key " + getCacheKey());
     }
 
     sequence.readFromCache(manifest);
-    return null;
   }
 
   @Override
-  public void copyFromPrevious() {
+  void copyFromPrevious() {
     json.copyFromPrevious();
     sequence.copyFromPrevious();
   }
