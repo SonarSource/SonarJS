@@ -43,6 +43,8 @@ import { buildSourceCode } from 'parsing/jsts';
 import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
 
+const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
+
 /**
  * Return test files for specific rule based on rule key
  * Looks for files like
@@ -54,7 +56,7 @@ import { extractExpectations } from './framework';
 function testFilesForRule(rule: string): string[] {
   const files = [];
   for (const ext of ['js', 'ts']) {
-    const p = path.join(__dirname, '../../../linting/eslint/rules/comment-based', `${rule}.${ext}`);
+    const p = path.join(fixtures, `${rule}.${ext}`);
     if (fs.existsSync(p)) {
       files.push(p);
     }
@@ -99,13 +101,26 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  return buildSourceCode(
-    { filePath, fileContent, fileType, tsConfigs: [] },
+  const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+  const sourceCode = buildSourceCode(
+    { filePath, fileContent, fileType, tsConfigs },
     filePath.endsWith('.ts') ? 'ts' : 'js',
   );
+
+  /**
+   * ESLint expects the parser services (including the type checker) to be available in a field
+   * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
+   * we need to extend the source code with this additional property so that the type checker
+   * can be retrieved from type-aware rules.
+   */
+  return Object.create(sourceCode, {
+    services: { value: sourceCode.parserServices },
+  });
 }
 
-// loading the above parseForESLint() function
+/**
+ * Loading the above parseForESLint() function.
+ */
 const ruleTester = new RuleTester({ parser: __filename });
 const externalRules = {
   ...Object.fromEntries(new Linter().getRules()),
