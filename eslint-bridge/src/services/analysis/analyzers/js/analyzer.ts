@@ -50,10 +50,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export async function analyzeJSTS(
-  input: JsTsAnalysisInput,
-  language: Language,
-): Promise<JsTsAnalysisOutput> {
+export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
   const building = () => buildSourceCode(input, language);

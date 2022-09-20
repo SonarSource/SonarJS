@@ -96,7 +96,10 @@ describe('LinterWrapper', () => {
   });
 });
 
-async function createStylelintOptions(filePath: string, rules: RuleConfig[]): Promise<stylelint.LinterOptions> {
+async function createStylelintOptions(
+  filePath: string,
+  rules: RuleConfig[],
+): Promise<stylelint.LinterOptions> {
   const code = await readFile(filePath);
   const config = createStylelintConfig(rules);
   return { code, codeFilename: filePath, config };

@@ -18,21 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FileType } from 'helpers';
+import { FileType, readFile } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 
-export function parseTypeScriptSourceFile(
+export async function parseTypeScriptSourceFile(
   filePath: string,
   tsConfigs: string[],
   fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent: undefined, filePath, tsConfigs, fileType }, 'ts');
+  const fileContent = await readFile(filePath);
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
 }
 
-export function parseJavaScriptSourceFile(
+export async function parseJavaScriptSourceFile(
   filePath: string,
   tsConfigs: string[] = [],
   fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent: undefined, filePath, tsConfigs, fileType }, 'js');
+  const fileContent = await readFile(filePath);
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
 }

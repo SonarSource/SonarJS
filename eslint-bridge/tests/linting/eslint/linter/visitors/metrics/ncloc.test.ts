@@ -21,12 +21,12 @@
 import { SourceCode } from 'eslint';
 import { findNcloc } from 'linting/eslint/linter/visitors/metrics/ncloc';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('findNcloc', () => {
-  it('should find the line numbers of code', () => {
+  it('should find the line numbers of code', async () => {
     const filePath = path.join(__dirname, 'fixtures/ncloc.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });

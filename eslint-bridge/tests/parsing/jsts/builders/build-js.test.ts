@@ -22,85 +22,71 @@ import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
 import { buildJs } from 'parsing/jsts/builders/build-js';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
+import { jsTsInput } from '../../../tools';
 
 describe('buildJs', () => {
-  it('should build JavaScript code', () => {
+  it('should build JavaScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
     const {
       ast: {
         body: [stmt],
       },
-    } = buildJs(input, tryTypeScriptParser) as SourceCode;
+    } = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
 
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building malformed JavaScript code', () => {
+  it('should fail building malformed JavaScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
-    const fileType = 'MAIN';
 
-    const input = { filePath, fileType } as JsTsAnalysisInput;
+    const analysisInput = await jsTsInput({ filePath });
     const tryTypeScriptParser = false;
-    expect(() => buildJs(input, tryTypeScriptParser)).toThrow(
+
+    expect(() => buildJs(analysisInput, tryTypeScriptParser)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
 
-  it('should build JavaScript code with TypeScript ESLint parser', () => {
+  it('should build JavaScript code with TypeScript ESLint parser', async () => {
     console.log = jest.fn();
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = true;
     const {
       ast: {
         body: [stmt],
       },
-    } = buildJs(input, tryTypeScriptParser) as SourceCode;
+    } = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
 
     expect(stmt.type).toEqual('FunctionDeclaration');
     expect(console.log).not.toHaveBeenCalled();
   });
 
-  it('should fail building JavaScript code with TypeScript ESLint parser', () => {
+  it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
     console.log = jest.fn();
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
+    const analysisInput = await jsTsInput({ filePath });
     const tryTypeScriptParser = true;
-    expect(() => buildJs(input, tryTypeScriptParser)).toThrow();
+    expect(() => buildJs(analysisInput, tryTypeScriptParser)).toThrow();
 
-    const log = `DEBUG Failed to parse ${input.filePath} with TypeScript parser: '}' expected.`;
+    const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
   });
 
-  it('should build module JavaScript code', () => {
+  it('should build module JavaScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'module.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
-    const sourceCode = buildJs(input, tryTypeScriptParser) as SourceCode;
+    const sourceCode = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('module');
   });
 
-  it('should build script JavaScript code', () => {
+  it('should build script JavaScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'script.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
-    const sourceCode = buildJs(input, tryTypeScriptParser) as SourceCode;
+    const sourceCode = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('script');
   });

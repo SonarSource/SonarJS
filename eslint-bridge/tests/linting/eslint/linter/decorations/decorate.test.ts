@@ -31,12 +31,12 @@ const decoratedExternalRules = decorateExternalRules(externalRules);
 describe('decorateExternalRules', () => {
   test.each(['comma-dangle', 'enforce-trailing-comma'])(
     'should make `enforce-trailing-comma` an alias for `comma-dangle`',
-    ruleId => {
+    async ruleId => {
       const linter = new Linter();
       linter.defineRules(decoratedExternalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'enforce-trailing-comma.js');
-      const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
       const rules = { [ruleId]: 'error' } as any;
 
@@ -49,12 +49,12 @@ describe('decorateExternalRules', () => {
     },
   );
 
-  it('should replace TypeScript ESLint `no-throw-literal` with ESLint implementation', () => {
+  it('should replace TypeScript ESLint `no-throw-literal` with ESLint implementation', async () => {
     const linter = new Linter();
     linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'no-throw-literal.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-throw-literal';
     const rules = { [ruleId]: 'error' } as any;
@@ -67,14 +67,14 @@ describe('decorateExternalRules', () => {
     );
   });
 
-  it('should sanitize TypeScript ESLint rules', () => {
+  it('should sanitize TypeScript ESLint rules', async () => {
     const linter = new Linter();
     linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
     const tsConfigs = [];
 
-    const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+    const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
     expect(sourceCode.parserServices.hasFullTypeInformation).toBeDefined();
     expect(sourceCode.parserServices.hasFullTypeInformation).toEqual(false);
 
@@ -87,12 +87,12 @@ describe('decorateExternalRules', () => {
 
   test.each([{ decorate: true }, { decorate: false }])(
     'should apply internal decorators',
-    ({ decorate }) => {
+    async ({ decorate }) => {
       const linter = new Linter();
       linter.defineRules(decorate ? decoratedExternalRules : externalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'internal-decorator.js');
-      const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
       const ruleId = 'accessor-pairs';
       const rules = { [ruleId]: 'error' } as any;

@@ -21,12 +21,12 @@
 import { SourceCode } from 'eslint';
 import { findNoSonarLines } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('findNoSonarLines', () => {
-  it('should find NOSONAR comment lines', () => {
+  it('should find NOSONAR comment lines', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'nosonar.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
     const { nosonarLines } = findNoSonarLines(sourceCode);
     expect(nosonarLines).toEqual([1, 2, 3]);
   });

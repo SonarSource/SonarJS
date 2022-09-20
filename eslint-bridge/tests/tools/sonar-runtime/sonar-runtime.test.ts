@@ -55,7 +55,7 @@ describe('sonar-runtime', () => {
     const linter = new Linter();
     linter.defineRule(noMissingSonarRuntimeRuleId, noMissingSonarRuntimeRule);
 
-    Object.keys(rules).forEach(rule => {
+    Object.keys(rules).forEach(async rule => {
       const ruleFilePath = path.join(
         __dirname,
         '/../../../src/linting/eslint/rules/',
@@ -68,7 +68,7 @@ describe('sonar-runtime', () => {
         );
       }
 
-      const ruleSourceCode = parseTypeScriptSourceFile(ruleFilePath, []) as SourceCode;
+      const ruleSourceCode = (await parseTypeScriptSourceFile(ruleFilePath, [])) as SourceCode;
 
       const issues = linter.verify(ruleSourceCode, {
         rules: { [noMissingSonarRuntimeRuleId]: 'error' },

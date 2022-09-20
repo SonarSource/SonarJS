@@ -21,18 +21,16 @@
 import { buildTs } from 'parsing/jsts/builders/build-ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { APIError } from 'errors';
+import { jsTsInput } from '../../../tools';
 
 describe('buildTs', () => {
-  it('should build TypeScript code', () => {
+  it('should build TypeScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.ts');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    const sourceCode = buildTs(input, isVueFile);
+    const sourceCode = buildTs(await jsTsInput({ filePath, tsConfigs }), isVueFile);
 
     const {
       ast: {
@@ -42,26 +40,24 @@ describe('buildTs', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building malformed TypeScript code', () => {
+  it('should fail building malformed TypeScript code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
-
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = false;
-    expect(() => buildTs(input, isVueFile)).toThrow(
+    const analysisInput = await jsTsInput({ filePath, tsConfigs });
+    expect(() => buildTs(analysisInput, isVueFile)).toThrow(
       APIError.parsingError(`'}' expected.`, { line: 2 }),
     );
   });
 
-  it('should build TypeScript Vue.js code', () => {
+  it('should build TypeScript Vue.js code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.vue');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
-
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const isVueFile = true;
-    const sourceCode = buildTs(input, isVueFile) as AST.ESLintExtendedProgram;
+    const sourceCode = buildTs(
+      await jsTsInput({ filePath, tsConfigs }),
+      isVueFile,
+    ) as AST.ESLintExtendedProgram;
 
     const {
       ast: {
@@ -73,14 +69,13 @@ describe('buildTs', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should fail building excluded TypeScript code from TSConfig', () => {
+  it('should fail building excluded TypeScript code from TSConfig', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
+    const analysisInput = await jsTsInput({ filePath, tsConfigs });
     const isVueFile = false;
-    expect(() => buildTs(input, isVueFile)).toThrow(
+    expect(() => buildTs(analysisInput, isVueFile)).toThrow(
       /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
     );
   });
