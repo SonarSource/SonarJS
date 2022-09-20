@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Rule } from 'eslint';
+
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
 import { decorateDefaultParamLast } from './default-param-last-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
@@ -34,32 +37,36 @@ import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 
 /**
- * The set of internal ESLint rule decorators
+ * A decorator of an ESLint rule
  *
- * The purpose of these decorators is to refine the behaviour of
- * external ESLint rules. These refinements can include reducing
- * the noise by adding exceptions, extending the scope of a rule,
- * adding the support of quick fixes, etc.
+ * The purpose of a decorator is to refine the behaviour of external
+ * ESLint rules. These refinements can include reducing the noise by
+ * adding exceptions, extending the scope of the rule, adding quick fixes, etc.
+ */
+export type RuleDecorator = (rule: Rule.RuleModule) => Rule.RuleModule;
+
+/**
+ * The set of internal ESLint rule decorators
  *
  * Once declared here, these decorators are automatically applied
  * to the corresponding rule definitions by the linter's wrapper.
  * There is no further setup required to enable them, except when
  * one needs to test them using ESLint's rule tester.
  */
-export const decorators = [
-  { decorate: decorateAccessorPairs, ruleKey: 'accessor-pairs' },
-  { decorate: decorateDefaultParamLast, ruleKey: 'default-param-last' },
-  { decorate: decorateNoDupeKeys, ruleKey: 'no-dupe-keys' },
-  { decorate: decorateNoDuplicateImports, ruleKey: 'no-duplicate-imports' },
-  { decorate: decorateNoEmpty, ruleKey: 'no-empty' },
-  { decorate: decorateNoEmptyFunction, ruleKey: 'no-empty-function' },
-  { decorate: decorateNoExtraSemi, ruleKey: 'no-extra-semi' },
-  { decorate: decorateNoRedeclare, ruleKey: 'no-redeclare' },
-  { decorate: decorateNoThrowLiteral, ruleKey: 'no-throw-literal' },
-  { decorate: decorateNoUnreachable, ruleKey: 'no-unreachable' },
-  { decorate: decorateNoUnusedExpressions, ruleKey: 'no-unused-expressions' },
-  { decorate: decorateObjectShorthand, ruleKey: 'object-shorthand' },
-  { decorate: decoratePreferForOf, ruleKey: 'prefer-for-of' },
-  { decorate: decoratePreferTemplate, ruleKey: 'prefer-template' },
-  { decorate: decorateUseIsNan, ruleKey: 'use-isnan' },
-];
+export const decorators: Record<string, RuleDecorator> = {
+  'accessor-pairs': decorateAccessorPairs,
+  'default-param-last': decorateDefaultParamLast,
+  'no-dupe-keys': decorateNoDupeKeys,
+  'no-duplicate-imports': decorateNoDuplicateImports,
+  'no-empty': decorateNoEmpty,
+  'no-empty-function': decorateNoEmptyFunction,
+  'no-extra-semi': decorateNoExtraSemi,
+  'no-redeclare': decorateNoRedeclare,
+  'no-throw-literal': decorateNoThrowLiteral,
+  'no-unreachable': decorateNoUnreachable,
+  'no-unused-expressions': decorateNoUnusedExpressions,
+  'object-shorthand': decorateObjectShorthand,
+  'prefer-for-of': decoratePreferForOf,
+  'prefer-template': decoratePreferTemplate,
+  'use-isnan': decorateUseIsNan,
+};

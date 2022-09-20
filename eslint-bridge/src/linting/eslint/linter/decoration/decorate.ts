@@ -20,8 +20,8 @@
 
 import { Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decorators as internalDecorators } from 'linting/eslint/rules/decorators';
 import { eslintRules } from 'linting/eslint/rules/eslint';
+import { decorators } from 'linting/eslint/rules/decorators';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 /**
  * Decorates external rules
@@ -70,8 +70,8 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
    * External rules are decorated with internal decorators to refine their
    * behaviour: exceptions, quick fixes, secondary locations, etc.
    */
-  for (const { ruleKey, decorate } of internalDecorators) {
-    decoratedRules[ruleKey] = decorate(decoratedRules[ruleKey]);
+  for (const ruleKey in decorators) {
+    decoratedRules[ruleKey] = decorators[ruleKey](decoratedRules[ruleKey]);
   }
   return decoratedRules;
 }
