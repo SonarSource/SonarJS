@@ -52,7 +52,7 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export async function analyzeYAML(input: YamlAnalysisInput): Promise<YamlAnalysisOutput> {
+export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
   const extendedSourceCodes = buildSourceCodes(input);

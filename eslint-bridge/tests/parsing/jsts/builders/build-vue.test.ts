@@ -21,17 +21,14 @@
 import { buildVue } from 'parsing/jsts/builders/build-vue';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { APIError } from 'errors';
+import { jsTsInput } from '../../../tools';
 
 describe('buildVue', () => {
-  it('should build Vue.js code with JavaScript parser', () => {
+  it('should build Vue.js code with JavaScript parser', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'js.vue');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = false;
-    const sourceCode = buildVue(input, tryTypeScriptParser);
+    const sourceCode = buildVue(await jsTsInput({ filePath }), tryTypeScriptParser);
 
     const {
       ast: {
@@ -43,39 +40,36 @@ describe('buildVue', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should fail building malformed Vue.js code', () => {
+  it('should fail building malformed Vue.js code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
-    const fileType = 'MAIN';
 
-    const input = { filePath, fileType } as JsTsAnalysisInput;
+    const analysisInput = await jsTsInput({ filePath });
     const tryTypeScriptParser = false;
-    expect(() => buildVue(input, tryTypeScriptParser)).toThrow(
+    expect(() => buildVue(analysisInput, tryTypeScriptParser)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 7 }),
     );
   });
 
-  it('should build Vue.js code with TypeScript ESLint parser', () => {
+  it('should build Vue.js code with TypeScript ESLint parser', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'ts.vue');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const tryTypeScriptParser = true;
-    const sourceCode = buildVue(input, tryTypeScriptParser) as AST.ESLintExtendedProgram;
+    const sourceCode = buildVue(
+      await jsTsInput({ filePath }),
+      tryTypeScriptParser,
+    ) as AST.ESLintExtendedProgram;
 
     expect(sourceCode.ast).toBeDefined();
   });
 
-  it('should fail building malformed Vue.js code with TypeScript ESLint parser', () => {
+  it('should fail building malformed Vue.js code with TypeScript ESLint parser', async () => {
     console.log = jest.fn();
 
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
+    const analysisInput = await jsTsInput({ filePath });
     const tryTypeScriptParser = true;
-    expect(() => buildVue(input, tryTypeScriptParser)).toThrow();
+    expect(() => buildVue(analysisInput, tryTypeScriptParser)).toThrow();
 
-    const log = `DEBUG Failed to parse ${input.filePath} with TypeScript parser: Expression expected.`;
+    const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
   });
 });

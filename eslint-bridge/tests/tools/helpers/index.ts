@@ -21,3 +21,4 @@
 export * from './parsing';
 export * from './request';
 export * from './unix';
+export * from './input';

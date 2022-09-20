@@ -27,9 +27,9 @@ import { decorateNoEmptyFunction } from 'linting/eslint/rules/decorators/no-empt
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('transformFixes', () => {
-  it('should transform an ESLint core fix', () => {
+  it('should transform an ESLint core fix', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-extra-semi';
     const rules = { [ruleId]: 'error' } as any;
@@ -52,9 +52,9 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should transform a SonarJS suggestion', () => {
+  it('should transform a SonarJS suggestion', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-exclusive-tests';
     const rules = { [ruleId]: 'error' } as any;
@@ -79,9 +79,9 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should transform a fix from a decorated rule', () => {
+  it('should transform a fix from a decorated rule', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'decorated.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-empty-function';
     const rules = { [ruleId]: 'error' } as any;
@@ -106,9 +106,9 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should ignore an undeclared rule quick fix', () => {
+  it('should ignore an undeclared rule quick fix', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'undeclared.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'eqeqeq';
     const rules = { [ruleId]: 'error' } as any;
@@ -121,9 +121,9 @@ describe('transformFixes', () => {
     expect(quickFixes).toEqual([]);
   });
 
-  it('should not return quick fixes for a fixless rule', () => {
+  it('should not return quick fixes for a fixless rule', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'fixless.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-labels';
     const rules = { [ruleId]: 'error' } as any;

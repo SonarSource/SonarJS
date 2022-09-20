@@ -29,11 +29,7 @@ import { ParseFunction } from './eslint';
  * @param options the ESLint parser options
  * @returns the parsed source code
  */
-export function parseForESLint(
-  code: string,
-  parse: ParseFunction,
-  options: {},
-): SourceCode {
+export function parseForESLint(code: string, parse: ParseFunction, options: {}): SourceCode {
   try {
     const result = parse(code, options);
     return new SourceCode({

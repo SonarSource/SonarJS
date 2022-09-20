@@ -47,10 +47,7 @@ export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
  */
-export function parseYaml(
-  parsingContexts: ParsingContext[],
-  text: string,
-): EmbeddedJS[] {
+export function parseYaml(parsingContexts: ParsingContext[], text: string): EmbeddedJS[] {
   /**
    * Builds the abstract syntax tree of the YAML file
    *

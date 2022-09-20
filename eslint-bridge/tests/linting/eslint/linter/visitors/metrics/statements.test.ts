@@ -21,12 +21,12 @@
 import { SourceCode } from 'eslint';
 import { countStatements } from 'linting/eslint/linter/visitors/metrics/statements';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('countStatements', () => {
-  it('should count the number of statements', () => {
+  it('should count the number of statements', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'statements.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
     const statements = countStatements(sourceCode);
     expect(statements).toEqual(10);
   });

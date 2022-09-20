@@ -20,6 +20,7 @@
 
 import express from 'express';
 import { Analysis } from './analysis';
+import { readFile } from 'helpers';
 
 /**
  * Runs an analysis
@@ -40,6 +41,9 @@ export function runner(analysis: Analysis): express.RequestHandler {
   ) => {
     try {
       const input = request.body;
+      if (input.filePath && !input.fileContent) {
+        input.fileContent = await readFile(input.filePath);
+      }
       const output = await analysis(input);
       response.json(output);
     } catch (error) {
