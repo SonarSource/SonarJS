@@ -19,7 +19,7 @@
  */
 
 import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadRulesArray } from './bundle-loader';
+import { loadBundles, loadCustomRulesArray } from './bundle-loader';
 import { createLinterConfig, RuleConfig } from './config';
 import { FileType } from 'helpers';
 import { transformMessages, LintingResult } from './issues';
@@ -32,7 +32,6 @@ import { CustomRule } from './custom-rules';
  * @param ruleBundles the bundles of rules to load in the linter
  * @param customRules array of rules to load in the linter
  */
-
 export interface WrapperOptions {
   inputRules?: RuleConfig[];
   environments?: string[];
@@ -87,12 +86,12 @@ export class LinterWrapper {
    * the external one. This is why some internal rules are named with the
    * prefix `sonar-`, e.g., `sonar-no-fallthrough`.
    *
-   * @param options WrapperOptions
+   * @param options the wrapper's options
    */
   constructor(options: WrapperOptions = {}) {
     this.linter = new Linter();
     loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
-    loadRulesArray(this.linter, options.customRules);
+    loadCustomRulesArray(this.linter, options.customRules);
     this.config = this.createConfig(options);
   }
 

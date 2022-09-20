@@ -28,17 +28,23 @@ import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
 import { debug, getContext } from 'helpers';
 
-export function loadRulesArray(linter: Linter, rules: CustomRule[] = []) {
+export function loadCustomRulesArray(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
     linter.defineRule(rule.ruleId, rule.ruleModule);
+  }
+}
+
+export function loadBundles(linter: Linter, rulesBundles: string[]) {
+  for (const bundleId of rulesBundles) {
+    if (loaders.hasOwnProperty(bundleId)) {
+      loaders[bundleId](linter);
+    }
   }
 }
 
 const loaders: { [key: string]: Function } = {
   externalRules(linter: Linter) {
     /**
-     * Gets the external ESLint-based rules
-     *
      * The external ESLint-based rules includes all the rules that are
      * not implemented internally, in other words, rules from external
      * dependencies which includes ESLint core rules. Furthermore, the
@@ -70,7 +76,7 @@ const loaders: { [key: string]: Function } = {
     linter.defineRules(internalRules);
   },
   /**
-   * Loads context rule bundles
+   * Loads rule bundles from the global context
    *
    * Context bundles define a set of external custom rules (like the taint analysis rule)
    * including rule keys and rule definitions that cannot be provided to the linter
@@ -85,17 +91,9 @@ const loaders: { [key: string]: Function } = {
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
     }
-    loadRulesArray(linter, customRules);
+    loadCustomRulesArray(linter, customRules);
   },
   internalCustomRules(linter: Linter) {
-    loadRulesArray(linter, internalCustomRules);
+    loadCustomRulesArray(linter, internalCustomRules);
   },
 };
-
-export function loadBundles(linter: Linter, rulesBundles: string[]) {
-  for (const bundleId of rulesBundles) {
-    if (loaders.hasOwnProperty(bundleId)) {
-      loaders[bundleId](linter);
-    }
-  }
-}

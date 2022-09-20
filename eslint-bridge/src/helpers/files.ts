@@ -39,7 +39,7 @@ const BOM_BYTE = 0xfeff;
 export type FileType = 'MAIN' | 'TEST';
 
 /**
- * Async read of file contents from a file path
+ * Asynchronous read of file contents from a file path
  *
  * The function gets rid of any Byte Order Marker (BOM)
  * present in the file's header.
