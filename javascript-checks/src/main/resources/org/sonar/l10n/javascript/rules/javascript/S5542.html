@@ -3,7 +3,7 @@
   <li> For block cipher encryption algorithms (like AES):
     <ul>
       <li> The ECB (Electronic Codebook) cipher mode doesn’t provide serious message confidentiality: under a given key any given plaintext block
-      always gets encrypted to the same ciphertext block. This mode never be used. </li>
+      always gets encrypted to the same ciphertext block. This mode should never be used. </li>
       <li> The CBC (Cipher Block Chaining) mode by itself provides only data confidentiality. This cipher mode is also vulnerable to <a
       href="https://en.wikipedia.org/wiki/Padding_oracle_attack">padding oracle attacks</a> when used with padding. Using CBC along with Message
       Authentication Code can provide data integrity and should prevent such attacks. In practice the implementation has many pitfalls and it’s
