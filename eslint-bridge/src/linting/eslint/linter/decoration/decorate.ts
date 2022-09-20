@@ -21,7 +21,7 @@
 import { Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { decorators } from 'linting/eslint/rules/decorators';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 /**
  * Decorates external rules
