@@ -31,12 +31,12 @@ public class CacheStrategy {
 
   private final String name;
   private final boolean analysisRequired;
-  private final CacheWriter<List<String>, Void> cacheWriter;
+  private final UCFGFilesSerialization serialization;
 
-  private CacheStrategy(String name, boolean analysisRequired, CacheWriter<List<String>, Void> cacheWriter) {
+  private CacheStrategy(String name, boolean analysisRequired, UCFGFilesSerialization serialization) {
     this.name = name;
     this.analysisRequired = analysisRequired;
-    this.cacheWriter = cacheWriter;
+    this.serialization = serialization;
   }
 
   static CacheStrategy noCache() {
@@ -60,8 +60,8 @@ public class CacheStrategy {
   }
 
   public void writeGeneratedFilesToCache(@Nullable List<String> generatedFiles) throws IOException {
-    if (cacheWriter != null) {
-      cacheWriter.writeToCache(generatedFiles);
+    if (serialization != null) {
+      serialization.writeToCache(generatedFiles);
     }
   }
 
