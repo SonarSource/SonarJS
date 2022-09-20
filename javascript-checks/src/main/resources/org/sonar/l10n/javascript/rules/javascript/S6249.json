@@ -8,9 +8,7 @@
   },
   "tags": [
     "aws",
-    "cwe",
-    "owasp-a6",
-    "owasp-a3"
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6249",
@@ -24,25 +22,9 @@
       "4.1",
       "6.5.4"
     ],
-    "OWASP": [
-      "A3",
-      "A6"
-    ],
-    "CIS": [
-      "2.1.12"
-    ],
-    "OWASP Top 10 2021": [
-      "A2",
-      "A5"
-    ],
     "PCI DSS 4.0": [
       "4.2.1",
       "6.2.4"
-    ],
-    "ASVS 4.0": [
-      "1.9.1",
-      "9.1.1",
-      "9.2.2"
     ]
   },
   "compatibleLanguages": [
