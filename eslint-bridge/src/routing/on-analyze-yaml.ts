@@ -23,4 +23,4 @@ import { runner, analyzeYAML, YamlAnalysisInput } from 'services/analysis';
 /**
  * Handles YAML analysis requests
  */
-export default runner(input => analyzeYAML(input as YamlAnalysisInput));
+export default runner(input => Promise.resolve(analyzeYAML(input as YamlAnalysisInput)));
