@@ -41,5 +41,5 @@ export function buildTs(input: JsTsAnalysisInput, isVueFile: boolean) {
     isVueFile ? parsers.typescript.parser : undefined,
   );
   const parse = isVueFile ? parsers.vuejs.parse : parsers.typescript.parse;
-  return parseForESLint(input, parse, options);
+  return parseForESLint(input.fileContent, parse, options);
 }

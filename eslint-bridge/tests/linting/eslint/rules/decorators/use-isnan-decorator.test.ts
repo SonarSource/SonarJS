@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { decorateUseIsNan } from 'linting/eslint/rules/decorators/use-isnan-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
 import { Rule } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { mergeRules } from './decorators/helpers';
 

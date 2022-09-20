@@ -19,5 +19,7 @@
  */
 
 import { Linter } from 'eslint';
-
+/**
+ * ESLint core rules.
+ */
 export const eslintRules = Object.fromEntries(new Linter().getRules());

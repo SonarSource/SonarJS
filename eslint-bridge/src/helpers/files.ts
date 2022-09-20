@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import fs from 'fs';
+import fs from 'fs/promises';
 
 /**
  * Byte Order Marker
@@ -39,20 +39,6 @@ const BOM_BYTE = 0xfeff;
 export type FileType = 'MAIN' | 'TEST';
 
 /**
- * Reads the content of a file from a file path
- *
- * The function gets rid of any Byte Order Marker (BOM)
- * present in the file's header.
- *
- * @param filePath the path of a file
- * @returns the content of the file
- */
-export function readFile(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-  return stripBOM(fileContent);
-}
-
-/**
  * Async read of file contents from a file path
  *
  * The function gets rid of any Byte Order Marker (BOM)
@@ -61,8 +47,8 @@ export function readFile(filePath: string) {
  * @param filePath the path of a file
  * @returns Promise which resolves with the content of the file
  */
-export async function readFileAsync(filePath: string) {
-  const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
+export async function readFile(filePath: string) {
+  const fileContent = await fs.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
 }
 
@@ -74,7 +60,7 @@ export async function readFileAsync(filePath: string) {
  * @param str the input string
  * @returns the stripped string
  */
-function stripBOM(str: string) {
+export function stripBOM(str: string) {
   if (str.charCodeAt(0) === BOM_BYTE) {
     return str.slice(1);
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { JavaScriptRuleTester } from '../../../../tools';
 import { decorateAccessorPairs } from 'linting/eslint/rules/decorators/accessor-pairs-decorator';
 

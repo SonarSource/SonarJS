@@ -22,13 +22,13 @@ import path from 'path';
 import { readFile } from 'helpers';
 
 describe('readFile', () => {
-  it('should read a file', () => {
-    const contents = readFile(path.join(__dirname, 'fixtures', 'file.js'));
+  it('should read a file', async () => {
+    const contents = await readFile(path.join(__dirname, 'fixtures', 'file.js'));
     expect(contents).toBe('file();');
   });
 
-  it('should remove any BOM header', () => {
-    const contents = readFile(path.join(__dirname, 'fixtures', 'bom.js'));
+  it('should remove any BOM header', async () => {
+    const contents = await readFile(path.join(__dirname, 'fixtures', 'bom.js'));
     expect(contents).toBe('bom();');
   });
 });
