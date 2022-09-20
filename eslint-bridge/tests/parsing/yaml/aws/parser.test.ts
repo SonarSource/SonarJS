@@ -21,12 +21,13 @@
 import path from 'path';
 import { parseAwsFromYaml } from 'parsing/yaml';
 import { APIError } from 'errors';
-import { YamlAnalysisInput } from 'services/analysis';
+import { readFile } from 'helpers';
 
 describe('parseAwsFromYaml()', () => {
-  it('should parse valid YAML syntax', () => {
+  it('should parse valid YAML syntax', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'valid.yaml');
-    const embedded = parseAwsFromYaml({ filePath } as YamlAnalysisInput);
+    const fileContent = await readFile(filePath);
+    const embedded = parseAwsFromYaml(fileContent);
     expect(embedded).toBeDefined();
     expect(embedded).toHaveLength(1);
     expect(embedded[0]).toEqual(
@@ -39,9 +40,10 @@ describe('parseAwsFromYaml()', () => {
     );
   });
 
-  it('should extract the resource name', () => {
+  it('should extract the resource name', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'resource-names.yaml');
-    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml({ filePath } as YamlAnalysisInput);
+    const fileContent = await readFile(filePath);
+    const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(fileContent);
     expect(firstEmbedded).toEqual(
       expect.objectContaining({
         extras: {
@@ -58,9 +60,10 @@ describe('parseAwsFromYaml()', () => {
     );
   });
 
-  it('should fail parsing invalid YAML syntax', () => {
+  it('should fail parsing invalid YAML syntax', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'parser', 'invalid.yaml');
-    expect(() => parseAwsFromYaml({ filePath } as YamlAnalysisInput)).toThrow(
+    const fileContent = await readFile(filePath);
+    expect(() => parseAwsFromYaml(fileContent)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 7 }),
     );
   });
