@@ -19,7 +19,7 @@
  */
 
 import { Linter, SourceCode } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';

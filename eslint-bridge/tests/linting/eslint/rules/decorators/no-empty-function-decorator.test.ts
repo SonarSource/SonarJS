@@ -19,7 +19,7 @@
  */
 
 import { Rule, RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import {
   decorateNoEmptyFunction,
   reportWithQuickFixIfApplicable,

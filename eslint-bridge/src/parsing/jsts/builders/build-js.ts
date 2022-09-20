@@ -42,7 +42,7 @@ import { buildParserOptions, parsers, parseForESLint } from 'parsing/jsts';
 export function buildJs(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean): SourceCode {
   if (tryTypeScriptESLintParser) {
     try {
-      return parseForESLint(input, parsers.typescript.parse, buildParserOptions(input, false));
+      return parseForESLint(input.fileContent, parsers.typescript.parse, buildParserOptions(input, false));
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
     }
@@ -50,14 +50,14 @@ export function buildJs(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boo
 
   let moduleError;
   try {
-    return parseForESLint(input, parsers.javascript.parse, buildParserOptions(input, true));
+    return parseForESLint(input.fileContent, parsers.javascript.parse, buildParserOptions(input, true));
   } catch (error) {
     moduleError = error;
   }
 
   try {
     return parseForESLint(
-      input,
+      input.fileContent,
       parsers.javascript.parse,
       buildParserOptions(input, true, undefined, 'script'),
     );

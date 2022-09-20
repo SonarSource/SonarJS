@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport, mergeRules } from './decorators/helpers';
-import { eslintRules } from './eslint';
+import { eslintRules } from './core';
 
 const eslintMaxParams = eslintRules['max-params'];
 

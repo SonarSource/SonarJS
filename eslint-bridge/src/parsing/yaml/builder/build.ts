@@ -36,7 +36,7 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function buildSourceCodes(input: YamlAnalysisInput): ExtendedSourceCode[] {
-  const embeddedJSs = parseAwsFromYaml(input);
+  const embeddedJSs = parseAwsFromYaml(input.fileContent);
 
   const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {

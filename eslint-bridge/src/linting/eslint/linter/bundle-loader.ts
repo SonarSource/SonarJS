@@ -19,7 +19,7 @@
  */
 
 import { Linter, Rule } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';

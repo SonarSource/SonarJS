@@ -22,8 +22,7 @@ import path from 'path';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
-import { JsTsAnalysisInput } from 'services/analysis';
-import { YamlAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
@@ -35,12 +34,13 @@ describe('patchSourceCode', () => {
     });
   });
 
-  it('should patch source code', () => {
+  it('should patch source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
+    const text = await readFile(filePath);
     const [patchedSourceCode] = buildSourceCodes({ filePath } as YamlAnalysisInput);
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
-        text: readFile(filePath),
+        text,
         lineStartIndices: [0, 37, 48, 70, 108, 124, 152, 172, 199, 222, 232],
         lines: [
           'AWSTemplateFormatVersion: 2010-09-09',

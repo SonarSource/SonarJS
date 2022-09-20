@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { readFileAsync } from 'helpers';
 import { createStylelintConfig, linter } from 'linting/stylelint';
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
 
@@ -33,8 +32,7 @@ import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules } = input;
-  const code = typeof fileContent == 'string' ? fileContent : await readFileAsync(filePath);
+  const { filePath, fileContent: code, rules } = input;
   const config = createStylelintConfig(rules);
   const options = {
     code,
