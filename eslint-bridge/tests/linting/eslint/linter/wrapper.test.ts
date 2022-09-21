@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import fs from 'fs';
 import path from 'path';
 import { SourceCode } from 'eslint';
-import { setContext } from 'helpers';
+import { fileReadable, setContext } from 'helpers';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
 import { Language } from 'parsing/jsts';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools';
@@ -336,9 +335,9 @@ describe('LinterWrapper', () => {
     async ruleId => {
       const fixtures = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes');
       let language: Language;
-      if (fs.existsSync(path.join(fixtures, `${ruleId}.js`))) {
+      if (await fileReadable(path.join(fixtures, `${ruleId}.js`))) {
         language = 'js';
-      } else if (fs.existsSync(path.join(fixtures, `${ruleId}.ts`))) {
+      } else if (await fileReadable(path.join(fixtures, `${ruleId}.ts`))) {
         language = 'ts';
       } else {
         throw new Error(`Failed to find fixture file for rule '${ruleId}' in '${fixtures}'.`);

@@ -269,7 +269,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = createProgram(tsConfig);
+    const { programId } = await createProgram(tsConfig);
     const language = 'ts';
 
     const {

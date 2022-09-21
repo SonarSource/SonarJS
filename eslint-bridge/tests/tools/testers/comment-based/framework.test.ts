@@ -19,45 +19,48 @@
  */
 import * as path from 'path';
 import { extractExpectations } from './framework';
-import { readFileSync } from 'fs';
+import { readFile } from 'helpers';
 
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${__dirname}/fixtures`);
 
-  function assertions(filename: string, usesSecondaryLocations = false) {
+  async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);
-    const code = readFileSync(filePath, { encoding: 'utf8' });
+    const code = await readFile(filePath);
     return extractExpectations(code, usesSecondaryLocations);
   }
 
-  it('non compliant', () => {
-    expect(assertions('non_compliant.js')).toEqual([{ line: 1 }]);
+  it('non compliant', async () => {
+    expect(await assertions('non_compliant.js')).toEqual([{ line: 1 }]);
   });
 
-  it('issue message', () => {
-    expect(assertions('message.js')).toEqual([{ line: 1, message: 'Expected error message' }]);
+  it('issue message', async () => {
+    expect(await assertions('message.js')).toEqual([
+      { line: 1, message: 'Expected error message' },
+    ]);
   });
 
-  it('multiple issue message', () => {
-    expect(assertions('multiple.js')).toEqual([
+  it('multiple issue message', async () => {
+    expect(await assertions('multiple.js')).toEqual([
       { line: 1, message: 'Expected error message 1' },
       { line: 1, message: 'Expected error message 2' },
     ]);
   });
 
-  it('issue count', () => {
-    expect(assertions('count.js')).toEqual([{ line: 1 }, { line: 1 }]);
+  it('issue count', async () => {
+    expect(await assertions('count.js')).toEqual([{ line: 1 }, { line: 1 }]);
   });
 
-  it('mixing message and count', () => {
-    expect(() => assertions('mix.js')).toThrow(
+  it('mixing message and count', async () => {
+    const error = await assertions('mix.js').catch(err => err);
+    expect(error.message).toEqual(
       'Error, you can not specify issue count and messages at line 1, you have to choose either:' +
         '\n  Noncompliant 2\nor\n  Noncompliant {{Expected error message}}\n',
     );
   });
 
-  it('primary', () => {
-    expect(assertions('primary.js')).toEqual([
+  it('primary', async () => {
+    expect(await assertions('primary.js')).toEqual([
       {
         column: 7,
         endColumn: 10,
@@ -68,8 +71,8 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
-  it('secondary', () => {
-    expect(assertions('secondary.js', true)).toEqual([
+  it('secondary', async () => {
+    expect(await assertions('secondary.js', true)).toEqual([
       {
         column: 7,
         line: 3,
@@ -98,8 +101,8 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
-  it('missing secondary', () => {
-    expect(assertions('missing_secondary.js', true)).toEqual(
+  it('missing secondary', async () => {
+    expect(await assertions('missing_secondary.js', true)).toEqual(
       expect.arrayContaining([
         {
           line: 6,
@@ -112,8 +115,8 @@ describe('Comment-based Testing Framework', () => {
     );
   });
 
-  it('line adjustment', () => {
-    expect(assertions('adjustment.js', true)).toEqual([
+  it('line adjustment', async () => {
+    expect(await assertions('adjustment.js', true)).toEqual([
       {
         line: 2,
       },
@@ -145,8 +148,8 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
-  it('issue merging', () => {
-    expect(assertions('merge.js')).toEqual([
+  it('issue merging', async () => {
+    expect(await assertions('merge.js')).toEqual([
       { line: 3 },
       { line: 3 },
       {
@@ -164,33 +167,38 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
-  it('ignoring comment', () => {
-    expect(assertions('ignored.js')).toEqual([]);
+  it('ignoring comment', async () => {
+    const result = await assertions('ignored.js').catch(err => err);
+    expect(result).toEqual([]);
   });
 
-  it('unexpected character', () => {
-    expect(() => assertions('unexpected.js')).toThrow("Unexpected character 'u' found at 2:10");
+  it('unexpected character', async () => {
+    const error = await assertions('unexpected.js').catch(err => err);
+    expect(error.message).toEqual("Unexpected character 'u' found at 2:10");
   });
 
-  it('conflictual primary', () => {
-    expect(() => assertions('conflict.js')).toThrow(
+  it('conflictual primary', async () => {
+    const error = await assertions('conflict.js').catch(err => err);
+    expect(error.message).toEqual(
       'Primary location conflicts with another primary location at (1:12,1:15)',
     );
   });
 
-  it('orphan location', () => {
-    expect(() => assertions('orphan0.js')).toThrow(
-      'Primary location does not have a related issue at (1:7,1:10)',
-    );
-    expect(() => assertions('orphan1.js')).toThrow(
+  it('orphan location', async () => {
+    let error = await assertions('orphan0.js').catch(err => err);
+    expect(error.message).toEqual('Primary location does not have a related issue at (1:7,1:10)');
+    error = await assertions('orphan1.js').catch(err => err);
+    expect(error.message).toEqual(
       "Secondary location '<' without previous primary location at (1:6,1:9)",
     );
-    expect(() => assertions('orphan2.js')).toThrow(
+    error = await assertions('orphan2.js').catch(err => err);
+    expect(error.message).toEqual(
       "Secondary location '>' without next primary location at (1:6,1:9)",
     );
   });
 
-  it('comments parsing ambiguity', () => {
-    expect(assertions('parsing.js')).toEqual([{ line: 1 }]);
+  it('comments parsing ambiguity', async () => {
+    const result = await assertions('parsing.js');
+    expect(result).toEqual([{ line: 1 }]);
   });
 });

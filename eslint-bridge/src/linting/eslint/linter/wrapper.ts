@@ -19,14 +19,18 @@
  */
 
 import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadCustomRulesArray } from './bundle-loader';
+import { loadBundles, loadCustomRules } from './bundle-loader';
 import { createLinterConfig, RuleConfig } from './config';
 import { FileType } from 'helpers';
 import { transformMessages, LintingResult } from './issues';
 import { CustomRule } from './custom-rules';
 
 /**
- * @param inputRules the quality profile rules
+ * Wrapper's constructor initializer. All the parameters are optional,
+ * having the option to create a Linter without any additional rules
+ * loaded, aside of the preexisting Eslint Core rules.
+ *
+ * @param inputRules the quality profile rules, enabled rules
  * @param environments the JavaScript environments
  * @param globals the global variables
  * @param ruleBundles the bundles of rules to load in the linter
@@ -40,6 +44,14 @@ export interface WrapperOptions {
   customRules?: CustomRule[];
 }
 
+/**
+ * When a linter is created, by default all these bundles of rules will
+ * be loaded into the linter internal rules map. This behaviour can be
+ * adjusted by passing which bundles, if any, should be loaded instead.
+ * The order of this array is important here. Rules from a previous bundle
+ * will be overridden by the implementation of the same rule key in a
+ * following bundle.
+ */
 const defaultRuleBundles = [
   'externalRules',
   'pluginRules',
@@ -91,7 +103,7 @@ export class LinterWrapper {
   constructor(options: WrapperOptions = {}) {
     this.linter = new Linter();
     loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
-    loadCustomRulesArray(this.linter, options.customRules);
+    loadCustomRules(this.linter, options.customRules);
     this.config = this.createConfig(options);
   }
 

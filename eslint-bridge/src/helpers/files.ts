@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import fs from 'fs/promises';
+import { promises as fs, constants } from 'fs';
 
 /**
  * Byte Order Marker
@@ -65,4 +65,29 @@ export function stripBOM(str: string) {
     return str.slice(1);
   }
   return str;
+}
+
+/**
+ * Asynchronous check if file is readable.
+ *
+ * @param path the file path
+ * @returns true if file is readable. false otherwise
+ */
+export async function fileReadable(path: string) {
+  try {
+    await fs.access(path, constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Asynchronous check if path is directory.
+ *
+ * @param path the path to check
+ * @returns true if file is a directory. false otherwise
+ */
+export async function pathIsDir(path: string) {
+  return (await fs.lstat(path)).isDirectory();
 }

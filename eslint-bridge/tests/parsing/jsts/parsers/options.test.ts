@@ -80,10 +80,10 @@ describe('buildParserOptions', () => {
     );
   });
 
-  it('should build parser options with TypeScript program', () => {
+  it('should build parser options with TypeScript program', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'options', 'tsconfig.json');
 
-    const { programId } = createProgram(tsConfig);
+    const { programId } = await createProgram(tsConfig);
     const program = getProgramById(programId);
 
     const filePath = '/tmp/dir';
