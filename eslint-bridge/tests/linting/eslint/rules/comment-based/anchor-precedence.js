@@ -30,7 +30,7 @@ let valid = [
     regex: /^a|b$|c$/,
   },
   {
-    regex: /^a|^b|c/, // More likely intential as there are multiple anchored alternatives
+    regex: /^a|^b|c/, // More likely intentional as there are multiple anchored alternatives
   },
   {
     regex: /aa|bb|cc/,
