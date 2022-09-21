@@ -118,4 +118,3 @@ const loaders: { [key: string]: Function } = {
     loadCustomRules(linter, internalCustomRules);
   },
 };
-
