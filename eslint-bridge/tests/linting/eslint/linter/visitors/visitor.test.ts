@@ -25,9 +25,9 @@ import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 
 describe('visitor', () => {
   describe('visit', () => {
-    it('should traverse an ESLint node', () => {
+    it('should traverse an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/tree.ts');
-      const sourceCode = parseTypeScriptSourceFile(filePath, []) as SourceCode;
+      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
 
       const visited = [];
       visit(sourceCode, node => visited.push(node.type + ' ' + node.loc.start.line));
@@ -62,16 +62,16 @@ describe('visitor', () => {
   });
 
   describe('childrenOf', () => {
-    it('should return the child of an ESLint node', () => {
+    it('should return the child of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/child.ts');
-      const sourceCode = parseTypeScriptSourceFile(filePath, []) as SourceCode;
+      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['IfStatement']);
     });
 
-    it('should return the children of an ESLint node', () => {
+    it('should return the children of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/children.ts');
-      const sourceCode = parseTypeScriptSourceFile(filePath, []) as SourceCode;
+      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['WhileStatement', 'EmptyStatement']);
     });

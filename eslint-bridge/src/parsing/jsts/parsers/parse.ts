@@ -20,25 +20,17 @@
 
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { readFile } from 'helpers';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { ParseFunction } from './eslint';
 
 /**
  * Parses a JavaScript / TypeScript analysis input with an ESLint-based parser
- * @param input the JavaScript / TypeScript input to parse
+ * @param code the JavaScript / TypeScript input to parse
  * @param parse the ESLint parsing function to use for parsing
  * @param options the ESLint parser options
  * @returns the parsed source code
  */
-export function parseForESLint(
-  input: JsTsAnalysisInput,
-  parse: ParseFunction,
-  options: {},
-): SourceCode {
-  const { fileContent, filePath } = input;
+export function parseForESLint(code: string, parse: ParseFunction, options: {}): SourceCode {
   try {
-    const code = fileContent || readFile(filePath);
     const result = parse(code, options);
     return new SourceCode({
       ...result,

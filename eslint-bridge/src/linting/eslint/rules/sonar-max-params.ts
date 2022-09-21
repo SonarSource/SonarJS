@@ -19,16 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S107/javascript
 
-import { Linter, Rule } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport, mergeRules } from './decorators/helpers';
+import { eslintRules } from './core';
 
-const eslintMaxParams = new Linter().getRules().get('max-params')!;
+const eslintMaxParams = eslintRules['max-params'];
 
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: { ...eslintMaxParams.meta!.messages },
+    messages: { ...eslintMaxParams.meta?.messages },
   },
   create(context: Rule.RuleContext) {
     /**

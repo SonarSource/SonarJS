@@ -22,7 +22,7 @@ import path from 'path';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
-import { JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
@@ -34,12 +34,16 @@ describe('patchSourceCode', () => {
     });
   });
 
-  it('should patch source code', () => {
+  it('should patch source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
-    const [patchedSourceCode] = buildSourceCodes(filePath);
+    const text = await readFile(filePath);
+    const [patchedSourceCode] = buildSourceCodes({
+      filePath,
+      fileContent: text,
+    } as YamlAnalysisInput);
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
-        text: readFile(filePath),
+        text,
         lineStartIndices: [0, 37, 48, 70, 108, 124, 152, 172, 199, 222, 232],
         lines: [
           'AWSTemplateFormatVersion: 2010-09-09',
@@ -58,32 +62,38 @@ describe('patchSourceCode', () => {
     );
   });
 
-  test.each(['body', 'tokens', 'comments'])('should patch ast %s', property => {
+  test.each(['body', 'tokens', 'comments'])('should patch ast %s', async property => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', property);
 
-    const filePath = `${fixture}.yaml`;
-    const [patchedSourceCode] = buildSourceCodes(filePath);
+    let filePath = `${fixture}.yaml`;
+    let fileContent = await readFile(filePath);
+    const [patchedSourceCode] = buildSourceCodes({ filePath, fileContent } as YamlAnalysisInput);
     const patchedNodes = patchedSourceCode.ast[property];
 
-    const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
+    filePath = `${fixture}.js`;
+    fileContent = await readFile(filePath);
+    const input = { filePath, fileContent } as JsTsAnalysisInput;
     const referenceSourceCode = buildSourceCode(input, 'js');
     const referenceNodes = referenceSourceCode.ast[property];
 
     expect(patchedNodes).toEqual(referenceNodes);
   });
 
-  it('should patch parsing errors', () => {
+  it('should patch parsing errors', async () => {
     const fixture = path.join(__dirname, 'fixtures', 'patch', 'parsing-error');
 
-    const filePath = `${fixture}.yaml`;
+    let filePath = `${fixture}.yaml`;
+    let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
-      buildSourceCodes(filePath);
+      buildSourceCodes({ filePath, fileContent } as YamlAnalysisInput);
     } catch (error) {
       patchedParsingError = error;
     }
 
-    const input = { filePath: `${fixture}.js` } as JsTsAnalysisInput;
+    filePath = `${fixture}.js`;
+    fileContent = await readFile(filePath);
+    const input = { filePath, fileContent } as JsTsAnalysisInput;
     expect(() => buildSourceCode(input, 'js')).toThrow(patchedParsingError);
   });
 

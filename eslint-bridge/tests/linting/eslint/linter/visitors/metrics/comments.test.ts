@@ -65,9 +65,9 @@ const cases = [
 describe('findCommentLines', () => {
   test.each(cases)(
     'should find comment lines $given',
-    ({ fixture, ignoreHeader, expectedLines }) => {
+    async ({ fixture, ignoreHeader, expectedLines }) => {
       const filePath = path.join(__dirname, 'fixtures', 'comments', `${fixture}.js`);
-      const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
     },

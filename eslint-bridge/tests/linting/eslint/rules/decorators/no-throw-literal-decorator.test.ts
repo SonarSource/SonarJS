@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
+import { RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { decorateNoThrowLiteral } from 'linting/eslint/rules/decorators/no-throw-literal-decorator';
 
 const ruleTester = new RuleTester();
-const rule = decorateNoThrowLiteral(new Linter().getRules().get('no-throw-literal'));
+const rule = decorateNoThrowLiteral(eslintRules['no-throw-literal']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

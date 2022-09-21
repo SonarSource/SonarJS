@@ -20,15 +20,15 @@
 
 import { Linter, SourceCode } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools/helpers';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
 import { transformMessages } from 'linting/eslint/linter/issues';
 import { rule as noDuplicateInComposite } from 'linting/eslint/rules/no-duplicate-in-composite';
 import { rule as noUnusedFunctionArgument } from 'linting/eslint/rules/no-unused-function-argument';
 
 describe('transformMessages', () => {
-  it('should transform ESLint messages', () => {
+  it('should transform ESLint messages', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'message.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-var';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -49,9 +49,9 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should normalize ESLint locations', () => {
+  it('should normalize ESLint locations', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'location.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-unused-function-argument';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -73,9 +73,9 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should transform ESLint fixes', () => {
+  it('should transform ESLint fixes', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'fix.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-extra-semi';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -106,10 +106,10 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should decode secondary locations', () => {
+  it('should decode secondary locations', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
-    const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+    const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
 
     const ruleId = 'no-duplicate-in-composite';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -134,10 +134,10 @@ describe('transformMessages', () => {
     ]);
   });
 
-  it('should remove ucfg issues', () => {
+  it('should remove ucfg issues', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
-    const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+    const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
 
     const linter = new Linter();
     const messages = [

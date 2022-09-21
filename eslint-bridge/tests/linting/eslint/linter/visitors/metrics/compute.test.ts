@@ -21,12 +21,12 @@
 import path from 'path';
 import { SourceCode } from 'eslint';
 import { computeMetrics } from 'linting/eslint';
-import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('computeMetrics', () => {
-  it('should compute metrics', () => {
+  it('should compute metrics', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'compute.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
     const metrics = computeMetrics(sourceCode, true, 42);
     expect(metrics).toEqual({
       classes: 1,

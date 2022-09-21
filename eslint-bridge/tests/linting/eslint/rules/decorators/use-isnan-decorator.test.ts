@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
+import { RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { decorateUseIsNan } from 'linting/eslint/rules/decorators/use-isnan-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const rule = decorateUseIsNan(new Linter().getRules().get('use-isnan'));
+const rule = decorateUseIsNan(eslintRules['use-isnan']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

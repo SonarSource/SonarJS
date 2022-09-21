@@ -19,8 +19,8 @@
  */
 
 import { APIError } from 'errors';
-import { debug, getContext } from 'helpers';
-import { CustomRule, LinterWrapper, RuleConfig } from './linter';
+import { debug } from 'helpers';
+import { LinterWrapper, RuleConfig } from './linter';
 
 export * from './linter';
 export * from './rules';
@@ -52,32 +52,8 @@ export function initializeLinter(
   globals: string[] = [],
   linterId = 'default',
 ) {
-  const { bundles } = getContext();
-  const customRules = loadBundles(bundles);
-
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-  linters[linterId] = new LinterWrapper(inputRules, customRules, environments, globals);
-}
-
-/**
- * Loads rule bundles
- *
- * A rule bundle is a set of external custom rules (like the taint analysis rule)
- * including rule keys and rule definitions that cannot be provided to the linter
- * wrapper using the same feeding channel as rules from the active quality profile.
- *
- * @param bundles the path of rule bundles to load
- * @returns a set of custom rules
- */
-function loadBundles(bundles: string[]) {
-  const customRules: CustomRule[] = [];
-  for (const ruleBundle of bundles) {
-    const bundle = require(ruleBundle);
-    customRules.push(...bundle.rules);
-    const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
-    debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
-  }
-  return customRules;
+  linters[linterId] = new LinterWrapper({ inputRules, environments, globals });
 }
 
 /**

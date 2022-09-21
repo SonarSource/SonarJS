@@ -21,9 +21,10 @@
 import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
+import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
 import { APIError } from 'errors';
+import { jsTsInput } from '../../../../tools';
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -35,7 +36,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should fail on uninitialized linter', () => {
+  it('should fail on uninitialized linter', async () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
@@ -43,7 +44,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze JavaScript code with the given linter', () => {
+  it('should analyze JavaScript code with the given linter', async () => {
     const rules = [
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -51,25 +52,16 @@ describe('analyzeJSTS', () => {
     initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const emptyLinterInput = {
-      filePath,
-      fileContent,
-      fileType,
-      tsConfigs,
-      linterId: 'empty',
-    } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
 
-    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(
+      await jsTsInput({ filePath, linterId: 'empty' }),
+      language,
+    ) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -80,7 +72,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze TypeScript code', () => {
+  it('should analyze TypeScript code', async () => {
     const rules = [
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -88,24 +80,16 @@ describe('analyzeJSTS', () => {
     initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
-    const emptyLinterInput = {
-      filePath,
-      fileContent,
-      fileType,
-      tsConfigs,
-      linterId: 'empty',
-    } as JsTsAnalysisInput;
     const language = 'ts';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
-    const { issues } = analyzeJSTS(emptyLinterInput, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(
+      await jsTsInput({ filePath, tsConfigs, linterId: 'empty' }),
+      language,
+    ) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -115,23 +99,18 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze Vue.js code', () => {
+  it('should analyze Vue.js code', async () => {
     const rules = [
       { key: 'no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'code.vue');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-dupe-keys',
@@ -139,7 +118,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main files', () => {
+  it('should analyze main files', async () => {
     const rules = [
       { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -147,14 +126,9 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'main.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -163,7 +137,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze test files', () => {
+  it('should analyze test files', async () => {
     const rules = [
       { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -171,14 +145,14 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'test.js');
-    const fileContent = undefined;
     const fileType = 'TEST';
-    const tsConfigs = [];
 
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(
+      await jsTsInput({ filePath, fileType }),
+      language,
+    ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -187,7 +161,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main and test files', () => {
+  it('should analyze main and test files', async () => {
     const rules = [
       { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
       { key: 'no-exclusive-tests', configurations: [], fileTypeTarget: ['TEST'] },
@@ -195,37 +169,31 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'mixed.js');
-    const fileContent = undefined;
     const fileType = 'TEST';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(
+      await jsTsInput({ filePath, fileType }),
+      language,
+    ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(2);
     expect(issues.map(issue => issue.ruleId)).toEqual(
       expect.arrayContaining(['no-exclusive-tests', 'no-throw-literal']),
     );
   });
 
-  it('should analyze shebang files', () => {
+  it('should analyze shebang files', async () => {
     const rules = [
       { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'shebang.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'object-shorthand',
@@ -233,23 +201,18 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze BOM files', () => {
+  it('should analyze BOM files', async () => {
     const rules = [
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'bom.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-extra-semi',
@@ -257,7 +220,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze file contents', () => {
+  it('should analyze file contents', async () => {
     const rules = [
       { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -265,15 +228,11 @@ describe('analyzeJSTS', () => {
 
     const filePath = '/tmp/dir';
     const fileContent = `'foo' + bar + 'baz'`;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, fileContent }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-template',
@@ -281,23 +240,19 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TSConfig', () => {
+  it('should analyze using TSConfig', async () => {
     const rules = [
       { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'tsconfig.ts');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'ts';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-useless-intersection',
@@ -305,25 +260,21 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TypeScript program', () => {
+  it('should analyze using TypeScript program', async () => {
     const rules = [
       { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
 
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = createProgram(tsConfig);
-
-    const input = { filePath, fileContent, fileType, programId } as JsTsAnalysisInput;
+    const { programId } = await createProgram(tsConfig);
     const language = 'ts';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-array-delete',
@@ -331,7 +282,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using type information', () => {
+  it('should analyze using type information', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -344,16 +295,12 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'type.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [issue],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'different-types-comparison',
@@ -361,21 +308,16 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should report issues', () => {
+  it('should report issues', async () => {
     const rules = [
       { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'issue.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
-    const { issues } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issues).toEqual([
       {
         ruleId: 'no-octal',
@@ -390,23 +332,18 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report secondary locations', () => {
+  it('should report secondary locations', async () => {
     const rules = [
       { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'secondary.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [{ secondaryLocations }],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -418,23 +355,18 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report quick fixes', () => {
+  it('should report quick fixes', async () => {
     const rules = [
       { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'quickfix.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       issues: [{ quickFixes }],
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -467,20 +399,15 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should compute metrics on main files', () => {
+  it('should compute metrics on main files', async () => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
-      input,
+      await jsTsInput({ filePath }),
       language,
     ) as JsTsAnalysisOutput;
 
@@ -716,20 +643,16 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics on test files', () => {
+  it('should compute metrics on test files', async () => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
-    const fileContent = undefined;
     const fileType = 'TEST';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
-      input,
+      await jsTsInput({ filePath, fileType }),
       language,
     ) as JsTsAnalysisOutput;
 
@@ -767,7 +690,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics in SonarLint context', () => {
+  it('should compute metrics in SonarLint context', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -779,15 +702,10 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
-      input,
+      await jsTsInput({ filePath }),
       language,
     ) as JsTsAnalysisOutput;
 
@@ -799,7 +717,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should measure analysis duration', () => {
+  it('should measure analysis duration', async () => {
     const rules = [
       { key: 'no-extra-smi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -808,33 +726,23 @@ describe('analyzeJSTS', () => {
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'measure.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
 
     const {
       perf: { parseTime, analysisTime },
-    } = analyzeJSTS(input, language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(parseTime).toBeGreaterThan(0);
     expect(analysisTime).toBeGreaterThan(0);
   });
 
-  it('should return parsing errors', () => {
+  it('should return parsing errors', async () => {
     const rules = [];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
-    const fileContent = undefined;
-    const fileType = 'MAIN';
-    const tsConfigs = [];
-
-    const input = { filePath, fileContent, fileType, tsConfigs } as JsTsAnalysisInput;
     const language = 'js';
-
-    expect(() => analyzeJSTS(input, language)).toThrow(
+    const analysisInput = await jsTsInput({ filePath });
+    expect(() => analyzeJSTS(analysisInput, language)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });

@@ -40,11 +40,11 @@ export function buildVue(input: JsTsAnalysisInput, tryTypeScriptESLintParser: bo
   if (tryTypeScriptESLintParser) {
     try {
       const options = buildParserOptions(input, false, parsers.typescript.parser);
-      return parseForESLint(input, parsers.vuejs.parse, options);
+      return parseForESLint(input.fileContent, parsers.vuejs.parse, options);
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
     }
   }
   const options = buildParserOptions(input, true, parsers.javascript.parser);
-  return parseForESLint(input, parsers.vuejs.parse, options);
+  return parseForESLint(input.fileContent, parsers.vuejs.parse, options);
 }

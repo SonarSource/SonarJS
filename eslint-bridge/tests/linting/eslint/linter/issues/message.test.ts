@@ -21,12 +21,12 @@
 import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from 'linting/eslint/linter/issues';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../tools';
 
 describe('convertMessage', () => {
-  it('should convert an ESLint message into a Sonar issue', () => {
+  it('should convert an ESLint message into a Sonar issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const ruleId = 'no-extra-semi';
     const config = { rules: { [ruleId]: 'error' } } as Linter.Config;

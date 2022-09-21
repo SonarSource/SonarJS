@@ -23,6 +23,7 @@ import { SourceCode } from 'eslint';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
 import { JsTsAnalysisInput } from 'services/analysis';
+import { readFile } from 'helpers';
 
 const parseFunctions = [
   {
@@ -36,13 +37,14 @@ const parseFunctions = [
 describe('parseForESLint', () => {
   test.each(parseFunctions)(
     'should parse a valid input with $parser.parser',
-    ({ parser, usingBabel }) => {
+    async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'parse', 'valid.js');
+      const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
-      const input = { filePath, fileType } as JsTsAnalysisInput;
+      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(input, parser.parse, options) as SourceCode;
+      const sourceCode = parseForESLint(fileContent, parser.parse, options) as SourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
@@ -57,7 +59,7 @@ describe('parseForESLint', () => {
 
       const input = { fileContent, fileType } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(input, parser.parse, options) as SourceCode;
+      const sourceCode = parseForESLint(fileContent, parser.parse, options) as SourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
@@ -66,14 +68,15 @@ describe('parseForESLint', () => {
 
   test.each(parseFunctions)(
     'should fail parsing an invalid input with $parser.parser',
-    ({ parser, usingBabel, errorMessage }) => {
+    async ({ parser, usingBabel, errorMessage }) => {
       const filePath = path.join(__dirname, 'fixtures', 'parse', 'invalid.js');
+      const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
-      const input = { filePath, fileType } as JsTsAnalysisInput;
+      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
 
-      expect(() => parseForESLint(input, parser.parse, options)).toThrow(
+      expect(() => parseForESLint(fileContent, parser.parse, options)).toThrow(
         APIError.parsingError(errorMessage, { line: 1 }),
       );
     },

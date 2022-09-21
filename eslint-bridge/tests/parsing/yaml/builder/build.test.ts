@@ -22,53 +22,58 @@ import * as estree from 'estree';
 import { join } from 'path';
 import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/yaml';
 import { APIError } from 'errors';
+import { yamlInput } from '../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
-  it('should build source code from YAML lambda file', () => {
+  it('should build source code from YAML lambda file', async () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
-    const sourceCodes = buildSourceCodes(filePath);
+    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }));
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
-  it('should build source code from YAML serverless file', () => {
+  it('should build source code from YAML serverless file', async () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
-    const sourceCodes = buildSourceCodes(filePath);
+    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }));
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
-  it('should return YAML parsing errors on invalid YAML file', () => {
-    const filePath = join(fixturesPath, 'malformed.yaml');
-    expect(() => buildSourceCodes(filePath)).toThrow(
+  it('should return YAML parsing errors on invalid YAML file', async () => {
+    const analysisInput = await yamlInput({ filePath: join(fixturesPath, 'malformed.yaml') });
+    expect(() => buildSourceCodes(analysisInput)).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
 
-  it('should return a parsing error on invalid plain inline JS', () => {
-    const filePath = join(fixturesPath, 'invalid-plain-inline-js.yaml');
-    expect(() => buildSourceCodes(filePath)).toThrow(
+  it('should return a parsing error on invalid plain inline JS', async () => {
+    const analysisInput = await yamlInput({
+      filePath: join(fixturesPath, 'invalid-plain-inline-js.yaml'),
+    });
+    expect(() => buildSourceCodes(analysisInput)).toThrow(
       APIError.parsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
     );
   });
 
-  it('should return a parsing error on invalid block inline JS', () => {
-    const filePath = join(fixturesPath, 'invalid-block-inline-js.yaml');
-    expect(() => buildSourceCodes(filePath)).toThrow(
+  it('should return a parsing error on invalid block inline JS', async () => {
+    const analysisInput = await yamlInput({
+      filePath: join(fixturesPath, 'invalid-block-inline-js.yaml'),
+    });
+    expect(() => buildSourceCodes(analysisInput)).toThrow(
       APIError.parsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
     );
   });
 
-  it('it should not build a source code for an unsupported format', () => {
+  it('it should not build a source code for an unsupported format', async () => {
     const filePath = join(fixturesPath, 'unsupported-format.yaml');
-    const sourceCodes = buildSourceCodes(filePath);
+    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }));
     expect(sourceCodes).toHaveLength(0);
   });
 
-  it('should fix plain-based format locations', () => {
+  it('should fix plain-based format locations', async () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = buildSourceCodes(filePath);
+    const [{ ast }] = buildSourceCodes(await yamlInput({ filePath }));
 
     const {
       body: [ifStmt],
@@ -135,9 +140,9 @@ describe('buildSourceCodes()', () => {
     expect(elseToken.range).toEqual([204, 208]);
   });
 
-  it('should fix block-folded-based format locations', () => {
+  it('should fix block-folded-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = buildSourceCodes(filePath);
+    const [{ ast }] = buildSourceCodes(await yamlInput({ filePath }));
     const {
       body: [ifStmt],
     } = ast;
@@ -203,9 +208,9 @@ describe('buildSourceCodes()', () => {
     expect(elseToken.range).toEqual([232, 236]);
   });
 
-  it('should fix block-literal-based format locations', () => {
+  it('should fix block-literal-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = buildSourceCodes(filePath);
+    const [{ ast }] = buildSourceCodes(await yamlInput({ filePath }));
     const {
       body: [ifStmt],
     } = ast;
@@ -273,7 +278,9 @@ describe('buildSourceCodes()', () => {
 
   it('should compose a synthetic file path', async () => {
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
-    const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(filePath);
+    const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(
+      await yamlInput({ filePath }),
+    );
     const firstFunctionName = composeSyntheticFilePath(filePath, 'SomeLambdaFunction');
     const secondFunctionName = composeSyntheticFilePath(filePath, 'SomeServerlessFunction');
     expect(firstExtendedSourceCode.syntheticFilePath).toEqual(firstFunctionName);
