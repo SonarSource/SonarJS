@@ -28,35 +28,39 @@ import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
 import { debug, getContext } from 'helpers';
 
-export function loadCustomRulesArray(linter: Linter, rules: CustomRule[] = []) {
+export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
     linter.defineRule(rule.ruleId, rule.ruleModule);
   }
 }
 
-export function loadBundles(linter: Linter, rulesBundles: string[]) {
+export function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)[]) {
   for (const bundleId of rulesBundles) {
-    if (loaders.hasOwnProperty(bundleId)) {
-      loaders[bundleId](linter);
-    }
+    loaders[bundleId](linter);
   }
 }
 
+/**
+ * Loaders for each of the predefined rules bundles. Each bundle comes with a
+ * different data structure (array/record/object), plus on some cases
+ * there are specifics that must be taken into account, like ignoring some
+ * rules from some bundles or decorating them in order to be compatible.
+ */
 const loaders: { [key: string]: Function } = {
+  /**
+   * Loads external rules
+   *
+   * The external ESLint-based rules includes all the rules that are
+   * not implemented internally, in other words, rules from external
+   * dependencies which includes ESLint core rules. Furthermore, the
+   * returned rules are decorated either by internal decorators or by
+   * special decorations.
+   */
   externalRules(linter: Linter) {
-    /**
-     * The external ESLint-based rules includes all the rules that are
-     * not implemented internally, in other words, rules from external
-     * dependencies which includes ESLint core rules. Furthermore, the
-     * returned rules are decorated either by internal decorators or by
-     * special decorations.
-     *
-     * @returns the ESLint-based external rules
-     */
     const externalRules: { [key: string]: Rule.RuleModule } = {};
     /**
      * The order of defining rules from external dependencies is important here.
-     * Core ESLint rules could be overriden by the implementation from specific
+     * Core ESLint rules could be overridden by the implementation from specific
      * dependencies, which should be the default behaviour in most cases. If for
      * some reason a different behaviour is needed for a particular rule, one can
      * specify it in `decorateExternalRules`.
@@ -69,14 +73,25 @@ const loaders: { [key: string]: Function } = {
     }
     linter.defineRules(decorateExternalRules(externalRules));
   },
+  /**
+   * Loads plugin rules
+   *
+   * Adds the rules from the Sonar ESLint plugin
+   */
   pluginRules(linter: Linter) {
     linter.defineRules(pluginRules);
   },
+  /**
+   * Loads internal rules
+   *
+   * Adds the rules from SonarJS plugin, i.e. rules in path
+   * /src/linting/eslint/rules
+   */
   internalRules(linter: Linter) {
     linter.defineRules(internalRules);
   },
   /**
-   * Loads rule bundles from the global context
+   * Loads global context rules
    *
    * Context bundles define a set of external custom rules (like the taint analysis rule)
    * including rule keys and rule definitions that cannot be provided to the linter
@@ -91,9 +106,15 @@ const loaders: { [key: string]: Function } = {
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
     }
-    loadCustomRulesArray(linter, customRules);
+    loadCustomRules(linter, customRules);
   },
+  /**
+   * Loads internal custom rules
+   *
+   * These are rules used internally by SonarQube to have the symbol highlighting and
+   * the cognitive complexity metric.
+   */
   internalCustomRules(linter: Linter) {
-    loadCustomRulesArray(linter, internalCustomRules);
+    loadCustomRules(linter, internalCustomRules);
   },
 };
