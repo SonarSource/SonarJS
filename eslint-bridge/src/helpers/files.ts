@@ -62,7 +62,7 @@ export async function readFile(filePath: string) {
  * @returns Promise which resolves with the content of the file
  */
 export async function readFileAsync(filePath: string) {
-  const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
+  const fileContent = await fs.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
 }
 
