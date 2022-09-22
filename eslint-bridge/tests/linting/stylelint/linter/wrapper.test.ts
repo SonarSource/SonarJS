@@ -27,7 +27,7 @@ describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {
     const filePath = path.join(__dirname, './fixtures/block.css');
     const rules = [{ key: 'block-no-empty', configurations: [] }];
-    const options = createStylelintOptions(filePath, rules);
+    const options = await createStylelintOptions(filePath, rules);
 
     const linter = new LinterWrapper();
     const { issues } = await linter.lint(filePath, options);
@@ -45,7 +45,7 @@ describe('LinterWrapper', () => {
   it('should lint with an internal rule', async () => {
     const filePath = path.join(__dirname, './fixtures/calc.css');
     const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
-    const options = createStylelintOptions(filePath, rules);
+    const options = await createStylelintOptions(filePath, rules);
 
     const linter = new LinterWrapper();
     const { issues } = await linter.lint(filePath, options);
@@ -68,7 +68,7 @@ describe('LinterWrapper', () => {
         configurations: [true, { ignoreFontFamilies: ['foo'] }],
       },
     ];
-    const options = createStylelintOptions(filePath, rules);
+    const options = await createStylelintOptions(filePath, rules);
 
     const linter = new LinterWrapper();
     const { issues } = await linter.lint(filePath, options);
@@ -87,7 +87,7 @@ describe('LinterWrapper', () => {
   it('should not lint with a disabled rule', async () => {
     const filePath = path.join(__dirname, './fixtures/block.css');
     const rules = [];
-    const options = createStylelintOptions(filePath, rules);
+    const options = await createStylelintOptions(filePath, rules);
 
     const linter = new LinterWrapper();
     const { issues } = await linter.lint(filePath, options);
@@ -96,8 +96,11 @@ describe('LinterWrapper', () => {
   });
 });
 
-function createStylelintOptions(filePath: string, rules: RuleConfig[]): stylelint.LinterOptions {
-  const code = readFile(filePath);
+async function createStylelintOptions(
+  filePath: string,
+  rules: RuleConfig[],
+): Promise<stylelint.LinterOptions> {
+  const code = await readFile(filePath);
   const config = createStylelintConfig(rules);
   return { code, codeFilename: filePath, config };
 }

@@ -25,6 +25,7 @@ import { initializeLinter, getLinter } from 'linting/eslint';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
 import { composeSyntheticFilePath } from 'parsing/yaml';
+import { yamlInput } from '../../../../tools';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -38,7 +39,7 @@ describe('analyzeYAML', () => {
     });
   });
 
-  it('should fail on uninitialized linter', () => {
+  it('should fail on uninitialized linter', async () => {
     const input = {} as any;
     expect(() => analyzeYAML(input)).toThrow(
       APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
@@ -51,10 +52,7 @@ describe('analyzeYAML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeYAML({
-      filePath: join(fixturesPath, 'file.yaml'),
-      fileContent: undefined,
-    });
+    } = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'file.yaml') }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -70,20 +68,15 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    expect(() =>
-      analyzeYAML({
-        filePath: join(fixturesPath, 'malformed.yaml'),
-        fileContent: undefined,
-      }),
-    ).toThrow(APIError.parsingError('Map keys must be unique', { line: 2 }));
+    const analysisInput = await yamlInput({ filePath: join(fixturesPath, 'malformed.yaml') });
+    expect(() => analyzeYAML(analysisInput)).toThrow(
+      APIError.parsingError('Map keys must be unique', { line: 2 }),
+    );
   });
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML({
-      filePath: join(fixturesPath, 'quickfix.yaml'),
-      fileContent: undefined,
-    });
+    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'quickfix.yaml') }));
     const {
       issues: [
         {
@@ -112,10 +105,9 @@ describe('analyzeYAML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyzeYAML({
-      filePath: join(fixturesPath, 'enforce-trailing-comma.yaml'),
-      fileContent: undefined,
-    });
+    const { issues } = analyzeYAML(
+      await yamlInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.yaml') }),
+    );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -137,10 +129,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML({
-      filePath: join(fixturesPath, 'secondary.yaml'),
-      fileContent: undefined,
-    });
+    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'secondary.yaml') }));
     const {
       issues: [
         {
@@ -160,10 +149,7 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeYAML({
-      filePath: join(fixturesPath, 'regex.yaml'),
-      fileContent: undefined,
-    });
+    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'regex.yaml') }));
     const {
       issues: [issue],
     } = result;
@@ -182,10 +168,9 @@ describe('analyzeYAML', () => {
       { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeYAML({
-      filePath: join(fixturesPath, 'outside.yaml'),
-      fileContent: undefined,
-    });
+    const { issues } = analyzeYAML(
+      await yamlInput({ filePath: join(fixturesPath, 'outside.yaml') }),
+    );
     expect(issues).toHaveLength(0);
   });
 
@@ -209,6 +194,6 @@ describe('analyzeYAML', () => {
     };
     initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
     getLinter().linter.defineRule(rule.key, rule.module);
-    await analyzeYAML({ filePath, fileContent: undefined });
+    analyzeYAML(await yamlInput({ filePath }));
   });
 });

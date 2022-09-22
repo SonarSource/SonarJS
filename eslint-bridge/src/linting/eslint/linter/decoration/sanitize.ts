@@ -32,7 +32,7 @@ import { Rule } from 'eslint';
  * property to `true`.
  *
  * The sanitization of a rule is nothing more than a decoration of its implementation. It
- * determining whether the rule uses type checking and checks whether type information is
+ * determines whether the rule uses type checking and checks whether type information is
  * available at runtime. If so, the execution of the rule proceeds; otherwise, it stops.
  *
  * @param rule a TypeScript ESLint rule to sanitize

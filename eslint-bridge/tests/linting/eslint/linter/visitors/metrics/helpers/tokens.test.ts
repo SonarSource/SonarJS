@@ -22,20 +22,20 @@ import { extractTokensAndComments } from 'linting/eslint/linter/visitors/metrics
 import { SourceCode } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../../../../tools';
 
 describe('extractTokensAndComments', () => {
-  it('should extract tokens and comments', () => {
+  it('should extract tokens and comments', async () => {
     const filePath = path.join(__dirname, './fixtures/tokens.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath, []) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath, [])) as SourceCode;
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(['foo', '(', `'hello'`, ')', ';']);
     expect(comments).toEqual(['multi-line', 'single-line']);
   });
 
-  it('should extract tokens and comments from Vue files', () => {
+  it('should extract tokens and comments from Vue files', async () => {
     const filePath = path.join(__dirname, './fixtures/tokens.vue');
-    const sourceCode = parseJavaScriptSourceFile(filePath, []) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath, [])) as SourceCode;
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(expect.arrayContaining(['jsCode', 'vue-tag']));
     expect(comments).toEqual(['JS comment', 'HTML comment']);

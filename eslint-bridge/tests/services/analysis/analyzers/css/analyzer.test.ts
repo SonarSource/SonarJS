@@ -21,13 +21,14 @@
 import { analyzeCSS, CssAnalysisInput } from 'services/analysis';
 import { RuleConfig } from 'linting/stylelint';
 import path from 'path';
+import { readFile } from 'helpers';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
 describe('analyzeCSS', () => {
-  it('should analyze a css file', () => {
+  it('should analyze a css file', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.css');
-    expect(analyzeCSS(input(filePath, undefined, rules))).resolves.toEqual({
+    expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         {
           ruleId: 'block-no-empty',
@@ -39,9 +40,9 @@ describe('analyzeCSS', () => {
     });
   });
 
-  it('should analyze css content', () => {
+  it('should analyze css content', async () => {
     const fileContent = 'p {}';
-    expect(analyzeCSS(input('/some/fake/path', fileContent, rules))).resolves.toEqual({
+    expect(analyzeCSS(await input('/some/fake/path', fileContent, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -50,9 +51,9 @@ describe('analyzeCSS', () => {
     });
   });
 
-  it('should analyze less syntax', () => {
+  it('should analyze less syntax', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.less');
-    expect(analyzeCSS(input(filePath, undefined, rules))).resolves.toEqual({
+    expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -61,9 +62,9 @@ describe('analyzeCSS', () => {
     });
   });
 
-  it('should return a parsing error in the form of an issue', () => {
+  it('should return a parsing error in the form of an issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
-    expect(analyzeCSS(input(filePath))).resolves.toEqual({
+    expect(analyzeCSS(await input(filePath))).resolves.toEqual({
       issues: [
         {
           ruleId: 'CssSyntaxError',
@@ -76,10 +77,10 @@ describe('analyzeCSS', () => {
   });
 });
 
-function input(
+async function input(
   filePath?: string,
   fileContent?: string,
   rules: RuleConfig[] = [],
-): CssAnalysisInput {
-  return { filePath, fileContent, rules };
+): Promise<CssAnalysisInput> {
+  return { filePath, fileContent: fileContent || (await readFile(filePath)), rules };
 }

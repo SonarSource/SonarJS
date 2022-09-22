@@ -28,8 +28,8 @@ import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('getSyntaxHighlighting', () => {
-  it('should highlight keywords', () => {
-    expect(highlighting('keyword.js')).toEqual(
+  it('should highlight keywords', async () => {
+    expect(await highlighting('keyword.js')).toEqual(
       expect.arrayContaining([
         highlight(1, 0, 1, 5, 'KEYWORD'), // class
         highlight(3, 4, 3, 10, 'KEYWORD'), // return
@@ -40,8 +40,8 @@ describe('getSyntaxHighlighting', () => {
     );
   });
 
-  it('should highlight comments', () => {
-    expect(highlighting('comment.js')).toEqual([
+  it('should highlight comments', async () => {
+    expect(await highlighting('comment.js')).toEqual([
       highlight(1, 2, 1, 13, 'COMMENT'), // 1
       highlight(2, 0, 2, 12, 'COMMENT'), // 2
       highlight(3, 0, 3, 11, 'COMMENT'), // 3
@@ -51,8 +51,8 @@ describe('getSyntaxHighlighting', () => {
     ]);
   });
 
-  it('should highlight strings', () => {
-    expect(highlighting('string.js')).toEqual(
+  it('should highlight strings', async () => {
+    expect(await highlighting('string.js')).toEqual(
       expect.arrayContaining([
         highlight(1, 0, 1, 5, 'STRING'), // 'str'
         highlight(2, 0, 2, 5, 'STRING'), // "str"
@@ -66,8 +66,8 @@ describe('getSyntaxHighlighting', () => {
     );
   });
 
-  it('should highlight numbers', () => {
-    expect(highlighting('number.js')).toEqual(
+  it('should highlight numbers', async () => {
+    expect(await highlighting('number.js')).toEqual(
       expect.arrayContaining([
         highlight(1, 0, 1, 1, 'CONSTANT'), // 0
         highlight(2, 0, 2, 3, 'CONSTANT'), // 0.0
@@ -77,15 +77,15 @@ describe('getSyntaxHighlighting', () => {
     );
   });
 
-  it('should highlight regex literals', () => {
-    expect(highlighting('regex.js')).toEqual([
+  it('should highlight regex literals', async () => {
+    expect(await highlighting('regex.js')).toEqual([
       highlight(1, 0, 1, 3, 'STRING'), // /x/
       highlight(2, 0, 2, 6, 'STRING'), // /42/gu
     ]);
   });
 
-  it('should highlight Vue templates', () => {
-    expect(highlighting('template.vue')).toEqual(
+  it('should highlight Vue templates', async () => {
+    expect(await highlighting('template.vue')).toEqual(
       expect.arrayContaining([
         highlight(1, 0, 1, 9, 'KEYWORD'), // <template
         highlight(1, 9, 1, 10, 'KEYWORD'), // >
@@ -100,9 +100,9 @@ describe('getSyntaxHighlighting', () => {
   });
 });
 
-function highlighting(filename: string): SyntaxHighlight[] {
+async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
   const filePath = path.join(__dirname, 'fixtures', 'syntax-highlighting', filename);
-  const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+  const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
   return getSyntaxHighlighting(sourceCode).highlights;
 }
 

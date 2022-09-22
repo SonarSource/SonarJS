@@ -21,23 +21,23 @@
 import path from 'path';
 import { parseYaml } from 'parsing/yaml';
 import { APIError } from 'errors';
-import { readFileSync } from 'fs';
+import { readFile } from 'helpers';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};
 }
 
 describe('parseYaml', () => {
-  it('should return embedded JavaScript', () => {
+  it('should return embedded JavaScript', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
-    const text = readFileSync(filePath, { encoding: 'utf-8' });
+    const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
         predicate: (_key: any, node: any, _ancestors: any) => node.key.value === 'embedded',
         picker: noOpPicker,
       },
     ];
-    const [embedded] = parseYaml(parsingContexts, filePath);
+    const [embedded] = parseYaml(parsingContexts, fileContent);
     expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',
@@ -45,20 +45,21 @@ describe('parseYaml', () => {
         column: 13,
         offset: 17,
         lineStarts: [0, 5, 22, 27, 44],
-        text,
+        text: fileContent,
       }),
     );
   });
 
-  it('should return parsing errors', () => {
+  it('should return parsing errors', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
+    const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
         predicate: (_key: any, _node: any, _ancestors: any) => false,
         picker: noOpPicker,
       },
     ];
-    expect(() => parseYaml(parsingContexts, filePath)).toThrow(
+    expect(() => parseYaml(parsingContexts, fileContent)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 2 }),
     );
   });

@@ -53,7 +53,6 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-
   const building = () => buildSourceCode(input, language);
   const { result: built, duration: parseTime } = measureDuration(building);
   const analysis = () => analyzeFile(linter, input, built);

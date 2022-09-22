@@ -42,7 +42,7 @@ const cases = [
 describe('sanitizeTypeScriptESLintRule', () => {
   test.each(cases)(
     'should $action a sanitized rule raise issues when type information is $typing',
-    ({ tsConfigFiles, issues }) => {
+    async ({ tsConfigFiles, issues }) => {
       const ruleId = 'prefer-readonly';
       const sanitizedRule = sanitizeTypeScriptESLintRule(typescriptESLintRules[ruleId]);
 
@@ -53,7 +53,7 @@ describe('sanitizeTypeScriptESLintRule', () => {
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
-      const sourceCode = parseTypeScriptSourceFile(filePath, tsConfigs) as SourceCode;
+      const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
       const rules = { [ruleId]: 'error' } as any;
 
       const messages = linter.verify(sourceCode, { rules });

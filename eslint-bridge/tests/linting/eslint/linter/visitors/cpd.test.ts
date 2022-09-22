@@ -24,8 +24,8 @@ import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('getCpdTokens', () => {
-  it('should find all tokens', () => {
-    expect(tokens('token.js')).toEqual([
+  it('should find all tokens', async () => {
+    expect(await tokens('token.js')).toEqual([
       token(1, 0, 1, 2, 'if'),
       token(1, 3, 1, 4, '('),
       token(1, 4, 1, 8, 'true'),
@@ -37,16 +37,16 @@ describe('getCpdTokens', () => {
     ]);
   });
 
-  it('should ignore comments', () => {
-    expect(tokens('comment.js')).toEqual([
+  it('should ignore comments', async () => {
+    expect(await tokens('comment.js')).toEqual([
       token(1, 0, 1, 1, 'a'),
       token(4, 0, 4, 1, 'b'),
       token(14, 0, 14, 1, 'c'),
     ]);
   });
 
-  it('should anonymize string literals', () => {
-    expect(images(tokens('string.js'))).toEqual(
+  it('should anonymize string literals', async () => {
+    expect(images(await tokens('string.js'))).toEqual(
       expect.arrayContaining([
         'LITERAL', // 'string'
         'LITERAL', // `string`
@@ -57,12 +57,12 @@ describe('getCpdTokens', () => {
     );
   });
 
-  it('should find JSX tokens', () => {
-    expect(images(tokens('jsx.js'))).toEqual(expect.arrayContaining(['<', 'foo', '/', '>']));
+  it('should find JSX tokens', async () => {
+    expect(images(await tokens('jsx.js'))).toEqual(expect.arrayContaining(['<', 'foo', '/', '>']));
   });
 
-  it('should preserve JSX string literals', () => {
-    expect(images(tokens('string-jsx.js'))).toEqual(
+  it('should preserve JSX string literals', async () => {
+    expect(images(await tokens('string-jsx.js'))).toEqual(
       expect.arrayContaining([
         'LITERAL', // 'hello'
         '"abc"',
@@ -74,18 +74,18 @@ describe('getCpdTokens', () => {
     );
   });
 
-  it('should ignore import statements', () => {
-    expect(images(tokens('import.js'))).toEqual(['import', '(', 'lib', ')', ';']);
+  it('should ignore import statements', async () => {
+    expect(images(await tokens('import.js'))).toEqual(['import', '(', 'lib', ')', ';']);
   });
 
-  it('should ignore require calls', () => {
-    expect(images(tokens('require.js'))).toEqual(['const', 'fs', '=', ';']);
+  it('should ignore require calls', async () => {
+    expect(images(await tokens('require.js'))).toEqual(['const', 'fs', '=', ';']);
   });
 });
 
-function tokens(filename: string): CpdToken[] {
+async function tokens(filename: string): Promise<CpdToken[]> {
   const filePath = path.join(__dirname, 'fixtures', 'cpd', filename);
-  const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+  const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
   return getCpdTokens(sourceCode).cpdTokens;
 }
 

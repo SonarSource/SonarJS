@@ -18,17 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import path from 'path';
-import { readFile } from 'helpers';
-
-describe('readFile', () => {
-  it('should read a file', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'file.js'));
-    expect(contents).toBe('file();');
-  });
-
-  it('should remove any BOM header', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'bom.js'));
-    expect(contents).toBe('bom();');
-  });
-});
+import { Linter } from 'eslint';
+/**
+ * ESLint core rules.
+ */
+export const eslintRules = Object.fromEntries(new Linter().getRules());

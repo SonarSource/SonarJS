@@ -30,9 +30,9 @@
  */
 
 import path from 'path';
-import fs from 'fs';
 import ts from 'typescript';
 import { debug } from 'helpers';
+import fs from 'fs/promises';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -82,14 +82,14 @@ export function getProgramById(programId: string): ts.Program {
  * @returns the identifier of the created TypeScript's Program along with the
  *          resolved files and project references
  */
-export function createProgram(inputTSConfig: string): {
+export async function createProgram(inputTSConfig: string): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
-} {
+}> {
   let tsConfig = inputTSConfig;
 
-  if (fs.lstatSync(tsConfig).isDirectory()) {
+  if ((await fs.lstat(tsConfig)).isDirectory()) {
     tsConfig = path.join(tsConfig, 'tsconfig.json');
   }
 

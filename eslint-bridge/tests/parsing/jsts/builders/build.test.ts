@@ -22,25 +22,22 @@ import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { AST } from 'vue-eslint-parser';
+import { jsTsInput } from '../../../tools';
 
 describe('buildSourceCode', () => {
-  it('should build JavaScript source code', () => {
+  it('should build JavaScript source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(input, 'js') as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js') as SourceCode;
 
     expect(stmt.type).toEqual('VariableDeclaration');
   });
 
-  it('should build JavaScript source code with TypeScript ESLint parser', () => {
+  it('should build JavaScript source code with TypeScript ESLint parser', async () => {
     console.log = jest.fn();
 
     setContext({
@@ -51,25 +48,19 @@ describe('buildSourceCode', () => {
     });
 
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
     const {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(input, 'js') as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js') as SourceCode;
 
     expect(stmt.type).toEqual('VariableDeclaration');
     expect(console.log).not.toHaveBeenCalled();
   });
 
-  it('should build JavaScript Vue.js source code', () => {
+  it('should build JavaScript Vue.js source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'js.vue');
-    const fileType = 'MAIN';
-
-    const input = { filePath, fileType } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, 'js');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     const {
       ast: {
@@ -79,28 +70,22 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
-  it('should build TypeScript source code', () => {
+  it('should build TypeScript source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.ts');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
-
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
     const {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(input, 'ts') as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts') as SourceCode;
 
     expect(stmt.type).toEqual('TSTypeAliasDeclaration');
   });
 
-  it('should build TypeScript Vue.js source code', () => {
+  it('should build TypeScript Vue.js source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'ts.vue');
-    const fileType = 'MAIN';
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
-
-    const input = { filePath, fileType, tsConfigs } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, 'ts');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
 
     const {
       ast: {

@@ -29,7 +29,7 @@ describe('initializeLinter', () => {
     jest.resetModules();
   });
 
-  it('should initialize the linter wrapper', () => {
+  it('should initialize the linter wrapper', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -52,7 +52,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const {
       issues: [issue],
@@ -66,7 +66,7 @@ describe('initializeLinter', () => {
     );
   });
 
-  it('should load rule bundles', () => {
+  it('should load rule bundles', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -89,7 +89,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
-    const sourceCode = parseJavaScriptSourceFile(filePath) as SourceCode;
+    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
     const {
       issues: [issue],

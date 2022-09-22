@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
+import { RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { decorateObjectShorthand } from 'linting/eslint/rules/decorators/object-shorthand-decorator';
 
-const rule = decorateObjectShorthand(new Linter().getRules().get('object-shorthand'));
+const rule = decorateObjectShorthand(eslintRules['object-shorthand']);
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },

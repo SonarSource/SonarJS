@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, RuleTester } from 'eslint';
+import { RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { decorateNoEmpty } from 'linting/eslint/rules/decorators/no-empty-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const rule = decorateNoEmpty(new Linter().getRules().get('no-empty'));
+const rule = decorateNoEmpty(eslintRules['no-empty']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

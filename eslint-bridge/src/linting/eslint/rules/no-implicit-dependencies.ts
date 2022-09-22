@@ -26,7 +26,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from './helpers';
-import { readFile } from 'helpers';
+import { stripBOM } from 'helpers';
 
 const DefinitelyTyped = '@types/';
 
@@ -267,4 +267,9 @@ function getBaseUrl(parserServices: RequiredParserServices): string | undefined 
   }
 
   return undefined;
+}
+
+function readFile(filePath: string) {
+  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+  return stripBOM(fileContent);
 }

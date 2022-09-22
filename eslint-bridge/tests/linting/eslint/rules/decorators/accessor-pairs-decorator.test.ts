@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { JavaScriptRuleTester } from '../../../../tools';
 import { decorateAccessorPairs } from 'linting/eslint/rules/decorators/accessor-pairs-decorator';
 
 const ruleTester = new JavaScriptRuleTester();
-const rule = decorateAccessorPairs(new Linter().getRules().get('accessor-pairs'));
+const rule = decorateAccessorPairs(eslintRules['accessor-pairs']);
 
 ruleTester.run(`Property getters and setters should come in pairs`, rule, {
   valid: [

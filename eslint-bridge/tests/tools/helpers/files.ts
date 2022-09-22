@@ -18,17 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import path from 'path';
-import { readFile } from 'helpers';
+import { constants, promises as fs } from 'fs';
 
-describe('readFile', () => {
-  it('should read a file', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'file.js'));
-    expect(contents).toBe('file();');
-  });
-
-  it('should remove any BOM header', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'bom.js'));
-    expect(contents).toBe('bom();');
-  });
-});
+/**
+ * Asynchronous check if file is readable.
+ *
+ * @param path the file path
+ * @returns true if file is readable. false otherwise
+ */
+export async function fileReadable(path: string) {
+  try {
+    await fs.access(path, constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}

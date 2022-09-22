@@ -19,22 +19,37 @@
  */
 
 import { FileType, readFile } from 'helpers';
-import { buildSourceCode } from 'parsing/jsts';
+import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 
-export async function parseTypeScriptSourceFile(
-  filePath: string,
-  tsConfigs: string[],
-  fileType: FileType = 'MAIN',
-) {
-  const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+export async function jsTsInput({
+  filePath = '',
+  fileContent = undefined,
+  fileType = 'MAIN' as FileType,
+  tsConfigs = [],
+  programId = undefined,
+  linterId = 'default',
+}): Promise<JsTsAnalysisInput> {
+  return programId
+    ? {
+        filePath,
+        fileContent: fileContent || (await readFile(filePath)),
+        fileType,
+        programId,
+        linterId,
+      }
+    : {
+        filePath,
+        fileContent: fileContent || (await readFile(filePath)),
+        fileType,
+        tsConfigs,
+        linterId,
+      };
 }
 
-export async function parseJavaScriptSourceFile(
-  filePath: string,
-  tsConfigs: string[] = [],
-  fileType: FileType = 'MAIN',
-) {
-  const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
+export async function yamlInput({
+  filePath = '',
+  fileContent = undefined,
+  linterId = 'default',
+}): Promise<YamlAnalysisInput> {
+  return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
 }

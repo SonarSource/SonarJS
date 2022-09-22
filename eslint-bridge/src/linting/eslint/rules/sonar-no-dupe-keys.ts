@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
-import { Linter, Rule } from 'eslint';
+import { Rule } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { mergeRules } from './decorators/helpers';
 
-const rules = new Linter().getRules();
-const noDupeKeysRule = rules.get('no-dupe-keys')!;
+const noDupeKeysRule = eslintRules['no-dupe-keys'];
 const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
 export const rule: Rule.RuleModule = {

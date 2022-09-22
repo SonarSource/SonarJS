@@ -26,9 +26,9 @@ import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from 'parsing/yaml';
 describe('isSupportedFormat', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'format');
 
-  test.each(SUPPORTED_STRING_FORMATS)('should support the string format %o', format => {
+  test.each(SUPPORTED_STRING_FORMATS)('should support the string format %o', async format => {
     const filePath = path.join(fixtures, `${format}.yaml`);
-    const fileContents = readFile(filePath);
+    const fileContents = await readFile(filePath);
     const tokens = new yaml.Parser().parse(fileContents);
     const [doc] = new yaml.Composer().compose(tokens);
     const {
@@ -39,9 +39,9 @@ describe('isSupportedFormat', () => {
     expect(isSupportedFormat(pair)).toBeTruthy();
   });
 
-  it('should not support an unsupported string format', () => {
+  it('should not support an unsupported string format', async () => {
     const filePath = path.join(fixtures, 'unsupported.yaml');
-    const fileContents = readFile(filePath);
+    const fileContents = await readFile(filePath);
     const tokens = new yaml.Parser().parse(fileContents);
     const [doc] = new yaml.Composer().compose(tokens);
     const {

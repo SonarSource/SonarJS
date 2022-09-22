@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Linter, Rule, RuleTester } from 'eslint';
+import { Rule, RuleTester } from 'eslint';
+import { eslintRules } from 'linting/eslint/rules/core';
 import {
   decorateNoEmptyFunction,
   reportWithQuickFixIfApplicable,
@@ -27,7 +28,7 @@ import {
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },
 });
-const rule = decorateNoEmptyFunction(new Linter().getRules().get('no-empty-function'));
+const rule = decorateNoEmptyFunction(eslintRules['no-empty-function']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [
