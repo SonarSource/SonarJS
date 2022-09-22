@@ -25,7 +25,7 @@ import {
 } from './rule/no-missing-sonar-runtime';
 import { parseTypeScriptSourceFile } from '../helpers';
 import path from 'path';
-import { fileReadable } from 'helpers';
+import { fileReadable } from '../helpers/files';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.

@@ -31,7 +31,8 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { debug, pathIsDir } from 'helpers';
+import { debug } from 'helpers';
+import fs from 'fs/promises';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -88,7 +89,7 @@ export async function createProgram(inputTSConfig: string): Promise<{
 }> {
   let tsConfig = inputTSConfig;
 
-  if (await pathIsDir(tsConfig)) {
+  if ((await fs.lstat(tsConfig)).isDirectory()) {
     tsConfig = path.join(tsConfig, 'tsconfig.json');
   }
 

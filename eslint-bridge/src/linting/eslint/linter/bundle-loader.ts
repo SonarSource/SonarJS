@@ -50,9 +50,9 @@ const loaders: { [key: string]: Function } = {
   /**
    * Loads external rules
    *
-   * The external ESLint-based rules includes all the rules that are
+   * The external ESLint-based rules include all the rules that are
    * not implemented internally, in other words, rules from external
-   * dependencies which includes ESLint core rules. Furthermore, the
+   * dependencies which include ESLint core rules. Furthermore, the
    * returned rules are decorated either by internal decorators or by
    * special decorations.
    */
@@ -76,7 +76,7 @@ const loaders: { [key: string]: Function } = {
   /**
    * Loads plugin rules
    *
-   * Adds the rules from the Sonar ESLint plugin
+   * Adds the rules from the Sonar ESLint plugin.
    */
   pluginRules(linter: Linter) {
     linter.defineRules(pluginRules);
@@ -112,7 +112,7 @@ const loaders: { [key: string]: Function } = {
    * Loads internal custom rules
    *
    * These are rules used internally by SonarQube to have the symbol highlighting and
-   * the cognitive complexity metric.
+   * the cognitive complexity metrics.
    */
   internalCustomRules(linter: Linter) {
     loadCustomRules(linter, internalCustomRules);

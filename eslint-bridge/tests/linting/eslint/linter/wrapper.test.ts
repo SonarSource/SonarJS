@@ -20,10 +20,11 @@
 
 import path from 'path';
 import { SourceCode } from 'eslint';
-import { fileReadable, setContext } from 'helpers';
+import { setContext } from 'helpers';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
 import { Language } from 'parsing/jsts';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools';
+import { fileReadable } from '../../../tools/helpers/files';
 
 describe('LinterWrapper', () => {
   beforeAll(() => {

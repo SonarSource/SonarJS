@@ -28,7 +28,7 @@ import { CustomRule } from './custom-rules';
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
  * having the option to create a Linter without any additional rules
- * loaded, aside of the preexisting Eslint Core rules.
+ * loaded, aside of the preexisting ESLint core rules.
  *
  * @param inputRules the quality profile rules, enabled rules
  * @param environments the JavaScript environments
@@ -50,7 +50,7 @@ export interface WrapperOptions {
  * adjusted by passing which bundles, if any, should be loaded instead.
  * The order of this array is important here. Rules from a previous bundle
  * will be overridden by the implementation of the same rule key in a
- * following bundle.
+ * subsequent bundle.
  */
 const defaultRuleBundles = [
   'externalRules',

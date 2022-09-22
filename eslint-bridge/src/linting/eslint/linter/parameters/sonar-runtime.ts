@@ -19,7 +19,7 @@
  */
 
 import { Rule } from 'eslint';
-import { getRuleSchema } from './helpers/schema';
+import { getRuleSchema } from './helpers';
 
 /**
  * An internal rule parameter for secondary location support

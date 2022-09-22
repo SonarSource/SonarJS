@@ -18,30 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { APIError } from 'errors';
-import { SourceCode } from 'eslint';
-import { ParseFunction } from './eslint';
+import { constants, promises as fs } from 'fs';
 
 /**
- * Parses a JavaScript / TypeScript analysis input with an ESLint-based parser
- * @param code the JavaScript / TypeScript code to parse
- * @param parse the ESLint parsing function to use for parsing
- * @param options the ESLint parser options
- * @returns the parsed source code
+ * Asynchronous check if file is readable.
+ *
+ * @param path the file path
+ * @returns true if file is readable. false otherwise
  */
-export function parseForESLint(code: string, parse: ParseFunction, options: {}): SourceCode {
+export async function fileReadable(path: string) {
   try {
-    const result = parse(code, options);
-    return new SourceCode({
-      ...result,
-      text: code,
-      parserServices: result.services,
-    });
-  } catch ({ lineNumber, message }) {
-    if (message.startsWith('Debug Failure')) {
-      throw APIError.failingTypeScriptError(message);
-    } else {
-      throw APIError.parsingError(message, { line: lineNumber });
-    }
+    await fs.access(path, constants.R_OK);
+    return true;
+  } catch {
+    return false;
   }
 }
