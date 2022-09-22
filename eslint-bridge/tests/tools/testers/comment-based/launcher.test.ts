@@ -39,7 +39,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { rules as internalRules } from 'linting/eslint';
 import { decorators, RuleDecorator } from 'linting/eslint/rules/decorators';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode, Language } from 'parsing/jsts';
 import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
 
@@ -55,7 +55,7 @@ const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-bas
  */
 function testFilesForRule(rule: string): string[] {
   const files = [];
-  for (const ext of ['js', 'ts']) {
+  for (const ext of ['js', 'jsx', 'ts', 'tsx']) {
     const p = path.join(fixtures, `${rule}.${ext}`);
     if (fs.existsSync(p)) {
       files.push(p);
@@ -104,7 +104,7 @@ export function parseForESLint(
   const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
-    filePath.endsWith('.ts') ? 'ts' : 'js',
+    languageFromFilePath(filePath),
   );
 
   /**
@@ -116,6 +116,18 @@ export function parseForESLint(
   return Object.create(sourceCode, {
     services: { value: sourceCode.parserServices },
   });
+}
+
+/**
+ * Returns the source code's language based on the file path.
+ */
+function languageFromFilePath(filePath: string): Language {
+  const { ext } = path.parse(filePath);
+  if (['ts', 'tsx'].includes(ext)) {
+    return 'ts';
+  } else {
+    return 'js';
+  }
 }
 
 /**
