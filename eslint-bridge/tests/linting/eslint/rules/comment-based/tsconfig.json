@@ -3,5 +3,5 @@
     "target": "es2018",
     "allowJs": true,
   },
-  "include": ["*.js", "*.ts"]
+  "include": ["*.js", "*.jsx", "*.ts", "*.tsx"]
 }
