@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractComments, extractLineIssues } from './comments';
-import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
-import { extractQuickFixes, QuickFix } from './quickfixes';
-import { LineIssues } from './issues';
+import { extractComments } from './comments';
+import {
+  Location,
+  extractLocations,
+  PrimaryLocation,
+  SecondaryLocation,
+  isLocationLine,
+} from './locations';
+import { extractQuickFixes, isQuickfixLine, QuickFix } from './quickfixes';
+import { LineIssues, extractLineIssues, isNonCompliantLine } from './issues';
 
 export class FileIssues {
-  private readonly expectedIssues = new Map<number, LineIssues>();
-  private readonly quickfixes = new Map<string, QuickFix>();
+  public readonly expectedIssues = new Map<number, LineIssues>();
+  public readonly quickfixes = new Map<string, QuickFix>();
   private orphanSecondaryLocations: SecondaryLocation[] = [];
   private currentPrimary: PrimaryLocation | null = null;
 
@@ -35,23 +41,12 @@ export class FileIssues {
   constructor(fileContent: string) {
     const comments = extractComments(fileContent);
     for (const comment of comments) {
-      const lineIssues = extractLineIssues(comment);
-      if (lineIssues !== null) {
-        const existingLineIssues = this.expectedIssues.get(lineIssues.line);
-        if (existingLineIssues) {
-          existingLineIssues.merge(lineIssues);
-        } else {
-          this.expectedIssues.set(lineIssues.line, lineIssues);
-        }
-      } else {
-        const locations = extractLocations(comment.line, comment.column, comment.value);
-        if (locations.length) {
-          for (const location of locations) {
-            this.addLocation(location);
-          }
-        } else {
-          extractQuickFixes(this.quickfixes, comment);
-        }
+      if (isNonCompliantLine(comment.value)) {
+        extractLineIssues(this, comment);
+      } else if (isLocationLine(comment.value)) {
+        extractLocations(this, comment);
+      } else if (isQuickfixLine(comment.value)) {
+        extractQuickFixes(this.quickfixes, comment);
       }
     }
   }
@@ -70,7 +65,7 @@ export class FileIssues {
     return [...this.expectedIssues.values()];
   }
 
-  private addLocation(location: Location) {
+  public addLocation(location: Location) {
     if (location instanceof PrimaryLocation) {
       this.addPrimary(location);
     } else {

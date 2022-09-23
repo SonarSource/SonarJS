@@ -17,18 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PrimaryLocation } from './locations';
-import { QuickFix, QUICKFIX_SEPARATOR } from './quickfixes';
+import { extractEffectiveLine, LINE_ADJUSTMENT, PrimaryLocation } from './locations';
+import { QuickFix, QUICKFIX_ID, QUICKFIX_SEPARATOR } from './quickfixes';
+import { Comment } from './comments';
+import { FileIssues } from './file';
+
+const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
+const NON_COMPLIANT_PATTERN = RegExp(
+  ' *Noncompliant' +
+    LINE_ADJUSTMENT +
+    // issue count, ex: 2
+    '(?: +(?<issueCount>\\d+))?' +
+    // quickfixes, ex: [[qf1,qf2]]
+    ' *(?:' +
+    QUICKFIX_ID +
+    ')?' +
+    // messages, ex: {{msg1}} {{msg2}}
+    ' *(?<messages>(\\{\\{.*?\\}\\} *)+)?',
+  'i',
+);
 
 export class LineIssues {
   public primaryLocation: PrimaryLocation | null;
   public quickfixes: QuickFix[] = [];
-  constructor(readonly line: number, readonly messages: string[], quickfixes: string | undefined) {
+  constructor(
+    readonly line: number,
+    readonly messages: string[],
+    quickfixes: string | undefined,
+    quickFixesMap: Map<string, QuickFix>,
+  ) {
     this.primaryLocation = null;
     if (quickfixes?.length) {
-      this.quickfixes = quickfixes
-        .split(QUICKFIX_SEPARATOR)
-        .map(quickfixId => new QuickFix(quickfixId, this));
+      this.quickfixes = quickfixes.split(RegExp(QUICKFIX_SEPARATOR)).map(quickfixId => {
+        if (quickFixesMap.has(quickfixId)) {
+          throw new Error(`QuickFix ID ${quickfixId} has already been declared`);
+        }
+        const qf = new QuickFix(quickfixId, this);
+        quickFixesMap.set(quickfixId, qf);
+        return qf;
+      });
     }
   }
 
@@ -38,4 +65,54 @@ export class LineIssues {
       this.primaryLocation = other.primaryLocation;
     }
   }
+}
+
+export function isNonCompliantLine(comment: string) {
+  return START_WITH_NON_COMPLIANT.test(comment);
+}
+
+export function extractLineIssues(file: FileIssues, comment: Comment) {
+  const matcher = comment.value.match(NON_COMPLIANT_PATTERN);
+  if (matcher === null) {
+    throw new Error(`Invalid comment format at line ${comment.line}: ${comment.value}`);
+  }
+  const effectiveLine = extractEffectiveLine(comment.line, matcher);
+  const messages = extractIssueCountOrMessages(
+    comment.line,
+    matcher.groups?.issueCount,
+    matcher.groups?.messages,
+  );
+  const lineIssues = new LineIssues(
+    effectiveLine,
+    messages,
+    matcher.groups?.quickfixes,
+    file.quickfixes,
+  );
+  const existingLineIssues = file.expectedIssues.get(lineIssues.line);
+  if (existingLineIssues) {
+    existingLineIssues.merge(lineIssues);
+  } else {
+    file.expectedIssues.set(lineIssues.line, lineIssues);
+  }
+}
+
+function extractIssueCountOrMessages(
+  line: number,
+  issueCountGroup: string | undefined,
+  messageGroup: string | undefined,
+) {
+  if (messageGroup) {
+    if (issueCountGroup) {
+      throw new Error(
+        `Error, you can not specify issue count and messages at line ${line}, you have to choose either:` +
+          `\n  Noncompliant ${issueCountGroup}\nor\n  Noncompliant ${messageGroup}\n`,
+      );
+    }
+    const messageContent = messageGroup.trim();
+    return messageContent
+      .substring('{{'.length, messageContent.length - '}}'.length)
+      .split(/\}\} *\{\{/);
+  }
+  const issueCount = issueCountGroup ? parseInt(issueCountGroup) : 1;
+  return new Array<string>(issueCount);
 }

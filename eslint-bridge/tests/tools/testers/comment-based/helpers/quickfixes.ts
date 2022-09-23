@@ -20,8 +20,8 @@
 
 import { LineIssues } from './issues';
 import { Comment } from './comments';
-import { Range } from './ranges';
 
+const STARTS_WITH_QUICKFIX = /^ *(edit|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';
 export const QUICKFIX_ID = '\\[\\[(?<quickfixes>\\w+(?:' + QUICKFIX_SEPARATOR + '(?:\\w+))*)\\]\\]';
 export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
@@ -47,10 +47,15 @@ export const QUICKFIX_EDIT_PATTERN = RegExp(
 );
 
 export class QuickFix {
-  public range: Range;
+  public start: number | undefined;
+  public end: number | undefined;
   public description: string;
   public fix: string;
   constructor(readonly id: string, readonly lineIssues: LineIssues) {}
+}
+
+export function isQuickfixLine(comment: string) {
+  return STARTS_WITH_QUICKFIX.test(comment);
 }
 
 export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Comment) {
@@ -79,24 +84,18 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
       );
     }
     const quickfix = quickfixes.get(quickfixId);
-    const column =
+    quickfix.start =
       firstColumnType === 'sc'
         ? +firstColumnValue
         : secondColumnType === 'sc'
         ? +secondColumnValue
-        : 0;
-    const endColumn =
+        : undefined;
+    quickfix.end =
       firstColumnType === 'ec'
         ? +firstColumnValue
         : secondColumnType === 'ec'
         ? +secondColumnValue
-        : comment.endColumn;
-    quickfix.range = new Range(
-      quickfix.lineIssues.line,
-      column,
-      quickfix.lineIssues.line,
-      endColumn,
-    );
+        : undefined;
     quickfix.fix = fix;
   }
 }

@@ -40,7 +40,7 @@ import { rules as internalRules } from 'linting/eslint';
 import { decorators, RuleDecorator } from 'linting/eslint/rules/decorators';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode, Language } from 'parsing/jsts';
-import {FileType, readFile} from 'helpers';
+import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
@@ -53,7 +53,7 @@ const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-bas
  * - fixtures/rule/anything
  * @param rule - rule key
  */
-async function testFilesForRule(rule: string): Promise<string[]> {
+function testFilesForRule(rule: string): string[] {
   const files = [];
   for (const ext of ['js', 'jsx', 'ts', 'tsx']) {
     const p = path.join(fixtures, `${rule}.${ext}`);
@@ -64,7 +64,7 @@ async function testFilesForRule(rule: string): Promise<string[]> {
   return files;
 }
 
-async function runRuleTests(
+function runRuleTests(
   internal: Record<string, Rule.RuleModule>,
   external: Record<string, Rule.RuleModule>,
   decorators: Record<string, RuleDecorator>,
@@ -72,14 +72,14 @@ async function runRuleTests(
 ) {
   const rules = [...Object.keys(internal), ...Object.keys(decorators)];
   for (const rule of rules) {
-    const files = await testFilesForRule(rule);
+    const files = testFilesForRule(rule);
     if (files.length === 0) {
       continue;
     }
     describe(`Running comment-based tests for rule ${rule}`, () => {
-      files.forEach(async filename => {
+      files.forEach(filename => {
         const ruleModule = rule in internal ? internal[rule] : decorators[rule](external[rule]);
-        const code = await readFile(filename);
+        const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
         const errors = extractExpectations(code, hasSonarRuntimeOption(ruleModule, rule));
         const tests = {
           valid: [],
@@ -139,5 +139,4 @@ const externalRules = {
   ...reactESLintRules,
   ...typescriptESLintRules,
 };
-
-Promise.resolve(runRuleTests(internalRules, externalRules, decorators, ruleTester)).catch(() => {});
+runRuleTests(internalRules, externalRules, decorators, ruleTester);

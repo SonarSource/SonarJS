@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Range } from './ranges';
+import { FileIssues } from './file';
+import { Comment } from './comments';
 
 export const LINE_ADJUSTMENT = '(?:@(?<lineAdjustment>(?<relativeAdjustment>[+-])?\\d+))?';
 
@@ -67,28 +69,34 @@ export class SecondaryLocation extends Location {
   }
 }
 
-export function extractLocations(line: number, column: number, commentContent: string) {
-  if (STARTS_WITH_LOCATION.test(commentContent)) {
-    const result: Location[] = [];
-    let comment = commentContent;
-    let offset = 0;
-    let matcher: RegExpMatchArray | null;
-    LOCATION_PATTERN.lastIndex = 0;
-    while ((matcher = comment.match(LOCATION_PATTERN)) !== null) {
-      result.push(
-        matcherToLocation(line, column, commentContent.indexOf(matcher[1], offset) + 1, matcher),
-      );
-      comment = comment.substring(matcher[0].length);
-      offset += matcher[0].length;
-    }
-    if (offset !== commentContent.length) {
-      throw new Error(
-        `Unexpected character '${commentContent[offset]}' found at ${line}:${column + offset}`,
-      );
-    }
-    return result;
+export function isLocationLine(comment: string) {
+  return STARTS_WITH_LOCATION.test(comment);
+}
+
+export function extractLocations(file: FileIssues, comment: Comment) {
+  const { line, column, value: commentContent } = comment;
+  const locations: Location[] = [];
+  let toBeMatched = commentContent;
+  let offset = 0;
+  let matcher: RegExpMatchArray | null;
+  LOCATION_PATTERN.lastIndex = 0;
+  while ((matcher = toBeMatched.match(LOCATION_PATTERN)) !== null) {
+    locations.push(
+      matcherToLocation(line, column, commentContent.indexOf(matcher[1], offset) + 1, matcher),
+    );
+    toBeMatched = toBeMatched.substring(matcher[0].length);
+    offset += matcher[0].length;
   }
-  return [];
+  if (offset !== commentContent.length) {
+    throw new Error(
+      `Unexpected character '${commentContent[offset]}' found at ${line}:${column + offset}`,
+    );
+  }
+  if (locations.length) {
+    for (const location of locations) {
+      file.addLocation(location);
+    }
+  }
 }
 
 function matcherToLocation(

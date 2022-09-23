@@ -37,6 +37,7 @@
 import { RuleTester } from 'eslint';
 import { toEncodedMessage } from 'linting/eslint/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
+import { QuickFix } from './helpers/quickfixes';
 
 /**
  * Extracts issue expectations from a comment-based test file
@@ -50,11 +51,14 @@ export function extractExpectations(
 ): RuleTester.TestCaseError[] {
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const errors: RuleTester.TestCaseError[] = [];
-  expectedIssues.forEach(issue => errors.push(...convertToTestCaseErrors(issue, usesSonarRuntime)));
+  expectedIssues.forEach(issue =>
+    errors.push(...convertToTestCaseErrors(fileContent, issue, usesSonarRuntime)),
+  );
   return errors;
 }
 
 function convertToTestCaseErrors(
+  fileContent: string,
   issue: LineIssues,
   usesSecondaryLocations: boolean,
 ): RuleTester.TestCaseError[] {
@@ -62,27 +66,57 @@ function convertToTestCaseErrors(
   const line = issue.line;
   const primary = issue.primaryLocation;
   const messages = [...issue.messages.values()];
+  const quickfixes = issue.quickfixes ? [...issue.quickfixes?.values()] : [];
   if (primary === null) {
-    return messages.map(message =>
-      message ? { line, message: encodeMessageIfNeeded(message) } : { line },
-    );
+    return messages.map((message, index) => {
+      const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+      return message
+        ? { line, ...suggestions, message: encodeMessageIfNeeded(message) }
+        : { line, ...suggestions };
+    });
   } else {
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
-      return messages.map(message =>
-        message
-          ? { ...primary.range, message: encodeMessageIfNeeded(message) }
-          : { ...primary.range },
-      );
+      return messages.map((message, index) => {
+        const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+        return message
+          ? { ...primary.range, ...suggestions, message: encodeMessageIfNeeded(message) }
+          : { ...primary.range, ...suggestions };
+      });
     } else {
-      return messages.map(message => ({
-        ...primary.range,
-        message: encodeMessageIfNeeded(
-          message,
-          secondary.map(s => s.range.toLocationHolder()),
-          secondary.map(s => s.message),
-        ),
-      }));
+      return messages.map((message, index) => {
+        const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+        return {
+          ...primary.range,
+          ...suggestions,
+          message: encodeMessageIfNeeded(
+            message,
+            secondary.map(s => s.range.toLocationHolder()),
+            secondary.map(s => s.message),
+          ),
+        };
+      });
     }
   }
+}
+
+interface Suggestions {
+  suggestions?: RuleTester.SuggestionOutput[];
+}
+
+function applyQuickFix(quickfix: QuickFix, fileContent: string, line: number): Suggestions {
+  if (quickfix) {
+    const { description: desc, start, end, fix } = quickfix;
+    if (fix) {
+      const lines = fileContent.split(/\n/);
+      lines[line] =
+        lines[line].slice(0, start || 0) + fix + lines[line].slice(end || lines[line].length);
+      const result: RuleTester.SuggestionOutput = { output: lines.join('\n') };
+      if (desc) {
+        result.desc = desc;
+      }
+      return { suggestions: [result] };
+    }
+  }
+  return {};
 }
