@@ -19,6 +19,7 @@
  */
 
 export * from './comments';
+export * from './file';
 export * from './issues';
 export * from './locations';
 export * from './ranges';

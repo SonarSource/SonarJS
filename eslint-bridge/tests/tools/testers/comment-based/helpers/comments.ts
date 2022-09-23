@@ -22,6 +22,7 @@ import { LineIssues } from './issues';
 import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
+import { QUICKFIX_ID } from './quickfixes';
 
 const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
 const NON_COMPLIANT_PATTERN = RegExp(
@@ -29,9 +30,12 @@ const NON_COMPLIANT_PATTERN = RegExp(
     LINE_ADJUSTMENT +
     // issue count, ex: 2
     '(?: +(?<issueCount>\\d+))?' +
-    ' *' +
+    // quickfixes, ex: [[qf1,qf2]]
+    ' *(?:' +
+    QUICKFIX_ID +
+    ')?' +
     // messages, ex: {{msg1}} {{msg2}}
-    '(?<messages>(\\{\\{.*?\\}\\} *)+)?',
+    ' *(?<messages>(\\{\\{.*?\\}\\} *)+)?',
   'i',
 );
 
@@ -79,7 +83,7 @@ export function extractLineIssues(comment: Comment): LineIssues | null {
     matcher.groups?.issueCount,
     matcher.groups?.messages,
   );
-  return new LineIssues(effectiveLine, messages);
+  return new LineIssues(effectiveLine, messages, matcher.groups?.quickfixes);
 }
 
 function extractIssueCountOrMessages(
