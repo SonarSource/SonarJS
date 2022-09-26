@@ -2,6 +2,7 @@
 # https://github.com/hoaphanFox/sceptre/blob/ad8908330e8469f8f41f3b7889d7880de6d1b8df/lambda/templates/serverless.yaml#L60
 # this file contains a single JS snippet in multi-line block literal format
 AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
 Description: The AWS CloudFormation template for this Serverless application
 Resources:
   ServerlessDeploymentBucket:

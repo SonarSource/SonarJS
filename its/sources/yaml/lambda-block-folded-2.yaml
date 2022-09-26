@@ -3,6 +3,7 @@
 # this file contains 2 JS snippets in multi-line block folded format
 ---
 AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
 
 Description:
   Deploys the Wild Rydes Serverless API

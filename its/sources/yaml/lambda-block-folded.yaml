@@ -1,6 +1,7 @@
 # copied from
 # https://github.com/ucipass/awsmanager/blob/9ba51eb67719c774f51c03cb9fca6a30861839ec/src/assets/lambdaServerless.yaml#L95
 # # this file contains 1 JS snippets in multi-line block folded format
+Transform: AWS::Serverless-2016-10-31
 Description:
   S3 Demo Test
 
