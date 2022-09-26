@@ -22,7 +22,7 @@ import { isParameterProperty, rule } from 'linting/eslint/rules/no-unused-functi
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2018 },
+  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });
 
 ruleTester.run('Unused function parameters should be removed', rule, {
@@ -90,6 +90,12 @@ ruleTester.run('Unused function parameters should be removed', rule, {
     },
     {
       code: `function fun(this: void) {}`,
+    },
+    {
+      code: `
+        function f(Tag) {
+          return <Tag />
+        }`,
     },
   ],
   invalid: [
