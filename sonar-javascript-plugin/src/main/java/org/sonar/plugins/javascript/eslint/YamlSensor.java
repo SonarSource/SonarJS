@@ -21,9 +21,12 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
@@ -37,6 +40,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 public class YamlSensor extends AbstractEslintSensor {
 
   public static final String LANGUAGE = "yaml";
+  public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
 
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
@@ -98,9 +102,28 @@ public class YamlSensor extends AbstractEslintSensor {
   @Override
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
-    var filePredicate = fileSystem.predicates().hasLanguage(YamlSensor.LANGUAGE);
+    //var filePredicate = fileSystem.predicates().hasLanguage(YamlSensor.LANGUAGE);
+    FilePredicates p = fileSystem.predicates();
+    var filePredicate = p.and(p.hasLanguage(YamlSensor.LANGUAGE), input -> isSamTemplate(input, LOG));
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
+  }
+
+  private boolean isSamTemplate(InputFile inputFile, Logger logger) {
+    try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+      while (scanner.hasNextLine()) {
+        // Normally, we would be looking for an entry like "Transform: AWS::Serverless-2016-10-31", however, checking the whole entry could be
+        // problematic with whitespaces, so we will be looking just for the field value.
+        if (scanner.nextLine().contains(SAM_TRANSFORM_FIELD)) {
+          return true;
+        }
+      }
+    } catch (IOException e) {
+      logger.error(String.format("Unable to read file: %s.", inputFile.uri()));
+      logger.error(e.getMessage());
+    }
+
+    return false;
   }
 
   private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {

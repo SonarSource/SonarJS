@@ -124,7 +124,7 @@ class YamlSensorTest {
     when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
 
     YamlSensor sensor = createSensor();
-    DefaultInputFile inputFile = createInputFile(context);
+    DefaultInputFile inputFile = createInputFile(context, null);
 
     sensor.execute(context);
     verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
@@ -142,7 +142,7 @@ class YamlSensorTest {
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9)));
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 26)));
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
@@ -154,7 +154,7 @@ class YamlSensorTest {
     when(eslintBridgeServerMock.analyzeYaml(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
 
-    createInputFile(context);
+    createInputFile(context, null);
     createSensor().execute(context);
 
     Collection<Issue> issues = context.allIssues();
@@ -172,7 +172,7 @@ class YamlSensorTest {
     when(eslintBridgeServerMock.analyzeYaml(any())).thenThrow(new IOException("error"));
 
     YamlSensor sensor = createSensor();
-    DefaultInputFile inputFile = createInputFile(context);
+    DefaultInputFile inputFile = createInputFile(context, null);
     sensor.execute(context);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile.uri());
@@ -183,7 +183,7 @@ class YamlSensorTest {
   void stop_analysis_if_cancelled() throws Exception {
     YamlSensor sensor = createSensor();
 
-    createInputFile(context);
+    createInputFile(context, null);
     context.setCancelled(true);
     sensor.execute(context);
 
@@ -195,7 +195,7 @@ class YamlSensorTest {
     when(eslintBridgeServerMock.isAlive()).thenReturn(false);
 
     YamlSensor yamlSensor = createSensor();
-    createInputFile(context);
+    createInputFile(context, null);
     yamlSensor.execute(context);
 
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
@@ -209,12 +209,20 @@ class YamlSensorTest {
     when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
 
     YamlSensor sensor = createSensor();
-    DefaultInputFile inputFile = createInputFile(context);
+    DefaultInputFile inputFile = createInputFile(context, null);
 
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
+  @Test
+  void ignore_yaml_files_without_sam() throws Exception {
+    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+    YamlSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context, "a: 1\nb: 'var a = 2;'");
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).doesNotContain("Analyzing file: " + inputFile.uri());
+  }
 
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
@@ -224,11 +232,15 @@ class YamlSensorTest {
     return new JavaScriptChecks(new CheckFactory(builder.build()));
   }
 
-  private static DefaultInputFile createInputFile(SensorContextTester context) {
+  private static DefaultInputFile createInputFile(SensorContextTester context, String contents) {
+    if (contents == null) {
+      contents = YamlSensor.SAM_TRANSFORM_FIELD;
+      contents += "\nif (cond)\ndoFoo(); \nelse \ndoFoo();";
+    }
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.yaml")
       .setLanguage(YamlSensor.LANGUAGE)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+      .setContents(contents)
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
