@@ -52,7 +52,7 @@ class VueAnalysisTest {
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(6);
 
-    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(15);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
@@ -92,7 +92,7 @@ class VueAnalysisTest {
 
     // assert metrics on .vue file
     String vueFileKey = projectKey + ":file.vue";
-    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "ncloc")).isEqualTo(7);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "ncloc")).isEqualTo(15);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "classes")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "functions")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
