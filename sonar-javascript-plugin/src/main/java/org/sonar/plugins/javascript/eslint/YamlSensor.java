@@ -108,6 +108,7 @@ public class YamlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
+  // copied from https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
   private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
     try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
       while (scanner.hasNextLine()) {
