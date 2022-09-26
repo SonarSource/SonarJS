@@ -45,5 +45,6 @@ public class NoMagicNumbersCheck implements EslintBasedCheck {
     int[] ignore = { 0, 1, -1};
     boolean ignoreEnums = true;
     boolean ignoreReadonlyClassProperties = true;
+    boolean ignoreNumericLiteralTypes = true;
   }
 }
