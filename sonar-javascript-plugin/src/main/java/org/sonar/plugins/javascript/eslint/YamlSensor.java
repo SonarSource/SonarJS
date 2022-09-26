@@ -102,14 +102,13 @@ public class YamlSensor extends AbstractEslintSensor {
   @Override
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
-    //var filePredicate = fileSystem.predicates().hasLanguage(YamlSensor.LANGUAGE);
     FilePredicates p = fileSystem.predicates();
     var filePredicate = p.and(p.hasLanguage(YamlSensor.LANGUAGE), input -> isSamTemplate(input, LOG));
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  private boolean isSamTemplate(InputFile inputFile, Logger logger) {
+  private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
     try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
       while (scanner.hasNextLine()) {
         // Normally, we would be looking for an entry like "Transform: AWS::Serverless-2016-10-31", however, checking the whole entry could be
