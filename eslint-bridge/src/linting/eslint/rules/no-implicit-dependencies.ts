@@ -117,6 +117,10 @@ function raiseOnImplicitImport(
     return;
   }
 
+  if (moduleName.startsWith('node:')) {
+    return;
+  }
+
   if (baseUrl) {
     const underBaseUrlPath = path.join(baseUrl, moduleName);
     const extensions = ['', '.ts', '.d.ts', '.tsx', '.js', '.jsx', '.vue', '.mjs'];
