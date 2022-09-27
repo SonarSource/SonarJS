@@ -63,8 +63,8 @@ class RulesBundlesTest {
   }
 
   @Test
-  void test_deploy_should_not_log_security() {
-    var filename = "/sonar-securityjsfrontend-plugin.jar!/js-vulnerabilities-rules-1.0.0.tgz";
+  void test_deploy_should_log_filename_in_debug() {
+    String filename = "/test-bundle.tgz";
     TestRulesBundle rulesBundle = new TestRulesBundle(filename);
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
     rulesBundles.deploy(tempDir);
@@ -76,6 +76,13 @@ class RulesBundlesTest {
       }
     }
     assertThat(isSeen).isFalse();
+    for (String logLine: logTester.logs(LoggerLevel.DEBUG)) {
+      System.out.println(logLine);
+      if (logLine.contains(filename)) {
+        isSeen = true;
+      }
+    }
+    assertThat(isSeen).isTrue();
   }
 
   static class TestRulesBundle implements RulesBundle {

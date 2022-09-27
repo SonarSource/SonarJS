@@ -42,7 +42,6 @@ public class RulesBundles {
   private static final Logger LOG = Loggers.get(RulesBundles.class);
 
   private final List<URL> bundles;
-  private final String LOG_IGNORE = "sonar-securityjsfrontend-plugin.jar";
 
   /**
    * This constructor is used by pico container when no RulesBundle is provided on classpath
@@ -72,9 +71,7 @@ public class RulesBundles {
     bundles.forEach(bundle -> {
       try {
         Path location = Files.createTempDirectory(target, "custom-rules");
-        if (! bundle.getPath().contains(LOG_IGNORE)) {
-          LOG.info("Deploying custom rules bundle {} to {}", bundle, location);
-        }
+        LOG.debug("Deploying custom rules bundle {} to {}", bundle, location);
         BundleUtils.extractFromClasspath(bundle.openStream(), location);
         Path deployedBundle = location.resolve("package").toAbsolutePath();
         if (!Files.exists(deployedBundle)) {
