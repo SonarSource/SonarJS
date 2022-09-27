@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -110,7 +109,8 @@ public class YamlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  // copied from https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
+  // Inspired from 
+  // https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
   private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
     boolean hasAwsTransform = false;
     boolean hasNodeJsRuntime = false;
