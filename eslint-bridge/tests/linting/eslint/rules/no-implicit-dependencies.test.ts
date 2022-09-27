@@ -97,6 +97,16 @@ ruleTester.run('Dependencies should be explicit', rule, {
       ),
       options,
     },
+    {
+      code: `const fs = require("node:fs/promises");`,
+      filename,
+      options,
+    },
+    {
+      code: `import fs from 'node:fs/promises';`,
+      filename,
+      options,
+    },
   ],
   invalid: [
     {
