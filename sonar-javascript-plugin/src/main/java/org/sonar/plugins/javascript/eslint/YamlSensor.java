@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -41,6 +42,7 @@ public class YamlSensor extends AbstractEslintSensor {
 
   public static final String LANGUAGE = "yaml";
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
+  public static final String NODEJS_RUNTIME_REGEX = "\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?.*";
 
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
@@ -110,11 +112,20 @@ public class YamlSensor extends AbstractEslintSensor {
 
   // copied from https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
   private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
+    boolean hasAwsTransform = false;
+    boolean hasNodeJsRuntime = false;
     try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
       while (scanner.hasNextLine()) {
+        String line = scanner.nextLine();
         // Normally, we would be looking for an entry like "Transform: AWS::Serverless-2016-10-31", however, checking the whole entry could be
         // problematic with whitespaces, so we will be looking just for the field value.
-        if (scanner.nextLine().contains(SAM_TRANSFORM_FIELD)) {
+        if (line.contains(SAM_TRANSFORM_FIELD)) {
+          hasAwsTransform = true;
+        }
+        if (line.matches(NODEJS_RUNTIME_REGEX)) {
+          hasNodeJsRuntime = true;
+        }
+        if (hasAwsTransform && hasNodeJsRuntime) {
           return true;
         }
       }

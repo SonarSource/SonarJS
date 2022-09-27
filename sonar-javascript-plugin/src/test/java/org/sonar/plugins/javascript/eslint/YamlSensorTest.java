@@ -142,7 +142,7 @@ class YamlSensorTest {
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 26)));
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 37)));
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
@@ -216,7 +216,7 @@ class YamlSensorTest {
   }
 
   @Test
-  void ignore_yaml_files_without_sam() throws Exception {
+  void ignore_yaml_files_without_nodejs_aws() throws Exception {
     when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context, "a: 1\nb: 'var a = 2;'");
