@@ -22,7 +22,10 @@ package org.sonar.plugins.javascript.eslint;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.api.RulesBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +35,9 @@ class RulesBundlesTest {
 
   @TempDir
   Path tempDir;
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void test() throws Exception {
@@ -56,6 +62,21 @@ class RulesBundlesTest {
     assertThat(rulesBundles.deploy(tempDir)).isEmpty();
   }
 
+  @Test
+  void test_deploy_should_not_log_security() {
+    var filename = "/sonar-securityjsfrontend-plugin.jar!/js-vulnerabilities-rules-1.0.0.tgz";
+    TestRulesBundle rulesBundle = new TestRulesBundle(filename);
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    rulesBundles.deploy(tempDir);
+    boolean isSeen = false;
+    for (String logLine: logTester.logs(LoggerLevel.INFO)) {
+      System.out.println(logLine);
+      if (logLine.contains(filename)) {
+        isSeen = true;
+      }
+    }
+    assertThat(isSeen).isFalse();
+  }
 
   static class TestRulesBundle implements RulesBundle {
 
