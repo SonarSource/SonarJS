@@ -22,7 +22,10 @@ package org.sonar.plugins.javascript.eslint;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.api.RulesBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +35,9 @@ class RulesBundlesTest {
 
   @TempDir
   Path tempDir;
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void test() throws Exception {
@@ -56,6 +62,16 @@ class RulesBundlesTest {
     assertThat(rulesBundles.deploy(tempDir)).isEmpty();
   }
 
+  @Test
+  void test_deploy_should_log_deployment_in_debug() {
+    String filename = "/test-bundle.tgz";
+    TestRulesBundle rulesBundle = new TestRulesBundle(filename);
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    rulesBundles.deploy(tempDir);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
+  }
 
   static class TestRulesBundle implements RulesBundle {
 

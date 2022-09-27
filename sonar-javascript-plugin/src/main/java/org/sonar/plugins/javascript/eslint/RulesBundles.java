@@ -71,7 +71,7 @@ public class RulesBundles {
     bundles.forEach(bundle -> {
       try {
         Path location = Files.createTempDirectory(target, "custom-rules");
-        LOG.info("Deploying custom rules bundle {} to {}", bundle, location);
+        LOG.debug("Deploying custom rules bundle {} to {}", bundle, location);
         BundleUtils.extractFromClasspath(bundle.openStream(), location);
         Path deployedBundle = location.resolve("package").toAbsolutePath();
         if (!Files.exists(deployedBundle)) {
