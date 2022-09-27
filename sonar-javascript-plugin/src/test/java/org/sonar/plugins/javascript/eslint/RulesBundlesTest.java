@@ -63,12 +63,13 @@ class RulesBundlesTest {
   }
 
   @Test
-  void test_deploy_should_log_filename_in_debug() {
+  void test_deploy_should_log_deployment_in_debug() {
     String filename = "/test-bundle.tgz";
     TestRulesBundle rulesBundle = new TestRulesBundle(filename);
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
     rulesBundles.deploy(tempDir);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
   }
 
