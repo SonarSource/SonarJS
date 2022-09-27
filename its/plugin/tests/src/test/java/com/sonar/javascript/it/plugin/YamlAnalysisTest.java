@@ -40,13 +40,13 @@ public class YamlAnalysisTest {
 
   @Test
   void singleLineInlineAwsLambdaForJs() {
-    var projectKey = "yaml-aws-lambda";
+    var projectKey = "yaml-aws-lambda-analyzed";
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda/analyzed"));
+      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda-analyzed"));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
       "yaml-aws-lambda-profile", "cloudformation",
@@ -63,13 +63,13 @@ public class YamlAnalysisTest {
 
   @Test
   void dont_start_eslint_bridge_for_yaml_without_nodejs_aws() {
-    var projectKey = "yaml-aws-lambda";
+    var projectKey = "yaml-aws-lambda-skipped";
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda/skipped"));
+      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda-skipped"));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
       "yaml-aws-lambda-profile", "cloudformation",
