@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 public class YamlAnalysisTest {
-  
+
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
@@ -53,8 +53,8 @@ public class YamlAnalysisTest {
 
     var issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(4, "cloudformation:S6295"),
-      tuple(11, "javascript:S3923")
+      tuple(5, "cloudformation:S6295"),
+      tuple(12, "javascript:S3923")
     );
   }
 }
