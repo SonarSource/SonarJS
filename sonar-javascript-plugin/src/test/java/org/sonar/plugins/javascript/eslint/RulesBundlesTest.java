@@ -69,7 +69,7 @@ class RulesBundlesTest {
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
     rulesBundles.deploy(tempDir);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
   }
 
   static class TestRulesBundle implements RulesBundle {
