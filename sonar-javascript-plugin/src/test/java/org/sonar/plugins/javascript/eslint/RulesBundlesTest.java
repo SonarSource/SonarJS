@@ -68,21 +68,8 @@ class RulesBundlesTest {
     TestRulesBundle rulesBundle = new TestRulesBundle(filename);
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
     rulesBundles.deploy(tempDir);
-    boolean isSeen = false;
-    for (String logLine: logTester.logs(LoggerLevel.INFO)) {
-      System.out.println(logLine);
-      if (logLine.contains(filename)) {
-        isSeen = true;
-      }
-    }
-    assertThat(isSeen).isFalse();
-    for (String logLine: logTester.logs(LoggerLevel.DEBUG)) {
-      System.out.println(logLine);
-      if (logLine.contains(filename)) {
-        isSeen = true;
-      }
-    }
-    assertThat(isSeen).isTrue();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
   }
 
   static class TestRulesBundle implements RulesBundle {
