@@ -46,7 +46,7 @@ public class YamlAnalysisTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda-analyzed"));
+      .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
       "yaml-aws-lambda-profile", "cloudformation",
