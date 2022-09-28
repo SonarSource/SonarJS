@@ -2,8 +2,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
   SomeLambdaFunction:
-    Type: "AWS::Serverless::Function"
+    Type: "AWS::Lambda::Function"
     Properties:
-      Runtime: "nodejs16.0"
-      InlineCode: >
-        console.log('Hello, World');
+      Code:
+        ZipFile: print("hello")
+      Runtime: "python2.7"

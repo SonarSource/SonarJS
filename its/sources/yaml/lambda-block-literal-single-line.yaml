@@ -2,6 +2,7 @@
 # https://github.com/melscoop-test/check/blob/7d4cc42172d877092fb6e40bbea5d785743edd40/tests/cloudformation/checks/resource/aws/example_LambdaEnvironmentCredentials/LambdaEnvironmentCredentials.yaml#L15
 # this file contains 3 JS snippets: 2 in single line strings in block literal format, the other in unsupported format
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Parameters:
   AssetsS3Bucket:
     Type: String

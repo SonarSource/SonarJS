@@ -21,9 +21,14 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
@@ -37,6 +42,8 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 public class YamlSensor extends AbstractEslintSensor {
 
   public static final String LANGUAGE = "yaml";
+  public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
+  public static final String NODEJS_RUNTIME_REGEX = "^\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?";
 
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JavaScriptChecks checks;
@@ -98,9 +105,42 @@ public class YamlSensor extends AbstractEslintSensor {
   @Override
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
-    var filePredicate = fileSystem.predicates().hasLanguage(YamlSensor.LANGUAGE);
+    FilePredicates p = fileSystem.predicates();
+    var filePredicate = p.and(p.hasLanguage(YamlSensor.LANGUAGE), input -> isSamTemplate(input, LOG));
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
+  }
+
+  // Inspired from 
+  // https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
+  private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
+    boolean hasAwsTransform = false;
+    boolean hasNodeJsRuntime = false;
+    try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+      Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
+      while (scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        // Normally, we would be looking for an entry like "Transform: AWS::Serverless-2016-10-31", however, checking the whole entry could be
+        // problematic with whitespaces, so we will be looking just for the field value.
+        if (line.contains(SAM_TRANSFORM_FIELD)) {
+          hasAwsTransform = true;
+        }
+        // We check early the runtime to avoid making Node.js a mandatory dependency on projects that include YAML configuration files for AWS,
+        // and we consider only those which define Node.js as the runtime, which potentially embed JavaScript code.
+        Matcher lineMatch = regex.matcher(line);
+        if (lineMatch.find()) {
+          hasNodeJsRuntime = true;
+        }
+        if (hasAwsTransform && hasNodeJsRuntime) {
+          return true;
+        }
+      }
+    } catch (IOException e) {
+      logger.error(String.format("Unable to read file: %s.", inputFile.uri()));
+      logger.error(e.getMessage());
+    }
+
+    return false;
   }
 
   private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {

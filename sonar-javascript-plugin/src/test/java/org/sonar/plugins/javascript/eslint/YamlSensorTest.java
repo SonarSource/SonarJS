@@ -142,7 +142,7 @@ class YamlSensorTest {
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9)));
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 37)));
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
@@ -215,6 +215,14 @@ class YamlSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
+  @Test
+  void ignore_yaml_files_without_nodejs_aws() throws Exception {
+    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+    YamlSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context, "a: 1\nb: 'var a = 2;'");
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).doesNotContain("Analyzing file: " + inputFile.uri());
+  }
 
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
@@ -225,10 +233,17 @@ class YamlSensorTest {
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
+    String contents = "Transform: " + YamlSensor.SAM_TRANSFORM_FIELD;
+    contents += "\nRuntime: nodejs10.x  # hello";
+    contents += "\nif (cond)\ndoFoo(); \nelse \ndoFoo();";
+    return createInputFile(context, contents);
+  }
+
+  private static DefaultInputFile createInputFile(SensorContextTester context, String contents) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.yaml")
       .setLanguage(YamlSensor.LANGUAGE)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+      .setContents(contents)
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;

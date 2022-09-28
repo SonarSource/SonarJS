@@ -20,7 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.build.BuildResult;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -34,27 +34,46 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 public class YamlAnalysisTest {
-  
+
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void singleLineInlineAwsLambdaForJs() {
-    var projectKey = "yaml-aws-lambda";
+  void single_line_inline_aws_lambda_for_js() {
+    var projectKey = "yaml-aws-lambda-analyzed";
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir("yaml-aws-lambda"));
+      .setDebugLogs(true)
+      .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
       "yaml-aws-lambda-profile", "cloudformation",
       "eslint-based-rules-profile", "js"));
-    orchestrator.executeBuild(build);
+    BuildResult result = orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(4, "cloudformation:S6295"),
-      tuple(11, "javascript:S3923")
+      tuple(5, "cloudformation:S6295"),
+      tuple(12, "javascript:S3923")
     );
+    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
+  }
+
+  @Test
+  void dont_start_eslint_bridge_for_yaml_without_nodejs_aws() {
+    var projectKey = "yaml-aws-lambda-skipped";
+    var build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setDebugLogs(true)
+      .setProjectDir(TestUtils.projectDir(projectKey));
+
+    OrchestratorStarter.setProfiles(projectKey, Map.of(
+      "yaml-aws-lambda-profile", "cloudformation",
+      "eslint-based-rules-profile", "js"));
+    BuildResult result = orchestrator.executeBuild(build);
+    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(0);
   }
 }
