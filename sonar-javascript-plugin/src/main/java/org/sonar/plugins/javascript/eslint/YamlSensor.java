@@ -125,8 +125,9 @@ public class YamlSensor extends AbstractEslintSensor {
         if (line.contains(SAM_TRANSFORM_FIELD)) {
           hasAwsTransform = true;
         }
+        // We check early the runtime to avoid making Node.js a mandatory dependency on projects that include YAML configuration files for AWS,
+        // and we consider only those which define Node.js as the runtime, which potentially embed JavaScript code.
         Matcher lineMatch = regex.matcher(line);
-        // AWS SAM can contain code in other languages such as python.
         if (lineMatch.find()) {
           hasNodeJsRuntime = true;
         }
