@@ -70,7 +70,9 @@ export const rule: Rule.RuleModule = {
 };
 
 function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
-  return expression.type === 'BinaryExpression' && allEqualityOperators.includes(expression.operator);
+  return (
+    expression.type === 'BinaryExpression' && allEqualityOperators.includes(expression.operator)
+  );
 }
 
 function isUpdateIncDec(expression: estree.Expression): boolean {
