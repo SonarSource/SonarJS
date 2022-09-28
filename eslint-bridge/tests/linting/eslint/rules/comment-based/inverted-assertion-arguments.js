@@ -7,7 +7,8 @@ describe("invalid comparisons", function() {
     const aNumber = new Number(42);
 
     it("uses chai 'assert'", function() {
-      assert.fail(42, aNumber); // Noncompliant
+      assert.fail(42, aNumber);  //Noncompliant [[qf1]]
+      // edit@qf1 {{      assert.fail(aNumber, 42);}}
       assert.equal(42, aNumber); // Noncompliant
       assert.notEqual(42, aNumber); // Noncompliant
       assert.strictEqual(42, aNumber); // Noncompliant
@@ -16,6 +17,8 @@ describe("invalid comparisons", function() {
       assert.notDeepEqual(42, aNumber); // Noncompliant
       assert.closeTo(42, aNumber, 0.1); // Noncompliant
       assert.approximately(42, aNumber, 0.1); // Noncompliant
+      assert.fail(  42  , aNumber + (anotherNumber * someNumber()), );//Noncompliant [[qf2]]
+      // edit@qf2 {{      assert.fail(  aNumber + (anotherNumber * someNumber())  , 42, );}}
       assert.fail(aNumber, 42); // Compliant
     });
 

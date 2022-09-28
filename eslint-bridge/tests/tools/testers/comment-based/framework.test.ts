@@ -201,4 +201,101 @@ describe('Comment-based Testing Framework', () => {
     const result = await assertions('parsing.js');
     expect(result).toEqual([{ line: 1 }]);
   });
+
+  it('quickfix', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf]]
+// fix@qf {{description}}
+// edit@qf {{fixed.code();}}`;
+    expect(extractExpectations(code, false)).toEqual([
+      {
+        line: 2,
+        suggestions: [
+          {
+            desc: 'description',
+            output: `
+fixed.code();// Noncompliant [[qf]]
+// fix@qf {{description}}
+// edit@qf {{fixed.code();}}`,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('wrong quickfix id', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf]]
+// fix@qf1 {{description}}`;
+    expect(() => extractExpectations(code, false)).toThrow(/Unexpected quickfix ID 'qf1'/);
+  });
+
+  it('quickfix id already declared', () => {
+    const code = `wrong.code();// Noncompliant [[qf, qf]]`;
+    expect(() => extractExpectations(code, false)).toThrow(
+      'QuickFix ID qf has already been declared',
+    );
+  });
+
+  it('quickfix wrong end column', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf]]
+// edit@qf [[ec=20]] {{fixed.code();}}`;
+    expect(() => extractExpectations(code, false)).toThrow(
+      /End column cannot be in \/\/Noncompliant comment/,
+    );
+  });
+
+  it('quickfix end below start column', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf]]
+// edit@qf [[ec=2;sc=10]] {{fixed.code();}}`;
+    expect(() => extractExpectations(code, false)).toThrow(
+      /End column cannot be lower than start position/,
+    );
+  });
+
+  it('quickfix with start and end column', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf]]
+// edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`;
+    expect(extractExpectations(code, false)).toEqual([
+      {
+        line: 2,
+        suggestions: [
+          {
+            output: `
+wrong.smelly.buggy.code();// Noncompliant [[qf]]
+// edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('quickfix with 2 suggestions in same issue', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf1,qf2=0]]
+// edit@qf1 [[ec=5]] {{fixed}}
+// edit@qf2 [[ec=5]] {{repaired}}`;
+    expect(extractExpectations(code, false)).toEqual([
+      {
+        line: 2,
+        suggestions: [
+          {
+            output: `
+fixed.code();// Noncompliant [[qf1,qf2=0]]
+// edit@qf1 [[ec=5]] {{fixed}}
+// edit@qf2 [[ec=5]] {{repaired}}`,
+          },
+          {
+            output: `
+repaired.code();// Noncompliant [[qf1,qf2=0]]
+// edit@qf1 [[ec=5]] {{fixed}}
+// edit@qf2 [[ec=5]] {{repaired}}`,
+          },
+        ],
+      },
+    ]);
+  });
 });

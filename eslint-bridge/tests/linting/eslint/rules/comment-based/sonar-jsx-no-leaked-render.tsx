@@ -66,9 +66,9 @@ function non_compliant() {
     return (
       <div>
         {(test || (count)) && <List elements={collection} />} {/* Noncompliant 2 [[qf1,qf2]]*/}
-        {{/* fix@qf1 {{Convert the conditional to a boolean}} */}}
-        {{/* edit@qf1 [[sc=10;ec=14]] {{!!(test)}} */}}
-        {{/* edit@qf2 [[ec=26]] {{        {(test || !!(count))}} */}}
+        {/* fix@qf1 {{Convert the conditional to a boolean}} */}
+        {/* edit@qf1 [[sc=10;ec=14]] {{!!(test)}} */}
+        {/* edit@qf2 {{        {(test || !!(count)) && <List elements={collection} />}}} */}
       </div>
     )
   }

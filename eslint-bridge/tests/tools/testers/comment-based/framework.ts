@@ -69,7 +69,11 @@ function convertToTestCaseErrors(
   const quickfixes = issue.quickfixes ? [...issue.quickfixes?.values()] : [];
   if (primary === null) {
     return messages.map((message, index) => {
-      const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+      const suggestions = applyQuickFixes(
+        quickfixes.filter(quickfix => quickfix.messageIndex === index),
+        fileContent,
+        line - 1,
+      );
       return message
         ? { line, ...suggestions, message: encodeMessageIfNeeded(message) }
         : { line, ...suggestions };
@@ -78,14 +82,22 @@ function convertToTestCaseErrors(
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
       return messages.map((message, index) => {
-        const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+        const suggestions = applyQuickFixes(
+          quickfixes.filter(quickfix => quickfix.messageIndex === index),
+          fileContent,
+          line - 1,
+        );
         return message
           ? { ...primary.range, ...suggestions, message: encodeMessageIfNeeded(message) }
           : { ...primary.range, ...suggestions };
       });
     } else {
       return messages.map((message, index) => {
-        const suggestions = applyQuickFix(quickfixes[index], fileContent, line - 1);
+        const suggestions = applyQuickFixes(
+          quickfixes.filter(quickfix => quickfix.messageIndex === index),
+          fileContent,
+          line - 1,
+        );
         return {
           ...primary.range,
           ...suggestions,
@@ -104,19 +116,55 @@ interface Suggestions {
   suggestions?: RuleTester.SuggestionOutput[];
 }
 
-function applyQuickFix(quickfix: QuickFix, fileContent: string, line: number): Suggestions {
-  if (quickfix) {
-    const { description: desc, start, end, fix } = quickfix;
-    if (fix) {
-      const lines = fileContent.split(/\n/);
-      lines[line] =
-        lines[line].slice(0, start || 0) + fix + lines[line].slice(end || lines[line].length);
-      const result: RuleTester.SuggestionOutput = { output: lines.join('\n') };
-      if (desc) {
-        result.desc = desc;
+/**
+ * Applies quickfix edits to a sourcecode line. The fixed line will be formed by a
+ * concatenation of three strings:
+ *  - Original line from column 0 until start of fix column
+ *  - Contents of fix
+ *  - Original line from end of fix column until end of original line
+ *
+ * @param quickfixes array of quickfixes to apply
+ * @param fileContent string with all file contents
+ * @param issueLine index of line to apply the fixes to
+ */
+function applyQuickFixes(
+  quickfixes: QuickFix[],
+  fileContent: string,
+  issueLine: number,
+): Suggestions {
+  if (quickfixes.length) {
+    const suggestions: RuleTester.SuggestionOutput[] = [];
+    for (const quickfix of quickfixes) {
+      const { description: desc, start = 0, end, fix } = quickfix;
+      if (fix !== undefined) {
+        let appendAfterFix = '';
+        const lines = fileContent.split(/\n/);
+        const line = lines[issueLine];
+        const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
+        if (end === undefined) {
+          if (containsNC >= 0) {
+            appendAfterFix = line.slice(containsNC);
+          }
+        } else {
+          if (end < start) {
+            throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
+          }
+          if (containsNC >= 0 && end > containsNC) {
+            throw new Error(
+              `End column cannot be in //Noncompliant comment ${end} > ${containsNC}`,
+            );
+          }
+          appendAfterFix = line.slice(end);
+        }
+        lines[issueLine] = line.slice(0, start || 0) + fix + appendAfterFix;
+        const result: RuleTester.SuggestionOutput = { output: lines.join('\n') };
+        if (desc) {
+          result.desc = desc;
+        }
+        suggestions.push(result);
       }
-      return { suggestions: [result] };
     }
+    return { suggestions };
   }
   return {};
 }

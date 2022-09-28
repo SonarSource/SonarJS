@@ -48,14 +48,23 @@ export class LineIssues {
   ) {
     this.primaryLocation = null;
     if (quickfixes?.length) {
-      this.quickfixes = quickfixes.split(RegExp(QUICKFIX_SEPARATOR)).map(quickfixId => {
-        if (quickFixesMap.has(quickfixId)) {
-          throw new Error(`QuickFix ID ${quickfixId} has already been declared`);
-        }
-        const qf = new QuickFix(quickfixId, this);
-        quickFixesMap.set(quickfixId, qf);
-        return qf;
-      });
+      this.quickfixes = quickfixes
+        .split(RegExp(QUICKFIX_SEPARATOR))
+        .map((quickfixAndMessage, index) => {
+          const [quickfixId, messageIndexStr] = quickfixAndMessage.split('=');
+          const messageIndex = !messageIndexStr ? index : parseInt(messageIndexStr);
+          if (quickFixesMap.has(quickfixId)) {
+            throw new Error(`QuickFix ID ${quickfixId} has already been declared`);
+          }
+          if (messageIndex >= this.messages.length) {
+            throw new Error(
+              `QuickFix ID ${quickfixId} refers to message index ${messageIndex} but there are only ${this.messages.length} messages`,
+            );
+          }
+          const qf = new QuickFix(quickfixId, messageIndex, this);
+          quickFixesMap.set(quickfixId, qf);
+          return qf;
+        });
     }
   }
 

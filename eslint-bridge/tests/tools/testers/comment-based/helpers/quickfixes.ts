@@ -23,35 +23,40 @@ import { Comment } from './comments';
 
 const STARTS_WITH_QUICKFIX = /^ *(edit|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';
-export const QUICKFIX_ID = '\\[\\[(?<quickfixes>\\w+(?:' + QUICKFIX_SEPARATOR + '(?:\\w+))*)\\]\\]';
+export const QUICKFIX_ID =
+  '\\[\\[(?<quickfixes>\\w+(=\\d+)?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?))*)\\]\\]';
 export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
   ' *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     'fix@(?<quickfixId>\\w+)' +
     // message, ex: {{msg}}
-    ' *(?:\\{\\{(?<message>.*?)\\}\\})? *' +
+    ' *(?:\\{\\{(?<message>.*?)\\}\\}(?!\\}))? *' +
     '(?:\r(\n?)|\n)?',
 );
 
 export const QUICKFIX_EDIT_PATTERN = RegExp(
   ' *' +
-    // quickfix description, ex: fix@qf1 {{Replace with foo}}
+    // quickfix edit, ex: edit@qf1
     'edit@(?<quickfixId>\\w+)' +
-    // message, ex: {{msg}}
+    // start and end columns, ex: [[sc=1;ec=5]] both are optional
     ' *(?:\\[\\[' +
     '(?<firstColumnType>sc|ec)=(?<firstColumnValue>\\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\\d+))?' +
     '\\]\\])?' +
     // replacement string, ex: {{foo}}
-    ' *(?:\\{\\{(?<fix>.*?)\\}\\})?' +
+    ' *(?:\\{\\{(?<fix>.*?)\\}\\}(?!\\}))?' +
     ' *(?:\r(\n?)|\n)?',
 );
 
 export class QuickFix {
-  public start: number | undefined;
-  public end: number | undefined;
-  public description: string;
-  public fix: string;
-  constructor(readonly id: string, readonly lineIssues: LineIssues) {}
+  public start: number | undefined = undefined;
+  public end: number | undefined = undefined;
+  public description: string | undefined = undefined;
+  public fix: string | undefined = undefined;
+  constructor(
+    readonly id: string,
+    readonly messageIndex: number,
+    readonly lineIssues: LineIssues,
+  ) {}
 }
 
 export function isQuickfixLine(comment: string) {
