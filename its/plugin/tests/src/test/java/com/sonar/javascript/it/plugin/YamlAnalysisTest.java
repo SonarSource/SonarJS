@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ public class YamlAnalysisTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void singleLineInlineAwsLambdaForJs() {
+  void single_line_inline_aws_lambda_for_js() {
     var projectKey = "yaml-aws-lambda-analyzed";
     var build = getSonarScanner()
       .setProjectKey(projectKey)

@@ -122,6 +122,7 @@ public class YamlSensor extends AbstractEslintSensor {
         if (line.contains(SAM_TRANSFORM_FIELD)) {
           hasAwsTransform = true;
         }
+        // AWS SAM can contain code in other languages such as python.
         if (line.matches(NODEJS_RUNTIME_REGEX)) {
           hasNodeJsRuntime = true;
         }
