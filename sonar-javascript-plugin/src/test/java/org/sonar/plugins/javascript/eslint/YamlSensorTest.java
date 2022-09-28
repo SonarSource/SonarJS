@@ -234,7 +234,7 @@ class YamlSensorTest {
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
     String contents = "Transform: " + YamlSensor.SAM_TRANSFORM_FIELD;
-    contents += "\nRuntime: nodejs10.x";
+    contents += "\nRuntime: nodejs10.x  # hello";
     contents += "\nif (cond)\ndoFoo(); \nelse \ndoFoo();";
     return createInputFile(context, contents);
   }

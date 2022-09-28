@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -115,6 +117,7 @@ public class YamlSensor extends AbstractEslintSensor {
     boolean hasAwsTransform = false;
     boolean hasNodeJsRuntime = false;
     try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+      Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
         // Normally, we would be looking for an entry like "Transform: AWS::Serverless-2016-10-31", however, checking the whole entry could be
@@ -122,8 +125,9 @@ public class YamlSensor extends AbstractEslintSensor {
         if (line.contains(SAM_TRANSFORM_FIELD)) {
           hasAwsTransform = true;
         }
+        Matcher lineMatch = regex.matcher(line);
         // AWS SAM can contain code in other languages such as python.
-        if (line.matches(NODEJS_RUNTIME_REGEX)) {
+        if (lineMatch.find()) {
           hasNodeJsRuntime = true;
         }
         if (hasAwsTransform && hasNodeJsRuntime) {
