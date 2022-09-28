@@ -117,14 +117,14 @@ interface Suggestions {
 }
 
 /**
- * Applies quickfix edits to a sourcecode line. The fixed line will be formed by a
+ * Applies quick fix edits to a source code line. The fixed line will be formed by a
  * concatenation of three strings:
  *  - Original line from column 0 until start of fix column
  *  - Contents of fix
  *  - Original line from end of fix column until end of original line
  *
- * @param quickfixes array of quickfixes to apply
- * @param fileContent string with all file contents
+ * @param quickfixes array of quick fixes to apply
+ * @param fileContent the file contents
  * @param issueLine index of line to apply the fixes to
  */
 function applyQuickFixes(
@@ -151,7 +151,7 @@ function applyQuickFixes(
           }
           if (containsNC >= 0 && end > containsNC) {
             throw new Error(
-              `End column cannot be in //Noncompliant comment ${end} > ${containsNC}`,
+              `End column cannot be in // Noncompliant comment ${end} > ${containsNC}`,
             );
           }
           appendAfterFix = line.slice(end);

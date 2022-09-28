@@ -242,7 +242,7 @@ wrong.code();// Noncompliant [[qf]]
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=20]] {{fixed.code();}}`;
     expect(() => extractExpectations(code, false)).toThrow(
-      /End column cannot be in \/\/Noncompliant comment/,
+      /End column cannot be in \/\/ Noncompliant comment/,
     );
   });
 
