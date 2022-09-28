@@ -23,8 +23,9 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromName } from './helpers';
 
-const equalityOperator = ['!=', '=='];
-const plusMinusOperator = ['+=', '-='];
+const allEqualityOperators = ['!=', '==', '!==', '==='];
+const notEqualOperators = ['!==', '!='];
+const plusMinusOperators = ['+=', '-='];
 
 interface CompleteForStatement extends estree.BaseStatement {
   type: 'ForStatement';
@@ -69,8 +70,8 @@ export const rule: Rule.RuleModule = {
 };
 
 function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
-  return !!(
-    expression.type === 'BinaryExpression' && equalityOperator.includes(expression.operator)
+  return (
+    expression.type === 'BinaryExpression' && allEqualityOperators.includes(expression.operator)
   );
 }
 
@@ -84,8 +85,8 @@ function isUpdateIncDec(expression: estree.Expression): boolean {
 }
 
 function isIncDec(expression: estree.Expression): expression is estree.AssignmentExpression {
-  return !!(
-    expression.type === 'AssignmentExpression' && plusMinusOperator.includes(expression.operator)
+  return (
+    expression.type === 'AssignmentExpression' && plusMinusOperators.includes(expression.operator)
   );
 }
 
@@ -99,7 +100,7 @@ function isException(forStatement: CompleteForStatement, context: Rule.RuleConte
 function isNontrivialConditionException(forStatement: CompleteForStatement) {
   //If we reach this point, we know that test is an equality kind
   const condition = forStatement.test as estree.BinaryExpression;
-  var counters: Array<string> = [];
+  const counters: Array<string> = [];
   collectCounters(forStatement.update, counters);
   return condition.left.type !== 'Identifier' || !counters.includes(condition.left.name);
 }
@@ -141,7 +142,7 @@ function isTrivialIteratorException(forStatement: CompleteForStatement, context:
 }
 
 function isNotEqual(node: estree.Node): node is estree.BinaryExpression {
-  return !!(node && node.type === 'BinaryExpression' && node.operator === '!=');
+  return node.type === 'BinaryExpression' && notEqualOperators.includes(node.operator);
 }
 
 function checkForUpdateByOne(
