@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport, mergeRules } from './decorators/helpers';
 import { eslintRules } from './core';
+import { getModuleNameOfImportedIdentifier, isFunctionCall, isIdentifier } from './helpers';
 
 const eslintMaxParams = eslintRules['max-params'];
 
@@ -47,7 +48,50 @@ export const rule: Rule.RuleModule = {
         }
 
         function isException(functionLike: TSESTree.FunctionLike) {
+          return hasOnlyParameterProperties(functionLike) || isAngularConstructor(functionLike);
+        }
+
+        function hasOnlyParameterProperties(functionLike: TSESTree.FunctionLike) {
           return functionLike.params.every(param => param.type === 'TSParameterProperty');
+        }
+
+        function isAngularConstructor(functionLike: TSESTree.FunctionLike) {
+          /** A constructor is represented as MethodDefinition > FunctionExpression */
+          const maybeConstructor = functionLike.parent;
+          if (!isConstructor(maybeConstructor)) {
+            return false;
+          }
+
+          /** A component is represented as ClassDeclaration > ClassBody */
+          const maybeComponent = maybeConstructor.parent?.parent;
+          if (!isComponent(maybeComponent)) {
+            return false;
+          }
+
+          return true;
+
+          function isConstructor(
+            node: TSESTree.Node | undefined,
+          ): node is TSESTree.MethodDefinition {
+            return (
+              node?.type === 'MethodDefinition' &&
+              isIdentifier(node.key as estree.Node, 'constructor')
+            );
+          }
+
+          function isComponent(node: TSESTree.Node | undefined) {
+            return (
+              node?.type === 'ClassDeclaration' &&
+              node.decorators?.some(decorator => {
+                const node = decorator.expression as estree.Node;
+                return (
+                  isFunctionCall(node) &&
+                  isIdentifier(node.callee, 'Component') &&
+                  getModuleNameOfImportedIdentifier(context, node.callee)?.value === '@angular/core'
+                );
+              })
+            );
+          }
         }
       },
     );

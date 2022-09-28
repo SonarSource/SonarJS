@@ -50,6 +50,16 @@ ruleTester.run(``, rule, {
       code: `class C { constructor(private a: any, public b: any) {} }`,
       options: [MAX_PARAMS_5],
     },
+    {
+      code: `
+      import { Component } from '@angular/core';
+      @Component({/* ... */})
+      class AppComponent {
+        constructor(a, b, c, d, e, f) {}
+      }
+      `,
+      options: [MAX_PARAMS_3],
+    },
   ],
   invalid: [
     {
@@ -117,6 +127,33 @@ ruleTester.run(``, rule, {
           endColumn: 22,
         },
       ],
+    },
+    {
+      code: `
+      import { NotComponent } from '@angular/core';
+      import { Component } from 'fake-angular';
+
+      @NotComponent({/* ... */})
+      class C1 {
+        constructor(a, b, c, d, e, f) {}
+      }
+
+      @Component({/* ... */})
+      class C2 {
+        constructor(a, b, c, d, e, f) {}
+      }
+
+      @DoesNotExist({/* ... */})
+      class C3 {
+        constructor(a, b, c, d, e, f) {}
+      }
+
+      class C4 {
+        constructor(a, b, c, d, e, f) {}
+      }
+      `,
+      options: [MAX_PARAMS_3],
+      errors: 4,
     },
   ],
 });
