@@ -62,7 +62,8 @@ function non_compliant() {
     i++ // changes to counter -> no exception
   }
 
-  for (var i=0; iii!=10; iii+=1){
+  var iii = 0;
+  for (var i=0; iii!=10; iii+=1){ // Noncompliant
     iii++ // changes to counter -> no exception
   }
 }
