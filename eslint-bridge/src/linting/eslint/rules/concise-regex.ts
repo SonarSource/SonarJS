@@ -123,9 +123,19 @@ function checkBulkyAlphaNumericCharacterClass(node: CharacterClass, context: Reg
 
 function checkBulkyQuantifier(node: Quantifier, context: RegexRuleContext) {
   const { raw } = node;
+  let message: string | undefined;
   let bulkyQuantifier: { concise: string; verbose: string } | undefined;
+
   if (/\{0,1\}\??$/.test(raw)) {
     bulkyQuantifier = { concise: '?', verbose: '{0,1}' };
+  } else if (/\{0,0\}\??$/.test(raw)) {
+    message = `Remove redundant ${node.element.raw}{0,0}.`;
+  } else if (/\{0\}\??$/.test(raw)) {
+    message = `Remove redundant ${node.element.raw}{0}.`;
+  } else if (/\{1,1\}\??$/.test(raw)) {
+    message = 'Remove redundant quantifier {1,1}.';
+  } else if (/\{1\}\??$/.test(raw)) {
+    message = 'Remove redundant quantifier {1}.';
   } else if (/\{0,\}\??$/.test(raw)) {
     bulkyQuantifier = { concise: '*', verbose: '{0,}' };
   } else if (/\{1,\}\??$/.test(raw)) {
@@ -133,9 +143,14 @@ function checkBulkyQuantifier(node: Quantifier, context: RegexRuleContext) {
   } else if (/\{(\d+),\1\}\??$/.test(raw)) {
     bulkyQuantifier = { concise: `{${node.min}}`, verbose: `{${node.min},${node.min}}` };
   }
+
   if (bulkyQuantifier) {
+    message = `Use concise quantifier syntax '${bulkyQuantifier.concise}' instead of '${bulkyQuantifier.verbose}'.`;
+  }
+
+  if (message) {
     context.reportRegExpNode({
-      message: `Use concise quantifier syntax '${bulkyQuantifier.concise}' instead of '${bulkyQuantifier.verbose}'.`,
+      message,
       node: context.node,
       regexpNode: node,
     });
