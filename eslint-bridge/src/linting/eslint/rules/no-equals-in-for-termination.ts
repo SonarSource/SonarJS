@@ -23,7 +23,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromName } from './helpers';
 
-const equalityOperator = ['!=', '=='];
+const equalityOperator = ['!=', '==', '!==', '==='];
+const notEqualOperator = ['!==', '!='];
 const plusMinusOperator = ['+=', '-='];
 
 interface CompleteForStatement extends estree.BaseStatement {
@@ -69,9 +70,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
-  return !!(
-    expression.type === 'BinaryExpression' && equalityOperator.includes(expression.operator)
-  );
+  return expression.type === 'BinaryExpression' && equalityOperator.includes(expression.operator);
 }
 
 function isUpdateIncDec(expression: estree.Expression): boolean {
@@ -84,7 +83,7 @@ function isUpdateIncDec(expression: estree.Expression): boolean {
 }
 
 function isIncDec(expression: estree.Expression): expression is estree.AssignmentExpression {
-  return !!(
+  return (
     expression.type === 'AssignmentExpression' && plusMinusOperator.includes(expression.operator)
   );
 }
@@ -141,7 +140,7 @@ function isTrivialIteratorException(forStatement: CompleteForStatement, context:
 }
 
 function isNotEqual(node: estree.Node): node is estree.BinaryExpression {
-  return !!(node && node.type === 'BinaryExpression' && node.operator === '!=');
+  return node.type === 'BinaryExpression' && notEqualOperator.includes(node.operator);
 }
 
 function checkForUpdateByOne(
