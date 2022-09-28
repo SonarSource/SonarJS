@@ -23,7 +23,7 @@
  *
  * This file provides a launcher for the Comment-based Testing Framework, which relies
  * on Jest and ESLint's rule tester. Basically, it tests the rule implementation of each
- * test file in the `fixtures` of the current folder. To do so, it read the file contents,
+ * test file in the `fixtures` of the current folder. To do so, it reads the file contents,
  * extracts from it the issue expectations, and use them as invalid test assertions with
  * ESLint's rule tester. To know which rule to test against a test file, the latter must
  * be named with the rule's name.
@@ -33,61 +33,36 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Linter, Rule, RuleTester } from 'eslint';
+import { Rule, RuleTester } from 'eslint';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
-import { decorators, RuleDecorator } from 'linting/eslint/rules/decorators';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode, Language } from 'parsing/jsts';
 import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
+import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
 
-/**
- * Return test files for specific rule based on rule key
- * Looks for files like
- * - fixtures/rule.ts
- * - fixtures/rule.js
- * - fixtures/rule/anything
- * @param rule - rule key
- */
-function testFilesForRule(rule: string): string[] {
-  const files = [];
-  for (const ext of ['js', 'jsx', 'ts', 'tsx']) {
-    const p = path.join(fixtures, `${rule}.${ext}`);
-    if (fs.existsSync(p)) {
-      files.push(p);
-    }
-  }
-  return files;
-}
-
-function runRuleTests(
-  internal: Record<string, Rule.RuleModule>,
-  external: Record<string, Rule.RuleModule>,
-  decorators: Record<string, RuleDecorator>,
-  ruleTester: RuleTester,
-) {
-  const rules = [...Object.keys(internal), ...Object.keys(decorators)];
-  for (const rule of rules) {
-    const files = testFilesForRule(rule);
-    if (files.length === 0) {
-      continue;
-    }
-    describe(`Running comment-based tests for rule ${rule}`, () => {
-      files.forEach(filename => {
-        const ruleModule = rule in internal ? internal[rule] : decorators[rule](external[rule]);
-        const code = fs.readFileSync(filename, { encoding: 'utf8' });
-        const errors = extractExpectations(code, hasSonarRuntimeOption(ruleModule, rule));
+function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
+  const tests = fs.readdirSync(fixtures);
+  for (const test of tests) {
+    const filename = path.join(fixtures, test);
+    const { ext, name } = path.parse(filename);
+    const rule = name.toLowerCase();
+    if (['.js', '.jsx', '.ts', '.tsx'].includes(ext.toLowerCase()) && rules.hasOwnProperty(rule)) {
+      describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
+        const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
+        const errors = extractExpectations(code, hasSonarRuntimeOption(rules[rule], rule));
         const tests = {
           valid: [],
           invalid: [{ code, errors, filename }],
         };
-        ruleTester.run(filename, ruleModule, tests);
+        ruleTester.run(filename, rules[rule], tests);
       });
-    });
+    }
   }
 }
 
@@ -123,7 +98,7 @@ export function parseForESLint(
  */
 function languageFromFilePath(filePath: string): Language {
   const { ext } = path.parse(filePath);
-  if (['ts', 'tsx'].includes(ext)) {
+  if (['.ts', '.tsx'].includes(ext)) {
     return 'ts';
   } else {
     return 'js';
@@ -134,9 +109,10 @@ function languageFromFilePath(filePath: string): Language {
  * Loading the above parseForESLint() function.
  */
 const ruleTester = new RuleTester({ parser: __filename });
-const externalRules = {
-  ...Object.fromEntries(new Linter().getRules()),
-  ...reactESLintRules,
+const externalRules = decorateExternalRules({
+  ...eslintRules,
   ...typescriptESLintRules,
-};
-runRuleTests(internalRules, externalRules, decorators, ruleTester);
+  ...reactESLintRules,
+});
+
+runRuleTests({ ...externalRules, ...internalRules }, ruleTester);

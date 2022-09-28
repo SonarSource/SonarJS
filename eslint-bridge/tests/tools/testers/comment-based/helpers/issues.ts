@@ -17,112 +17,111 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractComments, extractLineIssues } from './comments';
-import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
+import { extractEffectiveLine, LINE_ADJUSTMENT, PrimaryLocation } from './locations';
+import { QuickFix, QUICKFIX_ID, QUICKFIX_SEPARATOR } from './quickfixes';
+import { Comment } from './comments';
+import { FileIssues } from './file';
 
-export class FileIssues {
-  private readonly expectedIssues = new Map<number, LineIssues>();
-  private orphanSecondaryLocations: SecondaryLocation[] = [];
-  private currentPrimary: PrimaryLocation | null = null;
-
-  /**
-   * Parses the file into its expected errors. Throws if error flags are not well formated.
-   * @param fileContent
-   */
-  constructor(fileContent: string) {
-    const comments = extractComments(fileContent);
-    for (const comment of comments) {
-      const lineIssues = extractLineIssues(comment);
-      if (lineIssues !== null) {
-        const existingLineIssues = this.expectedIssues.get(lineIssues.line);
-        if (existingLineIssues) {
-          existingLineIssues.merge(lineIssues);
-        } else {
-          this.expectedIssues.set(lineIssues.line, lineIssues);
-        }
-      } else {
-        const locations = extractLocations(comment.line, comment.column, comment.value);
-        for (const location of locations) {
-          this.addLocation(location);
-        }
-      }
-    }
-  }
-
-  getExpectedIssues(): LineIssues[] {
-    if (this.orphanSecondaryLocations.length !== 0) {
-      throw new Error(
-        this.orphanSecondaryLocations
-          .map(
-            secondary =>
-              `Secondary location '>' without next primary location at ${secondary.range.toString()}`,
-          )
-          .join('\n\n'),
-      );
-    }
-    return [...this.expectedIssues.values()];
-  }
-
-  private addLocation(location: Location) {
-    if (location instanceof PrimaryLocation) {
-      this.addPrimary(location);
-    } else {
-      this.addSecondary(location as SecondaryLocation);
-    }
-  }
-
-  private addPrimary(primary: PrimaryLocation) {
-    const lineIssues = this.expectedIssues.get(primary.range.line);
-    if (lineIssues === undefined) {
-      throw new Error(
-        `Primary location does not have a related issue at ${primary.range.toString()}`,
-      );
-    }
-    if (lineIssues.primaryLocation !== null) {
-      throw new Error(
-        `Primary location conflicts with another primary location at ${primary.range.toString()}`,
-      );
-    }
-    this.orphanSecondaryLocations.forEach(secondary =>
-      FileIssues.addSecondaryTo(secondary, primary),
-    );
-    this.orphanSecondaryLocations = [];
-    lineIssues.primaryLocation = primary;
-    this.currentPrimary = primary;
-  }
-
-  private addSecondary(secondary: SecondaryLocation) {
-    if (secondary.primaryIsBefore) {
-      if (this.currentPrimary == null) {
-        throw new Error(
-          `Secondary location '<' without previous primary location at ${secondary.range.toString()}`,
-        );
-      }
-      FileIssues.addSecondaryTo(secondary, this.currentPrimary);
-    } else {
-      this.orphanSecondaryLocations.push(secondary);
-    }
-  }
-
-  private static addSecondaryTo(secondary: SecondaryLocation, primary: PrimaryLocation) {
-    primary.secondaryLocations.push(secondary);
-  }
-}
+const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
+const NON_COMPLIANT_PATTERN = RegExp(
+  ' *Noncompliant' +
+    LINE_ADJUSTMENT +
+    // issue count, ex: 2
+    '(?: +(?<issueCount>\\d+))?' +
+    // quickfixes, ex: [[qf1,qf2]]
+    ' *(?:' +
+    QUICKFIX_ID +
+    ')?' +
+    // messages, ex: {{msg1}} {{msg2}}
+    ' *(?<messages>(\\{\\{.*?\\}\\} *)+)?',
+  'i',
+);
 
 export class LineIssues {
   public primaryLocation: PrimaryLocation | null;
+  public quickfixes: QuickFix[] = [];
   constructor(
     readonly line: number,
     readonly messages: string[],
-    primaryLocation: PrimaryLocation | null = null,
+    quickfixes: string | undefined,
+    quickFixesMap: Map<string, QuickFix>,
   ) {
-    this.primaryLocation = primaryLocation;
+    this.primaryLocation = null;
+    if (quickfixes?.length) {
+      this.quickfixes = quickfixes
+        .split(RegExp(QUICKFIX_SEPARATOR))
+        .map((quickfixAndMessage, index) => {
+          const [quickfixId, messageIndexStr] = quickfixAndMessage.split('=');
+          const messageIndex = !messageIndexStr ? index : parseInt(messageIndexStr);
+          if (quickFixesMap.has(quickfixId)) {
+            throw new Error(`QuickFix ID ${quickfixId} has already been declared`);
+          }
+          if (messageIndex >= this.messages.length) {
+            throw new Error(
+              `QuickFix ID ${quickfixId} refers to message index ${messageIndex} but there are only ${this.messages.length} messages`,
+            );
+          }
+          const qf = new QuickFix(quickfixId, messageIndex, this);
+          quickFixesMap.set(quickfixId, qf);
+          return qf;
+        });
+    }
   }
 
   merge(other: LineIssues) {
     this.messages.push(...other.messages);
-    if (this.primaryLocation == null) {
+    if (this.primaryLocation === null) {
       this.primaryLocation = other.primaryLocation;
     }
   }
+}
+
+export function isNonCompliantLine(comment: string) {
+  return START_WITH_NON_COMPLIANT.test(comment);
+}
+
+export function extractLineIssues(file: FileIssues, comment: Comment) {
+  const matcher = comment.value.match(NON_COMPLIANT_PATTERN);
+  if (matcher === null) {
+    throw new Error(`Invalid comment format at line ${comment.line}: ${comment.value}`);
+  }
+  const effectiveLine = extractEffectiveLine(comment.line, matcher);
+  const messages = extractIssueCountOrMessages(
+    comment.line,
+    matcher.groups?.issueCount,
+    matcher.groups?.messages,
+  );
+  const lineIssues = new LineIssues(
+    effectiveLine,
+    messages,
+    matcher.groups?.quickfixes,
+    file.quickfixes,
+  );
+  const existingLineIssues = file.expectedIssues.get(lineIssues.line);
+  if (existingLineIssues) {
+    existingLineIssues.merge(lineIssues);
+  } else {
+    file.expectedIssues.set(lineIssues.line, lineIssues);
+  }
+}
+
+function extractIssueCountOrMessages(
+  line: number,
+  issueCountGroup: string | undefined,
+  messageGroup: string | undefined,
+) {
+  if (messageGroup) {
+    if (issueCountGroup) {
+      throw new Error(
+        `Error, you can not specify issue count and messages at line ${line}, you have to choose either:` +
+          `\n  Noncompliant ${issueCountGroup}\nor\n  Noncompliant ${messageGroup}\n`,
+      );
+    }
+    const messageContent = messageGroup.trim();
+    return messageContent
+      .substring('{{'.length, messageContent.length - '}}'.length)
+      .split(/\}\} *\{\{/);
+  }
+  const issueCount = issueCountGroup ? parseInt(issueCountGroup) : 1;
+  return new Array<string>(issueCount);
 }

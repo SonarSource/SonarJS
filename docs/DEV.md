@@ -96,13 +96,13 @@ This script:
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/2831eb9a53da914d58b8e063a017c68e71eab839/eslint-bridge/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
-   * If possible implement quickfixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
+   * If possible implement quick fixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
 
 ### Testing the rule
 
 `eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests
    * Prefer comment-based tests as they are more readable
-   * Use the ESlint rule tester to test quickfixes, as our comment-based one does not support them yet
+   * Use the ESlint rule tester to test quick fixes, as our comment-based one does not support them yet
 
 #### Comment-based testing
 
@@ -110,11 +110,55 @@ These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-bas
 
 ```javascript
 some.clean.code();
-some.faulty.code(); // Noncompliant {{Optional message to assert}}
+some.faulty.code(); // Noncompliant N [[qf1,qf2,...]] {{Optional message to assert}}
 //   ^^^^^^
+// fix@qf1 {{Optional suggestion description}}
+// edit@qf1 [[sc=1;ec=5]] {{text to replace line from [sc] column to [ec] column}}
+```
+The issue primary location (`// ^^^^`), issue message, issue number (`N`) and quick fixes are optional.
+
+`N` is an integer defining the amount of issues will be reported in the line.
+
+Only one of the methods (`{{messageN}}+` OR `N`) to define the expected issues can be used in a `Noncompliant` line.
+
+If no `N` nor messages are provided, the engine will expect one issue to be raised. Meaning, `//Noncompliant` is equivalent to `//Noncompliant 1`.
+
+The `fix@` comment of a quick fix providing the suggestion description is optional. On the `edit@` comment the start column and end column are also optional, meaning this syntax can be used too:
+
+`// edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
+
+Alternatively, one can conveniently use only `sc` or `ec`.
+
+Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below). 
+
+Quick fixes IDs can be any `string`, they don't have to follow the `qfN` convention. The order of the list is important, as they will be assigned to the message in the matching position. If one provides 3 messages and 2 quick fixes which are not to be matched against first and second message, there are two options:
+
+* A *dummy* quick fix can be used as placeholder:
+
+```javascript
+some.faulty.code(); // Noncompliant [[qf1,qf2,qf3]] {{message1}} {{message2}} {{message3}}
+// edit@qf1 {{fix for message1}}
+// edit@qf3 {{fix for message3}}
+// qf2 is declared but never used --> ignored by the engine
 ```
 
-The issue primary location (`// ^^^^`) and issue message are optional.
+* Explicitly set the index (0-based) of the message to which the quick fix refers to with the syntax `=index` next to the quick fix ID:
+
+```javascript
+some.faulty.code(); // Noncompliant [[qf1,qf3=2]] {{message1}} {{message2}} {{message3}}
+// edit@qf1 {{fix for message1}}
+// edit@qf3 {{fix for message3}}
+```
+
+This last syntax is also needed if multiple suggestions are to be provided for the same issue:
+
+```javascript
+some.faulty.code(); // Noncompliant [[qf1,qf2=0]]
+// fix@qf1 {{first alternative quickfix description}}
+// edit@qf1 {{some.faulty?.code();}}
+// fix@qf2 {{second alternative quickfix description}}
+// edit@qf2 {{some.faulty && some.faulty.code();}}
+```
 
 To execute a single comment-based test:
 ```sh

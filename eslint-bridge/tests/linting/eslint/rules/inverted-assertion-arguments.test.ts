@@ -42,31 +42,6 @@ describe('suite', () => {
 const assert = require('chai').assert;
 describe('suite', () => {
   it('test', () => {
-    assert.fail(42, aNumber);
-  });
-});`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Swap arguments',
-              output: `
-const assert = require('chai').assert;
-describe('suite', () => {
-  it('test', () => {
-    assert.fail(aNumber, 42);
-  });
-});`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
-const assert = require('chai').assert;
-describe('suite', () => {
-  it('test', () => {
     assert
       .fail(
         42,
@@ -87,30 +62,6 @@ describe('suite', () => {
         aNumber,
          42
             );
-  });
-});`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
-const assert = require('chai').assert;
-describe('suite', () => {
-  it('test', () => {
-    assert.fail(  42  , aNumber + (anotherNumber * someNumber()), );
-  });
-});`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `
-const assert = require('chai').assert;
-describe('suite', () => {
-  it('test', () => {
-    assert.fail(  aNumber + (anotherNumber * someNumber())  , 42, );
   });
 });`,
             },

@@ -18,22 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { buildSourceCode } from 'parsing/jsts';
-import { LineIssues } from './issues';
-import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
-
-const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
-const NON_COMPLIANT_PATTERN = RegExp(
-  ' *Noncompliant' +
-    LINE_ADJUSTMENT +
-    // issue count, ex: 2
-    '(?: +(?<issueCount>\\d+))?' +
-    ' *' +
-    // messages, ex: {{msg1}} {{msg2}}
-    '(?<messages>(\\{\\{.*?\\}\\} *)+)?',
-  'i',
-);
 
 export interface Comment {
   value: string;
@@ -63,42 +49,4 @@ export function extractComments(fileContent: string): Comment[] {
       endColumn: c.loc.end.column + 1, // same
     };
   });
-}
-
-export function extractLineIssues(comment: Comment): LineIssues | null {
-  if (!START_WITH_NON_COMPLIANT.test(comment.value)) {
-    return null;
-  }
-  const matcher = comment.value.match(NON_COMPLIANT_PATTERN);
-  if (matcher === null) {
-    throw new Error(`Invalid comment format at line ${comment.line}: ${comment.value}`);
-  }
-  const effectiveLine = extractEffectiveLine(comment.line, matcher);
-  const messages = extractIssueCountOrMessages(
-    comment.line,
-    matcher.groups?.issueCount,
-    matcher.groups?.messages,
-  );
-  return new LineIssues(effectiveLine, messages);
-}
-
-function extractIssueCountOrMessages(
-  line: number,
-  issueCountGroup: string | undefined,
-  messageGroup: string | undefined,
-) {
-  if (messageGroup) {
-    if (issueCountGroup) {
-      throw new Error(
-        `Error, you can not specify issue count and messages at line ${line}, you have to choose either:` +
-          `\n  Noncompliant ${issueCountGroup}\nor\n  Noncompliant ${messageGroup}\n`,
-      );
-    }
-    const messageContent = messageGroup.trim();
-    return messageContent
-      .substring('{{'.length, messageContent.length - '}}'.length)
-      .split(/\}\} *\{\{/);
-  }
-  const issueCount = issueCountGroup ? parseInt(issueCountGroup) : 1;
-  return new Array<string>(issueCount);
 }

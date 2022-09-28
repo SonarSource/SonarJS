@@ -62,4 +62,14 @@ function non_compliant() {
       </div>
     )
   }
+  const Component5 = (test: number, count: number, collection) => {
+    return (
+      <div>
+        {(test || (count)) && <List elements={collection} />} {/* Noncompliant 2 [[qf1,qf2]]*/}
+        {/* fix@qf1 {{Convert the conditional to a boolean}} */}
+        {/* edit@qf1 [[sc=10;ec=14]] {{!!(test)}} */}
+        {/* edit@qf2 {{        {(test || !!(count)) && <List elements={collection} />}}} */}
+      </div>
+    )
+  }
 }
