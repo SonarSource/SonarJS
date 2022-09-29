@@ -98,19 +98,26 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
   ) {
     return;
   }
-  const listener = resolveFunction(context, args[1]);
+
+  let listener = resolveFunction(context, args[1]);
+  if (listener?.body.type === 'CallExpression') {
+    listener = resolveFunction(context, listener.body);
+  }
   if (!listener || listener.params.length === 0) {
     return;
   }
+
   const event = listener.params[0];
   if (event.type !== 'Identifier') {
     return;
   }
+
   const hasVerifiedOrigin = EventListenerVisitor.isSenderIdentityVerified(
     listener.body,
     event,
     context,
   );
+
   if (!hasVerifiedOrigin) {
     context.report({
       node: callee,
