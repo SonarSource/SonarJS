@@ -131,7 +131,7 @@ ruleTester.run(``, rule, {
     {
       code: `
       import { NotComponent } from '@angular/core';
-      import { Component } from 'fake-angular';
+      import { Component } from 'not-angular-core';
 
       @NotComponent({/* ... */})
       class C1 {

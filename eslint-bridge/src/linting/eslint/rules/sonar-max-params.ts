@@ -64,7 +64,7 @@ export const rule: Rule.RuleModule = {
 
           /** A component is represented as ClassDeclaration > ClassBody */
           const maybeComponent = maybeConstructor.parent?.parent;
-          if (!isComponent(maybeComponent)) {
+          if (!isAngularComponent(maybeComponent)) {
             return false;
           }
 
@@ -79,7 +79,7 @@ export const rule: Rule.RuleModule = {
             );
           }
 
-          function isComponent(node: TSESTree.Node | undefined) {
+          function isAngularComponent(node: TSESTree.Node | undefined) {
             return (
               node?.type === 'ClassDeclaration' &&
               node.decorators?.some(decorator => {
