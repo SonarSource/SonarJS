@@ -62,20 +62,53 @@ export const rule: Rule.RuleModule = {
       if (!firstArg) {
         return;
       }
+
       const firstArgValue = getValueOfExpression(context, firstArg, 'ObjectExpression');
+
+      const ses = getObjectExpressionProperty(firstArgValue, 'SES');
+      if (ses && usesSesCommunication(ses)) {
+        return;
+      }
+
       const secure = getObjectExpressionProperty(firstArgValue, 'secure');
-      const requireTls = getObjectExpressionProperty(firstArgValue, 'requireTLS');
-      const port = getObjectExpressionProperty(firstArgValue, 'port');
       if (secure && (secure.value.type !== 'Literal' || secure.value.raw !== 'false')) {
         return;
       }
+
+      const requireTls = getObjectExpressionProperty(firstArgValue, 'requireTLS');
       if (requireTls && (requireTls.value.type !== 'Literal' || requireTls.value.raw !== 'false')) {
         return;
       }
+
+      const port = getObjectExpressionProperty(firstArgValue, 'port');
       if (port && (port.value.type !== 'Literal' || port.value.raw === '465')) {
         return;
       }
+
       context.report({ node: callExpression.callee, ...getMessageAndData('http') });
+    }
+
+    function usesSesCommunication(sesProperty: estree.Property) {
+      const configuration = getValueOfExpression(context, sesProperty.value, 'ObjectExpression');
+      if (!configuration) {
+        return false;
+      }
+
+      const ses = getValueOfExpression(
+        context,
+        getObjectExpressionProperty(configuration, 'ses')?.value,
+        'NewExpression',
+      );
+      if (!ses || !isCallToFQN(context, ses, '@aws-sdk/client-ses', 'SES')) {
+        return false;
+      }
+
+      const aws = getObjectExpressionProperty(configuration, 'aws');
+      if (!aws || getModuleNameOfNode(context, aws.value)?.value !== '@aws-sdk/client-ses') {
+        return false;
+      }
+
+      return true;
     }
 
     function checkCallToFtp(callExpression: estree.CallExpression) {
