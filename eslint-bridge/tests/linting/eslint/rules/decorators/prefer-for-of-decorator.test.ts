@@ -17,11 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+//import { RuleTester } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { decoratePreferForOf } from 'linting/eslint/rules/decorators/prefer-for-of-decorator';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+import { TypeScriptRuleTester } from '../../../../tools';
+
+const rule = decoratePreferForOf(typescriptESLintRules['prefer-for-of']);
+const typeScriptRuleTester = new TypeScriptRuleTester();
+typeScriptRuleTester.run(`Decorated rule should provide suggestion`, rule, {
+  valid: [
+    {
+      code: `
+const getDisabledFieldsSet = function(form: number[]) {
+  const disabledFields: Element[] = [];
+  for(let i = 0; i < form.length; i++) {
+    const input = form[i];
+    if(input.hasAttribute('disabled')) {
+      disabledFields.push(input);
+    }
+  }
+  return disabledFields;
+}
+      `
+    }
+  ],
+  invalid: []
+});
+
+
+/* const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const rule = decoratePreferForOf(typescriptESLintRules['prefer-for-of']);
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
@@ -201,3 +226,4 @@ console.log(arr[i]);`,
     },
   ],
 });
+ */

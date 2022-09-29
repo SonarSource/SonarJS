@@ -23,6 +23,8 @@ import { Rule, AST, Scope } from 'eslint';
 import { interceptReport } from './helpers';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { getTypeFromTreeNode } from '../helpers';
+//import * as ts from 'typescript';
 
 const element = 'element';
 
@@ -32,6 +34,9 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const forStmt = (reportDescriptor as any).node as estree.ForStatement;
     const suggest: Rule.SuggestionReportDescriptor[] = [];
+    if (! isIterable(forStmt, context)) {
+      return;
+    }
     if (isFixable(context.getScope())) {
       suggest.push({
         desc: 'Replace with "for of" loop',
@@ -43,6 +48,17 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
       suggest,
     });
   });
+}
+
+function isIterable(forStmt: estree.ForStatement, context: Rule.RuleContext) {
+  const services = context.parserServices;
+  //const checker = services.program.getTypeChecker();
+  const arr = extractArrayExpression(forStmt) as (estree.Node & {name: string});
+  const arrayType = getTypeFromTreeNode(arr, services);
+  // calling getProperties() fills the "members" property
+  const props = arrayType.getProperties();
+  return props.some(prop => (prop.escapedName as String).indexOf('iterator') > -1);
+  //return (arrayType as any).members?.__proto__[Symbol.iterator] != null;
 }
 
 function isFixable(scope: Scope.Scope): boolean {
