@@ -28,31 +28,20 @@ const typeScriptRuleTester = new TypeScriptRuleTester();
 typeScriptRuleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [
     {
+      code: `for (let i = 0; i < arr.length; ++i) console.log(i, arr[i]);`,
+    },
+    {
       code: `
-const getDisabledFieldsSet = function(form: number[]) {
+const getDisabledFieldsSet = function(form: HTMLFormElement) {
   const disabledFields: Element[] = [];
-  for(let i = 0; i < form.length; i++) {
-    const input = form[i];
+  for(const input of form) {
     if(input.hasAttribute('disabled')) {
       disabledFields.push(input);
     }
   }
   return disabledFields;
 }
-      `
-    }
-  ],
-  invalid: []
-});
-
-
-/* const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const rule = decoratePreferForOf(typescriptESLintRules['prefer-for-of']);
-
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: `for (let i = 0; i < arr.length; ++i) console.log(i, arr[i]);`,
+      `,
     },
   ],
   invalid: [
@@ -66,6 +55,8 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
               output: `for (const element of arr) console.log(element);`,
             },
           ],
+          message:
+            'Expected a `for-of` loop instead of a `for` loop with this simple iteration. Make sure you have loaded your type definitions correctly.',
         },
       ],
     },
@@ -226,4 +217,3 @@ console.log(arr[i]);`,
     },
   ],
 });
- */
