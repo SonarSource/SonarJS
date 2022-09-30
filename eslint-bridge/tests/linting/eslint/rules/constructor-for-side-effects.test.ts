@@ -56,7 +56,19 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     },
     {
       code: `
+        const SomeAlias = require('vue');
+        new SomeAlias();
+      `,
+    },
+    {
+      code: `
         import { Grid } from '@ag-grid-community/core';
+        new Grid();
+      `,
+    },
+    {
+      code: `
+        const { Grid } = require('@ag-grid-community/core');
         new Grid();
       `,
     },
@@ -106,16 +118,19 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     },
     {
       code: `
-        import Whatever1 from 'vue';
-        import Whatever2 from '@ag-grid-community/core';
         import Vue from 'not-vue';
         import { Grid } from 'not-ag-grid';
         new Vue();
         new Grid();
-        new Whatever1();
-        new Whatever2();
       `,
-      errors: 4,
+      errors: 2,
+    },
+    {
+      code: `
+        import Grid from '@ag-grid-community/core';
+        new Grid();
+      `,
+      errors: 1,
     },
   ],
 });

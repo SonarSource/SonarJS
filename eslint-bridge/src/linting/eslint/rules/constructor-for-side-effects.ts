@@ -99,6 +99,9 @@ function isException(
   node: estree.Identifier | estree.MemberExpression,
   name: string,
 ) {
+  if (name === 'Notification') {
+    return true;
+  }
   let identifierFromModule: estree.Identifier;
   if (node.type === 'MemberExpression' && node.object.type === 'Identifier') {
     identifierFromModule = node.object;
@@ -111,16 +114,13 @@ function isException(
   let { module } = getModuleAndCalledMethod(node, context);
   // handle import
   if (module === undefined) {
-    module =
-      getModuleNameOfImportedIdentifier(context, identifierFromModule) ||
-      getModuleNameOfIdentifier(context, identifierFromModule);
+    module = getModuleNameOfIdentifier(context, identifierFromModule);
   }
-
-  if (
-    name === 'Notification' ||
-    (name === 'Vue' && module?.value === 'vue') ||
-    (name === 'Grid' && module?.value === '@ag-grid-community/core')
-  ) {
+  if (module?.value === 'vue') {
+    return true;
+  }
+  const moduleOfImport = getModuleNameOfImportedIdentifier(context, identifierFromModule);
+  if (name === 'Grid' && moduleOfImport?.value === '@ag-grid-community/core') {
     return true;
   }
   return false;
