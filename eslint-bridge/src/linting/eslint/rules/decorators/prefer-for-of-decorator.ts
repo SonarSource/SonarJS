@@ -44,7 +44,8 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
       suggest,
       messageId: undefined,
       message:
-        'Expected a `for-of` loop instead of a `for` loop with this simple iteration. In a browser environment, `NodeList` and other array-like collections should work by default. If you are using TypeScript and seeing a type error, make sure your configuration is correct.',
+        rule.meta!.messages!['preferForOf'] +
+        ' In a browser environment, `NodeList` and other array-like collections should work by default. If you are using TypeScript and seeing a type error, make sure your configuration is correct.',
     });
   });
 }
