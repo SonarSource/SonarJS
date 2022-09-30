@@ -53,19 +53,22 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
     {
       code: `let a = new MyClass((b = c));`,
     },
+    {
+      code: `[1, 2, 1, 1].reduce( ( acc, n ) => ( ( acc[n] += 1, acc ) ), [0, 0, 0] ) `
+    },
   ],
   invalid: [
     {
       code: `var a = typeof ((37));`,
       errors: [
         {
-          message: `{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":20,"line":1,"endColumn":21,"endLine":1}]}`,
+          message: `{"message":"Remove these redundant parentheses.","secondaryLocations":[{"column":20,"line":1,"endColumn":21,"endLine":1}]}`,
           line: 1,
           endLine: 1,
           column: 16,
           endColumn: 17,
           suggestions: [
-            { desc: 'Remove these useless parentheses', output: 'var a = typeof (37);' },
+            { desc: 'Remove these redundant parentheses', output: 'var a = typeof (37);' },
           ],
         },
       ],
@@ -75,7 +78,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
       errors: [
         {
           message:
-            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":25,"line":1,"endColumn":26,"endLine":1}]}',
+            '{"message":"Remove these redundant parentheses.","secondaryLocations":[{"column":25,"line":1,"endColumn":26,"endLine":1}]}',
           line: 1,
           endLine: 1,
           column: 12,
@@ -93,7 +96,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
       errors: [
         {
           message:
-            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":14,"line":6,"endColumn":15,"endLine":6}]}',
+            '{"message":"Remove these redundant parentheses.","secondaryLocations":[{"column":14,"line":6,"endColumn":15,"endLine":6}]}',
           line: 2,
           endLine: 2,
           column: 9,
@@ -101,7 +104,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
         },
         {
           message:
-            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":13,"line":5,"endColumn":14,"endLine":5}]}',
+            '{"message":"Remove these redundant parentheses.","secondaryLocations":[{"column":13,"line":5,"endColumn":14,"endLine":5}]}',
           line: 3,
           endLine: 3,
           column: 10,
@@ -115,7 +118,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
       errors: [
         {
           message:
-            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":28,"line":1,"endColumn":29,"endLine":1}]}',
+            '{"message":"Remove these redundant parentheses.","secondaryLocations":[{"column":28,"line":1,"endColumn":29,"endLine":1}]}',
           line: 1,
           endLine: 1,
           column: 15,
