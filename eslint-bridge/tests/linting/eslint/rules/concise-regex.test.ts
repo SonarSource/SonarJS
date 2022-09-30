@@ -183,6 +183,54 @@ ruleTester.run(
         ],
       },
       {
+        code: `/(x\\w+){0}/`,
+        errors: [
+          {
+            message: `Remove redundant (x\\w+){0}.`,
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 11,
+          },
+        ],
+      },
+      {
+        code: `/x{0,0}/`,
+        errors: [
+          {
+            message: `Remove redundant x{0,0}.`,
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: `/(x\\w+){1}/`,
+        errors: [
+          {
+            message: `Remove redundant quantifier {1}.`,
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 11,
+          },
+        ],
+      },
+      {
+        code: `/x{1,1}/`,
+        errors: [
+          {
+            message: `Remove redundant quantifier {1,1}.`,
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
         code: `/x{0,}?/`,
         errors: 1,
       },
