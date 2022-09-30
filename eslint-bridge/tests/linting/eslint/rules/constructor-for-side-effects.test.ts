@@ -106,10 +106,10 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     },
     {
       code: `
-        import Whatever1 from 'vue';
-        import Whatever2 from '@ag-grid-community/core';
-        new Whatever1();
-        new Whatever2();
+        import Vue from 'not-vue';
+        import { Grid } from 'not-ag-grid';
+        new Vue();
+        new Grid();
       `,
       errors: 2,
     },
