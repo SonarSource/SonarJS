@@ -56,6 +56,18 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
     {
       code: `[1, 2, 1, 1].reduce( ( acc, n ) => ( ( acc[n] += 1, acc ) ), [0, 0, 0] ) `,
     },
+    {
+      code: `with ((a = 3)) {}`,
+    },
+    {
+      code: `switch ((a = 3)) {
+        case 1:
+        break;
+      }`,
+    },
+    {
+      code: `const a = import((a = 'fs'))`,
+    },
   ],
   invalid: [
     {
