@@ -44,7 +44,7 @@ export function decoratePreferForOf(rule: Rule.RuleModule): Rule.RuleModule {
       suggest,
       messageId: undefined,
       message:
-        rule.meta?.messages?['preferForOf'] +
+        rule.meta?.messages?.preferForOf +
         ' In a browser environment, `NodeList` and other array-like collections should work by default. If you are using TypeScript and seeing a type error, make sure your configuration is correct.',
     });
   });
