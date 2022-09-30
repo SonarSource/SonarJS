@@ -56,12 +56,6 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     },
     {
       code: `
-        import Application from '@ember/application';
-        new Application();
-      `,
-    },
-    {
-      code: `
         import { Grid } from '@ag-grid-community/core';
         new Grid();
       `,

@@ -92,7 +92,7 @@ function reportIssue(
 }
 
 /**
- * These exceptions are based on community requests and peach
+ * These exceptions are based on community requests and Peach
  */
 function isException(
   context: Rule.RuleContext,
@@ -119,8 +119,7 @@ function isException(
   if (
     name === 'Notification' ||
     (name === 'Vue' && module?.value === 'vue') ||
-    (name === 'Grid' && module?.value === '@ag-grid-community/core') ||
-    (name === 'Application' && module?.value === '@ember/application')
+    (name === 'Grid' && module?.value === '@ag-grid-community/core')
   ) {
     return true;
   }
