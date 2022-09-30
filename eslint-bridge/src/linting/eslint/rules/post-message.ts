@@ -27,6 +27,7 @@ import {
   getValueOfExpression,
   getTypeAsString,
   resolveFunction,
+  isIdentifier,
 } from './helpers';
 import { childrenOf } from 'linting/eslint';
 
@@ -112,18 +113,34 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
     return;
   }
 
-  const hasVerifiedOrigin = EventListenerVisitor.isSenderIdentityVerified(
-    listener.body,
-    event,
-    context,
-  );
-
-  if (!hasVerifiedOrigin) {
+  if (!hasVerifiedOrigin(context, listener, event)) {
     context.report({
       node: callee,
       messageId: 'verifyOrigin',
     });
   }
+}
+
+function hasVerifiedOrigin(
+  context: Rule.RuleContext,
+  listener: estree.Function,
+  event: estree.Identifier,
+) {
+  const scope = context.getSourceCode().scopeManager.acquire(listener);
+  const variable = scope?.variables.find(v => v.name === event.name);
+  if (variable) {
+    for (const reference of variable.references) {
+      const identifier = reference.identifier as TSESTree.Identifier;
+      const parent = identifier.parent;
+      if (parent?.type === 'MemberExpression' && parent.parent?.type === 'BinaryExpression') {
+        const { object, property } = parent;
+        if (object === identifier && isIdentifier(property as estree.Node, 'origin')) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {
@@ -144,43 +161,6 @@ class WindowNameVisitor {
     const visitNode = (node: estree.Node) => {
       if (node.type === 'Identifier' && node.name.match(/window/i)) {
         this.hasWindowName = true;
-      }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
-    };
-    visitNode(root);
-  }
-}
-
-class EventListenerVisitor {
-  private hasVerifiedOrigin = false;
-
-  static isSenderIdentityVerified(
-    node: estree.Node,
-    event: estree.Identifier,
-    context: Rule.RuleContext,
-  ) {
-    const visitor = new EventListenerVisitor();
-    visitor.visit(node, event, context);
-    return visitor.hasVerifiedOrigin;
-  }
-
-  private visit(root: estree.Node, event: estree.Identifier, context: Rule.RuleContext) {
-    const visitNode = (node: estree.Node) => {
-      if (this.hasVerifiedOrigin) {
-        return;
-      }
-      const n = node as TSESTree.Node;
-      if (n.type === 'MemberExpression' && n.parent?.type === 'BinaryExpression') {
-        const { object, property } = n;
-        if (
-          object.type === 'Identifier' &&
-          object.name === event.name &&
-          property.type === 'Identifier' &&
-          property.name === 'origin'
-        ) {
-          this.hasVerifiedOrigin = true;
-          return;
-        }
       }
       childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
     };
