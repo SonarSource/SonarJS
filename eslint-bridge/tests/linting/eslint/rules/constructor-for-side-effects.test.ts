@@ -43,6 +43,29 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
       code: `new MyConstructor();`,
       settings: { fileType: 'TEST' },
     },
+    {
+      code: `
+      new Notification("hello there");
+      `,
+    },
+    {
+      code: `
+        import Vue from 'vue';
+        new Vue();
+      `,
+    },
+    {
+      code: `
+        import Application from '@ember/application';
+        new Application();
+      `,
+    },
+    {
+      code: `
+        import { Grid } from '@ag-grid-community/core';
+        new Grid();
+      `,
+    },
   ],
   invalid: [
     {
@@ -68,7 +91,7 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     {
       code: `
       new function() {
-        //...      
+        //...
         // A lot of code...
       }`,
       errors: [
