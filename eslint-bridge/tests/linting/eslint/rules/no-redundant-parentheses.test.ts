@@ -54,7 +54,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
       code: `let a = new MyClass((b = c));`,
     },
     {
-      code: `[1, 2, 1, 1].reduce( ( acc, n ) => ( ( acc[n] += 1, acc ) ), [0, 0, 0] ) `
+      code: `[1, 2, 1, 1].reduce( ( acc, n ) => ( ( acc[n] += 1, acc ) ), [0, 0, 0] ) `,
     },
   ],
   invalid: [

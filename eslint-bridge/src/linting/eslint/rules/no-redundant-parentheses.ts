@@ -32,14 +32,14 @@ interface ParenthesesPair {
 /**
  * Parts of the grammar that are required to have parens.
  */
-const parenthesized: {[key: string]: string} = {
-  DoWhileStatement: "test",
-  IfStatement: "test",
-  SwitchStatement: "discriminant",
-  WhileStatement: "test",
-  WithStatement: "object",
-  ArrowFunctionExpression: "body"
-}
+const parenthesized: { [key: string]: string } = {
+  DoWhileStatement: 'test',
+  IfStatement: 'test',
+  SwitchStatement: 'discriminant',
+  WhileStatement: 'test',
+  WithStatement: 'object',
+  ArrowFunctionExpression: 'body',
+};
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -117,8 +117,12 @@ function getParenthesesPairsAround(
 function isInParentNodeParentheses(node: estree.Node, parent: estree.Node): boolean {
   // Applying same logic as https://github.com/eslint/eslint/blob/main/lib/rules/no-sequences.js#L81
   // both rules (S1110 and S878) can contradict each other, so better use the same logic
-  const nodeIsInConditionOfParent = parenthesized[parent.type as keyof typeof parenthesized] &&
-    node === (parent[(parenthesized[parent.type as keyof typeof parenthesized]) as keyof estree.Node] as unknown as estree.Node);
+  const nodeIsInConditionOfParent =
+    parenthesized[parent.type as keyof typeof parenthesized] &&
+    node ===
+      (parent[
+        parenthesized[parent.type as keyof typeof parenthesized] as keyof estree.Node
+      ] as unknown as estree.Node);
 
   const nodeIsArgumentOfCallExpression =
     (parent.type === 'CallExpression' || parent.type === 'NewExpression') &&
