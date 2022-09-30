@@ -117,7 +117,7 @@ function raiseOnImplicitImport(
     return;
   }
 
-  if (moduleName.startsWith('node:')) {
+  if (['node:', 'data:', 'file:'].some(prefix => moduleName.startsWith(prefix))) {
     return;
   }
 

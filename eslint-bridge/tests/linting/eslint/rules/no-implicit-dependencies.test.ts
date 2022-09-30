@@ -107,6 +107,16 @@ ruleTester.run('Dependencies should be explicit', rule, {
       filename,
       options,
     },
+    {
+      code: `import 'data:text/javascript,console.log("hello, world!");';`,
+      filename,
+      options,
+    },
+    {
+      code: `import 'file:/some/file.js'`,
+      filename,
+      options,
+    },
   ],
   invalid: [
     {
