@@ -29,6 +29,19 @@ interface ParenthesesPair {
   closingParenthesis: AST.Token;
 }
 
+/**
+ * Parts of the grammar that are required to have parentheses.
+ */
+const parenthesized: { [key: string]: string } = {
+  DoWhileStatement: 'test',
+  IfStatement: 'test',
+  SwitchStatement: 'discriminant',
+  WhileStatement: 'test',
+  WithStatement: 'object',
+  ArrowFunctionExpression: 'body',
+  ImportExpression: 'source',
+};
+
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -65,13 +78,13 @@ function checkRedundantParentheses(
 
   parenthesesPairsAroundNode.forEach(parentheses => {
     context.report({
-      message: toEncodedMessage(`Remove these useless parentheses.`, [
+      message: toEncodedMessage(`Remove these redundant parentheses.`, [
         parentheses.closingParenthesis,
       ]),
       loc: parentheses.openingParenthesis.loc,
       suggest: [
         {
-          desc: 'Remove these useless parentheses',
+          desc: 'Remove these redundant parentheses',
           fix(fixer) {
             return [
               fixer.remove(parentheses.openingParenthesis),
@@ -103,11 +116,12 @@ function getParenthesesPairsAround(
 }
 
 function isInParentNodeParentheses(node: estree.Node, parent: estree.Node): boolean {
+  // Applying same logic as https://github.com/eslint/eslint/blob/main/lib/rules/no-sequences.js#L81
+  // both rules (S1110 and S878) can contradict each other, so better use the same logic
+  const parentAttribute = parenthesized[parent.type as keyof typeof parenthesized];
   const nodeIsInConditionOfParent =
-    (parent.type === 'IfStatement' ||
-      parent.type === 'WhileStatement' ||
-      parent.type === 'DoWhileStatement') &&
-    parent.test === node;
+    parentAttribute &&
+    node === (parent[parentAttribute as keyof estree.Node] as unknown as estree.Node);
 
   const nodeIsArgumentOfCallExpression =
     (parent.type === 'CallExpression' || parent.type === 'NewExpression') &&
