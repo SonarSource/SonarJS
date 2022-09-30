@@ -56,7 +56,7 @@ const getDisabledFieldsSet = function(form: HTMLFormElement) {
             },
           ],
           message:
-            'Expected a `for-of` loop instead of a `for` loop with this simple iteration. Make sure you have loaded your type definitions correctly.',
+            'Expected a `for-of` loop instead of a `for` loop with this simple iteration. In a browser environment, `NodeList` and other array-like collections should work by default. If you are using TypeScript and seeing a type error, make sure your configuration is correct.',
         },
       ],
     },
