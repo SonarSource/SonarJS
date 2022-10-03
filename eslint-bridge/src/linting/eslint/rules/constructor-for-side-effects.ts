@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isTestCode } from './helpers';
+import {
+  getModuleAndCalledMethod,
+  getModuleNameOfIdentifier,
+  getModuleNameOfImportedIdentifier,
+  isTestCode,
+} from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,13 +39,16 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.getSourceCode();
     return {
-      'ExpressionStatement > NewExpression': (node: estree.Node) => {
+      'ExpressionStatement > NewExpression': (node: estree.NewExpression) => {
         if (isTestCode(context) || isTryable(node, context)) {
           return;
         }
         const callee = (node as estree.NewExpression).callee;
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
+          if (isException(context, callee, calleeText)) {
+            return;
+          }
           const reportLocation = {
             start: node.loc!.start,
             end: callee.loc!.end,
@@ -81,4 +89,39 @@ function reportIssue(
     },
     loc,
   });
+}
+
+/**
+ * These exceptions are based on community requests and Peach
+ */
+function isException(
+  context: Rule.RuleContext,
+  node: estree.Identifier | estree.MemberExpression,
+  name: string,
+) {
+  if (name === 'Notification') {
+    return true;
+  }
+  let identifierFromModule: estree.Identifier;
+  if (node.type === 'MemberExpression' && node.object.type === 'Identifier') {
+    identifierFromModule = node.object;
+  } else if (node.type === 'Identifier') {
+    identifierFromModule = node;
+  } else {
+    return false;
+  }
+  // handle require
+  let { module } = getModuleAndCalledMethod(node, context);
+  // handle import
+  if (module === undefined) {
+    module = getModuleNameOfIdentifier(context, identifierFromModule);
+  }
+  if (module?.value === 'vue') {
+    return true;
+  }
+  const moduleOfImport = getModuleNameOfImportedIdentifier(context, identifierFromModule);
+  if (name === 'Grid' && moduleOfImport?.value === '@ag-grid-community/core') {
+    return true;
+  }
+  return false;
 }

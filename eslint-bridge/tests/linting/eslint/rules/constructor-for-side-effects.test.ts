@@ -43,6 +43,35 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
       code: `new MyConstructor();`,
       settings: { fileType: 'TEST' },
     },
+    {
+      code: `
+      new Notification("hello there");
+      `,
+    },
+    {
+      code: `
+        import Vue from 'vue';
+        new Vue();
+      `,
+    },
+    {
+      code: `
+        const SomeAlias = require('vue');
+        new SomeAlias();
+      `,
+    },
+    {
+      code: `
+        import { Grid } from '@ag-grid-community/core';
+        new Grid();
+      `,
+    },
+    {
+      code: `
+        const { Grid } = require('@ag-grid-community/core');
+        new Grid();
+      `,
+    },
   ],
   invalid: [
     {
@@ -68,7 +97,7 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     {
       code: `
       new function() {
-        //...      
+        //...
         // A lot of code...
       }`,
       errors: [
@@ -84,6 +113,22 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     {
       code: `
       try {} catch (e) { new MyConstructor(); }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        import Vue from 'not-vue';
+        import { Grid } from 'not-ag-grid';
+        new Vue();
+        new Grid();
+      `,
+      errors: 2,
+    },
+    {
+      code: `
+        import Grid from '@ag-grid-community/core';
+        new Grid();
       `,
       errors: 1,
     },
