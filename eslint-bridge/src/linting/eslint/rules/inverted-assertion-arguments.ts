@@ -69,10 +69,10 @@ export const rule: Rule.RuleModule = {
 function checkInvertedArguments(node: estree.CallExpression, context: Rule.RuleContext) {
   const args = extractAssertionsArguments(node);
   if (args) {
-    const [actual, expected] = args;
+    const [actual, expected, format] = args;
     if (isLiteral(actual) && !isLiteral(expected)) {
       const message = toEncodedMessage(
-        'Swap these 2 arguments so they are in the correct order: actual value, expected value.',
+        `Swap these 2 arguments so they are in the correct order: ${format}.`,
         [actual],
         ['Other argument to swap.'],
       );
@@ -95,24 +95,28 @@ function checkInvertedArguments(node: estree.CallExpression, context: Rule.RuleC
 
 function extractAssertionsArguments(
   node: estree.CallExpression,
-): [estree.Node, estree.Node] | null {
+): [estree.Node, estree.Node, string] | null {
   return extractAssertArguments(node) ?? extractExpectArguments(node) ?? extractFailArguments(node);
 }
 
-function extractAssertArguments(node: estree.CallExpression): [estree.Node, estree.Node] | null {
+function extractAssertArguments(
+  node: estree.CallExpression,
+): [estree.Node, estree.Node, string] | null {
   if (isMethodCall(node) && node.arguments.length > 1) {
     const {
       callee: { object, property },
       arguments: [actual, expected],
     } = node;
     if (isIdentifier(object, 'assert') && isIdentifier(property, ...ASSERT_FUNCTIONS)) {
-      return [actual, expected];
+      return [actual, expected, `${object.name}.${property.name}(actual, expected)`];
     }
   }
   return null;
 }
 
-function extractExpectArguments(node: estree.CallExpression): [estree.Node, estree.Node] | null {
+function extractExpectArguments(
+  node: estree.CallExpression,
+): [estree.Node, estree.Node, string] | null {
   if (node.callee.type !== 'MemberExpression') {
     return null;
   }
@@ -124,19 +128,25 @@ function extractExpectArguments(node: estree.CallExpression): [estree.Node, estr
     object = object.object;
   }
   if (object.type === 'CallExpression' && isIdentifier(object.callee, 'expect')) {
-    return [object.arguments[0], node.arguments[0]];
+    return [
+      object.arguments[0],
+      node.arguments[0],
+      `${object.callee.name}(actual).to.${property.name}(expected)`,
+    ];
   }
   return null;
 }
 
-function extractFailArguments(node: estree.CallExpression): [estree.Node, estree.Node] | null {
+function extractFailArguments(
+  node: estree.CallExpression,
+): [estree.Node, estree.Node, string] | null {
   if (isMethodCall(node) && node.arguments.length > 1) {
     const {
       callee: { object, property },
       arguments: [actual, expected],
     } = node;
     if (isIdentifier(object, 'assert', 'expect', 'should') && isIdentifier(property, 'fail')) {
-      return [actual, expected];
+      return [actual, expected, `${object.name}.${property.name}(actual, expected)`];
     }
   }
   return null;
