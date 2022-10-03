@@ -187,6 +187,14 @@ ruleTester.run('Loops should not be infinite', rule, {
     },
     {
       code: `
+      for (var str = '';str >= '0' && '9' >= str;) {
+        console.log("hello");
+      }
+            `,
+      errors: 1,
+    },
+    {
+      code: `
       for (;true;) {
         console.log("hello");
       }
