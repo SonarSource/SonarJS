@@ -37,5 +37,5 @@ function reportExempting(
 }
 
 function isOpeningBracket(messageId: string) {
-  return messageId.endsWith('LineOpen');
+  return messageId !== 'nextLineClose';
 }

@@ -56,6 +56,7 @@ ruleTester.run(`An open curly brace should be located at the end of a line`, rul
       if (!start || !stop) { return; }
       else { return start; }
       `,
+      options: ['1tbs', { allowSingleLine: true }],
     },
   ],
   invalid: [
@@ -70,6 +71,18 @@ ruleTester.run(`An open curly brace should be located at the end of a line`, rul
       output: `
       if (condition) {
         doSomething();
+      }
+      `,
+    },
+    {
+      code: `
+      if (cond) { foo()
+      }
+      `,
+      errors: 1,
+      output: `
+      if (cond) {
+ foo()
       }
       `,
     },
