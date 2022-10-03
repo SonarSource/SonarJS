@@ -19,23 +19,25 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2189/javascript
 
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/core';
 import * as estree from 'estree';
 import { childrenOf } from 'linting/eslint';
 import { interceptReport } from './decorators/helpers';
 import { isUndefined } from './helpers';
 
-const noUnmodifiedLoopEslint = interceptReport(
-  eslintRules['no-unmodified-loop-condition'],
-  onReport,
-);
+const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
 const MESSAGE = "Correct this loop's end condition to not be invariant.";
 export const rule: Rule.RuleModule = {
   // we copy the meta to have proper messageId
   meta: noUnmodifiedLoopEslint.meta,
   create(context: Rule.RuleContext) {
-    const noUnmodifiedLoopListener = noUnmodifiedLoopEslint.create(context);
+    const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
+    const interceptedNoUnmodifiedLoopEslint = interceptReport(
+      noUnmodifiedLoopEslint,
+      onReportFactory(alreadyRaisedSymbols),
+    );
+    const noUnmodifiedLoopListener = interceptedNoUnmodifiedLoopEslint.create(context);
     return {
       WhileStatement: (node: estree.Node) => {
         checkWhileStatement(node, context);
@@ -78,14 +80,20 @@ function checkWhileStatement(node: estree.Node, context: Rule.RuleContext) {
   }
 }
 
-function onReport(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) {
-  if ('node' in reportDescriptor) {
-    const node = reportDescriptor['node'];
-    if (isUndefined(node)) {
-      return;
+function onReportFactory(alreadyRaisedSymbols: Set<Scope.Variable>) {
+  return function (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) {
+    if ('node' in reportDescriptor) {
+      const node = reportDescriptor['node'];
+      const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
+      if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
+        return;
+      }
+      if (symbol) {
+        alreadyRaisedSymbols.add(symbol);
+      }
+      context.report(reportDescriptor);
     }
-    context.report(reportDescriptor);
-  }
+  };
 }
 
 class LoopVisitor {
