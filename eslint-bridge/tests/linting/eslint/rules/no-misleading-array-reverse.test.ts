@@ -30,7 +30,8 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
       
         // ok
         a.reverse();
-
+        a?.reverse();
+        a && a.sort();
         // ok
         d = a.map(() => true).reverse();
         // ok, there is "slice"
@@ -101,6 +102,13 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
     },
   ],
   invalid: [
+    {
+      code: `
+        let a = [];
+        const b = a?.sort();
+        `,
+      errors: 1,
+    },
     {
       code: `
         let a = [];

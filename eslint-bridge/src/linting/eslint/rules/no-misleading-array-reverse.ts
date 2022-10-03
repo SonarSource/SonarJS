@@ -127,8 +127,14 @@ function isForbiddenOperation(node: estree.Node) {
 }
 
 function isStandaloneExpression(node: estree.Node) {
-  const parent = (node as TSESTree.Node).parent;
-  return parent?.type === 'ExpressionStatement';
+  const ancestors = localAncestorsChain(node as TSESTree.Node);
+  const returnIdx = ancestors.findIndex(ancestor => ancestor.type === 'ExpressionStatement');
+  return (
+    returnIdx > -1 &&
+    ancestors
+      .slice(0, returnIdx)
+      .every(ancestor => ['ChainExpression', 'LogicalExpression'].includes(ancestor.type))
+  );
 }
 
 function isReturnedExpression(node: estree.Node) {
