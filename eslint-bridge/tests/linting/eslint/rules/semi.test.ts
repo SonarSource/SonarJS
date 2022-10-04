@@ -54,9 +54,7 @@ function f() {
       errors: [
         {
           line: 4,
-          endLine: 4,
           column: 21,
-          endColumn: 21,
         },
       ],
       output: `
@@ -84,21 +82,15 @@ function f() {
       errors: [
         {
           line: 2,
-          endLine: 2,
           column: 28,
-          endColumn: 28,
         },
         {
           line: 6,
-          endLine: 6,
           column: 10,
-          endColumn: 10,
         },
         {
           line: 9,
-          endLine: 9,
           column: 20,
-          endColumn: 20,
         },
       ],
       output: `

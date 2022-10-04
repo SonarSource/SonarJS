@@ -28,8 +28,8 @@ export function decorateSemi(rule: Rule.RuleModule): Rule.RuleModule {
 
 function fixLocation(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) {
   const report = reportDescriptor as any;
-  if (report.loc && report.messageId === 'missingSemi') {
-    report.loc.end = report.loc.start;
+  if (report.loc?.start && report.messageId === 'missingSemi') {
+    report.loc = report.loc.start;
   }
   context.report(reportDescriptor);
 }
