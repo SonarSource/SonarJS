@@ -21,6 +21,7 @@
 import { Rule } from 'eslint';
 
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
+import { decorateBraceStyle } from './brace-style-decorator';
 import { decorateDefaultParamLast } from './default-param-last-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
@@ -56,6 +57,7 @@ export type RuleDecorator = (rule: Rule.RuleModule) => Rule.RuleModule;
  */
 export const decorators: Record<string, RuleDecorator> = {
   'accessor-pairs': decorateAccessorPairs,
+  'brace-style': decorateBraceStyle,
   'default-param-last': decorateDefaultParamLast,
   'no-dupe-keys': decorateNoDupeKeys,
   'no-duplicate-imports': decorateNoDuplicateImports,
