@@ -36,6 +36,7 @@ import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
+import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 
 /**
@@ -72,5 +73,6 @@ export const decorators: Record<string, RuleDecorator> = {
   'object-shorthand': decorateObjectShorthand,
   'prefer-for-of': decoratePreferForOf,
   'prefer-template': decoratePreferTemplate,
+  semi: decorateSemi,
   'use-isnan': decorateUseIsNan,
 };
