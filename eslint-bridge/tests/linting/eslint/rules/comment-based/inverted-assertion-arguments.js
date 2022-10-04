@@ -9,7 +9,10 @@ describe("invalid comparisons", function() {
     it("uses chai 'assert'", function() {
       assert.fail(42, aNumber);  //Noncompliant [[qf1]]
       // edit@qf1 {{      assert.fail(aNumber, 42);}}
-      assert.equal(42, aNumber); // Noncompliant
+      assert.equal(42,
+                 //^^> {{Other argument to swap.}}
+        aNumber); // Noncompliant {{Swap these 2 arguments so they are in the correct order: assert.equal(actual, expected).}}
+      //^^^^^^^
       assert.notEqual(42, aNumber); // Noncompliant
       assert.strictEqual(42, aNumber); // Noncompliant
       assert.notStrictEqual(42, aNumber); // Noncompliant
@@ -23,7 +26,10 @@ describe("invalid comparisons", function() {
     });
 
     it("uses chai 'expect'", function() {
-      expect(42).to.equal(aNumber); // Noncompliant
+      expect(42).to.equal(
+           //^^> {{Other argument to swap.}}
+        aNumber); // Noncompliant {{Swap these 2 arguments so they are in the correct order: expect(actual).to.equal(expected).}}
+      //^^^^^^^
       expect(42).to.be.equal(aNumber); // Noncompliant
       expect(42).to.not.equal(aNumber); // Noncompliant
       expect(42).to.eql(aNumber); // Noncompliant
@@ -33,7 +39,10 @@ describe("invalid comparisons", function() {
     });
 
     it("uses chai 'should'", function() {
-      should.fail(42, aNumber);  // Noncompliant
+      should.fail(42,
+                //^^> {{Other argument to swap.}}
+        aNumber); // Noncompliant {{Swap these 2 arguments so they are in the correct order: should.fail(actual, expected).}}
+      //^^^^^^^
     });
 
     it("should increase coverage", function() {
