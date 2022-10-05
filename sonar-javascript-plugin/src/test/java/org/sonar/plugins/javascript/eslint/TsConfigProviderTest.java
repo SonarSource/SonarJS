@@ -25,8 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -36,11 +38,16 @@ import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TsConfigProviderTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logger = new LogTesterJUnit5();
 
   @TempDir
   Path baseDir;
@@ -80,24 +87,13 @@ class TsConfigProviderTest {
     Path baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
-  }
-
-  @Test
-  void should_validate_tsconfig_from_property() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
-    createInputFile(ctx, "file.ts");
-
-    String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
-    assertThatThrownBy(() -> new TsConfigProvider(tempFolder).tsconfigs(ctx))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Provided tsconfig.json path doesn't exist. Path: '" + absolutePath + "'");
+    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'custom.tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS);
   }
 
   @Test
@@ -106,11 +102,64 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", absolutePath));
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, absolutePath));
     createInputFile(ctx, "file.ts");
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).containsExactly(absolutePath);
+  }
+
+  @Test
+  void should_use_multiple_tsconfigs_from_property() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+
+    Files.createFile(baseDir.resolve("base.tsconfig.json"));
+    Files.createFile(baseDir.resolve("custom.tsconfig.json"));
+    Files.createFile(baseDir.resolve("extended.tsconfig.json"));
+
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"));
+
+    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).containsExactlyInAnyOrder(
+      baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
+      baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
+      baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
+    );
+    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS);
+  }
+
+  @Test
+  void should_use_matching_tsconfigs_from_property() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+
+    Files.createFile(baseDir.resolve("tsconfig.settings.json"));
+    Files.createFile(baseDir.resolve("tsconfig.ignored.json"));
+    Files.createDirectories(Paths.get(baseDir.toAbsolutePath().toString(), "dir"));
+    Files.createFile(baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")));
+    Files.createFile(baseDir.resolve(Paths.get("dir", "tsconfig.ignored.json")));
+
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json"));
+
+    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).containsExactlyInAnyOrder(
+      baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
+      baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
+    );
+  }
+
+  @Test
+  void should_use_tsconfigs_from_property_alias() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    Files.createFile(baseDir.resolve("tsconfig.json"));
+
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
+
+    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
+    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS_ALIAS);
   }
 
   @Test

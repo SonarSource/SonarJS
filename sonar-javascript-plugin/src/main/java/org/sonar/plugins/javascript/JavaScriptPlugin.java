@@ -96,7 +96,9 @@ public class JavaScriptPlugin implements Plugin {
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
 
-  public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
+  public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
+  public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
+
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
   public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
@@ -159,12 +161,13 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .build(),
 
-      PropertyDefinition.builder(TSCONFIG_PATH)
+      PropertyDefinition.builder(TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
-        .description("Path (relative to project base or absolute) to the tsconfig JSON file")
+        .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(TS_SUB_CATEGORY)
         .category(JS_TS_CATEGORY)
+        .multiValues(true)
         .build(),
 
       PropertyDefinition.builder(PROPERTY_KEY_MAX_FILE_SIZE)

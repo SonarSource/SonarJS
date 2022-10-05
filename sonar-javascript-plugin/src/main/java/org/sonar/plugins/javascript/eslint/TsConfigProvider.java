@@ -29,9 +29,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,8 +47,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonarsource.analyzer.commons.FileProvider;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -63,7 +64,7 @@ class TsConfigProvider {
 
   /**
    * Relying on (in order of priority)
-   * 1. Property sonar.typescript.tsconfigPath
+   * 1. Property sonar.typescript.tsconfigPath(s)
    * 2. Looking up file system
    * 3. Creating a tmp tsconfig.json listing all files
    */
@@ -76,7 +77,7 @@ class TsConfigProvider {
 
   /**
    * Relying on (in order of priority)
-   * 1. Property sonar.typescript.tsconfigPath
+   * 1. Property sonar.typescript.tsconfigPath(s)
    * 2. Looking up file system
    */
   TsConfigProvider() {
@@ -97,19 +98,52 @@ class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      Optional<String> tsConfigProperty = context.config().get(JavaScriptPlugin.TSCONFIG_PATH);
-      if (tsConfigProperty.isPresent()) {
-        Path tsconfig = Paths.get(tsConfigProperty.get());
-        tsconfig = tsconfig.isAbsolute() ? tsconfig : context.fileSystem().baseDir().toPath().resolve(tsconfig);
-        if (!tsconfig.toFile().exists()) {
-          String msg = format("Provided tsconfig.json path doesn't exist. Path: '%s'", tsconfig);
-          LOG.error(msg);
-          throw new IllegalStateException(msg);
-        }
-        LOG.info("Using {} from {} property", tsconfig, JavaScriptPlugin.TSCONFIG_PATH);
-        return singletonList(tsconfig.toString());
+      if (!context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS) && !context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS)) {
+        return emptyList();
       }
-      return emptyList();
+
+      String property = context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS) ? JavaScriptPlugin.TSCONFIG_PATHS : JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
+      Set<String> patterns = new HashSet<>(Arrays.asList(context.config().getStringArray(property)));
+
+      LOG.info("Resolving TSConfig files using '{}' from property {}", String.join(",", patterns), property);
+
+      File baseDir = context.fileSystem().baseDir();
+
+      List<String> tsconfigs = new ArrayList<>();
+      for (String pattern : patterns) {
+        LOG.debug("Using '{}' to resolve TSConfig file(s)", pattern);
+
+        /** Resolving a TSConfig file based on a path */
+        Path tsconfig = getFilePath(baseDir, pattern);
+        if (tsconfig != null) {
+          tsconfigs.add(tsconfig.toString());
+          continue;
+        }
+
+        /** Resolving TSConfig files based on pattern matching */
+        FileProvider fileProvider = new FileProvider(baseDir, pattern);
+        List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
+        if (!matchingTsconfigs.isEmpty()) {
+          tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+        }
+      }
+
+      LOG.info("Found " + tsconfigs.size() + " TSConfig file(s): " + tsconfigs);
+
+      return tsconfigs;
+    }
+
+    private static Path getFilePath(File baseDir, String path) {
+      File file = new File(path);
+      if (!file.isAbsolute()) {
+        file = new File(baseDir, path);
+      }
+
+      if (!file.isFile()) {
+        return null;
+      }
+
+      return file.toPath();
     }
   }
 
