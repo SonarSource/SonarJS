@@ -30,6 +30,7 @@ import { decorateNoExtraSemi } from './no-extra-semi-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThisAlias } from './no-this-alias-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
+import { decorateNoUnnecessaryTypeAssertion } from './no-unnecessary-type-assertion-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
@@ -71,4 +72,5 @@ export const decorators: Record<string, RuleDecorator> = {
   'prefer-for-of': decoratePreferForOf,
   'prefer-template': decoratePreferTemplate,
   'use-isnan': decorateUseIsNan,
+  'no-unnecessary-type-assertion': decorateNoUnnecessaryTypeAssertion,
 };
