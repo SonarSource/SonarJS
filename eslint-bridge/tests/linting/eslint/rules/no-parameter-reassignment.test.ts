@@ -91,6 +91,18 @@ ruleTester.run(
           }
         }
         
+        // Ok - reassignment inside IfStatement even if not top level are not raised
+        function myFunc2(p1) {
+          try {
+            if (someBoolean) {
+              p1 = "defaultValue";
+            }
+          }
+          catch {
+            //...
+          }
+        }
+        
         // Ok - reassignment is based on arguments
         function myFunc3(p1) {
           p1 = arguments[1] || arguments[0];
