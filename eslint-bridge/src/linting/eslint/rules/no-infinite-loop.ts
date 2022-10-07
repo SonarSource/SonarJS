@@ -24,13 +24,14 @@ import { eslintRules } from 'linting/eslint/rules/core';
 import * as estree from 'estree';
 import { childrenOf } from 'linting/eslint';
 import { interceptReport, mergeRules } from './decorators/helpers';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isUndefined } from './helpers';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
 
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: { ...noUnmodifiedLoopEslint.meta?.messages },
+    messages: { ...noUnmodifiedLoopEslint.meta!.messages },
   },
   create(context: Rule.RuleContext) {
     /**
@@ -40,17 +41,39 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        if ('node' in descriptor) {
-          const node = descriptor['node'];
-          const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
-          if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
+        const node = (descriptor as any).node as estree.Node;
+
+        const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
+        /** Ignoring symbols that have already been reported */
+        if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
+          return;
+        }
+
+        /** Ignoring symbols called on or passed as arguments */
+        for (const reference of symbol?.references || []) {
+          const id = reference.identifier as TSESTree.Node;
+
+          if (
+            id.parent?.type === 'CallExpression' &&
+            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+          ) {
             return;
           }
-          if (symbol) {
-            alreadyRaisedSymbols.add(symbol);
+
+          if (
+            id.parent?.type === 'MemberExpression' &&
+            id.parent.parent?.type === 'CallExpression' &&
+            id.parent.object === id
+          ) {
+            return;
           }
-          context.report(descriptor);
         }
+
+        if (symbol) {
+          alreadyRaisedSymbols.add(symbol);
+        }
+
+        context.report(descriptor);
       },
     );
 
@@ -59,9 +82,6 @@ export const rule: Rule.RuleModule = {
      */
     const MESSAGE = "Correct this loop's end condition to not be invariant.";
     const ruleExtension: Rule.RuleModule = {
-      meta: {
-        messages: { ...ruleDecoration.meta!.messages },
-      },
       create(context: Rule.RuleContext) {
         return {
           WhileStatement: checkWhileStatement,

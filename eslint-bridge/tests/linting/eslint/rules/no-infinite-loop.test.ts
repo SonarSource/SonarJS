@@ -141,6 +141,35 @@ ruleTester.run('Loops should not be infinite', rule, {
       }
             `,
     },
+    {
+      code: `
+      let xs = [1, 2, 3];
+      while (xs) {
+        doSomething(xs.pop());
+      }`,
+    },
+    {
+      code: `
+      let xs = [1, 2, 3];
+      while (xs) {
+        doSomething(xs);
+      }`,
+    },
+    {
+      code: `
+      var parent = $container.find('.list')[0];
+      while (parent && parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }`,
+    },
+    {
+      code: `
+      let coverage = [1, 2, 3];
+      while (coverage) {
+        coverage.length;
+        doSomething(coverage);
+      }`,
+    },
   ],
   invalid: [
     {
