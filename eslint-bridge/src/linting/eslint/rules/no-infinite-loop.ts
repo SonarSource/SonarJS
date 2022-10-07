@@ -23,78 +23,103 @@ import { Rule, Scope } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/core';
 import * as estree from 'estree';
 import { childrenOf } from 'linting/eslint';
-import { interceptReport } from './decorators/helpers';
+import { interceptReport, mergeRules } from './decorators/helpers';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isUndefined } from './helpers';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
-const MESSAGE = "Correct this loop's end condition to not be invariant.";
+
 export const rule: Rule.RuleModule = {
-  // we copy the meta to have proper messageId
-  meta: noUnmodifiedLoopEslint.meta,
+  meta: {
+    messages: { ...noUnmodifiedLoopEslint.meta!.messages },
+  },
   create(context: Rule.RuleContext) {
+    /**
+     * Decorates ESLint `no-unmodified-loop-condition` to raise one issue per symbol.
+     */
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
-    const interceptedNoUnmodifiedLoopEslint = interceptReport(
+    const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
-      onReportFactory(alreadyRaisedSymbols),
+      function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+        const node = (descriptor as any).node as estree.Node;
+
+        const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
+        /** Ignoring symbols that have already been reported */
+        if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
+          return;
+        }
+
+        /** Ignoring symbols called on or passed as arguments */
+        for (const reference of symbol?.references || []) {
+          const id = reference.identifier as TSESTree.Node;
+
+          if (
+            id.parent?.type === 'CallExpression' &&
+            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+          ) {
+            return;
+          }
+
+          if (
+            id.parent?.type === 'MemberExpression' &&
+            id.parent.parent?.type === 'CallExpression' &&
+            id.parent.object === id
+          ) {
+            return;
+          }
+        }
+
+        if (symbol) {
+          alreadyRaisedSymbols.add(symbol);
+        }
+
+        context.report(descriptor);
+      },
     );
-    const noUnmodifiedLoopListener = interceptedNoUnmodifiedLoopEslint.create(context);
-    return {
-      WhileStatement: (node: estree.Node) => {
-        checkWhileStatement(node, context);
-      },
-      DoWhileStatement: (node: estree.Node) => {
-        checkWhileStatement(node, context);
-      },
-      ForStatement: (node: estree.Node) => {
-        const forStatement = node as estree.ForStatement;
-        if (
-          !forStatement.test ||
-          (forStatement.test.type === 'Literal' && forStatement.test.value === true)
-        ) {
-          const hasEndCondition = LoopVisitor.hasEndCondition(forStatement.body, context);
-          if (!hasEndCondition) {
-            const firstToken = context.getSourceCode().getFirstToken(node);
-            context.report({
-              loc: firstToken!.loc,
-              message: MESSAGE,
-            });
+
+    /**
+     * Extends ESLint `no-unmodified-loop-condition` to consider more corner cases.
+     */
+    const MESSAGE = "Correct this loop's end condition to not be invariant.";
+    const ruleExtension: Rule.RuleModule = {
+      create(context: Rule.RuleContext) {
+        return {
+          WhileStatement: checkWhileStatement,
+          DoWhileStatement: checkWhileStatement,
+          ForStatement: (node: estree.Node) => {
+            const { test, body } = node as estree.ForStatement;
+            if (!test || (test.type === 'Literal' && test.value === true)) {
+              const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
+              if (!hasEndCondition) {
+                const firstToken = context.getSourceCode().getFirstToken(node);
+                context.report({
+                  loc: firstToken!.loc,
+                  message: MESSAGE,
+                });
+              }
+            }
+          },
+        };
+
+        function checkWhileStatement(node: estree.Node) {
+          const whileStatement = node as estree.WhileStatement | estree.DoWhileStatement;
+          if (whileStatement.test.type === 'Literal' && whileStatement.test.value === true) {
+            const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
+            if (!hasEndCondition) {
+              const firstToken = context.getSourceCode().getFirstToken(node);
+              context.report({ loc: firstToken!.loc, message: MESSAGE });
+            }
           }
         }
       },
-      'Program:exit'() {
-        // @ts-ignore
-        noUnmodifiedLoopListener['Program:exit']!();
-      },
     };
+
+    const decorationListeners: Rule.RuleListener = ruleDecoration.create(context);
+    const extensionListeners: Rule.RuleListener = ruleExtension.create(context);
+
+    return mergeRules(decorationListeners, extensionListeners);
   },
 };
-
-function checkWhileStatement(node: estree.Node, context: Rule.RuleContext) {
-  const whileStatement = node as estree.WhileStatement | estree.DoWhileStatement;
-  if (whileStatement.test.type === 'Literal' && whileStatement.test.value === true) {
-    const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
-    if (!hasEndCondition) {
-      const firstToken = context.getSourceCode().getFirstToken(node);
-      context.report({ loc: firstToken!.loc, message: MESSAGE });
-    }
-  }
-}
-
-function onReportFactory(alreadyRaisedSymbols: Set<Scope.Variable>) {
-  return function (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) {
-    if ('node' in reportDescriptor) {
-      const node = reportDescriptor['node'];
-      const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
-      if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
-        return;
-      }
-      if (symbol) {
-        alreadyRaisedSymbols.add(symbol);
-      }
-      context.report(reportDescriptor);
-    }
-  };
-}
 
 class LoopVisitor {
   hasEndCondition = false;
