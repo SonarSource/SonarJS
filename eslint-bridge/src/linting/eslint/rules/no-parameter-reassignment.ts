@@ -229,10 +229,11 @@ export const rule: Rule.RuleModule = {
 };
 
 function isInsideIfStatement(context: Rule.RuleContext) {
-  const ifStatementParent = context.getAncestors().find(node => node.type === 'IfStatement') as
+  const ancestors = context.getAncestors();
+  const ifStatementParent = ancestors.find(node => node.type === 'IfStatement') as
     | TSESTree.IfStatement
     | undefined;
-  return !!ifStatementParent;
+  return !!ifStatementParent && ancestors.includes(ifStatementParent.consequent as estree.Node);
 }
 
 /**
