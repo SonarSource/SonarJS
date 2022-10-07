@@ -345,7 +345,7 @@ super.code();
 // edit@qf2 [[ec=3]] {{good}}
 // add@qf2@+1 {{super.code();}}
 // del@qf2@+2
-`
+`,
     });
   });
 });
