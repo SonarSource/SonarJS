@@ -158,14 +158,14 @@ Quick fixes refer to both ESLint [Suggestions](https://eslint.org/docs/latest/de
 
 The `fix@` comment referring to a quick fix provides the suggestion description and is optional. Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark (i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).  
 
-Each quickfix can have multiple editions associated to it. There are three different kind of operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used for each operation:
+Each quick fix can have multiple editions associated to it. There are three different kind of operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used for each operation:
 
 - `add@qf {{code to add}}` Add the string between the double brackets to a new line in the code. 
 - `del@qf` Remove the line
 - `edit@qf1 [[sc=1;ec=5]] {{text to replace the range }}` Edit the line from start column `sc` to end column `ec` (both 0-based) with the provided string between the double brackets. Alternatively, one can conveniently use only `sc` or `ec`. also optional, meaning this syntax can be used too:
-- `edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
+  - `edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
 
-The line affected in each of these operations will be the line of the issue to which the quickfix is linked to. It is possible to use the line modifier syntax (`@[+|-]?line`). When using line increments/decrements, keep in mind the base number is the issue line number, not the line of the quick fix edit comment. Example for rule `brace-style`:
+The line affected in each of these operations will be the line of the issue to which the quick fix is linked to. It is possible to use the line modifier syntax (`@[+|-]?line`). When using line increments/decrements, keep in mind the base number is the issue line number, not the line of the quick fix edit comment. Example for rule `brace-style`:
 
 ```javascript
 //Noncompliant@+1 [[qf!]]

@@ -37,7 +37,7 @@
 import { RuleTester } from 'eslint';
 import { toEncodedMessage } from 'linting/eslint/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
-import { QuickFix } from './helpers/quickfixes';
+import { Change, QuickFix } from './helpers/quickfixes';
 
 interface ExpectationsResult {
   errors: RuleTester.TestCaseError[];
@@ -94,15 +94,12 @@ interface Suggestions {
 }
 
 /**
- * Applies quick fix edits to a source code line. The fixed line will be formed by a
- * concatenation of three strings:
- *  - Original line from column 0 until start of fix column
- *  - Contents of fix
- *  - Original line from end of fix column until end of original line
+ * Applies quick fix operations to the source code line.
  *
  * @param quickfixes array of quick fixes to apply
  * @param fileContent the file contents
- * @param output The expected code after autofixes are applied
+ * @param result The result object to have access to the output attribute
+ * @param issues the array of issues, needed if a reindex needs to be done on all quickfixes
  */
 function applyQuickFixes(
   quickfixes: QuickFix[],
@@ -110,67 +107,47 @@ function applyQuickFixes(
   result: ExpectationsResult,
   issues: LineIssues[],
 ): Suggestions {
-  if (quickfixes.length) {
-    const suggestions: RuleTester.SuggestionOutput[] = [];
-    for (const quickfix of quickfixes) {
-      const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
-      const { description: desc, changes } = quickfix;
-      for (const change of changes) {
-        const { start, end, contents, type, line: issueLine } = change;
-        if (type === 'edit') {
-          if (contents !== undefined) {
-            let appendAfterFix = '';
-            const line = lines[issueLine - 1];
-            const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
-            if (end === undefined) {
-              if (containsNC >= 0) {
-                appendAfterFix = line.slice(containsNC);
-              }
-            } else {
-              if (end < start) {
-                throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
-              }
-              if (containsNC >= 0 && end > containsNC) {
-                throw new Error(
-                  `End column cannot be in // Noncompliant comment ${end} > ${containsNC}`,
-                );
-              }
-              appendAfterFix = line.slice(end);
-            }
-            lines[issueLine - 1] = line.slice(0, start || 0) + contents + appendAfterFix;
-          }
-        } else if (type === 'add') {
-          if (contents !== undefined) {
-            lines.splice(issueLine - 1, 0, contents);
-            if (quickfix.mandatory) {
-              reIndexLines(issues, true, issueLine);
-            }
-          }
-        } else if (type === 'del') {
-          lines.splice(issueLine - 1, 1);
-          if (quickfix.mandatory) {
-            reIndexLines(issues, false, issueLine);
-          }
+  const suggestions: RuleTester.SuggestionOutput[] = [];
+  for (const quickfix of quickfixes) {
+    const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
+    const { description: desc, changes } = quickfix;
+    for (const change of changes) {
+      if (change.type === 'edit') {
+        editLine(lines, change);
+      } else if (change.type === 'add') {
+        addLine(lines, change);
+        if (quickfix.mandatory) {
+          reIndexLines(issues, true, change.line);
         }
-      }
-
-      if (quickfix.mandatory) {
-        result.output = lines.join('\n');
-      } else {
-        const result: RuleTester.SuggestionOutput = { output: lines.join('\n') };
-        if (desc) {
-          result.desc = desc;
+      } else if (change.type === 'del') {
+        deleteLine(lines, change);
+        if (quickfix.mandatory) {
+          reIndexLines(issues, false, change.line);
         }
-        suggestions.push(result);
       }
     }
-    if (suggestions.length) {
-      return { suggestions };
+
+    if (quickfix.mandatory) {
+      result.output = lines.join('\n');
+    } else {
+      const suggestion: RuleTester.SuggestionOutput = { output: lines.join('\n') };
+      if (desc) {
+        suggestion.desc = desc;
+      }
+      suggestions.push(suggestion);
     }
   }
-  return {};
+  return suggestions.length ? { suggestions } : {};
 }
 
+/**
+ * After quickfixes add or delete a line, re-index the lines higher than
+ * then given index, incrementing them by one when increment is true
+ * or decrementing them otherwise
+ * @param issues all issues from the file
+ * @param increment where the lines need to be incremented or decremented
+ * @param start starting line from which the change should be made
+ */
 function reIndexLines(issues: LineIssues[], increment: boolean, start: number) {
   for (const issue of issues) {
     for (const quickfix of issue.quickfixes) {
@@ -183,4 +160,61 @@ function reIndexLines(issues: LineIssues[], increment: boolean, start: number) {
       }
     }
   }
+}
+
+/**
+ * Applies quick fix edits to a source code line. The fixed line will be formed by a
+ * concatenation of three strings:
+ *  - Original line from column 0 until start of fix column
+ *  - Contents of fix
+ *  - Original line from end of fix column until end of original line
+ *
+ * @param lines array of lines from file
+ * @param change the change descriptor
+ */
+function editLine(lines: string[], change: Change) {
+  const { start, end, contents, line: issueLine } = change;
+  if (contents !== undefined) {
+    let appendAfterFix = '';
+    const line = lines[issueLine - 1];
+    const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
+    if (end === undefined) {
+      if (containsNC >= 0) {
+        appendAfterFix = line.slice(containsNC);
+      }
+    } else {
+      if (end < start) {
+        throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
+      }
+      if (containsNC >= 0 && end > containsNC) {
+        throw new Error(`End column cannot be in // Noncompliant comment ${end} > ${containsNC}`);
+      }
+      appendAfterFix = line.slice(end);
+    }
+    lines[issueLine - 1] = line.slice(0, start || 0) + contents + appendAfterFix;
+  }
+}
+
+/**
+ * Adds a new line to the source code at the index and with the contents described
+ * in the Change object
+ *
+ * @param lines array of lines from file
+ * @param change the change descriptor
+ */
+function addLine(lines: string[], change: Change) {
+  const { contents, line } = change;
+  if (contents !== undefined) {
+    lines.splice(line - 1, 0, contents);
+  }
+}
+
+/**
+ * Removes the line from the source code.
+ *
+ * @param lines array of lines from file
+ * @param change the change descriptor
+ */
+function deleteLine(lines: string[], change: Change) {
+  lines.splice(change.line - 1, 1);
 }

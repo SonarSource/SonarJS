@@ -55,7 +55,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     if (['.js', '.jsx', '.ts', '.tsx'].includes(ext.toLowerCase()) && rules.hasOwnProperty(rule)) {
       describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
         const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
-        const { errors, output } = extractExpectations(
+        let { errors, output } = extractExpectations(
           code,
           hasSonarRuntimeOption(rules[rule], rule),
         );
@@ -65,9 +65,10 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
             fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }),
           );
         }
+        output = output === code ? null : output;
         const tests = {
           valid: [],
-          invalid: [{ code, errors, filename, options, output: output === code ? null : output }],
+          invalid: [{ code, errors, filename, options, output }],
         };
         ruleTester.run(filename, rules[rule], tests);
       });

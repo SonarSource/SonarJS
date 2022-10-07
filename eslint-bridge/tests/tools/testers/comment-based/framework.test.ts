@@ -314,6 +314,7 @@ repaired.code();// Noncompliant [[qf1,qf2=0]]
       ],
     });
   });
+
   it('autofix with multiple edits', () => {
     const code = `
 wrong.code();// Noncompliant [[qf!]]
