@@ -314,4 +314,38 @@ repaired.code();// Noncompliant [[qf1,qf2=0]]
       ],
     });
   });
+  it('autofix with multiple edits', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf!]]
+
+//comment to remove
+// edit@qf [[ec=5]] {{fixed}}
+// add@qf@+1 {{better.code();}}
+// del@qf@+2
+
+bad.code();// Noncompliant [[qf2!]]
+
+//another comment to remove
+// edit@qf2 [[ec=3]] {{good}}
+// add@qf2@+1 {{super.code();}}
+// del@qf2@+2
+`;
+    expect(extractExpectations(code, false)).toMatchObject({
+      output: `
+fixed.code();// Noncompliant [[qf!]]
+better.code();
+
+// edit@qf [[ec=5]] {{fixed}}
+// add@qf@+1 {{better.code();}}
+// del@qf@+2
+
+good.code();// Noncompliant [[qf2!]]
+super.code();
+
+// edit@qf2 [[ec=3]] {{good}}
+// add@qf2@+1 {{super.code();}}
+// del@qf2@+2
+`
+    });
+  });
 });
