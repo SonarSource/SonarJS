@@ -22,7 +22,7 @@
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { FUNCTION_NODES, getParent, resolveIdentifiers } from './helpers';
+import { getParent, resolveIdentifiers } from './helpers';
 
 type ContextType = 'catch' | 'function' | 'foreach' | 'global';
 
@@ -74,7 +74,7 @@ export const rule: Rule.RuleModule = {
           // we do not raise issue when value is reassigned inside a top-level IfStatement, as it might be a shift or
           // default value reassignment
           if (
-            isInsideTopLevelIfStatement(context) ||
+            isInsideIfStatement(context) ||
             context.getAncestors().some(node => node.type === 'SwitchCase') // issue-2398
           ) {
             return;
@@ -228,24 +228,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isInsideTopLevelIfStatement(context: Rule.RuleContext) {
+function isInsideIfStatement(context: Rule.RuleContext) {
   const ifStatementParent = context.getAncestors().find(node => node.type === 'IfStatement') as
     | TSESTree.IfStatement
     | undefined;
-  if (ifStatementParent) {
-    return (
-      hasParentOfType(ifStatementParent.parent, ['BlockStatement']) &&
-      hasParentOfType(ifStatementParent.parent.parent, FUNCTION_NODES)
-    );
-  }
-  return false;
-}
-
-function hasParentOfType(
-  parent: TSESTree.Node | undefined,
-  expectedType: string[],
-): parent is TSESTree.Node {
-  return !!parent && expectedType.includes(parent.type);
+  return !!ifStatementParent;
 }
 
 /**

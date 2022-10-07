@@ -43,7 +43,7 @@ function invalidTest(code: string) {
     return accumulator;
   }, [] as RuleTester.TestCaseError[]);
   return {
-    code: code,
+    code,
     errors,
   };
 }
