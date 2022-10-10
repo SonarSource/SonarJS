@@ -90,4 +90,16 @@ describe('buildJs', () => {
 
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
+
+  it('should support Javascript decorators', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'decorator.js');
+    const tryTypeScriptParser = false;
+    const {
+      ast: {
+        body: [stmt],
+      },
+    } = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
+
+    expect(stmt.type).toEqual('ClassDeclaration');
+  });
 });
