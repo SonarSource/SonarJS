@@ -26,7 +26,7 @@ const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';
 export const QUICKFIX_ID =
   '\\[\\[(?<quickfixes>\\w+(=\\d+)?!?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?!?))*)\\]\\]';
-export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
+const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
   ' *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     'fix@(?<quickfixId>\\w+)' +
@@ -35,7 +35,7 @@ export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
     '(?:\r(\n?)|\n)?',
 );
 
-export const QUICKFIX_EDIT_PATTERN = RegExp(
+const QUICKFIX_CHANGE_PATTERN = RegExp(
   ' *' +
     // quickfix edit, ex: edit@qf1
     '(?<type>edit|add|del)@(?<quickfixId>\\w+)' +
@@ -44,13 +44,15 @@ export const QUICKFIX_EDIT_PATTERN = RegExp(
     ' *(?:\\[\\[' +
     '(?<firstColumnType>sc|ec)=(?<firstColumnValue>\\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\\d+))?' +
     '\\]\\])?' +
-    // contents to be added, ex: {{foo}}
+    // contents to be applied, ex: {{foo}}
     ' *(?:\\{\\{(?<contents>.*?)\\}\\}(?!\\}))?' +
     ' *(?:\r(\n?)|\n)?',
 );
 
+type ChangeType = 'add' | 'del' | 'edit';
+
 export type Change = {
-  type: string;
+  type: ChangeType;
   start: number | undefined;
   end: number | undefined;
   line: number;
@@ -82,11 +84,11 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
         `Unexpected quickfix ID '${quickfixId}' found at ${comment.line}:${comment.column}`,
       );
     } else if (quickfix.mandatory) {
-      throw new Error(`ESLint fix '${quickfixId}' do not require description message`);
+      throw new Error(`ESLint fix '${quickfixId}' does not require description message`);
     }
     quickfix.description = message;
-  } else if (QUICKFIX_EDIT_PATTERN.test(comment.value)) {
-    const matches = comment.value.match(QUICKFIX_EDIT_PATTERN);
+  } else if (QUICKFIX_CHANGE_PATTERN.test(comment.value)) {
+    const matches = comment.value.match(QUICKFIX_CHANGE_PATTERN);
     const {
       quickfixId,
       type,
@@ -105,7 +107,7 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
     const line = extractEffectiveLine(quickfix.lineIssues.line, matches);
     const edit: Change = {
       line,
-      type,
+      type: type as ChangeType,
       start:
         firstColumnType === 'sc'
           ? +firstColumnValue

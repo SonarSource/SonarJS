@@ -46,26 +46,29 @@ import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
 
+function extractRuleOptions(testFiles, rule) {
+  if (testFiles.includes(`${rule}.json`)) {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
+    } catch {}
+  }
+  return [];
+}
+
 function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
   const testFiles = fs.readdirSync(fixtures);
-  for (const test of testFiles) {
-    const filename = path.join(fixtures, test);
+  for (const testFile of testFiles) {
+    const filename = path.join(fixtures, testFile);
     const { ext, name } = path.parse(filename);
     const rule = name.toLowerCase();
     if (['.js', '.jsx', '.ts', '.tsx'].includes(ext.toLowerCase()) && rules.hasOwnProperty(rule)) {
       describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
         const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
-        let { errors, output } = extractExpectations(
+        const { errors, output } = extractExpectations(
           code,
           hasSonarRuntimeOption(rules[rule], rule),
         );
-        let options = [];
-        if (testFiles.includes(`${rule}.json`)) {
-          options = JSON.parse(
-            fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }),
-          );
-        }
-        output = output === code ? null : output;
+        let options = extractRuleOptions(testFiles, rule);
         const tests = {
           valid: [],
           invalid: [{ code, errors, filename, options, output }],

@@ -41,7 +41,7 @@ import { Change, QuickFix } from './helpers/quickfixes';
 
 interface ExpectationsResult {
   errors: RuleTester.TestCaseError[];
-  output: string;
+  output: string | null;
 }
 /**
  * Extracts issue expectations from a comment-based test file
@@ -60,7 +60,7 @@ export function extractExpectations(
     const line = issue.line;
     const primary = issue.primaryLocation;
     const messages = [...issue.messages.values()];
-    const quickfixes = issue.quickfixes ? [...issue.quickfixes?.values()] : [];
+    const quickfixes = issue.quickfixes ? [...issue.quickfixes.values()] : [];
     messages.forEach((message, index) => {
       const suggestions = applyQuickFixes(
         quickfixes.filter(quickfix => quickfix.messageIndex === index),
@@ -86,6 +86,9 @@ export function extractExpectations(
       result.errors.push(error);
     });
   });
+  if (result.output === fileContent) {
+    result.output = null;
+  }
   return result;
 }
 
