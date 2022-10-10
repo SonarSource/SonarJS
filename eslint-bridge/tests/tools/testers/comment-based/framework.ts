@@ -112,29 +112,36 @@ function applyQuickFixes(
     const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
     const { description: desc, changes } = quickfix;
     for (const change of changes) {
-      if (change.type === 'edit') {
-        editLine(lines, change);
-      } else if (change.type === 'add') {
-        addLine(lines, change);
-        if (quickfix.mandatory) {
-          reIndexLines(issues, true, change.line);
-        }
-      } else if (change.type === 'del') {
-        deleteLine(lines, change);
-        if (quickfix.mandatory) {
-          reIndexLines(issues, false, change.line);
-        }
+      switch (change.type) {
+        case 'add':
+          addLine(lines, change);
+          if (quickfix.mandatory) {
+            reIndexLines(issues, true, change.line);
+          }
+          break;
+        case 'del':
+          deleteLine(lines, change);
+          if (quickfix.mandatory) {
+            reIndexLines(issues, false, change.line);
+          }
+          break;
+        case 'edit':
+          editLine(lines, change);
       }
     }
 
-    if (quickfix.mandatory) {
-      result.output = lines.join('\n');
-    } else {
-      const suggestion: RuleTester.SuggestionOutput = { output: lines.join('\n') };
-      if (desc) {
-        suggestion.desc = desc;
+    const output = lines.join('\n');
+
+    if (output !== fileContent) {
+      if (quickfix.mandatory) {
+        result.output = output;
+      } else {
+        const suggestion: RuleTester.SuggestionOutput = { output };
+        if (desc) {
+          suggestion.desc = desc;
+        }
+        suggestions.push(suggestion);
       }
-      suggestions.push(suggestion);
     }
   }
   return suggestions.length ? { suggestions } : {};
