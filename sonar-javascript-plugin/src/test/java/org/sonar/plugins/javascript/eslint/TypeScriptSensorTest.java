@@ -222,29 +222,6 @@ class TypeScriptSensorTest {
     assertThat(context.allIssues()).isEmpty();
   }
 
-
-  @Test
-  void should_log_and_stop_with_wrong_tsconfig() throws Exception {
-    SensorContextTester ctx = createSensorContext(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
-    createInputFile(ctx);
-    TypeScriptSensor typeScriptSensor = createSensor();
-    typeScriptSensor.execute(ctx);
-
-    verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
-    verify(eslintBridgeServerMock, never()).analyzeWithProgram(any());
-
-    String errorLog = "Provided tsconfig.json path doesn't exist. Path: '%s'";
-    if (isWindows()) {
-      // toRealPath avoids 8.3 paths on Windows
-      errorLog = String.format(errorLog, baseDir.toRealPath().resolve("wrong.json"));
-    } else {
-      errorLog = String.format(errorLog, baseDir.resolve("wrong.json"));
-    }
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(errorLog);
-
-  }
-
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
     SensorContextTester ctx = null;
     if (isWindows()) {

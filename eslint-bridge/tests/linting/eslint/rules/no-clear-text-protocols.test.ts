@@ -139,6 +139,19 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       url = 'http://'.replace('', foo) + bar;
       `,
     },
+    {
+      code: `
+      import * as ses from '@aws-sdk/client-ses';
+      import nodemailer from 'nodemailer';
+
+      const sesClient = new ses.SES({ region: AWS_REGION });
+      const transporter = nodemailer.createTransport({
+        SES: {
+          ses: sesClient,
+          aws: ses,
+        },
+      });`,
+    },
   ],
   invalid: [
     {
@@ -220,6 +233,59 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       url = "http://::1"; // FP - url from Node.js is not able to parse IPV6 loopback address
       `,
       errors: 1,
+    },
+    {
+      code: `
+      import * as ses from '@aws-sdk/client-ses';
+      import * as fakeSes from 'fake-client-ses';
+      import nodemailer from 'nodemailer';
+
+      const sesClient = new ses.SES({ region: AWS_REGION });
+      const fakeSesClient = new fakeSes.SES({ region: AWS_REGION });
+
+      nodemailer.createTransport({
+        SES: undefined,
+      });
+
+      nodemailer.createTransport({
+        SES: {
+          ses: sesClient,
+        },
+      });
+      
+      nodemailer.createTransport({
+        SES: {
+          ses: fakeSesClient,
+        },
+      });
+
+      nodemailer.createTransport({
+        SES: {
+          aws: ses,
+        },
+      });
+
+      nodemailer.createTransport({
+        SES: {
+          aws: fakeSes,
+        },
+      });
+
+      nodemailer.createTransport({
+        SES: {
+          ses: undefined,
+          aws: ses,
+        },
+      });
+
+      nodemailer.createTransport({
+        SES: {
+          ses: sesClient,
+          aws: undefined,
+        },
+      });
+      `,
+      errors: 7,
     },
   ],
 });

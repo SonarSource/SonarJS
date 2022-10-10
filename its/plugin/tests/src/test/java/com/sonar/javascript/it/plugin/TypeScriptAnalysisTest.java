@@ -24,8 +24,9 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
@@ -98,8 +99,36 @@ class TypeScriptAnalysisTest {
 
     // using `getCanonicalFile` as otherwise test is failing when executed on Windows (`C:\Windows\TEMP...` vs `C:\Windows\Temp`)
     Path tsconfig = PROJECT_DIR.getCanonicalFile().toPath().resolve("custom.tsconfig.json");
-    var log = ("Using " + tsconfig + " from sonar.typescript.tsconfigPath property");
-    assertThat(result.getLogsLines(l -> l.contains(log))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Resolving TSConfig files using 'custom.tsconfig.json' from property sonar.typescript.tsconfigPath"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]"))).hasSize(1);
+  }
+
+  @Test
+  void should_use_multiple_custom_tsconfigs() throws Exception {
+    String projectKey = "tsproject-customs";
+    File projectDir = TestUtils.projectDir("tsprojects");
+
+    SonarScanner build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(projectDir)
+      .setProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,**/custom.tsconfig.json");
+
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(2, "tsproject-customs:file.ts"),
+      tuple(2, "tsproject-customs:dir/file.ts")
+    );
+
+    List<Path> tsconfigs = Arrays.asList(
+      projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json")),
+      projectDir.getCanonicalFile().toPath().resolve("tsconfig.json")
+    );
+    assertThat(result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): "+ tsconfigs))).hasSize(1);
   }
 
   @Test

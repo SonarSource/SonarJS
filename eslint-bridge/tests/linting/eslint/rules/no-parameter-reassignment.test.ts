@@ -43,7 +43,7 @@ function invalidTest(code: string) {
     return accumulator;
   }, [] as RuleTester.TestCaseError[]);
   return {
-    code: code,
+    code,
     errors,
   };
 }
@@ -88,6 +88,21 @@ ruleTester.run(
         function myFunc2(p1) {
           if (someBoolean) {
             p1 = "defaultValue";
+          }
+          else {
+            p1 = "otherValue";
+          }
+        }
+        
+        // Ok - reassignment inside IfStatement even if not top level are not raised
+        function myFunc2(p1) {
+          try {
+            if (someBoolean) {
+              p1 = "defaultValue";
+            }
+          }
+          catch {
+            //...
           }
         }
         

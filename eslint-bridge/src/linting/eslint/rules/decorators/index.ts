@@ -21,6 +21,7 @@
 import { Rule } from 'eslint';
 
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
+import { decorateBraceStyle } from './brace-style-decorator';
 import { decorateDefaultParamLast } from './default-param-last-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
@@ -36,6 +37,7 @@ import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
+import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 
 /**
@@ -57,6 +59,7 @@ export type RuleDecorator = (rule: Rule.RuleModule) => Rule.RuleModule;
  */
 export const decorators: Record<string, RuleDecorator> = {
   'accessor-pairs': decorateAccessorPairs,
+  'brace-style': decorateBraceStyle,
   'default-param-last': decorateDefaultParamLast,
   'no-dupe-keys': decorateNoDupeKeys,
   'no-duplicate-imports': decorateNoDuplicateImports,
@@ -71,6 +74,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'object-shorthand': decorateObjectShorthand,
   'prefer-for-of': decoratePreferForOf,
   'prefer-template': decoratePreferTemplate,
+  semi: decorateSemi,
   'use-isnan': decorateUseIsNan,
   'no-unnecessary-type-assertion': decorateNoUnnecessaryTypeAssertion,
 };
