@@ -51,7 +51,6 @@ export abstract class Location {
 
 export class PrimaryLocation extends Location {
   readonly secondaryLocations: SecondaryLocation[] = [];
-  expectedAdditionalCount: number | undefined;
 
   constructor(range: Range) {
     super(range);

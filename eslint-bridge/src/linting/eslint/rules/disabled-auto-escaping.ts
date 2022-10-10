@@ -29,6 +29,7 @@ import {
   isCallToFQN,
   checkSensitiveCall,
   getModuleNameOfNode,
+  toEncodedMessage,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -131,14 +132,30 @@ export const rule: Rule.RuleModule = {
         if (left.type !== 'MemberExpression') {
           return;
         }
-        const module = getModuleNameOfNode(context, left.object);
-        if (module?.value !== 'mustache' || !isIdentifier(left.property, 'escape')) {
+        if (
+          !(
+            (isMustacheModule(context, left.object) || isMustacheIdentifier(left.object)) &&
+            isIdentifier(left.property, 'escape')
+          )
+        ) {
           return;
         }
         if (isInvalidSanitizerFunction(right)) {
-          context.report({ node: left, message: MESSAGE });
+          context.report({
+            node: left,
+            message: toEncodedMessage(MESSAGE),
+          });
         }
       },
     };
   },
 };
+
+function isMustacheIdentifier(node: estree.Node) {
+  return isIdentifier(node) && node.name === 'Mustache';
+}
+
+function isMustacheModule(context: Rule.RuleContext, node: estree.Node) {
+  const module = getModuleNameOfNode(context, node);
+  return module?.value === 'mustache';
+}

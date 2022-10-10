@@ -98,15 +98,17 @@ This script:
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/2831eb9a53da914d58b8e063a017c68e71eab839/eslint-bridge/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
    * If possible implement quick fixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
 
-### Testing the rule
+## Testing a rule
 
 `eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests
    * Prefer comment-based tests as they are more readable
    * Use the ESlint rule tester to test quick fixes, as our comment-based one does not support them yet
 
-#### Comment-based testing
+### Comment-based testing
 
-These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-based/`, they follow the following structure:
+These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-based/` and they **MUST** be named after the rule they are testing (i.e. `semi.[(js|ts)x?]` to test ESLint `semi` rule). If options are to be passed to the tested rule, add a JSON file to the same directory following the same naming convention but with a `.json` extension (i.e. `semi.json`). The file must contain the array of options. 
+
+The contents of the test code have the following structure:
 
 ```javascript
 some.clean.code();
@@ -115,7 +117,17 @@ some.faulty.code(); // Noncompliant N [[qf1,qf2,...]] {{Optional message to asse
 // fix@qf1 {{Optional suggestion description}}
 // edit@qf1 [[sc=1;ec=5]] {{text to replace line from [sc] column to [ec] column}}
 ```
-The issue primary location (`// ^^^^`), issue message, issue number (`N`) and quick fixes are optional.
+
+The contents of the options file must be a valid JSON array:
+
+```javascript
+// brace-style.json
+["1tbs", { "allowSingleLine": true }]
+```
+
+#### Tests syntax
+
+Given the above test snippet: the issue primary location (`// ^^^^`), issue message (`{{...}}`), issue number (`N`) and quick fixes are optional.
 
 `N` is an integer defining the amount of issues will be reported in the line.
 
@@ -123,11 +135,58 @@ Only one of the methods (`{{messageN}}+` OR `N`) to define the expected issues c
 
 If no `N` nor messages are provided, the engine will expect one issue to be raised. Meaning, `//Noncompliant` is equivalent to `//Noncompliant 1`.
 
-The `fix@` comment of a quick fix providing the suggestion description is optional. On the `edit@` comment the start column and end column are also optional, meaning this syntax can be used too:
+`Noncompliant` lines will be associated by default to the line of code where they are writen. The syntax `@line_number` allows for an issue to be associated to another line:
 
-`// edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
+```javascript
+// Noncompliant@2 N [[qf1,qf2,...]] {{Optional message to assert}}
+some.faulty.code();
+```
 
-Alternatively, one can conveniently use only `sc` or `ec`.
+Another option is to use relative line increments (`@+line_increment`) or decrements (`@-line_decrement`):
+```javascript
+// Noncompliant@+1
+some.faulty.code();
+
+another.faulty.code();
+// another comment
+// Noncompliant@-2
+```
+
+#### Quick fixes
+
+Quick fixes refer to both ESLint [Suggestions](https://eslint.org/docs/latest/developer-guide/working-with-rules#providing-suggestions) and [Fixes](https://eslint.org/docs/latest/developer-guide/working-with-rules#applying-fixes). In our comment-based framework both use the same syntax, with the difference that a quick fix ID followed by an exclamation mark (`!`) will be internally treated as a `fix` with ESLint instead of as a suggestion. Please note that rules providing fixes **MUST** be tested always with fixes, otherwise the test will fail with the following error: `The rule fixed the code. Please add 'output' property.`. On the other side, it is optional to check against rule suggestions, meaning that even if a rule provides them, the tests can choose not to test their contents.
+
+The `fix@` comment referring to a quick fix provides the suggestion description and is optional. Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark (i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).  
+
+Each quick fix can have multiple editions associated to it. There are three different kind of operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used for each operation:
+
+- `add@qf {{code to add}}` Add the string between the double brackets to a new line in the code. 
+- `del@qf` Remove the line
+- `edit@qf1 [[sc=1;ec=5]] {{text to replace the range }}` Edit the line from start column `sc` to end column `ec` (both 0-based) with the provided string between the double brackets. Alternatively, one can conveniently use only `sc` or `ec`. also optional, meaning this syntax can be used too:
+  - `edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
+
+The line affected in each of these operations will be the line of the issue to which the quick fix is linked to. It is possible to use the line modifier syntax (`@[+|-]?line`). When using line increments/decrements, keep in mind the base number is the issue line number, not the line of the quick fix edit comment. Example for rule `brace-style`:
+
+```javascript
+//Noncompliant@+1 [[qf!]]
+if (condition) { doSomething()
+}
+// edit@qf [[sc=16]] {{}}
+// add@qf@+1 {{ doSomething()}}
+```
+The expected output is:
+```javascript
+if (condition) {
+ doSomething()
+}
+```
+Let's go through the syntax used in this example: 
+- The test provides a fix (note the `!` after the ID `qf`). 
+- The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue for which we provide a quick fix. 
+- The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by `if (condition) {`. 
+- Lastly, the line `// add@qf@+1 {{ doSomething()}}` will add a new line just after the issue line (`@+1`) with the contents `&nbsp;doSomething()`
+
+
 
 Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below). 
 
