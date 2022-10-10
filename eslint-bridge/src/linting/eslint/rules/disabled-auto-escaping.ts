@@ -134,7 +134,7 @@ export const rule: Rule.RuleModule = {
         }
         if (
           !(
-            (isMustachModule(context, left.object) || isMustacheIdentifier(left.object)) &&
+            (isMustacheModule(context, left.object) || isMustacheIdentifier(left.object)) &&
             isIdentifier(left.property, 'escape')
           )
         ) {
@@ -155,7 +155,7 @@ function isMustacheIdentifier(node: estree.Node) {
   return isIdentifier(node) && node.name === 'Mustache';
 }
 
-function isMustachModule(context: Rule.RuleContext, node: estree.Node) {
+function isMustacheModule(context: Rule.RuleContext, node: estree.Node) {
   const module = getModuleNameOfNode(context, node);
   return module?.value === 'mustache';
 }
