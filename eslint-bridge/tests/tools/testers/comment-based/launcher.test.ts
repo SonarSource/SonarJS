@@ -48,9 +48,7 @@ const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-bas
 
 function extractRuleOptions(testFiles, rule) {
   if (testFiles.includes(`${rule}.json`)) {
-    try {
-      return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
-    } catch {}
+    return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
   }
   return [];
 }
@@ -68,7 +66,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
           code,
           hasSonarRuntimeOption(rules[rule], rule),
         );
-        let options = extractRuleOptions(testFiles, rule);
+        const options = extractRuleOptions(testFiles, rule);
         const tests = {
           valid: [],
           invalid: [{ code, errors, filename, options, output }],
