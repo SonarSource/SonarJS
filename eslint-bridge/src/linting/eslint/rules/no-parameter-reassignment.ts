@@ -233,6 +233,8 @@ function isInsideIfStatement(context: Rule.RuleContext) {
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (
       ancestors[i].type === 'IfStatement' &&
+      // We check if the consequent or the alternate are also ancestors
+      // Nodes in the test attribute should be raised
       i < ancestors.length - 1 &&
       (ancestors[i + 1] === (ancestors[i] as estree.IfStatement).consequent ||
         ancestors[i + 1] === (ancestors[i] as estree.IfStatement).alternate)

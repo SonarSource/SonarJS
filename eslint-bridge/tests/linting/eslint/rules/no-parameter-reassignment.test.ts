@@ -89,6 +89,9 @@ ruleTester.run(
           if (someBoolean) {
             p1 = "defaultValue";
           }
+          else {
+            p1 = "otherValue";
+          }
         }
         
         // Ok - reassignment inside IfStatement even if not top level are not raised
