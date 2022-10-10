@@ -234,7 +234,8 @@ function isInsideIfStatement(context: Rule.RuleContext) {
     if (
       ancestors[i].type === 'IfStatement' &&
       i < ancestors.length - 1 &&
-      ancestors[i + 1] === (ancestors[i] as estree.IfStatement).consequent
+      (ancestors[i + 1] === (ancestors[i] as estree.IfStatement).consequent ||
+        ancestors[i + 1] === (ancestors[i] as estree.IfStatement).alternate)
     ) {
       return true;
     }
