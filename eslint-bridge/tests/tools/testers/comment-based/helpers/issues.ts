@@ -61,8 +61,11 @@ export class LineIssues {
               `QuickFix ID ${quickfixId} refers to message index ${messageIndex} but there are only ${this.messages.length} messages`,
             );
           }
-          const qf = new QuickFix(quickfixId, messageIndex, this);
-          quickFixesMap.set(quickfixId, qf);
+          const [id, mandatory] = quickfixId.endsWith('!')
+            ? [quickfixId.slice(0, -1), true]
+            : [quickfixId, false];
+          const qf = new QuickFix(id, mandatory, messageIndex, this);
+          quickFixesMap.set(id, qf);
           return qf;
         });
     }

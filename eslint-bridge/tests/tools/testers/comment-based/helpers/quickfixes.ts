@@ -20,12 +20,13 @@
 
 import { LineIssues } from './issues';
 import { Comment } from './comments';
+import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
 
-const STARTS_WITH_QUICKFIX = /^ *(edit|fix)@/;
+const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';
 export const QUICKFIX_ID =
-  '\\[\\[(?<quickfixes>\\w+(=\\d+)?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?))*)\\]\\]';
-export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
+  '\\[\\[(?<quickfixes>\\w+(=\\d+)?!?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?!?))*)\\]\\]';
+const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
   ' *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     'fix@(?<quickfixId>\\w+)' +
@@ -34,26 +35,36 @@ export const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
     '(?:\r(\n?)|\n)?',
 );
 
-export const QUICKFIX_EDIT_PATTERN = RegExp(
+const QUICKFIX_CHANGE_PATTERN = RegExp(
   ' *' +
     // quickfix edit, ex: edit@qf1
-    'edit@(?<quickfixId>\\w+)' +
+    '(?<type>edit|add|del)@(?<quickfixId>\\w+)' +
+    LINE_ADJUSTMENT +
     // start and end columns, ex: [[sc=1;ec=5]] both are optional
     ' *(?:\\[\\[' +
     '(?<firstColumnType>sc|ec)=(?<firstColumnValue>\\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\\d+))?' +
     '\\]\\])?' +
-    // replacement string, ex: {{foo}}
-    ' *(?:\\{\\{(?<fix>.*?)\\}\\}(?!\\}))?' +
+    // contents to be applied, ex: {{foo}}
+    ' *(?:\\{\\{(?<contents>.*?)\\}\\}(?!\\}))?' +
     ' *(?:\r(\n?)|\n)?',
 );
 
+type ChangeType = 'add' | 'del' | 'edit';
+
+export type Change = {
+  type: ChangeType;
+  start: number | undefined;
+  end: number | undefined;
+  line: number;
+  contents: string | undefined;
+};
+
 export class QuickFix {
-  public start: number | undefined = undefined;
-  public end: number | undefined = undefined;
+  public changes: Change[] = [];
   public description: string | undefined = undefined;
-  public fix: string | undefined = undefined;
   constructor(
     readonly id: string,
+    readonly mandatory: boolean,
     readonly messageIndex: number,
     readonly lineIssues: LineIssues,
   ) {}
@@ -67,21 +78,25 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
   if (QUICKFIX_DESCRIPTION_PATTERN.test(comment.value)) {
     const matches = comment.value.match(QUICKFIX_DESCRIPTION_PATTERN);
     const { quickfixId, message } = matches.groups;
-    if (!quickfixes.has(quickfixId)) {
+    const quickfix = quickfixes.get(quickfixId);
+    if (!quickfix) {
       throw new Error(
-        `Unexpected quickfix ID '${matches.groups?.quickfixId}' found at ${comment.line}:${comment.column}`,
+        `Unexpected quickfix ID '${quickfixId}' found at ${comment.line}:${comment.column}`,
       );
+    } else if (quickfix.mandatory) {
+      throw new Error(`ESLint fix '${quickfixId}' does not require description message`);
     }
-    quickfixes.get(quickfixId).description = message;
-  } else if (QUICKFIX_EDIT_PATTERN.test(comment.value)) {
-    const matches = comment.value.match(QUICKFIX_EDIT_PATTERN);
+    quickfix.description = message;
+  } else if (QUICKFIX_CHANGE_PATTERN.test(comment.value)) {
+    const matches = comment.value.match(QUICKFIX_CHANGE_PATTERN);
     const {
       quickfixId,
+      type,
       firstColumnType,
       firstColumnValue,
       secondColumnType,
       secondColumnValue,
-      fix,
+      contents,
     } = matches.groups;
     if (!quickfixes.has(quickfixId)) {
       throw new Error(
@@ -89,18 +104,24 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
       );
     }
     const quickfix = quickfixes.get(quickfixId);
-    quickfix.start =
-      firstColumnType === 'sc'
-        ? +firstColumnValue
-        : secondColumnType === 'sc'
-        ? +secondColumnValue
-        : undefined;
-    quickfix.end =
-      firstColumnType === 'ec'
-        ? +firstColumnValue
-        : secondColumnType === 'ec'
-        ? +secondColumnValue
-        : undefined;
-    quickfix.fix = fix;
+    const line = extractEffectiveLine(quickfix.lineIssues.line, matches);
+    const edit: Change = {
+      line,
+      type: type as ChangeType,
+      start:
+        firstColumnType === 'sc'
+          ? +firstColumnValue
+          : secondColumnType === 'sc'
+          ? +secondColumnValue
+          : undefined,
+      end:
+        firstColumnType === 'ec'
+          ? +firstColumnValue
+          : secondColumnType === 'ec'
+          ? +secondColumnValue
+          : undefined,
+      contents,
+    };
+    quickfix.changes.push(edit);
   }
 }

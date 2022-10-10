@@ -9,6 +9,14 @@ describe("invalid comparisons", function() {
     it("uses chai 'assert'", function() {
       assert.fail(42, aNumber);  //Noncompliant [[qf1]]
       // edit@qf1 {{      assert.fail(aNumber, 42);}}
+      assert //Noncompliant@+3 [[qf_complex_edit]]
+        .fail(
+          42,
+          aNumber
+        );
+      // edit@qf_complex_edit@-1 {{          aNumber,}}
+      // edit@qf_complex_edit {{          42}}
+
       assert.equal(42,
                  //^^> {{Other argument to swap.}}
         aNumber); // Noncompliant {{Swap these 2 arguments so they are in the correct order: assert.equal(actual, expected).}}

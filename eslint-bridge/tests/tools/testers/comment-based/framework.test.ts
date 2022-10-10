@@ -31,24 +31,26 @@ describe('Comment-based Testing Framework', () => {
   }
 
   it('non compliant', async () => {
-    expect(await assertions('non_compliant.js')).toEqual([{ line: 1 }]);
+    expect(await assertions('non_compliant.js')).toMatchObject({ errors: [{ line: 1 }] });
   });
 
   it('issue message', async () => {
-    expect(await assertions('message.js')).toEqual([
-      { line: 1, message: 'Expected error message' },
-    ]);
+    expect(await assertions('message.js')).toMatchObject({
+      errors: [{ line: 1, message: 'Expected error message' }],
+    });
   });
 
   it('multiple issue message', async () => {
-    expect(await assertions('multiple.js')).toEqual([
-      { line: 1, message: 'Expected error message 1' },
-      { line: 1, message: 'Expected error message 2' },
-    ]);
+    expect(await assertions('multiple.js')).toMatchObject({
+      errors: [
+        { line: 1, message: 'Expected error message 1' },
+        { line: 1, message: 'Expected error message 2' },
+      ],
+    });
   });
 
   it('issue count', async () => {
-    expect(await assertions('count.js')).toEqual([{ line: 1 }, { line: 1 }]);
+    expect(await assertions('count.js')).toMatchObject({ errors: [{ line: 1 }, { line: 1 }] });
   });
 
   it('mixing message and count', async () => {
@@ -60,50 +62,54 @@ describe('Comment-based Testing Framework', () => {
   });
 
   it('primary', async () => {
-    expect(await assertions('primary.js')).toEqual([
-      {
-        column: 7,
-        endColumn: 10,
-        endLine: 1,
-        line: 1,
-        message: 'Rule message',
-      },
-    ]);
+    expect(await assertions('primary.js')).toMatchObject({
+      errors: [
+        {
+          column: 7,
+          endColumn: 10,
+          endLine: 1,
+          line: 1,
+          message: 'Rule message',
+        },
+      ],
+    });
   });
 
   it('secondary', async () => {
-    expect(await assertions('secondary.js', true)).toEqual([
-      {
-        column: 7,
-        line: 3,
-        endColumn: 10,
-        endLine: 3,
-        message: JSON.stringify({
-          message: 'Rule message',
-          secondaryLocations: [
-            {
-              message: 'Secondary location message1',
-              column: 6,
-              line: 1,
-              endColumn: 9,
-              endLine: 1,
-            },
-            {
-              message: 'Secondary location message2',
-              column: 6,
-              line: 5,
-              endColumn: 9,
-              endLine: 5,
-            },
-          ],
-        }),
-      },
-    ]);
+    expect(await assertions('secondary.js', true)).toMatchObject({
+      errors: [
+        {
+          column: 7,
+          line: 3,
+          endColumn: 10,
+          endLine: 3,
+          message: JSON.stringify({
+            message: 'Rule message',
+            secondaryLocations: [
+              {
+                message: 'Secondary location message1',
+                column: 6,
+                line: 1,
+                endColumn: 9,
+                endLine: 1,
+              },
+              {
+                message: 'Secondary location message2',
+                column: 6,
+                line: 5,
+                endColumn: 9,
+                endLine: 5,
+              },
+            ],
+          }),
+        },
+      ],
+    });
   });
 
   it('missing secondary', async () => {
-    expect(await assertions('missing_secondary.js', true)).toEqual(
-      expect.arrayContaining([
+    expect(await assertions('missing_secondary.js', true)).toMatchObject({
+      errors: expect.arrayContaining([
         {
           line: 6,
           message: JSON.stringify({
@@ -112,64 +118,68 @@ describe('Comment-based Testing Framework', () => {
           }),
         },
       ]),
-    );
+    });
   });
 
   it('line adjustment', async () => {
-    expect(await assertions('adjustment.js', true)).toEqual([
-      {
-        line: 2,
-      },
-      {
-        column: 7,
-        endColumn: 10,
-        endLine: 4,
-        line: 4,
-        message: JSON.stringify({
-          message: 'Expected error message',
-          secondaryLocations: [
-            {
-              message: 'Secondary location message1',
-              column: 7,
-              line: 4,
-              endColumn: 12,
-              endLine: 4,
-            },
-            {
-              message: 'Secondary location message2',
-              column: 12,
-              line: 4,
-              endColumn: 13,
-              endLine: 4,
-            },
-          ],
-        }),
-      },
-    ]);
+    expect(await assertions('adjustment.js', true)).toMatchObject({
+      errors: [
+        {
+          line: 2,
+        },
+        {
+          column: 7,
+          endColumn: 10,
+          endLine: 4,
+          line: 4,
+          message: JSON.stringify({
+            message: 'Expected error message',
+            secondaryLocations: [
+              {
+                message: 'Secondary location message1',
+                column: 7,
+                line: 4,
+                endColumn: 12,
+                endLine: 4,
+              },
+              {
+                message: 'Secondary location message2',
+                column: 12,
+                line: 4,
+                endColumn: 13,
+                endLine: 4,
+              },
+            ],
+          }),
+        },
+      ],
+    });
   });
 
   it('issue merging', async () => {
-    expect(await assertions('merge.js')).toEqual([
-      { line: 3 },
-      { line: 3 },
-      {
-        column: 7,
-        endColumn: 10,
-        endLine: 7,
-        line: 7,
-      },
-      {
-        column: 7,
-        endColumn: 10,
-        endLine: 7,
-        line: 7,
-      },
-    ]);
+    expect(await assertions('merge.js')).toMatchObject({
+      errors: [
+        { line: 3 },
+        { line: 3 },
+        {
+          column: 7,
+          endColumn: 10,
+          endLine: 7,
+          line: 7,
+        },
+        {
+          column: 7,
+          endColumn: 10,
+          endLine: 7,
+          line: 7,
+        },
+      ],
+    });
   });
 
   it('ignoring comment', async () => {
     const result = await assertions('ignored.js').catch(err => err);
-    expect(result).toEqual([]);
+    expect(result).toMatchObject({ errors: [] });
   });
 
   it('unexpected character', async () => {
@@ -199,7 +209,7 @@ describe('Comment-based Testing Framework', () => {
 
   it('comments parsing ambiguity', async () => {
     const result = await assertions('parsing.js');
-    expect(result).toEqual([{ line: 1 }]);
+    expect(result).toMatchObject({ errors: [{ line: 1 }] });
   });
 
   it('quickfix', () => {
@@ -207,20 +217,22 @@ describe('Comment-based Testing Framework', () => {
 wrong.code();// Noncompliant [[qf]]
 // fix@qf {{description}}
 // edit@qf {{fixed.code();}}`;
-    expect(extractExpectations(code, false)).toEqual([
-      {
-        line: 2,
-        suggestions: [
-          {
-            desc: 'description',
-            output: `
+    expect(extractExpectations(code, false)).toMatchObject({
+      errors: [
+        {
+          line: 2,
+          suggestions: [
+            {
+              desc: 'description',
+              output: `
 fixed.code();// Noncompliant [[qf]]
 // fix@qf {{description}}
 // edit@qf {{fixed.code();}}`,
-          },
-        ],
-      },
-    ]);
+            },
+          ],
+        },
+      ],
+    });
   });
 
   it('wrong quickfix id', () => {
@@ -259,18 +271,20 @@ wrong.code();// Noncompliant [[qf]]
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`;
-    expect(extractExpectations(code, false)).toEqual([
-      {
-        line: 2,
-        suggestions: [
-          {
-            output: `
+    expect(extractExpectations(code, false)).toMatchObject({
+      errors: [
+        {
+          line: 2,
+          suggestions: [
+            {
+              output: `
 wrong.smelly.buggy.code();// Noncompliant [[qf]]
 // edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`,
-          },
-        ],
-      },
-    ]);
+            },
+          ],
+        },
+      ],
+    });
   });
 
   it('quickfix with 2 suggestions in same issue', () => {
@@ -278,24 +292,61 @@ wrong.smelly.buggy.code();// Noncompliant [[qf]]
 wrong.code();// Noncompliant [[qf1,qf2=0]]
 // edit@qf1 [[ec=5]] {{fixed}}
 // edit@qf2 [[ec=5]] {{repaired}}`;
-    expect(extractExpectations(code, false)).toEqual([
-      {
-        line: 2,
-        suggestions: [
-          {
-            output: `
+    expect(extractExpectations(code, false)).toMatchObject({
+      errors: [
+        {
+          line: 2,
+          suggestions: [
+            {
+              output: `
 fixed.code();// Noncompliant [[qf1,qf2=0]]
 // edit@qf1 [[ec=5]] {{fixed}}
 // edit@qf2 [[ec=5]] {{repaired}}`,
-          },
-          {
-            output: `
+            },
+            {
+              output: `
 repaired.code();// Noncompliant [[qf1,qf2=0]]
 // edit@qf1 [[ec=5]] {{fixed}}
 // edit@qf2 [[ec=5]] {{repaired}}`,
-          },
-        ],
-      },
-    ]);
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('autofix with multiple edits', () => {
+    const code = `
+wrong.code();// Noncompliant [[qf!]]
+
+//comment to remove
+// edit@qf [[ec=5]] {{fixed}}
+// add@qf@+1 {{better.code();}}
+// del@qf@+2
+
+bad.code();// Noncompliant [[qf2!]]
+
+//another comment to remove
+// edit@qf2 [[ec=3]] {{good}}
+// add@qf2@+1 {{super.code();}}
+// del@qf2@+2
+`;
+    expect(extractExpectations(code, false)).toMatchObject({
+      output: `
+fixed.code();// Noncompliant [[qf!]]
+better.code();
+
+// edit@qf [[ec=5]] {{fixed}}
+// add@qf@+1 {{better.code();}}
+// del@qf@+2
+
+good.code();// Noncompliant [[qf2!]]
+super.code();
+
+// edit@qf2 [[ec=3]] {{good}}
+// add@qf2@+1 {{super.code();}}
+// del@qf2@+2
+`,
+    });
   });
 });

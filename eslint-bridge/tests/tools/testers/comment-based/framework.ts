@@ -37,83 +37,139 @@
 import { RuleTester } from 'eslint';
 import { toEncodedMessage } from 'linting/eslint/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
-import { QuickFix } from './helpers/quickfixes';
+import { Change, QuickFix } from './helpers/quickfixes';
 
+interface ExpectationsResult {
+  errors: RuleTester.TestCaseError[];
+  output: string | null;
+}
 /**
  * Extracts issue expectations from a comment-based test file
  * @param fileContent the contents of the comment-based test file
- * @param usesSonarRuntime A flag that indicates if the tested rule uses sonar-runtime parameter
- *  @returns an array of ESLint test case errors
+ * @param usesSecondaryLocations A flag that indicates if the tested rule uses sonar-runtime parameter
+ * @returns an array of ESLint test case errors
  */
 export function extractExpectations(
   fileContent: string,
-  usesSonarRuntime: boolean,
-): RuleTester.TestCaseError[] {
-  const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
-  const errors: RuleTester.TestCaseError[] = [];
-  expectedIssues.forEach(issue =>
-    errors.push(...convertToTestCaseErrors(fileContent, issue, usesSonarRuntime)),
-  );
-  return errors;
-}
-
-function convertToTestCaseErrors(
-  fileContent: string,
-  issue: LineIssues,
   usesSecondaryLocations: boolean,
-): RuleTester.TestCaseError[] {
+): ExpectationsResult {
+  const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const encodeMessageIfNeeded = usesSecondaryLocations ? toEncodedMessage : message => message;
-  const line = issue.line;
-  const primary = issue.primaryLocation;
-  const messages = [...issue.messages.values()];
-  const quickfixes = issue.quickfixes ? [...issue.quickfixes?.values()] : [];
-  if (primary === null) {
-    return messages.map((message, index) => {
+  const result: ExpectationsResult = { errors: [], output: fileContent };
+  expectedIssues.forEach(issue => {
+    const line = issue.line;
+    const primary = issue.primaryLocation;
+    const messages = [...issue.messages.values()];
+    const quickfixes = issue.quickfixes ? [...issue.quickfixes.values()] : [];
+    messages.forEach((message, index) => {
       const suggestions = applyQuickFixes(
         quickfixes.filter(quickfix => quickfix.messageIndex === index),
         fileContent,
-        line - 1,
+        result,
+        expectedIssues,
       );
-      return message
-        ? { line, ...suggestions, message: encodeMessageIfNeeded(message) }
-        : { line, ...suggestions };
-    });
-  } else {
-    const secondary = primary.secondaryLocations;
-    if (secondary.length === 0) {
-      return messages.map((message, index) => {
-        const suggestions = applyQuickFixes(
-          quickfixes.filter(quickfix => quickfix.messageIndex === index),
-          fileContent,
-          line - 1,
-        );
-        return message
-          ? { ...primary.range, ...suggestions, message: encodeMessageIfNeeded(message) }
-          : { ...primary.range, ...suggestions };
-      });
-    } else {
-      return messages.map((message, index) => {
-        const suggestions = applyQuickFixes(
-          quickfixes.filter(quickfix => quickfix.messageIndex === index),
-          fileContent,
-          line - 1,
-        );
-        return {
-          ...primary.range,
-          ...suggestions,
-          message: encodeMessageIfNeeded(
+      const error: RuleTester.TestCaseError = { ...suggestions, ...(primary?.range || { line }) };
+      if (primary !== null) {
+        const secondary = primary.secondaryLocations;
+        if (secondary.length) {
+          error.message = encodeMessageIfNeeded(
             message,
             secondary.map(s => s.range.toLocationHolder()),
             secondary.map(s => s.message),
-          ),
-        };
-      });
-    }
+          );
+        }
+      }
+      if (!error.message && message) {
+        error.message = encodeMessageIfNeeded(message);
+      }
+
+      result.errors.push(error);
+    });
+  });
+  if (result.output === fileContent) {
+    result.output = null;
   }
+  return result;
 }
 
 interface Suggestions {
   suggestions?: RuleTester.SuggestionOutput[];
+}
+
+/**
+ * Applies quick fix operations to the source code line.
+ *
+ * @param quickfixes array of quick fixes to apply
+ * @param fileContent the file contents
+ * @param result The result object to have access to the output attribute
+ * @param issues the array of issues, needed if a reindex needs to be done on all quickfixes
+ */
+function applyQuickFixes(
+  quickfixes: QuickFix[],
+  fileContent: string,
+  result: ExpectationsResult,
+  issues: LineIssues[],
+): Suggestions {
+  const suggestions: RuleTester.SuggestionOutput[] = [];
+  for (const quickfix of quickfixes) {
+    const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
+    const { description: desc, changes } = quickfix;
+    for (const change of changes) {
+      switch (change.type) {
+        case 'add':
+          addLine(lines, change);
+          if (quickfix.mandatory) {
+            reIndexLines(issues, true, change.line);
+          }
+          break;
+        case 'del':
+          deleteLine(lines, change);
+          if (quickfix.mandatory) {
+            reIndexLines(issues, false, change.line);
+          }
+          break;
+        case 'edit':
+          editLine(lines, change);
+      }
+    }
+
+    const output = lines.join('\n');
+
+    if (output !== fileContent) {
+      if (quickfix.mandatory) {
+        result.output = output;
+      } else {
+        const suggestion: RuleTester.SuggestionOutput = { output };
+        if (desc) {
+          suggestion.desc = desc;
+        }
+        suggestions.push(suggestion);
+      }
+    }
+  }
+  return suggestions.length ? { suggestions } : {};
+}
+
+/**
+ * After quickfixes add or delete a line, re-index the lines higher than
+ * then given index, incrementing them by one when increment is true
+ * or decrementing them otherwise
+ * @param issues all issues from the file
+ * @param increment where the lines need to be incremented or decremented
+ * @param start starting line from which the change should be made
+ */
+function reIndexLines(issues: LineIssues[], increment: boolean, start: number) {
+  for (const issue of issues) {
+    for (const quickfix of issue.quickfixes) {
+      if (quickfix.mandatory) {
+        for (const change of quickfix.changes) {
+          if (change.line > start) {
+            increment ? change.line++ : change.line--;
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -123,48 +179,52 @@ interface Suggestions {
  *  - Contents of fix
  *  - Original line from end of fix column until end of original line
  *
- * @param quickfixes array of quick fixes to apply
- * @param fileContent the file contents
- * @param issueLine index of line to apply the fixes to
+ * @param lines array of lines from file
+ * @param change the change descriptor
  */
-function applyQuickFixes(
-  quickfixes: QuickFix[],
-  fileContent: string,
-  issueLine: number,
-): Suggestions {
-  if (quickfixes.length) {
-    const suggestions: RuleTester.SuggestionOutput[] = [];
-    for (const quickfix of quickfixes) {
-      const { description: desc, start = 0, end, fix } = quickfix;
-      if (fix !== undefined) {
-        let appendAfterFix = '';
-        const lines = fileContent.split(/\n/);
-        const line = lines[issueLine];
-        const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
-        if (end === undefined) {
-          if (containsNC >= 0) {
-            appendAfterFix = line.slice(containsNC);
-          }
-        } else {
-          if (end < start) {
-            throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
-          }
-          if (containsNC >= 0 && end > containsNC) {
-            throw new Error(
-              `End column cannot be in // Noncompliant comment ${end} > ${containsNC}`,
-            );
-          }
-          appendAfterFix = line.slice(end);
-        }
-        lines[issueLine] = line.slice(0, start || 0) + fix + appendAfterFix;
-        const result: RuleTester.SuggestionOutput = { output: lines.join('\n') };
-        if (desc) {
-          result.desc = desc;
-        }
-        suggestions.push(result);
+function editLine(lines: string[], change: Change) {
+  const { start, end, contents, line: issueLine } = change;
+  if (contents !== undefined) {
+    let appendAfterFix = '';
+    const line = lines[issueLine - 1];
+    const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
+    if (end === undefined) {
+      if (containsNC >= 0) {
+        appendAfterFix = line.slice(containsNC);
       }
+    } else {
+      if (end < start) {
+        throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
+      }
+      if (containsNC >= 0 && end > containsNC) {
+        throw new Error(`End column cannot be in // Noncompliant comment ${end} > ${containsNC}`);
+      }
+      appendAfterFix = line.slice(end);
     }
-    return { suggestions };
+    lines[issueLine - 1] = line.slice(0, start || 0) + contents + appendAfterFix;
   }
-  return {};
+}
+
+/**
+ * Adds a new line to the source code at the index and with the contents described
+ * in the Change object
+ *
+ * @param lines array of lines from file
+ * @param change the change descriptor
+ */
+function addLine(lines: string[], change: Change) {
+  const { contents, line } = change;
+  if (contents !== undefined) {
+    lines.splice(line - 1, 0, contents);
+  }
+}
+
+/**
+ * Removes the line from the source code.
+ *
+ * @param lines array of lines from file
+ * @param change the change descriptor
+ */
+function deleteLine(lines: string[], change: Change) {
+  lines.splice(change.line - 1, 1);
 }
