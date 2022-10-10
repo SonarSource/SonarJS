@@ -116,6 +116,8 @@ some.faulty.code(); // Noncompliant N [[qf1,qf2,...]] {{Optional message to asse
 //   ^^^^^^
 // fix@qf1 {{Optional suggestion description}}
 // edit@qf1 [[sc=1;ec=5]] {{text to replace line from [sc] column to [ec] column}}
+faulty.setFaultyParam(true)
+//     ^^^^^^^^^^^^^^< {{Optional secondary message to assert}}
 ```
 
 The contents of the options file must be a valid JSON array:
@@ -127,11 +129,11 @@ The contents of the options file must be a valid JSON array:
 
 #### Tests syntax
 
-Given the above test snippet: the issue primary location (`// ^^^^`), issue message (`{{...}}`), issue number (`N`) and quick fixes are optional.
+Given the above test snippet: the issue primary location (`// ^^^^`), issue messages (`{{...}}`), secondary location(s) (`// ^^^<`), issues count (`N`) and quick fixes are optional.
 
 `N` is an integer defining the amount of issues will be reported in the line.
 
-Only one of the methods (`{{messageN}}+` OR `N`) to define the expected issues can be used in a `Noncompliant` line.
+Only one of the methods (`{{messageN}}+` OR `N`) to define the expected issues can be used in a `Noncompliant` line. If you set both `N` and messages, the framework will throw an error.
 
 If no `N` nor messages are provided, the engine will expect one issue to be raised. Meaning, `//Noncompliant` is equivalent to `//Noncompliant 1`.
 
@@ -151,6 +153,14 @@ another.faulty.code();
 // another comment
 // Noncompliant@-2
 ```
+
+#### Secondary locations
+
+In order to indicate secondary locations, you must use either `// ^^^^^<` or `// ^^^^>`, the arrow indicating whether the matching main location is either before or after the secondary one.
+
+As stated before, the message is optional.
+
+**/!\** If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/66c14e5d1a68232940d540a19fb89872d41c206d/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
 
 #### Quick fixes
 
