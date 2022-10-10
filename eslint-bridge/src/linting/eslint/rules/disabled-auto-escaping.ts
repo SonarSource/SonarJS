@@ -131,8 +131,12 @@ export const rule: Rule.RuleModule = {
         if (left.type !== 'MemberExpression') {
           return;
         }
-        const module = getModuleNameOfNode(context, left.object);
-        if (module?.value !== 'mustache' || !isIdentifier(left.property, 'escape')) {
+        if (
+          !(
+            (isMustachModule(context, left.object) || isMustacheIdentifier(left.object)) &&
+            isIdentifier(left.property, 'escape')
+          )
+        ) {
           return;
         }
         if (isInvalidSanitizerFunction(right)) {
@@ -142,3 +146,12 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isMustacheIdentifier(node: estree.Node) {
+  return isIdentifier(node) && node.name === 'Mustache';
+}
+
+function isMustachModule(context: Rule.RuleContext, node: estree.Node) {
+  const module = getModuleNameOfNode(context, node);
+  return module?.value === 'mustache';
+}

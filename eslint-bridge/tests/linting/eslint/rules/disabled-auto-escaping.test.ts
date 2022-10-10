@@ -353,6 +353,15 @@ const mustatcheCases = {
             `,
       errors: 1,
     },
+    {
+      code: `
+      var template = document.getElementById('template').innerHTML;
+      Mustache.escape = function(text) {return text;}; // FN
+      var rendered = Mustache.render(template, { name: inputName });
+      document.getElementById('target').innerHTML = rendered;
+            `,
+      errors: 1,
+    },
   ],
 };
 
