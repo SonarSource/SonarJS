@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import * as estree from 'estree';
 import { interceptReport } from './helpers';
 
 export function decorateNoUnnecessaryTypeAssertion(rule: Rule.RuleModule): Rule.RuleModule {
@@ -28,18 +27,6 @@ export function decorateNoUnnecessaryTypeAssertion(rule: Rule.RuleModule): Rule.
 function doNothing(
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
-    const node = (reportDescriptor as any).node as estree.Node;
-    const parserServices = context.parserServices;
-    const checker = parserServices.program.getTypeChecker();
-    const originalNode = parserServices.esTreeNodeToTSNodeMap.get(node);
-    const castType = checker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get((node as any).typeAnnotation));
-    const uncastType = checker.getTypeAtLocation(originalNode.expression);
-    checker.isTypeAssignableTo(uncastType, castType)
-    if (castType === uncastType) {
-      console.log('walou');
-    }
-
-    context.getSourceCode().getLastToken(originalNode);
     context.report(reportDescriptor);
   };
 }
