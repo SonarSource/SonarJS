@@ -19,9 +19,8 @@ export const isPositiveNumberRecord = <T extends string | number | symbol>
     /**
      * This is a FP, remove "Noncompliant" when typescript-eslint fixes this
      */
-    const values = Object.values(value) as number[]; // Noncompliant [[qf1]] {{This assertion is unnecessary since it does not change the type of the expression.}}
-    // fix@qf1 {{yolo}}
-    // edit@qf1 {{    const values = Object.values(value);}}
+    const values = Object.values(value) as number[]; // Noncompliant [[qf1!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+    // edit@qf1 {{    const values = Object.values(value) ;}}
 
     return values.every(isPositive);
 };

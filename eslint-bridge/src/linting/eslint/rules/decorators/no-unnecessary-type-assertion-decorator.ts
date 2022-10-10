@@ -24,8 +24,7 @@ export function decorateNoUnnecessaryTypeAssertion(rule: Rule.RuleModule): Rule.
   return interceptReport(rule, doNothing());
 }
 
-function doNothing(
-): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
+function doNothing(): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
     context.report(reportDescriptor);
   };
