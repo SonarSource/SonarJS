@@ -100,9 +100,7 @@ This script:
 
 ## Testing a rule
 
-`eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests
-   * Prefer comment-based tests as they are more readable
-   * Use the ESlint rule tester to test quick fixes, as our comment-based one does not support them yet
+`eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests. Prefer comment-based tests as they are more readable!
 
 ### Comment-based testing
 
