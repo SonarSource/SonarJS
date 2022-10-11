@@ -18,12 +18,21 @@ function doSomething(param1, param2, param3, param4) {
 <pre>
 class C {
   constructor(
-    param1: number,
-    param2: boolean,
-    param3: string,
-    param4: string[],
-    param5: number | string
+    private param1: number,
+    private param2: boolean,
+    private param3: string,
+    private param4: string[],
+    private param5: number | string
   ) {}
+}
+</pre>
+<p>The rule also ignores Angular component constructors:</p>
+<pre>
+import { Component } from '@angular/core';
+
+@Component({/* ... */})
+class Component {
+  constructor(p1, p2, p3, p4, p5) {}
 }
 </pre>
 

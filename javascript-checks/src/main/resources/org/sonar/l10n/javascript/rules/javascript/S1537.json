@@ -1,14 +1,12 @@
 {
   "title": "Trailing commas should not be used",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
   },
-  "tags": [
-    "cross-browser"
-  ],
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1537",
   "sqKey": "S1537",

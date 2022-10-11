@@ -1,15 +1,12 @@
 {
   "title": "A conditionally executed single line should be denoted by indentation",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
-  "tags": [
-    "confusing",
-    "suspicious"
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3973",
   "sqKey": "S3973",

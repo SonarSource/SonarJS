@@ -1,14 +1,12 @@
 {
   "title": "Tabulation characters should not be used",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "2min"
   },
-  "tags": [
-    "convention"
-  ],
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-105",
   "sqKey": "S105",
