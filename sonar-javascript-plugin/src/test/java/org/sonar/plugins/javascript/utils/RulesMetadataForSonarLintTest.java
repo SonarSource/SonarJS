@@ -47,12 +47,10 @@ class RulesMetadataForSonarLintTest {
       "    \"ruleKey\": \"repo:S1441\",\n" +
       "    \"type\": \"CODE_SMELL\",\n" +
       "    \"name\": \"Quotes for string literals should be used consistently\",\n" +
-      "    \"htmlDescription\": \"\\u003cp\\u003eThis rule checks that all string literals use the same kind of quotes.\\u003c/p\\u003e\\n\\u003ch2\\u003eNoncompliant Code Example\\u003c/h2\\u003e\\n\\u003cp\\u003eUsing the parameter default (forcing single quotes):\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\\"something\\\"; // Noncompliant\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eCompliant Solution\\u003c/h2\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\u0027something\\u0027;\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eExceptions\\u003c/h2\\u003e\\n\\u003cp\\u003eStrings that contain quotes are ignored.\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nlet heSaid \\u003d \\\"Then he said \\u0027What?\\u0027.\\\"  // ignored\\nlet sheSaid \\u003d \\u0027\\\"Whatever!\\\" she replied.\\u0027  // ignored\\n\\u003c/pre\\u003e\",\n" +
+      "    \"htmlDescription\": \"\\u003cp\\u003eThis rule checks that all string literals use the same kind of quotes.\\u003c/p\\u003e\\n\\u003ch2\\u003eNoncompliant Code Example\\u003c/h2\\u003e\\n\\u003cp\\u003eUsing the parameter default (forcing single quotes):\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\\"something\\\"; // Noncompliant\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eCompliant Solution\\u003c/h2\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\u0027something\\u0027;\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eExceptions\\u003c/h2\\u003e\\n\\u003cp\\u003eStrings that contain quotes are ignored.\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nlet heSaid \\u003d \\\"Then he said \\u0027What?\\u0027.\\\"  // ignored\\nlet sheSaid \\u003d \\u0027\\\"Whatever!\\\" she replied.\\u0027  // ignored\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eDeprecated\\u003c/h2\\u003e\\n\\u003cp\\u003eThis rule is deprecated, and will eventually be removed.\\u003c/p\\u003e\",\n" +
       "    \"severity\": \"MINOR\",\n" +
-      "    \"status\": \"READY\",\n" +
-      "    \"tags\": [\n" +
-      "      \"convention\"\n" +
-      "    ],\n" +
+      "    \"status\": \"DEPRECATED\",\n" +
+      "    \"tags\": [],\n" +
       "    \"params\": [\n" +
       "      {\n" +
       "        \"key\": \"singleQuotes\",\n" +
