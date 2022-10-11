@@ -1,14 +1,12 @@
 {
   "title": "Conditionals should start on new lines",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
-  "tags": [
-    "suspicious"
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3972",
   "sqKey": "S3972",

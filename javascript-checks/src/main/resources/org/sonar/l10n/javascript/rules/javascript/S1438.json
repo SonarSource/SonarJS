@@ -1,14 +1,12 @@
 {
   "title": "Statements should end with semicolons",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
   },
-  "tags": [
-    "convention"
-  ],
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1438",
   "sqKey": "S1438",

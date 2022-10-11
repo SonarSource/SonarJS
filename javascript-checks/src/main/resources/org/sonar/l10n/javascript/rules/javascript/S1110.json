@@ -1,14 +1,12 @@
 {
   "title": "Redundant pairs of parentheses should be removed",
   "type": "CODE_SMELL",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
   },
-  "tags": [
-    "confusing"
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1110",
   "sqKey": "S1110",

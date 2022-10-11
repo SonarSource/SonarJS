@@ -155,13 +155,13 @@ class SonarLintTest {
 
   @Test
   void should_apply_quick_fix() throws Exception {
-    var issues = analyze("foo.js", "let x = 5;;");
+    var issues = analyze("foo.js", "this.foo = 1;");
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
-    assertThat(issue.getRuleKey()).isEqualTo("javascript:S1116");
-    assertThat(issue.quickFixes()).hasSize(1);
+    assertThat(issue.getRuleKey()).isEqualTo("javascript:S2990");
+    assertThat(issue.quickFixes()).hasSize(2);
     var quickFix = issue.quickFixes().get(0);
-    assertQuickFix(quickFix, "Remove extra semicolon", ";", 1, 9, 1, 11);
+    assertQuickFix(quickFix, "Remove \"this\"", "foo", 1, 0, 1, 8);
   }
 
   @Test

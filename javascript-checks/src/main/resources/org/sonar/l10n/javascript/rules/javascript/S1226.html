@@ -12,4 +12,17 @@ function MyClass(name, strings) {
   }
 }
 </pre>
+<h2>Exceptions</h2>
+<p>There is a common pattern in JavaScript to overwrite certain parameters depending on other parameters that are optional. For example, a callback is
+by convention always passed in the last position. If a parameter in a previous position was not passed, the callback will be passed in its position
+instead.</p>
+<p>Therefore, the rule ignores parameter reassignments that are inside an <code>if</code> statement block.</p>
+<pre>
+function f(param, optionalParam, cb) {
+  if (typeof optionalParam === 'function') {
+    cb = optionalParam;
+    optionalParam = {};
+  }
+}
+</pre>
 

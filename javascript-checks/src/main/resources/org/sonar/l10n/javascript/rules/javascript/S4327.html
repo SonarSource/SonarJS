@@ -27,4 +27,15 @@ function Foo() {
 <pre>
 const { foo, bar } = this;
 </pre>
+<p>The rule also ignores alias references of <code>this</code> in generators.</p>
+<pre>
+const self = this;
+return function* () {
+  let result = self.next();
+  while (!result.done) {
+    yield result.value;
+    result = self.next();
+  }
+};
+</pre>
 
