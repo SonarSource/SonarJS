@@ -154,6 +154,15 @@ another.faulty.code();
 
 #### Secondary locations
 
+Secondary locations are part of [Sonar issues](https://docs.sonarqube.org/latest/user-guide/issues/). They provide additional context to the raised issue. In order to use them, you must call the [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/66c14e5d1a68232940d540a19fb89872d41c206d/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44) function when reporting the issue message like this:
+
+```javascript
+context.report({
+   node,
+   message: toEncodedMessage(...),
+});
+```
+
 In order to indicate secondary locations, you must use either `// ^^^^^<` or `// ^^^^>`, the arrow indicating whether the matching main location is either before or after the secondary one.
 
 As stated before, the message is optional.
