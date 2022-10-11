@@ -91,7 +91,7 @@ describe('buildJs', () => {
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
 
-  it('should support Javascript decorators', async () => {
+  it('should support JavaScript decorators', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'decorator.js');
     const tryTypeScriptParser = false;
     const {
@@ -100,6 +100,8 @@ describe('buildJs', () => {
       },
     } = buildJs(await jsTsInput({ filePath }), tryTypeScriptParser) as SourceCode;
 
-    expect(stmt.type).toEqual('ClassDeclaration');
+    expect((stmt as any).decorators).toHaveLength(1);
+    expect((stmt as any).decorators[0].expression.name).toEqual('annotation');
+    expect((stmt as any).decorators[0].type).toEqual('Decorator');
   });
 });
