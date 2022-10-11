@@ -98,6 +98,7 @@ function babelParserOptions(options: Linter.ParserOptions) {
       `${pluginPath}/@babel/preset-flow`,
       `${pluginPath}/@babel/preset-env`,
     ],
+    plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
     babelrc: false,
     configFile: false,
     parserOpts: {
