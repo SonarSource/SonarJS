@@ -133,7 +133,7 @@ describe('server', () => {
   it('should timeout', async () => {
     console.log = jest.fn();
 
-    const server = await start(port, '127.0.0.1', 200);
+    const server = await start(port, '127.0.0.1', 500);
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
@@ -143,7 +143,7 @@ describe('server', () => {
     expect(server.listening).toBeTruthy();
     await request(server, '/status', 'GET');
 
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 600));
     expect(server.listening).toBeFalsy();
 
     expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
