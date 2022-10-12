@@ -26,7 +26,7 @@ import {
   getValueOfExpression,
   isIdentifier,
   isProperty,
-} from '.';
+} from '..';
 
 /**
  * A rule template for AWS S3 Buckets
@@ -40,7 +40,7 @@ import {
  * @param metadata the instantiated rule metadata
  * @returns the instantiated rule definition
  */
-export function S3BucketTemplate(
+export function AwsS3BucketTemplate(
   callback: (bucketConstructor: estree.NewExpression, context: Rule.RuleContext) => void,
   metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {

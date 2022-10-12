@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6249/javascript
 
 import { Rule } from 'eslint';
-import { getProperty, getValueOfExpression, S3BucketTemplate } from './helpers';
+import { getProperty, getValueOfExpression, AwsS3BucketTemplate } from './helpers';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';
 
@@ -29,7 +29,7 @@ const messages = {
   omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.",
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
+export const rule: Rule.RuleModule = AwsS3BucketTemplate((bucket, context) => {
   const enforceSSLProperty = getProperty(context, bucket, ENFORCE_SSL_KEY);
   if (enforceSSLProperty == null) {
     context.report({
