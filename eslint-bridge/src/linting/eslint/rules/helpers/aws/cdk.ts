@@ -20,7 +20,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {fromFullyQualifiedName} from "../module";
+import { fromFullyQualifiedName } from '../module';
 
 /**
  * A symbol fully qualified name, e.g. `aws-cdk-lib.aws_sns.Topic`.

@@ -20,7 +20,13 @@
 import assert from 'assert';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {isDefaultSpecifier, isIdentifier, isNamespaceSpecifier, getUniqueWriteUsage, getVariableFromName} from './ast';
+import {
+  isDefaultSpecifier,
+  isIdentifier,
+  isNamespaceSpecifier,
+  getUniqueWriteUsage,
+  getVariableFromName,
+} from './ast';
 
 /**
  * Returns the module name, when an identifier either represents a namespace for that module,
@@ -259,7 +265,7 @@ export function hasFullyQualifiedName(
 export function fromFullyQualifiedName(
   context: Rule.RuleContext,
   node: estree.Node,
-  fqn: string
+  fqn: string,
 ): boolean {
   const qualifiers = fqn.split('.');
   let nodeToCheck = node;
@@ -268,7 +274,11 @@ export function fromFullyQualifiedName(
     const qualifier = qualifiers.pop();
     const { object, property } = nodeToCheck as estree.MemberExpression;
     //cover both foo.bar.baz.qux and foo.bar.baz['qux']
-    if (!qualifier || (property.type === 'Literal' && property.value !== qualifier) || (property.type === 'Identifier' && property.name !== qualifier)) {
+    if (
+      !qualifier ||
+      (property.type === 'Literal' && property.value !== qualifier) ||
+      (property.type === 'Identifier' && property.name !== qualifier)
+    ) {
       return false;
     }
     nodeToCheck = object;
@@ -283,14 +293,21 @@ export function fromFullyQualifiedName(
   const importDeclarations = getImportDeclarations(context);
   for (const importDeclaration of importDeclarations) {
     for (const specifier of importDeclaration.specifiers) {
-      if ((specifier.type === 'ImportDefaultSpecifier' && importName === specifier.local.name) ||
-        (specifier.type === 'ImportNamespaceSpecifier' && importName === specifier.local.name) &&
-        typeof importDeclaration.source.value === 'string') {
+      if (
+        (specifier.type === 'ImportDefaultSpecifier' && importName === specifier.local.name) ||
+        (specifier.type === 'ImportNamespaceSpecifier' &&
+          importName === specifier.local.name &&
+          typeof importDeclaration.source.value === 'string')
+      ) {
         const importedQualifiers = (importDeclaration.source.value as string).split('/');
         return importedQualifiers.join() === qualifiers.join();
       }
-      if (specifier.type === 'ImportSpecifier' && importName === specifier.local.name && typeof importDeclaration.source.value === 'string') {
-        const qualifier = (specifier.imported.name === 'default') ? 'default' : qualifiers.pop();
+      if (
+        specifier.type === 'ImportSpecifier' &&
+        importName === specifier.local.name &&
+        typeof importDeclaration.source.value === 'string'
+      ) {
+        const qualifier = specifier.imported.name === 'default' ? 'default' : qualifiers.pop();
         if (specifier.imported.name === qualifier && qualifiers.length) {
           const importedQualifiers = (importDeclaration.source.value as string).split('/');
           return importedQualifiers.join() === qualifiers.join();
@@ -321,7 +338,11 @@ export function fromFullyQualifiedName(
           const { object, property } = nodeToCheck as estree.MemberExpression;
           const qualifier = qualifiers.pop();
           //cover both foo.bar.baz.qux and foo.bar.baz['qux']
-          if (!qualifier || (property.type === 'Literal' && property.value !== qualifier) || (property.type === 'Identifier' && property.name !== qualifier)) {
+          if (
+            !qualifier ||
+            (property.type === 'Literal' && property.value !== qualifier) ||
+            (property.type === 'Identifier' && property.name !== qualifier)
+          ) {
             return false;
           }
           nodeToCheck = object;
