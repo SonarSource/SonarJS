@@ -34,7 +34,9 @@ export type FullyQualifiedName = string;
  * @returns the instantiated rule module
  */
 export function AwsCdkTemplate(
-  consumers: Map<FullyQualifiedName, (expr: estree.NewExpression, ctx: Rule.RuleContext) => void>,
+  consumers: {
+    [key: FullyQualifiedName]: (expr: estree.NewExpression, ctx: Rule.RuleContext) => void;
+  },
   metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
@@ -42,8 +44,9 @@ export function AwsCdkTemplate(
     create(ctx: Rule.RuleContext) {
       return {
         NewExpression(node: estree.NewExpression) {
-          for (const [fqn, callback] of consumers) {
+          for (const fqn in consumers) {
             if (hasFullyQualifiedName(node, fqn, ctx)) {
+              const callback = consumers[fqn];
               callback(node, ctx);
             }
           }
@@ -65,6 +68,7 @@ function hasFullyQualifiedName(
   _node: estree.Node,
   _fqn: FullyQualifiedName,
   _ctx: Rule.RuleContext,
-): boolean {
-  throw 'not implemented yet';
+) {
+  /* TODO not implemented yet */
+  return false;
 }
