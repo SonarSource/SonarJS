@@ -69,6 +69,20 @@ new Class();
     },
     {
       code: `
+const foo = require('aws-cdk-lib').module.Class;
+new foo();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const foo = require('aws-cdk-lib')['module']['Class'];
+new foo();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
 const { Class: foo } = require('aws-cdk-lib').module;
 new foo();
       `,

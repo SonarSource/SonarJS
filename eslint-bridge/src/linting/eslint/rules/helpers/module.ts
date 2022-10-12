@@ -287,42 +287,45 @@ export function fromFullyQualifiedName(
   if (!isIdentifier(nodeToCheck) || !qualifiers.length) {
     return false;
   }
-  const importName = (nodeToCheck as estree.Identifier).name;
 
-  // imports
-  const importDeclarations = getImportDeclarations(context);
-  for (const importDeclaration of importDeclarations) {
-    for (const specifier of importDeclaration.specifiers) {
-      if (
-        (specifier.type === 'ImportDefaultSpecifier' && importName === specifier.local.name) ||
-        (specifier.type === 'ImportNamespaceSpecifier' &&
-          importName === specifier.local.name &&
-          typeof importDeclaration.source.value === 'string')
-      ) {
-        const importedQualifiers = (importDeclaration.source.value as string).split('/');
-        return importedQualifiers.join() === qualifiers.join();
-      }
-      if (
-        specifier.type === 'ImportSpecifier' &&
-        importName === specifier.local.name &&
-        typeof importDeclaration.source.value === 'string'
-      ) {
-        const qualifier = specifier.imported.name === 'default' ? 'default' : qualifiers.pop();
-        if (specifier.imported.name === qualifier && qualifiers.length) {
-          const importedQualifiers = (importDeclaration.source.value as string).split('/');
-          return importedQualifiers.join() === qualifiers.join();
-        }
-        return false;
-      }
-    }
-  }
-
-  // requires
-  const variable = getVariableFromName(context, importName);
+  const variable = getVariableFromName(context, (nodeToCheck as estree.Identifier).name);
 
   if (variable) {
     for (const def of variable.defs) {
-      if (def.type === 'Variable' && def.node.init) {
+      // imports
+      if (def.type === 'ImportBinding') {
+        const specifier = def.node;
+        const importDeclaration = def.parent;
+        if (
+          // import cdk from 'aws-cdk-lib';
+          (specifier.type === 'ImportDefaultSpecifier' ||
+            // import * as cdk from 'aws-cdk-lib';
+            specifier.type === 'ImportNamespaceSpecifier') &&
+          typeof importDeclaration.source.value === 'string'
+        ) {
+          const importedQualifiers = (importDeclaration.source.value as string).split('/');
+          return importedQualifiers.join() === qualifiers.join();
+        }
+        // import { Bucket } from 'aws-cdk-lib/aws-s3';
+        if (
+          specifier.type === 'ImportSpecifier' &&
+          typeof importDeclaration.source.value === 'string'
+        ) {
+          // import {default as cdk} from 'aws-cdk-lib';
+          // vs.
+          // import { aws_s3 as s3 } from 'aws-cdk-lib';
+          const qualifier = specifier.imported.name === 'default' ? 'default' : qualifiers.pop();
+          if (specifier.imported.name === qualifier && qualifiers.length) {
+            const importedQualifiers = (importDeclaration.source.value as string).split('/');
+            return importedQualifiers.join() === qualifiers.join();
+          }
+          return false;
+        }
+      }
+      // requires
+      else if (def.type === 'Variable' && def.node.init) {
+        // const {Bucket} = require('aws-cdk-lib/aws-s3');
+        // const {Bucket: foo} = require('aws-cdk-lib/aws-s3');
         if (def.node.id.type === 'ObjectPattern') {
           for (const property of def.node.id.properties) {
             if ((property as estree.Property).value === def.name) {
@@ -334,10 +337,12 @@ export function fromFullyQualifiedName(
           }
         }
         nodeToCheck = def.node.init;
+        // const Bucket = require('aws-cdk-lib').aws_s3.Bucket;
+        // const {Bucket} = require('aws-cdk-lib').aws_s3;
+        // const Bucket = require('aws-cdk-lib').aws_s3['Bucket']; //weird but legal
         while (nodeToCheck.type === 'MemberExpression' && qualifiers.length) {
           const { object, property } = nodeToCheck as estree.MemberExpression;
           const qualifier = qualifiers.pop();
-          //cover both foo.bar.baz.qux and foo.bar.baz['qux']
           if (
             !qualifier ||
             (property.type === 'Literal' && property.value !== qualifier) ||
