@@ -20,6 +20,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import {fromFullyQualifiedName} from "../module";
 
 /**
  * A symbol fully qualified name, e.g. `aws-cdk-lib.aws_sns.Topic`.
@@ -45,7 +46,7 @@ export function AwsCdkTemplate(
       return {
         NewExpression(node: estree.NewExpression) {
           for (const fqn in consumers) {
-            if (hasFullyQualifiedName(node, fqn, ctx)) {
+            if (fromFullyQualifiedName(ctx, node.callee, fqn)) {
               const callback = consumers[fqn];
               callback(node, ctx);
             }
@@ -54,21 +55,4 @@ export function AwsCdkTemplate(
       };
     },
   };
-}
-
-/**
- * Checks if the underlying symbol of a node matches a fully qualified name.
- *
- * @param _node the node to check
- * @param _fqn the fully qualified name to test
- * @param _ctx the context of the node
- * @returns true if the node matches the fully qualified name, false otherwise.
- */
-function hasFullyQualifiedName(
-  _node: estree.Node,
-  _fqn: FullyQualifiedName,
-  _ctx: Rule.RuleContext,
-) {
-  /* TODO not implemented yet */
-  return false;
 }

@@ -20,7 +20,7 @@
 import assert from 'assert';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isDefaultSpecifier, isIdentifier, isNamespaceSpecifier, getUniqueWriteUsage } from './ast';
+import {isDefaultSpecifier, isIdentifier, isNamespaceSpecifier, getUniqueWriteUsage, getVariableFromName} from './ast';
 
 /**
  * Returns the module name, when an identifier either represents a namespace for that module,
@@ -205,6 +205,7 @@ export function getModuleAndCalledMethod(callee: estree.Node, context: Rule.Rule
  * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
  * ```
  *
+ * @param context the rule context
  * @param expr the member expression
  * @param qualifiers the qualifiers to match
  */
@@ -235,4 +236,108 @@ export function hasFullyQualifiedName(
   }
 
   return qualifiers.length === 0;
+}
+
+/**
+ * Checks that an ESLint node matches a fully qualified name
+ *
+ * A fully qualified name here denotes a value that is accessed through an imported
+ * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
+ * or an import statement:
+ *
+ * ```
+ * const foo = require('lib');
+ * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * const foo2 = require('lib').bar;
+ * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * ```
+ *
+ * @param context the rule context
+ * @param node the node
+ * @param fqn the FQN to match
+ */
+export function fromFullyQualifiedName(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  fqn: string
+): boolean {
+  const qualifiers = fqn.split('.');
+  let nodeToCheck = node;
+
+  while (nodeToCheck.type === 'MemberExpression' && qualifiers.length) {
+    const qualifier = qualifiers.pop();
+    const { object, property } = nodeToCheck as estree.MemberExpression;
+    //cover both foo.bar.baz.qux and foo.bar.baz['qux']
+    if (!qualifier || (property.type === 'Literal' && property.value !== qualifier) || (property.type === 'Identifier' && property.name !== qualifier)) {
+      return false;
+    }
+    nodeToCheck = object;
+  }
+
+  if (!isIdentifier(nodeToCheck) || !qualifiers.length) {
+    return false;
+  }
+  const importName = (nodeToCheck as estree.Identifier).name;
+
+  // imports
+  const importDeclarations = getImportDeclarations(context);
+  for (const importDeclaration of importDeclarations) {
+    for (const specifier of importDeclaration.specifiers) {
+      if ((specifier.type === 'ImportDefaultSpecifier' && importName === specifier.local.name) ||
+        (specifier.type === 'ImportNamespaceSpecifier' && importName === specifier.local.name) &&
+        typeof importDeclaration.source.value === 'string') {
+        const importedQualifiers = (importDeclaration.source.value as string).split('/');
+        return importedQualifiers.join() === qualifiers.join();
+      }
+      if (specifier.type === 'ImportSpecifier' && importName === specifier.local.name && typeof importDeclaration.source.value === 'string') {
+        const qualifier = (specifier.imported.name === 'default') ? 'default' : qualifiers.pop();
+        if (specifier.imported.name === qualifier && qualifiers.length) {
+          const importedQualifiers = (importDeclaration.source.value as string).split('/');
+          return importedQualifiers.join() === qualifiers.join();
+        }
+        return false;
+      }
+    }
+  }
+
+  // requires
+  const variable = getVariableFromName(context, importName);
+
+  if (variable) {
+    for (const def of variable.defs) {
+      if (def.type === 'Variable' && def.node.init) {
+        if (def.node.id.type === 'ObjectPattern') {
+          for (const property of def.node.id.properties) {
+            if ((property as estree.Property).value === def.name) {
+              const qualifier = qualifiers.pop();
+              if (qualifier !== ((property as estree.Property).key as estree.Identifier).name) {
+                return false;
+              }
+            }
+          }
+        }
+        nodeToCheck = def.node.init;
+        while (nodeToCheck.type === 'MemberExpression' && qualifiers.length) {
+          const { object, property } = nodeToCheck as estree.MemberExpression;
+          const qualifier = qualifiers.pop();
+          //cover both foo.bar.baz.qux and foo.bar.baz['qux']
+          if (!qualifier || (property.type === 'Literal' && property.value !== qualifier) || (property.type === 'Identifier' && property.name !== qualifier)) {
+            return false;
+          }
+          nodeToCheck = object;
+        }
+        if (isRequire(nodeToCheck)) {
+          if (qualifiers.length) {
+            const module = getModuleNameFromRequire(nodeToCheck)?.value;
+            if (module) {
+              const importedQualifiers = (module as string).split('/');
+              return importedQualifiers.join() === qualifiers.join();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return false;
 }
