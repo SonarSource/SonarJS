@@ -27,6 +27,7 @@
   },
   "type": "commonjs",
   "devDependencies": {
+    "@reduxjs/toolkit": "^1.8.6",
     "@types/bytes": "3.1.1",
     "@types/eslint": "8.4.6",
     "@types/eslint-scope": "3.7.4",
@@ -40,6 +41,7 @@
     "jest-sonar-reporter": "2.0.0",
     "mkdirp": "1.0.4",
     "prettier": "2.7.1",
+    "react-redux": "^8.0.4",
     "ts-jest": "28.0.7",
     "ts-node": "10.9.1"
   },
