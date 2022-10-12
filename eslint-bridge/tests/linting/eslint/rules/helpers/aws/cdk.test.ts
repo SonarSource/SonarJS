@@ -39,6 +39,22 @@ ruleTester.run('AWS CDK Rule Template', rule, {
     {
       code: `new cdk.module.Class()`,
     },
+    {
+      code: `
+const { Class } = require('aws-cdk-lib/module');
+function b() {
+  const Class = {};
+  new Class();
+}`,
+    },
+    {
+      code: `
+import { Class } from 'aws-cdk-lib/module';
+function b() {
+  const Class = {};
+  new Class();
+}`,
+    },
   ],
   invalid: [
     {
