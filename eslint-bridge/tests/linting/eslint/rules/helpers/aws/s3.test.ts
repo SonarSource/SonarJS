@@ -19,9 +19,9 @@
  */
 
 import { RuleTester } from 'eslint';
-import { AwsS3BucketTemplate } from 'linting/eslint/rules/helpers/aws';
+import { S3BucketTemplate } from 'linting/eslint/rules/helpers/aws';
 
-const rule = AwsS3BucketTemplate((node, context) => {
+const rule = S3BucketTemplate((node, context) => {
   if (node.arguments.length > 0) {
     context.report({
       message: 'Found invalid pattern',

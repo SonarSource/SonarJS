@@ -29,7 +29,7 @@ import {
   hasFullyQualifiedName,
   isIdentifier,
   isProperty,
-  AwsS3BucketTemplate,
+  S3BucketTemplate,
   toEncodedMessage,
 } from './helpers';
 
@@ -48,7 +48,7 @@ const messages = {
   public: 'Make sure allowing public ACL/policies to be set is safe here.',
 };
 
-export const rule: Rule.RuleModule = AwsS3BucketTemplate(
+export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
     const blockPublicAccess = getProperty(context, bucket, BLOCK_PUBLIC_ACCESS_KEY);
     if (blockPublicAccess == null) {
