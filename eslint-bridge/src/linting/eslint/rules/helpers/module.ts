@@ -245,7 +245,7 @@ export function hasFullyQualifiedName(
 }
 
 /**
- * Checks that an ESLint node matches a fully qualified name
+ * Returns the fully qualified name of ESLint node
  *
  * A fully qualified name here denotes a value that is accessed through an imported
  * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
@@ -258,112 +258,91 @@ export function hasFullyQualifiedName(
  * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
  * ```
  *
+ * Returns null when an FQN could not be found.
+ *
  * @param context the rule context
  * @param node the node
- * @param fqn the FQN to match
  */
-export function fromFullyQualifiedName(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  fqn: string,
-): boolean {
-  const qualifiers = fqn.split('.');
-  let nodeToCheck = node;
+export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.Node): string | null {
+  const fqn: string[] = [];
+  let nodeToCheck = node.type === 'MemberExpression' ? fqnFromMemberExpression(node, fqn) : node;
 
-  while (nodeToCheck.type === 'MemberExpression' && qualifiers.length) {
-    const qualifier = qualifiers.pop();
-    const { object, property } = nodeToCheck as estree.MemberExpression;
-    //cover both foo.bar.baz.qux and foo.bar.baz['qux']
-    if (
-      !qualifier ||
-      (property.type === 'Literal' && property.value !== qualifier) ||
-      (property.type === 'Identifier' && property.name !== qualifier)
-    ) {
-      return false;
+  if (!isIdentifier(nodeToCheck)) {
+    return null;
+  }
+
+  const variable = getVariableFromName(context, nodeToCheck.name);
+
+  if (!variable) {
+    return null;
+  }
+
+  const definition = variable.defs.find(({ type }) => ['ImportBinding', 'Variable'].includes(type));
+
+  if (!definition) {
+    return null;
+  }
+  // imports
+  if (definition.type === 'ImportBinding') {
+    const specifier = definition.node;
+    const importDeclaration = definition.parent;
+    // import {default as cdk} from 'aws-cdk-lib';
+    // vs.
+    // import { aws_s3 as s3 } from 'aws-cdk-lib';
+    if (specifier.type === 'ImportSpecifier' && specifier.imported?.name !== 'default') {
+      fqn.unshift(specifier.imported?.name);
     }
-    nodeToCheck = object;
-  }
-
-  if (!isIdentifier(nodeToCheck) || !qualifiers.length) {
-    return false;
-  }
-
-  const variable = getVariableFromName(context, (nodeToCheck as estree.Identifier).name);
-
-  if (variable) {
-    for (const def of variable.defs) {
-      // imports
-      if (def.type === 'ImportBinding') {
-        const specifier = def.node;
-        const importDeclaration = def.parent;
-        if (
-          // import cdk from 'aws-cdk-lib';
-          (specifier.type === 'ImportDefaultSpecifier' ||
-            // import * as cdk from 'aws-cdk-lib';
-            specifier.type === 'ImportNamespaceSpecifier') &&
-          typeof importDeclaration.source.value === 'string'
-        ) {
-          const importedQualifiers = (importDeclaration.source.value as string).split('/');
-          return importedQualifiers.join() === qualifiers.join();
-        }
-        // import { Bucket } from 'aws-cdk-lib/aws-s3';
-        if (
-          specifier.type === 'ImportSpecifier' &&
-          typeof importDeclaration.source.value === 'string'
-        ) {
-          // import {default as cdk} from 'aws-cdk-lib';
-          // vs.
-          // import { aws_s3 as s3 } from 'aws-cdk-lib';
-          const qualifier = specifier.imported.name === 'default' ? 'default' : qualifiers.pop();
-          if (specifier.imported.name === qualifier && qualifiers.length) {
-            const importedQualifiers = (importDeclaration.source.value as string).split('/');
-            return importedQualifiers.join() === qualifiers.join();
-          }
-          return false;
-        }
-      }
-      // requires
-      else if (def.type === 'Variable' && def.node.init) {
-        // const {Bucket} = require('aws-cdk-lib/aws-s3');
-        // const {Bucket: foo} = require('aws-cdk-lib/aws-s3');
-        if (def.node.id.type === 'ObjectPattern') {
-          for (const property of def.node.id.properties) {
-            if ((property as estree.Property).value === def.name) {
-              const qualifier = qualifiers.pop();
-              if (qualifier !== ((property as estree.Property).key as estree.Identifier).name) {
-                return false;
-              }
-            }
-          }
-        }
-        nodeToCheck = def.node.init;
-        // const Bucket = require('aws-cdk-lib').aws_s3.Bucket;
-        // const {Bucket} = require('aws-cdk-lib').aws_s3;
-        // const Bucket = require('aws-cdk-lib').aws_s3['Bucket']; //weird but legal
-        while (nodeToCheck.type === 'MemberExpression' && qualifiers.length) {
-          const { object, property } = nodeToCheck as estree.MemberExpression;
-          const qualifier = qualifiers.pop();
-          if (
-            !qualifier ||
-            (property.type === 'Literal' && property.value !== qualifier) ||
-            (property.type === 'Identifier' && property.name !== qualifier)
-          ) {
-            return false;
-          }
-          nodeToCheck = object;
-        }
-        if (isRequire(nodeToCheck)) {
-          if (qualifiers.length) {
-            const module = getModuleNameFromRequire(nodeToCheck)?.value;
-            if (module) {
-              const importedQualifiers = (module as string).split('/');
-              return importedQualifiers.join() === qualifiers.join();
-            }
-          }
-        }
-      }
+    if (typeof importDeclaration.source.value === 'string') {
+      const importedQualifiers = importDeclaration.source.value.split('/');
+      fqn.unshift(...importedQualifiers);
+      return fqn.join('.');
     }
   }
 
-  return false;
+  // requires
+  if (definition.type === 'Variable' && definition.node.init) {
+    // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
+    // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
+    if (definition.node.id.type === 'ObjectPattern') {
+      for (const property of definition.node.id.properties) {
+        if ((property as estree.Property).value === definition.name) {
+          fqn.unshift(((property as estree.Property).key as estree.Identifier).name);
+        }
+      }
+    }
+    if (definition.node.init.type === 'MemberExpression') {
+      nodeToCheck = fqnFromMemberExpression(definition.node.init, fqn);
+    } else {
+      nodeToCheck = definition.node.init;
+    }
+    const module = getModuleNameFromRequire(nodeToCheck)?.value;
+    if (typeof module === 'string') {
+      const importedQualifiers = module.split('/');
+      fqn.unshift(...importedQualifiers);
+      return fqn.join('.');
+    }
+  }
+  return null;
+}
+
+/**
+ * Helper function for getFullyQualifiedName to handle Member expressions
+ * filling in the FQN array with the accessed properties.
+ * @param node the Node to traverse
+ * @param fqn the array with the qualifiers
+ */
+function fqnFromMemberExpression(node: estree.Node, fqn: string[] = []): estree.Node {
+  let nodeToCheck: estree.Node = node;
+
+  while (nodeToCheck.type === 'MemberExpression') {
+    const { property } = nodeToCheck;
+    if (property.type === 'Literal' && typeof property.value === 'string') {
+      fqn.unshift(property.value);
+    } else if (property.type === 'Identifier') {
+      fqn.unshift(property.name);
+    }
+    nodeToCheck = nodeToCheck.object;
+  }
+
+  return nodeToCheck;
 }

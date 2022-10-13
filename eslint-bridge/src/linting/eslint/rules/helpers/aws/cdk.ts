@@ -20,7 +20,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { fromFullyQualifiedName } from '../module';
+import { getFullyQualifiedName } from '../module';
 
 /**
  * A symbol fully qualified name, e.g. `aws-cdk-lib.aws_sns.Topic`.
@@ -46,7 +46,9 @@ export function AwsCdkTemplate(
       return {
         NewExpression(node: estree.NewExpression) {
           for (const fqn in consumers) {
-            if (fromFullyQualifiedName(ctx, node.callee, fqn)) {
+            const normalizedExpectedFQN = fqn.replace(/-/g, '_');
+            const normalizedActualFQN = getFullyQualifiedName(ctx, node.callee)?.replace(/-/g, '_');
+            if (normalizedActualFQN === normalizedExpectedFQN) {
               const callback = consumers[fqn];
               callback(node, ctx);
             }
