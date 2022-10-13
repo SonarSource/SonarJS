@@ -88,6 +88,8 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
   } catch (e) {
     if (e instanceof QueryError && e.type === 'missing') {
       report('encryptionOmitted', e.node);
+    } else {
+      throw e;
     }
   }
 
@@ -96,11 +98,11 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
   }
 
   function queryArgument(node: NewExpression, position: number): ObjectExpression {
-    const result = getExpressionAt(node.arguments, position);
-    if (result?.type !== 'ObjectExpression') {
-      throw new QueryError(node, result == null ? 'missing' : 'unknown');
+    const expression = getExpressionAtPosition(node.arguments, position);
+    if (expression?.type !== 'ObjectExpression') {
+      throw new QueryError(node, expression == null ? 'missing' : 'unknown');
     }
-    return result;
+    return expression;
   }
 
   function queryProperty(node: ObjectExpression, name: string): Property {
@@ -168,7 +170,7 @@ function isPropertyName(node: Node, name: string) {
   return (isLiteral(node) && node.value === name) || isIdentifier(node, name);
 }
 
-function getExpressionAt(args: Array<Expression | SpreadElement>, position: number) {
+function getExpressionAtPosition(args: Array<Expression | SpreadElement>, position: number) {
   let index = 0;
   let expression: Expression | SpreadElement | null = null;
 
