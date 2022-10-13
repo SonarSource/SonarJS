@@ -20,7 +20,13 @@
 import assert from 'assert';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isDefaultSpecifier, isIdentifier, isNamespaceSpecifier, getUniqueWriteUsage } from './ast';
+import {
+  isDefaultSpecifier,
+  isIdentifier,
+  isNamespaceSpecifier,
+  getUniqueWriteUsage,
+  getVariableFromName,
+} from './ast';
 
 /**
  * Returns the module name, when an identifier either represents a namespace for that module,
@@ -205,6 +211,7 @@ export function getModuleAndCalledMethod(callee: estree.Node, context: Rule.Rule
  * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
  * ```
  *
+ * @param context the rule context
  * @param expr the member expression
  * @param qualifiers the qualifiers to match
  */
@@ -235,4 +242,107 @@ export function hasFullyQualifiedName(
   }
 
   return qualifiers.length === 0;
+}
+
+/**
+ * Returns the fully qualified name of ESLint node
+ *
+ * A fully qualified name here denotes a value that is accessed through an imported
+ * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
+ * or an import statement:
+ *
+ * ```
+ * const foo = require('lib');
+ * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * const foo2 = require('lib').bar;
+ * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * ```
+ *
+ * Returns null when an FQN could not be found.
+ *
+ * @param context the rule context
+ * @param node the node
+ */
+export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.Node): string | null {
+  const fqn: string[] = [];
+  let nodeToCheck = node.type === 'MemberExpression' ? fqnFromMemberExpression(node, fqn) : node;
+
+  if (!isIdentifier(nodeToCheck)) {
+    return null;
+  }
+
+  const variable = getVariableFromName(context, nodeToCheck.name);
+
+  if (!variable) {
+    return null;
+  }
+
+  const definition = variable.defs.find(({ type }) => ['ImportBinding', 'Variable'].includes(type));
+
+  if (!definition) {
+    return null;
+  }
+  // imports
+  if (definition.type === 'ImportBinding') {
+    const specifier = definition.node;
+    const importDeclaration = definition.parent;
+    // import {default as cdk} from 'aws-cdk-lib';
+    // vs.
+    // import { aws_s3 as s3 } from 'aws-cdk-lib';
+    if (specifier.type === 'ImportSpecifier' && specifier.imported?.name !== 'default') {
+      fqn.unshift(specifier.imported?.name);
+    }
+    if (typeof importDeclaration.source.value === 'string') {
+      const importedQualifiers = importDeclaration.source.value.split('/');
+      fqn.unshift(...importedQualifiers);
+      return fqn.join('.');
+    }
+  }
+
+  // requires
+  if (definition.type === 'Variable' && definition.node.init) {
+    // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
+    // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
+    if (definition.node.id.type === 'ObjectPattern') {
+      for (const property of definition.node.id.properties) {
+        if ((property as estree.Property).value === definition.name) {
+          fqn.unshift(((property as estree.Property).key as estree.Identifier).name);
+        }
+      }
+    }
+    if (definition.node.init.type === 'MemberExpression') {
+      nodeToCheck = fqnFromMemberExpression(definition.node.init, fqn);
+    } else {
+      nodeToCheck = definition.node.init;
+    }
+    const module = getModuleNameFromRequire(nodeToCheck)?.value;
+    if (typeof module === 'string') {
+      const importedQualifiers = module.split('/');
+      fqn.unshift(...importedQualifiers);
+      return fqn.join('.');
+    }
+  }
+  return null;
+}
+
+/**
+ * Helper function for getFullyQualifiedName to handle Member expressions
+ * filling in the FQN array with the accessed properties.
+ * @param node the Node to traverse
+ * @param fqn the array with the qualifiers
+ */
+function fqnFromMemberExpression(node: estree.Node, fqn: string[] = []): estree.Node {
+  let nodeToCheck: estree.Node = node;
+
+  while (nodeToCheck.type === 'MemberExpression') {
+    const { property } = nodeToCheck;
+    if (property.type === 'Literal' && typeof property.value === 'string') {
+      fqn.unshift(property.value);
+    } else if (property.type === 'Identifier') {
+      fqn.unshift(property.name);
+    }
+    nodeToCheck = nodeToCheck.object;
+  }
+
+  return nodeToCheck;
 }

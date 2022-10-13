@@ -27,7 +27,7 @@ import {
   getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
-  S3BucketTemplate,
+  AwsS3BucketTemplate,
   toEncodedMessage,
 } from './helpers';
 
@@ -38,7 +38,7 @@ const messages = {
   omitted: 'Omitting "encryption" disables server-side encryption. Make sure it is safe here.',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
+export const rule: Rule.RuleModule = AwsS3BucketTemplate(
   (bucket, context) => {
     const encryptedProperty = getProperty(context, bucket, ENCRYPTED_KEY);
     if (encryptedProperty == null) {

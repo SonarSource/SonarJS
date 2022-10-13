@@ -25,7 +25,7 @@ import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 import {
   getValueOfExpression,
   getProperty,
-  S3BucketTemplate,
+  AwsS3BucketTemplate,
   toEncodedMessage,
   getNodeParent,
 } from './helpers';
@@ -39,7 +39,7 @@ const messages = {
   secondary: 'Propagated setting.',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
+export const rule: Rule.RuleModule = AwsS3BucketTemplate(
   (bucketConstructor, context) => {
     const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
     if (versionedProperty == null) {
