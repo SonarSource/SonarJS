@@ -60,10 +60,6 @@ interface ArgumentPropertyCheckerOptions {
   propertyName: string;
 }
 
-type QueryResult<T> =
-  | { node: Node; type: 'missing' | 'unknown' }
-  | { node: Node; type: 'found'; result: T };
-
 function argumentPropertyChecker(argumentPosition: number, propertyName: string) {
   return (expr: NewExpression, ctx: Rule.RuleContext) =>
     checkArgumentProperty({
@@ -74,50 +70,40 @@ function argumentPropertyChecker(argumentPosition: number, propertyName: string)
     });
 }
 
+class QueryError extends Error {
+  constructor(readonly node: Node, readonly type: 'missing' | 'unknown') {
+    super();
+  }
+}
+
 function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
+  try {
+    const argument = queryArgument(options.expr, options.argumentPosition);
+    const property = queryProperty(argument, options.propertyName);
+    const bool = queryBoolean(property.value);
+
+    if (!bool) {
+      report('encryptionDisabled', property.value);
+    }
+  } catch (e) {
+    if (e instanceof QueryError && e.type === 'missing') {
+      report('encryptionOmitted', e.node);
+    }
+  }
+
   function report(messageId: string, node: Node) {
     options.ctx.report({ messageId, node });
   }
 
-  function reportOrGetValue<T>(result: QueryResult<T>): T | null {
-    if (result.type === 'missing') {
-      report('encryptionOmitted', result.node);
-      return null;
-    } else if (result.type === 'found') {
-      return result.result;
-    } else {
-      return null;
-    }
-  }
-
-  function getExpressionAt(args: Array<Expression | SpreadElement>, position: number) {
-    let index = 0;
-    let expression: Expression | SpreadElement | null = null;
-
-    while (index <= position && index < args.length && args[index].type !== 'SpreadElement') {
-      expression = args[index];
-      index++;
-    }
-
-    if (index > position && expression != null) {
-      return expression;
-    } else if (index < args.length) {
-      return args[index];
-    } else {
-      return null;
-    }
-  }
-
-  function queryArgument(node: NewExpression, position: number): QueryResult<ObjectExpression> {
+  function queryArgument(node: NewExpression, position: number): ObjectExpression {
     const result = getExpressionAt(node.arguments, position);
-    if (result?.type === 'ObjectExpression') {
-      return { node, type: 'found', result };
-    } else {
-      return { node, type: result == null ? 'missing' : 'unknown' };
+    if (result?.type !== 'ObjectExpression') {
+      throw new QueryError(node, result == null ? 'missing' : 'unknown');
     }
+    return result;
   }
 
-  function queryProperty(node: ObjectExpression, name: string): QueryResult<Property> {
+  function queryProperty(node: ObjectExpression, name: string): Property {
     let property: Property | null = null;
     let hasSpreadElement = false;
     let index = 0;
@@ -132,68 +118,70 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
       index++;
     }
 
-    if (property != null) {
-      return { node, type: 'found', result: property };
-    } else if (hasSpreadElement) {
-      return { node, type: 'unknown' };
-    } else {
-      return { node, type: 'missing' };
+    if (property == null) {
+      throw new QueryError(node, hasSpreadElement ? 'unknown' : 'missing');
     }
+
+    return property;
   }
 
-  function queryBooleanFromLiteral(node: Literal): QueryResult<boolean> {
-    if (typeof node.value === 'boolean') {
-      return { node, type: 'found', result: node.value };
-    } else {
-      return { node, type: 'unknown' };
-    }
-  }
-
-  function queryBooleanFromIdentifier(node: Identifier): QueryResult<boolean> {
-    if (isUndefined(node)) {
-      return { node, type: 'missing' };
-    }
-
-    const usage = getUniqueWriteUsage(options.ctx, node.name);
-    if (!usage) {
-      return { node, type: 'unknown' };
-    }
-
-    const result = queryBoolean(usage);
-    result.node = node;
-    return result;
-  }
-
-  function queryBoolean(node: Node): QueryResult<boolean> {
+  function queryBoolean(node: Node): boolean {
     if (isLiteral(node)) {
       return queryBooleanFromLiteral(node);
     } else if (isIdentifier(node)) {
       return queryBooleanFromIdentifier(node);
     } else {
-      return { node, type: 'unknown' };
+      throw new QueryError(node, 'unknown');
     }
   }
 
-  const argument = reportOrGetValue(queryArgument(options.expr, options.argumentPosition));
-  if (argument == null) {
-    return;
+  function queryBooleanFromLiteral(node: Literal): boolean {
+    if (typeof node.value !== 'boolean') {
+      throw new QueryError(node, 'unknown');
+    }
+    return node.value;
   }
 
-  const property = reportOrGetValue(queryProperty(argument, options.propertyName));
-  if (property == null) {
-    return;
-  }
+  function queryBooleanFromIdentifier(node: Identifier): boolean {
+    if (isUndefined(node)) {
+      throw new QueryError(node, 'missing');
+    }
 
-  const bool = reportOrGetValue(queryBoolean(property.value));
-  if (bool == null) {
-    return;
-  }
+    const usage = getUniqueWriteUsage(options.ctx, node.name);
+    if (!usage) {
+      throw new QueryError(node, 'unknown');
+    }
 
-  if (!bool) {
-    report('encryptionDisabled', property.value);
+    try {
+      return queryBoolean(usage);
+    } catch (e) {
+      if (e instanceof QueryError) {
+        throw new QueryError(node, e.type);
+      } else {
+        throw e;
+      }
+    }
   }
 }
 
 function isPropertyName(node: Node, name: string) {
   return (isLiteral(node) && node.value === name) || isIdentifier(node, name);
+}
+
+function getExpressionAt(args: Array<Expression | SpreadElement>, position: number) {
+  let index = 0;
+  let expression: Expression | SpreadElement | null = null;
+
+  while (index <= position && index < args.length && args[index].type !== 'SpreadElement') {
+    expression = args[index];
+    index++;
+  }
+
+  if (index > position && expression != null) {
+    return expression;
+  } else if (index < args.length) {
+    return args[index];
+  } else {
+    return null;
+  }
 }
