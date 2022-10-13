@@ -27,11 +27,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6275")
-public class AwsCdkEbsVolumeCheck implements EslintBasedCheck {
+public class AwsEc2EbsVolumeCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "aws-cdk-ebs-volume";
+    return "aws-ec2-ebs-volume";
   }
 
 }
