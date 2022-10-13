@@ -38,22 +38,17 @@ import {
   SpreadElement,
 } from 'estree';
 
-type QueryResult<T> =
-  | { node: Node; type: 'missing' | 'unknown' }
-  | { node: Node; type: 'found'; result: T };
-
-const messages = {
-  encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
-  encryptionOmitted: 'Omitting "encrypted" disables volumes encryption. Make sure it is safe here.',
-};
-
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
     'aws-cdk-lib.aws-ec2.Volume': argumentPropertyChecker(2, 'encrypted'),
   },
   {
     meta: {
-      messages,
+      messages: {
+        encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
+        encryptionOmitted:
+          'Omitting "encrypted" disables volumes encryption. Make sure it is safe here.',
+      },
     },
   },
 );
@@ -64,6 +59,10 @@ interface ArgumentPropertyCheckerOptions {
   argumentPosition: number;
   propertyName: string;
 }
+
+type QueryResult<T> =
+  | { node: Node; type: 'missing' | 'unknown' }
+  | { node: Node; type: 'found'; result: T };
 
 function argumentPropertyChecker(argumentPosition: number, propertyName: string) {
   return (expr: NewExpression, ctx: Rule.RuleContext) =>
