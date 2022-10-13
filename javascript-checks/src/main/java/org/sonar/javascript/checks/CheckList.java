@@ -74,6 +74,7 @@ public final class CheckList {
       AwsS3BucketPublicAccessCheck.class,
       AwsS3BucketServerEncryptionCheck.class,
       AwsS3BucketVersioningCheck.class,
+      AwsSnsUnencryptedTopicsCheck.class,
       BitwiseOperatorsCheck.class,
       BoolParamDefaultCheck.class,
       BooleanEqualityComparisonCheck.class,
