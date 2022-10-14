@@ -20,13 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6275/javascript
 
 import { Rule } from 'eslint';
-import {
-  AwsCdkTemplate,
-  getUniqueWriteUsage,
-  isIdentifier,
-  isLiteral,
-  isUndefined,
-} from './helpers';
+import { getUniqueWriteUsage, isIdentifier, isLiteral, isUndefined } from './helpers';
 import {
   Expression,
   Identifier,
@@ -37,6 +31,7 @@ import {
   Property,
   SpreadElement,
 } from 'estree';
+import { AwsCdkTemplate } from './helpers/aws/cdk';
 
 const VOLUME_PROPS_POSITION = 2;
 const ENCRYPTED_PROPERTY = 'encrypted';
