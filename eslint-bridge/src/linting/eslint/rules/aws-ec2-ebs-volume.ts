@@ -38,9 +38,15 @@ import {
   SpreadElement,
 } from 'estree';
 
+const VOLUME_PROPS_POSITION = 2;
+const ENCRYPTED_PROPERTY = 'encrypted';
+
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws-ec2.Volume': argumentPropertyChecker(2, 'encrypted'),
+    'aws-cdk-lib.aws-ec2.Volume': argumentPropertyChecker(
+      VOLUME_PROPS_POSITION,
+      ENCRYPTED_PROPERTY,
+    ),
   },
   {
     meta: {
