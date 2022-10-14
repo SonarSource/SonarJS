@@ -8,10 +8,16 @@ class NonCompliantStack extends Stack {
     new Volume(this, "Volume", { encrypted: false }); // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
     //                                      ^^^^^
 
+    new Volume(this, "Volume", { ["encrypted"]: false }); // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+    //                                          ^^^^^
+
     new Volume(this, "Volume", { encrypted: null }); // Compliant (null are ignored)
 
     new Volume(this, "Volume", { encrypted: undefined }); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
     //                                      ^^^^^^^^^
+
+    new Volume(this, "Volume"); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     new Volume(this, "Volume", {}); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
     //                         ^^
@@ -47,11 +53,13 @@ class CompliantStack extends Stack {
     super(scope, id);
     new Volume(this, "Volume", { encrypted: true });
     new Volume(this, "Volume", { encrypted: unknown });
+    new Volume(this, "Volume", { encrypted: null });
     const encrypted1 = true;
     new Volume(this, "Volume", { encrypted: encrypted1 });
     const encrypted = true;
     new Volume(this, "Volume", { encrypted });
     const volumeArgs = {encrypted: true};
     new Volume(this, "Volume", {...volumeArgs});
+    new Volume(this, "Volume", unknown);
   }
 }
