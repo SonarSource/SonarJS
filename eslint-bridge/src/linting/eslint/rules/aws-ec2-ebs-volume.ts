@@ -86,10 +86,7 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
       report('encryptionDisabled', property.value);
     }
   } catch (e) {
-    if (!(e instanceof QueryError)) {
-      throw e;
-    }
-    if (e.type === 'missing') {
+    if (e instanceof QueryError && e.type === 'missing') {
       report('encryptionOmitted', e.node);
     }
   }
@@ -160,8 +157,6 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
     } catch (e) {
       if (e instanceof QueryError) {
         throw new QueryError(node, e.type);
-      } else {
-        throw e;
       }
     }
   }
