@@ -33,7 +33,7 @@ import {
   isMethodCall,
   isS3BucketConstructor,
   isS3BucketDeploymentConstructor,
-  AwsS3BucketTemplate,
+  S3BucketTemplate,
   toEncodedMessage,
 } from './helpers';
 
@@ -66,22 +66,20 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-const s3BucketConstructorRule: Rule.RuleModule = AwsS3BucketTemplate(
-  (bucketConstructor, context) => {
-    for (const value of INVALID_ACCESS_CONTROL_VALUES) {
-      checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
-        'BucketAccessControl',
-        value,
-      ]);
-    }
-    checkBooleanParam(
-      context,
-      bucketConstructor,
-      PUBLIC_READ_ACCESS_KEY,
-      INVALID_PUBLIC_READ_ACCESS_VALUE,
-    );
-  },
-);
+const s3BucketConstructorRule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
+  for (const value of INVALID_ACCESS_CONTROL_VALUES) {
+    checkConstantParam(context, bucketConstructor, ACCESS_CONTROL_KEY, [
+      'BucketAccessControl',
+      value,
+    ]);
+  }
+  checkBooleanParam(
+    context,
+    bucketConstructor,
+    PUBLIC_READ_ACCESS_KEY,
+    INVALID_PUBLIC_READ_ACCESS_VALUE,
+  );
+});
 
 const s3BucketDeploymentConstructorRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
