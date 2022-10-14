@@ -86,10 +86,11 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
       report('encryptionDisabled', property.value);
     }
   } catch (e) {
-    if (e instanceof QueryError && e.type === 'missing') {
-      report('encryptionOmitted', e.node);
-    } else {
+    if (!(e instanceof QueryError)) {
       throw e;
+    }
+    if (e.type === 'missing') {
+      report('encryptionOmitted', e.node);
     }
   }
 
