@@ -27,6 +27,7 @@ import { rule as arrayCallBackWithoutReturn } from './array-callback-without-ret
 import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
 import { rule as assertionsInTests } from './assertions-in-tests';
+import { rule as awsOpensearchserviceDomain } from './aws-opensearchservice-domain';
 import { rule as awsEc2UnencryptedEbsVolume } from './aws-ec2-unencrypted-ebs-volume';
 import { rule as awsEfsUnencrypted } from './aws-efs-unencrypted';
 import { rule as awsS3BucketGrantedAccess } from './aws-s3-bucket-granted-access';
@@ -246,6 +247,7 @@ rules['array-callback-without-return'] = arrayCallBackWithoutReturn;
 rules['array-constructor'] = arrayConstructor;
 rules['arrow-function-convention'] = arrowFunctionConvention;
 rules['assertions-in-tests'] = assertionsInTests;
+rules['aws-opensearchservice-domain'] = awsOpensearchserviceDomain;
 rules['aws-ec2-unencrypted-ebs-volume'] = awsEc2UnencryptedEbsVolume;
 rules['aws-efs-unencrypted'] = awsEfsUnencrypted;
 rules['aws-s3-bucket-granted-access'] = awsS3BucketGrantedAccess;
