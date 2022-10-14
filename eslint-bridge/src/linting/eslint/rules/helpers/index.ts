@@ -20,7 +20,6 @@
 
 export * from './ancestor';
 export * from './ast';
-export * from './aws';
 export * from './chai';
 export * from './collection';
 export * from './express';

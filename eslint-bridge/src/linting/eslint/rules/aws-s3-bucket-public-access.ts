@@ -23,15 +23,13 @@ import { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 import {
-  findPropagatedSetting,
-  getProperty,
   getValueOfExpression,
   hasFullyQualifiedName,
   isIdentifier,
   isProperty,
-  S3BucketTemplate,
   toEncodedMessage,
 } from './helpers';
+import { findPropagatedSetting, getProperty, S3BucketTemplate } from './helpers/aws/s3';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
 const BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS = [

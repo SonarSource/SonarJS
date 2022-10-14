@@ -24,18 +24,20 @@ import estree from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 import { mergeRules } from './decorators/helpers';
 import {
-  findPropagatedSetting,
-  getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   hasFullyQualifiedName,
   isIdentifier,
   isMethodCall,
-  isS3BucketConstructor,
-  isS3BucketDeploymentConstructor,
-  S3BucketTemplate,
   toEncodedMessage,
 } from './helpers';
+import {
+  S3BucketTemplate,
+  isS3BucketDeploymentConstructor,
+  findPropagatedSetting,
+  isS3BucketConstructor,
+  getProperty,
+} from './helpers/aws/s3';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
