@@ -19,7 +19,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { AwsCdkTemplate } from 'linting/eslint/rules/helpers/aws';
+import { AwsCdkTemplate } from 'linting/eslint/rules/helpers/aws/cdk';
 
 const rule = AwsCdkTemplate({
   'aws-cdk-lib.aws_module.Class': (node, context) => {

@@ -22,13 +22,8 @@
 import { Rule } from 'eslint';
 import { Node } from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import {
-  getValueOfExpression,
-  getProperty,
-  S3BucketTemplate,
-  toEncodedMessage,
-  getNodeParent,
-} from './helpers';
+import { getValueOfExpression, toEncodedMessage, getNodeParent } from './helpers';
+import { getProperty, S3BucketTemplate } from './helpers/aws/s3';
 
 const VERSIONED_KEY = 'versioned';
 

@@ -22,14 +22,8 @@
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import {
-  findPropagatedSetting,
-  getProperty,
-  getValueOfExpression,
-  hasFullyQualifiedName,
-  S3BucketTemplate,
-  toEncodedMessage,
-} from './helpers';
+import { getValueOfExpression, hasFullyQualifiedName, toEncodedMessage } from './helpers';
+import { findPropagatedSetting, getProperty, S3BucketTemplate } from './helpers/aws/s3';
 
 const ENCRYPTED_KEY = 'encryption';
 
