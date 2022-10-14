@@ -292,7 +292,7 @@ export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.No
     if (specifier.type === 'ImportSpecifier' && specifier.imported?.name !== 'default') {
       fqn.unshift(specifier.imported?.name);
     }
-    if (typeof importDeclaration.source.value === 'string') {
+    if (typeof importDeclaration.source?.value === 'string') {
       const importedQualifiers = importDeclaration.source.value.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
