@@ -157,6 +157,8 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
     } catch (e) {
       if (e instanceof QueryError) {
         throw new QueryError(node, e.type);
+      } else {
+        throw e;
       }
     }
   }
