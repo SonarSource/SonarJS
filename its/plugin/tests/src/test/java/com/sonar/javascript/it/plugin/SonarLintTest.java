@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +42,7 @@ import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.Version;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 
+import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -61,17 +61,17 @@ import static org.assertj.core.api.Assertions.tuple;
 class SonarLintTest {
 
   private static final String FILE_PATH = "foo.js";
-  private final static List<String> LOGS = new ArrayList<>();
-
   @TempDir
-  File baseDir;
+  Path baseDir;
   private StandaloneSonarLintEngine sonarlintEngine;
+  private List<String> logs;
 
   @TempDir
   Path sonarLintHome;
 
   @BeforeEach
   public void prepare() throws Exception {
+    logs = new ArrayList<>();
     StandaloneGlobalConfiguration sonarLintConfig = getSonarLintConfig();
     sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
   }
@@ -88,7 +88,7 @@ class SonarLintTest {
       + "  var c; // NOSONAR\n"
       + "  var b = 42; \n"
       + "} \n");
-    String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
+    String filePath = baseDir.resolve(FILE_PATH).toAbsolutePath().toString();
     assertThat(issues).extracting(Issue::getRuleKey,
       WithTextRange::getStartLine,
       i -> Path.of(i.getInputFile().relativePath()).toAbsolutePath().toString(),
@@ -100,21 +100,24 @@ class SonarLintTest {
         tuple("javascript:S1854", 4, filePath, "MAJOR"),
         tuple("javascript:S3504", 4, filePath, "CRITICAL"));
 
-    assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
+    assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
 
   @Test
   void should_start_node_server_once() throws Exception {
     analyze(FILE_PATH, "");
-    assertThat(LOGS).doesNotContain("eslint-bridge server is up, no need to start.");
+    assertThat(logs).doesNotContain("eslint-bridge server is up, no need to start.");
     analyze(FILE_PATH, "");
-    assertThat(LOGS).contains("eslint-bridge server is up, no need to start.");
+    assertThat(logs).contains("eslint-bridge server is up, no need to start.");
   }
 
   @Test
   void should_analyze_typescript() throws Exception {
-    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-    List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
+    Files.writeString(baseDir.resolve("tsconfig.json"), "{}");
+    var code = "x = true ? 42 : 42";
+    var filename = "foo.ts";
+    Files.writeString(baseDir.resolve(filename), code);
+    List<Issue> issues = analyze(filename, code);
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
   }
 
@@ -123,7 +126,7 @@ class SonarLintTest {
     String fileName = "file.vue";
     Path filePath = TestUtils.projectDir("vue-js-project").toPath().resolve(fileName);
 
-    String content = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
+    String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
 
     assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923");
@@ -133,7 +136,7 @@ class SonarLintTest {
   void should_not_analyze_ts_project_without_config() throws Exception {
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).isEmpty();
-    assertThat(LOGS).contains("No tsconfig.json file found, analysis will be skipped.");
+    assertThat(logs).contains("No tsconfig.json file found, analysis will be skipped.");
   }
 
   @Test
@@ -143,12 +146,12 @@ class SonarLintTest {
     // version `42` will let us pass SonarLint check of version
     sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
     List<Issue> issues = analyze(FILE_PATH, "");
-    assertThat(LOGS).contains("Provided Node.js executable file does not exist.");
+    assertThat(logs).contains("Provided Node.js executable file does not exist.");
     assertThat(issues).isEmpty();
-    LOGS.clear();
+    logs.clear();
     issues = analyze(FILE_PATH, "");
     assertThat(issues).isEmpty();
-    assertThat(LOGS)
+    assertThat(logs)
       .doesNotContain("Provided Node.js executable file does not exist.")
       .contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore");
   }
@@ -201,11 +204,11 @@ class SonarLintTest {
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, filePath, sourceCode);
+    ClientInputFile inputFile = sonarLintInputFile(baseDir.resolve(filePath), sourceCode);
 
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
-      StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir.toPath()).addInputFile(inputFile).build(),
+      StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),
       issues::add, null, null);
     return issues;
   }
@@ -219,7 +222,7 @@ class SonarLintTest {
 
   private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
     ClientLogOutput logOutput = (formattedMessage, level) -> {
-      LOGS.add(formattedMessage);
+      logs.add(formattedMessage);
       System.out.println(formattedMessage);
     };
 

@@ -19,6 +19,7 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,56 +85,62 @@ public class TestUtils {
     }
   }
 
-  static ClientInputFile prepareInputFile(File baseDir, String relativePath, String content) throws IOException {
-    Path file = baseDir.toPath().resolve(relativePath);
-    Files.write(file, content.getBytes(StandardCharsets.UTF_8));
-    return createInputFile(file);
+  static ClientInputFile sonarLintInputFile(Path path, String content) throws IOException {
+    return createInputFile(path, content);
   }
 
-  private static ClientInputFile createInputFile(final Path path) {
-    return new ClientInputFile() {
+  private static ClientInputFile createInputFile(Path file, String content) {
+    return new TestClientInputFile(file, content);
+  }
 
-      @Override
-      public String getPath() {
-        return path.toString();
-      }
+  static class TestClientInputFile implements ClientInputFile {
+    private final String content;
+    private final Path path;
 
-      @Override
-      public boolean isTest() {
-        return false;
-      }
+    TestClientInputFile(Path path, String content) {
+      this.content = content;
+      this.path = path;
+    }
 
-      @Override
-      public Charset getCharset() {
-        return StandardCharsets.UTF_8;
-      }
+    @Override
+    public String getPath() {
+      return path.toString();
+    }
 
-      @Override
-      public <G> G getClientObject() {
-        return null;
-      }
+    @Override
+    public boolean isTest() {
+      return false;
+    }
 
-      @Override
-      public String contents() throws IOException {
-        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-      }
+    @Override
+    public Charset getCharset() {
+      return StandardCharsets.UTF_8;
+    }
 
-      @Override
-      public String relativePath() {
-        return path.toString();
-      }
+    @Override
+    public <G> G getClientObject() {
+      return null;
+    }
 
-      @Override
-      public URI uri() {
-        return path.toUri();
-      }
+    @Override
+    public String contents() {
+      return content;
+    }
 
-      @Override
-      public InputStream inputStream() throws IOException {
-        return Files.newInputStream(path);
-      }
+    @Override
+    public String relativePath() {
+      return path.toString();
+    }
 
-    };
+    @Override
+    public URI uri() {
+      return path.toUri();
+    }
+
+    @Override
+    public InputStream inputStream() {
+      return new ByteArrayInputStream(content.getBytes(getCharset()));
+    }
   }
 }
 
