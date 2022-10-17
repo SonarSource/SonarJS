@@ -27,7 +27,7 @@ import { rule as arrayCallBackWithoutReturn } from './array-callback-without-ret
 import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
 import { rule as assertionsInTests } from './assertions-in-tests';
-import { rule as awsEc2EbsVolume } from './aws-ec2-ebs-volume';
+import { rule as awsEc2UnencryptedEbsVolume } from './aws-ec2-unencrypted-ebs-volume';
 import { rule as awsS3BucketGrantedAccess } from './aws-s3-bucket-granted-access';
 import { rule as awsS3BucketInsecureHttp } from './aws-s3-bucket-insecure-http';
 import { rule as awsS3BucketPublicAccess } from './aws-s3-bucket-public-access';
@@ -244,7 +244,7 @@ rules['array-callback-without-return'] = arrayCallBackWithoutReturn;
 rules['array-constructor'] = arrayConstructor;
 rules['arrow-function-convention'] = arrowFunctionConvention;
 rules['assertions-in-tests'] = assertionsInTests;
-rules['aws-ec2-ebs-volume'] = awsEc2EbsVolume;
+rules['aws-ec2-unencrypted-ebs-volume'] = awsEc2UnencryptedEbsVolume;
 rules['aws-s3-bucket-granted-access'] = awsS3BucketGrantedAccess;
 rules['aws-s3-bucket-insecure-http'] = awsS3BucketInsecureHttp;
 rules['aws-s3-bucket-public-access'] = awsS3BucketPublicAccess;
