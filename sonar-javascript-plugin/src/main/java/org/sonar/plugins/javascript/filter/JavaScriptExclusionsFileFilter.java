@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.filter;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
@@ -25,8 +25,10 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonar.plugins.javascript.minify.MinificationAssessor;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
