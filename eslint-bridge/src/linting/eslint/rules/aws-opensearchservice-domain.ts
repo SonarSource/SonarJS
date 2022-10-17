@@ -25,22 +25,35 @@ import {
   Expression,
   Identifier,
   Literal,
+  MemberExpression,
   NewExpression,
   Node,
   ObjectExpression,
   Property,
   SpreadElement,
 } from 'estree';
-import { getUniqueWriteUsage, isIdentifier, isLiteral, isUndefined } from './helpers';
+import {
+  getUniqueWriteUsage,
+  isBooleanLiteral,
+  isDotNotation,
+  isIdentifier,
+  isLiteral,
+  isProperty,
+  isStringLiteral,
+  isUndefined,
+} from './helpers';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';
 const OPEN_SEARCH = 'OpenSearch';
+const ELASTIC_SEARCH = 'Elasticsearch';
 
 interface DomainCheckerOptions {
   encryptionProperty: string;
   version: {
+    valueType: 'ElasticsearchVersion' | 'EngineVersion' | 'string';
     property: string;
+    defaultValue: typeof OPEN_SEARCH | typeof ELASTIC_SEARCH;
   };
 }
 
@@ -49,13 +62,33 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     'aws-cdk-lib.aws-opensearchservice.Domain': domainChecker({
       encryptionProperty: 'encryptionAtRest',
       version: {
+        valueType: 'EngineVersion',
         property: 'version',
+        defaultValue: OPEN_SEARCH,
       },
     }),
     'aws-cdk-lib.aws-opensearchservice.CfnDomain': domainChecker({
       encryptionProperty: 'encryptionAtRestOptions',
       version: {
+        valueType: 'string',
+        property: 'engineVersion',
+        defaultValue: OPEN_SEARCH,
+      },
+    }),
+    'aws-cdk-lib.aws-elasticsearch.Domain': domainChecker({
+      encryptionProperty: 'encryptionAtRest',
+      version: {
+        valueType: 'ElasticsearchVersion',
         property: 'version',
+        defaultValue: ELASTIC_SEARCH,
+      },
+    }),
+    'aws-cdk-lib.aws-elasticsearch.CfnDomain': domainChecker({
+      encryptionProperty: 'encryptionAtRestOptions',
+      version: {
+        valueType: 'string',
+        property: 'elasticsearchVersion',
+        defaultValue: ELASTIC_SEARCH,
       },
     }),
   },
@@ -71,6 +104,151 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
+type VersionIdentifier = MemberExpression & {
+  object: Identifier | (MemberExpression & { property: Identifier });
+  property: Identifier;
+};
+
+function isIdentifierVersion(node: Node): node is VersionIdentifier {
+  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
+}
+
+function domainChecker(options: DomainCheckerOptions) {
+  return (expr: NewExpression, ctx: Rule.RuleContext) => {
+    const argument = queryArgument(expr, DOMAIN_PROPS_POSITION).filter('ObjectExpression');
+    const encryptionProperty = queryEncryptionProperty(argument, options.encryptionProperty);
+    const isEnabled = encryptionProperty.map(node => queryValue(node, 'boolean'));
+    const version = getVersion(argument, options);
+
+    if (isEnabled.isMissing) {
+      ctx.report({
+        messageId: 'encryptionOmitted',
+        node: isEnabled.node,
+        data: {
+          encryptionPropertyName: options.encryptionProperty,
+          search: getSearchEngine(version) ?? options.version.defaultValue,
+        },
+      });
+    } else if (isEnabled.isFalse) {
+      ctx.report({
+        messageId: 'encryptionDisabled',
+        node: encryptionProperty.node,
+        data: {
+          search: getSearchEngine(version) ?? options.version.defaultValue,
+        },
+      });
+    }
+
+    function queryEncryptionProperty(argument: Result, propertyName: string) {
+      const encryptionProperty = argument.map((node: ObjectExpression) =>
+        queryProperty(node, propertyName),
+      );
+      return encryptionProperty
+        .filter('ObjectExpression')
+        .map((node: ObjectExpression) => queryProperty(node, ENABLED_PROPERTY));
+    }
+
+    function getVersion(argument: Result, options: DomainCheckerOptions) {
+      const version = argument.map((node: ObjectExpression) =>
+        queryProperty(node, options.version.property),
+      );
+      const versionValue = getVersionValue(version, options);
+      return versionValue?.toLowerCase();
+    }
+
+    function getVersionValue(version: Result, options: DomainCheckerOptions) {
+      if (options.version.valueType === 'string') {
+        const versionValue = version.map(node => queryValue(node, 'string')).asString();
+        return `${options.version.property}_${versionValue}`;
+      } else if (isIdentifierVersion(version.node)) {
+        const versionValue = version.node.property.name;
+        if (isIdentifier(version.node.object)) {
+          return `${version.node.object.name}_${versionValue}`;
+        } else {
+          return `${version.node.object.property.name}_${versionValue}`;
+        }
+      } else {
+        return null;
+      }
+    }
+
+    function getSearchEngine(version: string | undefined) {
+      if (version?.includes('opensearch')) {
+        return OPEN_SEARCH;
+      } else if (version?.includes('elasticsearch')) {
+        return ELASTIC_SEARCH;
+      } else {
+        return null;
+      }
+    }
+
+    // From here up to the end of the file the code should be shared somehow.
+
+    function queryArgument(node: NewExpression, position: number) {
+      const expression = getExpressionAtPosition(node.arguments, position);
+      if (expression == null) {
+        return missing(node);
+      } else if (expression.type === 'SpreadElement') {
+        return unknown(node);
+      } else {
+        return new FoundResult(expression);
+      }
+    }
+
+    function queryProperty(node: ObjectExpression, name: string) {
+      let property: Property | null = null;
+      let hasSpreadElement = false;
+      let index = 0;
+
+      while (index < node.properties.length && property == null) {
+        const element = node.properties[index];
+        if (isProperty(element) && isPropertyName(element.key, name)) {
+          property = element;
+        } else if (element.type === 'SpreadElement') {
+          hasSpreadElement = true;
+        }
+        index++;
+      }
+
+      if (property == null) {
+        return hasSpreadElement ? unknown(node) : missing(node);
+      } else {
+        return new FoundResult(property.value);
+      }
+    }
+
+    function queryValue(node: Node, type: 'string' | 'boolean') {
+      if (isLiteral(node)) {
+        return queryValueFromLiteral(node, type);
+      } else if (isIdentifier(node)) {
+        return queryValueFromIdentifier(node, type);
+      } else {
+        return unknown(node);
+      }
+    }
+
+    function queryValueFromLiteral(node: Literal, type: 'string' | 'boolean') {
+      if (typeof node.value !== type) {
+        return unknown(node);
+      }
+      return found(node);
+    }
+
+    function queryValueFromIdentifier(node: Identifier, type: 'string' | 'boolean'): Result {
+      if (isUndefined(node)) {
+        return missing(node);
+      }
+
+      const usage = getUniqueWriteUsage(ctx, node.name);
+      if (!usage) {
+        return unknown(node);
+      }
+
+      return queryValue(usage, type).withNodeIfNotFound(node);
+    }
+  };
+}
+
 class Result {
   constructor(readonly node: Node, readonly status: 'missing' | 'unknown' | 'found') {}
 
@@ -82,13 +260,16 @@ class Result {
     return this.status === 'missing';
   }
 
-  get isTrue() {
-    return (
-      this.status === 'found' &&
-      this.node.type === 'Literal' &&
-      typeof this.node.value === 'boolean' &&
-      this.node.value
-    );
+  get isFalse() {
+    return isBooleanLiteral(this.node) && !this.node.value;
+  }
+
+  as<N extends Node>(_type: N['type']): N | null {
+    return null;
+  }
+
+  asString() {
+    return isStringLiteral(this.node) ? this.node.value : null;
   }
 
   map<N extends Node>(_closure: (node: N) => Result): Result {
@@ -107,6 +288,10 @@ class Result {
 class FoundResult extends Result {
   constructor(value: Node) {
     super(value, 'found');
+  }
+
+  as<N extends Node>(type: N['type']): N | null {
+    return this.status === 'found' && this.node.type === type ? (this.node as N) : null;
   }
 
   map<N extends Node>(closure: (node: N) => Result): Result {
@@ -128,105 +313,6 @@ function missing(node: Node): Result {
 
 function found(node: Node) {
   return new FoundResult(node);
-}
-
-function domainChecker(options: DomainCheckerOptions) {
-  return (expr: NewExpression, ctx: Rule.RuleContext) => {
-    const argument = queryArgument(expr, DOMAIN_PROPS_POSITION);
-    const encryptionProperty = argument
-      .filter('ObjectExpression')
-      .map((node: ObjectExpression) => queryProperty(node, options.encryptionProperty));
-    const enabledProperty = encryptionProperty
-      .filter('ObjectExpression')
-      .map((node: ObjectExpression) => queryProperty(node, ENABLED_PROPERTY));
-    const bool = enabledProperty.map(node => queryBoolean(node));
-
-    if (bool.isMissing) {
-      report({
-        messageId: 'encryptionOmitted',
-        node: bool.node,
-        data: {
-          encryptionPropertyName: options.encryptionProperty,
-          search: OPEN_SEARCH, // TODO
-        },
-      });
-    } else if (bool.isFound && !bool.isTrue) {
-      report({
-        messageId: 'encryptionDisabled',
-        node: enabledProperty.node,
-        data: {
-          search: OPEN_SEARCH, // TODO
-        },
-      });
-    }
-
-    function report(descriptor: Rule.ReportDescriptor) {
-      ctx.report(descriptor);
-    }
-
-    function queryArgument(node: NewExpression, position: number) {
-      const expression = getExpressionAtPosition(node.arguments, position);
-      if (expression == null) {
-        return missing(node);
-      } else if (expression.type === 'SpreadElement') {
-        return unknown(node);
-      } else {
-        return new FoundResult(expression);
-      }
-    }
-
-    function queryProperty(node: ObjectExpression, name: string) {
-      let property: Property | null = null;
-      let hasSpreadElement = false;
-      let index = 0;
-
-      while (index < node.properties.length && property == null) {
-        const element = node.properties[index];
-        if (element.type === 'Property' && isPropertyName(element.key, name)) {
-          property = element;
-        } else if (element.type === 'SpreadElement') {
-          hasSpreadElement = true;
-        }
-        index++;
-      }
-
-      if (property == null) {
-        return hasSpreadElement ? unknown(node) : missing(node);
-      } else {
-        return new FoundResult(property.value);
-      }
-    }
-
-    function queryBoolean(node: Node) {
-      if (isLiteral(node)) {
-        return queryBooleanFromLiteral(node);
-      } else if (isIdentifier(node)) {
-        return queryBooleanFromIdentifier(node);
-      } else {
-        return unknown(node);
-      }
-    }
-
-    function queryBooleanFromLiteral(node: Literal) {
-      if (typeof node.value !== 'boolean') {
-        return unknown(node);
-      }
-      return found(node);
-    }
-
-    function queryBooleanFromIdentifier(node: Identifier): Result {
-      if (isUndefined(node)) {
-        return missing(node);
-      }
-
-      const usage = getUniqueWriteUsage(ctx, node.name);
-      if (!usage) {
-        return unknown(node);
-      }
-
-      return queryBoolean(usage).withNodeIfNotFound(node);
-    }
-  };
 }
 
 function isPropertyName(node: Node, name: string) {
