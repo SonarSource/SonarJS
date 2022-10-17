@@ -25,11 +25,11 @@ import {
   getValueOfExpression,
   isIdentifier,
   isStringLiteral,
-  isUndefined
+  isUndefined,
 } from './helpers';
 
 import * as estree from 'estree';
-import {AwsCdkTemplate} from "./helpers/aws/cdk";
+import { AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -38,7 +38,8 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
     meta: {
       messages: {
-        issue: 'Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.',
+        issue:
+          'Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.',
       },
     },
   },
@@ -47,14 +48,17 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-
   for (const argument of expr.arguments) {
     if (argument.type === 'SpreadElement') {
       return;
     }
   }
 
-  const props = getValueOfExpression(ctx, expr.arguments[OPTIONS_ARGUMENT_POSITION], 'ObjectExpression');
+  const props = getValueOfExpression(
+    ctx,
+    expr.arguments[OPTIONS_ARGUMENT_POSITION],
+    'ObjectExpression',
+  );
   if (props === undefined) {
     report(expr.callee);
     return;
@@ -104,4 +108,3 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
     );
   }
 }
-
