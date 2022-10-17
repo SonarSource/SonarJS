@@ -22,14 +22,11 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -37,7 +34,6 @@ import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
-import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
@@ -45,6 +41,7 @@ import org.sonarsource.sonarlint.core.commons.Language;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +84,7 @@ class TestCodeAnalysisTest {
 
   @Test
   void sonarlint() throws Exception {
-    File baseDir = TestUtils.projectDir(project);
+    var baseDir = TestUtils.projectDir(project).toPath();
 
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
@@ -103,20 +100,15 @@ class TestCodeAnalysisTest {
       })
       .build();
 
-    List<ClientInputFile> inputFiles = Files.walk(baseDir.toPath())
-      .filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".js"))
-      .map(p -> {
-        try {
-          return TestUtils.prepareInputFile(baseDir, baseDir.toPath().relativize(p).toString(), Files.lines(p).collect(Collectors.joining(System.lineSeparator())));
-        } catch (IOException e) {
-          e.printStackTrace();
-          return null;
-        }
-      })
-      .collect(Collectors.toList());
+    var srcFile = baseDir.resolve("src/file.js");
+    var testFile = baseDir.resolve("test/file.test.js");
+    var inputFiles = List.of(
+      sonarLintInputFile(srcFile, Files.readString(srcFile)),
+      sonarLintInputFile(testFile, Files.readString(testFile))
+    );
 
     StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration.builder()
-      .setBaseDir(baseDir.toPath())
+      .setBaseDir(baseDir)
       .addInputFiles(inputFiles)
       .build();
 
@@ -126,6 +118,7 @@ class TestCodeAnalysisTest {
     sonarlintEngine.analyze(analysisConfig, issues::add, null, null);
     sonarlintEngine.stop();
 
-    assertThat(issues).extracting("ruleKey").containsOnly("javascript:S1848", "javascript:S1848");
+    assertThat(issues).extracting(org.sonarsource.sonarlint.core.client.api.common.analysis.Issue::getRuleKey)
+      .containsOnly("javascript:S1848", "javascript:S1848");
   }
 }
