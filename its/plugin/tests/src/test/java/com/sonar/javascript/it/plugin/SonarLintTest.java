@@ -43,7 +43,6 @@ import org.sonarsource.sonarlint.core.commons.Version;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 
 import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
