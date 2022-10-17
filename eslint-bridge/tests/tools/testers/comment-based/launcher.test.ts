@@ -54,7 +54,7 @@ function extractRuleOptions(testFiles, rule) {
 }
 
 function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
-  const testFiles = fs.readdirSync(fixtures);
+  const testFiles = ['aws-sagemaker-unencrypted-notebook.js'];
   for (const testFile of testFiles) {
     const filename = path.join(fixtures, testFile);
     const { ext, name } = path.parse(filename);
