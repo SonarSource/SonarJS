@@ -13,7 +13,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
     });
 
     new opensearchservice.CfnDomain(this, 'ImplicitlyNonCompliantCfnDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
-      engineVersion: 'OpenSearch_1.3',
+      engineVersion: 'ElasticSearch_1.3',
     });
 
     new opensearchservice.Domain(this, 'IncompleteNoncompliantDomain', {
@@ -22,7 +22,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
     });
 
     new opensearchservice.CfnDomain(this, 'IncompleteNonCompliantCfnDomain', {
-      engineVersion: 'OpenSearch_1.3',
+      engineVersion: 'ElasticSearch_1.3',
       encryptionAtRestOptions: { }, // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
     });
 
@@ -37,7 +37,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
     });
 
     new opensearchservice.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
-      engineVersion: 'OpenSearch_1.3',
+      engineVersion: 'ElasticSearch_1.3',
       encryptionAtRestOptions: {
         enabled: false, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
       },
@@ -57,7 +57,7 @@ class CompliantS6308Stack extends cdk.Stack {
     });
 
     new opensearchservice.CfnDomain(this, 'CompliantCfnDomain', {
-      engineVersion: 'OpenSearch_1.3',
+      engineVersion: 'ElasticSearch_1.3',
       encryptionAtRestOptions: {
         enabled: true,
       },
