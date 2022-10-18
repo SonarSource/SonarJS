@@ -1,0 +1,66 @@
+<p>Amazon Simple Notification Service (SNS) is a managed messaging service for application-to-application (A2A) and application-to-person (A2P)
+communication. SNS topics allows publisher systems to fanout messages to a large number of subscriber systems. Amazon SNS allows to encrypt messages
+when they are received. In the case that adversaries gain physical access to the storage medium or otherwise leak a message they are not able to
+access the data.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The topic contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt SNS topics that contain sensitive information. Encryption and decryption are handled transparently by SNS, so no
+further modifications to the application are necessary.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sns.Topic.html"><code>aws_cdk.aws_sns.Topic</code></a></p>
+<pre>
+import { Topic } from 'aws-cdk-lib/aws-sns';
+
+new Topic(this, 'exampleTopic'); // Sensitive
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sns.CfnTopic.html"><code>aws_cdk.aws_sns.CfnTopic</code></a></p>
+<pre>
+import { Topic, CfnTopic } from 'aws-cdk-lib/aws-sns';
+
+new CfnTopic(this, 'exampleCfnTopic'); // Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sns.Topic.html"><code>aws_cdk.aws_sns.Topic</code></a></p>
+<pre>
+import { Topic } from 'aws-cdk-lib/aws-sns';
+
+const encryptionKey = new Key(this, 'exampleKey', {
+    enableKeyRotation: true,
+});
+
+new Topic(this, 'exampleTopic', {
+    masterKey: encryptionKey
+});
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sns.CfnTopic.html"><code>aws_cdk.aws_sns.CfnTopic</code></a></p>
+<pre>
+import { CfnTopic } from 'aws-cdk-lib/aws-sns';
+
+const encryptionKey = new Key(this, 'exampleKey', {
+    enableKeyRotation: true,
+});
+
+cfnTopic = new CfnTopic(this, 'exampleCfnTopic', {
+    kmsMasterKeyId: encryptionKey.keyId
+});
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html">AWS Documentation</a> - Encryption at rest </li>
+  <li> <a href="https://aws.amazon.com/blogs/compute/encrypting-messages-published-to-amazon-sns-with-aws-kms/">Encrypting messages published to
+  Amazon SNS with AWS KMS</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+

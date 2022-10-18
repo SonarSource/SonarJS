@@ -45,6 +45,9 @@ export function AwsCdkTemplate(
     create(ctx: Rule.RuleContext) {
       return {
         NewExpression(node: estree.NewExpression) {
+          if (node.arguments.some(arg => arg.type === 'SpreadElement')) {
+            return;
+          }
           for (const fqn in consumers) {
             const normalizedExpectedFQN = fqn.replace(/-/g, '_');
             const normalizedActualFQN = getFullyQualifiedName(ctx, node.callee)?.replace(/-/g, '_');

@@ -55,6 +55,12 @@ function b() {
   new Class();
 }`,
     },
+    {
+      code: `
+import { default as cdk } from 'aws-cdk-lib';
+new cdk.aws_module.Class(...args);
+      `,
+    },
   ],
   invalid: [
     {

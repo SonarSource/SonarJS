@@ -382,6 +382,7 @@ function resolveIdentifiersAcc(
   }
 }
 
+// TODO Drop this function and replace it with `getProperty`
 export function getObjectExpressionProperty(
   node: estree.Node | undefined | null,
   propertyKey: string,
@@ -412,6 +413,36 @@ export function getPropertyWithValue(
     }
   }
   return undefined;
+}
+
+export function getProperty(
+  expr: estree.ObjectExpression,
+  key: string,
+  ctx: Rule.RuleContext,
+): estree.Property | null {
+  for (let i = expr.properties.length - 1; i >= 0; --i) {
+    const property = expr.properties[i];
+    if (isProperty(property, key)) {
+      return property;
+    }
+    if (property.type === 'SpreadElement') {
+      const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
+      if (props !== undefined) {
+        const prop = getProperty(props, key, ctx);
+        if (prop !== null) {
+          return prop;
+        }
+      }
+    }
+  }
+  return null;
+
+  function isProperty(node: estree.Node, key: string): node is estree.Property {
+    return (
+      node.type === 'Property' &&
+      (isIdentifier(node.key, key) || (isStringLiteral(node.key) && node.key.value === key))
+    );
+  }
 }
 
 export function resolveFromFunctionReference(
