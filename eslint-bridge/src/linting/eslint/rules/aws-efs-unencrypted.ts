@@ -51,7 +51,11 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
-type LiteralValue = string | number | bigint | boolean | RegExp | null | undefined;
+type Values = {
+  invalid?: any[];
+  valid?: any[];
+};
+
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
@@ -73,7 +77,7 @@ function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   if (isUndefined(propertyValue)) {
     return;
   }
-  if (queryValue(ctx, propertyValue) === false) {
+  if (disallowedValue(ctx, propertyValue, { invalid: [false] })) {
     ctx.report({ messageId: 'FSEncryptionDisabled', node: property.value });
   }
 }
@@ -85,7 +89,7 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
     'ObjectExpression',
   );
   if (props === undefined) {
-    ctx.report({ messageId: 'CFSEncryptionOmitted', node: expr });
+    ctx.report({ messageId: 'CFSEncryptionOmitted', node: expr.callee });
     return;
   }
 
@@ -101,20 +105,24 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
     return;
   }
 
-  if (queryValue(ctx, propertyValue) !== true) {
+  if (disallowedValue(ctx, propertyValue, { valid: [true] })) {
     ctx.report({ messageId: 'CFSEncryptionDisabled', node: property.value });
   }
 }
 
-function queryValue(ctx: Rule.RuleContext, node: estree.Node): LiteralValue {
+function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
   if (isLiteral(node)) {
-    return node.value;
+    if (values.valid && !values.valid.includes(node.value)) {
+      return true;
+    }
+    if (values.invalid && values.invalid.includes(node.value)) {
+      return true;
+    }
   } else if (isIdentifier(node)) {
     const usage = getUniqueWriteUsage(ctx, node.name);
-    if (!usage) {
-      return null;
+    if (usage) {
+      return disallowedValue(ctx, usage, values);
     }
-    return queryValue(ctx, usage);
   }
-  return null;
+  return false;
 }

@@ -16,14 +16,20 @@ new CfnFileSystem(this, 'unencrypted-explicit-cfn', {encrypted: false}); //Nonco
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': false}); //Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
 //                                                                ^^^^^
 
+const falseValue = false;
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': falseValue}); //Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
+//                                                                ^^^^^^^^^^
+
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': unknownValue}); //Compliant
+
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': undefined}); //Noncompliant {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}
 //                                                                ^^^^^^^^^
 
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {enableAutomaticBackups: true}); //Noncompliant {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}
 //                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    new CfnFileSystem(this, 'unencrypted-implicit-cfn'); // Noncompliant  {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}
-//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+new CfnFileSystem(this, 'unencrypted-implicit-cfn'); // Noncompliant  {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^
 
 const encrypted1 = false;
 const encrypted2 = null;
