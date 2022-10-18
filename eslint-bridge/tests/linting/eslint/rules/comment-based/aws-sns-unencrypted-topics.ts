@@ -23,6 +23,9 @@ function compliant() {
     ...topicProps
   });
 
+  const topicArgs = [this, 'EncryptedTopic', { masterKey: undefined} ];
+  new Topic(...topicArgs); // FN - not supporting arguments spread
+
   new CfnTopic(this, 'EncryptedCfnTopic', {
     kmsMasterKeyId: unknownKeyId
   });
@@ -40,6 +43,9 @@ function compliant() {
   new CfnTopic(this, 'EncryptedCfnTopic', {
     ...cfnTopicProps
   });
+
+  const cfnTopicArgs = [this, 'EncryptedCfnTopic', { kmsMasterKeyId: undefined} ];
+  new CfnTopic(...cfnTopicArgs); // FN - not supporting arguments spread
 }
 
 function non_compliant() {
