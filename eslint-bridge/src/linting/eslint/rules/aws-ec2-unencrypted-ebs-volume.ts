@@ -98,7 +98,9 @@ function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
 
   function queryArgument(node: NewExpression, position: number): ObjectExpression {
     const expression = getExpressionAtPosition(node.arguments, position);
-    if (expression?.type !== 'ObjectExpression') {
+    if (expression != null && isUndefined(expression)) {
+      throw new QueryError(expression, 'missing');
+    } else if (expression?.type !== 'ObjectExpression') {
       throw new QueryError(node, expression == null ? 'missing' : 'unknown');
     }
     return expression;
