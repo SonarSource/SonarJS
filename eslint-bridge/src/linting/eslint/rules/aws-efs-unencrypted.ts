@@ -21,7 +21,6 @@
 
 import { Rule } from 'eslint';
 import {
-  AwsCdkTemplate,
   getUniqueWriteUsage,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
@@ -30,6 +29,8 @@ import {
   isStringLiteral,
   isUndefined,
 } from './helpers';
+import { AwsCdkTemplate } from './helpers/aws/cdk';
+
 import estree from 'estree';
 
 const messages = {
