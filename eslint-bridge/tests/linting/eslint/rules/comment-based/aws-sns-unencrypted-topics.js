@@ -1,5 +1,5 @@
-const { Topic, CfnTopic } = require('aws-cdk-lib/aws-sns');
-const { Key } = require('aws-cdk-lib/aws-kms');
+import { Topic, CfnTopic } from 'aws-cdk-lib/aws-sns';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 function compliant() {
 
@@ -23,9 +23,18 @@ function compliant() {
     ...topicProps
   });
 
+  const topicArgs = [this, 'EncryptedTopic', { masterKey: undefined} ];
+  new Topic(...topicArgs); // FN - not supporting arguments spread
+
   new CfnTopic(this, 'EncryptedCfnTopic', {
     kmsMasterKeyId: unknownKeyId
   });
+
+  new CfnTopic(this, 'EncryptedCfnTopic', {
+    ...unknownOptions
+  });
+
+  new CfnTopic(this, 'EncryptedCfnTopic', unknownOptionsnb);
 
   new CfnTopic(this, 'EncryptedCfnTopic', {
     kmsMasterKeyId: encryptionKey.keyId
@@ -40,6 +49,9 @@ function compliant() {
   new CfnTopic(this, 'EncryptedCfnTopic', {
     ...cfnTopicProps
   });
+
+  const cfnTopicArgs = [this, 'EncryptedCfnTopic', { kmsMasterKeyId: undefined} ];
+  new CfnTopic(...cfnTopicArgs); // FN - not supporting arguments spread
 }
 
 function non_compliant() {
