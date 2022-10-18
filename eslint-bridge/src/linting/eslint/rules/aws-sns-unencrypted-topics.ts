@@ -73,7 +73,8 @@ function checkTopic(key: string) {
     }
 
     function getProperty(expr: estree.ObjectExpression, key: string): estree.Property | null {
-      for (const property of expr.properties.reverse()) {
+      for (let i = expr.properties.length - 1; i >= 0; --i) {
+        const property = expr.properties[i];
         if (isProperty(property, key)) {
           return property;
         }
