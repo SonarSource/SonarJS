@@ -199,6 +199,8 @@ function domainChecker(options: DomainCheckerOptions) {
       const expression = getExpressionAtPosition(node.arguments, position);
       if (expression == null) {
         return missing(node);
+      } else if (isUndefined(expression)) {
+        return missing(expression);
       } else if (expression.type === 'SpreadElement') {
         return unknown(node);
       } else {
