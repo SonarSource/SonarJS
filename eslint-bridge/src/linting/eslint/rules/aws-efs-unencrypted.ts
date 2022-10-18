@@ -21,12 +21,12 @@
 
 import { Rule } from 'eslint';
 import {
+  getProperty,
   getUniqueWriteUsage,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isIdentifier,
   isLiteral,
-  isStringLiteral,
   isUndefined,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
@@ -55,10 +55,6 @@ type LiteralValue = string | number | bigint | boolean | RegExp | null | undefin
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  if (unknownParameters(expr)) {
-    return;
-  }
-
   const props = getValueOfExpression(
     ctx,
     expr.arguments[OPTIONS_ARGUMENT_POSITION],
@@ -68,7 +64,7 @@ function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
     return;
   }
 
-  const property = getProperty(ctx, props, 'encrypted');
+  const property = getProperty(props, 'encrypted', ctx);
   if (property === null) {
     return;
   }
@@ -83,12 +79,6 @@ function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
 }
 
 function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  for (const argument of expr.arguments) {
-    if (argument.type === 'SpreadElement') {
-      return;
-    }
-  }
-
   const props = getValueOfExpression(
     ctx,
     expr.arguments[OPTIONS_ARGUMENT_POSITION],
@@ -99,7 +89,7 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
     return;
   }
 
-  const property = getProperty(ctx, props, 'encrypted');
+  const property = getProperty(props, 'encrypted', ctx);
   if (property === null) {
     ctx.report({ messageId: 'CFSEncryptionOmitted', node: props });
     return;
@@ -116,36 +106,6 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
   }
 }
 
-function getProperty(
-  ctx: Rule.RuleContext,
-  expr: estree.ObjectExpression,
-  key: string,
-): estree.Property | null {
-  for (let i = expr.properties.length - 1; i >= 0; i--) {
-    const property = expr.properties[i];
-    if (isProperty(property, key)) {
-      return property;
-    }
-    if (property.type === 'SpreadElement') {
-      const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
-      if (props !== undefined) {
-        const prop = getProperty(ctx, props, key);
-        if (prop !== null) {
-          return prop;
-        }
-      }
-    }
-  }
-  return null;
-}
-
-function isProperty(node: estree.Node, key: string): node is estree.Property {
-  return (
-    node.type === 'Property' &&
-    (isIdentifier(node.key, key) || (isStringLiteral(node.key) && node.key.value === key))
-  );
-}
-
 function queryValue(ctx: Rule.RuleContext, node: estree.Node): LiteralValue {
   if (isLiteral(node)) {
     return node.value;
@@ -157,13 +117,4 @@ function queryValue(ctx: Rule.RuleContext, node: estree.Node): LiteralValue {
     return queryValue(ctx, usage);
   }
   return null;
-}
-
-function unknownParameters(expr: estree.NewExpression) {
-  for (const argument of expr.arguments) {
-    if (argument.type === 'SpreadElement') {
-      return true;
-    }
-  }
-  return false;
 }

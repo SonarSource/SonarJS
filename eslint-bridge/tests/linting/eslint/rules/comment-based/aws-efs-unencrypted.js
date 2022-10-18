@@ -40,5 +40,10 @@ const opts = {encrypted: false};//Noncompliant {{Make sure that using unencrypte
 //                       ^^^^^
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...opts});
 
+new CfnFileSystem(this, 'encrypted-explicit', {...{encrypted: false}, ...{encrypted: true}}); //Compliant
+
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...{encrypted: true}, ...{encrypted: false}}); //Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
+//                                                                                        ^^^^^
+
 const args = [];
 new CfnFileSystem(...args); //Compliant (ignored spreadOperator on arguments)
