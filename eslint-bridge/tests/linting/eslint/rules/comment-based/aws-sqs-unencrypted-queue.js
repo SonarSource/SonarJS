@@ -34,6 +34,12 @@ export class S6330NonCompliantStack extends Stack {
 //                    ^^^^^^^^^
     });
 
+    const props1 = {
+      kmsMasterKeyId: undefined // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
+//                    ^^^^^^^^^
+    };
+    const cfnQueue5 = new CfnQueue(this, 'UnencryptedCfnQueue4', { ...props1 });
+
     queue1.applyRemovalPolicy(RemovalPolicy.DESTROY);
     cfnQueue1.applyRemovalPolicy(RemovalPolicy.DESTROY);
     queue2.applyRemovalPolicy(RemovalPolicy.DESTROY);
@@ -66,6 +72,9 @@ export class S6330CompliantStack extends Stack {
     const queue3 = new Queue(this, 'EncryptedQueue3', {
       encryption: QueueEncryption.KMS_MANAGED
     });
+
+    const args = ['UnencryptedCfnQueue4', {encryption: QueueEncryption.UNENCRYPTED}];
+    const queue4 = new Queue(this, ...args);  // FN
 
     const cfnQueue = new CfnQueue(this, 'EncryptedCfnQueue', {
       kmsMasterKeyId: encryptionKey.keyId

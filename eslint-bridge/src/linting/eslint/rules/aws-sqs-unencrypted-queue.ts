@@ -19,10 +19,27 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6308/javascript
 
-import {Rule} from 'eslint';
-import {AwsCdkTemplate} from './helpers/aws/cdk';
-import {Expression, Identifier, Literal, MemberExpression, NewExpression, Node, ObjectExpression, Property, SpreadElement,} from 'estree';
-import {getUniqueWriteUsage, isDotNotation, isIdentifier, isLiteral, isProperty, isUndefined,} from './helpers';
+import { Rule } from 'eslint';
+import { AwsCdkTemplate } from './helpers/aws/cdk';
+import {
+  Expression,
+  Identifier,
+  Literal,
+  MemberExpression,
+  NewExpression,
+  Node,
+  ObjectExpression,
+  Property,
+  SpreadElement,
+} from 'estree';
+import {
+  getUniqueWriteUsage,
+  isDotNotation,
+  isIdentifier,
+  isLiteral,
+  isProperty,
+  isUndefined,
+} from './helpers';
 
 const QUEUE_PROPS_POSITION = 2;
 
@@ -35,17 +52,18 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
     'aws-cdk-lib.aws-sqs.Queue': queueChecker({
       encryptionProperty: 'encryption',
-      hasUnencryptedValue: true
+      hasUnencryptedValue: true,
     }),
     'aws-cdk-lib.aws-sqs.CfnQueue': queueChecker({
       encryptionProperty: 'kmsMasterKeyId',
-      hasUnencryptedValue: false
+      hasUnencryptedValue: false,
     }),
   },
   {
     meta: {
       messages: {
-        encryptionDisabled: 'Setting {{encryptionProperty}} to QueueEncryption.UNENCRYPTED disables SQS queues encryption. ' +
+        encryptionDisabled:
+          'Setting {{encryptionProperty}} to QueueEncryption.UNENCRYPTED disables SQS queues encryption. ' +
           'Make sure it is safe here.',
         encryptionOmitted:
           'Omitting {{encryptionProperty}} disables SQS queues encryption. Make sure it is safe here.',
@@ -56,7 +74,9 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 
 function queueChecker(options: QueueCheckerOptions) {
   return (expr: NewExpression, ctx: Rule.RuleContext) => {
-    const argument = queryArgument(expr, QUEUE_PROPS_POSITION).notUndefined().ofType('ObjectExpression');
+    const argument = queryArgument(expr, QUEUE_PROPS_POSITION)
+      .notUndefined()
+      .ofType('ObjectExpression');
     const encryptionProperty = queryEncryptionProperty(argument, options.encryptionProperty);
 
     if (encryptionProperty.isMissing) {
@@ -79,7 +99,8 @@ function queueChecker(options: QueueCheckerOptions) {
 
     function isUnencrypted(node: Node, options: QueueCheckerOptions) {
       if (options.hasUnencryptedValue && isMemberIdentifier(node)) {
-        const className = node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
+        const className =
+          node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
         const constantName = node.property.name;
         return className === 'QueueEncryption' && constantName == 'UNENCRYPTED';
       } else {
@@ -192,7 +213,11 @@ class Result {
   }
 
   notUndefined(): Result {
-    return this.isFound && !isUndefined(this.node) ? this : missing(this.node);
+    if (this.isFound) {
+      return isUndefined(this.node) ? missing(this.node) : this;
+    } else {
+      return this;
+    }
   }
 }
 
