@@ -11,14 +11,41 @@ class NonCompliantS6308Stack extends cdk.Stack {
     /*
      * Default: Implicitly non compliant
      */
+    new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain'); // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    new opensearchservice.CfnDomain(this, 'ImplicitlyNonCompliantCfnDomain'); // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain'); // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    new elasticsearch.CfnDomain(this, 'ImplicitlyNonCompliantCfnDomain'); // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
     });
-
-    new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain'); // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
-
     new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
       version: EngineVersion.OPENSEARCH_1_3,
+    });
+    new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      version: EngineVersion.ELASTICSEARCH_7_10,
+    });
+    new opensearchservice.CfnDomain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+      engineVersion: 'OpenSearch_1.3',
+    });
+    new opensearchservice.CfnDomain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      engineVersion: 'Elasticsearch_7.10',
+    });
+    new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+    });
+    new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      version: es.ElasticsearchVersion.V7_4,
+    });
+    new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      version: ElasticsearchVersion.V7_4,
+    });
+    new elasticsearch.CfnDomain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      elasticsearchVersion: '7.4',
     });
 
     new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
@@ -29,32 +56,32 @@ class NonCompliantS6308Stack extends cdk.Stack {
       engineVersion: 'OpenSearch_1.3',
     });
 
+    new opensearchservice.CfnDomain(this, 'ImplicitlyNonCompliantCfnDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+      engineVersion: 'Elasticsearch_7.10',
+    });
+
     new opensearchservice.Domain(this, 'IncompleteNoncompliantDomain', {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
       encryptionAtRest: { }, // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+//                      ^^^
     });
 
     new opensearchservice.CfnDomain(this, 'IncompleteNonCompliantCfnDomain', {
       engineVersion: 'OpenSearch_1.3',
       encryptionAtRestOptions: { }, // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
-    });
-
-    new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
-      version: elasticsearch.ElasticsearchVersion.V7_9,
-    });
-
-    new elasticsearch.CfnDomain(this, 'ImplicitlyNonCompliantCfnDomain', { // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
-      elasticsearchVersion: '1.3',
+//                             ^^^
     });
 
     new elasticsearch.Domain(this, 'IncompleteNoncompliantDomain', {
       version: elasticsearch.ElasticsearchVersion.V7_9,
       encryptionAtRest: { }, // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+//                      ^^^
     });
 
     new elasticsearch.CfnDomain(this, 'IncompleteNonCompliantCfnDomain', {
       elasticsearchVersion: '1.3',
       encryptionAtRestOptions: { }, // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
+//                             ^^^
     });
 
     /*
@@ -64,6 +91,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
       encryptionAtRest: {
         enabled: false, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
+//               ^^^^^
       },
     });
 
@@ -71,6 +99,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
       engineVersion: 'OpenSearch_1.3',
       encryptionAtRestOptions: {
         enabled: false, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
+//               ^^^^^
       },
     });
 
@@ -78,6 +107,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
       version: elasticsearch.ElasticsearchVersion.V7_9,
       encryptionAtRest: {
         enabled: false, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//               ^^^^^
       },
     });
 
@@ -85,7 +115,37 @@ class NonCompliantS6308Stack extends cdk.Stack {
       elasticsearchVersion: '1.3',
       encryptionAtRestOptions: {
         enabled: false, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//               ^^^^^
       },
+    });
+
+    const enabled = false;
+    const elasticsearchVersion = '1.3';
+    new elasticsearch.Domain(this, 'ExplicitlyNoncompliantDomain', {
+      version: elasticsearch.ElasticsearchVersion.V7_9,
+      encryptionAtRest: {
+        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//      ^^^^^^^
+      },
+    });
+
+    new elasticsearch.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
+      elasticsearchVersion,
+      encryptionAtRestOptions: {
+        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//      ^^^^^^^
+      },
+    });
+
+    const args = {
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      encryptionAtRest: {
+        enabled, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
+//      ^^^^^^^
+      },
+    };
+    new opensearchservice.Domain(this, 'ComplianDomain', {
+      ...args
     });
   }
 }
@@ -101,16 +161,6 @@ class CompliantS6308Stack extends cdk.Stack {
       },
     }];
     new opensearchservice.Domain(this, ...args1); // FN
-
-    const args2 = {
-      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
-      encryptionAtRest: {
-        enabled: false,
-      },
-    };
-    new opensearchservice.Domain(this, 'ComplianDomain', { // FN
-      ...args2
-    });
 
     new opensearchservice.Domain(this, 'CompliantDomain', {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,

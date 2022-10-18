@@ -113,6 +113,16 @@ function isIdentifierVersion(node: Node): node is VersionIdentifier {
   return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
 }
 
+function isSpreadIdentifier(
+  node: Property | SpreadElement,
+): node is SpreadElement & { argument: Identifier } {
+  return node.type === 'SpreadElement' && node.argument.type === 'Identifier';
+}
+
+function isIdentifierProperty(node: Property | SpreadElement, name: string): node is Property {
+  return isProperty(node) && isPropertyName(node.key, name);
+}
+
 function domainChecker(options: DomainCheckerOptions) {
   return (expr: NewExpression, ctx: Rule.RuleContext) => {
     const argument = queryArgument(expr, DOMAIN_PROPS_POSITION).filter('ObjectExpression');
@@ -140,18 +150,19 @@ function domainChecker(options: DomainCheckerOptions) {
     }
 
     function queryEncryptionProperty(argument: Result, propertyName: string) {
-      const encryptionProperty = argument.map((node: ObjectExpression) =>
-        queryProperty(node, propertyName),
-      );
+      const encryptionProperty = argument
+        .map((object: ObjectExpression) => queryProperty(object, propertyName))
+        .map((property: Property) => property.value);
       return encryptionProperty
         .filter('ObjectExpression')
-        .map((node: ObjectExpression) => queryProperty(node, ENABLED_PROPERTY));
+        .map((object: ObjectExpression) => queryProperty(object, ENABLED_PROPERTY))
+        .map((property: Property) => property.value);
     }
 
     function getVersion(argument: Result, options: DomainCheckerOptions) {
-      const version = argument.map((node: ObjectExpression) =>
-        queryProperty(node, options.version.property),
-      );
+      const version = argument
+        .map((object: ObjectExpression) => queryProperty(object, options.version.property))
+        .map((property: Property) => property.value);
       const versionValue = getVersionValue(version, options);
       return versionValue?.toLowerCase();
     }
@@ -195,25 +206,30 @@ function domainChecker(options: DomainCheckerOptions) {
       }
     }
 
-    function queryProperty(node: ObjectExpression, name: string) {
+    function queryProperty(node: ObjectExpression, name: string): Result {
       let property: Property | null = null;
-      let hasSpreadElement = false;
-      let index = 0;
+      let hasUnknownSpreadElement = false;
+      let index = node.properties.length - 1;
 
-      while (index < node.properties.length && property == null) {
+      while (index >= 0 && property == null) {
         const element = node.properties[index];
-        if (isProperty(element) && isPropertyName(element.key, name)) {
+        if (isIdentifierProperty(element, name)) {
           property = element;
-        } else if (element.type === 'SpreadElement') {
-          hasSpreadElement = true;
+        } else if (isSpreadIdentifier(element)) {
+          const usage = getUniqueWriteUsage(ctx, element.argument.name);
+          if (usage && usage.type === 'ObjectExpression') {
+            property = queryProperty(usage, name).as('Property');
+          } else {
+            hasUnknownSpreadElement = true;
+          }
         }
-        index++;
+        index--;
       }
 
       if (property == null) {
-        return hasSpreadElement ? unknown(node) : missing(node);
+        return hasUnknownSpreadElement ? unknown(node) : missing(node);
       } else {
-        return new FoundResult(property.value);
+        return new FoundResult(property);
       }
     }
 
@@ -272,7 +288,7 @@ class Result {
     return isStringLiteral(this.node) ? this.node.value : null;
   }
 
-  map<N extends Node>(_closure: (node: N) => Result): Result {
+  map<N extends Node>(_closure: (node: N) => Result | Node): Result {
     return this;
   }
 
@@ -294,8 +310,9 @@ class FoundResult extends Result {
     return this.status === 'found' && this.node.type === type ? (this.node as N) : null;
   }
 
-  map<N extends Node>(closure: (node: N) => Result): Result {
-    return closure(this.node as N);
+  map<N extends Node>(closure: (node: N) => Result | Node): Result {
+    const resultOrNode = closure(this.node as N);
+    return resultOrNode instanceof Result ? resultOrNode : found(resultOrNode);
   }
 
   filter(type: string): Result {
