@@ -45,10 +45,6 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 
 function checkTopic(key: string) {
   return (expr: estree.NewExpression, ctx: Rule.RuleContext) => {
-    if (expr.arguments.some(arg => arg.type === 'SpreadElement')) {
-      return;
-    }
-
     const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
     if (props === undefined) {
       report(expr.callee);
