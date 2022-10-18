@@ -47,7 +47,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private final WildcardPattern[] excludedPatterns;
   private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
-  /** Note that in user-facing option handling the units are kilobytes, not bytes. */
+  /**
+   * Note that in user-facing option handling the units are kilobytes, not bytes.
+   */
   private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
@@ -77,29 +79,23 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-
-    boolean isJsTs =
-      JavaScriptLanguage.KEY.equals(inputFile.language()) ||
-      TypeScriptLanguage.KEY.equals(inputFile.language());
-    boolean isJsTsCss =
-      isJsTs ||
-      CssLanguage.KEY.equals(inputFile.language());
+    boolean isJsTsCss = JavaScriptLanguage.KEY.equals(inputFile.language()) ||
+        TypeScriptLanguage.KEY.equals(inputFile.language()) ||
+        CssLanguage.KEY.equals(inputFile.language());
 
     // filter only JS/TS/CSS files
     if (!isJsTsCss) {
       return true;
     }
 
-    if (isJsTs) {
-      if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
-        LOG.debug("File {} was excluded because of excessive size", inputFile);
-        return false;
-      }
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+      LOG.debug("File {} was excluded because of excessive size", inputFile);
+      return false;
+    }
 
-      if (WildcardPattern.match(excludedPatterns, inputFile.relativePath())) {
-        LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
-        return false;
-      }
+    if (WildcardPattern.match(excludedPatterns, inputFile.relativePath())) {
+      LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
+      return false;
     }
 
     boolean isMinified = new MinificationAssessor().isMinified(inputFile);
