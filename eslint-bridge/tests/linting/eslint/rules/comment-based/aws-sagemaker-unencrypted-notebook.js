@@ -12,6 +12,10 @@ new CfnNotebookInstance(this, "CfnNotebookInstance"); // Noncompliant {{Omitting
 new CfnNotebookInstance(this, "CfnNotebookInstance", {}); // Noncompliant {{Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
 //                                                   ^^
 
+new CfnNotebookInstance(this, "CfnNotebookInstance", unknownValue); // Compliant
+new CfnNotebookInstance(this, "CfnNotebookInstance", { ...unknownValue }); // Compliant
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: unknownValue }); // Compliant
+
 const value1 = false;
 new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value1 }); // Compliant (false is ignored)
 

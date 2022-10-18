@@ -47,11 +47,14 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(
-    ctx,
-    expr.arguments[OPTIONS_ARGUMENT_POSITION],
-    'ObjectExpression',
-  );
+  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
+
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+    return;
+  }
+
   if (props === undefined) {
     report(expr.callee);
     return;
@@ -60,6 +63,9 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
   const propertyKey = getProperty(props, 'kmsKeyId', ctx);
   if (propertyKey === null) {
     report(props);
+  }
+
+  if (!propertyKey) {
     return;
   }
 
