@@ -24,9 +24,8 @@ import * as estree from 'estree';
 import {
   getValueOfExpression,
   isUndefined,
-  isIdentifier,
   getUniqueWriteUsageOrNode,
-  isStringLiteral,
+  getProperty,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 
@@ -56,7 +55,7 @@ function checkTopic(key: string) {
       return;
     }
 
-    const masterKey = getProperty(props, key);
+    const masterKey = getProperty(props, key, ctx);
     if (masterKey === null) {
       report(props);
       return;
@@ -74,32 +73,6 @@ function checkTopic(key: string) {
         data: { key },
         node,
       });
-    }
-
-    function getProperty(expr: estree.ObjectExpression, key: string): estree.Property | null {
-      for (let i = expr.properties.length - 1; i >= 0; --i) {
-        const property = expr.properties[i];
-        if (isProperty(property, key)) {
-          return property;
-        }
-        if (property.type === 'SpreadElement') {
-          const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
-          if (props !== undefined) {
-            const prop = getProperty(props, key);
-            if (prop !== null) {
-              return prop;
-            }
-          }
-        }
-      }
-      return null;
-
-      function isProperty(node: estree.Node, key: string): node is estree.Property {
-        return (
-          node.type === 'Property' &&
-          (isIdentifier(node.key, key) || (isStringLiteral(node.key) && node.key.value === key))
-        );
-      }
     }
   };
 }
