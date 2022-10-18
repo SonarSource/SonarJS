@@ -221,6 +221,17 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile)).isTrue();
   }
 
+  @Test
+  void should_exclude_css_with_patterns() throws Exception {
+    var filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    var inputFile = new TestInputFileBuilder("key", "vendor/file.css")
+      .setContents("h1 { color: blue } ")
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isFalse();
+  }
+
   /**
    * Generates a synthetic file with exported constants `N1`, `N2`, ... mapped to integers `1`, `2` ... in every line.
    * The size of the synthetic file is small as possible while being at least `approxSizeBytes`.
