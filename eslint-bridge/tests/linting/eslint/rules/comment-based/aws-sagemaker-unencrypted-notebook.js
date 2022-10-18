@@ -1,27 +1,25 @@
 import { CfnNotebookInstance } from "aws-cdk-lib/aws-sagemaker";
 
-function nonCompliant() {
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: 'kmsKeyId' }); // Compliant
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: null }); // Compliant (null are ignored)
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: 'kmsKeyId' }); // Compliant
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: null }); // Compliant (null are ignored)
 
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: undefined }); // Noncompliant {{Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
-  //                                                               ^^^^^^^^^
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: undefined }); // Noncompliant {{Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
+//                                                               ^^^^^^^^^
 
-  new CfnNotebookInstance(this, "CfnNotebookInstance"); // Noncompliant {{Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
-  //  ^^^^^^^^^^^^^^^^^^^
+new CfnNotebookInstance(this, "CfnNotebookInstance"); // Noncompliant {{Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^
 
-  new CfnNotebookInstance(this, "CfnNotebookInstance", {}); // Noncompliant {{Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
-  //                                                   ^^
+new CfnNotebookInstance(this, "CfnNotebookInstance", {}); // Noncompliant {{Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
+//                                                   ^^
 
-  const value1 = false;
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value1 }); // Compliant (false is ignored)
+const value1 = false;
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value1 }); // Compliant (false is ignored)
 
-  const value2 = null;
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value2 }); // Compliance (null are ignored)
-  const value3 = undefined;
-  new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value3 }); // Noncompliant {{Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
-  //                                                               ^^^^^^
+const value2 = null;
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value2 }); // Compliance (null are ignored)
+const value3 = undefined;
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: value3 }); // Noncompliant {{Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
+//                                                               ^^^^^^
 
-  const args = [this, "CfnNotebookInstance", { kmsKeyId: undefined }];
-  new CfnNotebookInstance(...args); // FN (we ignore spreadoperator)
-}
+const args = [this, "CfnNotebookInstance", { kmsKeyId: undefined }];
+new CfnNotebookInstance(...args); // FN (we ignore spreadoperator)

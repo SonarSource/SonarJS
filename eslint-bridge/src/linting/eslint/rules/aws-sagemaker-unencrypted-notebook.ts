@@ -21,10 +21,9 @@
 
 import { Rule } from 'eslint';
 import {
+  getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
-  isIdentifier,
-  isStringLiteral,
   isUndefined,
 } from './helpers';
 
@@ -39,7 +38,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     meta: {
       messages: {
         issue:
-          'Omitting `kms_key_id` disables encryption of SageMaker notebook instances. Make sure it is safe here.',
+          'Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
       },
     },
   },
@@ -48,12 +47,6 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  for (const argument of expr.arguments) {
-    if (argument.type === 'SpreadElement') {
-      return;
-    }
-  }
-
   const props = getValueOfExpression(
     ctx,
     expr.arguments[OPTIONS_ARGUMENT_POSITION],
@@ -64,7 +57,7 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
     return;
   }
 
-  const propertyKey = getProperty(props, 'kmsKeyId');
+  const propertyKey = getProperty(props, 'kmsKeyId', ctx);
   if (propertyKey === null) {
     report(props);
     return;
@@ -81,30 +74,5 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
       messageId: 'issue',
       node,
     });
-  }
-
-  function getProperty(expr: estree.ObjectExpression, key: string): estree.Property | null {
-    for (const property of expr.properties.reverse()) {
-      if (isProperty(property, key)) {
-        return property;
-      }
-      if (property.type === 'SpreadElement') {
-        const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
-        if (props !== undefined) {
-          const prop = getProperty(props, key);
-          if (prop !== null) {
-            return prop;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  function isProperty(node: estree.Node, key: string): node is estree.Property {
-    return (
-      node.type === 'Property' &&
-      (isIdentifier(node.key, key) || (isStringLiteral(node.key) && node.key.value === key))
-    );
   }
 }
