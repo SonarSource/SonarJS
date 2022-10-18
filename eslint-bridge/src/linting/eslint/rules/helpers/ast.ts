@@ -194,6 +194,10 @@ export function isNullLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === null;
 }
 
+export function isFalseLiteral(n: estree.Node): boolean {
+  return isLiteral(n) && n.value === false;
+}
+
 export function isUndefined(node: estree.Node | TSESTree.Node): boolean {
   return node.type === 'Identifier' && node.name === 'undefined';
 }

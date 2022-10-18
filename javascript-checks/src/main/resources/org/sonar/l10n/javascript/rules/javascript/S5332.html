@@ -82,20 +82,185 @@ c.connect({
 <pre>
 const Telnet = require('telnet-client'); // Sensitive
 </pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancingv2.ApplicationLoadBalancer</a>:</p>
+<pre>
+import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const alb = new ApplicationLoadBalancer(this, 'ALB', {
+  vpc: vpc,
+  internetFacing: true
+});
+
+alb.addListener('listener-http-default', {
+  port: 8080,
+  open: true
+}); // Sensitive
+
+alb.addListener('listener-http-explicit', {
+  protocol: ApplicationProtocol.HTTP, // Sensitive
+  port: 8080,
+  open: true
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.ApplicationListener</a>:</p>
+<pre>
+import { ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new ApplicationListener(this, 'listener-http-explicit-constructor', {
+  loadBalancer: alb,
+  protocol: ApplicationProtocol.HTTP, // Sensitive
+  port: 8080,
+  open: true
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.NetworkLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancingv2.NetworkLoadBalancer</a>:</p>
+<pre>
+import { NetworkLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const nlb = new NetworkLoadBalancer(this, 'nlb', {
+  vpc: vpc,
+  internetFacing: true
+});
+
+var listenerNLB = nlb.addListener('listener-tcp-default', {
+  port: 1234
+}); // Sensitive
+
+listenerNLB = nlb.addListener('listener-tcp-explicit', {
+  protocol: Protocol.TCP, // Sensitive
+  port: 1234
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.NetworkListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.NetworkListener</a>:</p>
+<pre>
+import { NetworkListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new NetworkListener(this, 'listener-tcp-explicit-constructor', {
+  loadBalancer: nlb,
+  protocol: Protocol.TCP, // Sensitive
+  port: 8080
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.CfnListener</a>:</p>
+<pre>
+import { CfnListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new CfnListener(this, 'listener-http', {
+  defaultActions: defaultActions,
+  loadBalancerArn: alb.loadBalancerArn,
+  protocol: "HTTP", // Sensitive
+  port: 80
+});
+
+new CfnListener(this, 'listener-tcp', {
+  defaultActions: defaultActions,
+  loadBalancerArn: alb.loadBalancerArn,
+  protocol: "TCP", // Sensitive
+  port: 80
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancing.CfnLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancing.CfnLoadBalancer</a>:</p>
+<pre>
+import { CfnLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancing';
+
+new CfnLoadBalancer(this, 'elb-tcp', {
+  listeners: [{
+    instancePort: '1000',
+    loadBalancerPort: '1000',
+    protocol: 'tcp' // Sensitive
+  }]
+});
+
+new CfnLoadBalancer(this, 'elb-http', {
+  listeners: [{
+    instancePort: '1000',
+    loadBalancerPort: '1000',
+    protocol: 'http' // Sensitive
+  }]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancing.LoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancing.LoadBalancer</a>:</p>
+<pre>
+import { LoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancing';
+
+const loadBalancer = new LoadBalancer(this, 'elb-tcp-dict', {
+    vpc,
+    internetFacing: true,
+    healthCheck: {
+    port: 80,
+    },
+    listeners: [
+    {
+        externalPort:10000,
+        externalProtocol: LoadBalancingProtocol.TCP, // Sensitive
+        internalPort:10000
+    }]
+});
+
+loadBalancer.addListener({
+  externalPort:10001,
+  externalProtocol:LoadBalancingProtocol.TCP, // Sensitive
+  internalPort:10001
+});
+loadBalancer.addListener({
+  externalPort:10002,
+  externalProtocol:LoadBalancingProtocol.HTTP, // Sensitive
+  internalPort:10002
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticache.CfnReplicationGroup.html">aws-cdk-lib.aws-elasticache.CfnReplicationGroup</a>:</p>
+<pre>
+import { CfnReplicationGroup } from 'aws-cdk-lib/aws-elasticache';
+
+new CfnReplicationGroup(this, 'unencrypted-implicit', {
+  replicationGroupDescription: 'exampleDescription'
+}); // Sensitive
+
+new CfnReplicationGroup(this, 'unencrypted-explicit', {
+  replicationGroupDescription: 'exampleDescription',
+  transitEncryptionEnabled: false // Sensitive
+});
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_kinesis.CfnStream.html">aws-cdk-lib.aws-kinesis.CfnStream</a>:</p>
+<pre>
+import { CfnStream } from 'aws-cdk-lib/aws-kinesis';
+
+new CfnStream(this, 'cfnstream-implicit-unencrytped', undefined); // Sensitive
+
+new CfnStream(this, 'cfnstream-explicit-unencrytped', {
+  streamEncryption: undefined // Sensitive
+});
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_kinesis.Stream.html">aws-cdk-lib.aws-kinesis.Stream</a>:</p>
+<pre>
+import { Stream } from 'aws-cdk-lib/aws-kinesis';
+
+new Stream(this, 'stream-explicit-unencrypted', {
+  encryption: StreamEncryption.UNENCRYPTED // Sensitive
+});
+</pre>
 <h2>Compliant Solution</h2>
 <pre>
-url = "https://example.com"; // Compliant
-url = "sftp://anonymous@example.com"; // Compliant
-url = "ssh://anonymous@example.com"; // Compliant
+url = "https://example.com";
+url = "sftp://anonymous@example.com";
+url = "ssh://anonymous@example.com";
 </pre>
 <p>For <a href="https://nodemailer.com">nodemailer</a> one of the following options must be set:</p>
 <pre>
 const nodemailer = require("nodemailer");
 let transporter = nodemailer.createTransport({
-  secure: true, // Compliant
-  requireTLS: true, // Compliant
-  port: 465, // Compliant
-  secured: true // Compliant
+  secure: true,
+  requireTLS: true,
+  port: 465,
+  secured: true
 });
 </pre>
 <p>For <a href="https://github.com/mscdex/node-ftp">ftp</a>:</p>
@@ -103,7 +268,186 @@ let transporter = nodemailer.createTransport({
 var Client = require('ftp');
 var c = new Client();
 c.connect({
-  'secure': true // Compliant
+  'secure': true
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancingv2.ApplicationLoadBalancer</a>:</p>
+<pre>
+import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const alb = new ApplicationLoadBalancer(this, 'ALB', {
+  vpc: vpc,
+  internetFacing: true
+});
+
+alb.addListener('listener-https-explicit', {
+  protocol: ApplicationProtocol.HTTPS,
+  port: 8080,
+  open: true,
+  certificates: [certificate]
+});
+
+alb.addListener('listener-https-implicit', {
+  port: 8080,
+  open: true,
+  certificates: [certificate]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.ApplicationListener</a>:</p>
+<pre>
+import { ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new ApplicationListener(this, 'listener-https-explicit', {
+  loadBalancer: loadBalancer,
+  protocol: ApplicationProtocol.HTTPS,
+  port: 8080,
+  open: true,
+  certificates: [certificate]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.NetworkLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancingv2.NetworkLoadBalancer</a>:</p>
+<pre>
+import { NetworkLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const nlb = new NetworkLoadBalancer(this, 'nlb', {
+  vpc: vpc,
+  internetFacing: true
+});
+
+nlb.addListener('listener-tls-explicit', {
+  protocol: Protocol.TLS,
+  port: 1234,
+  certificates: [certificate]
+});
+
+nlb.addListener('listener-tls-implicit', {
+  port: 1234,
+  certificates: [certificate]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.NetworkListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.NetworkListener</a>:</p>
+<pre>
+import { NetworkListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new NetworkListener(this, 'listener-tls-explicit', {
+  loadBalancer: loadBalancer,
+  protocol: Protocol.TLS,
+  port: 8080,
+  certificates: [certificate]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener.html">aws-cdk-lib.aws-elasticloadbalancingv2.CfnListener</a>:</p>
+<pre>
+import { CfnListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+new CfnListener(this, 'listener-https', {
+  defaultActions: defaultActions,
+  loadBalancerArn: loadBalancerArn,
+  protocol: "HTTPS",
+  port: 80
+  certificates: [certificate]
+});
+
+new CfnListener(this, 'listener-tls', {
+  defaultActions: defaultActions,
+  loadBalancerArn: loadBalancerArn,
+  protocol: "TLS",
+  port: 80
+  certificates: [certificate]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancing.CfnLoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancing.CfnLoadBalancer</a>:</p>
+<pre>
+import { CfnLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancing';
+
+new CfnLoadBalancer(this, 'elb-ssl', {
+  listeners: [{
+    instancePort: '1000',
+    loadBalancerPort: '1000',
+    protocol: 'ssl',
+    sslCertificateId: sslCertificateId
+  }]
+});
+
+new CfnLoadBalancer(this, 'elb-https', {
+  listeners: [{
+    instancePort: '1000',
+    loadBalancerPort: '1000',
+    protocol: 'https',
+    sslCertificateId: sslCertificateId
+  }]
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticloadbalancing.LoadBalancer.html">aws-cdk-lib.aws-elasticloadbalancing.LoadBalancer</a>:</p>
+<pre>
+import { LoadBalancer, LoadBalancingProtocol } from 'aws-cdk-lib/aws-elasticloadbalancing';
+
+const lb = new LoadBalancer(this, 'elb-ssl', {
+  vpc,
+  internetFacing: true,
+  healthCheck: {
+    port: 80,
+  },
+  listeners: [
+    {
+      externalPort:10000,
+      externalProtocol:LoadBalancingProtocol.SSL,
+      internalPort:10000
+    }]
+});
+
+lb.addListener({
+  externalPort:10001,
+  externalProtocol:LoadBalancingProtocol.SSL,
+  internalPort:10001
+});
+lb.addListener({
+  externalPort:10002,
+  externalProtocol:LoadBalancingProtocol.HTTPS,
+  internalPort:10002
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_elasticache.CfnReplicationGroup.html">aws-cdk-lib.aws-elasticache.CfnReplicationGroup</a>:</p>
+<pre>
+import { CfnReplicationGroup } from 'aws-cdk-lib/aws-elasticache';
+
+new CfnReplicationGroup(this, 'encrypted-explicit', {
+  replicationGroupDescription: 'example',
+  transitEncryptionEnabled: true
+});
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_kinesis.Stream.html">aws-cdk-lib.aws-kinesis.Stream</a>:</p>
+<pre>
+import { Stream } from 'aws-cdk-lib/aws-kinesis';
+
+new Stream(this, 'stream-implicit-encrypted');
+
+new Stream(this, 'stream-explicit-encrypted-selfmanaged', {
+  encryption: StreamEncryption.KMS,
+  encryptionKey: encryptionKey,
+});
+
+new Stream(this, 'stream-explicit-encrypted-managed', {
+  encryption: StreamEncryption.MANAGED
+});
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_kinesis.CfnStream.html">aws-cdk-lib.aws-kinesis.CfnStream</a>:</p>
+<pre>
+import { CfnStream } from 'aws-cdk-lib/aws-kinesis';
+
+new CfnStream(this, 'cfnstream-explicit-encrypted', {
+  streamEncryption: {
+    encryptionType: encryptionType,
+    keyId: encryptionKey.keyId,
+  }
 });
 </pre>
 <h2>Exceptions</h2>
