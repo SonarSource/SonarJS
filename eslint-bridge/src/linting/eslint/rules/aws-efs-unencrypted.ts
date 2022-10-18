@@ -59,17 +59,15 @@ type Values = {
 const OPTIONS_ARGUMENT_POSITION = 2;
 
 function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(
-    ctx,
-    expr.arguments[OPTIONS_ARGUMENT_POSITION],
-    'ObjectExpression',
-  );
-  if (props === undefined) {
+  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if ((argument?.type === 'Identifier' && !isUndefined(argument)) || props === undefined) {
     return;
   }
 
   const property = getProperty(props, 'encrypted', ctx);
-  if (property === null) {
+  if (!property) {
     return;
   }
 
@@ -83,19 +81,25 @@ function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
 }
 
 function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(
-    ctx,
-    expr.arguments[OPTIONS_ARGUMENT_POSITION],
-    'ObjectExpression',
-  );
+  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+    return;
+  }
+
   if (props === undefined) {
     ctx.report({ messageId: 'CFSEncryptionOmitted', node: expr.callee });
     return;
   }
 
   const property = getProperty(props, 'encrypted', ctx);
+
   if (property === null) {
     ctx.report({ messageId: 'CFSEncryptionOmitted', node: props });
+  }
+
+  if (!property) {
     return;
   }
 

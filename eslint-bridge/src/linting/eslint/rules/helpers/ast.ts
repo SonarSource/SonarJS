@@ -419,7 +419,7 @@ export function getProperty(
   expr: estree.ObjectExpression,
   key: string,
   ctx: Rule.RuleContext,
-): estree.Property | null {
+): estree.Property | null | undefined {
   for (let i = expr.properties.length - 1; i >= 0; --i) {
     const property = expr.properties[i];
     if (isProperty(property, key)) {
@@ -432,6 +432,8 @@ export function getProperty(
         if (prop !== null) {
           return prop;
         }
+      } else {
+        return undefined;
       }
     }
   }
