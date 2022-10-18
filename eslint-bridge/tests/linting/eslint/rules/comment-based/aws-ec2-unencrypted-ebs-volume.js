@@ -19,6 +19,9 @@ class NonCompliantStack extends Stack {
     new Volume(this, "Volume"); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+    new Volume(this, "Volume", undefined); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
+    //                         ^^^^^^^^^
+
     new Volume(this, "Volume", {}); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
     //                         ^^
 
