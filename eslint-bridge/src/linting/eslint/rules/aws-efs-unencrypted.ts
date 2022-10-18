@@ -20,13 +20,22 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6332/javascript
 
 import { Rule } from 'eslint';
-import {AwsCdkTemplate, getUniqueWriteUsageOrNode, getValueOfExpression, isIdentifier, isUndefined} from './helpers';
+import {
+  AwsCdkTemplate,
+  getUniqueWriteUsage,
+  getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+  isIdentifier,
+  isLiteral,
+  isStringLiteral,
+  isUndefined,
+} from './helpers';
 import estree from 'estree';
 
 const messages = {
   FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
   CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
-  CFSEncryptionOmitted: 'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.'
+  CFSEncryptionOmitted: 'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.',
 };
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
@@ -41,62 +50,119 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
+type LiteralValue = string | number | bigint | boolean | RegExp | null | undefined;
+const OPTIONS_ARGUMENT_POSITION = 2;
+
 function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
+  if (unknownParameters(expr)) {
+    return;
+  }
+
+  const props = getValueOfExpression(
+    ctx,
+    expr.arguments[OPTIONS_ARGUMENT_POSITION],
+    'ObjectExpression',
+  );
   if (props === undefined) {
-    report(expr.callee);
     return;
   }
 
-  const masterKey = getProperty(props, 'encrypted');
-  if (masterKey === undefined) {
-    report(props);
+  const property = getProperty(ctx, props, 'encrypted');
+  if (property === null) {
     return;
   }
 
-  const masterKeyValue = getUniqueWriteUsageOrNode(ctx, masterKey.value);
-  if (isUndefined(masterKeyValue)) {
-    report(masterKey);
+  const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
+  if (isUndefined(propertyValue)) {
     return;
   }
-
-  function report(node: estree.Node) {
-    ctx.report({
-      messageId: 'issue',
-      node,
-    });
+  if (queryValue(ctx, propertyValue) === false) {
+    ctx.report({ messageId: 'FSEncryptionDisabled', node: property.value });
   }
 }
 
 function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
+  for (const argument of expr.arguments) {
+    if (argument.type === 'SpreadElement') {
+      return;
+    }
+  }
+
+  const props = getValueOfExpression(
+    ctx,
+    expr.arguments[OPTIONS_ARGUMENT_POSITION],
+    'ObjectExpression',
+  );
   if (props === undefined) {
+    ctx.report({ messageId: 'CFSEncryptionOmitted', node: expr });
     return;
   }
 
-  const masterKey = getProperty(props, 'encrypted');
-  if (masterKey === undefined) {
+  const property = getProperty(ctx, props, 'encrypted');
+  if (property === null) {
+    ctx.report({ messageId: 'CFSEncryptionOmitted', node: props });
     return;
   }
 
-  const masterKeyValue = getUniqueWriteUsageOrNode(ctx, masterKey.value);
-  if (isUndefined(masterKeyValue)) {
+  const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
+  if (isUndefined(propertyValue)) {
+    ctx.report({ messageId: 'CFSEncryptionOmitted', node: property.value });
     return;
   }
 
-  function report(node: estree.Node) {
-    ctx.report({
-      messageId: 'issue',
-      node,
-    });
+  if (queryValue(ctx, propertyValue) !== true) {
+    ctx.report({ messageId: 'CFSEncryptionDisabled', node: property.value });
   }
 }
 
-export function getProperty(
+function getProperty(
+  ctx: Rule.RuleContext,
   expr: estree.ObjectExpression,
   key: string,
-): estree.Property | undefined {
-  return expr.properties.find(prop => prop.type === 'Property' && isIdentifier(prop.key, key)) as
-    | estree.Property
-    | undefined;
+): estree.Property | null {
+  for (let i = expr.properties.length - 1; i >= 0; i--) {
+    const property = expr.properties[i];
+    if (isProperty(property, key)) {
+      return property;
+    }
+    if (property.type === 'SpreadElement') {
+      const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
+      if (props !== undefined) {
+        const prop = getProperty(ctx, props, key);
+        if (prop !== null) {
+          return prop;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function isProperty(node: estree.Node, key: string): node is estree.Property {
+  return (
+    node.type === 'Property' &&
+    (isIdentifier(node.key, key) || (isStringLiteral(node.key) && node.key.value === key))
+  );
+}
+
+function queryValue(ctx: Rule.RuleContext, node: estree.Node): LiteralValue {
+  if (isLiteral(node)) {
+    return node.value;
+  } else if (isIdentifier(node)) {
+    const usage = getUniqueWriteUsage(ctx, node.name);
+    if (!usage) {
+      return null;
+    }
+    return queryValue(ctx, usage);
+  }
+  return null;
+}
+
+function unknownParameters(expr: estree.NewExpression) {
+  for (const argument of expr.arguments) {
+    if (argument.type === 'SpreadElement') {
+      return true;
+    }
+  }
+  return false;
 }
