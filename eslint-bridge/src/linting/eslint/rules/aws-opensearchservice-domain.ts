@@ -188,7 +188,7 @@ function domainChecker(options: DomainCheckerOptions) {
     }
 
     function queryProperty(node: ObjectExpression, name: string): Result {
-      let property: Property | null = getProperty(node, name, ctx);
+      const property = getProperty(node, name, ctx);
       return property == null ? missing(node) : found(property);
     }
 
@@ -239,10 +239,6 @@ class Result {
     return isBooleanLiteral(this.node) && !this.node.value;
   }
 
-  as<N extends Node>(_type: N['type']): N | null {
-    return null;
-  }
-
   asString() {
     return isStringLiteral(this.node) ? this.node.value : null;
   }
@@ -263,10 +259,6 @@ class Result {
 class FoundResult extends Result {
   constructor(value: Node) {
     super(value, 'found');
-  }
-
-  as<N extends Node>(type: N['type']): N | null {
-    return this.status === 'found' && this.node.type === type ? (this.node as N) : null;
   }
 
   map<N extends Node>(closure: (node: N) => Result | Node): Result {

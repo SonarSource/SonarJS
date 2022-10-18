@@ -23,6 +23,9 @@ class NonCompliantS6308Stack extends cdk.Stack {
     new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', undefined); // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
 //                                                                     ^^^^^^^^^
 
+    new opensearchservice.Domain(this, 'CompliantDomain', { ...unknown }); // Noncompliant
+//                                                        ^^^^^^^^^^^^^^
+
     new opensearchservice.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
     });
@@ -85,6 +88,13 @@ class NonCompliantS6308Stack extends cdk.Stack {
       elasticsearchVersion: '1.3',
       encryptionAtRestOptions: { }, // Noncompliant {{Omitting encryptionAtRestOptions causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
 //                             ^^^
+    });
+    new opensearchservice.Domain(this, 'ExplicitlyNoncompliantDomain', {
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      encryptionAtRest: {
+        enabled: undefined, // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+//               ^^^^^^^^^
+      },
     });
 
     /*
@@ -151,9 +161,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
       ...args
     });
 
-    new opensearchservice.Domain(this, 'CompliantDomain', { // Noncompliant
-      ...unknown
-    });
+    new opensearchservice.Domain(this, 'CompliantDomain', unknown);
   }
 }
 
@@ -168,6 +176,20 @@ class CompliantS6308Stack extends cdk.Stack {
       },
     }];
     new opensearchservice.Domain(this, ...args1); // FN
+
+    new opensearchservice.Domain(this, 'ExplicitlyNoncompliantDomain', {
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      encryptionAtRest: {
+        enabled: unknown
+      },
+    });
+
+    new opensearchservice.Domain(this, 'ExplicitlyNoncompliantDomain', {
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      encryptionAtRest: {
+        enabled: foo()
+      },
+    });
 
     new opensearchservice.Domain(this, 'CompliantDomain', {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
