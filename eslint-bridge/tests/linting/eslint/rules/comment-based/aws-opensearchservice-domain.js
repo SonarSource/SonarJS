@@ -147,8 +147,12 @@ class NonCompliantS6308Stack extends cdk.Stack {
 //      ^^^^^^^
       },
     };
-    new opensearchservice.Domain(this, 'ComplianDomain', {
+    new opensearchservice.Domain(this, 'CompliantDomain', {
       ...args
+    });
+
+    new opensearchservice.Domain(this, 'CompliantDomain', { // Noncompliant
+      ...unknown
     });
   }
 }

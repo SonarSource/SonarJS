@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 import {
-  Expression,
   Identifier,
   Literal,
   MemberExpression,
@@ -30,15 +29,15 @@ import {
   Node,
   ObjectExpression,
   Property,
-  SpreadElement,
 } from 'estree';
 import {
+  getProperty,
   getUniqueWriteUsage,
+  getValueOfExpression,
   isBooleanLiteral,
   isDotNotation,
   isIdentifier,
   isLiteral,
-  isProperty,
   isStringLiteral,
   isUndefined,
 } from './helpers';
@@ -104,25 +103,6 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
-type VersionIdentifier = MemberExpression & {
-  object: Identifier | (MemberExpression & { property: Identifier });
-  property: Identifier;
-};
-
-function isIdentifierVersion(node: Node): node is VersionIdentifier {
-  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
-}
-
-function isSpreadIdentifier(
-  node: Property | SpreadElement,
-): node is SpreadElement & { argument: Identifier } {
-  return node.type === 'SpreadElement' && node.argument.type === 'Identifier';
-}
-
-function isIdentifierProperty(node: Property | SpreadElement, name: string): node is Property {
-  return isProperty(node) && isPropertyName(node.key, name);
-}
-
 function domainChecker(options: DomainCheckerOptions) {
   return (expr: NewExpression, ctx: Rule.RuleContext) => {
     const argument = queryArgument(expr, DOMAIN_PROPS_POSITION).filter('ObjectExpression');
@@ -171,7 +151,7 @@ function domainChecker(options: DomainCheckerOptions) {
       if (options.version.valueType === 'string') {
         const versionValue = version.map(node => queryValue(node, 'string')).asString();
         return `${options.version.property}_${versionValue}`;
-      } else if (isIdentifierVersion(version.node)) {
+      } else if (isMemberIdentifier(version.node)) {
         const versionValue = version.node.property.name;
         if (isIdentifier(version.node.object)) {
           return `${version.node.object.name}_${versionValue}`;
@@ -196,43 +176,20 @@ function domainChecker(options: DomainCheckerOptions) {
     // From here up to the end of the file the code should be shared somehow.
 
     function queryArgument(node: NewExpression, position: number) {
-      const expression = getExpressionAtPosition(node.arguments, position);
-      if (expression == null) {
+      const argument = node.arguments[position];
+      if (argument == null) {
         return missing(node);
-      } else if (isUndefined(expression)) {
-        return missing(expression);
-      } else if (expression.type === 'SpreadElement') {
-        return unknown(node);
-      } else {
-        return new FoundResult(expression);
+      } else if (isUndefined(argument)) {
+        return missing(argument);
       }
+
+      const expression = getValueOfExpression(ctx, argument, 'ObjectExpression');
+      return expression == null ? unknown(node) : found(expression);
     }
 
     function queryProperty(node: ObjectExpression, name: string): Result {
-      let property: Property | null = null;
-      let hasUnknownSpreadElement = false;
-      let index = node.properties.length - 1;
-
-      while (index >= 0 && property == null) {
-        const element = node.properties[index];
-        if (isIdentifierProperty(element, name)) {
-          property = element;
-        } else if (isSpreadIdentifier(element)) {
-          const usage = getUniqueWriteUsage(ctx, element.argument.name);
-          if (usage && usage.type === 'ObjectExpression') {
-            property = queryProperty(usage, name).as('Property');
-          } else {
-            hasUnknownSpreadElement = true;
-          }
-        }
-        index--;
-      }
-
-      if (property == null) {
-        return hasUnknownSpreadElement ? unknown(node) : missing(node);
-      } else {
-        return new FoundResult(property);
-      }
+      let property: Property | null = getProperty(node, name, ctx);
+      return property == null ? missing(node) : found(property);
     }
 
     function queryValue(node: Node, type: 'string' | 'boolean') {
@@ -334,24 +291,11 @@ function found(node: Node) {
   return new FoundResult(node);
 }
 
-function isPropertyName(node: Node, name: string) {
-  return (isLiteral(node) && node.value === name) || isIdentifier(node, name);
-}
+type MemberIdentifier = MemberExpression & {
+  object: Identifier | (MemberExpression & { property: Identifier });
+  property: Identifier;
+};
 
-function getExpressionAtPosition(args: Array<Expression | SpreadElement>, position: number) {
-  let index = 0;
-  let expression: Expression | SpreadElement | null = null;
-
-  while (index <= position && index < args.length && args[index].type !== 'SpreadElement') {
-    expression = args[index];
-    index++;
-  }
-
-  if (index > position && expression != null) {
-    return expression;
-  } else if (index < args.length) {
-    return args[index];
-  } else {
-    return null;
-  }
+function isMemberIdentifier(node: Node): node is MemberIdentifier {
+  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
 }
