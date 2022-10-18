@@ -25,7 +25,7 @@ import {
   getModuleNameOfNode,
   isCallToFQN,
   getObjectExpressionProperty,
-  getValueOfExpression,
+  getValueOfExpression, getFullyQualifiedName,
 } from './helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
@@ -42,6 +42,8 @@ export const rule: Rule.RuleModule = {
     messages: {
       useMinimumTLS: "Change '{{option}}' to use at least TLS v1.2.",
       useSecureTLS: "Change '{{option}}' to allow only secure TLS versions.",
+      AWSApiGateway: 'Change this code to enforce TLS 1.2 or above.',
+      AWSOpenElasticSearch: 'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.'
     },
   },
   create(context: Rule.RuleContext) {
@@ -145,6 +147,46 @@ export const rule: Rule.RuleModule = {
         // https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options
         if (isCallToFQN(context, callExpression, 'tls', 'createSecureContext')) {
           checkSslOptions(callExpression.arguments[0]);
+        }
+      },
+      NewExpression(node: estree.NewExpression) {
+        const OPTIONS_ARGUMENT_POSITION = 2;
+        if (node.arguments.some((arg, index) => arg.type === 'SpreadElement' && index <= OPTIONS_ARGUMENT_POSITION)) {
+          return;
+        }
+        const normalizedActualFQN = getFullyQualifiedName(context, node.callee)?.replace(/-/g, '_');
+        let messageId: string | null = null;
+        let failIfNoProps = false;
+        switch (normalizedActualFQN) {
+          case 'aws_cdk_lib.aws_apigateway.CfnDomainName':
+            messageId = 'AWSApiGateway';
+            break;
+          case 'aws_cdk_lib.aws_apigateway.DomainName':
+            messageId = 'AWSApiGateway';
+            break;
+          case 'aws_cdk_lib.aws_elasticsearch.CfnDomain':
+            messageId = 'AWSOpenElasticSearch';
+            break;
+          case 'aws_cdk_lib.aws_elasticsearch.Domain':
+            messageId = 'AWSOpenElasticSearch';
+            break;
+          case 'aws_cdk_lib.aws_opensearchservice.CfnDomain':
+            messageId = 'AWSOpenElasticSearch';
+            break;
+          case 'aws_cdk_lib.aws_opensearchservice.Domain':
+            messageId = 'AWSOpenElasticSearch';
+            break;
+        }
+        if (messageId) {
+          const props = getValueOfExpression(
+            context,
+            node.arguments[OPTIONS_ARGUMENT_POSITION],
+            'ObjectExpression',
+          );
+          if (props === undefined) {
+            context.report({ messageId: 'CFSEncryptionOmitted', node: node.callee });
+            return;
+          }
         }
       },
     };
