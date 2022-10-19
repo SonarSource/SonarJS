@@ -22,13 +22,19 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { URL } from 'url';
+import { mergeRules } from './decorators/helpers';
 import {
   getValueOfExpression,
   getObjectExpressionProperty,
   getModuleNameOfNode,
   isCallToFQN,
   getParent,
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  isFalseLiteral,
+  isUndefined,
 } from './helpers';
+import { AwsCdkTemplate } from './helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
@@ -50,7 +56,9 @@ const EXCEPTION_FULL_HOSTS = [
 ];
 const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
 
-export const rule: Rule.RuleModule = {
+const TRANSIT_ENCRYPTION_ENABLED = 'transitEncryptionEnabled';
+
+const networkProtocolsRule: Rule.RuleModule = {
   meta: {
     messages: {
       insecureProtocol: 'Using {{protocol}} protocol is insecure. Use {{alternative}} instead.',
@@ -238,3 +246,65 @@ function getMessageAndData(protocol: string) {
   }
   return { messageId: 'insecureProtocol', data: { protocol, alternative } };
 }
+
+const awsElasticacheRule: Rule.RuleModule = AwsCdkTemplate(
+  {
+    'aws-cdk-lib.aws_elasticache.CfnReplicationGroup': checkGroup,
+  },
+  {
+    meta: {
+      messages: {
+        replicationGroup: 'Make sure that disabling transit encryption is safe here.',
+      },
+    },
+  },
+);
+
+function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[2];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props)) {
+    return;
+  }
+
+  if (props === undefined) {
+    report(expr.callee);
+    return;
+  }
+
+  const encrpytion = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
+  if (encrpytion === null) {
+    report(props);
+  }
+
+  if (!encrpytion) {
+    return;
+  }
+
+  const encryptionValue = getUniqueWriteUsageOrNode(ctx, encrpytion.value);
+  if (isFalseLiteral(encryptionValue)) {
+    report(encrpytion.value);
+    return;
+  }
+
+  function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
+    return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
+  }
+
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'replicationGroup',
+      node,
+    });
+  }
+}
+
+export const rule: Rule.RuleModule = {
+  meta: {
+    messages: { ...networkProtocolsRule.meta!.messages, ...awsElasticacheRule.meta!.messages },
+  },
+  create(context: Rule.RuleContext) {
+    return mergeRules(networkProtocolsRule.create(context), awsElasticacheRule.create(context));
+  },
+};

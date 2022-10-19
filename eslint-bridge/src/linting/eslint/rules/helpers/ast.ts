@@ -194,6 +194,10 @@ export function isNullLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === null;
 }
 
+export function isFalseLiteral(n: estree.Node): boolean {
+  return isLiteral(n) && n.value === false;
+}
+
 export function isUndefined(node: estree.Node | TSESTree.Node): boolean {
   return node.type === 'Identifier' && node.name === 'undefined';
 }
@@ -514,6 +518,10 @@ export function checkSensitiveCall(
 
 export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
   return isLiteral(node) && typeof node.value === 'string';
+}
+
+export function isBooleanLiteral(node: estree.Node): node is estree.Literal & { value: boolean } {
+  return isLiteral(node) && typeof node.value === 'boolean';
 }
 
 export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
