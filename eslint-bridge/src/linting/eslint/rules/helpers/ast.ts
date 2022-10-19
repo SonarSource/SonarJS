@@ -455,6 +455,27 @@ export function getProperty(
   }
 }
 
+export function disallowedValue(
+  ctx: Rule.RuleContext,
+  node: estree.Node,
+  values: { invalid?: any[]; valid?: any[] },
+): boolean {
+  if (isLiteral(node)) {
+    if (values.valid && !values.valid.includes(node.value)) {
+      return true;
+    }
+    if (values.invalid && values.invalid.includes(node.value)) {
+      return true;
+    }
+  } else if (isIdentifier(node)) {
+    const usage = getUniqueWriteUsage(ctx, node.name);
+    if (usage) {
+      return disallowedValue(ctx, usage, values);
+    }
+  }
+  return false;
+}
+
 export function resolveFromFunctionReference(
   context: Rule.RuleContext,
   functionIdentifier: estree.Identifier,

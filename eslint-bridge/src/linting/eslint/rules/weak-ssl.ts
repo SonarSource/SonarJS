@@ -27,13 +27,11 @@ import {
   getObjectExpressionProperty,
   getValueOfExpression,
   getFullyQualifiedName,
-  isIdentifier,
   isUndefined,
   getProperty,
   getUniqueWriteUsageOrNode,
-  isLiteral,
-  getUniqueWriteUsage,
   getVariableFromName,
+  disallowedValue,
 } from './helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
@@ -46,11 +44,6 @@ const SECURE_PROTOCOL_ALLOWED_VALUES = [
 ];
 
 const AWS_OPTIONS_ARGUMENT_POSITION = 2;
-
-type Values = {
-  invalid?: any[];
-  valid?: any[];
-};
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -373,23 +366,6 @@ function cfnDomain(
   if (disallowedValue(ctx, tlsSecurityPolicy, { valid: ['Policy-Min-TLS-1-2-2019-07'] })) {
     ctx.report({ messageId, node: tlsSecurityPolicyProperty.value });
   }
-}
-
-function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
-  if (isLiteral(node)) {
-    if (values.valid && !values.valid.includes(node.value)) {
-      return true;
-    }
-    if (values.invalid && values.invalid.includes(node.value)) {
-      return true;
-    }
-  } else if (isIdentifier(node)) {
-    const usage = getUniqueWriteUsage(ctx, node.name);
-    if (usage) {
-      return disallowedValue(ctx, usage, values);
-    }
-  }
-  return false;
 }
 
 function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {

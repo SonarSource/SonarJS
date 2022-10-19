@@ -21,12 +21,11 @@
 
 import { Rule } from 'eslint';
 import {
+  disallowedValue,
   getProperty,
-  getUniqueWriteUsage,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isIdentifier,
-  isLiteral,
   isUndefined,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
@@ -50,11 +49,6 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     },
   },
 );
-
-type Values = {
-  invalid?: any[];
-  valid?: any[];
-};
 
 const OPTIONS_ARGUMENT_POSITION = 2;
 
@@ -112,21 +106,4 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
   if (disallowedValue(ctx, propertyValue, { valid: [true] })) {
     ctx.report({ messageId: 'CFSEncryptionDisabled', node: property.value });
   }
-}
-
-function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
-  if (isLiteral(node)) {
-    if (values.valid && !values.valid.includes(node.value)) {
-      return true;
-    }
-    if (values.invalid && values.invalid.includes(node.value)) {
-      return true;
-    }
-  } else if (isIdentifier(node)) {
-    const usage = getUniqueWriteUsage(ctx, node.name);
-    if (usage) {
-      return disallowedValue(ctx, usage, values);
-    }
-  }
-  return false;
 }
