@@ -68,7 +68,7 @@ function checkTopic(key: string) {
 
     const masterKeyValue = getUniqueWriteUsageOrNode(ctx, masterKey.value);
     if (isUndefined(masterKeyValue)) {
-      report(masterKey);
+      report(masterKey.value);
       return;
     }
 

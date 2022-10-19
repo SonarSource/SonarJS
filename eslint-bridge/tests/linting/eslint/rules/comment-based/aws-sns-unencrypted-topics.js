@@ -59,10 +59,14 @@ function non_compliant() {
   const undefinedKey = undefined;
 
   new Topic(this, 'UnencryptedTopic'); // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
+//    ^^^^^
   new Topic(this, 'UnencryptedTopic', undefined); // Noncompliant
+//    ^^^^^
   new Topic(this, 'UnencryptedTopic', {}); // Noncompliant
+//                                    ^^
   new Topic(this, 'UnencryptedTopic', {
     masterKey: undefined // Noncompliant
+//             ^^^^^^^^^
   });
   new Topic(this, 'UnencryptedTopic', {
     'masterKey': undefined // Noncompliant
@@ -84,10 +88,14 @@ function non_compliant() {
   const undefinedKeyId = undefined;
 
   new CfnTopic(this, 'UnencryptedCfnTopic'); // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
+//    ^^^^^^^^
   new CfnTopic(this, 'UnencryptedCfnTopic', undefined); // Noncompliant
+//    ^^^^^^^^
   new CfnTopic(this, 'UnencryptedCfnTopic', {}); // Noncompliant
+//                                          ^^
   new CfnTopic(this, 'UnencryptedCfnTopic', {
     kmsMasterKeyId: undefined // Noncompliant
+//                  ^^^^^^^^^
   });
   new CfnTopic(this, 'UnencryptedCfnTopic', {
     'kmsMasterKeyId': undefined // Noncompliant
