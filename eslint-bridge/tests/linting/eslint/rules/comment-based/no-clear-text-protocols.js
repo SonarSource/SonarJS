@@ -2,8 +2,14 @@ import { CfnReplicationGroup } from 'aws-cdk-lib/aws-elasticache';
 
 function compliant() {
 
+  new CfnReplicationGroup(this, 'EncryptedGroup', unknownProps);
+
   new CfnReplicationGroup(this, 'EncryptedGroup', {
-    transitEncryptionEnabled: unknownKey
+    transitEncryptionEnabled: { ...unknownProps }
+  });
+
+  new CfnReplicationGroup(this, 'EncryptedGroup', {
+    transitEncryptionEnabled: unknownEncryption
   });
 
   new CfnReplicationGroup(this, 'EncryptedGroup', {

@@ -32,6 +32,7 @@ import {
   getProperty,
   getUniqueWriteUsageOrNode,
   isFalseLiteral,
+  isUndefined,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 
@@ -260,7 +261,13 @@ const awsElasticacheRule: Rule.RuleModule = AwsCdkTemplate(
 );
 
 function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
+  const argument = expr.arguments[2];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props)) {
+    return;
+  }
+
   if (props === undefined) {
     report(expr.callee);
     return;
@@ -269,6 +276,9 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   const encrpytion = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
   if (encrpytion === null) {
     report(props);
+  }
+
+  if (!encrpytion) {
     return;
   }
 
@@ -276,6 +286,10 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   if (isFalseLiteral(encryptionValue)) {
     report(encrpytion);
     return;
+  }
+
+  function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
+    return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
   }
 
   function report(node: estree.Node) {
