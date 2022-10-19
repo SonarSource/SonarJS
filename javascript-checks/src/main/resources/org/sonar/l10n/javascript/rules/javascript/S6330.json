@@ -26,5 +26,9 @@
       "2.2",
       "6.2.4"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

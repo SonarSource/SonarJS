@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import { Key } from 'aws-cdk-lib/aws-kms';
 
 
-export class S6330NonCompliantStack extends Stack {
+class S6330NonCompliantStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -52,7 +52,7 @@ export class S6330NonCompliantStack extends Stack {
   }
 }
 
-export class S6330CompliantStack extends Stack {
+class S6330CompliantStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -75,6 +75,9 @@ export class S6330CompliantStack extends Stack {
 
     const args = ['UnencryptedCfnQueue4', {encryption: QueueEncryption.UNENCRYPTED}];
     const queue4 = new Queue(this, ...args);  // FN
+
+    const queue5 = new Queue(this, 'EncryptedQueue5', unknown);
+    const queue6 = new Queue(this, 'EncryptedQueue6', { ...unknown });
 
     const cfnQueue = new CfnQueue(this, 'EncryptedCfnQueue', {
       kmsMasterKeyId: encryptionKey.keyId

@@ -23,7 +23,6 @@ import { Rule } from 'eslint';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 import {
   Identifier,
-  Literal,
   MemberExpression,
   NewExpression,
   Node,
@@ -32,13 +31,9 @@ import {
 } from 'estree';
 import {
   getProperty,
-  getUniqueWriteUsage,
   getValueOfExpression,
-  isBooleanLiteral,
   isDotNotation,
   isIdentifier,
-  isLiteral,
-  isStringLiteral,
   isUndefined,
 } from './helpers';
 
@@ -138,36 +133,6 @@ function queueChecker(options: QueueCheckerOptions) {
         return found(property);
       }
     }
-
-    function queryValue(node: Node, type: 'string' | 'boolean') {
-      if (isLiteral(node)) {
-        return queryValueFromLiteral(node, type);
-      } else if (isIdentifier(node)) {
-        return queryValueFromIdentifier(node, type);
-      } else {
-        return unknown(node);
-      }
-    }
-
-    function queryValueFromLiteral(node: Literal, type: 'string' | 'boolean') {
-      if (typeof node.value !== type) {
-        return unknown(node);
-      }
-      return found(node);
-    }
-
-    function queryValueFromIdentifier(node: Identifier, type: 'string' | 'boolean'): Result {
-      if (isUndefined(node)) {
-        return missing(node);
-      }
-
-      const usage = getUniqueWriteUsage(ctx, node.name);
-      if (!usage) {
-        return unknown(node);
-      }
-
-      return queryValue(usage, type).withNodeIfNotFound(node);
-    }
   };
 }
 
@@ -182,28 +147,12 @@ class Result {
     return this.status === 'missing';
   }
 
-  get isFalse() {
-    return isBooleanLiteral(this.node) && !this.node.value;
-  }
-
-  asString() {
-    return isStringLiteral(this.node) ? this.node.value : null;
-  }
-
-  as<N extends Node>(_type: N['type']): N | null {
-    return null;
-  }
-
   map<N extends Node>(_closure: (node: N) => Result | Node): Result {
     return this;
   }
 
   ofType(_type: string): Result {
     return this;
-  }
-
-  withNodeIfNotFound(node: Node): Result {
-    return !this.isFound ? new Result(node, this.status) : this;
   }
 
   notUndefined(): Result {
@@ -223,10 +172,6 @@ class FoundResult extends Result {
   map<N extends Node>(closure: (node: N) => Result | Node): Result {
     const resultOrNode = closure(this.node as N);
     return resultOrNode instanceof Result ? resultOrNode : found(resultOrNode);
-  }
-
-  filter(type: string): Result {
-    return this.node.type === type ? this : unknown(this.node);
   }
 }
 

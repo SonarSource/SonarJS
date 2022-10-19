@@ -37,6 +37,7 @@ import { rule as awsS3BucketServerEncryption } from './aws-s3-bucket-server-encr
 import { rule as awsS3BucketVersioning } from './aws-s3-bucket-versioning';
 import { rule as awsSagemakerUnencryptedNotebook } from './aws-sagemaker-unencrypted-notebook';
 import { rule as awsSnsUnencryptedTopics } from './aws-sns-unencrypted-topics';
+import { rule as awsSqsUnencryptedQueue } from './aws-sqs-unencrypted-queue';
 import { rule as bitwiseOperators } from './bitwise-operators';
 import { rule as boolParamDefault } from './bool-param-default';
 import { rule as callArgumentLine } from './call-argument-line';
@@ -258,6 +259,7 @@ rules['aws-s3-bucket-server-encryption'] = awsS3BucketServerEncryption;
 rules['aws-s3-bucket-versioning'] = awsS3BucketVersioning;
 rules['aws-sagemaker-unencrypted-notebook'] = awsSagemakerUnencryptedNotebook;
 rules['aws-sns-unencrypted-topics'] = awsSnsUnencryptedTopics;
+rules['aws-sqs-unencrypted-queue'] = awsSqsUnencryptedQueue;
 rules['bitwise-operators'] = bitwiseOperators;
 rules['bool-param-default'] = boolParamDefault;
 rules['call-argument-line'] = callArgumentLine;
