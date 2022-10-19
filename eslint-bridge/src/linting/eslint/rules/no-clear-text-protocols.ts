@@ -323,12 +323,7 @@ function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
 
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if (isUnknown(argument, props)) {
-    return;
-  }
-
-  if (props === undefined) {
-    report(argument);
+  if (isUnknown(argument, props) || props === undefined) {
     return;
   }
 
@@ -384,7 +379,7 @@ function checkCfnStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
 
   function report(node: estree.Node) {
     ctx.report({
-      messageId: 'streamEncryptionDisabled',
+      messageId: 'encryptionDisabled',
       node,
     });
   }
