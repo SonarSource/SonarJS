@@ -1,0 +1,180 @@
+<p>Amazon Relational Database Service (RDS) allows to easily host and manage a relational database in the cloud. RDS databases can be encrypted,
+ensuring the security of data-at-rest. In the case that adversaries gain physical access to the storage medium they are not able to access the
+data.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The database contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt databases that contain sensitive information. Encryption and decryption are handled transparently by RDS, so no further
+modifications to the application are necessary.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.CfnDBCluster.html"><code>aws-cdk-lib.aws_rds.CfnDBCluster</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+new rds.CfnDBCluster(this, 'example', {
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.CfnDBInstance.html"><code>aws-cdk-lib.aws_rds.CfnDBInstance</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+new rds.CfnDBInstance(this, 'example', {
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseCluster.html"><code>aws-cdk-lib.aws_rds.DatabaseCluster</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+const cluster = new rds.DatabaseCluster(this, 'example', {
+  engine: rds.DatabaseClusterEngine.auroraMysql({ version: rds.AuroraMysqlEngineVersion.VER_2_08_1 }),
+  instanceProps: {
+    vpcSubnets: {
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    },
+    vpc,
+  },
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot.html"><code>aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseClusterFromSnapshot(this, 'example', {
+  engine: rds.DatabaseClusterEngine.aurora({ version: rds.AuroraEngineVersion.VER_1_22_2 }),
+  instanceProps: {
+    vpc,
+  },
+  snapshotIdentifier: 'exampleSnapshot',
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseInstance.html"><code>aws-cdk-lib.aws_rds.DatabaseInstance</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseInstance(this, 'example', {
+  engine: rds.DatabaseInstanceEngine.POSTGRES,
+  vpc,
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica.html"><code>aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const sourceInstance: rds.DatabaseInstance;
+
+new rds.DatabaseInstanceReadReplica(this, 'example', {
+  sourceDatabaseInstance: sourceInstance,
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.LARGE),
+  vpc,
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.CfnDBCluster.html"><code>aws-cdk-lib.aws_rds.CfnDBCluster</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+new rds.CfnDBCluster(this, 'example', {
+  storageEncrypted: true,
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.CfnDBInstance.html"><code>aws-cdk-lib.aws_rds.CfnDBInstance</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+new rds.CfnDBInstance(this, 'example', {
+  storageEncrypted: true,
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseCluster.html"><code>aws-cdk-lib.aws_rds.DatabaseCluster</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+const cluster = new rds.DatabaseCluster(this, 'example', {
+  engine: rds.DatabaseClusterEngine.auroraMysql({ version: rds.AuroraMysqlEngineVersion.VER_2_08_1 }),
+  instanceProps: {
+    vpcSubnets: {
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    },
+    vpc,
+  },
+  storageEncrypted: false, // Sensitive
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot.html"><code>aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseClusterFromSnapshot(this, 'example', {
+  engine: rds.DatabaseClusterEngine.aurora({ version: rds.AuroraEngineVersion.VER_1_22_2 }),
+  instanceProps: {
+    vpc,
+  },
+  snapshotIdentifier: 'exampleSnapshot',
+  storageEncrypted: true,
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseInstance.html"><code>aws-cdk-lib.aws_rds.DatabaseInstance</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseInstance(this, 'example', {
+  engine: rds.DatabaseInstanceEngine.POSTGRES,
+  vpc,
+  storageEncrypted: true,
+});
+</pre>
+<p>For <a
+href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica.html"><code>aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica</code></a>:</p>
+<pre>
+import { aws_rds as rds } from 'aws-cdk-lib';
+
+declare const sourceInstance: rds.DatabaseInstance;
+
+new rds.DatabaseInstanceReadReplica(this, 'example', {
+  sourceDatabaseInstance: sourceInstance,
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.LARGE),
+  vpc,
+  storageEncrypted: true,
+});
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">AWS Documentation</a> - Encrypting Amazon RDS
+  resources </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+
