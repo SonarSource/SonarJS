@@ -25,7 +25,15 @@ import {
   getModuleNameOfNode,
   isCallToFQN,
   getObjectExpressionProperty,
-  getValueOfExpression, getFullyQualifiedName,
+  getValueOfExpression,
+  getFullyQualifiedName,
+  isIdentifier,
+  isUndefined,
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  isLiteral,
+  getUniqueWriteUsage,
+  getVariableFromName,
 } from './helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
@@ -37,13 +45,21 @@ const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLS_server_method',
 ];
 
+const AWS_OPTIONS_ARGUMENT_POSITION = 2;
+
+type Values = {
+  invalid?: any[];
+  valid?: any[];
+};
+
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       useMinimumTLS: "Change '{{option}}' to use at least TLS v1.2.",
       useSecureTLS: "Change '{{option}}' to allow only secure TLS versions.",
       AWSApiGateway: 'Change this code to enforce TLS 1.2 or above.',
-      AWSOpenElasticSearch: 'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.'
+      AWSOpenElasticSearch:
+        'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.',
     },
   },
   create(context: Rule.RuleContext) {
@@ -150,45 +166,210 @@ export const rule: Rule.RuleModule = {
         }
       },
       NewExpression(node: estree.NewExpression) {
-        const OPTIONS_ARGUMENT_POSITION = 2;
-        if (node.arguments.some((arg, index) => arg.type === 'SpreadElement' && index <= OPTIONS_ARGUMENT_POSITION)) {
+        if (
+          node.arguments.some(
+            (arg, index) => arg.type === 'SpreadElement' && index <= AWS_OPTIONS_ARGUMENT_POSITION,
+          )
+        ) {
           return;
         }
         const normalizedActualFQN = getFullyQualifiedName(context, node.callee)?.replace(/-/g, '_');
-        let messageId: string | null = null;
-        let failIfNoProps = false;
         switch (normalizedActualFQN) {
           case 'aws_cdk_lib.aws_apigateway.CfnDomainName':
-            messageId = 'AWSApiGateway';
+            checkAWSTLS(node, context, true, 'AWSApiGateway', agwCfnDomain);
             break;
           case 'aws_cdk_lib.aws_apigateway.DomainName':
-            messageId = 'AWSApiGateway';
+            checkAWSTLS(
+              node,
+              context,
+              false,
+              'AWSApiGateway',
+              checkDomainTLS(
+                'securityPolicy',
+                'aws_cdk_lib.aws_apigateway.SecurityPolicy.TLS_1_2',
+                false,
+              ),
+            );
             break;
           case 'aws_cdk_lib.aws_elasticsearch.CfnDomain':
-            messageId = 'AWSOpenElasticSearch';
+            checkAWSTLS(node, context, true, 'AWSOpenElasticSearch', cfnDomain);
             break;
           case 'aws_cdk_lib.aws_elasticsearch.Domain':
-            messageId = 'AWSOpenElasticSearch';
+            checkAWSTLS(
+              node,
+              context,
+              true,
+              'AWSOpenElasticSearch',
+              checkDomainTLS(
+                'tlsSecurityPolicy',
+                'aws_cdk_lib.aws_elasticsearch.TLSSecurityPolicy.TLS_1_2',
+              ),
+            );
             break;
           case 'aws_cdk_lib.aws_opensearchservice.CfnDomain':
-            messageId = 'AWSOpenElasticSearch';
+            checkAWSTLS(node, context, true, 'AWSOpenElasticSearch', cfnDomain);
             break;
           case 'aws_cdk_lib.aws_opensearchservice.Domain':
-            messageId = 'AWSOpenElasticSearch';
+            checkAWSTLS(
+              node,
+              context,
+              true,
+              'AWSOpenElasticSearch',
+              checkDomainTLS(
+                'tlsSecurityPolicy',
+                'aws_cdk_lib.aws_opensearchservice.TLSSecurityPolicy.TLS_1_2',
+              ),
+            );
             break;
-        }
-        if (messageId) {
-          const props = getValueOfExpression(
-            context,
-            node.arguments[OPTIONS_ARGUMENT_POSITION],
-            'ObjectExpression',
-          );
-          if (props === undefined) {
-            context.report({ messageId: 'CFSEncryptionOmitted', node: node.callee });
-            return;
-          }
         }
       },
     };
   },
 };
+
+function checkAWSTLS(
+  node: estree.NewExpression,
+  ctx: Rule.RuleContext,
+  needsProps: boolean,
+  messageId: string,
+  checker: (expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) => void,
+): void {
+  const argument = node.arguments[AWS_OPTIONS_ARGUMENT_POSITION];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnresolved(argument, props)) {
+    return;
+  }
+
+  if (props === undefined) {
+    if (needsProps) {
+      ctx.report({ messageId, node: node.callee });
+    }
+    return;
+  }
+
+  checker(props, ctx, messageId);
+}
+
+function agwCfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) {
+  const property = getProperty(expr, 'securityPolicy', ctx);
+
+  if (property === null) {
+    ctx.report({ messageId, node: expr });
+  }
+
+  if (!property) {
+    return;
+  }
+
+  const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
+  if (isUndefined(propertyValue)) {
+    ctx.report({ messageId, node: property.value });
+    return;
+  }
+
+  if (disallowedValue(ctx, propertyValue, { valid: ['TLS_1_2'] })) {
+    ctx.report({ messageId, node: property.value });
+  }
+}
+
+function checkDomainTLS(propertyName: string, fqn: string, needsProp = true) {
+  return (expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) => {
+    const property = getProperty(expr, propertyName, ctx);
+
+    if (property === null && needsProp) {
+      ctx.report({ messageId, node: expr });
+    }
+
+    if (!property) {
+      return;
+    }
+
+    const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
+    if (isUndefined(propertyValue)) {
+      ctx.report({ messageId, node: property.value });
+      return;
+    }
+    const normalizedFQN = getFullyQualifiedName(ctx, propertyValue)?.replace(/-/g, '_');
+
+    if (normalizedFQN !== fqn) {
+      //check unresolved identifier before reporting
+      if (!normalizedFQN && propertyValue.type === 'Identifier') {
+        const variable = getVariableFromName(ctx, propertyValue.name);
+        const writeReferences = variable?.references.filter(reference => reference.isWrite());
+        if (!variable || !writeReferences?.length) {
+          return;
+        }
+      }
+      ctx.report({ messageId, node: property.value });
+    }
+  };
+}
+
+function cfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) {
+  const domainEndpointOptionsProperty = getProperty(expr, 'domainEndpointOptions', ctx);
+
+  if (domainEndpointOptionsProperty === null) {
+    ctx.report({ messageId, node: expr });
+  }
+
+  if (!domainEndpointOptionsProperty) {
+    return;
+  }
+
+  const domainEndpointOptions = getValueOfExpression(
+    ctx,
+    domainEndpointOptionsProperty.value,
+    'ObjectExpression',
+  );
+
+  if (isUnresolved(domainEndpointOptionsProperty.value, domainEndpointOptions)) {
+    return;
+  }
+
+  if (domainEndpointOptions === undefined) {
+    ctx.report({ messageId, node: domainEndpointOptionsProperty.value });
+    return;
+  }
+
+  const tlsSecurityPolicyProperty = getProperty(domainEndpointOptions, 'tlsSecurityPolicy', ctx);
+
+  if (tlsSecurityPolicyProperty === null) {
+    ctx.report({ messageId, node: expr });
+  }
+
+  if (!tlsSecurityPolicyProperty) {
+    return;
+  }
+
+  const tlsSecurityPolicy = getUniqueWriteUsageOrNode(ctx, tlsSecurityPolicyProperty.value);
+  if (isUndefined(tlsSecurityPolicy)) {
+    ctx.report({ messageId, node: tlsSecurityPolicyProperty.value });
+    return;
+  }
+
+  if (disallowedValue(ctx, tlsSecurityPolicy, { valid: ['Policy-Min-TLS-1-2-2019-07'] })) {
+    ctx.report({ messageId, node: tlsSecurityPolicyProperty.value });
+  }
+}
+
+function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
+  if (isLiteral(node)) {
+    if (values.valid && !values.valid.includes(node.value)) {
+      return true;
+    }
+    if (values.invalid && values.invalid.includes(node.value)) {
+      return true;
+    }
+  } else if (isIdentifier(node)) {
+    const usage = getUniqueWriteUsage(ctx, node.name);
+    if (usage) {
+      return disallowedValue(ctx, usage, values);
+    }
+  }
+  return false;
+}
+
+function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
+}

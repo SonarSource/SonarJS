@@ -84,7 +84,7 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
   const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if (isIdentifier(argument) && !isUndefined(argument) && props === undefined) {
+  if (isUnresolved(argument, props)) {
     return;
   }
 
@@ -129,4 +129,8 @@ function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Value
     }
   }
   return false;
+}
+
+function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
 }
