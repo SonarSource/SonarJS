@@ -22,10 +22,41 @@ package org.sonar.plugins.javascript.filter;
 import java.io.IOException;
 import java.io.InputStream;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-class SizeAssessor {
+class SizeAssessor implements Assessor {
 
-  private SizeAssessor() {}
+  private static final Logger LOG = Loggers.get(SizeAssessor.class);
+  private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
+
+
+
+  /**
+   * Note that in user-facing option handling the units are kilobytes, not bytes.
+   */
+  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
+
+
+  SizeAssessor(Configuration configuration) {
+    configuration.get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE).ifPresent(str -> {
+      try {
+        maxFileSizeKb = Long.parseLong(str);
+        if (maxFileSizeKb <= 0) {
+          fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " + maxFileSizeKb);
+        }
+      } catch (NumberFormatException nfe) {
+        fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\"");
+      }
+    });
+  }
+
+  final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
+    LOG.warn(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
+    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
+  }
 
   /**
    * Note that this method accepts size in <em>bytes</em>, to keep it consistent with conventions in
@@ -33,6 +64,15 @@ class SizeAssessor {
    */
   static boolean hasExcessiveSize(InputFile file, Long maxFileSizeBytes) {
     return hasExcessiveSize(file::inputStream, maxFileSizeBytes);
+  }
+
+  @Override
+  public boolean test(InputFile inputFile) {
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+      LOG.debug("File {} was excluded because of excessive size", inputFile);
+      return true;
+    }
+    return false;
   }
 
   @FunctionalInterface

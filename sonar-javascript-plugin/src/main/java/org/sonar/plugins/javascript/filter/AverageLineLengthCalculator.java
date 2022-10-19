@@ -109,7 +109,7 @@ class AverageLineLengthCalculator {
   }
 
   private static List<String> readLines(InputFile file) {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.inputStream()))) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.inputStream(), file.charset()))) {
       return reader.lines().collect(Collectors.toList());
 
     } catch (IOException e) {
