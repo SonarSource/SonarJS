@@ -33,8 +33,11 @@ import {
   getUniqueWriteUsageOrNode,
   isFalseLiteral,
   isUndefined,
+  isDotNotation,
+  isIdentifier,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
+import { Identifier, MemberExpression } from 'estree';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
@@ -57,6 +60,8 @@ const EXCEPTION_FULL_HOSTS = [
 const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
 
 const TRANSIT_ENCRYPTION_ENABLED = 'transitEncryptionEnabled';
+const ENCRYPTION = 'encryption';
+const STREAM_ENCRYPTION = 'streamEncryption';
 
 const networkProtocolsRule: Rule.RuleModule = {
   meta: {
@@ -288,10 +293,6 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
     return;
   }
 
-  function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
-    return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
-  }
-
   function report(node: estree.Node) {
     ctx.report({
       messageId: 'replicationGroup',
@@ -300,11 +301,121 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   }
 }
 
+const awsKinesisRule: Rule.RuleModule = AwsCdkTemplate(
+  {
+    'aws-cdk-lib.aws_kinesis.Stream': checkStream,
+    'aws-cdk-lib.aws_kinesis.CfnStream': checkCfnStream,
+  },
+  {
+    meta: {
+      messages: {
+        streamEncryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
+      },
+    },
+  },
+);
+
+function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[2];
+  if (argument == null || isUndefined(argument)) {
+    return;
+  }
+
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props)) {
+    return;
+  }
+
+  if (props === undefined) {
+    report(argument);
+    return;
+  }
+
+  const encryption = getProperty(props, ENCRYPTION, ctx);
+  if (!encryption) {
+    return;
+  }
+
+  const encryptionValue = getUniqueWriteUsageOrNode(ctx, encryption.value);
+
+  if (isUnencryptedStream(encryptionValue)) {
+    report(encryption.value);
+    return;
+  }
+
+  function isUnencryptedStream(node: estree.Node) {
+    if (!isMemberIdentifier(node)) {
+      return false;
+    }
+    const className =
+      node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
+    const constantName = node.property.name;
+    return className === 'StreamEncryption' && constantName == 'UNENCRYPTED';
+  }
+
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'streamEncryptionDisabled',
+      node,
+    });
+  }
+}
+
+function checkCfnStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[2];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props)) {
+    return;
+  }
+
+  if (props === undefined) {
+    report(expr.callee);
+    return;
+  }
+
+  const streamEncryption = getProperty(props, STREAM_ENCRYPTION, ctx);
+  if (streamEncryption === null) {
+    report(props);
+  } else if (streamEncryption != null && isUndefined(streamEncryption.value)) {
+    report(streamEncryption.value);
+  }
+
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'streamEncryptionDisabled',
+      node,
+    });
+  }
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: { ...networkProtocolsRule.meta!.messages, ...awsElasticacheRule.meta!.messages },
+    messages: {
+      ...networkProtocolsRule.meta!.messages,
+      ...awsElasticacheRule.meta!.messages,
+      ...awsKinesisRule.meta!.messages,
+    },
   },
   create(context: Rule.RuleContext) {
-    return mergeRules(networkProtocolsRule.create(context), awsElasticacheRule.create(context));
+    return mergeRules(
+      networkProtocolsRule.create(context),
+      awsElasticacheRule.create(context),
+      awsKinesisRule.create(context),
+    );
   },
 };
+
+function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
+}
+
+type MemberIdentifier = MemberExpression & {
+  object: Identifier | (MemberExpression & { property: Identifier });
+  property: Identifier;
+};
+
+function isMemberIdentifier(node: estree.Node): node is MemberIdentifier {
+  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
+}
