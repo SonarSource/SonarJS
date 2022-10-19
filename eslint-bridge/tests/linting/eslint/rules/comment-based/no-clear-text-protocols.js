@@ -37,10 +37,14 @@ function compliant() {
 function non_compliant() {
 
   new CfnReplicationGroup(this, 'UnencryptedGroup'); // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
+//    ^^^^^^^^^^^^^^^^^^^
   new CfnReplicationGroup(this, 'UnencryptedGroup', undefined); // Noncompliant
+//    ^^^^^^^^^^^^^^^^^^^
   new CfnReplicationGroup(this, 'UnencryptedGroup', {}); // Noncompliant
+//                                                  ^^
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
     transitEncryptionEnabled: false // Noncompliant
+//                            ^^^^^
   });
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
     'transitEncryptionEnabled': false // Noncompliant
