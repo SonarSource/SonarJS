@@ -48,7 +48,7 @@ function checkTopic(key: string) {
     const argument = expr.arguments[2];
     const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-    if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+    if (isUnresolved(argument, props)) {
       return;
     }
 
@@ -80,4 +80,8 @@ function checkTopic(key: string) {
       });
     }
   };
+}
+
+function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
 }
