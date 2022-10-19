@@ -17,69 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6327/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6319/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
 import {
+  getProperty,
+  getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isUndefined,
-  getUniqueWriteUsageOrNode,
-  getProperty,
 } from './helpers';
+
+import * as estree from 'estree';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_sns.Topic': checkTopic('masterKey'),
-    'aws-cdk-lib.aws_sns.CfnTopic': checkTopic('kmsMasterKeyId'),
+    'aws-cdk-lib.aws_sagemaker.CfnNotebookInstance': checkNotebookEncryption,
   },
   {
     meta: {
       messages: {
-        issue: 'Omitting "{{key}}" disables SNS topics encryption. Make sure it is safe here.',
+        issue:
+          'Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
       },
     },
   },
 );
 
-function checkTopic(key: string) {
-  return (expr: estree.NewExpression, ctx: Rule.RuleContext) => {
-    const argument = expr.arguments[2];
-    const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+const OPTIONS_ARGUMENT_POSITION = 2;
 
-    if (isUnresolved(argument, props)) {
-      return;
-    }
+function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
 
-    if (props === undefined) {
-      report(expr.callee);
-      return;
-    }
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-    const masterKey = getProperty(props, key, ctx);
-    if (masterKey === null) {
-      report(props);
-    }
+  if (isUnresolved(argument, props)) {
+    return;
+  }
 
-    if (!masterKey) {
-      return;
-    }
+  if (props === undefined) {
+    report(expr.callee);
+    return;
+  }
 
-    const masterKeyValue = getUniqueWriteUsageOrNode(ctx, masterKey.value);
-    if (isUndefined(masterKeyValue)) {
-      report(masterKey);
-      return;
-    }
+  const propertyKey = getProperty(props, 'kmsKeyId', ctx);
+  if (propertyKey === null) {
+    report(props);
+  }
 
-    function report(node: estree.Node) {
-      ctx.report({
-        messageId: 'issue',
-        data: { key },
-        node,
-      });
-    }
-  };
+  if (!propertyKey) {
+    return;
+  }
+
+  const propertyValue = getUniqueWriteUsageOrNode(ctx, propertyKey.value);
+  if (isUndefined(propertyValue)) {
+    report(propertyKey.value);
+    return;
+  }
+
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'issue',
+      node,
+    });
+  }
 }
 
 function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
