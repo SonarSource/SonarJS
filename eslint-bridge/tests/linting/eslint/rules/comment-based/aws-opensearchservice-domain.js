@@ -97,6 +97,15 @@ class NonCompliantS6308Stack extends cdk.Stack {
       },
     });
 
+    new opensearchservice.Domain(this, 'ExplicitlyNoncompliantDomain', {
+      version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      encryptionAtRest: {
+        ...unknown,
+        enabled: undefined, // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this OpenSearch domain. Make sure it is safe here.}}
+//               ^^^^^^^^^
+      },
+    });
+
     /*
      * Explicitly non compliant
      */
@@ -145,6 +154,15 @@ class NonCompliantS6308Stack extends cdk.Stack {
     new elasticsearch.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
       elasticsearchVersion,
       encryptionAtRestOptions: {
+        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//      ^^^^^^^
+      },
+    });
+
+    new elasticsearch.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
+      elasticsearchVersion,
+      encryptionAtRestOptions: {
+        ...unknown,
         enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
 //      ^^^^^^^
       },
