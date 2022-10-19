@@ -248,7 +248,7 @@ function getMessageAndData(protocol: string) {
 
 const awsElasticacheRule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_elasticache.CfnReplicationGroup': checkGroup(),
+    'aws-cdk-lib.aws_elasticache.CfnReplicationGroup': checkGroup,
   },
   {
     meta: {
@@ -259,36 +259,34 @@ const awsElasticacheRule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
-function checkGroup() {
-  return (expr: estree.NewExpression, ctx: Rule.RuleContext) => {
-    const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
-    if (props === undefined) {
-      report(expr.callee);
-      return;
-    }
+function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
+  if (props === undefined) {
+    report(expr.callee);
+    return;
+  }
 
-    const transitEncryptionEnabled = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
-    if (transitEncryptionEnabled === null) {
-      report(props);
-      return;
-    }
+  const transitEncryptionEnabled = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
+  if (transitEncryptionEnabled === null) {
+    report(props);
+    return;
+  }
 
-    const transitEncryptionEnabledValue = getUniqueWriteUsageOrNode(
-      ctx,
-      transitEncryptionEnabled.value,
-    );
-    if (isFalseLiteral(transitEncryptionEnabledValue)) {
-      report(transitEncryptionEnabled);
-      return;
-    }
+  const transitEncryptionEnabledValue = getUniqueWriteUsageOrNode(
+    ctx,
+    transitEncryptionEnabled.value,
+  );
+  if (isFalseLiteral(transitEncryptionEnabledValue)) {
+    report(transitEncryptionEnabled);
+    return;
+  }
 
-    function report(node: estree.Node) {
-      ctx.report({
-        messageId: 'replicationGroup',
-        node,
-      });
-    }
-  };
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'replicationGroup',
+      node,
+    });
+  }
 }
 
 export const rule: Rule.RuleModule = {
