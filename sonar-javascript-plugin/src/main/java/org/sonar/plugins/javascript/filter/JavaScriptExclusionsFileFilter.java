@@ -34,7 +34,8 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     assessors = List.of(
       new PathAssessor(configuration),
       new SizeAssessor(configuration),
-      new MinificationAssessor()
+      new MinificationAssessor(),
+      new BundleAssessor()
     );
   }
 
