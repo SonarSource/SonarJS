@@ -3,9 +3,6 @@
 491,
 528,
 ],
-'mootools-core:Source/Core/Core.js':[
-516,
-],
 'mootools-core:Source/Element/Element.js':[
 865,
 867,
@@ -24,8 +21,5 @@
 ],
 'mootools-core:Source/Types/Array.js':[
 137,
-],
-'mootools-core:Source/Types/DOMEvent.js':[
-54,
 ],
 }

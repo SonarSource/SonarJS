@@ -2,13 +2,6 @@
 'mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js':[
 5,
 ],
-'mootools-core:Source/Browser/Browser.js':[
-30,
-153,
-],
-'mootools-core:Source/Element/Element.Style.js':[
-181,
-],
 'mootools-core:Source/Fx/Fx.CSS.js':[
 141,
 ],

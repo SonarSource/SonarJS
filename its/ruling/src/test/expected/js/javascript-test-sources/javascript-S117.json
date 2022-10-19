@@ -39,9 +39,6 @@
 'javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js':[
 1,
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/application.js':[
-167,
-],
 'javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js':[
 326,
 ],

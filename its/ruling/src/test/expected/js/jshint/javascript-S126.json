@@ -61,9 +61,6 @@
 1724,
 1789,
 ],
-'jshint:src/platforms/rhino.js':[
-28,
-],
 'jshint:src/scope-manager.js':[
 171,
 570,

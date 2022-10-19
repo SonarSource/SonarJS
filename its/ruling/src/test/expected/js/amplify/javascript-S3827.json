@@ -17,13 +17,4 @@
 'amplify:demo/store/sessionstorage/demo.js':[
 4,
 ],
-'amplify:lib/amplify.js':[
-513,
-],
-'amplify:lib/amplify.request.js':[
-107,
-],
-'amplify:src/request.js':[
-98,
-],
 }

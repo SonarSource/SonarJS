@@ -23,9 +23,6 @@
 'javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js':[
 295,
 ],
-'javascript-test-sources:src/ecmascript6/router/utils/requirejs_module_ce.js':[
-38,
-],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/choice-filters.js':[
 211,
 ],

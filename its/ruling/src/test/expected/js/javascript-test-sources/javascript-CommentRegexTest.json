@@ -351,9 +351,6 @@
 'javascript-test-sources:src/ecmascript6/router/src/router.js':[
 7,
 ],
-'javascript-test-sources:src/ecmascript6/router/utils/requirejs_module_ce.js':[
-15,
-],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/domain-treemap.js':[
 68,
 ],

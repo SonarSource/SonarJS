@@ -28,6 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -230,6 +231,29 @@ class JavaScriptExclusionsFileFilterTest {
       .setCharset(StandardCharsets.UTF_8)
       .build();
     assertThat(filter.accept(inputFile)).isFalse();
+  }
+
+  @Test
+  void should_not_exclude_when_property_set() throws Exception {
+    var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "false").asConfig();
+    var filter = new JavaScriptExclusionsFileFilter(config);
+    var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
+      .setContents(BundleAssessorTest.BOOTSTRAP)
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isTrue();
+
+    config = new MapSettings().setProperty("sonar.javascript.detectBundles", "true").asConfig();
+    filter = new JavaScriptExclusionsFileFilter(config);
+    assertThat(filter.accept(inputFile)).isFalse();
+    var logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).contains("Some of the project files were automatically excluded because they looked like generated " +
+      "code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
+      "sonar.javascript.detectBundles=false");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File bootstrap.js was excluded because it looks like a " +
+      "bundle. (Disable detection with sonar.javascript.detectBundles=false)");
   }
 
   /**

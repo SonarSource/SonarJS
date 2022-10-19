@@ -43,10 +43,6 @@
 1163,
 1810,
 ],
-'jshint:src/platforms/rhino.js':[
-12,
-92,
-],
 'jshint:src/reporters/default.js':[
 31,
 ],

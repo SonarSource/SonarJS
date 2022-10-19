@@ -1,16 +1,7 @@
 {
-'mootools-core:Source/Class/Class.Thenable.js':[
-39,
-],
-'mootools-core:Source/Element/Element.Delegation.js':[
-23,
-],
 'mootools-core:Source/Element/Element.js':[
 692,
 1126,
 1154,
-],
-'mootools-core:Source/Types/DOMEvent.js':[
-31,
 ],
 }
