@@ -284,7 +284,7 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
 
   const encryptionValue = getUniqueWriteUsageOrNode(ctx, encrpytion.value);
   if (isFalseLiteral(encryptionValue)) {
-    report(encrpytion);
+    report(encrpytion.value);
     return;
   }
 
