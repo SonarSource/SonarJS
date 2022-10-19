@@ -516,6 +516,10 @@ export function isStringLiteral(node: estree.Node): node is estree.Literal & { v
   return isLiteral(node) && typeof node.value === 'string';
 }
 
+export function isBooleanLiteral(node: estree.Node): node is estree.Literal & { value: boolean } {
+  return isLiteral(node) && typeof node.value === 'boolean';
+}
+
 export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
   return isLiteral(node) && typeof node.value === 'number';
 }
