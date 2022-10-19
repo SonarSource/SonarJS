@@ -130,7 +130,13 @@ function queueChecker(options: QueueCheckerOptions) {
 
     function queryProperty(node: ObjectExpression, name: string): Result {
       const property = getProperty(node, name, ctx);
-      return property == null ? missing(node) : found(property);
+      if (property === undefined) {
+        return unknown(node);
+      } else if (property === null) {
+        return missing(node);
+      } else {
+        return found(property);
+      }
     }
 
     function queryValue(node: Node, type: 'string' | 'boolean') {
