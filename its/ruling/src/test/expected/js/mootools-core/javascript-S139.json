@@ -2,12 +2,6 @@
 'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
 136,
 ],
-'mootools-core:Source/Element/Element.Event.js':[
-132,
-133,
-134,
-139,
-],
 'mootools-core:Source/Element/Element.js':[
 236,
 244,

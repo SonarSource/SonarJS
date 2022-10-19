@@ -1,12 +1,4 @@
 {
-'amplify:lib/amplify.js':[
-174,
-215,
-],
-'amplify:lib/amplify.store.js':[
-58,
-99,
-],
 'amplify:src/store.js':[
 49,
 90,

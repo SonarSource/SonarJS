@@ -81,9 +81,6 @@
 1325,
 1935,
 ],
-'jshint:src/platforms/rhino.js':[
-4,
-],
 'jshint:src/reporters/checkstyle.js':[
 5,
 ],
