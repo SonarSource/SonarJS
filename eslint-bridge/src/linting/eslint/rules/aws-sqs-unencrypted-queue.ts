@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 import {
-  Expression,
   Identifier,
   Literal,
   MemberExpression,
@@ -30,14 +29,15 @@ import {
   Node,
   ObjectExpression,
   Property,
-  SpreadElement,
 } from 'estree';
 import {
   getUniqueWriteUsage,
+  getValueOfExpression,
+  isBooleanLiteral,
   isDotNotation,
   isIdentifier,
   isLiteral,
-  isProperty,
+  isStringLiteral,
   isUndefined,
 } from './helpers';
 
@@ -116,41 +116,20 @@ function queueChecker(options: QueueCheckerOptions) {
     }
 
     function queryArgument(node: NewExpression, position: number) {
-      const expression = getExpressionAtPosition(node.arguments, position);
-      if (expression == null) {
+      const argument = node.arguments[position];
+      if (argument == null) {
         return missing(node);
-      } else if (expression.type === 'SpreadElement') {
-        return unknown(node);
-      } else {
-        return new FoundResult(expression);
+      } else if (isUndefined(argument)) {
+        return missing(argument);
       }
+
+      const expression = getValueOfExpression(ctx, argument, 'ObjectExpression');
+      return expression == null ? unknown(node) : found(expression);
     }
 
     function queryProperty(node: ObjectExpression, name: string): Result {
-      let property: Property | null = null;
-      let hasUnknownSpreadElement = false;
-      let index = node.properties.length - 1;
-
-      while (index >= 0 && property == null) {
-        const element = node.properties[index];
-        if (isIdentifierProperty(element, name)) {
-          property = element;
-        } else if (isSpreadIdentifier(element)) {
-          const usage = getUniqueWriteUsage(ctx, element.argument.name);
-          if (usage && usage.type === 'ObjectExpression') {
-            property = queryProperty(usage, name).as('Property');
-          } else {
-            hasUnknownSpreadElement = true;
-          }
-        }
-        index--;
-      }
-
-      if (property == null) {
-        return hasUnknownSpreadElement ? unknown(node) : missing(node);
-      } else {
-        return new FoundResult(property);
-      }
+      const property = getProperty(node, name, ctx);
+      return property == null ? missing(node) : found(property);
     }
 
     function queryValue(node: Node, type: 'string' | 'boolean') {
@@ -196,6 +175,14 @@ class Result {
     return this.status === 'missing';
   }
 
+  get isFalse() {
+    return isBooleanLiteral(this.node) && !this.node.value;
+  }
+
+  asString() {
+    return isStringLiteral(this.node) ? this.node.value : null;
+  }
+
   as<N extends Node>(_type: N['type']): N | null {
     return null;
   }
@@ -226,16 +213,12 @@ class FoundResult extends Result {
     super(value, 'found');
   }
 
-  as<N extends Node>(type: N['type']): N | null {
-    return this.status === 'found' && this.node.type === type ? (this.node as N) : null;
-  }
-
   map<N extends Node>(closure: (node: N) => Result | Node): Result {
     const resultOrNode = closure(this.node as N);
     return resultOrNode instanceof Result ? resultOrNode : found(resultOrNode);
   }
 
-  ofType(type: string): Result {
+  filter(type: string): Result {
     return this.node.type === type ? this : unknown(this.node);
   }
 }
@@ -259,36 +242,4 @@ type MemberIdentifier = MemberExpression & {
 
 function isMemberIdentifier(node: Node): node is MemberIdentifier {
   return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
-}
-
-function isSpreadIdentifier(
-  node: Property | SpreadElement,
-): node is SpreadElement & { argument: Identifier } {
-  return node.type === 'SpreadElement' && node.argument.type === 'Identifier';
-}
-
-function isIdentifierProperty(node: Property | SpreadElement, name: string): node is Property {
-  return isProperty(node) && isPropertyName(node.key, name);
-}
-
-function isPropertyName(node: Node, name: string) {
-  return (isLiteral(node) && node.value === name) || isIdentifier(node, name);
-}
-
-function getExpressionAtPosition(args: Array<Expression | SpreadElement>, position: number) {
-  let index = 0;
-  let expression: Expression | SpreadElement | null = null;
-
-  while (index <= position && index < args.length && args[index].type !== 'SpreadElement') {
-    expression = args[index];
-    index++;
-  }
-
-  if (index > position && expression != null) {
-    return expression;
-  } else if (index < args.length) {
-    return args[index];
-  } else {
-    return null;
-  }
 }
