@@ -45,7 +45,13 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 
 function checkTopic(key: string) {
   return (expr: estree.NewExpression, ctx: Rule.RuleContext) => {
-    const props = getValueOfExpression(ctx, expr.arguments[2], 'ObjectExpression');
+    const argument = expr.arguments[2];
+    const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+    if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+      return;
+    }
+
     if (props === undefined) {
       report(expr.callee);
       return;
@@ -54,6 +60,9 @@ function checkTopic(key: string) {
     const masterKey = getProperty(props, key, ctx);
     if (masterKey === null) {
       report(props);
+    }
+
+    if (!masterKey) {
       return;
     }
 

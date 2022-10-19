@@ -31,6 +31,12 @@ function compliant() {
   });
 
   new CfnTopic(this, 'EncryptedCfnTopic', {
+    ...unknownOptions
+  });
+
+  new CfnTopic(this, 'EncryptedCfnTopic', unknownOptionsnb);
+
+  new CfnTopic(this, 'EncryptedCfnTopic', {
     kmsMasterKeyId: encryptionKey.keyId
   });
 
