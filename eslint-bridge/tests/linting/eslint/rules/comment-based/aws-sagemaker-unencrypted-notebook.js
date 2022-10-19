@@ -14,6 +14,8 @@ new CfnNotebookInstance(this, "CfnNotebookInstance", {}); // Noncompliant {{Omit
 
 new CfnNotebookInstance(this, "CfnNotebookInstance", unknownValue); // Compliant
 new CfnNotebookInstance(this, "CfnNotebookInstance", { ...unknownValue }); // Compliant
+new CfnNotebookInstance(this, "CfnNotebookInstance", { ...unknownValue, kmsKeyId: undefined }); // Noncompliant
+new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: undefined , ...unknownValue }); // Noncompliant
 new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: unknownValue }); // Compliant
 
 const value1 = false;
