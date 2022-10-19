@@ -266,18 +266,15 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
     return;
   }
 
-  const transitEncryptionEnabled = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
-  if (transitEncryptionEnabled === null) {
+  const encrpytion = getProperty(props, TRANSIT_ENCRYPTION_ENABLED, ctx);
+  if (encrpytion === null) {
     report(props);
     return;
   }
 
-  const transitEncryptionEnabledValue = getUniqueWriteUsageOrNode(
-    ctx,
-    transitEncryptionEnabled.value,
-  );
-  if (isFalseLiteral(transitEncryptionEnabledValue)) {
-    report(transitEncryptionEnabled);
+  const encryptionValue = getUniqueWriteUsageOrNode(ctx, encrpytion.value);
+  if (isFalseLiteral(encryptionValue)) {
+    report(encrpytion);
     return;
   }
 
