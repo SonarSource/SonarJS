@@ -1,5 +1,5 @@
-import { Topic, CfnTopic } from 'aws-cdk-lib/aws-sns';
-import { Key } from 'aws-cdk-lib/aws-kms';
+const { Topic, CfnTopic } = require('aws-cdk-lib/aws-sns');
+const { Key } = require('aws-cdk-lib/aws-kms');
 
 function compliant() {
 

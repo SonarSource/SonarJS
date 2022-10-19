@@ -51,7 +51,7 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
 
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+  if (isUnresolved(argument, props)) {
     return;
   }
 
@@ -81,4 +81,8 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
       node,
     });
   }
+}
+
+function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
 }
