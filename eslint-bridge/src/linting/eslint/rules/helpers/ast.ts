@@ -420,6 +420,7 @@ export function getProperty(
   key: string,
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
+  let unresolvedSpreadElement = false;
   for (let i = expr.properties.length - 1; i >= 0; --i) {
     const property = expr.properties[i];
     if (isProperty(property, key)) {
@@ -433,9 +434,12 @@ export function getProperty(
           return prop;
         }
       } else {
-        return undefined;
+        unresolvedSpreadElement = true;
       }
     }
+  }
+  if (unresolvedSpreadElement) {
+    return undefined;
   }
   return null;
 

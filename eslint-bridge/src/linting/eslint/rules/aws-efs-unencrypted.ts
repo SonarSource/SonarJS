@@ -62,7 +62,7 @@ function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if ((argument?.type === 'Identifier' && !isUndefined(argument)) || props === undefined) {
+  if (props === undefined) {
     return;
   }
 
@@ -84,7 +84,7 @@ function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext)
   const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if (argument?.type === 'Identifier' && !isUndefined(argument) && props === undefined) {
+  if (isIdentifier(argument) && !isUndefined(argument) && props === undefined) {
     return;
   }
 
