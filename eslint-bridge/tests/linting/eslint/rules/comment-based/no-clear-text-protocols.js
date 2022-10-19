@@ -122,6 +122,10 @@ class S5332CompliantKinesisStack extends Stack {
 
     new Stream(this, 'stream-implicit-encrypted', undefined); // Compliant, encryption is the default
 
+    new Stream(this, 'stream-implicit-encrypted', foo()); // Compliant, encryption is the default
+
+    new Stream(this, 'stream-implicit-encrypted', unknown); // Compliant, encryption is the default
+
     new Stream(this, 'stream-implicit-encrypted', {}); // Compliant, encryption is the default
 
     new Stream(this, 'stream-implicit-encrypted', {

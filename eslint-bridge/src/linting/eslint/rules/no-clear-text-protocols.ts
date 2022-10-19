@@ -309,7 +309,7 @@ const awsKinesisRule: Rule.RuleModule = AwsCdkTemplate(
   {
     meta: {
       messages: {
-        streamEncryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
+        encryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
       },
     },
   },
@@ -351,12 +351,12 @@ function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
     const className =
       node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
     const constantName = node.property.name;
-    return className === 'StreamEncryption' && constantName == 'UNENCRYPTED';
+    return className === 'StreamEncryption' && constantName === 'UNENCRYPTED';
   }
 
   function report(node: estree.Node) {
     ctx.report({
-      messageId: 'streamEncryptionDisabled',
+      messageId: 'encryptionDisabled',
       node,
     });
   }
