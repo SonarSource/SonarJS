@@ -31,6 +31,7 @@ import {
   Property,
 } from 'estree';
 import {
+  getProperty,
   getUniqueWriteUsage,
   getValueOfExpression,
   isBooleanLiteral,
