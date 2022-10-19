@@ -57,7 +57,9 @@ class MinificationAssessorTest {
 
   @Test
   void assessNonExistingFile() {
-    assertThatThrownBy(() -> getAssert("file-does-not-exist.js").isFalse())
+    var assessor = new MinificationAssessor(20);
+    var file = getFile("file-does-not-exist.js");
+    assertThatThrownBy(() -> assessor.isMinified(file))
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -80,12 +82,12 @@ class MinificationAssessorTest {
     return inputFile;
   }
 
-  private AbstractBooleanAssert getAssert(String fileName) {
+  private AbstractBooleanAssert<?> getAssert(String fileName) {
     MinificationAssessor assessor = new MinificationAssessor(20);
     return getAssert(assessor, fileName);
   }
 
-  private AbstractBooleanAssert getAssert(MinificationAssessor assessor, String fileName) {
+  private AbstractBooleanAssert<?> getAssert(MinificationAssessor assessor, String fileName) {
     return assertThat(assessor.isMinified(getFile(fileName))).as("File '" + fileName + "' is minified?");
   }
 

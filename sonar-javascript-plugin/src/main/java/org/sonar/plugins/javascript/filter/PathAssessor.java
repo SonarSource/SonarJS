@@ -52,7 +52,7 @@ class PathAssessor implements Assessor {
     }
   }
 
-  private boolean isExclusionOverridden(Configuration configuration) {
+  private static boolean isExclusionOverridden(Configuration configuration) {
     return configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
       || configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent();
   }
