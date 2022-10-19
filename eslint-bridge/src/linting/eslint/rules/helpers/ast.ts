@@ -516,12 +516,12 @@ export function checkSensitiveCall(
   }
 }
 
-export function isBooleanLiteral(node: estree.Node): node is estree.Literal & { value: boolean } {
-  return isLiteral(node) && typeof node.value === 'boolean';
-}
-
 export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
   return isLiteral(node) && typeof node.value === 'string';
+}
+
+export function isBooleanLiteral(node: estree.Node): node is estree.Literal & { value: boolean } {
+  return isLiteral(node) && typeof node.value === 'boolean';
 }
 
 export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
