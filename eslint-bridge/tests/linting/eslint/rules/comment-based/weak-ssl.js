@@ -38,6 +38,12 @@ function f(unknownValue) {
     //                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   });
 
+  const opts = {};
+  //ignore spreads on arguments
+  new agw.CfnDomainName(...opts);
+  //doesn't match fqn
+  new CfnDomainName(this, 'Example');
+
 //missing props
   new agw.CfnDomainName(this, 'Example');  // NonCompliant
   new agw.DomainName(this, 'Example');
@@ -54,13 +60,22 @@ function f(unknownValue) {
   new oss.Domain(this, 'Example', undefined); // NonCompliant
 
   new agw.CfnDomainName(this, 'Example', {securityPolicy: undefined}); // NonCompliant
-  new agw.DomainName(this, 'Example', {securityPolicy: undefined}); // NonCompliant
+  new agw.DomainName(this, 'Example', {securityPolicy: undefined});
   new es.CfnDomain(this, 'Example', {domainEndpointOptions: {tlsSecurityPolicy: undefined}}); // NonCompliant
+  new es.CfnDomain(this, 'Example', {domainEndpointOptions: {}}); // NonCompliant
   new es.CfnDomain(this, 'Example', {domainEndpointOptions: undefined}); // NonCompliant
   new es.Domain(this, 'ExplicitlyNonCompliant', {tlsSecurityPolicy: undefined}); // NonCompliant
   new oss.CfnDomain(this, 'Example', {domainEndpointOptions: {tlsSecurityPolicy: undefined}}); // NonCompliant
+  new oss.CfnDomain(this, 'Example', {domainEndpointOptions: {}}); // NonCompliant
   new oss.CfnDomain(this, 'Example', {domainEndpointOptions: undefined}); // NonCompliant
   new oss.Domain(this, 'Example', {tlsSecurityPolicy: undefined}); // NonCompliant
+
+  new agw.CfnDomainName(this, 'Example', opts); // NonCompliant
+  new agw.DomainName(this, 'Example', opts);
+  new es.CfnDomain(this, 'Example', opts); // NonCompliant
+  new es.Domain(this, 'ExplicitlyNonCompliant', opts); // NonCompliant
+  new oss.CfnDomain(this, 'Example', opts); // NonCompliant
+  new oss.Domain(this, 'Example', opts); // NonCompliant
 
 //unknown props
   new agw.CfnDomainName(this, 'Example', unknownValue);

@@ -232,7 +232,12 @@ function checkAWSTLS(
   ctx: Rule.RuleContext,
   needsProps: boolean,
   messageId: string,
-  checker: (expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) => void,
+  checker: (
+    expr: estree.ObjectExpression,
+    ctx: Rule.RuleContext,
+    messageId: string,
+    nodeToReport: estree.Node,
+  ) => void,
 ): void {
   const argument = node.arguments[AWS_OPTIONS_ARGUMENT_POSITION];
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
@@ -248,14 +253,19 @@ function checkAWSTLS(
     return;
   }
 
-  checker(props, ctx, messageId);
+  checker(props, ctx, messageId, argument);
 }
 
-function agwCfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) {
+function agwCfnDomain(
+  expr: estree.ObjectExpression,
+  ctx: Rule.RuleContext,
+  messageId: string,
+  nodeToReport: estree.Node,
+) {
   const property = getProperty(expr, 'securityPolicy', ctx);
 
   if (property === null) {
-    ctx.report({ messageId, node: expr });
+    ctx.report({ messageId, node: nodeToReport });
   }
 
   if (!property) {
@@ -274,11 +284,16 @@ function agwCfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, mess
 }
 
 function checkDomainTLS(propertyName: string, fqn: string, needsProp = true) {
-  return (expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) => {
+  return (
+    expr: estree.ObjectExpression,
+    ctx: Rule.RuleContext,
+    messageId: string,
+    nodeToReport: estree.Node,
+  ) => {
     const property = getProperty(expr, propertyName, ctx);
 
     if (property === null && needsProp) {
-      ctx.report({ messageId, node: expr });
+      ctx.report({ messageId, node: nodeToReport });
     }
 
     if (!property) {
@@ -287,7 +302,9 @@ function checkDomainTLS(propertyName: string, fqn: string, needsProp = true) {
 
     const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
     if (isUndefined(propertyValue)) {
-      ctx.report({ messageId, node: property.value });
+      if (needsProp) {
+        ctx.report({ messageId, node: property.value });
+      }
       return;
     }
     const normalizedFQN = getFullyQualifiedName(ctx, propertyValue)?.replace(/-/g, '_');
@@ -306,11 +323,16 @@ function checkDomainTLS(propertyName: string, fqn: string, needsProp = true) {
   };
 }
 
-function cfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, messageId: string) {
+function cfnDomain(
+  expr: estree.ObjectExpression,
+  ctx: Rule.RuleContext,
+  messageId: string,
+  nodeToReport: estree.Node,
+) {
   const domainEndpointOptionsProperty = getProperty(expr, 'domainEndpointOptions', ctx);
 
   if (domainEndpointOptionsProperty === null) {
-    ctx.report({ messageId, node: expr });
+    ctx.report({ messageId, node: nodeToReport });
   }
 
   if (!domainEndpointOptionsProperty) {
@@ -335,7 +357,7 @@ function cfnDomain(expr: estree.ObjectExpression, ctx: Rule.RuleContext, message
   const tlsSecurityPolicyProperty = getProperty(domainEndpointOptions, 'tlsSecurityPolicy', ctx);
 
   if (tlsSecurityPolicyProperty === null) {
-    ctx.report({ messageId, node: expr });
+    ctx.report({ messageId, node: nodeToReport });
   }
 
   if (!tlsSecurityPolicyProperty) {
