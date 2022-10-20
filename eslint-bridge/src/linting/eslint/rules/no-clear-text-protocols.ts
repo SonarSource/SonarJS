@@ -337,7 +337,6 @@ function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
       messageId: 'encryptionDisabled',
       node: encryption.value,
     });
-    return;
   }
 
   function isUnencryptedStream(node: estree.Node) {
