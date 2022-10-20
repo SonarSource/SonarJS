@@ -1,0 +1,190 @@
+<p>AWS Identity and Access Management (IAM) is the service that defines access to AWS resources. One of the core components of IAM is the policy
+which, when attached to an identity or a resource, defines its permissions. Policies granting permission to an Identity (a User, a Group or Role) are
+called identity-based policies. They add the ability to an identity to perform a predefined set of actions on a list of resources.</p>
+<p>Here is an example of a policy document defining a limited set of permission that grants a user the ability to manage his own access keys.</p>
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:ListAccessKeys",
+                "iam:UpdateAccessKey"
+            ],
+            "Resource": "arn:aws:iam::245500951992:user/${aws:username}",
+            "Effect": "Allow",
+            "Sid": "AllowManageOwnAccessKeys"
+        }
+    ]
+}
+</pre>
+<p>Privilege escalation generally happens when an identity policy gives an identity the ability to grant more privileges than the ones it already has.
+Here is another example of a policy document that hides a privilege escalation. It allows an identity to generate a new access key for any user from
+the account, including users with high privileges.</p>
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:ListAccessKeys",
+                "iam:UpdateAccessKey"
+            ],
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "AllowManageOwnAccessKeys"
+        }
+    ]
+}
+</pre>
+<p>Although it looks like it grants a limited set of permissions, this policy would, in practice, give the highest privileges to the identity it’s
+attached to.</p>
+<p>Privilege escalation is a serious issue as it allows a malicious user to easily escalate to a high privilege identity from a low privilege identity
+it took control of.</p>
+<p>The example above is just one of many permission escalation vectors. Here is the list of vectors that the rule can detect:</p>
+<table>
+  <colgroup>
+    <col style="width: 50%;">
+    <col style="width: 50%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Vector name</th>
+      <th>Summary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>Create Policy Version</p></td>
+      <td><p>Create a new IAM policy and set it as default</p></td>
+    </tr>
+    <tr>
+      <td><p>Set Default Policy Version</p></td>
+      <td><p>Set a different IAM policy version as default</p></td>
+    </tr>
+    <tr>
+      <td><p>Create AccessKey</p></td>
+      <td><p>Create a new access key for any user</p></td>
+    </tr>
+    <tr>
+      <td><p>Create Login Profile</p></td>
+      <td><p>Create a login profile with a password chosen by the attacker</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Login Profile</p></td>
+      <td><p>Update the existing password with one chosen by the attacker</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach User Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach Group Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a group containing a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach Role Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a role that can be assumed by the user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put User Policy</p></td>
+      <td><p>Alter the existing inline IAM policy from a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put Group Policy</p></td>
+      <td><p>Alter the existing inline IAM policy from a group containing a user that the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put Role Policy</p></td>
+      <td><p>Alter an existing inline IAM role policy. The rule will then be assumed by the user that the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Add User to Group</p></td>
+      <td><p>Add a user that the attacker controls to a group that has a larger range of permissions</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Assume Role Policy</p></td>
+      <td><p>Update a role’s "AssumeRolePolicyDocument" to allow a user the attacker controls to assume it</p></td>
+    </tr>
+    <tr>
+      <td><p>EC2</p></td>
+      <td><p>Create an EC2 instance that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda Create and Invoke</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and invoke it</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda Create and Add Permission</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and grant permission to invoke it to a user or a service</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda triggered with an external event</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and link it to an external event</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Lambda code</p></td>
+      <td><p>Update the code of a Lambda function executing with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>CloudFormation</p></td>
+      <td><p>Create a CloudFormation stack that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Data Pipeline</p></td>
+      <td><p>Create a Pipeline that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Glue Development Endpoint</p></td>
+      <td><p>Create a Glue Development Endpoint that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Glue Dev Endpoint</p></td>
+      <td><p>Update the associated SSH key for the Glue endpoint</p></td>
+    </tr>
+  </tbody>
+</table>
+<p>The general recommendation to protect against privilege escalation is to restrict the resources to which sensitive permissions are granted. The
+first example above is a good demonstration of sensitive permissions being used with a narrow scope of resources and where no privilege escalation is
+possible.</p>
+<h2>Noncompliant Code Example</h2>
+<p>The following policy allows an attacker to update the code of any Lambda function. An attacker can achieve privilege escalation by altering the
+code of a Lambda that executes with high privileges.</p>
+<pre>
+import {aws_iam as iam} from 'aws-cdk-lib'
+
+new iam.PolicyDocument({
+    statements: [new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["lambda:UpdateFunctionCode"],
+        resources: ["*"], // Noncompliant
+    })],
+})
+</pre>
+<h2>Compliant Solution</h2>
+<p>Narrow the policy such that only updates to the code of certain Lambda functions are allowed.</p>
+<pre>
+import {aws_iam as iam} from 'aws-cdk-lib'
+
+new iam.PolicyDocument({
+    statements: [new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["lambda:UpdateFunctionCode"],
+        resources: ["arn:aws:lambda:us-east-2:123456789012:function:my-function:1"], // Noncompliant
+    })],
+})
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/">Rhino Security Labs</a> - AWS IAM Privilege Escalation
+  – Methods and Mitigation </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-269</a> - Improper Privilege Management </li>
+</ul>
+
