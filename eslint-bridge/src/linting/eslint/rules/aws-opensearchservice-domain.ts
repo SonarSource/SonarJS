@@ -21,26 +21,9 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
-import {
-  Identifier,
-  Literal,
-  MemberExpression,
-  NewExpression,
-  Node,
-  ObjectExpression,
-  Property,
-} from 'estree';
-import {
-  getProperty,
-  getUniqueWriteUsage,
-  getValueOfExpression,
-  isBooleanLiteral,
-  isDotNotation,
-  isIdentifier,
-  isLiteral,
-  isStringLiteral,
-  isUndefined,
-} from './helpers';
+import { NewExpression, Node } from 'estree';
+import { getFullyQualifiedName, isBooleanLiteral, isStringLiteral } from './helpers';
+import { getResultOfExpression } from './helpers/result';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';
@@ -105,10 +88,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 
 function domainChecker(options: DomainCheckerOptions) {
   return (expr: NewExpression, ctx: Rule.RuleContext) => {
-    const argument = queryArgument(expr, DOMAIN_PROPS_POSITION).filter('ObjectExpression');
-    const encryptionProperty = queryEncryptionProperty(argument, options.encryptionProperty);
-    const isEnabled = encryptionProperty.map(node => queryValue(node, 'boolean'));
-    const version = getVersion(argument, options);
+    const call = getResultOfExpression(ctx, expr);
+    const argument = call.getArgument(DOMAIN_PROPS_POSITION);
+    const encryption = argument.getProperty(options.encryptionProperty);
+    const version = argument.getProperty(options.version.property);
+    const isEnabled = encryption.getProperty(ENABLED_PROPERTY);
+    const search = version.map(getSearchEngine) ?? options.version.defaultValue;
 
     if (isEnabled.isMissing) {
       ctx.report({
@@ -116,184 +101,41 @@ function domainChecker(options: DomainCheckerOptions) {
         node: isEnabled.node,
         data: {
           encryptionPropertyName: options.encryptionProperty,
-          search: getSearchEngine(version) ?? options.version.defaultValue,
+          search,
         },
       });
-    } else if (isEnabled.isFalse) {
+    } else if (isEnabled.isFound && isUnencrypted(isEnabled.node)) {
       ctx.report({
         messageId: 'encryptionDisabled',
-        node: encryptionProperty.node,
+        node: isEnabled.node,
         data: {
-          search: getSearchEngine(version) ?? options.version.defaultValue,
+          search,
         },
       });
     }
 
-    function queryEncryptionProperty(argument: Result, propertyName: string) {
-      const encryptionProperty = argument
-        .map((object: ObjectExpression) => queryProperty(object, propertyName))
-        .map((property: Property) => property.value);
-      return encryptionProperty
-        .filter('ObjectExpression')
-        .map((object: ObjectExpression) => queryProperty(object, ENABLED_PROPERTY))
-        .map((property: Property) => property.value);
+    function isUnencrypted(node: Node) {
+      return isBooleanLiteral(node) && !node.value;
     }
 
-    function getVersion(argument: Result, options: DomainCheckerOptions) {
-      const version = argument
-        .map((object: ObjectExpression) => queryProperty(object, options.version.property))
-        .map((property: Property) => property.value);
-      const versionValue = getVersionValue(version, options);
-      return versionValue?.toLowerCase();
-    }
+    function getSearchEngine(node: Node) {
+      let version: string | null;
 
-    function getVersionValue(version: Result, options: DomainCheckerOptions) {
-      if (options.version.valueType === 'string') {
-        const versionValue = version.map(node => queryValue(node, 'string')).asString();
-        return `${options.version.property}_${versionValue}`;
-      } else if (isMemberIdentifier(version.node)) {
-        const versionValue = version.node.property.name;
-        if (isIdentifier(version.node.object)) {
-          return `${version.node.object.name}_${versionValue}`;
-        } else {
-          return `${version.node.object.property.name}_${versionValue}`;
+      if (options.version.valueType === 'string' && isStringLiteral(node)) {
+        version = `${options.version.property}.${node.value}`;
+      } else {
+        version = getFullyQualifiedName(ctx, node);
+      }
+
+      for (const name of version?.toLowerCase().split('.').reverse() ?? []) {
+        if (name.includes('opensearch')) {
+          return OPEN_SEARCH;
+        } else if (name.includes('elasticsearch')) {
+          return ELASTIC_SEARCH;
         }
-      } else {
-        return null;
-      }
-    }
-
-    function getSearchEngine(version: string | undefined) {
-      if (version?.includes('opensearch')) {
-        return OPEN_SEARCH;
-      } else if (version?.includes('elasticsearch')) {
-        return ELASTIC_SEARCH;
-      } else {
-        return null;
-      }
-    }
-
-    // From here up to the end of the file the code should be shared somehow.
-
-    function queryArgument(node: NewExpression, position: number) {
-      const argument = node.arguments[position];
-      if (argument == null) {
-        return missing(node);
-      } else if (isUndefined(argument)) {
-        return missing(argument);
       }
 
-      const expression = getValueOfExpression(ctx, argument, 'ObjectExpression');
-      return expression == null ? unknown(node) : found(expression);
-    }
-
-    function queryProperty(node: ObjectExpression, name: string): Result {
-      const property = getProperty(node, name, ctx);
-      if (property === undefined) {
-        return unknown(node);
-      } else if (property === null) {
-        return missing(node);
-      } else {
-        return found(property);
-      }
-    }
-
-    function queryValue(node: Node, type: 'string' | 'boolean') {
-      if (isLiteral(node)) {
-        return queryValueFromLiteral(node, type);
-      } else if (isIdentifier(node)) {
-        return queryValueFromIdentifier(node, type);
-      } else {
-        return unknown(node);
-      }
-    }
-
-    function queryValueFromLiteral(node: Literal, type: 'string' | 'boolean') {
-      if (typeof node.value !== type) {
-        return unknown(node);
-      }
-      return found(node);
-    }
-
-    function queryValueFromIdentifier(node: Identifier, type: 'string' | 'boolean'): Result {
-      if (isUndefined(node)) {
-        return missing(node);
-      }
-
-      const usage = getUniqueWriteUsage(ctx, node.name);
-      if (!usage) {
-        return unknown(node);
-      }
-
-      return queryValue(usage, type).withNodeIfNotFound(node);
+      return null;
     }
   };
-}
-
-class Result {
-  constructor(readonly node: Node, readonly status: 'missing' | 'unknown' | 'found') {}
-
-  get isFound() {
-    return this.status === 'found';
-  }
-
-  get isMissing() {
-    return this.status === 'missing';
-  }
-
-  get isFalse() {
-    return isBooleanLiteral(this.node) && !this.node.value;
-  }
-
-  asString() {
-    return isStringLiteral(this.node) ? this.node.value : null;
-  }
-
-  map<N extends Node>(_closure: (node: N) => Result | Node): Result {
-    return this;
-  }
-
-  filter(_type: string): Result {
-    return this;
-  }
-
-  withNodeIfNotFound(node: Node): Result {
-    return !this.isFound ? new Result(node, this.status) : this;
-  }
-}
-
-class FoundResult extends Result {
-  constructor(value: Node) {
-    super(value, 'found');
-  }
-
-  map<N extends Node>(closure: (node: N) => Result | Node): Result {
-    const resultOrNode = closure(this.node as N);
-    return resultOrNode instanceof Result ? resultOrNode : found(resultOrNode);
-  }
-
-  filter(type: string): Result {
-    return this.node.type === type ? this : unknown(this.node);
-  }
-}
-
-function unknown(node: Node): Result {
-  return new Result(node, 'unknown');
-}
-
-function missing(node: Node): Result {
-  return new Result(node, 'missing');
-}
-
-function found(node: Node) {
-  return new FoundResult(node);
-}
-
-type MemberIdentifier = MemberExpression & {
-  object: Identifier | (MemberExpression & { property: Identifier });
-  property: Identifier;
-};
-
-function isMemberIdentifier(node: Node): node is MemberIdentifier {
-  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
 }

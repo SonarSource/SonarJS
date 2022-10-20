@@ -25,27 +25,31 @@ class NonCompliantStack extends Stack {
     new Volume(this, "Volume", {}); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
     //                         ^^
 
-    const encrypted1 = false;
-    new Volume(this, "Volume", { encrypted: encrypted1 }); // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
-    //                                      ^^^^^^^^^^
+    const encrypted1 = false; // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+//                     ^^^^^
+    new Volume(this, "Volume", { encrypted: encrypted1 });
+
     const encrypted2 = null;
     new Volume(this, "Volume", { encrypted: encrypted2 }); // Compliance (null are ignored)
-    const encrypted3 = undefined;
-    new Volume(this, "Volume", { encrypted: encrypted3 }); // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
-    //                                      ^^^^^^^^^^
-    const encrypted = false;
-    new Volume(this, "Volume", { encrypted }); // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
-    //                           ^^^^^^^^^
+
+    const encrypted3 = undefined; // Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
+//                     ^^^^^^^^^
+    new Volume(this, "Volume", { encrypted: encrypted3 });
+
+    const encrypted = false; // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+//                    ^^^^^
+    new Volume(this, "Volume", { encrypted });
 
     new Volume(this, "unencrypted-explicit", {
       availability_zone: "eu-west-1a",
       size: Size.gibibytes(1),
       encrypted: false, // Noncompliant
-      //         ^^^^^
+//               ^^^^^
     });
 
-    const volumeArgs = {encrypted: false};
-    new Volume(this, "Volume", {...volumeArgs}); // FN
+    const volumeArgs = {encrypted: false}; // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+//                                 ^^^^^
+    new Volume(this, "Volume", {...volumeArgs});
     const args = [this, "Volume", { encrypted: false }];
     new Volume(...args); // FN
   }

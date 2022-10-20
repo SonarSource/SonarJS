@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_opensearchservice as opensearchservice } from 'aws-cdk-lib';
+import { EngineVersion } from 'aws-cdk-lib/aws-opensearchservice';
+import { ElasticsearchVersion } from 'aws-cdk-lib/aws-elasticsearch';
 import { aws_elasticsearch as elasticsearch } from 'aws-cdk-lib';
-
-const EngineVersion = opensearchservice.EngineVersion;
 
 class NonCompliantS6308Stack extends cdk.Stack {
   constructor(app: cdk.App, id: string) {
@@ -42,7 +42,7 @@ class NonCompliantS6308Stack extends cdk.Stack {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
     });
     new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
-      version: es.ElasticsearchVersion.V7_4,
+      version: elasticsearch.ElasticsearchVersion.V7_4,
     });
     new elasticsearch.Domain(this, 'ImplicitlyNoncompliantDomain', { // Noncompliant {{Omitting encryptionAtRest causes encryption of data at rest to be disabled for this Elasticsearch domain. Make sure it is safe here.}}
       version: ElasticsearchVersion.V7_4,
@@ -138,51 +138,53 @@ class NonCompliantS6308Stack extends cdk.Stack {
       },
     });
 
-    const enabled = false;
+    const enabled = false; // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//                  ^^^^^
     const elasticsearchVersion = '1.3';
     new elasticsearch.Domain(this, 'ExplicitlyNoncompliantDomain', {
       version: elasticsearch.ElasticsearchVersion.V7_9,
       encryptionAtRest: {
-        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
-//      ^^^^^^^
+        enabled,
       },
     });
 
+    const enabled1 = false; // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//                   ^^^^^
     new elasticsearch.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
       elasticsearchVersion,
       encryptionAtRestOptions: {
-        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
-//      ^^^^^^^
+        enabled: enabled1,
       },
     });
 
+    const enabled2 = false; // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+//                   ^^^^^
     new elasticsearch.CfnDomain(this, 'ExplicitlyNonCompliantCfnDomain', {
       elasticsearchVersion,
       encryptionAtRestOptions: {
         ...unknown,
-        enabled, // Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
-//      ^^^^^^^
+        enabled: enabled2,
       },
     });
 
     const args = {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,
       encryptionAtRest: {
-        enabled, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
-//      ^^^^^^^
+        enabled: false, // Noncompliant {{Make sure that using unencrypted OpenSearch domains is safe here.}}
+//               ^^^^^
       },
     };
     new opensearchservice.Domain(this, 'CompliantDomain', {
       ...args
     });
-
-    new opensearchservice.Domain(this, 'CompliantDomain', unknown);
   }
 }
 
 class CompliantS6308Stack extends cdk.Stack {
   constructor(app: cdk.App, id: string) {
     super(app, id);
+
+    new opensearchservice.Domain(this, 'CompliantDomain', unknown);
 
     const args1 = ['CompliantDomain', {
       version: opensearchservice.EngineVersion.OPENSEARCH_1_3,

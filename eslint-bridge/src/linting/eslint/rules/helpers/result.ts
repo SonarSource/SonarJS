@@ -67,6 +67,10 @@ export class Result {
       return getResultOfExpression(this.ctx, property.value);
     }
   }
+
+  map<N extends Node, V>(closure: (node: N) => V | null): V | null {
+    return !this.isFound ? null : closure(this.node as N);
+  }
 }
 
 function unknown(ctx: Rule.RuleContext, node: Node): Result {
