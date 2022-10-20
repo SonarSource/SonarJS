@@ -333,20 +333,16 @@ function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   const encryptionValue = getUniqueWriteUsageOrNode(ctx, encryption.value);
 
   if (isUnencryptedStream(encryptionValue)) {
-    report(encryption.value);
+    ctx.report({
+      messageId: 'encryptionDisabled',
+      node: encryption.value,
+    });
     return;
   }
 
   function isUnencryptedStream(node: estree.Node) {
     const fqn = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
     return fqn === 'aws_cdk_lib.aws_kinesis.StreamEncryption.UNENCRYPTED';
-  }
-
-  function report(node: estree.Node) {
-    ctx.report({
-      messageId: 'encryptionDisabled',
-      node,
-    });
   }
 }
 
