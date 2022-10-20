@@ -32,14 +32,21 @@ import {
 import * as estree from 'estree';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
 
+const CfnDBCluster = 'CfnDBCluster';
+const CfnDBInstance = 'CfnDBInstance';
+const DatabaseCluster = 'DatabaseCluster';
+const DatabaseClusterFromSnapshot = 'DatabaseClusterFromSnapshot';
+const DatabaseInstance = 'DatabaseInstance';
+const DatabaseInstanceReadReplica = 'DatabaseInstanceReadReplica';
+
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_rds.CfnDBCluster': checkStorage('CfnDBCluster'),
-    'aws-cdk-lib.aws_rds.CfnDBInstance': checkStorage('CfnDBInstance'),
-    'aws-cdk-lib.aws_rds.DatabaseCluster': checkStorage('DatabaseCluster'),
-    'aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot': checkStorage('DatabaseClusterFromSnapshot'),
-    'aws-cdk-lib.aws_rds.DatabaseInstance': checkStorage('DatabaseInstance'),
-    'aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica': checkStorage('DatabaseInstanceReadReplica'),
+    'aws-cdk-lib.aws_rds.CfnDBCluster': checkStorage(CfnDBCluster),
+    'aws-cdk-lib.aws_rds.CfnDBInstance': checkStorage(CfnDBInstance),
+    'aws-cdk-lib.aws_rds.DatabaseCluster': checkStorage(DatabaseCluster),
+    'aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshot': checkStorage(DatabaseClusterFromSnapshot),
+    'aws-cdk-lib.aws_rds.DatabaseInstance': checkStorage(DatabaseInstance),
+    'aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica': checkStorage(DatabaseInstanceReadReplica),
   },
   {
     meta: {
@@ -93,10 +100,10 @@ function checkStorage(storage: string) {
     function isException(storage: string, props: estree.ObjectExpression) {
       if (
         ![
-          'DatabaseCluster',
-          'DatabaseClusterFromSnapshot',
-          'DatabaseInstance',
-          'DatabaseInstanceReadReplica',
+          DatabaseCluster,
+          DatabaseClusterFromSnapshot,
+          DatabaseInstance,
+          DatabaseInstanceReadReplica,
         ].includes(storage)
       ) {
         return false;
