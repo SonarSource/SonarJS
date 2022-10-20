@@ -24,13 +24,14 @@ import * as estree from 'estree';
 import { URL } from 'url';
 import { mergeRules } from './decorators/helpers';
 import {
-  getValueOfExpression,
-  getObjectExpressionProperty,
+  getFullyQualifiedName,
   getModuleNameOfNode,
-  isCallToFQN,
+  getObjectExpressionProperty,
   getParent,
   getProperty,
   getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+  isCallToFQN,
   isFalseLiteral,
   isUndefined,
 } from './helpers';
@@ -57,6 +58,8 @@ const EXCEPTION_FULL_HOSTS = [
 const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
 
 const TRANSIT_ENCRYPTION_ENABLED = 'transitEncryptionEnabled';
+const ENCRYPTION = 'encryption';
+const STREAM_ENCRYPTION = 'streamEncryption';
 
 const networkProtocolsRule: Rule.RuleModule = {
   meta: {
@@ -288,10 +291,6 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
     return;
   }
 
-  function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
-    return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
-  }
-
   function report(node: estree.Node) {
     ctx.report({
       messageId: 'replicationGroup',
@@ -300,11 +299,97 @@ function checkGroup(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   }
 }
 
+const awsKinesisRule: Rule.RuleModule = AwsCdkTemplate(
+  {
+    'aws-cdk-lib.aws_kinesis.Stream': checkStream,
+    'aws-cdk-lib.aws_kinesis.CfnStream': checkCfnStream,
+  },
+  {
+    meta: {
+      messages: {
+        encryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
+      },
+    },
+  },
+);
+
+function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[2];
+  if (argument == null || isUndefined(argument)) {
+    return;
+  }
+
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props) || props === undefined) {
+    return;
+  }
+
+  const encryption = getProperty(props, ENCRYPTION, ctx);
+  if (!encryption) {
+    return;
+  }
+
+  const encryptionValue = getUniqueWriteUsageOrNode(ctx, encryption.value);
+
+  if (isUnencryptedStream(encryptionValue)) {
+    ctx.report({
+      messageId: 'encryptionDisabled',
+      node: encryption.value,
+    });
+  }
+
+  function isUnencryptedStream(node: estree.Node) {
+    const fqn = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
+    return fqn === 'aws_cdk_lib.aws_kinesis.StreamEncryption.UNENCRYPTED';
+  }
+}
+
+function checkCfnStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+  const argument = expr.arguments[2];
+  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
+
+  if (isUnknown(argument, props)) {
+    return;
+  }
+
+  if (props === undefined) {
+    report(expr.callee);
+    return;
+  }
+
+  const streamEncryption = getProperty(props, STREAM_ENCRYPTION, ctx);
+  if (streamEncryption === null) {
+    report(props);
+  } else if (streamEncryption != null && isUndefined(streamEncryption.value)) {
+    report(streamEncryption.value);
+  }
+
+  function report(node: estree.Node) {
+    ctx.report({
+      messageId: 'encryptionDisabled',
+      node,
+    });
+  }
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: { ...networkProtocolsRule.meta!.messages, ...awsElasticacheRule.meta!.messages },
+    messages: {
+      ...networkProtocolsRule.meta!.messages,
+      ...awsElasticacheRule.meta!.messages,
+      ...awsKinesisRule.meta!.messages,
+    },
   },
   create(context: Rule.RuleContext) {
-    return mergeRules(networkProtocolsRule.create(context), awsElasticacheRule.create(context));
+    return mergeRules(
+      networkProtocolsRule.create(context),
+      awsElasticacheRule.create(context),
+      awsKinesisRule.create(context),
+    );
   },
 };
+
+function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
+  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
+}
