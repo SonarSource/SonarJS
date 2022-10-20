@@ -24,20 +24,18 @@ import * as estree from 'estree';
 import { URL } from 'url';
 import { mergeRules } from './decorators/helpers';
 import {
-  getValueOfExpression,
-  getObjectExpressionProperty,
+  getFullyQualifiedName,
   getModuleNameOfNode,
-  isCallToFQN,
+  getObjectExpressionProperty,
   getParent,
   getProperty,
   getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+  isCallToFQN,
   isFalseLiteral,
   isUndefined,
-  isDotNotation,
-  isIdentifier,
 } from './helpers';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
-import { Identifier, MemberExpression } from 'estree';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
@@ -340,13 +338,8 @@ function checkStream(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   }
 
   function isUnencryptedStream(node: estree.Node) {
-    if (!isMemberIdentifier(node)) {
-      return false;
-    }
-    const className =
-      node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
-    const constantName = node.property.name;
-    return className === 'StreamEncryption' && constantName === 'UNENCRYPTED';
+    const fqn = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
+    return fqn === 'aws_cdk_lib.aws_kinesis.StreamEncryption.UNENCRYPTED';
   }
 
   function report(node: estree.Node) {
@@ -404,13 +397,4 @@ export const rule: Rule.RuleModule = {
 
 function isUnknown(node: estree.Node | undefined, value: estree.Node | undefined) {
   return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
-}
-
-type MemberIdentifier = MemberExpression & {
-  object: Identifier | (MemberExpression & { property: Identifier });
-  property: Identifier;
-};
-
-function isMemberIdentifier(node: estree.Node): node is MemberIdentifier {
-  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
 }
