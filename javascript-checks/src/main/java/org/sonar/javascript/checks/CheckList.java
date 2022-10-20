@@ -79,6 +79,7 @@ public final class CheckList {
       AwsS3BucketVersioningCheck.class,
       AwsSagemakerUnencryptedNotebookCheck.class,
       AwsSnsUnencryptedTopicsCheck.class,
+      AwsSqsUnencryptedQueueCheck.class,
       BitwiseOperatorsCheck.class,
       BoolParamDefaultCheck.class,
       BooleanEqualityComparisonCheck.class,
