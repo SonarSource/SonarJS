@@ -20,28 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6275/javascript
 
 import { Rule } from 'eslint';
-import { getUniqueWriteUsage, isIdentifier, isLiteral, isUndefined } from './helpers';
-import {
-  Expression,
-  Identifier,
-  Literal,
-  NewExpression,
-  Node,
-  ObjectExpression,
-  Property,
-  SpreadElement,
-} from 'estree';
+import { isBooleanLiteral } from './helpers';
+import { NewExpression, Node } from 'estree';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
+import { getResultOfExpression } from './helpers/result';
 
 const VOLUME_PROPS_POSITION = 2;
 const ENCRYPTED_PROPERTY = 'encrypted';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws-ec2.Volume': argumentPropertyChecker(
-      VOLUME_PROPS_POSITION,
-      ENCRYPTED_PROPERTY,
-    ),
+    'aws-cdk-lib.aws-ec2.Volume': volumeChecker,
   },
   {
     meta: {
@@ -54,137 +43,24 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   },
 );
 
-interface ArgumentPropertyCheckerOptions {
-  expr: NewExpression;
-  ctx: Rule.RuleContext;
-  argumentPosition: number;
-  propertyName: string;
-}
+function volumeChecker(expr: NewExpression, ctx: Rule.RuleContext) {
+  const call = getResultOfExpression(ctx, expr);
+  const argument = call.getArgument(VOLUME_PROPS_POSITION);
+  const isEncrypted = argument.getProperty(ENCRYPTED_PROPERTY);
 
-function argumentPropertyChecker(argumentPosition: number, propertyName: string) {
-  return (expr: NewExpression, ctx: Rule.RuleContext) =>
-    checkArgumentProperty({
-      expr,
-      ctx,
-      argumentPosition,
-      propertyName,
+  if (isEncrypted.isMissing) {
+    ctx.report({
+      messageId: 'encryptionOmitted',
+      node: isEncrypted.node,
     });
-}
-
-class QueryError extends Error {
-  constructor(readonly node: Node, readonly type: 'missing' | 'unknown') {
-    super();
-  }
-}
-
-function checkArgumentProperty(options: ArgumentPropertyCheckerOptions) {
-  try {
-    const argument = queryArgument(options.expr, options.argumentPosition);
-    const property = queryProperty(argument, options.propertyName);
-    const bool = queryBoolean(property.value);
-
-    if (!bool) {
-      report('encryptionDisabled', property.value);
-    }
-  } catch (e) {
-    if (e instanceof QueryError && e.type === 'missing') {
-      report('encryptionOmitted', e.node);
-    }
+  } else if (isEncrypted.isFound && isUnencrypted(isEncrypted.node)) {
+    ctx.report({
+      messageId: 'encryptionDisabled',
+      node: isEncrypted.node,
+    });
   }
 
-  function report(messageId: string, node: Node) {
-    options.ctx.report({ messageId, node });
-  }
-
-  function queryArgument(node: NewExpression, position: number): ObjectExpression {
-    const expression = getExpressionAtPosition(node.arguments, position);
-    if (expression != null && isUndefined(expression)) {
-      throw new QueryError(expression, 'missing');
-    } else if (expression?.type !== 'ObjectExpression') {
-      throw new QueryError(node, expression == null ? 'missing' : 'unknown');
-    }
-    return expression;
-  }
-
-  function queryProperty(node: ObjectExpression, name: string): Property {
-    let property: Property | null = null;
-    let hasSpreadElement = false;
-    let index = 0;
-
-    while (index < node.properties.length && property == null) {
-      const element = node.properties[index];
-      if (element.type === 'Property' && isPropertyName(element.key, name)) {
-        property = element;
-      } else if (element.type === 'SpreadElement') {
-        hasSpreadElement = true;
-      }
-      index++;
-    }
-
-    if (property == null) {
-      throw new QueryError(node, hasSpreadElement ? 'unknown' : 'missing');
-    }
-
-    return property;
-  }
-
-  function queryBoolean(node: Node): boolean {
-    if (isLiteral(node)) {
-      return queryBooleanFromLiteral(node);
-    } else if (isIdentifier(node)) {
-      return queryBooleanFromIdentifier(node);
-    } else {
-      throw new QueryError(node, 'unknown');
-    }
-  }
-
-  function queryBooleanFromLiteral(node: Literal): boolean {
-    if (typeof node.value !== 'boolean') {
-      throw new QueryError(node, 'unknown');
-    }
-    return node.value;
-  }
-
-  function queryBooleanFromIdentifier(node: Identifier): boolean {
-    if (isUndefined(node)) {
-      throw new QueryError(node, 'missing');
-    }
-
-    const usage = getUniqueWriteUsage(options.ctx, node.name);
-    if (!usage) {
-      throw new QueryError(node, 'unknown');
-    }
-
-    try {
-      return queryBoolean(usage);
-    } catch (e) {
-      if (e instanceof QueryError) {
-        throw new QueryError(node, e.type);
-      } else {
-        throw e;
-      }
-    }
-  }
-}
-
-function isPropertyName(node: Node, name: string) {
-  return (isLiteral(node) && node.value === name) || isIdentifier(node, name);
-}
-
-function getExpressionAtPosition(args: Array<Expression | SpreadElement>, position: number) {
-  let index = 0;
-  let expression: Expression | SpreadElement | null = null;
-
-  while (index <= position && index < args.length && args[index].type !== 'SpreadElement') {
-    expression = args[index];
-    index++;
-  }
-
-  if (index > position && expression != null) {
-    return expression;
-  } else if (index < args.length) {
-    return args[index];
-  } else {
-    return null;
+  function isUnencrypted(node: Node) {
+    return isBooleanLiteral(node) && !node.value;
   }
 }
