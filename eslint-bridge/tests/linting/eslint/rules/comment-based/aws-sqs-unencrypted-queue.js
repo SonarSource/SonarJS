@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
 import { Queue, CfnQueue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { Key } from 'aws-cdk-lib/aws-kms';
@@ -40,15 +40,9 @@ class S6330NonCompliantStack extends Stack {
     };
     const cfnQueue5 = new CfnQueue(this, 'UnencryptedCfnQueue4', { ...props1 });
 
-    queue1.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    cfnQueue1.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    queue2.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    cfnQueue2.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    queue3.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    cfnQueue3.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    queue4.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    cfnQueue4.applyRemovalPolicy(RemovalPolicy.DESTROY);
-    queue5.applyRemovalPolicy(RemovalPolicy.DESTROY);
+    const props2 = undefined; // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
+//                 ^^^^^^^^^
+    const cfnQueue6 = new CfnQueue(this, 'UnencryptedCfnQueue4', props2);
   }
 }
 

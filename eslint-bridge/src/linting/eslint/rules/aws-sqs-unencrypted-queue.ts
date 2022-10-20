@@ -21,21 +21,9 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkTemplate } from './helpers/aws/cdk';
-import {
-  Identifier,
-  MemberExpression,
-  NewExpression,
-  Node,
-  ObjectExpression,
-  Property,
-} from 'estree';
-import {
-  getProperty,
-  getValueOfExpression,
-  isDotNotation,
-  isIdentifier,
-  isUndefined,
-} from './helpers';
+import { NewExpression, Node } from 'estree';
+import { getFullyQualifiedName, isUndefined } from './helpers';
+import { getResultOfExpression } from './helpers/result';
 
 const QUEUE_PROPS_POSITION = 2;
 
@@ -70,10 +58,9 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
 
 function queueChecker(options: QueueCheckerOptions) {
   return (expr: NewExpression, ctx: Rule.RuleContext) => {
-    const argument = queryArgument(expr, QUEUE_PROPS_POSITION)
-      .notUndefined()
-      .ofType('ObjectExpression');
-    const encryptionProperty = queryEncryptionProperty(argument, options.encryptionProperty);
+    const result = getResultOfExpression(ctx, expr);
+    const argument = result.getArgument(QUEUE_PROPS_POSITION);
+    const encryptionProperty = argument.getProperty(options.encryptionProperty);
 
     if (encryptionProperty.isMissing) {
       ctx.report({
@@ -94,104 +81,12 @@ function queueChecker(options: QueueCheckerOptions) {
     }
 
     function isUnencrypted(node: Node, options: QueueCheckerOptions) {
-      if (options.hasUnencryptedValue && isMemberIdentifier(node)) {
-        const className =
-          node.object.type === 'Identifier' ? node.object.name : node.object.property.name;
-        const constantName = node.property.name;
-        return className === 'QueueEncryption' && constantName == 'UNENCRYPTED';
+      if (options.hasUnencryptedValue) {
+        const fqn = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
+        return fqn === 'aws_cdk_lib.aws_sqs.QueueEncryption.UNENCRYPTED';
       } else {
         return !options.hasUnencryptedValue && isUndefined(node);
       }
     }
-
-    function queryEncryptionProperty(argument: Result, propertyName: string) {
-      return argument
-        .map((object: ObjectExpression) => queryProperty(object, propertyName))
-        .map((property: Property) => property.value)
-        .notUndefined();
-    }
-
-    function queryArgument(node: NewExpression, position: number) {
-      const argument = node.arguments[position];
-      if (argument == null) {
-        return missing(node);
-      } else if (isUndefined(argument)) {
-        return missing(argument);
-      }
-
-      const expression = getValueOfExpression(ctx, argument, 'ObjectExpression');
-      return expression == null ? unknown(node) : found(expression);
-    }
-
-    function queryProperty(node: ObjectExpression, name: string): Result {
-      const property = getProperty(node, name, ctx);
-      if (property === undefined) {
-        return unknown(node);
-      } else if (property === null) {
-        return missing(node);
-      } else {
-        return found(property);
-      }
-    }
   };
-}
-
-class Result {
-  constructor(readonly node: Node, readonly status: 'missing' | 'unknown' | 'found') {}
-
-  get isFound() {
-    return this.status === 'found';
-  }
-
-  get isMissing() {
-    return this.status === 'missing';
-  }
-
-  map<N extends Node>(_closure: (node: N) => Result | Node): Result {
-    return this;
-  }
-
-  ofType(_type: string): Result {
-    return this;
-  }
-
-  notUndefined(): Result {
-    if (this.isFound) {
-      return isUndefined(this.node) ? missing(this.node) : this;
-    } else {
-      return this;
-    }
-  }
-}
-
-class FoundResult extends Result {
-  constructor(value: Node) {
-    super(value, 'found');
-  }
-
-  map<N extends Node>(closure: (node: N) => Result | Node): Result {
-    const resultOrNode = closure(this.node as N);
-    return resultOrNode instanceof Result ? resultOrNode : found(resultOrNode);
-  }
-}
-
-function unknown(node: Node): Result {
-  return new Result(node, 'unknown');
-}
-
-function missing(node: Node): Result {
-  return new Result(node, 'missing');
-}
-
-function found(node: Node) {
-  return new FoundResult(node);
-}
-
-type MemberIdentifier = MemberExpression & {
-  object: Identifier | (MemberExpression & { property: Identifier });
-  property: Identifier;
-};
-
-function isMemberIdentifier(node: Node): node is MemberIdentifier {
-  return isDotNotation(node) && (isIdentifier(node.object) || isDotNotation(node.object));
 }
