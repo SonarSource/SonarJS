@@ -59,11 +59,15 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     const filename = path.join(fixtures, testFile);
     const { ext, name } = path.parse(filename);
     const rule = name.toLowerCase();
-    if (['.js', '.jsx', '.ts', '.tsx'].includes(ext.toLowerCase()) && rules.hasOwnProperty(rule)) {
+    if (
+      ['.js', '.jsx', '.ts', '.tsx', '.vue'].includes(ext.toLowerCase()) &&
+      rules.hasOwnProperty(rule)
+    ) {
       describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
         const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
         const { errors, output } = extractExpectations(
           code,
+          filename,
           hasSonarRuntimeOption(rules[rule], rule),
         );
         const options = extractRuleOptions(testFiles, rule);
@@ -90,7 +94,7 @@ export function parseForESLint(
   const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
-    languageFromFilePath(filePath),
+    languageFromFile(fileContent, filePath),
   );
 
   /**
@@ -105,11 +109,16 @@ export function parseForESLint(
 }
 
 /**
- * Returns the source code's language based on the file path.
+ * Returns the source code's language based on the file content and path.
  */
-function languageFromFilePath(filePath: string): Language {
+function languageFromFile(fileContent: string, filePath: string): Language {
+  // Keep this regex aligned with the one in JavaScriptFilePredicate.java to have the same flow
+  const hasScriptTagWithLangTs = /<script[^>]+lang=['"]ts['"][^>]*>/;
   const { ext } = path.parse(filePath);
-  if (['.ts', '.tsx'].includes(ext)) {
+  if (
+    ['.ts', '.tsx'].includes(ext) ||
+    (ext === '.vue' && hasScriptTagWithLangTs.test(fileContent))
+  ) {
     return 'ts';
   } else {
     return 'js';

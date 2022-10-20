@@ -27,7 +27,7 @@ describe('Comment-based Testing Framework', () => {
   async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);
     const code = await readFile(filePath);
-    return extractExpectations(code, usesSecondaryLocations);
+    return extractExpectations(code, filePath, usesSecondaryLocations);
   }
 
   it('non compliant', async () => {
@@ -217,7 +217,7 @@ describe('Comment-based Testing Framework', () => {
 wrong.code();// Noncompliant [[qf]]
 // fix@qf {{description}}
 // edit@qf {{fixed.code();}}`;
-    expect(extractExpectations(code, false)).toMatchObject({
+    expect(extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -239,12 +239,12 @@ fixed.code();// Noncompliant [[qf]]
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // fix@qf1 {{description}}`;
-    expect(() => extractExpectations(code, false)).toThrow(/Unexpected quickfix ID 'qf1'/);
+    expect(() => extractExpectations(code, '', false)).toThrow(/Unexpected quickfix ID 'qf1'/);
   });
 
   it('quickfix id already declared', () => {
     const code = `wrong.code();// Noncompliant [[qf, qf]]`;
-    expect(() => extractExpectations(code, false)).toThrow(
+    expect(() => extractExpectations(code, '', false)).toThrow(
       'QuickFix ID qf has already been declared',
     );
   });
@@ -253,7 +253,7 @@ wrong.code();// Noncompliant [[qf]]
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=20]] {{fixed.code();}}`;
-    expect(() => extractExpectations(code, false)).toThrow(
+    expect(() => extractExpectations(code, '', false)).toThrow(
       /End column cannot be in \/\/ Noncompliant comment/,
     );
   });
@@ -262,7 +262,7 @@ wrong.code();// Noncompliant [[qf]]
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=2;sc=10]] {{fixed.code();}}`;
-    expect(() => extractExpectations(code, false)).toThrow(
+    expect(() => extractExpectations(code, '', false)).toThrow(
       /End column cannot be lower than start position/,
     );
   });
@@ -271,7 +271,7 @@ wrong.code();// Noncompliant [[qf]]
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`;
-    expect(extractExpectations(code, false)).toMatchObject({
+    expect(extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -292,7 +292,7 @@ wrong.smelly.buggy.code();// Noncompliant [[qf]]
 wrong.code();// Noncompliant [[qf1,qf2=0]]
 // edit@qf1 [[ec=5]] {{fixed}}
 // edit@qf2 [[ec=5]] {{repaired}}`;
-    expect(extractExpectations(code, false)).toMatchObject({
+    expect(extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -331,7 +331,7 @@ bad.code();// Noncompliant [[qf2!]]
 // add@qf2@+1 {{super.code();}}
 // del@qf2@+2
 `;
-    expect(extractExpectations(code, false)).toMatchObject({
+    expect(extractExpectations(code, '', false)).toMatchObject({
       output: `
 fixed.code();// Noncompliant [[qf!]]
 better.code();

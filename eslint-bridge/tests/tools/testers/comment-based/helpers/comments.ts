@@ -29,11 +29,14 @@ export interface Comment {
   endColumn: number;
 }
 
-export function extractComments(fileContent: string): Comment[] {
-  const parsed = buildSourceCode(
-    { fileContent, filePath: '', fileType: null, tsConfigs: [] },
-    null,
-  );
+/**
+ *
+ * @param fileContent
+ * @param filePath
+ * @returns
+ */
+export function extractComments(fileContent: string, filePath: string): Comment[] {
+  const parsed = buildSourceCode({ fileContent, filePath, fileType: null, tsConfigs: [] }, null);
   let esTreeComments: estree.Comment[];
   if (parsed instanceof SourceCode) {
     esTreeComments = parsed.getAllComments();

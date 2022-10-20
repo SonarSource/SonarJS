@@ -37,9 +37,10 @@ export class FileIssues {
   /**
    * Parses the file into its expected errors. Throws if error flags are not well formatted.
    * @param fileContent
+   * @param filePath
    */
-  constructor(fileContent: string) {
-    const comments = extractComments(fileContent);
+  constructor(fileContent: string, filePath: string) {
+    const comments = extractComments(fileContent, filePath);
     for (const comment of comments) {
       if (isNonCompliantLine(comment.value)) {
         extractLineIssues(this, comment);
