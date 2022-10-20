@@ -80,6 +80,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
     meta: {
       messages: {
+        enforceTLS12: 'Change this code to enforce TLS 1.2 or above.',
         AWSApiGateway: 'Change this code to enforce TLS 1.2 or above.',
         AWSOpenElasticSearch:
           'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.',
@@ -179,7 +180,7 @@ function checkDomainTLS(propertyName: string, fqn: string, needsProp = true) {
           return;
         }
       }
-      ctx.report({ messageId, node: property.value });
+      ctx.report({ messageId: 'enforceTLS12', node: property.value });
     }
   };
 }
@@ -232,7 +233,7 @@ function cfnDomain(
   }
 
   if (disallowedValue(ctx, tlsSecurityPolicy, { valid: ['Policy-Min-TLS-1-2-2019-07'] })) {
-    ctx.report({ messageId, node: tlsSecurityPolicyProperty.value });
+    ctx.report({ messageId: 'enforceTLS12', node: tlsSecurityPolicyProperty.value });
   }
 }
 

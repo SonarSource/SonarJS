@@ -73,7 +73,28 @@ class JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      jsProject("file-for-rules", "", "tests")
+      jsProject("amplify", "external/**", "test"),
+      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+      jsProject("backbone", "", "test"),
+      jsProject("es5-shim", "", "tests"),
+      jsProject("file-for-rules", "", "tests"),
+      jsProject("fireact", "", ""),
+      jsProject("javascript-test-sources", "", ""),
+      jsProject("jira-clone", "", ""),
+      jsProject("jquery", "", "test"),
+      jsProject("jshint", "", "tests"),
+      jsProject("jStorage", "", "tests"),
+      jsProject("knockout", "", "spec"),
+      jsProject("mootools-core", "", "Specs"),
+      jsProject("ocanvas", "build/**", ""),
+      jsProject("p5.js", "", "test"),
+      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+      jsProject("prototype", "", "test"),
+      jsProject("qunit", "", "test"),
+      jsProject("react-cloud-music", "", ""),
+      jsProject("sizzle", "external/**", "test"),
+      jsProject("underscore", "", "test"),
+      jsProject("yaml", "", "")
     );
   }
 
