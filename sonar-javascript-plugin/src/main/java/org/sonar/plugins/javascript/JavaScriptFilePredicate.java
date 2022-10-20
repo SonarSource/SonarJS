@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.eslint.YamlSensor;
 
 public class JavaScriptFilePredicate {
 
-  private static final String regex = "\\<script[.\\s]*lang=['\"]ts['\"][.\\s]*\\>";
+  private static final String regex = "\\<script[^>]+lang=['\"]ts['\"][^>]*>";
   private static final Pattern pattern = Pattern.compile(regex);
   private static final Predicate<String> predicate = pattern.asPredicate();
   private static final FilePredicate hasScriptTagWithLangTS = file -> {

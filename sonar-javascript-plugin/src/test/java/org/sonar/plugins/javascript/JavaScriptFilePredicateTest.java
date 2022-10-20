@@ -82,16 +82,22 @@ class JavaScriptFilePredicateTest {
       .concat(">foo()</script>")
       .concat(newLine)
       .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "h.java"));
-    fs.add(createInputFile(baseDir, "i.jsx"));
-    fs.add(createInputFile(baseDir, "j.tsx"));
+    fs.add(createInputFile(baseDir, "h.vue", ""
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script setup awesomeAttribute  AnnoYingAtTribute42-666='à$'>foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
+    fs.add(createInputFile(baseDir, "i.java"));
+    fs.add(createInputFile(baseDir, "j.jsx"));
+    fs.add(createInputFile(baseDir, "k.tsx"));
 
     FilePredicate predicate = JavaScriptFilePredicate.getJavaScriptPredicate(fs);
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "i.jsx");
+    assertThat(filenames).containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
   }
 
   @Test
@@ -121,16 +127,28 @@ class JavaScriptFilePredicateTest {
       .concat(">foo()</script>")
       .concat(newLine)
       .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "f.java"));
-    fs.add(createInputFile(baseDir, "g.jsx"));
-    fs.add(createInputFile(baseDir, "h.tsx"));
+    fs.add(createInputFile(baseDir, "f.vue", ""
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <script someAttribute=9000  setup lang='ts' otherAttribute=\"hello\"   wazzzAAAA='waaaaaaa'  >foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
+    fs.add(createInputFile(baseDir, "g.vue", ""
+      .concat("<template><p>Hello, world!</p></template>")
+      .concat(newLine)
+      .concat("   <scriptlang='ts'>foo()</script>")
+      .concat(newLine)
+      .concat("<style>p{}</style>")));
+    fs.add(createInputFile(baseDir, "h.java"));
+    fs.add(createInputFile(baseDir, "i.jsx"));
+    fs.add(createInputFile(baseDir, "j.tsx"));
 
     FilePredicate predicate = JavaScriptFilePredicate.getTypeScriptPredicate(fs);
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "h.tsx");
+    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
   }
 
   @Test
