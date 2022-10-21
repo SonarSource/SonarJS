@@ -68,6 +68,22 @@ export class CompliantStack extends cdk.Stack {
         resources: [attacker2.userArn],  // Compliant
       })],
     }));
+
+    attacker2.attachInlinePolicy(new iam.Policy(this, 'NoncompliantPolicy1', {
+      statements: [new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        actions: ["iam:UpdateLoginProfile"],
+        resources: ["arn:aws:iam::501215020883:user/*"]
+      })],
+    }));
+
+    attacker2.attachInlinePolicy(new iam.Policy(this, 'NoncompliantPolicy1', {
+      statements: [new iam.PolicyStatement({
+        actions: ["iam:unknown"],
+        resources: ["arn:aws:iam::501215020883:user/*"]
+      })],
+    }));
+
   }
 }
 
