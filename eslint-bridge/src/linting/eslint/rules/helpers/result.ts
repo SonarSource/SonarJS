@@ -39,7 +39,7 @@ export class Result {
   getArgument(position: number): Result {
     if (!this.isFound) {
       return this;
-    } else if (this.node.type !== 'NewExpression') {
+    } else if (this.node.type !== 'NewExpression' && this.node.type !== 'CallExpression') {
       return unknown(this.ctx, this.node);
     }
 

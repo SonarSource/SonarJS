@@ -4,9 +4,9 @@ const attacker = new iam.User(this, "attacker");
 
 attacker.attachInlinePolicy(
   new iam.Policy(this, "NoncompliantPolicy", {
-    effect: iam.Effect.ALLOW,
     statements: [
       new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
         actions: ["iam:UpdateLoginProfile"],
         resources: ["*"], // Noncompliant, attacker can update vulnerable's password
       }),
