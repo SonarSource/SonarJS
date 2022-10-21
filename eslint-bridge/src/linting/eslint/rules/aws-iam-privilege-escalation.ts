@@ -168,15 +168,13 @@ function statementChecker(options: PolicyCheckerOptions) {
   return (ctx: Rule.RuleContext, node: Node) => {
     const properties = getResultOfExpression(ctx, node);
 
-    if (!isEffectAllow(ctx, properties, options)) {
-      return;
-    } else if (containsExceptionProperties(properties, options)) {
+    if (!isEffectAllow(ctx, properties, options) || hasExceptionProperties(properties, options)) {
       return;
     }
 
     const resource = findFirstSensitiveResource(properties, options);
     if (!resource) {
-      return null;
+      return;
     }
 
     const action = findFirstSensitiveAction(properties, options);
@@ -235,7 +233,7 @@ function statementChecker(options: PolicyCheckerOptions) {
       return values;
     }
 
-    function containsExceptionProperties(properties: Result, options: PolicyCheckerOptions) {
+    function hasExceptionProperties(properties: Result, options: PolicyCheckerOptions) {
       return options.exceptionProperties.some(prop => !properties.getProperty(prop).isMissing);
     }
   };
