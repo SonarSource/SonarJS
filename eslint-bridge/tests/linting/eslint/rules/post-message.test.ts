@@ -98,6 +98,42 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       window.addEventListener('message', event => processEvent(event));
       `,
     },
+    {
+      code: `
+      window.addEventListener("message", function(event) { // Compliant; FP here
+        if (
+          event.originalEvent.origin !== "http://example.org" ||
+          event.origin !== "http://example.org"
+        )
+          return;
+
+        console.log(event.data)
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) { // Compliant; FP here
+        const _event = event.originalEvent || event;
+        if (_event.origin !== "http://example.org")
+          return;
+
+        console.log(event.data)
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) { // Compliant; FP here
+
+        var origin =  event.originalEvent.origin || event.origin
+        if (origin !== "http://example.org") // Compliant
+          return;
+
+        console.log(event.data)
+      });
+      `,
+    },
   ],
   invalid: [
     {
