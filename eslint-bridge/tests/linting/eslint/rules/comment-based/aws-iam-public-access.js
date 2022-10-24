@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { aws_iam as iam, aws_kms as kms, aws_s3 as s3 } from "aws-cdk-lib";
+import {aws_iam as iam, aws_kms as kms, aws_s3 as s3} from "aws-cdk-lib";
 
 export class IAMStack extends cdk.Stack {
   constructor(scope, id, props) {
@@ -10,21 +10,35 @@ export class IAMStack extends cdk.Stack {
     // Policy document created from PolicyStatement and PolicyDocument constructors
     bucket.addToResourcePolicy(
       new iam.PolicyStatement({
-        sid: "AllowAnyPrincipal",
-        effect: iam.Effect.ALLOW,
-        actions: ["s3:*"],
-        resources: [bucket.arnForObjects("*")],
-        principals: [new iam.AnyPrincipal()], // Noncompliant
+        "sid": "AllowAnyPrincipal",
+        "effect": iam.Effect.ALLOW,
+//                ^^^^^^^^^^^^^^^^> {{Related effect.}}
+        "actions": ["s3:*"],
+        "resources": [bucket.arnForObjects("*")],
+        "principals": [new iam.StarPrincipal()] // Noncompliant {{Make sure granting public access is safe here.}}
+//                     ^^^^^^^^^^^^^^^^^^^^^^^
       })
-    );
+  );
+
+    bucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        "sid": "AllowAnyPrincipal",
+        "actions": ["s3:*"],
+        "resources": [bucket.arnForObjects("*")],
+        "principals": [new iam.StarPrincipal()] // Noncompliant {{Make sure granting public access is safe here.}}
+//                     ^^^^^^^^^^^^^^^^^^^^^^^
+      })
+  );
 
     bucket.addToResourcePolicy(
       new iam.PolicyStatement({
         sid: "AllowStarPrincipal",
         effect: iam.Effect.ALLOW,
+//              ^^^^^^^^^^^^^^^^> {{Related effect.}}
         actions: ["s3:*"],
         resources: [bucket.arnForObjects("*")],
-        principals: [new iam.StarPrincipal()], // Noncompliant
+        principals: [new iam.StarPrincipal()], // Noncompliant {{Make sure granting public access is safe here.}}
+//                   ^^^^^^^^^^^^^^^^^^^^^^^
       })
     );
 
@@ -32,9 +46,11 @@ export class IAMStack extends cdk.Stack {
       new iam.PolicyStatement({
         sid: "AllowArnPrincipalStar",
         effect: iam.Effect.ALLOW,
+//              ^^^^^^^^^^^^^^^^> {{Related effect.}}
         actions: ["s3:*"],
         resources: [bucket.arnForObjects("*")],
-        principals: [new iam.ArnPrincipal("*")], // Noncompliant
+        principals: [new iam.ArnPrincipal("*")], // Noncompliant {{Make sure granting public access is safe here.}}
+//                   ^^^^^^^^^^^^^^^^^^^^^^^^^
       })
     );
 
@@ -58,15 +74,35 @@ export class IAMStack extends cdk.Stack {
       })
     );
 
+    bucket.addToResourcePolicy( // Compliant
+      new iam.PolicyStatement({
+        sid: "AllowAccountRootPrincipal",
+        effect: iam.Effect.ALLOW,
+        actions: ["s3:*"],
+        resources: [bucket.arnForObjects("*")],
+      })
+    );
+
     // Policy statement created from PolicyStatement.fromJson
-    const policyStatementFromJson = iam.PolicyStatement.fromJson({
+    const policyStatementFromJson1 = iam.PolicyStatement.fromJson({
       Sid: "AllowAnyPrincipal2",
       Effect: "Allow",
-      Action: ["s3:*"], // Noncompliant
+//            ^^^^^^^> {{Related effect.}}
+      Action: ["s3:*"],
       Resource: bucket.arnForObjects("*"),
-      Principal: { AWS: "*" },
+      Principal: {AWS: "*"}, // Noncompliant {{Make sure granting public access is safe here.}}
+//                     ^^^
     });
-    bucket.addToResourcePolicy(policyStatementFromJson);
+    bucket.addToResourcePolicy(policyStatementFromJson1);
+
+    const policyStatementFromJson2 = iam.PolicyStatement.fromJson({
+      Sid: "AllowAnyPrincipal2",
+      Action: ["s3:*"],
+      Resource: bucket.arnForObjects("*"),
+      Principal: {AWS: "*"}, // Noncompliant {{Make sure granting public access is safe here.}}
+//                     ^^^
+    });
+    bucket.addToResourcePolicy(policyStatementFromJson2);
 
     // Policy document created from PolicyDocument.fromJson
     const policyDocument = {
@@ -75,32 +111,50 @@ export class IAMStack extends cdk.Stack {
         {
           Sid: "AnyPrincipal",
           Effect: "Allow",
+//                ^^^^^^^> {{Related effect.}}
           Action: ["kms:*"],
           Resource: "*",
           Principal: {
             AWS: [
-              "*", // Noncompliant
+              "*", // Noncompliant {{Make sure granting public access is safe here.}}
+//            ^^^
             ],
           },
         },
         {
           Sid: "StarPrincipal",
           Effect: "Allow",
+//                ^^^^^^^> {{Related effect.}}
           Action: ["kms:*"],
           Resource: "*",
-          Principal: "*", // Noncompliant
+          Principal: "*", // Noncompliant {{Make sure granting public access is safe here.}}
+//                   ^^^
         },
         {
           Sid: "AccountRootPrincipal",
           Effect: "Allow",
           Action: ["kms:*"],
           Resource: "*",
-          Principal: { AWS: new iam.AccountRootPrincipal().arn }, // Compliant
+          Principal: {AWS: new iam.AccountRootPrincipal().arn}, // Compliant
+        },
+        {
+          Sid: "AccountRootPrincipal", // Compliant
+          Effect: "Allow",
+          Action: ["kms:*"],
+          Resource: "*",
+        },
+        {
+          Sid: "AccountRootPrincipal",
+          Effect: "Allow",
+          Action: ["kms:*"],
+          Resource: "*",
+          Principal: {}, // Compliant
         },
       ],
     };
 
     const policyDocumentFromJson = iam.PolicyDocument.fromJson(policyDocument);
-    new kms.Key(this, "S6270Key", { policy: policyDocumentFromJson });
+    new kms.Key(this, "S6270Key", {policy: policyDocumentFromJson});
   }
 }
+

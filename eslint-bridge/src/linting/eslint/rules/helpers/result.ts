@@ -71,6 +71,13 @@ export class Result {
   map<N extends Node, V>(closure: (node: N) => V | null): V | null {
     return !this.isFound ? null : closure(this.node as N);
   }
+
+  filter<N extends Node>(closure: (node: N) => boolean): Result {
+    if (!this.isFound) {
+      return this;
+    }
+    return !closure(this.node as N) ? unknown(this.ctx, this.node) : this;
+  }
 }
 
 function unknown(ctx: Rule.RuleContext, node: Node): Result {

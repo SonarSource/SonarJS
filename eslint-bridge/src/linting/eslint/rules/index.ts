@@ -30,7 +30,6 @@ import { rule as assertionsInTests } from './assertions-in-tests';
 import { rule as awsEc2UnencryptedEbsVolume } from './aws-ec2-unencrypted-ebs-volume';
 import { rule as awsEfsUnencrypted } from './aws-efs-unencrypted';
 import { rule as awsIamPrivilegeEscalation } from './aws-iam-privilege-escalation';
-import { rule as awsIamPublicAccess } from './aws-iam-public-access';
 import { rule as awsOpensearchserviceDomain } from './aws-opensearchservice-domain';
 import { rule as awsRdsUnencryptedDatabases } from './aws-rds-unencrypted-databases';
 import { rule as awsS3BucketGrantedAccess } from './aws-s3-bucket-granted-access';
