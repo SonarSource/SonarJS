@@ -18,8 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Node } from 'estree';
-import { getProperty, getUniqueWriteUsageOrNode, isUndefined } from './ast';
+import {
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  isArrayExpression,
+  isStringLiteral,
+  isUndefined,
+} from './ast';
 import { Rule } from 'eslint';
+import { StringLiteral } from './aws/iam';
 
 export class Result {
   constructor(
@@ -68,6 +75,27 @@ export class Result {
     }
   }
 
+  asStringLiterals() {
+    if (!this.isFound) {
+      return [];
+    }
+
+    const values: StringLiteral[] = [];
+
+    if (isArrayExpression(this.node)) {
+      for (const arg of this.node.elements) {
+        const result = arg == null ? null : getResultOfExpression(this.ctx, arg);
+        if (result?.isFound && isStringLiteral(result.node)) {
+          values.push(result.node);
+        }
+      }
+    } else if (isStringLiteral(this.node)) {
+      values.push(this.node);
+    }
+
+    return values;
+  }
+
   map<N extends Node, V>(closure: (node: N) => V | null): V | null {
     return !this.isFound ? null : closure(this.node as N);
   }
@@ -95,14 +123,8 @@ function found(ctx: Rule.RuleContext, node: Node): Result {
 export function getResultOfExpression(ctx: Rule.RuleContext, node: Node): Result {
   if (isUndefined(node)) {
     return missing(ctx, node);
-  }
-
-  const value = getUniqueWriteUsageOrNode(ctx, node);
-  if (value === node) {
-    return found(ctx, node);
-  } else if (value == null) {
-    return unknown(ctx, node);
   } else {
-    return getResultOfExpression(ctx, value);
+    const value = getUniqueWriteUsageOrNode(ctx, node);
+    return value === node ? found(ctx, node) : getResultOfExpression(ctx, value);
   }
 }
