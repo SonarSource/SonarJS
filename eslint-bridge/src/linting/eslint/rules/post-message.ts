@@ -353,6 +353,11 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
   return null;
 }
 
+/**
+ * Checks if the current node is nested in an IfStatement
+ *
+ * We should stop the recursion when we know we aren't in an Ifstatement, like if we encounter a BlockStatement or something like that.
+ */
 function isInIfStatement(node: TSESTree.Node | undefined) {
   // this checks for 'undefined' and 'null', because node.parent can be 'null'
   while(node != null) {
