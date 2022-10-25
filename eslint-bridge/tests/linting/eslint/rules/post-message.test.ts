@@ -113,12 +113,22 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         if (_event.origin !== "http://example.org")
           return;
       });
+      window.addEventListener("message", function(event) {
+        const _event = event || event.originalEvent;
+        if (_event.origin !== "http://example.org")
+          return;
+      });
       `,
     },
     {
       code: `
       window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin
+        if (origin !== "http://example.org")
+          return;
+      });
+      window.addEventListener("message", function(event) {
+        var origin =  event.origin || event.originalEvent.origin
         if (origin !== "http://example.org")
           return;
       });
