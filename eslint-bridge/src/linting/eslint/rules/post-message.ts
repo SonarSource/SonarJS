@@ -351,6 +351,7 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
   ) {
     return memberExpr;
   }
+  return null;
 }
 
 function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {
