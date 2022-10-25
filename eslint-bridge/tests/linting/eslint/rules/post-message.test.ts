@@ -69,7 +69,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
-      window.addEventListener("message", (/* missing event parameter */) => {});
+      window.addEventListener("message", () => {}); // missing event parameter
       window.addEventListener("message", (...not_an_identifier) => {});
             `,
     },
@@ -96,6 +96,50 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         if (event.origin !== "http://example.org") return
       }
       window.addEventListener('message', event => processEvent(event));
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        if (event.originalEvent.origin !== "http://example.org")
+          return;
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        if (event.originalEvent.origin === "http://example.org" || event.origin === "http://example.org")
+          return;
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        const _event = event.originalEvent || event;
+        if (_event.origin !== "http://example.org")
+          return;
+      });
+      window.addEventListener("message", function(event) {
+        const _event = event || event.originalEvent;
+        if (_event.origin !== "http://example.org")
+          return;
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        var origin =  event.originalEvent.origin || event.origin
+        if (origin !== "http://example.org")
+          return;
+      });
+      window.addEventListener("message", function(event) {
+        var origin =  event.origin || event.originalEvent.origin
+        if (origin !== "http://example.org")
+          return;
+      });
       `,
     },
   ],
@@ -175,6 +219,22 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         console.log(event.data);
       });
             `,
+      errors: 1,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        var origin =  event.originalEvent.origin || event.origin; // coverage: must be tested
+      });
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        event.originalEvent.origin || event.origin; // coverage: we don't assign this anywhere
+      });
+      `,
       errors: 1,
     },
   ],
