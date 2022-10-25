@@ -39,6 +39,15 @@ export class IAMStack extends cdk.Stack {
     }))
 
     policyDocument.addStatements(new iam.PolicyStatement({
+      sid: "AllowActions",
+      effect: iam.Effect.ALLOW,
+//            ^^^^^^^^^^^^^^^^> {{Related effect.}}
+      actions: ["service:permission","*"], // Noncompliant {{Make sure granting all privileges is safe here.}}
+//                                   ^^^
+      resources: ["arn:aws:iam:::user/*"]
+    }))
+
+    policyDocument.addStatements(new iam.PolicyStatement({
       sid: "DenyActions",
       effect: iam.Effect.DENY,
       actions: ["*"], // Compliant
@@ -85,6 +94,13 @@ export class IAMStack extends cdk.Stack {
 //                  ^^^^^^^> {{Related effect.}}
           "Action": ["*"], // Noncompliant {{Make sure granting all privileges is safe here.}}
 //                   ^^^
+          "Resource": "arn:aws:iam:::user/*"
+        }, {
+          "Sid": "AllowActionsList",
+          "Effect": "Allow",
+//                  ^^^^^^^> {{Related effect.}}
+          "Action": ["service:permission","*"], // Noncompliant {{Make sure granting all privileges is safe here.}}
+//                                        ^^^
           "Resource": "arn:aws:iam:::user/*"
         }, {
           "Sid": "AllowActionsStar",

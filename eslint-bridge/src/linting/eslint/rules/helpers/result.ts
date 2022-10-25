@@ -75,6 +75,29 @@ export class Result {
     }
   }
 
+  everyStringLiteral(closure: (item: StringLiteral) => boolean) {
+    if (!this.isFound) {
+      return false;
+    } else if (isStringLiteral(this.node)) {
+      return closure(this.node);
+    } else if (this.node.type !== 'ArrayExpression') {
+      return false;
+    }
+
+    for (const element of this.node.elements) {
+      if (element == null || element.type === 'SpreadElement') {
+        return false;
+      }
+
+      const child = getResultOfExpression(this.ctx, element);
+      if (!child.isFound || !isStringLiteral(child.node) || !closure(child.node)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   asStringLiterals() {
     if (!this.isFound) {
       return [];
