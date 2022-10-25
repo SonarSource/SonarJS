@@ -258,7 +258,7 @@ function checkReference(
   }
   for (const reference of identifierVariable.references) {
     const binaryExpressionCandidate = callback(reference.identifier);
-    if (isIfStatement(binaryExpressionCandidate?.parent)) {
+    if (isInIfStatement(binaryExpressionCandidate?.parent)) {
       return true;
     }
   }
@@ -295,7 +295,7 @@ function extractVariableDeclaratorIfExists(node: TSESTree.Node) {
  */
 function isEventOriginCompared(event: TSESTree.Identifier) {
   const memberExpr = findEventOrigin(event);
-  return isIfStatement(memberExpr?.parent?.parent);
+  return isInIfStatement(memberExpr?.parent?.parent);
 }
 
 /**
@@ -310,7 +310,7 @@ function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   if (!isPropertyOrigin(eventOriginalEvent.parent as TSESTree.MemberExpression)) {
     return false;
   }
-  return isIfStatement(eventOriginalEvent.parent.parent?.parent);
+  return isInIfStatement(eventOriginalEvent.parent.parent?.parent);
 }
 
 /**
@@ -351,6 +351,17 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
     return memberExpr;
   }
   return null;
+}
+
+function isInIfStatement(node: TSESTree.Node | undefined) {
+  // this checks for 'undefined' and 'null', because node.parent can be 'null'
+  while(node != null) {
+    if (isIfStatement(node)) {
+      return true;
+    }
+    node = node.parent;
+  }
+  return false;
 }
 
 function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {

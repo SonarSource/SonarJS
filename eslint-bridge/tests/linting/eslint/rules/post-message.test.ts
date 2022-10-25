@@ -109,6 +109,14 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       window.addEventListener("message", function(event) {
+        if (event.originalEvent.origin === "http://example.org" || event.origin === "http://example.org")
+          return;
+      });
+      `,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
         const _event = event.originalEvent || event;
         if (_event.origin !== "http://example.org")
           return;
