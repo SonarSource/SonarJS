@@ -20,11 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6317/javascript
 
 import { Rule } from 'eslint';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
-import { CallExpression, Literal, NewExpression, Node } from 'estree';
+import { Literal, Node } from 'estree';
 import { flattenArgs, getFullyQualifiedName, isStringLiteral, toEncodedMessage } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { AwsIamPolicyTemplate } from './helpers/aws/iam';
 
 interface PolicyCheckerOptions {
   effect: {
@@ -42,8 +41,6 @@ interface PolicyCheckerOptions {
 }
 
 type StringLiteral = Literal & { value: string };
-
-const PROPERTIES_POSITION = 0;
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
@@ -113,128 +110,93 @@ const JSON_OPTIONS: PolicyCheckerOptions = {
   exceptionProperties: ['Principal', 'Condition'],
 };
 
-const POLICY_DOCUMENT_STATEMENT_PROPERTY = 'Statement';
-
-export const rule: Rule.RuleModule = AwsCdkTemplate(
-  {
-    'aws-cdk-lib.aws-iam.PolicyStatement': {
-      newExpression: policyStatementChecker(statementChecker(PROPERTIES_OPTIONS)),
-      functionName: 'fromJson',
-      callExpression: policyStatementChecker(statementChecker(JSON_OPTIONS)),
-    },
-    'aws-cdk-lib.aws-iam.PolicyDocument': {
-      functionName: 'fromJson',
-      callExpression: policyDocumentChecker(statementChecker(JSON_OPTIONS)),
-    },
-  },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
+  privilegeEscalationStatementChecker,
+  JSON_OPTIONS,
+  PROPERTIES_OPTIONS,
 );
 
-function policyDocumentChecker(statementChecker: (ctx: Rule.RuleContext, node: Node) => void) {
-  return (expr: CallExpression, ctx: Rule.RuleContext) => {
-    const call = getResultOfExpression(ctx, expr);
-    const properties = call.getArgument(PROPERTIES_POSITION);
-    const statements = properties.getProperty(POLICY_DOCUMENT_STATEMENT_PROPERTY);
+function privilegeEscalationStatementChecker(
+  expr: Node,
+  ctx: Rule.RuleContext,
+  options: PolicyCheckerOptions,
+) {
+  const properties = getResultOfExpression(ctx, expr);
 
-    if (statements.isFound) {
-      for (const node of flattenArgs(ctx, [statements.node])) {
-        statementChecker(ctx, node);
-      }
-    }
-  };
+  if (!isSensitiveEffect(ctx, properties, options) || hasExceptionProperties(properties, options)) {
+    return;
+  }
+
+  const resource = getSensitiveResource(ctx, properties, options);
+  if (!resource) {
+    return;
+  }
+
+  const action = getSensitiveAction(ctx, properties, options);
+  if (!action) {
+    return;
+  }
+
+  ctx.report({
+    message: toEncodedMessage(MESSAGES.message(action.value), [action], [MESSAGES.secondary]),
+    node: resource,
+  });
 }
 
-function policyStatementChecker(statementChecker: (ctx: Rule.RuleContext, node: Node) => void) {
-  return (expr: CallExpression | NewExpression, ctx: Rule.RuleContext) => {
-    const call = getResultOfExpression(ctx, expr);
-    const properties = call.getArgument(PROPERTIES_POSITION);
-
-    if (properties.isFound) {
-      statementChecker(ctx, properties.node);
-    }
-  };
+function isSensitiveEffect(
+  ctx: Rule.RuleContext,
+  properties: Result,
+  options: PolicyCheckerOptions,
+) {
+  const effect = properties.getProperty(options.effect.property);
+  if (!effect.isFound) {
+    return effect.isMissing;
+  } else if (options.effect.type === 'FullyQualifiedName') {
+    const fullyQualifiedName = getFullyQualifiedName(ctx, effect.node)?.replace(/-/g, '_');
+    return fullyQualifiedName === options.effect.allowValue;
+  } else {
+    return isStringLiteral(effect.node) && effect.node.value === options.effect.allowValue;
+  }
 }
 
-function statementChecker(options: PolicyCheckerOptions) {
-  return (ctx: Rule.RuleContext, node: Node) => {
-    const properties = getResultOfExpression(ctx, node);
+function getSensitiveAction(
+  ctx: Rule.RuleContext,
+  properties: Result,
+  options: PolicyCheckerOptions,
+) {
+  const actions = properties.getProperty(options.actions.property);
+  return actions.map(action => getStringLiterals(ctx, action))?.find(isSensitiveAction);
+}
 
-    if (!isEffectAllow(ctx, properties, options) || hasExceptionProperties(properties, options)) {
-      return;
+function getSensitiveResource(
+  ctx: Rule.RuleContext,
+  properties: Result,
+  options: PolicyCheckerOptions,
+) {
+  const resources = properties.getProperty(options.resources.property);
+  return resources.map(resource => getStringLiterals(ctx, resource))?.find(isSensitiveResource);
+}
+
+function isSensitiveAction(action: StringLiteral) {
+  return SENSITIVE_ACTIONS.includes(action.value);
+}
+
+function isSensitiveResource(resource: StringLiteral) {
+  return SENSITIVE_RESOURCE.test(resource.value);
+}
+
+function getStringLiterals(ctx: Rule.RuleContext, node: Node) {
+  const values: StringLiteral[] = [];
+
+  for (const arg of flattenArgs(ctx, [node])) {
+    if (isStringLiteral(arg)) {
+      values.push(arg);
     }
+  }
 
-    const resource = findFirstSensitiveResource(properties, options);
-    if (!resource) {
-      return;
-    }
+  return values;
+}
 
-    const action = findFirstSensitiveAction(properties, options);
-    if (!action) {
-      return;
-    }
-
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message(action.value), [action], [MESSAGES.secondary]),
-      node: resource,
-    });
-
-    function isEffectAllow(
-      ctx: Rule.RuleContext,
-      properties: Result,
-      options: PolicyCheckerOptions,
-    ) {
-      const effect = properties.getProperty(options.effect.property);
-      if (!effect.isFound) {
-        return effect.isMissing;
-      } else if (options.effect.type === 'FullyQualifiedName') {
-        const fullyQualifiedName = getFullyQualifiedName(ctx, effect.node)?.replace(/-/g, '_');
-        return fullyQualifiedName === options.effect.allowValue;
-      } else {
-        return isStringLiteral(effect.node) && effect.node.value === options.effect.allowValue;
-      }
-    }
-
-    function findFirstSensitiveAction(properties: Result, options: PolicyCheckerOptions) {
-      const actions = properties.getProperty(options.actions.property);
-      return actions.map(getStringLiterals)?.find(isSensitiveAction);
-    }
-
-    function findFirstSensitiveResource(properties: Result, options: PolicyCheckerOptions) {
-      const resources = properties.getProperty(options.resources.property);
-      return resources.map(getStringLiterals)?.find(isSensitiveResource);
-    }
-
-    function isSensitiveAction(action: StringLiteral) {
-      return SENSITIVE_ACTIONS.includes(action.value);
-    }
-
-    function isSensitiveResource(resource: StringLiteral) {
-      return SENSITIVE_RESOURCE.test(resource.value);
-    }
-
-    function getStringLiterals(node: Node) {
-      const values: StringLiteral[] = [];
-
-      for (const arg of flattenArgs(ctx, [node])) {
-        if (isStringLiteral(arg)) {
-          values.push(arg);
-        }
-      }
-
-      return values;
-    }
-
-    function hasExceptionProperties(properties: Result, options: PolicyCheckerOptions) {
-      return options.exceptionProperties.some(prop => !properties.getProperty(prop).isMissing);
-    }
-  };
+function hasExceptionProperties(properties: Result, options: PolicyCheckerOptions) {
+  return options.exceptionProperties.some(prop => !properties.getProperty(prop).isMissing);
 }

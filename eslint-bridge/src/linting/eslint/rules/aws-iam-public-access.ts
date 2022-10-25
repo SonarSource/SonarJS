@@ -20,17 +20,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6317/javascript
 
 import { Rule } from 'eslint';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
-import { CallExpression, NewExpression, Node } from 'estree';
+import { NewExpression, Node } from 'estree';
 import {
-  flattenArgs,
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
   toEncodedMessage,
 } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { AwsIamPolicyTemplate } from './helpers/aws/iam';
 
 interface CheckerOptions {
   effect: {
@@ -45,11 +43,8 @@ interface CheckerOptions {
   };
 }
 
-type StatementChecker = (expr: Node, ctx: Rule.RuleContext, options: CheckerOptions) => void;
-
-const PROPERTIES_POSITION = 0;
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
-const POLICY_DOCUMENT_STATEMENT_PROPERTY = 'Statement';
+
 const ARN_PRINCIPAL = 'aws_cdk_lib.aws_iam.ArnPrincipal';
 
 const MESSAGES = {
@@ -87,59 +82,11 @@ const JSON_OPTIONS: CheckerOptions = {
   },
 };
 
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(publicAccessStatementChecker);
-
-function AwsIamPolicyTemplate(statementChecker: StatementChecker) {
-  return AwsCdkTemplate(
-    {
-      'aws-cdk-lib.aws-iam.PolicyStatement': {
-        newExpression: policyStatementChecker(statementChecker),
-        functionName: 'fromJson',
-        callExpression: policyStatementChecker(statementChecker),
-      },
-      'aws-cdk-lib.aws-iam.PolicyDocument': {
-        functionName: 'fromJson',
-        callExpression: policyDocumentChecker(statementChecker),
-      },
-    },
-    {
-      meta: {
-        schema: [
-          {
-            // internal parameter for rules having secondary locations
-            enum: [SONAR_RUNTIME],
-          },
-        ],
-      },
-    },
-  );
-}
-
-function policyDocumentChecker(statementChecker: StatementChecker) {
-  return (expr: CallExpression, ctx: Rule.RuleContext) => {
-    const call = getResultOfExpression(ctx, expr);
-    const properties = call.getArgument(PROPERTIES_POSITION);
-    const statements = properties.getProperty(POLICY_DOCUMENT_STATEMENT_PROPERTY);
-
-    if (statements.isFound) {
-      for (const node of flattenArgs(ctx, [statements.node])) {
-        statementChecker(node, ctx, JSON_OPTIONS);
-      }
-    }
-  };
-}
-
-function policyStatementChecker(statementChecker: StatementChecker) {
-  return (expr: CallExpression | NewExpression, ctx: Rule.RuleContext) => {
-    const isJson = expr.type === 'CallExpression';
-    const call = getResultOfExpression(ctx, expr);
-    const properties = call.getArgument(PROPERTIES_POSITION);
-
-    if (properties.isFound) {
-      statementChecker(properties.node, ctx, isJson ? JSON_OPTIONS : PROPERTIES_OPTIONS);
-    }
-  };
-}
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
+  publicAccessStatementChecker,
+  JSON_OPTIONS,
+  PROPERTIES_OPTIONS,
+);
 
 function publicAccessStatementChecker(expr: Node, ctx: Rule.RuleContext, options: CheckerOptions) {
   const properties = getResultOfExpression(ctx, expr);
@@ -179,6 +126,8 @@ function getSensitivePrincipal(properties: Result, ctx: Rule.RuleContext, option
     return getSensitivePrincipalFullyQualifiedName(ctx, principal.node, options);
   } else if (options.principals.type === 'json') {
     return getSensitivePrincipalJson(ctx, principal.node);
+  } else {
+    return null;
   }
 }
 
