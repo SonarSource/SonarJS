@@ -30,7 +30,7 @@ import {
   isIdentifier,
 } from './helpers';
 import { childrenOf } from 'linting/eslint';
-import { isBinaryExpression } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { isIfStatement } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
@@ -222,7 +222,7 @@ function hasVerifiedOrigin(
 }
 
 /**
- * looks for an occurence of the provided node in a BinaryExpression
+ * Looks for an occurence of the provided node in an IfStatement
  */
 function isReferenceCompared(scope: Scope.Scope | null, identifier: TSESTree.Identifier) {
   function getGrandParent(node: TSESTree.Node) {
@@ -259,7 +259,7 @@ function checkReference(
   }
   for (const reference of identifierVariable.references) {
     const binaryExpressionCandidate = callback(reference.identifier);
-    if (binaryExpressionCandidate?.type === 'BinaryExpression') {
+    if (isIfStatement(binaryExpressionCandidate?.parent)) {
       return true;
     }
   }
@@ -292,15 +292,15 @@ function extractVariableDeclaratorIfExists(node: TSESTree.Node) {
 }
 
 /**
- * Looks for a binary expression with event.origin
+ * Looks for an IfStatement with event.origin
  */
 function isEventOriginCompared(event: TSESTree.Identifier) {
   const memberExpr = findEventOrigin(event);
-  return isBinaryExpression(memberExpr?.parent);
+  return isIfStatement(memberExpr?.parent?.parent);
 }
 
 /**
- * Looks for a binary expression with event.originalEvent.origin
+ * Looks for an IfStatement with event.originalEvent.origin
  */
 function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   const eventOriginalEvent = findEventOriginalEvent(event);
@@ -311,7 +311,7 @@ function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   if (!isPropertyOrigin(eventOriginalEvent.parent as TSESTree.MemberExpression)) {
     return false;
   }
-  return isBinaryExpression(eventOriginalEvent.parent.parent);
+  return isIfStatement(eventOriginalEvent.parent.parent?.parent);
 }
 
 /**
