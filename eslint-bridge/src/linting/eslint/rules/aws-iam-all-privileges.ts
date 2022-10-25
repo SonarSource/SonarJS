@@ -17,52 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6317/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6302/javascript
 
 import { Rule } from 'eslint';
-import { Node } from 'estree';
-import { toEncodedMessage } from './helpers';
-import { getResultOfExpression, Result } from './helpers/result';
-import {
-  AwsIamPolicyTemplate,
-  getSensitiveEffect,
-  isAnyLiteral,
-  PolicyCheckerOptions,
-} from './helpers/aws/iam';
+import { isRequiredParserServices } from './helpers';
+import { SONAR_RUNTIME } from '../linter/parameters';
+import * as estree from 'estree';
 
-const MESSAGES = {
-  message: 'Make sure granting all privileges is safe here.',
-  secondary: 'Related effect.',
+const message = `TODO: add message`;
+
+export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  },  
+  create(context: Rule.RuleContext) {
+    const services = context.parserServices;
+
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+
+    return {};
+  },
 };
-
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(allPrivilegesStatementChecker);
-
-function allPrivilegesStatementChecker(
-  expr: Node,
-  ctx: Rule.RuleContext,
-  options: PolicyCheckerOptions,
-) {
-  const properties = getResultOfExpression(ctx, expr);
-  const effect = getSensitiveEffect(properties, ctx, options);
-  const action = getSensitiveAction(properties, options);
-
-  if (effect.isMissing && action) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
-      node: action,
-    });
-  } else if (effect.isFound && action) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: action,
-    });
-  }
-}
-
-function getSensitiveAction(properties: Result, options: PolicyCheckerOptions) {
-  return getActionLiterals(properties, options).find(isAnyLiteral);
-}
-
-function getActionLiterals(properties: Result, options: PolicyCheckerOptions) {
-  return properties.getProperty(options.actions.property).asStringLiterals();
-}
