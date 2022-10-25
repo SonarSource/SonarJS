@@ -142,7 +142,25 @@ function getSensitivePrincipalFullyQualifiedName(
   );
 }
 
-function isSensitivePrincipalCreation(
+function getPrincipalNewExpressions(node: Node) {
+  const newExpressions: NewExpression[] = [];
+
+  if (isArrayExpression(node)) {
+    for (const element of node.elements) {
+      if (element?.type === 'NewExpression') {
+        newExpressions.push(element);
+      }
+    }
+  }
+
+  return newExpressions;
+}
+
+function getSensitivePrincipalFromJson(ctx: Rule.RuleContext, node: Node) {
+  return getPrincipalLiterals(node, ctx).find(isAnyLiteral);
+}
+
+function isSensitivePrincipalNewExpression(
   ctx: Rule.RuleContext,
   newExpression: NewExpression,
   options: CheckerOptions,
@@ -156,7 +174,9 @@ function isSensitivePrincipalCreation(
   });
 }
 
-function getSensitivePrincipalJson(ctx: Rule.RuleContext, node: Node) {
+function getPrincipalLiterals(node: Node, ctx: Rule.RuleContext) {
+  const literals: StringLiteral[] = [];
+
   if (isStringLiteral(node)) {
     return isSensitivePrincipalLiteral(node) ? node : null;
   }
