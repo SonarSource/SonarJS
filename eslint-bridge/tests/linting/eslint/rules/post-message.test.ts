@@ -234,7 +234,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         event.originalEvent.origin || event.origin; // we don't assign this anywhere
       });
       `,
-      errors: 1
+      errors: 1,
     },
     /* {
       code: `

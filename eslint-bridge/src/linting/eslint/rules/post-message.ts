@@ -360,7 +360,7 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
  */
 function isInIfStatement(node: TSESTree.Node | undefined) {
   // this checks for 'undefined' and 'null', because node.parent can be 'null'
-  while(node != null) {
+  while (node != null) {
     if (isIfStatement(node)) {
       return true;
     }
