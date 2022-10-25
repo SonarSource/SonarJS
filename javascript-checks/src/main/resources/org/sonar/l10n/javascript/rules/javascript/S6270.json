@@ -1,0 +1,33 @@
+{
+  "title": "Policies authorizing public access to resources are security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "cwe"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6270",
+  "sqKey": "S6270",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      732
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

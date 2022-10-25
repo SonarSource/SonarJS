@@ -18,8 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Node } from 'estree';
-import { getProperty, getUniqueWriteUsageOrNode, isUndefined } from './ast';
+import {
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  isArrayExpression,
+  isStringLiteral,
+  isUndefined,
+} from './ast';
 import { Rule } from 'eslint';
+import { StringLiteral } from './aws/iam';
 
 export class Result {
   constructor(
@@ -68,8 +75,59 @@ export class Result {
     }
   }
 
+  everyStringLiteral(closure: (item: StringLiteral) => boolean) {
+    if (!this.isFound) {
+      return false;
+    } else if (isStringLiteral(this.node)) {
+      return closure(this.node);
+    } else if (this.node.type !== 'ArrayExpression') {
+      return false;
+    }
+
+    for (const element of this.node.elements) {
+      if (element == null || element.type === 'SpreadElement') {
+        return false;
+      }
+
+      const child = getResultOfExpression(this.ctx, element);
+      if (!child.isFound || !isStringLiteral(child.node) || !closure(child.node)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  asStringLiterals() {
+    if (!this.isFound) {
+      return [];
+    }
+
+    const values: StringLiteral[] = [];
+
+    if (isArrayExpression(this.node)) {
+      for (const arg of this.node.elements) {
+        const result = arg == null ? null : getResultOfExpression(this.ctx, arg);
+        if (result?.isFound && isStringLiteral(result.node)) {
+          values.push(result.node);
+        }
+      }
+    } else if (isStringLiteral(this.node)) {
+      values.push(this.node);
+    }
+
+    return values;
+  }
+
   map<N extends Node, V>(closure: (node: N) => V | null): V | null {
     return !this.isFound ? null : closure(this.node as N);
+  }
+
+  filter<N extends Node>(closure: (node: N) => boolean): Result {
+    if (!this.isFound) {
+      return this;
+    }
+    return !closure(this.node as N) ? unknown(this.ctx, this.node) : this;
   }
 }
 
@@ -88,14 +146,8 @@ function found(ctx: Rule.RuleContext, node: Node): Result {
 export function getResultOfExpression(ctx: Rule.RuleContext, node: Node): Result {
   if (isUndefined(node)) {
     return missing(ctx, node);
-  }
-
-  const value = getUniqueWriteUsageOrNode(ctx, node);
-  if (value === node) {
-    return found(ctx, node);
-  } else if (value == null) {
-    return unknown(ctx, node);
   } else {
-    return getResultOfExpression(ctx, value);
+    const value = getUniqueWriteUsageOrNode(ctx, node);
+    return value === node ? found(ctx, node) : getResultOfExpression(ctx, value);
   }
 }
