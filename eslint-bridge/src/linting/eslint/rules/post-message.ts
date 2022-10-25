@@ -28,6 +28,7 @@ import {
   getTypeAsString,
   resolveFunction,
   isIdentifier,
+  findFirstMatchingLocalAncestor,
 } from './helpers';
 import { childrenOf } from 'linting/eslint';
 import { isIfStatement } from 'eslint-plugin-sonarjs/lib/utils/nodes';
@@ -258,7 +259,7 @@ function checkReference(
   }
   for (const reference of identifierVariable.references) {
     const binaryExpressionCandidate = callback(reference.identifier);
-    if (isInIfStatement(binaryExpressionCandidate?.parent)) {
+    if (isInIfStatement(binaryExpressionCandidate)) {
       return true;
     }
   }
@@ -295,7 +296,7 @@ function extractVariableDeclaratorIfExists(node: TSESTree.Node) {
  */
 function isEventOriginCompared(event: TSESTree.Identifier) {
   const memberExpr = findEventOrigin(event);
-  return isInIfStatement(memberExpr?.parent?.parent);
+  return isInIfStatement(memberExpr);
 }
 
 /**
@@ -310,7 +311,7 @@ function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   if (!isPropertyOrigin(eventOriginalEvent.parent as TSESTree.MemberExpression)) {
     return false;
   }
-  return isInIfStatement(eventOriginalEvent.parent.parent?.parent);
+  return isInIfStatement(eventOriginalEvent);
 }
 
 /**
@@ -355,18 +356,13 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
 
 /**
  * Checks if the current node is nested in an IfStatement
- *
- * We should stop the recursion when we know we aren't in an Ifstatement, like if we encounter a BlockStatement or something like that.
  */
-function isInIfStatement(node: TSESTree.Node | undefined) {
+function isInIfStatement(node: TSESTree.Node | undefined | null) {
   // this checks for 'undefined' and 'null', because node.parent can be 'null'
-  while (node != null) {
-    if (isIfStatement(node)) {
-      return true;
-    }
-    node = node.parent;
+  if (node == null) {
+    return false;
   }
-  return false;
+  return findFirstMatchingLocalAncestor(node, isIfStatement) != null;
 }
 
 function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {
