@@ -226,15 +226,25 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin; // we don't do anything with it
       });
+      `,
+      errors: 1,
+    },
+    {
+      code: `
       window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin;
         console.log(origin); // must be tested
       });
+      `,
+      errors: 1,
+    },
+    {
+      code: `
       window.addEventListener("message", function(event) {
         event.originalEvent.origin || event.origin; // we don't assign this anywhere
       });
       `,
-      errors: 3,
+      errors: 1,
     },
     /* {
       code: `
