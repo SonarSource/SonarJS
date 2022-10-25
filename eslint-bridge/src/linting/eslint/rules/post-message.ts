@@ -136,8 +136,7 @@ function hasVerifiedOrigin(
     const eventIdentifiers = eventVariable.references.map(e => e.identifier);
     for (const reference of eventVariable.references) {
       const eventRef = reference.identifier as TSESTree.Identifier;
-      // event.origin
-      // event.originalEvent.origin
+
       if (isEventOriginCompared(eventRef) || isEventOriginalEventCompared(eventRef)) {
         return true;
       }
