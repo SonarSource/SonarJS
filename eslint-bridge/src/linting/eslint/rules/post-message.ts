@@ -304,14 +304,14 @@ function isEventOriginCompared(event: TSESTree.Identifier) {
  */
 function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   const eventOriginalEvent = findEventOriginalEvent(event);
-  if (!eventOriginalEvent) {
+  if (!eventOriginalEvent || !eventOriginalEvent.parent) {
     return false;
   }
 
-  if (!isPropertyOrigin(eventOriginalEvent)) {
+  if (!isPropertyOrigin(eventOriginalEvent.parent as TSESTree.MemberExpression)) {
     return false;
   }
-  return isBinaryExpression(eventOriginalEvent?.parent);
+  return isBinaryExpression(eventOriginalEvent.parent.parent);
 }
 
 /**

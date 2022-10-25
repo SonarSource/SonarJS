@@ -69,7 +69,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
-      window.addEventListener("message", (/* missing event parameter */) => {});
+      window.addEventListener("message", () => {}); // missing event parameter
       window.addEventListener("message", (...not_an_identifier) => {});
             `,
     },
@@ -100,11 +100,8 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     },
     {
       code: `
-      window.addEventListener("message", function(event) { // Compliant; FP here
-        if (
-          event.originalEvent.origin !== "http://example.org" ||
-          event.origin !== "http://example.org"
-        )
+      window.addEventListener("message", function(event) {
+        if (event.originalEvent.origin !== "http://example.org")
           return;
 
         console.log(event.data)
@@ -113,7 +110,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     },
     {
       code: `
-      window.addEventListener("message", function(event) { // Compliant; FP here
+      window.addEventListener("message", function(event) {
         const _event = event.originalEvent || event;
         if (_event.origin !== "http://example.org")
           return;
@@ -124,10 +121,9 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     },
     {
       code: `
-      window.addEventListener("message", function(event) { // Compliant; FP here
-
+      window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin
-        if (origin !== "http://example.org") // Compliant
+        if (origin !== "http://example.org")
           return;
 
         console.log(event.data)
