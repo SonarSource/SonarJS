@@ -34,7 +34,7 @@ public class BundleAssessor implements Assessor {
 
   private static final Logger LOG = Loggers.get(BundleAssessor.class);
   static final String PROPERTY = "sonar.javascript.detectBundles";
-  private static final Pattern COMMENT_OPERATOR_FUNCTION = Pattern.compile("/\\*.*\\*/\\s*[!;+(]function ?(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?\\(", DOTALL);
+  private static final Pattern COMMENT_OPERATOR_FUNCTION = bundleRegexPattern();
   private static final int READ_CHARACTERS_LIMIT = 2048;
 
   private boolean triggered;
@@ -57,5 +57,12 @@ public class BundleAssessor implements Assessor {
 
   boolean triggered() {
     return triggered;
+  }
+
+  private static Pattern bundleRegexPattern() {
+    var COMMENT = "/\\*.*\\*/";
+    var OPERATOR = "[!;+(]";
+    var OPTIONAL_FUNCTION_NAME = "(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?";
+    return  Pattern.compile(COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(", DOTALL);
   }
 }

@@ -234,7 +234,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_not_exclude_when_property_set() throws Exception {
+  void should_not_exclude_when_property_false() throws Exception {
     var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "false").asConfig();
     var filter = new JavaScriptExclusionsFileFilter(config);
     var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
@@ -243,9 +243,19 @@ class JavaScriptExclusionsFileFilterTest {
       .setCharset(StandardCharsets.UTF_8)
       .build();
     assertThat(filter.accept(inputFile)).isTrue();
+    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+  }
 
-    config = new MapSettings().setProperty("sonar.javascript.detectBundles", "true").asConfig();
-    filter = new JavaScriptExclusionsFileFilter(config);
+  @Test
+  void should_exclude_when_property_true() throws Exception {
+    var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
+      .setContents(BundleAssessorTest.BOOTSTRAP)
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+
+    var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "true").asConfig();
+    var filter = new JavaScriptExclusionsFileFilter(config);
     assertThat(filter.accept(inputFile)).isFalse();
     var logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).contains("Some of the project files were automatically excluded because they looked like generated " +
