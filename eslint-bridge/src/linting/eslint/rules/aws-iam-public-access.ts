@@ -28,20 +28,13 @@ import {
   toEncodedMessage,
 } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
-import { AwsIamPolicyTemplate } from './helpers/aws/iam';
-
-interface CheckerOptions {
-  effect: {
-    property: string;
-    type: 'FullyQualifiedName' | 'string';
-    allowValue: string;
-  };
-  principals: {
-    property: string;
-    type: 'FullyQualifiedName' | 'json';
-    anyValues: string[];
-  };
-}
+import {
+  AwsIamPolicyTemplate,
+  getSensitiveEffect,
+  isAnyLiteral,
+  PolicyCheckerOptions,
+  StringLiteral,
+} from './helpers/aws/iam';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -52,43 +45,13 @@ const MESSAGES = {
   secondary: 'Related effect.',
 };
 
-const PROPERTIES_OPTIONS: CheckerOptions = {
-  effect: {
-    property: 'effect',
-    type: 'FullyQualifiedName',
-    allowValue: 'aws_cdk_lib.aws_iam.Effect.ALLOW',
-  },
-  principals: {
-    property: 'principals',
-    type: 'FullyQualifiedName',
-    anyValues: [
-      'aws_cdk_lib.aws_iam.StarPrincipal',
-      'aws_cdk_lib.aws_iam.AnyPrincipal',
-      ARN_PRINCIPAL,
-    ],
-  },
-};
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(publicAccessStatementChecker);
 
-const JSON_OPTIONS: CheckerOptions = {
-  effect: {
-    property: 'Effect',
-    type: 'string',
-    allowValue: 'Allow',
-  },
-  principals: {
-    property: 'Principal',
-    type: 'json',
-    anyValues: [],
-  },
-};
-
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
-  publicAccessStatementChecker,
-  JSON_OPTIONS,
-  PROPERTIES_OPTIONS,
-);
-
-function publicAccessStatementChecker(expr: Node, ctx: Rule.RuleContext, options: CheckerOptions) {
+function publicAccessStatementChecker(
+  expr: Node,
+  ctx: Rule.RuleContext,
+  options: PolicyCheckerOptions,
+) {
   const properties = getResultOfExpression(ctx, expr);
   const effect = getSensitiveEffect(properties, ctx, options);
   const principal = getSensitivePrincipal(properties, ctx, options);
@@ -106,39 +69,28 @@ function publicAccessStatementChecker(expr: Node, ctx: Rule.RuleContext, options
   }
 }
 
-function getSensitiveEffect(properties: Result, ctx: Rule.RuleContext, options: CheckerOptions) {
-  const effect = properties.getProperty(options.effect.property);
-  return effect.filter(node => {
-    if (options.effect.type === 'FullyQualifiedName') {
-      const fullyQualifiedName = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
-      return fullyQualifiedName === options.effect.allowValue;
-    } else {
-      return isStringLiteral(node) && node.value === options.effect.allowValue;
-    }
-  });
-}
-
-function getSensitivePrincipal(properties: Result, ctx: Rule.RuleContext, options: CheckerOptions) {
+function getSensitivePrincipal(
+  properties: Result,
+  ctx: Rule.RuleContext,
+  options: PolicyCheckerOptions,
+) {
   const principal = properties.getProperty(options.principals.property);
   if (!principal.isFound) {
     return null;
   } else if (options.principals.type === 'FullyQualifiedName') {
-    return getSensitivePrincipalFullyQualifiedName(ctx, principal.node, options);
-  } else if (options.principals.type === 'json') {
-    return getSensitivePrincipalJson(ctx, principal.node);
+    return getSensitivePrincipalFromFullyQualifiedName(ctx, principal.node, options);
   } else {
-    return null;
+    return getSensitivePrincipalFromJson(ctx, principal.node);
   }
 }
 
-function getSensitivePrincipalFullyQualifiedName(
+function getSensitivePrincipalFromFullyQualifiedName(
   ctx: Rule.RuleContext,
   node: Node,
-  options: CheckerOptions,
+  options: PolicyCheckerOptions,
 ) {
-  const elements = isArrayExpression(node) ? node.elements : [];
-  return elements.find(
-    el => el?.type === 'NewExpression' && isSensitivePrincipalCreation(ctx, el, options),
+  return getPrincipalNewExpressions(node).find(expr =>
+    isSensitivePrincipalNewExpression(ctx, expr, options),
   );
 }
 
@@ -163,11 +115,11 @@ function getSensitivePrincipalFromJson(ctx: Rule.RuleContext, node: Node) {
 function isSensitivePrincipalNewExpression(
   ctx: Rule.RuleContext,
   newExpression: NewExpression,
-  options: CheckerOptions,
+  options: PolicyCheckerOptions,
 ) {
-  return options.principals.anyValues.some(anyValue => {
-    if (anyValue === ARN_PRINCIPAL) {
-      return isSensitivePrincipalLiteral(newExpression.arguments[0]);
+  return (options.principals.anyValues ?? []).some(anyValue => {
+    if (anyValue === ARN_PRINCIPAL && isStringLiteral(newExpression.arguments[0])) {
+      return isAnyLiteral(newExpression.arguments[0]);
     } else {
       return anyValue === getFullyQualifiedName(ctx, newExpression.callee)?.replace(/-/g, '_');
     }
@@ -178,21 +130,13 @@ function getPrincipalLiterals(node: Node, ctx: Rule.RuleContext) {
   const literals: StringLiteral[] = [];
 
   if (isStringLiteral(node)) {
-    return isSensitivePrincipalLiteral(node) ? node : null;
-  }
-
-  const map = getResultOfExpression(ctx, node).getProperty(AWS_PRINCIPAL_PROPERTY);
-  if (!map.isFound) {
-    return null;
-  } else if (isStringLiteral(map.node)) {
-    return isSensitivePrincipalLiteral(map.node) ? map.node : null;
-  } else if (isArrayExpression(map.node)) {
-    return map.node.elements.find(isSensitivePrincipalLiteral);
+    literals.push(node);
   } else {
-    return null;
+    const awsLiterals = getResultOfExpression(ctx, node)
+      .getProperty(AWS_PRINCIPAL_PROPERTY)
+      .asStringLiterals();
+    literals.push(...awsLiterals);
   }
-}
 
-function isSensitivePrincipalLiteral(element: Node | null | undefined) {
-  return element != null && isStringLiteral(element) && element.value === '*';
+  return literals;
 }

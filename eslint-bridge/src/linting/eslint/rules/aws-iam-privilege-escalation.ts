@@ -20,27 +20,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6317/javascript
 
 import { Rule } from 'eslint';
-import { Literal, Node } from 'estree';
-import { flattenArgs, getFullyQualifiedName, isStringLiteral, toEncodedMessage } from './helpers';
+import { Node } from 'estree';
+import { toEncodedMessage } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
-import { AwsIamPolicyTemplate } from './helpers/aws/iam';
-
-interface PolicyCheckerOptions {
-  effect: {
-    property: string;
-    type: 'FullyQualifiedName' | 'string';
-    allowValue: string;
-  };
-  actions: {
-    property: string;
-  };
-  resources: {
-    property: string;
-  };
-  exceptionProperties: string[];
-}
-
-type StringLiteral = Literal & { value: string };
+import {
+  AwsIamPolicyTemplate,
+  getSensitiveEffect,
+  PolicyCheckerOptions,
+  StringLiteral,
+} from './helpers/aws/iam';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
@@ -80,41 +68,7 @@ const MESSAGES = {
   secondary: 'Permissions are granted on all resources.',
 };
 
-const PROPERTIES_OPTIONS: PolicyCheckerOptions = {
-  effect: {
-    property: 'effect',
-    type: 'FullyQualifiedName',
-    allowValue: 'aws_cdk_lib.aws_iam.Effect.ALLOW',
-  },
-  actions: {
-    property: 'actions',
-  },
-  resources: {
-    property: 'resources',
-  },
-  exceptionProperties: ['principals', 'conditions'],
-};
-
-const JSON_OPTIONS: PolicyCheckerOptions = {
-  effect: {
-    property: 'Effect',
-    type: 'string',
-    allowValue: 'Allow',
-  },
-  actions: {
-    property: 'Action',
-  },
-  resources: {
-    property: 'Resource',
-  },
-  exceptionProperties: ['Principal', 'Condition'],
-};
-
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
-  privilegeEscalationStatementChecker,
-  JSON_OPTIONS,
-  PROPERTIES_OPTIONS,
-);
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(privilegeEscalationStatementChecker);
 
 function privilegeEscalationStatementChecker(
   expr: Node,
@@ -122,59 +76,31 @@ function privilegeEscalationStatementChecker(
   options: PolicyCheckerOptions,
 ) {
   const properties = getResultOfExpression(ctx, expr);
+  const effect = getSensitiveEffect(properties, ctx, options);
+  const resource = getSensitiveResource(properties, options);
+  const action = getSensitiveAction(properties, options);
 
-  if (!isSensitiveEffect(ctx, properties, options) || hasExceptionProperties(properties, options)) {
-    return;
-  }
-
-  const resource = getSensitiveResource(ctx, properties, options);
-  if (!resource) {
-    return;
-  }
-
-  const action = getSensitiveAction(ctx, properties, options);
-  if (!action) {
-    return;
-  }
-
-  ctx.report({
-    message: toEncodedMessage(MESSAGES.message(action.value), [action], [MESSAGES.secondary]),
-    node: resource,
-  });
-}
-
-function isSensitiveEffect(
-  ctx: Rule.RuleContext,
-  properties: Result,
-  options: PolicyCheckerOptions,
-) {
-  const effect = properties.getProperty(options.effect.property);
-  if (!effect.isFound) {
-    return effect.isMissing;
-  } else if (options.effect.type === 'FullyQualifiedName') {
-    const fullyQualifiedName = getFullyQualifiedName(ctx, effect.node)?.replace(/-/g, '_');
-    return fullyQualifiedName === options.effect.allowValue;
-  } else {
-    return isStringLiteral(effect.node) && effect.node.value === options.effect.allowValue;
+  if (
+    !hasExceptionProperties(properties, options) &&
+    (effect.isFound || effect.isMissing) &&
+    resource &&
+    action
+  ) {
+    ctx.report({
+      message: toEncodedMessage(MESSAGES.message(action.value), [action], [MESSAGES.secondary]),
+      node: resource,
+    });
   }
 }
 
-function getSensitiveAction(
-  ctx: Rule.RuleContext,
-  properties: Result,
-  options: PolicyCheckerOptions,
-) {
+function getSensitiveAction(properties: Result, options: PolicyCheckerOptions) {
   const actions = properties.getProperty(options.actions.property);
-  return actions.map(action => getStringLiterals(ctx, action))?.find(isSensitiveAction);
+  return actions.asStringLiterals().find(isSensitiveAction);
 }
 
-function getSensitiveResource(
-  ctx: Rule.RuleContext,
-  properties: Result,
-  options: PolicyCheckerOptions,
-) {
+function getSensitiveResource(properties: Result, options: PolicyCheckerOptions) {
   const resources = properties.getProperty(options.resources.property);
-  return resources.map(resource => getStringLiterals(ctx, resource))?.find(isSensitiveResource);
+  return resources.asStringLiterals().find(isSensitiveResource);
 }
 
 function isSensitiveAction(action: StringLiteral) {
@@ -185,18 +111,7 @@ function isSensitiveResource(resource: StringLiteral) {
   return SENSITIVE_RESOURCE.test(resource.value);
 }
 
-function getStringLiterals(ctx: Rule.RuleContext, node: Node) {
-  const values: StringLiteral[] = [];
-
-  for (const arg of flattenArgs(ctx, [node])) {
-    if (isStringLiteral(arg)) {
-      values.push(arg);
-    }
-  }
-
-  return values;
-}
-
 function hasExceptionProperties(properties: Result, options: PolicyCheckerOptions) {
-  return options.exceptionProperties.some(prop => !properties.getProperty(prop).isMissing);
+  const exceptionProperties = [options.principals.property, options.conditions.property];
+  return exceptionProperties.some(prop => !properties.getProperty(prop).isMissing);
 }
