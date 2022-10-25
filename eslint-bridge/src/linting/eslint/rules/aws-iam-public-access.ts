@@ -95,7 +95,7 @@ function getSensitivePrincipalFromFullyQualifiedName(
 }
 
 function getPrincipalNewExpressions(node: Node) {
-  const newExpressions: NewExpression[] = [];
+  let newExpressions: NewExpression[] = [];
 
   if (isArrayExpression(node)) {
     for (const element of node.elements) {
@@ -127,7 +127,7 @@ function isSensitivePrincipalNewExpression(
 }
 
 function getPrincipalLiterals(node: Node, ctx: Rule.RuleContext) {
-  const literals: StringLiteral[] = [];
+  let literals: StringLiteral[] = [];
 
   if (isStringLiteral(node)) {
     literals.push(node);
