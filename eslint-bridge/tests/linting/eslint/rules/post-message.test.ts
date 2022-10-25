@@ -224,7 +224,7 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       window.addEventListener("message", function(event) {
-        var origin =  event.originalEvent.origin || event.origin; // we don't do anything with it
+        var origin =  event.originalEvent.origin || event.origin; // coverage: must be tested
       });
       `,
       errors: 1,
@@ -232,31 +232,10 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       window.addEventListener("message", function(event) {
-        var origin =  event.originalEvent.origin || event.origin;
-        console.log(origin); // must be tested
+        event.originalEvent.origin || event.origin; // coverage: we don't assign this anywhere
       });
       `,
       errors: 1,
     },
-    {
-      code: `
-      window.addEventListener("message", function(event) {
-        event.originalEvent.origin || event.origin; // we don't assign this anywhere
-      });
-      `,
-      errors: 1,
-    },
-    /* {
-      code: `
-      window.addEventListener("message", function(event) {
-        var _event =  event.originalEvent || event;  // we don't do anything with it
-      });
-      window.addEventListener("message", function(event) {
-        var _event =  event.originalEvent || event;
-        console.log(_event); // must be tested
-      });
-      `,
-      errors: 1
-    }, */
   ],
 });
