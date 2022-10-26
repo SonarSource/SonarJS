@@ -1,6 +1,7 @@
 module.exports = {
   entryPoints: ["./linting/eslint/rules/helpers/index.ts"],
-  out: "docs",
+  out: "../docs",
   searchInComments: true,
   plugin: ["my-plugin"],
+  readme: "../typedoc/README.md"
 }
