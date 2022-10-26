@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.filter;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -28,10 +28,15 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -215,6 +220,50 @@ class JavaScriptExclusionsFileFilterTest {
       .setCharset(StandardCharsets.UTF_8)
       .build();
     assertThat(filter.accept(inputFile)).isTrue();
+  }
+
+  @Test
+  void should_exclude_css_with_patterns() throws Exception {
+    var filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    var inputFile = new TestInputFileBuilder("key", "vendor/file.css")
+      .setContents("h1 { color: blue } ")
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isFalse();
+  }
+
+  @Test
+  void should_not_exclude_when_property_false() throws Exception {
+    var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "false").asConfig();
+    var filter = new JavaScriptExclusionsFileFilter(config);
+    var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
+      .setContents(BundleAssessorTest.BOOTSTRAP)
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isTrue();
+    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+  }
+
+  @Test
+  void should_exclude_when_property_true() throws Exception {
+    var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
+      .setContents(BundleAssessorTest.BOOTSTRAP)
+      .setLanguage(CssLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+
+    var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "true").asConfig();
+    var filter = new JavaScriptExclusionsFileFilter(config);
+    assertThat(filter.accept(inputFile)).isFalse();
+    var logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).contains("Some of the project files were automatically excluded because they looked like generated " +
+      "code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
+      "sonar.javascript.detectBundles=false");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File bootstrap.js was excluded because it looks like a " +
+      "bundle. (Disable detection with sonar.javascript.detectBundles=false)");
   }
 
   /**

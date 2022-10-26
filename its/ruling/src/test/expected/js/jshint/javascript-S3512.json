@@ -33,9 +33,6 @@
 'jshint:src/lex.js':[
 444,
 ],
-'jshint:src/platforms/rhino.js':[
-106,
-],
 'jshint:src/reporters/checkstyle.js':[
 40,
 73,

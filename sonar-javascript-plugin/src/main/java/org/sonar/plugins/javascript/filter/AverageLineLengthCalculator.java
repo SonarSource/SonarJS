@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.minify;
+package org.sonar.plugins.javascript.filter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -109,7 +109,7 @@ class AverageLineLengthCalculator {
   }
 
   private static List<String> readLines(InputFile file) {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.inputStream()))) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.inputStream(), file.charset()))) {
       return reader.lines().collect(Collectors.toList());
 
     } catch (IOException e) {

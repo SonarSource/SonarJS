@@ -2663,9 +2663,6 @@
 'javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js':[
 0,
 ],
-'javascript-test-sources:src/ecmascript6/router/utils/requirejs_module_ce.js':[
-0,
-],
 'javascript-test-sources:src/ecmascript6/snoode/src/api.es6.js':[
 0,
 ],
@@ -4010,9 +4007,6 @@
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/urls.js':[
 0,
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/application.js':[
-0,
-],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/graphics/pie-chart.js':[
 0,
 ],
@@ -4020,9 +4014,6 @@
 0,
 ],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/jquery-isolated-scroll.js':[
-0,
-],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/select2-jquery-ui-fix.js':[
 0,
 ],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/sortable.js':[
