@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -150,22 +151,27 @@ class TsConfigProvider {
   static class LookupTsConfigProvider implements Provider {
 
     @Override
-    public List<String> tsconfigs(SensorContext context) throws IOException {
-      FileSystem fs = context.fileSystem();
-      Path baseDir = fs.baseDir().toPath();
-      try (Stream<Path> files = Files.walk(baseDir)) {
-        List<String> tsconfigs = files
-          .filter(p -> p.endsWith("tsconfig.json") && !isNodeModulesPath(p))
-          .map(p -> p.toAbsolutePath().toString())
-          .collect(Collectors.toList());
-        LOG.info("Found " + tsconfigs.size() + " tsconfig.json file(s): " + tsconfigs);
-        return tsconfigs;
+    public List<String> tsconfigs(SensorContext context) {
+      var fs = context.fileSystem();
+      var tsconfigs = new ArrayList<String>();
+      var dirs = new ArrayDeque<File>();
+      dirs.add(fs.baseDir());
+      while (!dirs.isEmpty()) {
+        var dir = dirs.removeFirst();
+        var files = dir.listFiles();
+        if (files == null) {
+          continue;
+        }
+        for (var file : files) {
+          if (file.isDirectory() && !"node_modules".equals(file.getName())) {
+            dirs.add(file);
+          } else if ("tsconfig.json".equals(file.getName())) {
+            tsconfigs.add(file.getAbsolutePath());
+          }
+        }
       }
-    }
-
-    private static boolean isNodeModulesPath(Path p) {
-      Path nodeModules = Paths.get("node_modules");
-      return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
+      LOG.info("Found " + tsconfigs.size() + " tsconfig.json file(s): " + tsconfigs);
+      return tsconfigs;
     }
   }
 
