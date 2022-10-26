@@ -72,6 +72,7 @@ public final class CheckList {
       AwsEc2UnencryptedEbsVolumeCheck.class,
       AwsEfsUnencryptedCheck.class,
       AwsIamAllPrivilegesCheck.class,
+      AwsIamAllResourcesAccessibleCheck.class,
       AwsIamPrivilegeEscalationCheck.class,
       AwsIamPublicAccessCheck.class,
       AwsOpenSearchServiceDomainCheck.class,
