@@ -25,6 +25,7 @@ import {
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
+  StringLiteral,
   toEncodedMessage,
 } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
@@ -33,7 +34,6 @@ import {
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-  StringLiteral,
 } from './helpers/aws/iam';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';

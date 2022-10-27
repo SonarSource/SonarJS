@@ -21,14 +21,13 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { toEncodedMessage } from './helpers';
+import { StringLiteral, toEncodedMessage } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
 import {
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-  StringLiteral,
 } from './helpers/aws/iam';
 
 const MESSAGES = {

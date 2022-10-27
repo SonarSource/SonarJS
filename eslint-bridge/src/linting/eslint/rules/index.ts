@@ -27,6 +27,7 @@ import { rule as arrayCallBackWithoutReturn } from './array-callback-without-ret
 import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
 import { rule as assertionsInTests } from './assertions-in-tests';
+import { rule as awsEc2RdsDmsPublic } from './aws-ec2-rds-dms-public';
 import { rule as awsEc2UnencryptedEbsVolume } from './aws-ec2-unencrypted-ebs-volume';
 import { rule as awsEfsUnencrypted } from './aws-efs-unencrypted';
 import { rule as awsIamAllPrivileges } from './aws-iam-all-privileges';
@@ -254,6 +255,7 @@ rules['array-callback-without-return'] = arrayCallBackWithoutReturn;
 rules['array-constructor'] = arrayConstructor;
 rules['arrow-function-convention'] = arrowFunctionConvention;
 rules['assertions-in-tests'] = assertionsInTests;
+rules['aws-ec2-rds-dms-public'] = awsEc2RdsDmsPublic;
 rules['aws-ec2-unencrypted-ebs-volume'] = awsEc2UnencryptedEbsVolume;
 rules['aws-efs-unencrypted'] = awsEfsUnencrypted;
 rules['aws-iam-all-privileges'] = awsIamAllPrivileges;
