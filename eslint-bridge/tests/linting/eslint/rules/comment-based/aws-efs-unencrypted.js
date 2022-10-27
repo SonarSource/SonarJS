@@ -59,14 +59,14 @@ new CfnFileSystem(this, 'unencrypted-explicit-cfn', {encrypted: encrypted2}); //
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {encrypted: encrypted3}); //Noncompliant {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}
 //                                                              ^^^^^^^^^^
 
-const opts = {encrypted: false};//Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
-//                       ^^^^^
-new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...opts});
+const opts = {encrypted: false};
+
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...opts});//Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
 
 new CfnFileSystem(this, 'encrypted-explicit', {...{encrypted: false}, ...{encrypted: true}}); //Compliant
 
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...{encrypted: true}, ...{encrypted: false}}); //Noncompliant {{Make sure that using unencrypted file systems is safe here.}}
-//                                                                                        ^^^^^
+//                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 const args = [];
 new CfnFileSystem(...args); //Compliant (ignored spreadOperator on arguments)
