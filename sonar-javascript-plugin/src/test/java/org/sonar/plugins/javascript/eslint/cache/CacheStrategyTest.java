@@ -49,6 +49,7 @@ import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.eslint.PluginInfo;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -111,6 +112,7 @@ class CacheStrategyTest {
 
   @Test
   void should_generate_cache_keys() {
+    PluginInfo.setUcfgPluginVersion(null);
     assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:JSON:src/test.js");
     assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:SEQ:src/test.js");
   }
