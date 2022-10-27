@@ -134,4 +134,9 @@ public class CacheStrategies {
     }
   }
 
+  public static void setUcfgVersion(String ucfgVersion) {
+    LOG.debug("Using security frontend version {} as part of cache key", ucfgVersion);
+    CacheKey.setUcfgVersion(ucfgVersion);
+  }
+
 }

@@ -32,6 +32,12 @@ public interface RulesBundle {
    */
   String bundlePath();
 
+  default String bundleId() {
+    return "n/a";
+  }
 
+  default String bundleVersion() {
+    return "n/a";
+  }
 
 }

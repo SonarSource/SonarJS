@@ -31,6 +31,8 @@ import static java.util.stream.Collectors.toList;
 
 class CacheKey {
 
+  private static String ucfgVersion = null;
+
   private final String file;
   private final List<String> prefixes;
 
@@ -41,7 +43,15 @@ class CacheKey {
 
   static CacheKey forFile(InputFile inputFile) {
     var version = PluginUtils.getVersion();
-    return new CacheKey(inputFile.key(), Arrays.asList("jssecurity", "ucfgs", version));
+    List<String> prefixes = Arrays.asList("jssecurity", "ucfgs", version);
+
+    // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet
+    // we might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts)
+    if (ucfgVersion != null) {
+      prefixes.add(ucfgVersion);
+    }
+
+    return new CacheKey(inputFile.key(), prefixes);
   }
 
   CacheKey withPrefix(String prefix) {
@@ -53,4 +63,7 @@ class CacheKey {
     return Stream.concat(prefixes.stream(), Stream.of(file)).collect(Collectors.joining(":"));
   }
 
+  static void setUcfgVersion(String ucfgVersion) {
+    CacheKey.ucfgVersion = ucfgVersion;
+  }
 }

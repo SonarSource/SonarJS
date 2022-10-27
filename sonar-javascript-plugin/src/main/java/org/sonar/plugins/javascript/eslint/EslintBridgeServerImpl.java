@@ -48,6 +48,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -227,6 +228,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       }
       deploy();
       List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
+      rulesBundles
+        .getUcfgRulesBundle()
+        .ifPresent(rulesBundle -> CacheStrategies.setUcfgVersion(rulesBundle.bundleVersion()));
       startServer(context, deployedBundles);
 
     } catch (NodeCommandException e) {
