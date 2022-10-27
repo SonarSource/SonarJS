@@ -20,90 +20,31 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6332/javascript
 
 import { Rule } from 'eslint';
-import {
-  disallowedValue,
-  getProperty,
-  getUniqueWriteUsageOrNode,
-  getValueOfExpression,
-  isIdentifier,
-  isUndefined,
-} from './helpers';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
-
-import estree from 'estree';
-
-const messages = {
-  FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
-  CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
-  CFSEncryptionOmitted: 'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.',
-};
+import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_efs.FileSystem': checkFSProperties,
-    'aws-cdk-lib.aws_efs.CfnFileSystem': checkCfnFSProperties,
+    'aws-cdk-lib.aws_efs.FileSystem': AwsCdkCheckArguments(
+      'FSEncryptionDisabled',
+      false,
+      'encrypted',
+      { primitives: { invalid: [false] } },
+    ),
+    'aws-cdk-lib.aws_efs.CfnFileSystem': AwsCdkCheckArguments(
+      ['CFSEncryptionOmitted', 'CFSEncryptionDisabled'],
+      true,
+      'encrypted',
+      { primitives: { valid: [true] } },
+    ),
   },
   {
     meta: {
-      messages,
+      messages: {
+        FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
+        CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
+        CFSEncryptionOmitted:
+          'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.',
+      },
     },
   },
 );
-
-const OPTIONS_ARGUMENT_POSITION = 2;
-
-function checkFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
-  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
-
-  if (props === undefined) {
-    return;
-  }
-
-  const property = getProperty(props, 'encrypted', ctx);
-  if (!property) {
-    return;
-  }
-
-  const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
-  if (isUndefined(propertyValue)) {
-    return;
-  }
-  if (disallowedValue(ctx, propertyValue, { invalid: [false] })) {
-    ctx.report({ messageId: 'FSEncryptionDisabled', node: property.value });
-  }
-}
-
-function checkCfnFSProperties(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
-  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
-
-  if (isIdentifier(argument) && !isUndefined(argument) && props === undefined) {
-    return;
-  }
-
-  if (props === undefined) {
-    ctx.report({ messageId: 'CFSEncryptionOmitted', node: expr.callee });
-    return;
-  }
-
-  const property = getProperty(props, 'encrypted', ctx);
-
-  if (property === null) {
-    ctx.report({ messageId: 'CFSEncryptionOmitted', node: props });
-  }
-
-  if (!property) {
-    return;
-  }
-
-  const propertyValue = getUniqueWriteUsageOrNode(ctx, property.value);
-  if (isUndefined(propertyValue)) {
-    ctx.report({ messageId: 'CFSEncryptionOmitted', node: property.value });
-    return;
-  }
-
-  if (disallowedValue(ctx, propertyValue, { valid: [true] })) {
-    ctx.report({ messageId: 'CFSEncryptionDisabled', node: property.value });
-  }
-}

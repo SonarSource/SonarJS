@@ -20,7 +20,7 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { flatMap, toEncodedMessage } from '.';
+import { flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
 
 export type LoopLike =
   | estree.WhileStatement
@@ -243,9 +243,15 @@ export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
 export function getUniqueWriteUsageOrNode(
   context: Rule.RuleContext,
   node: estree.Node,
+  recursive = false,
 ): estree.Node {
   if (node.type === 'Identifier') {
-    return getUniqueWriteUsage(context, node.name) || node;
+    const usage = getUniqueWriteUsage(context, node.name);
+    if (usage) {
+      return recursive ? getUniqueWriteUsageOrNode(context, usage, recursive) : usage;
+    } else {
+      return node;
+    }
   } else {
     return node;
   }
@@ -255,20 +261,26 @@ export function getValueOfExpression<T extends estree.Node['type']>(
   context: Rule.RuleContext,
   expr: estree.Node | undefined | null,
   type: T,
-) {
+  recursive = false,
+): Extract<estree.Node, { type: T }> | undefined {
   if (!expr) {
     return undefined;
   }
-  if (expr.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, expr.name);
-    if (usage && isNodeType(usage, type)) {
-      return usage;
-    }
-  }
-
   if (isNodeType(expr, type)) {
     return expr;
   }
+  if (expr.type === 'Identifier') {
+    const usage = getUniqueWriteUsage(context, expr.name);
+    if (usage) {
+      if (isNodeType(usage, type)) {
+        return usage;
+      }
+      if (recursive) {
+        return getValueOfExpression(context, usage, type, true);
+      }
+    }
+  }
+
   return undefined;
 }
 
@@ -455,27 +467,6 @@ export function getProperty(
   }
 }
 
-export function disallowedValue(
-  ctx: Rule.RuleContext,
-  node: estree.Node,
-  values: { invalid?: any[]; valid?: any[] },
-): boolean {
-  if (isLiteral(node)) {
-    if (values.valid && !values.valid.includes(node.value)) {
-      return true;
-    }
-    if (values.invalid && values.invalid.includes(node.value)) {
-      return true;
-    }
-  } else if (isIdentifier(node)) {
-    const usage = getUniqueWriteUsage(ctx, node.name);
-    if (usage) {
-      return disallowedValue(ctx, usage, values);
-    }
-  }
-  return false;
-}
-
 export function resolveFromFunctionReference(
   context: Rule.RuleContext,
   functionIdentifier: estree.Identifier,
@@ -582,4 +573,33 @@ export function isThisExpression(node: estree.Node): node is estree.ThisExpressi
 
 export function isProperty(node: estree.Node): node is estree.Property {
   return node.type === 'Property';
+}
+
+/**
+ * Check if an identifier has no known value, meaning:
+ *
+ * - It's not imported/required
+ * - Defined variable without any write references (function parameter?)
+ * - Non-defined variable (a possible global?)
+ *
+ * @param node Node to check
+ * @param ctx Rule context
+ */
+export function isUnresolved(node: estree.Node | undefined | null, ctx: Rule.RuleContext): boolean {
+  if (!node || getFullyQualifiedName(ctx, node) || isUndefined(node)) {
+    return false;
+  }
+  let nodeToCheck: estree.Node = node;
+  while (nodeToCheck.type === 'MemberExpression') {
+    nodeToCheck = nodeToCheck.object;
+  }
+
+  if (nodeToCheck.type === 'Identifier') {
+    const variable = getVariableFromName(ctx, nodeToCheck.name);
+    const writeReferences = variable?.references.filter(reference => reference.isWrite());
+    if (!variable || !writeReferences?.length) {
+      return true;
+    }
+  }
+  return false;
 }
