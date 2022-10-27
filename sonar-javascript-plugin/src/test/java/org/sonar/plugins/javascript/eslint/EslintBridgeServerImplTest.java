@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
@@ -61,6 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
@@ -549,6 +551,20 @@ class EslintBridgeServerImplTest {
       .map(m -> ((Monitoring.RuleMetric) m).ruleKey)
       .collect(Collectors.toList());
     assertThat(rules).containsExactly("no-commented-code", "arguments-order", "deprecation");
+  }
+
+  @Test
+  void test_ucfg_bundle_version() throws Exception {
+    RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle("/test-bundle.tgz");
+
+    RulesBundles rulesBundles = mock(RulesBundles.class);
+    when(rulesBundles.getUcfgRulesBundle()).thenReturn(Optional.of(ucfgRulesBundle));
+
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS,
+      new TestBundle(START_SERVER_SCRIPT), rulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer.startServerLazily(context);
+
+    assertThat(logTester.logs(DEBUG)).contains("Security Frontend version is available: [some_bundle_version]");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

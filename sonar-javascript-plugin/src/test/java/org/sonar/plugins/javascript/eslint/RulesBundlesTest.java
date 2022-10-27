@@ -108,7 +108,7 @@ class RulesBundlesTest {
     }
 
     @Override
-    public String bundleId() {
+    public String bundleKey() {
       return "ucfg";
     }
 
