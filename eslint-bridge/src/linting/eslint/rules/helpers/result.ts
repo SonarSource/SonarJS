@@ -101,14 +101,17 @@ export class Result {
       return unknown(this.ctx, this.node);
     }
 
+    let isMissing = true;
+
     for (const element of this.node.elements) {
       const result = element != null ? closure(getResultOfExpression(this.ctx, element)) : null;
       if (result?.isFound) {
         return result;
       }
+      isMissing &&= result?.isMissing ?? true;
     }
 
-    return missing(this.ctx, this.node);
+    return isMissing ? missing(this.ctx, this.node) : unknown(this.ctx, this.node);
   }
 
   everyStringLiteral(closure: (item: StringLiteral) => boolean) {
@@ -155,11 +158,11 @@ export class Result {
     return !this.isFound ? null : closure(this.node as N);
   }
 
-  filter<N extends Node>(closure: (node: N) => boolean): Result {
+  filter<N extends Node>(closure: (node: N, ctx: Rule.RuleContext) => boolean): Result {
     if (!this.isFound) {
       return this;
     }
-    return !closure(this.node as N) ? unknown(this.ctx, this.node) : this;
+    return !closure(this.node as N, this.ctx) ? unknown(this.ctx, this.node) : this;
   }
 }
 
@@ -176,10 +179,6 @@ function found(ctx: Rule.RuleContext, node: Node): Result {
 }
 
 export function getResultOfExpression(ctx: Rule.RuleContext, node: Node): Result {
-  if (isUndefined(node)) {
-    return missing(ctx, node);
-  } else {
-    const value = getUniqueWriteUsageOrNode(ctx, node);
-    return value === node ? found(ctx, node) : getResultOfExpression(ctx, value);
-  }
+  const value = getUniqueWriteUsageOrNode(ctx, node, true);
+  return isUndefined(value) ? missing(ctx, value) : found(ctx, value);
 }
