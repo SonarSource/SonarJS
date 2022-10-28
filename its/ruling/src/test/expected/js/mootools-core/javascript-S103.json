@@ -2,9 +2,6 @@
 'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
 491,
 ],
-'mootools-core:Source/Core/Core.js':[
-15,
-],
 'mootools-core:Source/Element/Element.js':[
 6,
 ],

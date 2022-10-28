@@ -4922,10 +4922,6 @@
 549,
 574,
 ],
-'javascript-test-sources:src/ecmascript6/router/utils/requirejs_module_ce.js':[
-20,
-45,
-],
 'javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js':[
 128,
 165,
@@ -7185,14 +7181,6 @@
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/request.js':[
 9,
 18,
-],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/application.js':[
-89,
-139,
-193,
-198,
-280,
-282,
 ],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/graphics/pie-chart.js':[
 11,

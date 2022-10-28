@@ -171,11 +171,6 @@
 'jshint:src/name-stack.js':[
 74,
 ],
-'jshint:src/platforms/rhino.js':[
-22,
-24,
-110,
-],
 'jshint:src/scope-manager.js':[
 57,
 65,

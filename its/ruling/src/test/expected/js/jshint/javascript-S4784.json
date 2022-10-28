@@ -12,9 +12,6 @@
 'jshint:src/lex.js':[
 1509,
 ],
-'jshint:src/platforms/rhino.js':[
-107,
-],
 'jshint:src/reg.js':[
 11,
 30,

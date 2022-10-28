@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import assert from 'assert';
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
   isDefaultSpecifier,
@@ -262,8 +262,13 @@ export function hasFullyQualifiedName(
  *
  * @param context the rule context
  * @param node the node
+ * @param referringVar for recursive calls, used to break when recursing over same variable
  */
-export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.Node): string | null {
+export function getFullyQualifiedName(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  referringVar?: Scope.Variable,
+): string | null {
   const fqn: string[] = [];
   let nodeToCheck = node.type === 'MemberExpression' ? fqnFromMemberExpression(node, fqn) : node;
 
@@ -273,7 +278,7 @@ export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.No
 
   const variable = getVariableFromName(context, nodeToCheck.name);
 
-  if (!variable) {
+  if (!variable || variable === referringVar) {
     return null;
   }
 
@@ -320,6 +325,17 @@ export function getFullyQualifiedName(context: Rule.RuleContext, node: estree.No
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
+    } else {
+      if (nodeToCheck.type === 'NewExpression') {
+        nodeToCheck = nodeToCheck.callee;
+      }
+      if (nodeToCheck.type === 'Identifier' || nodeToCheck.type === 'MemberExpression') {
+        const declarationFQN = getFullyQualifiedName(context, nodeToCheck, variable);
+        if (declarationFQN) {
+          fqn.unshift(declarationFQN);
+          return fqn.join('.');
+        }
+      }
     }
   }
   return null;

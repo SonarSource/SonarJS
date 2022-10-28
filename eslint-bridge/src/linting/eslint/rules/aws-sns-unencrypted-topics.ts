@@ -20,68 +20,20 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6327/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
-import {
-  getValueOfExpression,
-  isUndefined,
-  getUniqueWriteUsageOrNode,
-  getProperty,
-} from './helpers';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_sns.Topic': checkTopic('masterKey'),
-    'aws-cdk-lib.aws_sns.CfnTopic': checkTopic('kmsMasterKeyId'),
+    'aws-cdk-lib.aws_sns.Topic': AwsCdkCheckArguments('SNSTopic', true, 'masterKey'),
+    'aws-cdk-lib.aws_sns.CfnTopic': AwsCdkCheckArguments('SNSCfnTopic', true, 'kmsMasterKeyId'),
   },
   {
     meta: {
       messages: {
-        issue: 'Omitting "{{key}}" disables SNS topics encryption. Make sure it is safe here.',
+        SNSTopic: 'Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.',
+        SNSCfnTopic:
+          'Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.',
       },
     },
   },
 );
-
-function checkTopic(key: string) {
-  return (expr: estree.NewExpression, ctx: Rule.RuleContext) => {
-    const argument = expr.arguments[2];
-    const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
-
-    if (isUnresolved(argument, props)) {
-      return;
-    }
-
-    if (props === undefined) {
-      report(expr.callee);
-      return;
-    }
-
-    const masterKey = getProperty(props, key, ctx);
-    if (masterKey === null) {
-      report(props);
-    }
-
-    if (!masterKey) {
-      return;
-    }
-
-    const masterKeyValue = getUniqueWriteUsageOrNode(ctx, masterKey.value);
-    if (isUndefined(masterKeyValue)) {
-      report(masterKey.value);
-      return;
-    }
-
-    function report(node: estree.Node) {
-      ctx.report({
-        messageId: 'issue',
-        data: { key },
-        node,
-      });
-    }
-  };
-}
-
-function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
-  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
-}

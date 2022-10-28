@@ -2,13 +2,7 @@
 'backbone:backbone.js':[
 0,
 ],
-'backbone:docs/js/jquery.lazyload.js':[
-0,
-],
 'backbone:docs/search.js':[
-0,
-],
-'backbone:examples/backbone.localStorage.js':[
 0,
 ],
 'backbone:examples/todos/todos.js':[

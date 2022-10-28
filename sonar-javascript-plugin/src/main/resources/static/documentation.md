@@ -52,6 +52,15 @@ is desired, it can be configured by setting `sonar.javascript.exclusions` proper
 `sonar.javascript.exclusions=""`, or to comma separated list of paths to be excluded. This property will exclude only JavaScript/TypeScript files, while `sonar.exclusions` property will exclude all files. `sonar.exclusions` property should be 
 preferred to configure general exclusions for the project.
 
+### Detection of code bundles
+
+The analyzer will attempt to detect bundled code or generated code. This means code that was automatically transformed
+and optimized with tools such as Webpack and similar. We consider generated code out of scope of the analysis since
+developers are not able to act upon the findings in such code. Whenever generated code is detected, the analysis will
+print a log message: once per the whole project on `INFO` level, and for each file on the `DEBUG` level. If you want to
+opt-in for analyzing the generated code or in case the detection is incorrect, you can disable it by setting
+`sonar.javascript.detectBundles=false`.
+
 ### Custom rules for JS/TS
 Custom rules are not supported by the analyzer. As an alternative we suggest you to have a look at [ESLint](https://eslint.org/docs/developer-guide/), it provides custom rules that you can then import thanks to the [External Issues](/analysis/external-issues/) feature.
 

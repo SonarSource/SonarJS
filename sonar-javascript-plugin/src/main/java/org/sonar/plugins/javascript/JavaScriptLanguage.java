@@ -25,8 +25,8 @@ import org.sonar.api.resources.AbstractLanguage;
 public class JavaScriptLanguage extends AbstractLanguage {
 
   public static final String KEY = "js";
-  static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.cjs,.mjs,.vue";
+  public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
+  public static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.cjs,.mjs,.vue";
 
   private Configuration configuration;
 

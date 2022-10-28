@@ -25,6 +25,7 @@ import {
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isUndefined,
+  isUnresolved,
 } from './helpers';
 
 import * as estree from 'estree';
@@ -51,7 +52,7 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
 
   const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
 
-  if (isUnresolved(argument, props)) {
+  if (isUnresolved(argument, ctx)) {
     return;
   }
 
@@ -81,8 +82,4 @@ function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleConte
       node,
     });
   }
-}
-
-function isUnresolved(node: estree.Node | undefined, value: estree.Node | undefined | null) {
-  return node?.type === 'Identifier' && !isUndefined(node) && value === undefined;
 }

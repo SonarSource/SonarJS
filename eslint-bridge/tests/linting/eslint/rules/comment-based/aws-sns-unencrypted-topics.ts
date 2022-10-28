@@ -76,8 +76,8 @@ function non_compliant() {
     masterKey // Noncompliant
   });
 
-  const topicProps = { masterKey: undefinedKey }; // Noncompliant
-  new Topic(this, 'UnencryptedTopic', {
+  const topicProps = { masterKey: undefinedKey };
+  new Topic(this, 'UnencryptedTopic', { // Noncompliant
     ...topicProps
   });
 
@@ -105,8 +105,8 @@ function non_compliant() {
     kmsMasterKeyId // Noncompliant
   });
 
-  const cfnTopicProps = { kmsMasterKeyId: undefinedKeyId }; // Noncompliant
-  new CfnTopic(this, 'UnencryptedCfnTopic', {
+  const cfnTopicProps = { kmsMasterKeyId: undefinedKeyId };
+  new CfnTopic(this, 'UnencryptedCfnTopic', { // Noncompliant
     ...cfnTopicProps
   });
 }

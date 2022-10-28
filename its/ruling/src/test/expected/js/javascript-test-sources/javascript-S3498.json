@@ -1232,9 +1232,6 @@
 596,
 596,
 ],
-'javascript-test-sources:src/ecmascript6/router/utils/requirejs_module_ce.js':[
-18,
-],
 'javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js':[
 104,
 328,
@@ -3634,16 +3631,6 @@
 ],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/measures.js':[
 46,
-],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/application.js':[
-84,
-130,
-137,
-150,
-157,
-167,
-176,
-179,
 ],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/sortable.js':[
 19,
