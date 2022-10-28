@@ -38,6 +38,7 @@ import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
+import { decorateNoVar } from './no-var-decorator';
 
 /**
  * A decorator of an ESLint rule
@@ -70,6 +71,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-throw-literal': decorateNoThrowLiteral,
   'no-unreachable': decorateNoUnreachable,
   'no-unused-expressions': decorateNoUnusedExpressions,
+  'no-var': decorateNoVar,
   'object-shorthand': decorateObjectShorthand,
   'prefer-for-of': decoratePreferForOf,
   'prefer-template': decoratePreferTemplate,
