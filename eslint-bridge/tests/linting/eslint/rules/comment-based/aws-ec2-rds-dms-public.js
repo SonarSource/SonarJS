@@ -156,6 +156,20 @@ export class CfnInstanceStack extends cdk.Stack {
       ]
     })
 
+    new ec2.CfnInstance(this, "cfnPublicExposed", {
+      instanceType: "t2.micro",
+      imageId: "ami-0ea0f26a6d50850c5",
+      networkInterfaces: [
+        {
+          deviceIndex: "0",
+          associatePublicIpAddress: true, // Noncompliant {{Make sure allowing public network access is safe here.}}
+//                                  ^^^^
+          deleteOnTermination: true,
+          subnetId
+        }
+      ]
+    })
+
     const subnetId = subnets.subnetIds[0];
     new ec2.CfnInstance(this, "cfnPublicExposed", {
       instanceType: "t2.micro",
@@ -197,6 +211,17 @@ export class CfnInstanceStack extends cdk.Stack {
           subnetId: foo()
         }
       ]
+    })
+
+    new ec2.CfnInstance(this, "cfnPrivateWithPublicIp", {
+      instanceType: "t2.micro",
+      imageId: "ami-0ea0f26a6d50850c5",
+      networkInterfaces: null // Compliant
+    })
+
+    new ec2.CfnInstance(this, "cfnPrivateWithPublicIp", { // Compliant
+      instanceType: "t2.micro",
+      imageId: "ami-0ea0f26a6d50850c5",
     })
 
     new ec2.CfnInstance(this, "cfnPrivateWithPublicIp", {
