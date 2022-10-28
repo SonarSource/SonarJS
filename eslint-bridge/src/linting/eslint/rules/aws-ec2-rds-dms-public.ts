@@ -102,14 +102,6 @@ function getSelectSubnetsCall(subnetId: Result) {
   return current.filter(n => n.type === 'CallExpression' && isCallingMethod(n, 1, 'selectSubnets'));
 }
 
-// Get argument 2
-//   Get property "vpcSubnets"
-//     Get property "subnetType"
-//       Compare with aws-cdk-lib.aws-ec2.SubnetType.{PRIVATE_ISOLATED, PRIVATE_WITH_EGRESS, PRIVATE_WITH_NAT}
-//   Get property "publiclyAccessible"
-//     Compare with true
-// If subnetType is found and not private and if publiclyAccessible is not found or true
-// If subnetType is not found and publiclyAccessible is found and true
 function checkDatabaseInstance(expr: estree.NewExpression, ctx: Rule.RuleContext) {
   const properties = getResultOfExpression(ctx, expr).getArgument(PROPERTIES_POSITION);
   const vpcSubnets = properties.getProperty('vpcSubnets');
