@@ -1,8 +1,16 @@
+
+// https://typedoc.org/guides/options
 module.exports = {
   entryPoints: ["../src/linting/eslint/rules/helpers/index.ts"],
+  name: "SonarJS linter helper functions",
   out: "./docs",
   searchInComments: true,
   plugin: ["my-plugin"],
   readme: "./README.md",
-  tsconfig: "../src/tsconfig.json"
-}
+  tsconfig: "../src/tsconfig.json",
+  json: "models/reflections.json",
+  pretty: true,
+  sidebarLinks: {
+    "ESlint dev guide": "https://eslint.org/docs/latest/developer-guide/working-with-rules",
+  },
+};
