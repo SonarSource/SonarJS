@@ -30,8 +30,8 @@ export function decorateNoVar(rule: Rule.RuleModule): Rule.RuleModule {
       } = node as estree.VariableDeclaration;
 
       const varToken = context.getSourceCode().getTokenBefore(firstDecl.id);
-      const identifierEnd = firstDecl.id.loc?.end;
-      if (varToken == null || identifierEnd == undefined) {
+      const identifierEnd = firstDecl.id.loc!.end;
+      if (varToken == null) {
         // impossible
         return;
       }
