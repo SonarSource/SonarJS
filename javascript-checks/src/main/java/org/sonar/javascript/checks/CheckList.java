@@ -77,6 +77,7 @@ public final class CheckList {
       AwsIamPublicAccessCheck.class,
       AwsOpenSearchServiceDomainCheck.class,
       AwsRdsUnencryptedDatabasesCheck.class,
+      AwsRestrictedIpAdminAccessCheck.class,
       AwsS3BucketGrantedAccessCheck.class,
       AwsS3BucketInsecureHttpCheck.class,
       AwsS3BucketPublicAccessCheck.class,

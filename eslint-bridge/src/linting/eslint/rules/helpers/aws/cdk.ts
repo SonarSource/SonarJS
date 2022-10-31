@@ -52,7 +52,7 @@ type Values = { invalid?: any[]; valid?: any[]; case_insensitive?: boolean };
 type ValuesByType = {
   primitives?: Values;
   fqns?: Values;
-  customChecker?: (ctx: Rule.RuleContext, node: estree.Node) => boolean
+  customChecker?: (ctx: Rule.RuleContext, node: estree.Node) => boolean;
 };
 type NodeAndReport = {
   node: estree.Node;
@@ -346,13 +346,14 @@ function traverseProperties(
 }
 
 function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
-  if (isLiteral(node)) {
+  const literal = getLiteralValue(ctx, node);
+  if (literal) {
     if (values.valid?.length) {
       const found = values.valid.some(value => {
-        if (values.case_insensitive && typeof node.value === 'string') {
-          return value.toLowerCase() === node.value.toLowerCase();
+        if (values.case_insensitive && typeof literal.value === 'string') {
+          return value.toLowerCase() === literal.value.toLowerCase();
         }
-        return value === node.value;
+        return value === literal.value;
       });
       if (!found) {
         return true;
@@ -360,22 +361,32 @@ function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Value
     }
     if (values.invalid?.length) {
       const found = values.invalid.some(value => {
-        if (values.case_insensitive && typeof node.value === 'string') {
-          return value.toLowerCase() === node.value.toLowerCase();
+        if (values.case_insensitive && typeof literal.value === 'string') {
+          return value.toLowerCase() === literal.value.toLowerCase();
         }
-        return value === node.value;
+        return value === literal.value;
       });
       if (found) {
         return true;
       }
     }
+  }
+  return false;
+}
+
+export function getLiteralValue(
+  ctx: Rule.RuleContext,
+  node: estree.Node,
+): estree.Literal | undefined {
+  if (isLiteral(node)) {
+    return node;
   } else if (isIdentifier(node)) {
     const usage = getUniqueWriteUsage(ctx, node.name);
     if (usage) {
-      return disallowedValue(ctx, usage, values);
+      return getLiteralValue(ctx, usage);
     }
   }
-  return false;
+  return undefined;
 }
 
 function disallowedFQNs(ctx: Rule.RuleContext, node: estree.Node, values: Values) {

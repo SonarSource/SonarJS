@@ -35,6 +35,7 @@ import { rule as awsIamPrivilegeEscalation } from './aws-iam-privilege-escalatio
 import { rule as awsIamPublicAccess } from './aws-iam-public-access';
 import { rule as awsOpensearchserviceDomain } from './aws-opensearchservice-domain';
 import { rule as awsRdsUnencryptedDatabases } from './aws-rds-unencrypted-databases';
+import { rule as awsRestrictedIpAdminAccess } from './aws-restricted-ip-admin-access';
 import { rule as awsS3BucketGrantedAccess } from './aws-s3-bucket-granted-access';
 import { rule as awsS3BucketInsecureHttp } from './aws-s3-bucket-insecure-http';
 import { rule as awsS3BucketPublicAccess } from './aws-s3-bucket-public-access';
@@ -262,6 +263,7 @@ rules['aws-iam-privilege-escalation'] = awsIamPrivilegeEscalation;
 rules['aws-iam-public-access'] = awsIamPublicAccess;
 rules['aws-opensearchservice-domain'] = awsOpensearchserviceDomain;
 rules['aws-rds-unencrypted-databases'] = awsRdsUnencryptedDatabases;
+rules['aws-restricted-ip-admin-access'] = awsRestrictedIpAdminAccess;
 rules['aws-s3-bucket-granted-access'] = awsS3BucketGrantedAccess;
 rules['aws-s3-bucket-insecure-http'] = awsS3BucketInsecureHttp;
 rules['aws-s3-bucket-public-access'] = awsS3BucketPublicAccess;

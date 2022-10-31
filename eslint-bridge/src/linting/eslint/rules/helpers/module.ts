@@ -359,11 +359,9 @@ export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estre
         fqn.unshift(property.name);
       }
       nodeToCheck = nodeToCheck.object;
-    }
-    else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
+    } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
       nodeToCheck = nodeToCheck.callee;
-    }
-    else {
+    } else {
       break;
     }
   }
