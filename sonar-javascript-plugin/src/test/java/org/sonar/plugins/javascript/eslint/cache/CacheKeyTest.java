@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
@@ -31,7 +32,8 @@ class CacheKeyTest {
 
   private final static InputFile inputFile = mock(InputFile.class);
 
-  static {
+  @BeforeEach
+  void setUp() {
     when(inputFile.key()).thenReturn("fileKey");
   }
 

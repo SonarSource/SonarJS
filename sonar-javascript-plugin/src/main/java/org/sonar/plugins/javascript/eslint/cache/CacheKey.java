@@ -44,7 +44,8 @@ class CacheKey {
       "jssecurity", "ucfgs",
       PluginInfo.getVersion(),
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
-      // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts)
+      // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
+      // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)
       PluginInfo.getUcfgPluginVersion().orElse(null));
 
     return new CacheKey(inputFile.key(), prefixes);

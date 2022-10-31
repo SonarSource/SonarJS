@@ -53,7 +53,7 @@ public class RulesBundles {
   }
 
   public RulesBundles(RulesBundle[] rulesBundles) {
-    bundles = Arrays.stream(rulesBundles).collect(Collectors.toList());
+    bundles = List.of(rulesBundles);
     bundleUrls = Arrays.stream(rulesBundles)
       .map(bundle -> {
         URL resource = bundle.getClass().getResource(bundle.bundlePath());
@@ -92,7 +92,7 @@ public class RulesBundles {
 
   public Optional<RulesBundle> getUcfgRulesBundle() {
     return bundles.stream()
-      .filter(bundle -> "ucfg".equalsIgnoreCase(bundle.bundleKey()))
+      .filter(bundle -> "ucfg".equals(bundle.bundleKey()))
       .findAny();
   }
 
