@@ -6,7 +6,7 @@ module.exports = {
   out: "./docs",
   searchInComments: true,
   plugin: ["my-plugin"],
-  readme: "./README.md",
+  readme: "./main.md",
   tsconfig: "../src/tsconfig.json",
   json: "models/reflections.json",
   pretty: true,
