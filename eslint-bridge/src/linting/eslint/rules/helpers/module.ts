@@ -363,6 +363,9 @@ export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estre
     else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
       nodeToCheck = nodeToCheck.callee;
     }
+    else {
+      break;
+    }
   }
 
   return nodeToCheck;
