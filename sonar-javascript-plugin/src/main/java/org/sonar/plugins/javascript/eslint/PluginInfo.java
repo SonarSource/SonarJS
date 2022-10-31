@@ -19,18 +19,34 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-public class PluginUtils {
+import java.util.Optional;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+public class PluginInfo {
+
+  private static final Logger LOG = Loggers.get(PluginInfo.class);
 
   private static String version;
+  private static String ucfgPluginVersion;
 
-  private PluginUtils() {
+  private PluginInfo() {
   }
 
   public static synchronized String getVersion() {
     if (version == null) {
-      version = PluginUtils.class.getPackage().getImplementationVersion();
+      version = PluginInfo.class.getPackage().getImplementationVersion();
     }
     return version;
+  }
+
+  public static Optional<String> getUcfgPluginVersion() {
+    return Optional.ofNullable(ucfgPluginVersion);
+  }
+
+  public static void setUcfgPluginVersion(String ucfgPluginVersion) {
+    LOG.debug("Security Frontend version is available: [{}]", ucfgPluginVersion);
+    PluginInfo.ucfgPluginVersion = ucfgPluginVersion;
   }
 
 }
