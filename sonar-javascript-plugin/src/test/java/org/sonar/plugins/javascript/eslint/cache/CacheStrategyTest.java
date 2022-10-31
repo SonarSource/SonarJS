@@ -84,6 +84,8 @@ class CacheStrategyTest {
 
   @BeforeEach
   void setUp() {
+    // reset is required as this static value might be set by another test
+    PluginInfo.setUcfgPluginVersion(null);
     workDir = baseDir.resolve(".scannerwork");
 
     fileSystem = mock(FileSystem.class);
@@ -112,7 +114,6 @@ class CacheStrategyTest {
 
   @Test
   void should_generate_cache_keys() {
-    PluginInfo.setUcfgPluginVersion(null);
     assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:JSON:src/test.js");
     assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:SEQ:src/test.js");
   }
