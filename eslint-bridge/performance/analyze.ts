@@ -28,15 +28,46 @@ const server = {
 };
 
 const RULE_ID = 'no-commented-code';
-const FOLDER = path.join(__dirname, '../../its/sources/amplify/src');
+//const FOLDER = path.join(__dirname, '../lib');
+//const FOLDER = path.join(__dirname, '../../its/sources/amplify/src');
+const folders = [
+  path.join(__dirname, '../../its/sources/amplify/src'),
+  path.join(__dirname, '../../its/sources/angular.js/src'),
+  path.join(__dirname, '../../its/sources/backbone'),
+  path.join(__dirname, '../../its/sources/es5-shim'),
+  path.join(__dirname, '../../its/sources/file-for-rules'),
+  path.join(__dirname, '../../its/sources/fireact/src'),
+  path.join(__dirname, '../../its/sources/javascript-test-sources/src'),
+  path.join(__dirname, '../../its/sources/jira-clone'),
+  path.join(__dirname, '../../its/sources/jquery/src'),
+  path.join(__dirname, '../../its/sources/jshint/src'),
+  path.join(__dirname, '../../its/sources/jStorage'),
+  path.join(__dirname, '../../its/sources/knockout/src'),
+  path.join(__dirname, '../../its/sources/mootools-core/Source'),
+  path.join(__dirname, '../../its/sources/ocanvas/src'),
+  path.join(__dirname, '../../its/sources/p5.js/src'),
+  path.join(__dirname, '../../its/sources/paper.js/src'),
+  path.join(__dirname, '../../its/sources/prototype/src'),
+  path.join(__dirname, '../../its/sources/qunit/src'),
+  path.join(__dirname, '../../its/sources/react-cloud-music/src'),
+  path.join(__dirname, '../../its/sources/sizzle/src'),
+  path.join(__dirname, '../../its/sources/underscore'),
+];
 
 (async () => {
   await requestInitLinter(server as http.Server, 'MAIN', RULE_ID);
-  await analyzeProject(FOLDER);
+
+  for (let i=0; i<folders.length; i++) {
+    await analyzeProject(folders[i]);
+  }
+  //await analyzeProject(FOLDER);
   console.log('done');
 })();
 
 async function analyzeProject(projectPath: string) {
+  console.log('####################################');
+  console.log(`# analyzing ${projectPath} #`);
+  console.log('####################################');
 
   let files: string[] = [];
   collectFilesInFolder(projectPath);
@@ -51,7 +82,7 @@ async function analyzeProject(projectPath: string) {
     for (let i=0; i<promises.length; i += parallelism) {
       const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
       try {
-        console.log('executing promises from', i, 'to', endIndex);
+        console.log('executing promises from', i, 'to', endIndex, 'for', projectPath);
         await Promise.all(promises.slice(i, endIndex + 1));
       } catch (e) {
         console.error('failed analyzing files', files.slice(i, endIndex + 1));
