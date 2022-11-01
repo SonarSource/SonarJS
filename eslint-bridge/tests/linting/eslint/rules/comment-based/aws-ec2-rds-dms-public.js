@@ -390,3 +390,50 @@ export class InstanceStack extends cdk.Stack {
     defaultPrivateInstance.applyRemovalPolicy(RemovalPolicy.DESTROY)
   }
 }
+
+export class CfnReplicationInstanceStack extends cdk.Stack {
+  constructor(scope, id, props) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "testvpc", {
+      cidr: "10.0.0.0/16"
+    })
+
+    const subnetGroup = new dms.CfnReplicationSubnetGroup(
+      this, "default-subnet", {
+        replicationSubnetGroupDescription: "default subnet group",
+        replicationSubnetGroupIdentifier: "default-subnet",
+        subnetIds: vpc.selectSubnets().subnetIds
+      })
+    subnetGroup.node.addDependency(vpc)
+
+    var repInstance = new dms.CfnReplicationInstance(
+      this, "explicitPublic", {
+        replicationInstanceClass: "dms.t2.micro",
+        allocatedStorage: 5,
+        publiclyAccessible: true, // Noncompliant {{Make sure allowing public network access is safe here.}}
+//                          ^^^^
+        replicationSubnetGroupIdentifier: subnetGroup.replicationSubnetGroupIdentifier,
+        vpcSecurityGroupIds: [vpc.vpcDefaultSecurityGroup]
+      })
+    repInstance.node.addDependency(subnetGroup)
+
+    var repInstance = new dms.CfnReplicationInstance(
+      this, "explicitPrivate", {
+        replicationInstanceClass: "dms.t2.micro",
+        allocatedStorage: 5,
+        publiclyAccessible: false, // Compliant
+        replicationSubnetGroupIdentifier: subnetGroup.replicationSubnetGroupIdentifier,
+        vpcSecurityGroupIds: [vpc.vpcDefaultSecurityGroup]
+      })
+    repInstance.node.addDependency(subnetGroup)
+
+    var repInstance = new dms.CfnReplicationInstance(this, "defaultPublic", { // Noncompliant {{Make sure allowing public network access is safe here.}}
+        replicationInstanceClass: "dms.t2.micro",
+        allocatedStorage: 5,
+        replicationSubnetGroupIdentifier: subnetGroup.replicationSubnetGroupIdentifier,
+        vpcSecurityGroupIds: [vpc.vpcDefaultSecurityGroup]
+      })
+    repInstance.node.addDependency(subnetGroup)
+  }
+}

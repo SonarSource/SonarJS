@@ -52,6 +52,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       'publiclyAccessible',
       { primitives: { invalid: [true] } },
     ),
+    'aws-cdk-lib.aws_dms.CfnReplicationInstance': AwsCdkCheckArguments(
+      'publicNetwork',
+      true,
+      'publiclyAccessible',
+      { primitives: { invalid: [true] } },
+    ),
   },
   {
     meta: {
