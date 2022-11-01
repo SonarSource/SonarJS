@@ -22,6 +22,7 @@ import {
   getProperty,
   getUniqueWriteUsageOrNode,
   isArrayExpression,
+  isBooleanLiteral,
   isStringLiteral,
   isUndefined,
   StringLiteral,
@@ -41,6 +42,14 @@ export class Result {
 
   get isMissing() {
     return this.status === 'missing';
+  }
+
+  get isTrue() {
+    return this.isFound && isBooleanLiteral(this.node) && this.node.value;
+  }
+
+  ofType(type: Node['type']) {
+    return this.isFound && this.node.type === type;
   }
 
   getArgument(position: number): Result {
@@ -73,6 +82,36 @@ export class Result {
     } else {
       return getResultOfExpression(this.ctx, property.value);
     }
+  }
+
+  getMemberObject(): Result {
+    if (!this.isFound) {
+      return this;
+    } else if (this.node.type !== 'MemberExpression') {
+      return unknown(this.ctx, this.node);
+    } else {
+      return getResultOfExpression(this.ctx, this.node.object).filter(n => n.type !== 'Super');
+    }
+  }
+
+  findInArray(closure: (item: Result) => Result | null | undefined) {
+    if (!this.isFound) {
+      return this;
+    } else if (!isArrayExpression(this.node)) {
+      return unknown(this.ctx, this.node);
+    }
+
+    let isMissing = true;
+
+    for (const element of this.node.elements) {
+      const result = element != null ? closure(getResultOfExpression(this.ctx, element)) : null;
+      if (result?.isFound) {
+        return result;
+      }
+      isMissing &&= result?.isMissing ?? true;
+    }
+
+    return isMissing ? missing(this.ctx, this.node) : unknown(this.ctx, this.node);
   }
 
   everyStringLiteral(closure: (item: StringLiteral) => boolean) {
