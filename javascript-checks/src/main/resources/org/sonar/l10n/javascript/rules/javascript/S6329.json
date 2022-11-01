@@ -1,0 +1,33 @@
+{
+  "title": "Allowing public network access to cloud resources is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "aws"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6329",
+  "sqKey": "S6329",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      668
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
