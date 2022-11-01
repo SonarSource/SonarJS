@@ -262,14 +262,15 @@ export function hasFullyQualifiedName(
  *
  * @param context the rule context
  * @param node the node
+ * @param fqn the already traversed FQN (for recursive calls)
  * @param referringVar for recursive calls, used to break when recursing over same variable
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
   node: estree.Node,
+  fqn: string[] = [],
   referringVar?: Scope.Variable,
 ): string | null {
-  const fqn: string[] = [];
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
@@ -326,16 +327,7 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      while (nodeToCheck.type === 'NewExpression' || nodeToCheck.type === 'CallExpression') {
-        nodeToCheck = nodeToCheck.callee;
-      }
-      if (nodeToCheck.type === 'Identifier' || nodeToCheck.type === 'MemberExpression') {
-        const declarationFQN = getFullyQualifiedName(context, nodeToCheck, variable);
-        if (declarationFQN) {
-          fqn.unshift(declarationFQN);
-          return fqn.join('.');
-        }
-      }
+      return getFullyQualifiedName(context, nodeToCheck, fqn, variable);
     }
   }
   return null;
@@ -360,6 +352,8 @@ export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estre
       }
       nodeToCheck = nodeToCheck.object;
     } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
+      nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'NewExpression') {
       nodeToCheck = nodeToCheck.callee;
     } else {
       break;

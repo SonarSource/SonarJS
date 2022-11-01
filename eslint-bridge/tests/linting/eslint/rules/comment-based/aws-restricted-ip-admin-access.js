@@ -17,38 +17,105 @@ instance.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 instance.connections.allowFrom(
   ec2.Peer.anyIpv4(), // Noncompliant
   ec2.Port.tcp(22),
-  /*description*/ 'Allows SSH from all IPv4'
+  'description'
 );
 
 const badIpV4 = '0.0.0.0/0';
 instance.connections.allowFrom(
   ec2.Peer.ipv4(badIpV4),// Noncompliant
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
-  /* description */ 'Allows SSH and others from all IPv4'
+  'description'
 );
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4('192.0.2.0/24'),
+  ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv6('::/0'),// Noncompliant
+  ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv6('::1'),
+  ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
+  'description'
+);
+
 instance.connections.allowFrom(
   unknownPort,
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
-  /* description */ 'Allows SSH and others from all IPv4'
+  'description'
 );
 instance.connections.allowFromAnyIpv4( // Noncompliant
   ec2.Port.tcp(3389),
-  /* description */ 'Allows Terminal Server from all IPv4'
+  'description'
+);
+instance.connections.allowFromAnyIpv4(
+  ec2.Port.tcp(unknownPort),
+  'description'
+);
+instance.connections.allowFromAnyIpv4(
+  ec2.Port.tcp(undefined),
+  'description'
+);
+instance.connections.allowFromAnyIpv4( // Noncompliant
+  ec2.Port.allTcp(),
+  'description'
+);
+instance.connections.allowFromAnyIpv4( // Noncompliant
+  ec2.Port.allTraffic(),
+  'description'
 );
 instance.connections.allowFromAnyIpv4(
   unknownPort,
-  /* description */ 'Allows Terminal Server from all IPv4'
+  'description'
 );
 
 instance.connections.allowFromAnyIpv4(  // Compliant
   ec2.Port.tcp(goodPort),
-  /* description */ 'Allows 1234 from all IPv4'
 );
 
 instance.connections.allowFrom(
   ec2.Peer.ipv4(goodIpV4), // Compliant
   ec2.Port.tcp(badPort),
-  /* description */ 'Allows SSH from all IPv4'
+);
+
+instance.connections.allowFrom(
+  unknownIP, // Compliant
+  ec2.Port.tcp(badPort),
+);
+
+instance.connections.allowFrom(
+  undefined,
+  ec2.Port.tcp(badPort),
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4), // Noncompliant
+  ec2.Port({protocol: ec2.Protocol.TCP, fromPort: 22, toPort: 22}),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4), // Noncompliant
+  ec2.Port({protocol: ec2.Protocol.ALL, fromPort: 20, toPort: 25}),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4), // Compliant
+  ec2.Port({protocol: ec2.Protocol.UDP, fromPort: 20, toPort: 25}),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4), // Compliant
+  ec2.Port({protocol: ec2.Protocol.TCP, fromPort: goodPort, toPort: goodPort}),
+  'description'
 );
 
 const connection = new ec2.Connections({
@@ -110,12 +177,36 @@ new ec2.CfnSecurityGroup(
         toPort: 3389
       },
       {
+        ipProtocol: unknownProtocol,
+        cidrIpv6: '::/0'
+      },
+      {
+        ipProtocol: undefined,
+        cidrIpv6: '::/0'
+      },
+      {
         ipProtocol: '-1',
         cidrIpv6: '::/0' // Noncompliant
       },
       {
+        ipProtocol: '-1',
+        cidrIpv6: goodIpV6
+      },
+      {
         ipProtocol: '6',
         cidrIp: '192.0.2.0/24', // Compliant
+        fromPort: 22,
+        toPort: 22
+      },
+      {
+        ipProtocol: '6',
+        cidrIp: unknownIP, // Compliant
+        fromPort: 22,
+        toPort: 22
+      },
+      {
+        ipProtocol: '6',
+        cidrIp: undefined,
         fromPort: 22,
         toPort: 22
       },

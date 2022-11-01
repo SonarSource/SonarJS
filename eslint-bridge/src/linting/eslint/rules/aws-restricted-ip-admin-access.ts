@@ -248,6 +248,31 @@ function checkIngressObject(ctx: Rule.RuleContext, node: estree.Node) {
   }
 }
 
+function disallowedPortObject(ctx: Rule.RuleContext, node: estree.Node) {
+  const objExpr = getValueOfExpression(ctx, node, 'ObjectExpression', true);
+  if (!objExpr) {
+    return false;
+  }
+  const protocol = getProperty(objExpr, 'protocol', ctx);
+
+  if (!protocol) {
+    return false;
+  }
+
+  const protocolValue = getUniqueWriteUsageOrNode(ctx, protocol.value, true);
+
+  if (isUnresolved(protocolValue, ctx) || isUndefined(protocolValue)) {
+    return false;
+  }
+  const protocolFQN = normalizeFQN(getFullyQualifiedName(ctx, protocolValue));
+  if (protocolFQN && badFQNProtocols.includes(protocolFQN)) {
+    const fromPort = Number.parseInt(getPropertyValue(ctx, objExpr, 'fromPort')?.value as string);
+    const toPort = Number.parseInt(getPropertyValue(ctx, objExpr, 'toPort')?.value as string);
+    return disallowedPort(fromPort, toPort);
+  }
+  return false;
+}
+
 function isBadEc2Peer(ctx: Rule.RuleContext, node: estree.Node): boolean {
   const fqn = normalizeFQN(getFullyQualifiedName(ctx, node));
   if (fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv4' || fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv6') {
@@ -276,31 +301,30 @@ function isBadEc2Port(ctx: Rule.RuleContext, node: estree.Node): boolean {
     return disallowedPort(startRange, endRange);
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Port') {
-    const protocol = getArgumentValue(ctx, node, 0);
-    if (protocol) {
-      const protocolFQN = normalizeFQN(getFullyQualifiedName(ctx, protocol));
-      if (protocolFQN && badFQNProtocols.includes(protocolFQN)) {
-        const startRange = getArgumentValue(ctx, node, 0)?.value as number;
-        const endRange = getArgumentValue(ctx, node, 1)?.value as number;
-        return disallowedPort(startRange, endRange);
-      }
+    const portParams = getArgument(ctx, node, 0);
+    if (portParams) {
+      return disallowedPortObject(ctx, portParams);
     }
   }
   return false;
 }
 
-function getArgumentValue(
+function getArgument(
   ctx: Rule.RuleContext,
   node: estree.Node,
-  position: number,
-): estree.Literal | undefined {
+  position = 0,
+): estree.Node | undefined {
   if (!node || isUndefined(node) || isUnresolved(node, ctx)) {
     return undefined;
   }
 
   const callExpr = getUniqueWriteUsageOrNode(ctx, node, true);
 
-  if (isUnresolved(callExpr, ctx) || isUndefined(callExpr) || callExpr.type !== 'CallExpression') {
+  if (
+    isUnresolved(callExpr, ctx) ||
+    isUndefined(callExpr) ||
+    (callExpr.type !== 'CallExpression' && callExpr.type !== 'NewExpression')
+  ) {
     return undefined;
   }
 
@@ -312,7 +336,18 @@ function getArgumentValue(
     return undefined;
   }
 
-  return getLiteralValue(ctx, argumentValue);
+  return argumentValue;
+}
+
+function getArgumentValue(
+  ctx: Rule.RuleContext,
+  node: estree.Node,
+  position = 0,
+): estree.Literal | undefined {
+  const argument = getArgument(ctx, node, position);
+  if (argument) {
+    return getLiteralValue(ctx, argument);
+  }
 }
 
 export function getPropertyValue(
