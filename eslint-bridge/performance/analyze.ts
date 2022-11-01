@@ -28,19 +28,18 @@ const server = {
 };
 
 const RULE_ID = 'no-commented-code';
-//const FOLDER = path.join(__dirname, '../lib');
+const FOLDER = path.join(__dirname, '../../its/sources/amplify/src');
 
 (async () => {
   await requestInitLinter(server as http.Server, 'MAIN', RULE_ID);
-  await analyzeProject(path.join(__dirname, '..'));
+  await analyzeProject(FOLDER);
   console.log('done');
 })();
 
 async function analyzeProject(projectPath: string) {
-  const srcFolder = path.join(projectPath, 'lib');
 
   let files: string[] = [];
-  collectFilesInFolder(srcFolder);
+  collectFilesInFolder(projectPath);
   console.log('got files', files.length);
   files = files.filter(isJSFile);
   console.log('got JS files', files.length);
