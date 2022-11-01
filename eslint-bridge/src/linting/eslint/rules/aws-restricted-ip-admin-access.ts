@@ -279,10 +279,10 @@ function isBadEc2Peer(ctx: Rule.RuleContext, node: estree.Node): boolean {
     return true;
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Peer.ipv4') {
-    return disallowedIpV4(getArgumentValue(ctx, node, 0)?.value as string);
+    return disallowedIpV4(getArgumentValue(ctx, node)?.value as string);
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Peer.ipv6') {
-    return disallowedIpV6(getArgumentValue(ctx, node, 0)?.value as string);
+    return disallowedIpV6(getArgumentValue(ctx, node)?.value as string);
   }
   return false;
 }
@@ -293,15 +293,15 @@ function isBadEc2Port(ctx: Rule.RuleContext, node: estree.Node): boolean {
     return true;
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Port.tcp') {
-    return disallowedPort(getArgumentValue(ctx, node, 0)?.value as number);
+    return disallowedPort(getArgumentValue(ctx, node)?.value as number);
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Port.tcpRange') {
-    const startRange = getArgumentValue(ctx, node, 0)?.value as number;
+    const startRange = getArgumentValue(ctx, node)?.value as number;
     const endRange = getArgumentValue(ctx, node, 1)?.value as number;
     return disallowedPort(startRange, endRange);
   }
   if (fqn === 'aws_cdk_lib.aws_ec2.Port') {
-    const portParams = getArgument(ctx, node, 0);
+    const portParams = getArgument(ctx, node);
     if (portParams) {
       return disallowedPortObject(ctx, portParams);
     }

@@ -32,6 +32,11 @@ instance.connections.allowFrom(
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
   'description'
 );
+instance.connections.allowFrom(
+  ec2.Peer.ipv4('192.0.2.0/24'),
+  ec2.Port.tcpRange(unknownStartPort, unknownEndPort),
+  'description'
+);
 
 instance.connections.allowFrom(
   ec2.Peer.ipv6('::/0'),// Noncompliant
@@ -96,7 +101,26 @@ instance.connections.allowFrom(
 
 instance.connections.allowFrom(
   ec2.Peer.ipv4(badIpV4), // Noncompliant
-  ec2.Port({protocol: ec2.Protocol.TCP, fromPort: 22, toPort: 22}),
+  new ec2.Port({protocol: ec2.Protocol.TCP, fromPort: 22, toPort: 22}),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4),
+  new ec2.Port({protocol: ec2.Protocol.TCP, fromPort: goodPort, toPort: goodPort}),
+  'description'
+);
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4),
+  new ec2.Port({fromPort: 22, toPort: 22}),
+  'description'
+);
+
+
+instance.connections.allowFrom(
+  ec2.Peer.ipv4(badIpV4),
+  new ec2.Port(unknownPortParams),
   'description'
 );
 
@@ -156,6 +180,34 @@ const nonCompliantIngress = {
   fromPort: 22,
   toPort: 22
 };
+new ec2.CfnSecurityGroup(this, 'cfn-based-security-group', undefined);
+new ec2.CfnSecurityGroup(this, 'cfn-based-security-group', unknownParams);
+
+new ec2.CfnSecurityGroup(
+  this,
+  'cfn-based-security-group', {
+    groupDescription: 'cfn based security group',
+    groupName: 'cfn-based-security-group',
+    vpcId: vpc.vpcId,
+    securityGroupIngress: undefined
+  });
+
+new ec2.CfnSecurityGroup(
+  this,
+  'cfn-based-security-group', {
+    groupDescription: 'cfn based security group',
+    groupName: 'cfn-based-security-group',
+    vpcId: vpc.vpcId,
+    securityGroupIngress: unknownIngressGroups
+  });
+
+new ec2.CfnSecurityGroup(
+  this,
+  'cfn-based-security-group', {
+    groupDescription: 'cfn based security group',
+    groupName: 'cfn-based-security-group',
+    vpcId: vpc.vpcId
+  });
 
 new ec2.CfnSecurityGroup(
   this,
@@ -186,6 +238,16 @@ new ec2.CfnSecurityGroup(
       },
       {
         ipProtocol: '-1',
+        cidrIpv6: '::/0' // Noncompliant
+      },
+      {
+        ipProtocol: 'tcp',
+        cidrIpv6: '::/0' // Compliant
+      },
+      {
+        ipProtocol: 'tcp',
+        fromPort: 3380,
+        toPort: 3390,
         cidrIpv6: '::/0' // Noncompliant
       },
       {
