@@ -39,7 +39,7 @@ import {
   reduceToIdentifier,
 } from './helpers';
 
-const TypesWithConnections = [
+const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',
   'aws_cdk_lib.aws_lambdaPythonAlpha.PythonFunction.connections',
   'aws_cdk_lib.aws_batchAlpha.ComputeEnvironment.connections',
@@ -100,7 +100,7 @@ const badFQNProtocols: string[] = [
 const badProtocols: string[] = ['6', 'tcp', 'TCP'];
 
 const templateCallback: { [key: FullyQualifiedName]: AwsCdkConsumer } = {};
-for (const type of TypesWithConnections) {
+for (const type of TYPES_WITH_CONNECTIONS) {
   templateCallback[`${type}.allowFrom`] = { callExpression: checkAllowFrom };
   templateCallback[`${type}.allowFromAnyIpv4`] = { callExpression: checkAllowFromAnyIpv4 };
 }
@@ -108,49 +108,13 @@ for (const type of TypesWithConnections) {
 templateCallback['aws_cdk_lib.aws_ec2.Connections.allowDefaultPortFrom'] = {
   callExpression: (expr: estree.CallExpression, ctx: Rule.RuleContext) => {
     if (isBadEc2Peer(ctx, expr.arguments[0])) {
-      const newExpr = getValueOfExpression(
-        ctx,
-        reduceToIdentifier(expr.callee),
-        'NewExpression',
-        true,
-      );
-      if (newExpr) {
-        const badPort = AwsCdkCheckArguments(
-          'allowFrom',
-          false,
-          'defaultPort',
-          { customChecker: isBadEc2Port },
-          true,
-          0,
-        )(newExpr, ctx);
-        if (badPort) {
-          ctx.report({ messageId: 'allowFromAnyIpv4', node: expr.callee });
-        }
-      }
+      checkConstructorDefaultPort(ctx, expr);
     }
   },
 };
 templateCallback['aws_cdk_lib.aws_ec2.Connections.allowDefaultPortFromAnyIpv4'] = {
   callExpression: (expr: estree.CallExpression, ctx: Rule.RuleContext) => {
-    const newExpr = getValueOfExpression(
-      ctx,
-      reduceToIdentifier(expr.callee),
-      'NewExpression',
-      true,
-    );
-    if (newExpr) {
-      const badPort = AwsCdkCheckArguments(
-        'allowFrom',
-        false,
-        'defaultPort',
-        { customChecker: isBadEc2Port },
-        true,
-        0,
-      )(newExpr, ctx);
-      if (badPort) {
-        ctx.report({ messageId: 'allowFromAnyIpv4', node: expr.callee });
-      }
-    }
+    checkConstructorDefaultPort(ctx, expr);
   },
 };
 templateCallback['aws_cdk_lib.aws_ec2.SecurityGroup.addIngressRule'] = {
@@ -200,6 +164,22 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(templateCallback, {
     },
   },
 });
+
+const invalidDefaultPortChecker = AwsCdkCheckArguments(
+  'allowFrom',
+  false,
+  'defaultPort',
+  { customChecker: isBadEc2Port },
+  true,
+  0,
+);
+
+function checkConstructorDefaultPort(ctx: Rule.RuleContext, node: estree.CallExpression) {
+  const newExpr = getValueOfExpression(ctx, reduceToIdentifier(node.callee), 'NewExpression', true);
+  if (newExpr && invalidDefaultPortChecker(newExpr, ctx)) {
+    ctx.report({ messageId: 'allowFromAnyIpv4', node: node.callee });
+  }
+}
 
 function checkAllowFrom(expr: estree.CallExpression, ctx: Rule.RuleContext) {
   const badPeer = isBadEc2Peer(ctx, expr.arguments[0]);
@@ -345,9 +325,7 @@ function getArgumentValue(
   position = 0,
 ): estree.Literal | undefined {
   const argument = getArgument(ctx, node, position);
-  if (argument) {
-    return getLiteralValue(ctx, argument);
-  }
+  return argument ? getLiteralValue(ctx, argument) : undefined;
 }
 
 export function getPropertyValue(
@@ -371,32 +349,23 @@ export function getPropertyValue(
 }
 
 function disallowedPort(startRange?: number, endRange?: number): boolean {
-  if (typeof startRange === 'number' && typeof endRange === 'number') {
+  if (startRange != null && endRange != null) {
     return badPorts.some(port => port >= startRange && port <= endRange);
   }
-  if (typeof startRange === 'number' && typeof endRange !== 'number') {
+  if (startRange != null && endRange == null) {
     return badPorts.some(port => port === startRange);
   }
   return false;
 }
 
 function disallowedIpV4(ip?: string): boolean {
-  if (!ip) {
-    return false;
-  }
-  return badIpsV4.includes(ip);
+  return ip ? badIpsV4.includes(ip) : false;
 }
 
 function disallowedIpV6(ip?: string): boolean {
-  if (!ip) {
-    return false;
-  }
-  return badIpsV6.includes(ip);
+  return ip ? badIpsV6.includes(ip) : false;
 }
 
 function disallowedProtocol(protocol?: string): boolean {
-  if (!protocol) {
-    return false;
-  }
-  return badProtocols.includes(protocol);
+  return protocol ? badProtocols.includes(protocol) : false;
 }
