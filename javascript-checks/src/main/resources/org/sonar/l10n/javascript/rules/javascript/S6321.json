@@ -25,5 +25,9 @@
       "6.2.4"
     ]
   },
-  "quickfix": "unknown"
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
