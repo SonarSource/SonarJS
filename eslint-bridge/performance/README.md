@@ -16,10 +16,14 @@
 
 4. you might need to make sure the server starts by going to the "sources" tab and pressing the "play" button
 5. In the server logs, you should see that the server is listening
-6. select the profiler tab
+6. select the "Profiler" tab
 5. Select "Profiles" on the left
 6. Press "Start" on the bottom
 
 ![profiler](images/profiler.png)
 
 7. Launch the Analysis: `../node_modules/.bin/ts-node analyze.ts`
+8. Press "Stop"
+9. View the profile
+
+![profile](images/profile.png)
