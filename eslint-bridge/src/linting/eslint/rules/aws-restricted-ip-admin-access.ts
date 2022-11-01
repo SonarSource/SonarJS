@@ -202,8 +202,8 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(templateCallback, {
 });
 
 function checkAllowFrom(expr: estree.CallExpression, ctx: Rule.RuleContext) {
-  let badPeer = isBadEc2Peer(ctx, expr.arguments[0]);
-  let badPort = isBadEc2Port(ctx, expr.arguments[1]);
+  const badPeer = isBadEc2Peer(ctx, expr.arguments[0]);
+  const badPort = isBadEc2Port(ctx, expr.arguments[1]);
 
   if (badPort && badPeer) {
     ctx.report({ messageId: 'allowFrom', node: expr.arguments[0] });
@@ -211,7 +211,7 @@ function checkAllowFrom(expr: estree.CallExpression, ctx: Rule.RuleContext) {
 }
 
 function checkAllowFromAnyIpv4(expr: estree.CallExpression, ctx: Rule.RuleContext) {
-  let badPort = isBadEc2Port(ctx, expr.arguments[0]);
+  const badPort = isBadEc2Port(ctx, expr.arguments[0]);
 
   if (badPort) {
     ctx.report({ messageId: 'allowFromAnyIpv4', node: expr.callee });
@@ -250,8 +250,9 @@ function checkIngressObject(ctx: Rule.RuleContext, node: estree.Node) {
 
 function isBadEc2Peer(ctx: Rule.RuleContext, node: estree.Node): boolean {
   const fqn = normalizeFQN(getFullyQualifiedName(ctx, node));
-  if (fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv4' || fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv6')
+  if (fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv4' || fqn === 'aws_cdk_lib.aws_ec2.Peer.anyIpv6') {
     return true;
+  }
   if (fqn === 'aws_cdk_lib.aws_ec2.Peer.ipv4') {
     return disallowedIpV4(getArgumentValue(ctx, node, 0)?.value as string);
   }
@@ -263,8 +264,9 @@ function isBadEc2Peer(ctx: Rule.RuleContext, node: estree.Node): boolean {
 
 function isBadEc2Port(ctx: Rule.RuleContext, node: estree.Node): boolean {
   const fqn = normalizeFQN(getFullyQualifiedName(ctx, node));
-  if (fqn === 'aws_cdk_lib.aws_ec2.Port.allTcp' || fqn === 'aws_cdk_lib.aws_ec2.Port.allTraffic')
+  if (fqn === 'aws_cdk_lib.aws_ec2.Port.allTcp' || fqn === 'aws_cdk_lib.aws_ec2.Port.allTraffic') {
     return true;
+  }
   if (fqn === 'aws_cdk_lib.aws_ec2.Port.tcp') {
     return disallowedPort(getArgumentValue(ctx, node, 0)?.value as number);
   }
@@ -344,16 +346,22 @@ function disallowedPort(startRange?: number, endRange?: number): boolean {
 }
 
 function disallowedIpV4(ip?: string): boolean {
-  if (!ip) return false;
+  if (!ip) {
+    return false;
+  }
   return badIpsV4.includes(ip);
 }
 
 function disallowedIpV6(ip?: string): boolean {
-  if (!ip) return false;
+  if (!ip) {
+    return false;
+  }
   return badIpsV6.includes(ip);
 }
 
 function disallowedProtocol(protocol?: string): boolean {
-  if (!protocol) return false;
+  if (!protocol) {
+    return false;
+  }
   return badProtocols.includes(protocol);
 }
