@@ -27,5 +27,5 @@ const port = 64829;
 const host = '127.0.0.1';
 const workDir = '/tmp/dir';
 
-context.setContext({ workDir, shouldUseTypeScriptParserForJS: false, sonarlint: false });
+context.setContext({ workDir, shouldUseTypeScriptParserForJS: false, sonarlint: false, bundles: [] });
 server.start(port, host, 1719925474);
