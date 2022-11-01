@@ -32,7 +32,6 @@ import { start } from 'server';
   await start(64829, '127.0.0.1', 60 * 60 * 1000);
 })();
 
-
 initializeLinter([
   { key: 'no-commented-code', configurations: [], fileTypeTarget: ['MAIN'] },
 ]);

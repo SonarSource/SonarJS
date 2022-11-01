@@ -18,28 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as http from 'http';
-import path from 'path';
-import { request } from '../tests/tools';
 
-const server = {
-  address: () => { return { port: 64829 }}
-};
+const server = require('../lib/server');
+const path = require('path');
+const context = require('../lib/helpers');
 
-(async () => {
-  const fileType = 'MAIN';
-  await requestInitLinter(server as http.Server, fileType, 'no-commented-code');
-  const filePath = path.join(__dirname, 'file.js');
-  const data = { filePath, fileType, tsConfigs: [], linterId: 'default' };
-  const response = (await request(server as http.Server, '/analyze-js', 'POST', data)) as string;
-  const body = JSON.parse(response);
-  console.log('got', body);
-})();
+const port = 64829;
+const host = '127.0.0.1';
+const workDir = '/tmp/dir';
+const shouldUseTypeScriptParserForJS = process.argv[5] === 'true';
+const sonarlint = process.argv[6] === 'true';
 
-function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
-  const config = {
-    rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
-  };
-
-  return request(server, '/init-linter', 'POST', config);
+let bundles = [];
+if (process.argv[7]) {
+  bundles = process.argv[7].split(path.delimiter);
 }
+
+context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
+server.start(port, host, 1719925474);
