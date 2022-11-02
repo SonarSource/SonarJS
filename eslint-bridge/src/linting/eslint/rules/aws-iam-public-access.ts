@@ -43,7 +43,7 @@ const ARN_PRINCIPAL = 'aws_cdk_lib.aws_iam.ArnPrincipal';
 
 const MESSAGES = {
   message: 'Make sure granting public access is safe here.',
-  secondary: 'Related effect.',
+  secondary: 'Related effect',
 };
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(publicAccessStatementChecker);

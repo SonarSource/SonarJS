@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     meta: {
       messages: {
         CfnNotebookInstance:
-          'Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
+          'Omitting "kmsKeyId" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
       },
     },
   },

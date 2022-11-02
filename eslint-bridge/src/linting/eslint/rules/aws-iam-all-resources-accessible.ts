@@ -32,7 +32,7 @@ import {
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
-  secondary: 'Related effect.',
+  secondary: 'Related effect',
 };
 
 const KMS_PREFIX = 'kms:';
