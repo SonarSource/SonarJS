@@ -35,6 +35,7 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from './helpers/aws/iam';
+import { normalizeFQN } from './helpers/aws/cdk';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -122,7 +123,7 @@ function isSensitivePrincipalNewExpression(
       const argument = newExpression.arguments[0];
       return isStringLiteral(argument) && isAnyLiteral(argument);
     } else {
-      return anyValue === getFullyQualifiedName(ctx, newExpression.callee)?.replace(/-/g, '_');
+      return anyValue === normalizeFQN(getFullyQualifiedName(ctx, newExpression.callee));
     }
   });
 }
