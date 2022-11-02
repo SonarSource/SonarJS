@@ -75,7 +75,6 @@ async function analyzeProject(projectPath: string) {
   files = files.filter(isJSFile);
   console.log('got JS files', files.length);
   const promises = buildPromises(files);
-  console.log('got promises', promises.length);
   await executePromises(promises, 5);
 
   async function executePromises(promises: Promise<unknown>[], parallelism: number) {
