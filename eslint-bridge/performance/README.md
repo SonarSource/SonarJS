@@ -4,6 +4,7 @@
 ## Links
 
 - [Chrome profiling](https://medium.com/@basakabhijoy/debugging-and-profiling-memory-leaks-in-nodejs-using-chrome-e8ece4560dba)
+- [Flame graphs with 0x](https://github.com/davidmarkclements/0x)
 - [NodeJS profiling](https://nodejs.org/en/docs/guides/simple-profiling/)
 
 ### Chrome profiling
@@ -27,3 +28,13 @@
 9. View the profile
 
 ![profile](images/profile.png)
+
+### Flame graphs
+
+1. Install 0x: `npm i 0x -D`
+2. Boot the server with 0x monitoring: `./node_modules/.bin/0x performance/server.js`
+3. Launch the analysis: `../node_modules/.bin/ts-node analyze.ts`
+4. SIGINT the server process with CTRL+C
+5. Open the generated web page in `<pid>.0x`
+
+![flame graph](images/0x-flame-graph.png)
