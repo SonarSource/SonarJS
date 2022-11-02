@@ -159,8 +159,8 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(templateCallback, {
   meta: {
     messages: {
       allowFromAnyIpv4:
-        'Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses',
-      allowFrom: 'Change this IP range to a subset of trusted IP addresses',
+        'Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.',
+      allowFrom: 'Change this IP range to a subset of trusted IP addresses.',
     },
   },
 });
