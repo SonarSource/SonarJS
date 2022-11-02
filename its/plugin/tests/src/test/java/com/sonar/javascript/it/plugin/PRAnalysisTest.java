@@ -287,7 +287,7 @@ class PRAnalysisTest {
   }
 
   static class Master {
-    static final String BRANCH = "master";
+    static final String BRANCH = "main";
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
