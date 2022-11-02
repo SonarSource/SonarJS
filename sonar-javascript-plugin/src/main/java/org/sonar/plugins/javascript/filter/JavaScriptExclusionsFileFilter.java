@@ -66,12 +66,6 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       return true;
     }
 
-    var result = assessors.stream().noneMatch(assessor -> assessor.test(inputFile));
-    if (bundleAssessor.triggered()) {
-      LOG.info("Some of the project files were automatically excluded because they looked like generated code. " +
-        "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
-        BundleAssessor.PROPERTY + "=false");
-    }
-    return result;
+    return assessors.stream().noneMatch(assessor -> assessor.test(inputFile));
   }
 }
