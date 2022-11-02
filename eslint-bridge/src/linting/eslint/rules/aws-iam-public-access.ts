@@ -118,8 +118,9 @@ function isSensitivePrincipalNewExpression(
   options: PolicyCheckerOptions,
 ) {
   return (options.principals.anyValues ?? []).some(anyValue => {
-    if (anyValue === ARN_PRINCIPAL && isStringLiteral(newExpression.arguments[0])) {
-      return isAnyLiteral(newExpression.arguments[0]);
+    if (anyValue === ARN_PRINCIPAL) {
+      const argument = newExpression.arguments[0];
+      return isStringLiteral(argument) && isAnyLiteral(argument);
     } else {
       return anyValue === getFullyQualifiedName(ctx, newExpression.callee)?.replace(/-/g, '_');
     }
