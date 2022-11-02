@@ -34,6 +34,8 @@ export type FunctionNodeType =
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
 
+export type StringLiteral = estree.Literal & { value: string };
+
 export const FUNCTION_NODES = [
   'FunctionDeclaration',
   'FunctionExpression',
@@ -528,7 +530,7 @@ export function checkSensitiveCall(
   }
 }
 
-export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
+export function isStringLiteral(node: estree.Node): node is StringLiteral {
   return isLiteral(node) && typeof node.value === 'string';
 }
 

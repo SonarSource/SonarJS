@@ -17,27 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.plugins.javascript.eslint;
 
-import org.sonar.api.scanner.ScannerSide;
-import org.sonarsource.api.sonarlint.SonarLintSide;
+import java.util.Optional;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
-@ScannerSide
-@SonarLintSide
-public interface RulesBundle {
+public class PluginInfo {
 
-  /**
-   *
-   * @return Path of the tgz bundle inside the plugin jar, should start with /
-   */
-  String bundlePath();
+  private static final Logger LOG = Loggers.get(PluginInfo.class);
 
-  default String bundleKey() {
-    return null;
+  private static String version;
+  private static String ucfgPluginVersion;
+
+  private PluginInfo() {
   }
 
-  default String bundleVersion() {
-    return null;
+  public static synchronized String getVersion() {
+    if (version == null) {
+      version = PluginInfo.class.getPackage().getImplementationVersion();
+    }
+    return version;
+  }
+
+  public static Optional<String> getUcfgPluginVersion() {
+    return Optional.ofNullable(ucfgPluginVersion);
+  }
+
+  public static void setUcfgPluginVersion(String ucfgPluginVersion) {
+    LOG.debug("Security Frontend version is available: [{}]", ucfgPluginVersion);
+    PluginInfo.ucfgPluginVersion = ucfgPluginVersion;
   }
 
 }

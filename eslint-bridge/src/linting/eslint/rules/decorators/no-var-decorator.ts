@@ -17,27 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6275/javascript
-
 import { Rule } from 'eslint';
-import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
+import { interceptReport } from './helpers';
+import estree from 'estree';
 
-export const rule: Rule.RuleModule = AwsCdkTemplate(
-  {
-    'aws-cdk-lib.aws-ec2.Volume': AwsCdkCheckArguments(
-      ['encryptionOmitted', 'encryptionDisabled'],
-      true,
-      'encrypted',
-      { primitives: { invalid: [false] } },
-    ),
-  },
-  {
-    meta: {
-      messages: {
-        encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
-        encryptionOmitted:
-          'Omitting "encrypted" disables volumes encryption. Make sure it is safe here.',
-      },
-    },
-  },
-);
+export function decorateNoVar(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, reportDescriptor) => {
+    if ('node' in reportDescriptor) {
+      const { node, ...rest } = reportDescriptor;
+      const {
+        declarations: [firstDecl, ..._],
+      } = node as estree.VariableDeclaration;
+
+      const varToken = context.getSourceCode().getTokenBefore(firstDecl.id);
+      const identifierEnd = firstDecl.id.loc!.end;
+      if (varToken == null) {
+        // impossible
+        return;
+      }
+      context.report({
+        loc: {
+          start: varToken.loc.start,
+          end: identifierEnd,
+        },
+        ...rest,
+      });
+    }
+  });
+}
