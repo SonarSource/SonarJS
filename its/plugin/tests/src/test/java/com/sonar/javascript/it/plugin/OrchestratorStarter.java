@@ -156,16 +156,15 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   static List<Issue> getIssues(String componentKey) {
-    return getIssues(componentKey, null);
+    return getIssues(ORCHESTRATOR, componentKey, null, null);
   }
 
-  static List<Issue> getIssues(String componentKey, String pullRequest) {
-    return getIssues(ORCHESTRATOR, componentKey, pullRequest);
-  }
-
-  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String pullRequest) {
+  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String branch, String pullRequest) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
     if (pullRequest != null) {
       request.setPullRequest(pullRequest);
     }
