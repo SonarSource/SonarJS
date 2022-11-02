@@ -85,7 +85,7 @@ class PRAnalysisTest {
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
-      assertThat(getIssues(orchestrator, projectKey, null))
+      assertThat(getIssues(orchestrator, projectKey, Master.BRANCH, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":" + indexFile);
@@ -107,7 +107,7 @@ class PRAnalysisTest {
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
-      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+      assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":" + helloFile);
@@ -141,7 +141,7 @@ class PRAnalysisTest {
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
-      assertThat(getIssues(orchestrator, projectKey, null))
+      assertThat(getIssues(orchestrator, projectKey, Master.BRANCH, null))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
         .contains(tuple(projectKey + ":file1.yaml", "cloudformation:S6295"));
@@ -163,7 +163,7 @@ class PRAnalysisTest {
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
-      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+      assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
         .contains(tuple(projectKey + ":file2.yaml", "javascript:S1116"));
