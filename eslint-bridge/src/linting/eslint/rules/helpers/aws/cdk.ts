@@ -40,6 +40,7 @@ const AWS_OPTIONS_ARGUMENT_POSITION = 2;
 export type FullyQualifiedName = string;
 export type AwsCdkCallback = {
   functionName?: string;
+  methods?: string[];
   callExpression(expr: estree.CallExpression, ctx: Rule.RuleContext, fqn?: string): void;
   newExpression?(expr: estree.NewExpression, ctx: Rule.RuleContext): void;
 };
@@ -59,22 +60,23 @@ type NodeAndReport = {
   nodeToReport: estree.Node;
 };
 
+export type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
+
 /**
  * A rule template for AWS CDK resources
  *
- * @param consumers callbacks to invoke when a new expression matches a fully qualified name
+ * @param mapOrFactory callbacks to invoke when a new expression or a call expression matches a fully qualified name
  * @param metadata the rule metadata
  * @returns the instantiated rule module
  */
 export function AwsCdkTemplate(
-  consumers: {
-    [key: FullyQualifiedName]: AwsCdkConsumer;
-  },
+  mapOrFactory: AwsCdkConsumerMap | ((ctx: Rule.RuleContext) => AwsCdkConsumerMap),
   metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
     ...metadata,
     create(ctx: Rule.RuleContext) {
+      const consumers = typeof mapOrFactory === 'function' ? mapOrFactory(ctx) : mapOrFactory;
       return {
         'NewExpression, CallExpression'(node: AwsCdkNode) {
           if (node.arguments.some(arg => arg.type === 'SpreadElement')) {
@@ -100,16 +102,23 @@ export function AwsCdkTemplate(
           return;
         }
 
-        if (node.type === 'NewExpression') {
-          const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
-          if (fqn === expected) {
-            callback.newExpression?.(node, ctx);
-          }
+        const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
+        if (node.type === 'NewExpression' && fqn === expected) {
+          callback.newExpression?.(node, ctx);
+        } else if (isMethodCall(callback, fqn, expected)) {
+          callback.callExpression(node, ctx, fqn);
+        }
+      }
+
+      function isMethodCall(callback: AwsCdkCallback, fqn: string | undefined, expected: string) {
+        if (callback.functionName) {
+          return fqn === `${expected}.${callback.functionName}`;
+        } else if (callback.methods && fqn?.startsWith(expected)) {
+          const methodNames = fqn.substring(expected.length).split('.');
+          const methods = callback.methods;
+          return methodNames.every(name => name === '' || methods.includes(name));
         } else {
-          const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
-          if (fqn === (callback.functionName ? `${expected}.${callback.functionName}` : expected)) {
-            callback.callExpression(node, ctx, fqn);
-          }
+          return fqn === expected;
         }
       }
     },
