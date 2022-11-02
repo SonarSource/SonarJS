@@ -22,7 +22,6 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName } from '../module';
 import {
-  isMethodCall,
   getProperty,
   getUniqueWriteUsage,
   getUniqueWriteUsageOrNode,
@@ -40,8 +39,8 @@ const AWS_OPTIONS_ARGUMENT_POSITION = 2;
  */
 export type FullyQualifiedName = string;
 export type AwsCdkCallback = {
-  functionName: string;
-  callExpression(expr: estree.CallExpression, ctx: Rule.RuleContext): void;
+  functionName?: string;
+  callExpression(expr: estree.CallExpression, ctx: Rule.RuleContext, fqn?: string): void;
   newExpression?(expr: estree.NewExpression, ctx: Rule.RuleContext): void;
 };
 export type AwsCdkConsumer =
@@ -53,6 +52,7 @@ type Values = { invalid?: any[]; valid?: any[]; case_insensitive?: boolean };
 type ValuesByType = {
   primitives?: Values;
   fqns?: Values;
+  customChecker?: (ctx: Rule.RuleContext, node: estree.Node) => boolean;
 };
 type NodeAndReport = {
   node: estree.Node;
@@ -105,11 +105,10 @@ export function AwsCdkTemplate(
           if (fqn === expected) {
             callback.newExpression?.(node, ctx);
           }
-        } else if (isMethodCall(node)) {
-          const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee.object));
-          const callee = node.callee.property.name;
-          if (fqn === expected && callee === callback.functionName) {
-            callback.callExpression(node, ctx);
+        } else {
+          const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
+          if (fqn === (callback.functionName ? `${expected}.${callback.functionName}` : expected)) {
+            callback.callExpression(node, ctx, fqn);
           }
         }
       }
@@ -217,6 +216,13 @@ export function AwsCdkCheckArguments(
       }
       // Value is expected to be an Identifier following a specific FQN
       if (values?.fqns && disallowedFQNs(ctx, propertyValue, values.fqns)) {
+        if (silent) {
+          return getNodeToReport(property);
+        }
+        ctx.report({ messageId: getMessageAtPos(messageId, 1), node: getNodeToReport(property) });
+      }
+      // The value needs to be validated with a customized function
+      if (values?.customChecker && values.customChecker(ctx, propertyValue)) {
         if (silent) {
           return getNodeToReport(property);
         }
@@ -340,13 +346,14 @@ function traverseProperties(
 }
 
 function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Values): boolean {
-  if (isLiteral(node)) {
+  const literal = getLiteralValue(ctx, node);
+  if (literal) {
     if (values.valid?.length) {
       const found = values.valid.some(value => {
-        if (values.case_insensitive && typeof node.value === 'string') {
-          return value.toLowerCase() === node.value.toLowerCase();
+        if (values.case_insensitive && typeof literal.value === 'string') {
+          return value.toLowerCase() === literal.value.toLowerCase();
         }
-        return value === node.value;
+        return value === literal.value;
       });
       if (!found) {
         return true;
@@ -354,22 +361,32 @@ function disallowedValue(ctx: Rule.RuleContext, node: estree.Node, values: Value
     }
     if (values.invalid?.length) {
       const found = values.invalid.some(value => {
-        if (values.case_insensitive && typeof node.value === 'string') {
-          return value.toLowerCase() === node.value.toLowerCase();
+        if (values.case_insensitive && typeof literal.value === 'string') {
+          return value.toLowerCase() === literal.value.toLowerCase();
         }
-        return value === node.value;
+        return value === literal.value;
       });
       if (found) {
         return true;
       }
     }
+  }
+  return false;
+}
+
+export function getLiteralValue(
+  ctx: Rule.RuleContext,
+  node: estree.Node,
+): estree.Literal | undefined {
+  if (isLiteral(node)) {
+    return node;
   } else if (isIdentifier(node)) {
     const usage = getUniqueWriteUsage(ctx, node.name);
     if (usage) {
-      return disallowedValue(ctx, usage, values);
+      return getLiteralValue(ctx, usage);
     }
   }
-  return false;
+  return undefined;
 }
 
 function disallowedFQNs(ctx: Rule.RuleContext, node: estree.Node, values: Values) {
@@ -384,6 +401,6 @@ function disallowedFQNs(ctx: Rule.RuleContext, node: estree.Node, values: Values
   return normalizedFQN && values.invalid?.map(normalizeFQN).includes(normalizedFQN);
 }
 
-function normalizeFQN(fqn?: string | null) {
+export function normalizeFQN(fqn?: string | null) {
   return fqn?.replace(/-/g, '_');
 }

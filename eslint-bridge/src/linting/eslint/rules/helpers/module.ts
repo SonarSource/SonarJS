@@ -262,15 +262,16 @@ export function hasFullyQualifiedName(
  *
  * @param context the rule context
  * @param node the node
+ * @param fqn the already traversed FQN (for recursive calls)
  * @param referringVar for recursive calls, used to break when recursing over same variable
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
   node: estree.Node,
+  fqn: string[] = [],
   referringVar?: Scope.Variable,
 ): string | null {
-  const fqn: string[] = [];
-  let nodeToCheck = node.type === 'MemberExpression' ? fqnFromMemberExpression(node, fqn) : node;
+  let nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
     return null;
@@ -316,7 +317,7 @@ export function getFullyQualifiedName(
       }
     }
     if (definition.node.init.type === 'MemberExpression') {
-      nodeToCheck = fqnFromMemberExpression(definition.node.init, fqn);
+      nodeToCheck = reduceToIdentifier(definition.node.init, fqn);
     } else {
       nodeToCheck = definition.node.init;
     }
@@ -326,16 +327,7 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      if (nodeToCheck.type === 'NewExpression') {
-        nodeToCheck = nodeToCheck.callee;
-      }
-      if (nodeToCheck.type === 'Identifier' || nodeToCheck.type === 'MemberExpression') {
-        const declarationFQN = getFullyQualifiedName(context, nodeToCheck, variable);
-        if (declarationFQN) {
-          fqn.unshift(declarationFQN);
-          return fqn.join('.');
-        }
-      }
+      return getFullyQualifiedName(context, nodeToCheck, fqn, variable);
     }
   }
   return null;
@@ -347,17 +339,25 @@ export function getFullyQualifiedName(
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-function fqnFromMemberExpression(node: estree.Node, fqn: string[] = []): estree.Node {
+export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estree.Node {
   let nodeToCheck: estree.Node = node;
 
-  while (nodeToCheck.type === 'MemberExpression') {
-    const { property } = nodeToCheck;
-    if (property.type === 'Literal' && typeof property.value === 'string') {
-      fqn.unshift(property.value);
-    } else if (property.type === 'Identifier') {
-      fqn.unshift(property.name);
+  while (nodeToCheck.type !== 'Identifier') {
+    if (nodeToCheck.type === 'MemberExpression') {
+      const { property } = nodeToCheck;
+      if (property.type === 'Literal' && typeof property.value === 'string') {
+        fqn.unshift(property.value);
+      } else if (property.type === 'Identifier') {
+        fqn.unshift(property.name);
+      }
+      nodeToCheck = nodeToCheck.object;
+    } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
+      nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'NewExpression') {
+      nodeToCheck = nodeToCheck.callee;
+    } else {
+      break;
     }
-    nodeToCheck = nodeToCheck.object;
   }
 
   return nodeToCheck;
