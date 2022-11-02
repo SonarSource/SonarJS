@@ -15,9 +15,9 @@
 
 ![dev tools](images/dev-tools.png)
 
-4. you might need to make sure the server starts by going to the "sources" tab and pressing the "play" button
+4. You might need to make sure the server starts by going to the "sources" tab and pressing the "play" button
 5. In the server logs, you should see that the server is listening
-6. select the "Profiler" tab
+6. Select the "Profiler" tab
 5. Select "Profiles" on the left
 6. Press "Start" on the bottom
 

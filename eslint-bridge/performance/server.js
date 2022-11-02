@@ -23,6 +23,7 @@ const server = require('../lib/server');
 const path = require('path');
 const context = require('../lib/helpers');
 
+// must be the same as the one used in ./analyze.ts
 const port = 64829;
 const host = '127.0.0.1';
 const workDir = '/tmp/dir';

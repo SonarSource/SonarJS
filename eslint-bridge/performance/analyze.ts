@@ -24,6 +24,7 @@ import * as fs from 'fs';
 import { request } from '../tests/tools';
 
 const server = {
+  // must be the same as the one used in ./server.js
   address: () => { return { port: 64829 }}
 };
 
