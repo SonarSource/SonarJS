@@ -21,6 +21,7 @@ import assert from 'assert';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
+  Node,
   isDefaultSpecifier,
   isIdentifier,
   isNamespaceSpecifier,
@@ -156,7 +157,7 @@ function isRequire(node: estree.Node) {
   );
 }
 
-export function getModuleNameFromRequire(node: estree.Node): estree.Literal | undefined {
+export function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (
     node.type === 'CallExpression' &&
     isIdentifier(node.callee, 'require') &&
@@ -267,7 +268,7 @@ export function hasFullyQualifiedName(
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
-  node: estree.Node,
+  node: Node,
   fqn: string[] = [],
   referringVar?: Scope.Variable,
 ): string | null {
@@ -339,8 +340,8 @@ export function getFullyQualifiedName(
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estree.Node {
-  let nodeToCheck: estree.Node = node;
+export function reduceToIdentifier(node: Node, fqn: string[] = []): Node {
+  let nodeToCheck: Node = node;
 
   while (nodeToCheck.type !== 'Identifier') {
     if (nodeToCheck.type === 'MemberExpression') {
@@ -355,6 +356,10 @@ export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estre
       nodeToCheck = nodeToCheck.callee;
     } else if (nodeToCheck.type === 'NewExpression') {
       nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'ChainExpression') {
+      nodeToCheck = nodeToCheck.expression;
+    } else if (nodeToCheck.type === 'TSNonNullExpression') {
+      nodeToCheck = nodeToCheck.expression;
     } else {
       break;
     }

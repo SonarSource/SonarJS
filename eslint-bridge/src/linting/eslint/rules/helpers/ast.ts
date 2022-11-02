@@ -22,6 +22,8 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
 
+export type Node = estree.Node | TSESTree.Node;
+
 export type LoopLike =
   | estree.WhileStatement
   | estree.DoWhileStatement
@@ -50,7 +52,7 @@ export const functionLike = new Set([
 ]);
 
 export function isIdentifier(
-  node: estree.Node | undefined,
+  node: Node | undefined,
   ...values: string[]
 ): node is estree.Identifier {
   return (
@@ -200,7 +202,7 @@ export function isFalseLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === false;
 }
 
-export function isUndefined(node: estree.Node | TSESTree.Node): boolean {
+export function isUndefined(node: Node): boolean {
   return node.type === 'Identifier' && node.name === 'undefined';
 }
 
@@ -259,12 +261,12 @@ export function getUniqueWriteUsageOrNode(
   }
 }
 
-export function getValueOfExpression<T extends estree.Node['type']>(
+export function getValueOfExpression<T extends Node['type']>(
   context: Rule.RuleContext,
-  expr: estree.Node | undefined | null,
+  expr: Node | undefined | null,
   type: T,
   recursive = false,
-): Extract<estree.Node, { type: T }> | undefined {
+): Extract<Node, { type: T }> | undefined {
   if (!expr) {
     return undefined;
   }
@@ -287,10 +289,10 @@ export function getValueOfExpression<T extends estree.Node['type']>(
 }
 
 // see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
-function isNodeType<T extends estree.Node['type']>(
-  node: estree.Node,
+function isNodeType<T extends Node['type']>(
+  node: Node,
   type: T,
-): node is Extract<estree.Node, { type: T }> {
+): node is Extract<Node, { type: T }> {
   return node.type === type;
 }
 
