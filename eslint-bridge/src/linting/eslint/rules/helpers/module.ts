@@ -317,11 +317,7 @@ export function getFullyQualifiedName(
         }
       }
     }
-    if (definition.node.init.type === 'MemberExpression') {
-      nodeToCheck = reduceToIdentifier(definition.node.init, fqn);
-    } else {
-      nodeToCheck = definition.node.init;
-    }
+    const nodeToCheck = reduceTo('CallExpression', definition.node.init, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
@@ -341,9 +337,21 @@ export function getFullyQualifiedName(
  * @param fqn the array with the qualifiers
  */
 export function reduceToIdentifier(node: Node, fqn: string[] = []): Node {
+  return reduceTo('Identifier', node, fqn);
+}
+
+/**
+ * Reduce a given node through its ancestors until a given node type is found
+ * filling in the FQN array with the accessed properties.
+ * @param type the type of node you are looking for to be returned. Returned node still needs to be
+ *             checked as its type it's not guaranteed to match the passed type.
+ * @param node the Node to traverse
+ * @param fqn the array with the qualifiers
+ */
+export function reduceTo<T extends Node['type']>(type: T, node: Node, fqn: string[] = []): Node {
   let nodeToCheck: Node = node;
 
-  while (nodeToCheck.type !== 'Identifier') {
+  while (nodeToCheck.type !== type) {
     if (nodeToCheck.type === 'MemberExpression') {
       const { property } = nodeToCheck;
       if (property.type === 'Literal' && typeof property.value === 'string') {
