@@ -264,13 +264,13 @@ export function hasFullyQualifiedName(
  * @param context the rule context
  * @param node the node
  * @param fqn the already traversed FQN (for recursive calls)
- * @param scope scope to look for variable declarations, used for recursion
+ * @param referringVar for recursive calls, used to break when recursing over same variable
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
   node: Node,
   fqn: string[] = [],
-  scope?: Scope.Scope,
+  referringVar?: Scope.Variable,
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
@@ -278,9 +278,12 @@ export function getFullyQualifiedName(
     return null;
   }
 
-  const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
+  const variable = getVariableFromScope(
+    referringVar?.scope || context.getScope(),
+    nodeToCheck.name,
+  );
 
-  if (!variable) {
+  if (!variable || variable === referringVar) {
     return null;
   }
 
@@ -324,7 +327,7 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
+      return getFullyQualifiedName(context, nodeToCheck, fqn, variable);
     }
   }
   return null;
