@@ -282,7 +282,7 @@ export function getFullyQualifiedName(
 
   const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
 
-  if (!variable) {
+  if (!variable || variable.defs.length > 1) {
     return null;
   }
 
