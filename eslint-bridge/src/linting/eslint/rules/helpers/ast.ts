@@ -21,7 +21,6 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
-import * as ESTree from 'estree';
 
 export type Node = estree.Node | TSESTree.Node;
 
@@ -241,7 +240,7 @@ export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
 
 export function getUniqueWriteReference(
   variable: Scope.Variable | undefined,
-): ESTree.Node | undefined {
+): estree.Node | undefined {
   if (variable) {
     const writeReferences = variable.references.filter(reference => reference.isWrite());
     if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
