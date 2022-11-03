@@ -173,7 +173,7 @@ class PRAnalysisTest {
   @BeforeAll
   public static void startOrchestrator() {
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "DEV"))
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
