@@ -308,8 +308,9 @@ export function getFullyQualifiedName(
     }
   }
 
+  const value = getUniqueWriteReference(variable);
   // requires
-  if (definition.type === 'Variable' && definition.node.init && getUniqueWriteReference(variable)) {
+  if (definition.type === 'Variable' && value) {
     // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
     // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
     if (definition.node.id.type === 'ObjectPattern') {
@@ -319,7 +320,7 @@ export function getFullyQualifiedName(
         }
       }
     }
-    const nodeToCheck = reduceTo('CallExpression', definition.node.init, fqn);
+    const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
