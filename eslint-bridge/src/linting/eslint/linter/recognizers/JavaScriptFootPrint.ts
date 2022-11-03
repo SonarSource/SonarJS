@@ -1,0 +1,72 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2022 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import Detector from './Dectector';
+import CamelCaseDetector from './detectors/CamelCaseDetector';
+import ContainsDetector from './detectors/ContainsDetector';
+import EndWithDetector from './detectors/EndWithDetector';
+import KeywordsDetector from './detectors/KeywordsDetector';
+import LanguageFootprint from './LanguageFootprint';
+
+export default class JavaScriptFootPrint implements LanguageFootprint {
+  detectors: Set<Detector> = new Set();
+
+  constructor() {
+    this.detectors.add(new EndWithDetector(0.95, '}', ';', '{'));
+    this.detectors.add(new KeywordsDetector(0.7, false, '++', '||', '&&'));
+    this.detectors.add(
+      new KeywordsDetector(
+        0.3,
+        false,
+        'public',
+        'abstract',
+        'class',
+        'implements',
+        'extends',
+        'return',
+        'throw',
+        'private',
+        'protected',
+        'enum',
+        'continue',
+        'assert',
+        'boolean',
+        'this',
+        'instanceof',
+        'interface',
+        'static',
+        'void',
+        'super',
+        'true',
+        'case:',
+        'let',
+        'const',
+        'var',
+      ),
+    );
+    this.detectors.add(
+      new ContainsDetector(0.95, 'for(', 'if(', 'while(', 'catch(', 'switch(', 'try{', 'else{'),
+    );
+    this.detectors.add(new CamelCaseDetector(0.5));
+  }
+
+  getDetectors(): Set<Detector> {
+    return this.detectors;
+  }
+}
