@@ -25,25 +25,19 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.css.CssLanguage;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
-
-  private static final Logger LOG = Loggers.get(JavaScriptExclusionsFileFilter.class);
   private final List<Assessor> assessors;
-
-  private final BundleAssessor bundleAssessor = new BundleAssessor();
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     assessors = Stream.of(
         new PathAssessor(configuration),
         new SizeAssessor(configuration),
         new MinificationAssessor(),
-        bundleAssessor)
+        new BundleAssessor())
       .filter(assessor -> shouldBeEnabled(assessor, configuration))
       .collect(Collectors.toUnmodifiableList());
   }
