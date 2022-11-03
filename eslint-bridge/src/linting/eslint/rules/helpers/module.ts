@@ -26,7 +26,8 @@ import {
   isIdentifier,
   isNamespaceSpecifier,
   getUniqueWriteUsage,
-  getVariableFromName,
+  getVariableFromScope,
+  getUniqueWriteReference,
 } from './ast';
 
 /**
@@ -264,13 +265,14 @@ export function hasFullyQualifiedName(
  * @param context the rule context
  * @param node the node
  * @param fqn the already traversed FQN (for recursive calls)
- * @param referringVar for recursive calls, used to break when recursing over same variable
+ * @param scope scope to look for the variable definition, used in recursion not to
+ *              loop over same variable always in the lower scope
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
   node: Node,
   fqn: string[] = [],
-  referringVar?: Scope.Variable,
+  scope?: Scope.Scope,
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
@@ -278,9 +280,9 @@ export function getFullyQualifiedName(
     return null;
   }
 
-  const variable = getVariableFromName(context, nodeToCheck.name);
+  const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
 
-  if (!variable || variable === referringVar) {
+  if (!variable || variable.defs.length > 1) {
     return null;
   }
 
@@ -306,8 +308,9 @@ export function getFullyQualifiedName(
     }
   }
 
+  const value = getUniqueWriteReference(variable);
   // requires
-  if (definition.type === 'Variable' && definition.node.init) {
+  if (definition.type === 'Variable' && value) {
     // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
     // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
     if (definition.node.id.type === 'ObjectPattern') {
@@ -317,14 +320,14 @@ export function getFullyQualifiedName(
         }
       }
     }
-    const nodeToCheck = reduceTo('CallExpression', definition.node.init, fqn);
+    const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedName(context, nodeToCheck, fqn, variable);
+      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
