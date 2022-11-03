@@ -314,14 +314,18 @@ export function getLhsVariable(context: Rule.RuleContext): Scope.Variable | unde
   return undefined;
 }
 
-export function getVariableFromName(context: Rule.RuleContext, name: string) {
-  let scope: Scope.Scope | null = context.getScope();
+export function getVariableFromScope(scope: Scope.Scope | null, name: string) {
   let variable;
   while (variable == null && scope != null) {
     variable = scope.variables.find(value => value.name === name);
     scope = scope.upper;
   }
   return variable;
+}
+
+export function getVariableFromName(context: Rule.RuleContext, name: string) {
+  const scope: Scope.Scope | null = context.getScope();
+  return getVariableFromScope(scope, name);
 }
 
 /**
