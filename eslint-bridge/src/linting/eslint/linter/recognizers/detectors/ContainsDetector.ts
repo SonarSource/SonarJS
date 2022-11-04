@@ -20,9 +20,9 @@
 import Detector from '../Dectector';
 
 export default class ContainsDetector extends Detector {
-  strings: string[];
+  strings: (string | RegExp)[];
 
-  constructor(probability: number, ...strings: string[]) {
+  constructor(probability: number, ...strings: (string | RegExp)[]) {
     super(probability);
     this.strings = strings;
   }
@@ -31,7 +31,11 @@ export default class ContainsDetector extends Detector {
     const lineWithoutSpaces = line.replace(/\s+/, '');
     let matchers = 0;
     for (const str of this.strings) {
-      matchers += (lineWithoutSpaces.match(new RegExp(escapeRegex(str), 'g')) || []).length;
+      let regex = str;
+      if (typeof str === 'string') {
+        regex = new RegExp(escapeRegex(str), 'g');
+      }
+      matchers += (lineWithoutSpaces.match(regex) || []).length;
     }
     return matchers;
   }

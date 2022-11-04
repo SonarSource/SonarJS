@@ -63,6 +63,7 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'break',
         'yield',
         'typeof',
+        'import',
       ),
     );
     this.detectors.add(
@@ -75,7 +76,9 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'switch(',
         'try{',
         'else{',
-        '; //',
+        'this.',
+        'window.',
+        /;\s+\/\//,
       ),
     );
     this.detectors.add(new CamelCaseDetector(0.5));
