@@ -66,7 +66,17 @@ export class JavaScriptFootPrint implements LanguageFootprint {
       ),
     );
     this.detectors.add(
-      new ContainsDetector(0.95, 'for(', 'if(', 'while(', 'catch(', 'switch(', 'try{', 'else{'),
+      new ContainsDetector(
+        0.95,
+        'for(',
+        'if(',
+        'while(',
+        'catch(',
+        'switch(',
+        'try{',
+        'else{',
+        '; //',
+      ),
     );
     this.detectors.add(new CamelCaseDetector(0.5));
   }
