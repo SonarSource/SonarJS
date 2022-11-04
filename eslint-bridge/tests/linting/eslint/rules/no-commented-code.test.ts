@@ -126,6 +126,11 @@ ruleTester.run('Sections of code should not be commented out', rule, {
             // throw foo().bar()
         `,
     },
+    { // FN since 2-step implementation
+      code: `
+            // YUI().use('*'); // Comment following ';'
+        `,
+    },
   ],
   invalid: [
     {
@@ -233,12 +238,6 @@ ruleTester.run('Sections of code should not be commented out', rule, {
       code: `
             //   }
             // }
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // YUI().use('*'); // Comment following ';'
         `,
       errors: 1,
     },
