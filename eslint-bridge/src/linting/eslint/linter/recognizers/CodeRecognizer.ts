@@ -19,7 +19,7 @@
  */
 import LanguageFootprint from './LanguageFootprint';
 
-export default class CodeRecognizer {
+export class CodeRecognizer {
   language: LanguageFootprint;
   threshold: number;
 

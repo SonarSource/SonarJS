@@ -24,7 +24,7 @@ import EndWithDetector from './detectors/EndWithDetector';
 import KeywordsDetector from './detectors/KeywordsDetector';
 import LanguageFootprint from './LanguageFootprint';
 
-export default class JavaScriptFootPrint implements LanguageFootprint {
+export class JavaScriptFootPrint implements LanguageFootprint {
   detectors: Set<Detector> = new Set();
 
   constructor() {
