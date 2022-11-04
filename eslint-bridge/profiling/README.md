@@ -23,7 +23,7 @@
 
 ![profiler](images/profiler.png)
 
-7. Launch the Analysis: `../node_modules/.bin/ts-node analyze.ts`
+7. Launch the Analysis: `../node_modules/.bin/ts-node analyze-js.ts`
 8. Press "Stop"
 9. View the profile
 10. Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")
