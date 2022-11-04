@@ -29,8 +29,7 @@ const server = {
 };
 
 const RULE_ID = 'no-commented-code';
-//const FOLDER = path.join(__dirname, '../lib');
-//const FOLDER = path.join(__dirname, '../../its/sources/amplify/src');
+
 const folders = [
   path.join(__dirname, '../../its/sources/amplify/src'),
   path.join(__dirname, '../../its/sources/angular.js/src'),
@@ -61,7 +60,6 @@ const folders = [
   for (let i=0; i<folders.length; i++) {
     await analyzeProject(folders[i]);
   }
-  //await analyzeProject(FOLDER);
   console.log('done');
 })();
 
@@ -72,9 +70,9 @@ async function analyzeProject(projectPath: string) {
 
   let files: string[] = [];
   collectFilesInFolder(projectPath);
-  console.log('got files', files.length);
+  console.log(`Found ${files.length} files`);
   files = files.filter(isJSFile);
-  console.log('got JS files', files.length);
+  console.log(`of which ${files.length} JS files`);
   const promises = buildPromises(files);
   await executePromises(promises, 5);
 
@@ -82,10 +80,10 @@ async function analyzeProject(projectPath: string) {
     for (let i=0; i<promises.length; i += parallelism) {
       const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
       try {
-        console.log('executing promises from', i, 'to', endIndex, 'for', projectPath);
+        console.log(`Analysing files from ${i} to ${endIndex} (out of ${promises.length}) for ${projectPath}`);
         await Promise.all(promises.slice(i, endIndex + 1));
       } catch (e) {
-        console.error('failed analyzing files', files.slice(i, endIndex + 1));
+        console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
       }
     }
   }
