@@ -79,6 +79,8 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'this.',
         'window.',
         /;\s+\/\//,
+        'import \'',
+        'import "',
       ),
     );
     this.detectors.add(new CamelCaseDetector(0.5));
