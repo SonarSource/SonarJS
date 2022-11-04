@@ -21,11 +21,13 @@ import assert from 'assert';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
+  Node,
   isDefaultSpecifier,
   isIdentifier,
   isNamespaceSpecifier,
   getUniqueWriteUsage,
-  getVariableFromName,
+  getVariableFromScope,
+  getUniqueWriteReference,
 } from './ast';
 
 /**
@@ -156,7 +158,7 @@ function isRequire(node: estree.Node) {
   );
 }
 
-export function getModuleNameFromRequire(node: estree.Node): estree.Literal | undefined {
+export function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (
     node.type === 'CallExpression' &&
     isIdentifier(node.callee, 'require') &&
@@ -262,23 +264,25 @@ export function hasFullyQualifiedName(
  *
  * @param context the rule context
  * @param node the node
- * @param referringVar for recursive calls, used to break when recursing over same variable
+ * @param fqn the already traversed FQN (for recursive calls)
+ * @param scope scope to look for the variable definition, used in recursion not to
+ *              loop over same variable always in the lower scope
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
-  node: estree.Node,
-  referringVar?: Scope.Variable,
+  node: Node,
+  fqn: string[] = [],
+  scope?: Scope.Scope,
 ): string | null {
-  const fqn: string[] = [];
-  let nodeToCheck = node.type === 'MemberExpression' ? fqnFromMemberExpression(node, fqn) : node;
+  let nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
     return null;
   }
 
-  const variable = getVariableFromName(context, nodeToCheck.name);
+  const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
 
-  if (!variable || variable === referringVar) {
+  if (!variable || variable.defs.length > 1) {
     return null;
   }
 
@@ -304,8 +308,9 @@ export function getFullyQualifiedName(
     }
   }
 
+  const value = getUniqueWriteReference(variable);
   // requires
-  if (definition.type === 'Variable' && definition.node.init) {
+  if (definition.type === 'Variable' && value) {
     // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
     // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
     if (definition.node.id.type === 'ObjectPattern') {
@@ -315,27 +320,14 @@ export function getFullyQualifiedName(
         }
       }
     }
-    if (definition.node.init.type === 'MemberExpression') {
-      nodeToCheck = fqnFromMemberExpression(definition.node.init, fqn);
-    } else {
-      nodeToCheck = definition.node.init;
-    }
+    const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      if (nodeToCheck.type === 'NewExpression') {
-        nodeToCheck = nodeToCheck.callee;
-      }
-      if (nodeToCheck.type === 'Identifier' || nodeToCheck.type === 'MemberExpression') {
-        const declarationFQN = getFullyQualifiedName(context, nodeToCheck, variable);
-        if (declarationFQN) {
-          fqn.unshift(declarationFQN);
-          return fqn.join('.');
-        }
-      }
+      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
@@ -347,17 +339,41 @@ export function getFullyQualifiedName(
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-function fqnFromMemberExpression(node: estree.Node, fqn: string[] = []): estree.Node {
-  let nodeToCheck: estree.Node = node;
+export function reduceToIdentifier(node: Node, fqn: string[] = []): Node {
+  return reduceTo('Identifier', node, fqn);
+}
 
-  while (nodeToCheck.type === 'MemberExpression') {
-    const { property } = nodeToCheck;
-    if (property.type === 'Literal' && typeof property.value === 'string') {
-      fqn.unshift(property.value);
-    } else if (property.type === 'Identifier') {
-      fqn.unshift(property.name);
+/**
+ * Reduce a given node through its ancestors until a given node type is found
+ * filling in the FQN array with the accessed properties.
+ * @param type the type of node you are looking for to be returned. Returned node still needs to be
+ *             checked as its type it's not guaranteed to match the passed type.
+ * @param node the Node to traverse
+ * @param fqn the array with the qualifiers
+ */
+export function reduceTo<T extends Node['type']>(type: T, node: Node, fqn: string[] = []): Node {
+  let nodeToCheck: Node = node;
+
+  while (nodeToCheck.type !== type) {
+    if (nodeToCheck.type === 'MemberExpression') {
+      const { property } = nodeToCheck;
+      if (property.type === 'Literal' && typeof property.value === 'string') {
+        fqn.unshift(property.value);
+      } else if (property.type === 'Identifier') {
+        fqn.unshift(property.name);
+      }
+      nodeToCheck = nodeToCheck.object;
+    } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
+      nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'NewExpression') {
+      nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'ChainExpression') {
+      nodeToCheck = nodeToCheck.expression;
+    } else if (nodeToCheck.type === 'TSNonNullExpression') {
+      nodeToCheck = nodeToCheck.expression;
+    } else {
+      break;
     }
-    nodeToCheck = nodeToCheck.object;
   }
 
   return nodeToCheck;

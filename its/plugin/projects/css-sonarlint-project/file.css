@@ -1,0 +1,10 @@
+@import "foo.css";
+@import "foo.css";                                              /* S1128 | no-duplicate-at-import-rules */
+
+a {
+  color: pink;;                                               /* S1116 | no-extra-semicolons */
+}
+
+a::pseudo {                                                   /* S4660 | selector-pseudo-element-no-unknown */
+  color: red;
+}

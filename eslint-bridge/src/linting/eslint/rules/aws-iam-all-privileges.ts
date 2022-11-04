@@ -32,7 +32,7 @@ import {
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',
-  secondary: 'Related effect.',
+  secondary: 'Related effect',
 };
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(allPrivilegesStatementChecker);

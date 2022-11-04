@@ -20,66 +20,22 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6319/javascript
 
 import { Rule } from 'eslint';
-import {
-  getProperty,
-  getUniqueWriteUsageOrNode,
-  getValueOfExpression,
-  isUndefined,
-  isUnresolved,
-} from './helpers';
-
-import * as estree from 'estree';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws_sagemaker.CfnNotebookInstance': checkNotebookEncryption,
+    'aws-cdk-lib.aws_sagemaker.CfnNotebookInstance': AwsCdkCheckArguments(
+      'CfnNotebookInstance',
+      true,
+      'kmsKeyId',
+    ),
   },
   {
     meta: {
       messages: {
-        issue:
-          'Omitting "kms_key_id" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
+        CfnNotebookInstance:
+          'Omitting "kmsKeyId" disables encryption of SageMaker notebook instances. Make sure it is safe here.',
       },
     },
   },
 );
-
-const OPTIONS_ARGUMENT_POSITION = 2;
-
-function checkNotebookEncryption(expr: estree.NewExpression, ctx: Rule.RuleContext) {
-  const argument = expr.arguments[OPTIONS_ARGUMENT_POSITION];
-
-  const props = getValueOfExpression(ctx, argument, 'ObjectExpression');
-
-  if (isUnresolved(argument, ctx)) {
-    return;
-  }
-
-  if (props === undefined) {
-    report(expr.callee);
-    return;
-  }
-
-  const propertyKey = getProperty(props, 'kmsKeyId', ctx);
-  if (propertyKey === null) {
-    report(props);
-  }
-
-  if (!propertyKey) {
-    return;
-  }
-
-  const propertyValue = getUniqueWriteUsageOrNode(ctx, propertyKey.value);
-  if (isUndefined(propertyValue)) {
-    report(propertyKey.value);
-    return;
-  }
-
-  function report(node: estree.Node) {
-    ctx.report({
-      messageId: 'issue',
-      node,
-    });
-  }
-}

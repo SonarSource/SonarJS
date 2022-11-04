@@ -38,7 +38,7 @@ class CssProfileDefinitionTest {
     assertThat(profile.language()).isEqualTo(CssLanguage.KEY);
     assertThat(profile.name()).isEqualTo(CssProfileDefinition.PROFILE_NAME);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CssRulesDefinition.REPOSITORY_KEY);
-    assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 1);
+    assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 2);
   }
 
 }

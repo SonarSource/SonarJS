@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.javascript.checks;
 
-public class PluginUtils {
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-  private static String version;
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6329")
+public class AwsEc2RdsDmsPublicCheck implements EslintBasedCheck {
 
-  private PluginUtils() {
-  }
-
-  public static synchronized String getVersion() {
-    if (version == null) {
-      version = PluginUtils.class.getPackage().getImplementationVersion();
-    }
-    return version;
+  @Override
+  public String eslintKey() {
+    return "aws-ec2-rds-dms-public";
   }
 
 }

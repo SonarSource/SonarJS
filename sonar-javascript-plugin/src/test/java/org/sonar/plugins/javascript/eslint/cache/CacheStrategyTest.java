@@ -49,6 +49,7 @@ import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.eslint.PluginInfo;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +84,8 @@ class CacheStrategyTest {
 
   @BeforeEach
   void setUp() {
+    // reset is required as this static value might be set by another test
+    PluginInfo.setUcfgPluginVersion(null);
     workDir = baseDir.resolve(".scannerwork");
 
     fileSystem = mock(FileSystem.class);
