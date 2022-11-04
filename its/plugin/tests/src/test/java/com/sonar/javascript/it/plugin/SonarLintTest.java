@@ -43,6 +43,7 @@ import org.sonarsource.sonarlint.core.commons.Version;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 
 import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -129,6 +130,20 @@ class SonarLintTest {
     List<Issue> issues = analyze(fileName, content);
 
     assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923");
+  }
+
+  @Test
+  void should_analyze_css() throws IOException {
+    String fileName = "src/file1.css";
+    Path filePath = TestUtils.projectDir("css-issues-project").toPath().resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+    assertThat(issues).hasSize(25);
+    var ruleKeys = issues.stream().map(Issue::getRuleKey).collect(toSet());
+    assertThat(ruleKeys).containsExactly("css:S4658", "css:S4647", "css:S4657", "css:S1116", "css:S4668", "css:S4649", "css:S1128",
+      "css:S4648", "css:S4659", "css:S4654", "css:S4653", "css:S4656", "css:S4655", "css:S4666", "css:S4650", "css:S4661", "css:S4660",
+      "css:S4663", "css:S4652", "css:S4662", "css:S4651", "css:S4670");
   }
 
   @Test
@@ -228,6 +243,7 @@ class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
+      .addEnabledLanguage(Language.CSS)
       .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)

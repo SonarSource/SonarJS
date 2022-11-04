@@ -216,6 +216,13 @@ public class JavaScriptPlugin implements Plugin {
         .build()
     );
 
+    context.addExtensions(
+      CssLanguage.class,
+      CssProfileDefinition.class,
+      CssRulesDefinition.class,
+      CssRuleSensor.class
+    );
+
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtensions(CoverageSensor.class,
         EslintReportSensor.class,
@@ -246,10 +253,6 @@ public class JavaScriptPlugin implements Plugin {
 
       context.addExtensions(
         CssMetricSensor.class,
-        CssLanguage.class,
-        CssProfileDefinition.class,
-        CssRulesDefinition.class,
-        CssRuleSensor.class,
         StylelintReportSensor.class
       );
 
