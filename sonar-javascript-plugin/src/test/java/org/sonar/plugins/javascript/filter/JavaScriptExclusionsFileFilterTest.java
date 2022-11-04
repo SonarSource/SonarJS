@@ -43,6 +43,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JavaScriptExclusionsFileFilterTest {
 
   private static final String EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
+  public static final String INFO_LOG_MSG = "Some of the project files were automatically excluded because they looked like generated " +
+    "code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
+    "sonar.javascript.detectBundles=false";
+  public static final String DEBUG_LOG_MSG = "File bootstrap.js was excluded because it looks like a " +
+    "bundle. (Disable detection with sonar.javascript.detectBundles=false)";
 
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -258,12 +263,14 @@ class JavaScriptExclusionsFileFilterTest {
     var filter = new JavaScriptExclusionsFileFilter(config);
     assertThat(filter.accept(inputFile)).isFalse();
     var logs = logTester.logs(LoggerLevel.INFO);
-    assertThat(logs).contains("Some of the project files were automatically excluded because they looked like generated " +
-      "code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
-      "sonar.javascript.detectBundles=false");
+    assertThat(logs).contains(INFO_LOG_MSG);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(DEBUG_LOG_MSG);
+    logTester.clear();
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File bootstrap.js was excluded because it looks like a " +
-      "bundle. (Disable detection with sonar.javascript.detectBundles=false)");
+    // test that INFO level msg is logged only once
+    assertThat(filter.accept(inputFile)).isFalse();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(DEBUG_LOG_MSG);
+    assertThat(logTester.logs(LoggerLevel.INFO)).doesNotContain(INFO_LOG_MSG);
   }
 
   /**

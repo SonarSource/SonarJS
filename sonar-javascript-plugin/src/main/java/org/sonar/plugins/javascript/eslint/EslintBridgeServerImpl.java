@@ -227,6 +227,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       }
       deploy();
       List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
+      rulesBundles
+        .getUcfgRulesBundle()
+        .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(context, deployedBundles);
 
     } catch (NodeCommandException e) {

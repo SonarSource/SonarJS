@@ -12,13 +12,13 @@ export class IAMStack extends cdk.Stack {
       new iam.PolicyStatement({
         "sid": "AllowAnyPrincipal",
         "effect": iam.Effect.ALLOW,
-//                ^^^^^^^^^^^^^^^^> {{Related effect.}}
+//                ^^^^^^^^^^^^^^^^> {{Related effect}}
         "actions": ["s3:*"],
         "resources": [bucket.arnForObjects("*")],
         "principals": [new iam.StarPrincipal()] // Noncompliant {{Make sure granting public access is safe here.}}
 //                     ^^^^^^^^^^^^^^^^^^^^^^^
       })
-  );
+    );
 
     bucket.addToResourcePolicy(
       new iam.PolicyStatement({
@@ -28,13 +28,13 @@ export class IAMStack extends cdk.Stack {
         "principals": [new iam.StarPrincipal()] // Noncompliant {{Make sure granting public access is safe here.}}
 //                     ^^^^^^^^^^^^^^^^^^^^^^^
       })
-  );
+    );
 
     bucket.addToResourcePolicy(
       new iam.PolicyStatement({
         sid: "AllowStarPrincipal",
         effect: iam.Effect.ALLOW,
-//              ^^^^^^^^^^^^^^^^> {{Related effect.}}
+//              ^^^^^^^^^^^^^^^^> {{Related effect}}
         actions: ["s3:*"],
         resources: [bucket.arnForObjects("*")],
         principals: [new iam.StarPrincipal()], // Noncompliant {{Make sure granting public access is safe here.}}
@@ -46,7 +46,7 @@ export class IAMStack extends cdk.Stack {
       new iam.PolicyStatement({
         sid: "AllowArnPrincipalStar",
         effect: iam.Effect.ALLOW,
-//              ^^^^^^^^^^^^^^^^> {{Related effect.}}
+//              ^^^^^^^^^^^^^^^^> {{Related effect}}
         actions: ["s3:*"],
         resources: [bucket.arnForObjects("*")],
         principals: [new iam.ArnPrincipal("*")], // Noncompliant {{Make sure granting public access is safe here.}}
@@ -87,7 +87,7 @@ export class IAMStack extends cdk.Stack {
     const policyStatementFromJson1 = iam.PolicyStatement.fromJson({
       Sid: "AllowAnyPrincipal2",
       Effect: "Allow",
-//            ^^^^^^^> {{Related effect.}}
+//            ^^^^^^^> {{Related effect}}
       Action: ["s3:*"],
       Resource: bucket.arnForObjects("*"),
       Principal: {AWS: "*"}, // Noncompliant {{Make sure granting public access is safe here.}}
@@ -111,7 +111,7 @@ export class IAMStack extends cdk.Stack {
         {
           Sid: "AnyPrincipal",
           Effect: "Allow",
-//                ^^^^^^^> {{Related effect.}}
+//                ^^^^^^^> {{Related effect}}
           Action: ["kms:*"],
           Resource: "*",
           Principal: {
@@ -124,7 +124,7 @@ export class IAMStack extends cdk.Stack {
         {
           Sid: "StarPrincipal",
           Effect: "Allow",
-//                ^^^^^^^> {{Related effect.}}
+//                ^^^^^^^> {{Related effect}}
           Action: ["kms:*"],
           Resource: "*",
           Principal: "*", // Noncompliant {{Make sure granting public access is safe here.}}
@@ -157,4 +157,57 @@ export class IAMStack extends cdk.Stack {
     new kms.Key(this, "S6270Key", {policy: policyDocumentFromJson});
   }
 }
+
+
+const destinationKmsKey = new kms.Key(
+  this,
+  `s3-cross-account-replication-dest-key`,
+  {
+    alias: Config.destinationKmsKeyAlias,
+    description:
+      "Key used for KMS Encryption for the destination s3 bucket for cross account replication",
+    policy: new iam.PolicyDocument({
+      statements: [
+        new iam.PolicyStatement({
+          sid: "Enable IAM User Permissions",
+          effect: iam.Effect.ALLOW,
+          principals: [
+            new iam.ArnPrincipal(
+              `arn:aws:iam::${Config.destinationAccountId}:root`
+            ),
+          ],
+          actions: ["kms:*"],
+          resources: ["*"],
+        }),
+        new iam.PolicyStatement({
+          sid: "Enable Replication Permissions",
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.ArnPrincipal(replicationRoleArn.valueAsString)],
+          actions: [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey",
+          ],
+          resources: ["*"],
+        }),
+        new iam.PolicyStatement({
+          sid: "Enable Replication Permissions",
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.ArnPrincipal(replicationRoleArn.valueAsString)],
+          actions: [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey",
+          ],
+          resources: ["*"],
+        }),
+      ],
+    }),
+    enableKeyRotation: true,
+  }
+);
 

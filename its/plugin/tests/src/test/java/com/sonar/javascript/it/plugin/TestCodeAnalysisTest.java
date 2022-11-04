@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
@@ -45,6 +46,7 @@ import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Isolated
 @ExtendWith(OrchestratorStarter.class)
 class TestCodeAnalysisTest {
 

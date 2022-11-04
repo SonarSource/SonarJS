@@ -69,7 +69,7 @@ class PRAnalysisTest {
       var indexFile = "index." + language;
       var helloFile = "hello." + language;
 
-      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
@@ -81,11 +81,11 @@ class PRAnalysisTest {
           .withCachedFilesCounts(1, 2)
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
-        .logsTimes(Master.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
-      assertThat(getIssues(orchestrator, projectKey, null))
+      assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":" + indexFile);
@@ -107,7 +107,7 @@ class PRAnalysisTest {
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
-      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+      assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":" + helloFile);
@@ -126,7 +126,7 @@ class PRAnalysisTest {
     ));
 
     try (var gitExecutor = testProject.createIn(projectPath)) {
-      gitExecutor.execute(git -> git.checkout().setName(Master.BRANCH));
+      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
@@ -141,7 +141,7 @@ class PRAnalysisTest {
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
-      assertThat(getIssues(orchestrator, projectKey, null))
+      assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
         .contains(tuple(projectKey + ":file1.yaml", "cloudformation:S6295"));
@@ -163,7 +163,7 @@ class PRAnalysisTest {
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
-      assertThat(getIssues(orchestrator, projectKey, PR.BRANCH))
+      assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
         .contains(tuple(projectKey + ":file2.yaml", "javascript:S1116"));
@@ -173,11 +173,11 @@ class PRAnalysisTest {
   @BeforeAll
   public static void startOrchestrator() {
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "DEV"))
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
@@ -196,14 +196,14 @@ class PRAnalysisTest {
   }
 
   private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
-    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Master.BRANCH);
+    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Main.BRANCH);
   }
 
   private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
     return getScanner(projectDir, projectKey)
       .setProperty("sonar.pullrequest.key", PR.BRANCH)
       .setProperty("sonar.pullrequest.branch", PR.BRANCH)
-      .setProperty("sonar.pullrequest.base", Master.BRANCH);
+      .setProperty("sonar.pullrequest.base", Main.BRANCH);
   }
 
   private static SonarScanner getScanner(Path projectDir, String projectKey) {
@@ -250,7 +250,7 @@ class PRAnalysisTest {
       TestUtils.copyFiles(projectDir, branchProjectDir.toPath());
       executor.execute(git -> git.add().addFilepattern("."));
       executor.execute(git -> git.commit().setMessage("Refactor"));
-      executor.execute(git -> git.checkout().setName(Master.BRANCH));
+      executor.execute(git -> git.checkout().setName(Main.BRANCH));
 
       return executor;
     }
@@ -265,7 +265,7 @@ class PRAnalysisTest {
       try {
         git = Git.init()
           .setDirectory(Files.createDirectories(root).toFile())
-          .setInitialBranch(Master.BRANCH)
+          .setInitialBranch(Main.BRANCH)
           .call();
       } catch (IOException | GitAPIException e) {
         throw new RuntimeException(e);
@@ -286,8 +286,8 @@ class PRAnalysisTest {
 
   }
 
-  static class Master {
-    static final String BRANCH = "master";
+  static class Main {
+    static final String BRANCH = "main";
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 

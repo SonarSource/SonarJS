@@ -1,0 +1,78 @@
+<p>A public API, which can be requested by any authenticated or unauthenticated identities, can lead to unauthorized actions and information
+disclosures.</p>
+<h2>Ask Yourself Whether</h2>
+<p>The public API:</p>
+<ul>
+  <li> exposes sensitive data like personal information. </li>
+  <li> can be used to perform sensitive operations. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to restrict API access to authorized entities, unless the API offers a non-sensitive service designed to be public.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigateway.Resource.html">aws-cdk-lib.aws_apigateway.Resource</a>:</p>
+<pre>
+import {aws_apigateway as apigateway} from "aws-cdk-lib"
+
+const resource = api.root.addResource("example")
+resource.addMethod(
+    "GET",
+    new apigateway.HttpIntegration("https://example.org"),
+    {
+        authorizationType: apigateway.AuthorizationType.NONE // Sensitive
+    }
+)
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigatewayv2.CfnRoute.html">aws-cdk-lib.aws_apigatewayv2.CfnRoute</a>:</p>
+<pre>
+import {aws_apigatewayv2 as apigateway} from "aws-cdk-lib"
+
+new apigateway.CfnRoute(this, "no-auth", {
+    apiId: api.ref,
+    routeKey: "GET /no-auth",
+    authorizationType: "NONE", // Sensitive
+    target: exampleIntegration
+})
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigateway.Resource.html">aws-cdk-lib.aws_apigateway.Resource</a>:</p>
+<pre>
+import {aws_apigateway as apigateway} from "aws-cdk-lib"
+
+const resource = api.root.addResource("example",{
+    defaultMethodOptions:{
+        authorizationType: apigateway.AuthorizationType.IAM
+    }
+})
+resource.addMethod(
+    "POST",
+    new apigateway.HttpIntegration("https://example.org"),
+    {
+        authorizationType: apigateway.AuthorizationType.IAM
+    }
+)
+resource.addMethod(  // authorizationType is inherited from the Resource's configured defaultMethodOptions
+    "GET"
+)
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigatewayv2.CfnRoute.html">aws-cdk-lib.aws_apigatewayv2.CfnRoute</a>:</p>
+<pre>
+import {aws_apigatewayv2 as apigateway} from "aws-cdk-lib"
+
+new apigateway.CfnRoute(this, "auth", {
+    apiId: api.ref,
+    routeKey: "POST /auth",
+    authorizationType: "AWS_IAM",
+    target: exampleIntegration
+})
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-control-access-to-api.html">AWS Documentation</a> -
+  Controlling and managing access to a REST API in API Gateway </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+</ul>
+
