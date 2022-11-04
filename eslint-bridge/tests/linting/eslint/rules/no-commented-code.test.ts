@@ -116,17 +116,20 @@ ruleTester.run('Sections of code should not be commented out', rule, {
         // }
         `,
     },
-    { // FN since 2-step implementation
+    {
+      // FN since 2-step implementation
       code: `
             // return foo().bar()
         `,
     },
-    { // FN since 2-step implementation
+    {
+      // FN since 2-step implementation
       code: `
             // throw foo().bar()
         `,
     },
-    { // FN since 2-step implementation
+    {
+      // FN since 2-step implementation
       code: `
             // YUI().use('*'); // Comment following ';'
         `,
@@ -261,6 +264,6 @@ let x = 0;`,
           ],
         },
       ],
-    }
-  ]
+    },
+  ],
 });
