@@ -2,6 +2,9 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/assets/lib/uploader.js':[
 130,
 ],
+'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/config.js':[
+51,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/scenarios/default.js':[
 5,
 ],
