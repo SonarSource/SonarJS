@@ -116,6 +116,16 @@ ruleTester.run('Sections of code should not be commented out', rule, {
         // }
         `,
     },
+    { // FN since 2-step implementation
+      code: `
+            // return foo().bar()
+        `,
+    },
+    { // FN since 2-step implementation
+      code: `
+            // throw foo().bar()
+        `,
+    },
   ],
   invalid: [
     {
@@ -171,18 +181,6 @@ ruleTester.run('Sections of code should not be commented out', rule, {
     },
     {
       code: `
-            // return foo().bar()
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // throw foo().bar()
-        `,
-      errors: 1,
-    },
-    {
-      code: `
             // foo();
             // bar();
         `,
@@ -198,7 +196,7 @@ ruleTester.run('Sections of code should not be commented out', rule, {
     },
     {
       code: `
-            /* throw foo().bar() */
+            /* throw foo().bar(); */
         `,
       errors: 1,
     },
