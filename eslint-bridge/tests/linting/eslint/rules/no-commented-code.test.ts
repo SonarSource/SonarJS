@@ -245,7 +245,7 @@ ruleTester.run('Sections of code should not be commented out', rule, {
       errors: 1,
     },
     {
-      code: `let x = /* let x = 42 */ 0;`,
+      code: `let x = /* let x = 42; */ 0;`,
       errors: [
         { suggestions: [{ desc: 'Remove this commented out code', output: `let x =  0;` }] },
       ],
