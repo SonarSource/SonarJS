@@ -79,7 +79,7 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'this.',
         'window.',
         /;\s+\/\//,
-        'import \'',
+        "import '",
         'import "',
       ),
     );
