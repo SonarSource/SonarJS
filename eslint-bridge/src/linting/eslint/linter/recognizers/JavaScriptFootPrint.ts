@@ -29,7 +29,7 @@ export class JavaScriptFootPrint implements LanguageFootprint {
 
   constructor() {
     this.detectors.add(new EndWithDetector(0.95, '}', ';', '{'));
-    this.detectors.add(new KeywordsDetector(0.7, false, '++', '||', '&&'));
+    this.detectors.add(new KeywordsDetector(0.7, false, '++', '||', '&&', '===', '?.', '??'));
     this.detectors.add(
       new KeywordsDetector(
         0.3,
@@ -64,6 +64,7 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'yield',
         'typeof',
         'import',
+        'export',
       ),
     );
     this.detectors.add(
@@ -81,6 +82,7 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         /;\s+\/\//,
         "import '",
         'import "',
+        'require(',
       ),
     );
     this.detectors.add(new CamelCaseDetector(0.5));
