@@ -3,7 +3,6 @@
 269,
 ],
 'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
-4284,
 4382,
 4702,
 ],
@@ -32,7 +31,6 @@
 583,
 ],
 'p5.js:src/core/p5.Renderer2D.js':[
-13,
 313,
 324,
 332,
@@ -42,7 +40,6 @@
 ],
 'p5.js:src/typography/p5.Font.js':[
 390,
-712,
 ],
 'p5.js:src/webgl/p5.Matrix.js':[
 737,
