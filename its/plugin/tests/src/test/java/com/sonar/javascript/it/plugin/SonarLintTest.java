@@ -132,6 +132,16 @@ class SonarLintTest {
   }
 
   @Test
+  void should_analyze_css() throws IOException {
+    String fileName = "file.css";
+    Path filePath = TestUtils.projectDir("css-sonarlint-project").toPath().resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
+  }
+
+  @Test
   void should_not_analyze_ts_project_without_config() throws Exception {
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).isEmpty();
@@ -228,6 +238,7 @@ class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
+      .addEnabledLanguage(Language.CSS)
       .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
