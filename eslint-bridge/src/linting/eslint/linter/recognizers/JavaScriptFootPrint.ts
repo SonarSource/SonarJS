@@ -58,6 +58,11 @@ export class JavaScriptFootPrint implements LanguageFootprint {
         'let',
         'const',
         'var',
+        'async',
+        'await',
+        'break',
+        'yield',
+        'typeof',
       ),
     );
     this.detectors.add(
