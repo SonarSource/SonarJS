@@ -32,6 +32,7 @@ export default class CamelCaseDetector extends Detector {
       if (isLowerCaseThenUpperCase(previousChar, currentChar)) {
         return 1;
       }
+      previousChar = currentChar;
     }
     return 0;
   }

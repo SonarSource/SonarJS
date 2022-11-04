@@ -21,9 +21,9 @@ import Detector from '../Dectector';
 
 export default class KeywordsDetector extends Detector {
   keywords: string[];
-  toUppercase: boolean = false;
+  toUppercase = false;
 
-  constructor(probability: number, toUppercase: boolean = false, ...keywords: string[]) {
+  constructor(probability: number, toUppercase = false, ...keywords: string[]) {
     super(probability);
     this.keywords = keywords;
     if (toUppercase !== undefined) {
