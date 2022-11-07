@@ -1,13 +1,7 @@
 
-# ESlint-bridge performance benchmarking
+# ESlint-bridge profiling
 
-## Links
-
-- [Chrome profiling](https://medium.com/@basakabhijoy/debugging-and-profiling-memory-leaks-in-nodejs-using-chrome-e8ece4560dba)
-- [Flame graphs with 0x](https://github.com/davidmarkclements/0x)
-- [NodeJS profiling](https://nodejs.org/en/docs/guides/simple-profiling/)
-
-### Chrome profiling
+## Chrome dev tools
 
 Chrome profiling allows to see what functions took CPU time as:
 - a top-down tree
@@ -38,3 +32,10 @@ Chrome profiling allows to see what functions took CPU time as:
 11. If you prefer, you can also select the "Chart" view to display a flame graph
 
 ![flame graph](images/flame.png)
+
+## Links
+
+- [Chrome profiling](https://medium.com/@basakabhijoy/debugging-and-profiling-memory-leaks-in-nodejs-using-chrome-e8ece4560dba)
+- [Chrome profiling - views](https://commandlinefanatic.com/cgi-bin/showarticle.cgi?article=art037)
+- [Flame graphs with 0x](https://github.com/davidmarkclements/0x)
+- [NodeJS profiling](https://nodejs.org/en/docs/guides/simple-profiling/)
