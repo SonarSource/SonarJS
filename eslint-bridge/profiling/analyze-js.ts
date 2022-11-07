@@ -69,23 +69,26 @@ async function analyzeProject(projectPath: string) {
   console.log('####################################');
 
   let files: string[] = [];
-  collectFilesInFolder(projectPath);
+  collectFilesInFolder(projectPath, files);
   console.log(`Found ${files.length} files`);
   files = files.filter(isJSFile);
-  console.log(`of which ${files.length} JS files`);
+  console.log(`of which ${files.length} are JS files`);
   const promises = buildPromises(files);
   await executePromises(promises, 5);
 
-  async function executePromises(promises: Promise<unknown>[], parallelism: number) {
-    for (let i=0; i<promises.length; i += parallelism) {
-      const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
-      try {
-        console.log(`Analysing files from ${i} to ${endIndex} (out of ${promises.length}) for ${projectPath}`);
-        await Promise.all(promises.slice(i, endIndex + 1));
-      } catch (e) {
-        console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
+  function collectFilesInFolder(folder: string, files: string[]) {
+    fs.readdirSync(folder).forEach(file => {
+      const filePath = path.join(folder, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        return collectFilesInFolder(filePath, files);
+      } else {
+        return files.push(filePath);
       }
-    }
+    })
+  }
+
+  function isJSFile(filePath: string) {
+    return filePath.endsWith('.js');
   }
 
   function buildPromises(files: string[]) {
@@ -104,19 +107,16 @@ async function analyzeProject(projectPath: string) {
       return response;    }
   }
 
-  function isJSFile(filePath: string) {
-    return filePath.endsWith('.js');
-  }
-
-  function collectFilesInFolder(folder: string) {
-    fs.readdirSync(folder).forEach(file => {
-      const filePath = path.join(folder, file);
-      if (fs.statSync(filePath).isDirectory()) {
-        return collectFilesInFolder(filePath);
-      } else {
-        return files.push(filePath);
+  async function executePromises(promises: Promise<unknown>[], parallelism: number) {
+    for (let i=0; i<promises.length; i += parallelism) {
+      const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
+      try {
+        console.log(`Analysing files from ${i} to ${endIndex} (out of ${promises.length}) for ${projectPath}`);
+        await Promise.all(promises.slice(i, endIndex + 1));
+      } catch (e) {
+        console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
       }
-    })
+    }
   }
 }
 
