@@ -9,6 +9,11 @@
 
 ### Chrome profiling
 
+Chrome profiling allows to see what functions took CPU time as:
+- a top-down tree
+- a bottom-up tree
+- a (flame) graph
+
 1. Boot the server in debug mode: `node --inspect-brk performance/server.js`
 2. Open dev tools on chrome, using F12
 3. You should see a green NodeJS icon like that, click it to connect the dev tools to the server's debugger:
@@ -30,12 +35,6 @@
 
 ![profile](images/profile.png)
 
-### Flame graphs
+11. If you prefer, you can also select the "Chart" view to display a flame graph
 
-1. Install 0x: `npm i 0x -D`
-2. Boot the server with 0x monitoring: `./node_modules/.bin/0x performance/server.js`
-3. Launch the analysis: `../node_modules/.bin/ts-node analyze.ts`
-4. SIGINT the server process with CTRL+C
-5. Open the generated web page in `<pid>.0x`
-
-![flame graph](images/0x-flame-graph.png)
+![flame graph](images/flame.png)
