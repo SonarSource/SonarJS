@@ -8,7 +8,7 @@ Chrome profiling allows you to see what functions took CPU time as:
 - a bottom-up tree
 - a (flame) graph
 
-1. Boot the server in debug mode: `npm run server`. (or `npm run compile-server` if you have modifications in `eslint-bridge`)
+1. Boot the server in debug mode: `npm run server`. (or `npm run compile-server` if you have modifications in `eslint-bridge/`)
 2. Open dev tools on chrome, using F12
 3. You should see a green NodeJS icon like that, click it to connect the dev tools to the server's debugger:
 
@@ -22,10 +22,10 @@ Chrome profiling allows you to see what functions took CPU time as:
 
 ![profiler](images/profiler.png)
 
-7. Launch the Analysis on JS ruling projects: `npm run-analyze-js` (or `npm run analyze-ts` for typescript)
-8. Press "Stop"
-9. View the profile
-10. Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")
+1. Launch the Analysis on JS ruling projects: `npm run profile <my-rule-id> <ts|all>` (`ts` for TS-only projects, `all` for both JS and TS, JS-only by default)
+2. Press "Stop"
+3. View the profile
+4.  Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")
 
 ![profile](images/profile.png)
 
