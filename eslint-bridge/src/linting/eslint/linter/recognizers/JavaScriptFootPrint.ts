@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Detector from './Dectector';
+import Detector from './Detector';
 import CamelCaseDetector from './detectors/CamelCaseDetector';
 import ContainsDetector from './detectors/ContainsDetector';
 import EndWithDetector from './detectors/EndWithDetector';
@@ -29,11 +29,10 @@ export class JavaScriptFootPrint implements LanguageFootprint {
 
   constructor() {
     this.detectors.add(new EndWithDetector(0.95, '}', ';', '{'));
-    this.detectors.add(new KeywordsDetector(0.7, false, '++', '||', '&&', '===', '?.', '??'));
+    this.detectors.add(new KeywordsDetector(0.7, '++', '||', '&&', '===', '?.', '??'));
     this.detectors.add(
       new KeywordsDetector(
         0.3,
-        false,
         'public',
         'abstract',
         'class',

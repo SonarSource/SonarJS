@@ -37,13 +37,7 @@ export class CodeRecognizer {
   }
 
   extractCodeLines(lines: string[]): string[] {
-    const codeLines: string[] = [];
-    for (const line of lines) {
-      if (this.recognition(line) >= this.threshold) {
-        codeLines.push(line);
-      }
-    }
-    return codeLines;
+    return lines.filter(line => this.recognition(line) >= this.threshold);
   }
 
   isLineOfCode(line: string): boolean {

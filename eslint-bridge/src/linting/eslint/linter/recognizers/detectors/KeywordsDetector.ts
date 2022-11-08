@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Detector from '../Dectector';
+import Detector from '../Detector';
 
 export default class KeywordsDetector extends Detector {
   keywords: string[];
-  toUppercase = false;
 
-  constructor(probability: number, toUppercase = false, ...keywords: string[]) {
+  constructor(probability: number, ...keywords: string[]) {
     super(probability);
     this.keywords = keywords;
-    if (toUppercase !== undefined) {
-      this.toUppercase = toUppercase;
-    }
   }
 
   scan(line: string): number {
     let matchers = 0;
-    if (this.toUppercase) {
-      line = line.toUpperCase();
-    }
     const words = line.split(/[ \t(),{}]/);
     for (const word of words) {
       if (this.keywords.includes(word)) {
