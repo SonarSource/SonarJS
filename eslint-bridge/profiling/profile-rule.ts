@@ -30,6 +30,8 @@ const server = {
   },
 };
 
+const start = Date.now();
+
 const ruleId = extractRuleFromArgs();
 const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
 
@@ -47,7 +49,8 @@ const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
     }
   }
 
-  console.log('done');
+  const timeSeconds = (Date.now() - start) / 1000;
+  console.log(`done in ${timeSeconds}s`);
 })();
 
 function extractRuleFromArgs() {
