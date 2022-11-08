@@ -31,14 +31,19 @@ const server = {
 };
 
 const ruleId = extractRuleFromArgs();
-const { js: jsProjects } = extractScopeFromArgs();
+const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
 
 (async () => {
   await requestInitLinter(server as http.Server, 'MAIN', ruleId);
 
   if (jsProjects !== undefined) {
     for (let i = 0; i < jsProjects.length; i++) {
-      await analyzeProject(server as http.Server, jsProjects[i]);
+      await analyzeJSProject(server as http.Server, jsProjects[i]);
+    }
+  }
+  if (tsProjects !== undefined) {
+    for (let i = 0; i < tsProjects.length; i++) {
+      await analyzeTsProject(server as http.Server, tsProjects[i]);
     }
   }
 
@@ -56,58 +61,54 @@ function extractScopeFromArgs() {
   const SCOPES = ['js', 'ts', 'all'];
   const JS_PROJECTS = {
     js: [
-      path.join(__dirname, '../../its/sources/amplify/src'),
-      path.join(__dirname, '../../its/sources/angular.js/src'),
-      path.join(__dirname, '../../its/sources/backbone'),
-      path.join(__dirname, '../../its/sources/es5-shim'),
-      path.join(__dirname, '../../its/sources/file-for-rules'),
-      path.join(__dirname, '../../its/sources/fireact/src'),
-      path.join(__dirname, '../../its/sources/javascript-test-sources/src'),
-      path.join(__dirname, '../../its/sources/jira-clone'),
-      path.join(__dirname, '../../its/sources/jquery/src'),
-      path.join(__dirname, '../../its/sources/jshint/src'),
-      path.join(__dirname, '../../its/sources/jStorage'),
-      path.join(__dirname, '../../its/sources/knockout/src'),
-      path.join(__dirname, '../../its/sources/mootools-core/Source'),
-      path.join(__dirname, '../../its/sources/ocanvas/src'),
-      path.join(__dirname, '../../its/sources/p5.js/src'),
-      path.join(__dirname, '../../its/sources/paper.js/src'),
-      path.join(__dirname, '../../its/sources/prototype/src'),
-      path.join(__dirname, '../../its/sources/qunit/src'),
-      path.join(__dirname, '../../its/sources/react-cloud-music/src'),
-      path.join(__dirname, '../../its/sources/sizzle/src'),
-      path.join(__dirname, '../../its/sources/underscore'),
+      'amplify/src',
+      'angular.js/src',
+      'backbone',
+      'es5-shim',
+      'file-for-rules',
+      'fireact/src',
+      'javascript-test-sources/src',
+      'jira-clone',
+      'jquery/src',
+      'jshint/src',
+      'jStorage',
+      'knockout/src',
+      'mootools-core/Source',
+      'ocanvas/src',
+      'p5.js/src',
+      'paper.js/src',
+      'prototype/src',
+      'qunit/src',
+      'react-cloud-music/src',
+      'sizzle/src',
+      'underscore',
     ],
   };
+  JS_PROJECTS.js = JS_PROJECTS.js.map(filePath => path.join(__dirname, '../../its/sources/', filePath));
   const TS_PROJECTS = {
     ts: [
-      path.join(__dirname, '../../its/typescript-test-sources/ag-grid/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/ant-design/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/console/tsconfig.json'),
+      'ag-grid/tsconfig.json',
+      'ant-design/tsconfig.json',
+      'console/tsconfig.json',
       // there are other folders in courselit
-      path.join(__dirname, '../../its/typescript-test-sources/courselit/apps/web/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/desktop/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/eigen/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/fireface/src/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/ionic2-auth/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/Joust/tsconfig.json'),
+      'courselit/apps/web/tsconfig.json',
+      'desktop/tsconfig.json',
+      'eigen/tsconfig.json',
+      'fireface/src/tsconfig.json',
+      'ionic2-auth/tsconfig.json',
+      'Joust/tsconfig.json',
       // other folders as well here
-      path.join(__dirname, '../../its/typescript-test-sources/moose/main/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/postgraphql/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/prettier-vscode/tsconfig.json'),
-      path.join(__dirname, '../../its/typescript-test-sources/rxjs/tsconfig.json'),
+      'moose/main/tsconfig.json',
+      'postgraphql/tsconfig.json',
+      'prettier-vscode/tsconfig.json',
+      'rxjs/tsconfig.json',
       // other folders as well
-      path.join(
-        __dirname,
-        '../../its/typescript-test-sources/searchkit/packages/searchkit-cli/tsconfig.json',
-      ),
+      'searchkit/packages/searchkit-cli/tsconfig.json',
       // other folders as well
-      path.join(
-        __dirname,
-        '../../its/typescript-test-sources/TypeScript/src/compiler/tsconfig.json',
-      ),
+      'TypeScript/src/compiler/tsconfig.json',
     ],
   };
+  TS_PROJECTS.ts = TS_PROJECTS.ts.map(filePath => path.join(__dirname, '../../its/typescript-test-sources/src/', filePath));
 
   if (process.argv.length < 4) {
     return JS_PROJECTS;
@@ -133,9 +134,41 @@ function requestInitLinter(server: http.Server, fileType: string, ruleId: string
   return request(server, '/init-linter', 'POST', config);
 }
 
-async function analyzeProject(server: http.Server, projectPath: string) {
+async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
   console.log('####################################');
-  console.log(`# analyzing ${projectPath} #`);
+  console.log(`Analyzing TS project ${tsConfigPath}`);
+  console.log('####################################');
+
+  const { programId, files } = await createProgram(server, tsConfigPath);
+  console.log(`Created program with programId ${programId} containing ${files.length} files`)
+  const promises: Promise<unknown>[] = buildPromises(server, programId, files);
+  await executePromises(promises, 5, files, tsConfigPath);
+
+  async function createProgram(server: http.Server, tsConfigPath: string): Promise<any> {
+    try {
+      const response = await request(server, '/create-program', 'POST', { tsConfig: tsConfigPath });
+      return JSON.parse(response as string);
+    } catch (e) {
+      console.error(`Error while creating program for ${tsConfigPath}. Error: ${e.message}`)
+    }
+  }
+
+  function buildPromises(server: http.Server, tsConfigId: string, files: string[]) {
+    const promises: Promise<unknown>[] = [];
+    for (const file of files) {
+      promises.push(analyzeFile(server, tsConfigId, file));
+    }
+    return promises;
+
+    async function analyzeFile(server: http.Server, programId: string, filePath: string): Promise<unknown> {
+      return request(server, '/analyze-ts', 'POST', { programId, filePath });
+    }
+  }
+}
+
+async function analyzeJSProject(server: http.Server, projectPath: string) {
+  console.log('####################################');
+  console.log(`Analyzing JS project ${projectPath}`);
   console.log('####################################');
 
   let files: string[] = [];
@@ -144,18 +177,7 @@ async function analyzeProject(server: http.Server, projectPath: string) {
   files = files.filter(isJSFile);
   console.log(`of which ${files.length} are JS files`);
   const promises = buildPromises(server, files);
-  await executePromises(promises, 5);
-
-  function collectFilesInFolder(folder: string, files: string[]) {
-    fs.readdirSync(folder).forEach(file => {
-      const filePath = path.join(folder, file);
-      if (fs.statSync(filePath).isDirectory()) {
-        return collectFilesInFolder(filePath, files);
-      } else {
-        return files.push(filePath);
-      }
-    });
-  }
+  await executePromises(promises, 5, files, projectPath);
 
   function isJSFile(filePath: string) {
     return filePath.endsWith('.js');
@@ -169,7 +191,7 @@ async function analyzeProject(server: http.Server, projectPath: string) {
     return promises;
 
     async function analyzeFile(server: http.Server, filePath: string) {
-      const response = await request(server as http.Server, '/analyze-js', 'POST', {
+      const response = await request(server, '/analyze-js', 'POST', {
         filePath,
         fileType: 'MAIN',
         linterId: 'default',
@@ -177,18 +199,29 @@ async function analyzeProject(server: http.Server, projectPath: string) {
       return response;
     }
   }
+}
 
-  async function executePromises(promises: Promise<unknown>[], parallelism: number) {
-    for (let i = 0; i < promises.length; i += parallelism) {
-      const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
-      try {
-        console.log(
-          `Analysing files from ${i} to ${endIndex} (out of ${promises.length}) for ${projectPath}`,
-        );
-        await Promise.all(promises.slice(i, endIndex + 1));
-      } catch (e) {
-        console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
-      }
+function collectFilesInFolder(folder: string, files: string[]) {
+  fs.readdirSync(folder).forEach(file => {
+    const filePath = path.join(folder, file);
+    if (fs.statSync(filePath).isDirectory()) {
+      return collectFilesInFolder(filePath, files);
+    } else {
+      return files.push(filePath);
+    }
+  });
+}
+
+async function executePromises(promises: Promise<unknown>[], parallelism: number, files: string[], projectPath: string) {
+  for (let i = 0; i < promises.length; i += parallelism) {
+    const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
+    try {
+      console.log(
+        `Analysing files from ${i+1} to ${endIndex+1} (out of ${promises.length}) for ${projectPath}`,
+      );
+      await Promise.all(promises.slice(i, endIndex + 1));
+    } catch (e) {
+      console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
     }
   }
 }
