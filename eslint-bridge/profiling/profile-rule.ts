@@ -84,7 +84,9 @@ function extractScopeFromArgs() {
       'underscore',
     ],
   };
-  JS_PROJECTS.js = JS_PROJECTS.js.map(filePath => path.join(__dirname, '../../its/sources/', filePath));
+  JS_PROJECTS.js = JS_PROJECTS.js.map(filePath =>
+    path.join(__dirname, '../../its/sources/', filePath),
+  );
   const TS_PROJECTS = {
     ts: [
       'ag-grid/tsconfig.json',
@@ -108,7 +110,9 @@ function extractScopeFromArgs() {
       'TypeScript/src/compiler/tsconfig.json',
     ],
   };
-  TS_PROJECTS.ts = TS_PROJECTS.ts.map(filePath => path.join(__dirname, '../../its/typescript-test-sources/src/', filePath));
+  TS_PROJECTS.ts = TS_PROJECTS.ts.map(filePath =>
+    path.join(__dirname, '../../its/typescript-test-sources/src/', filePath),
+  );
 
   if (process.argv.length < 4) {
     return JS_PROJECTS;
@@ -140,7 +144,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
   console.log('####################################');
 
   const { programId, files } = await createProgram(server, tsConfigPath);
-  console.log(`Created program with programId ${programId} containing ${files.length} files`)
+  console.log(`Created program with programId ${programId} containing ${files.length} files`);
   const promises: Promise<unknown>[] = buildPromises(server, programId, files);
   await executePromises(promises, 5, files, tsConfigPath);
 
@@ -149,7 +153,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
       const response = await request(server, '/create-program', 'POST', { tsConfig: tsConfigPath });
       return JSON.parse(response as string);
     } catch (e) {
-      console.error(`Error while creating program for ${tsConfigPath}. Error: ${e.message}`)
+      console.error(`Error while creating program for ${tsConfigPath}. Error: ${e.message}`);
     }
   }
 
@@ -160,7 +164,11 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
     }
     return promises;
 
-    async function analyzeFile(server: http.Server, programId: string, filePath: string): Promise<unknown> {
+    async function analyzeFile(
+      server: http.Server,
+      programId: string,
+      filePath: string,
+    ): Promise<unknown> {
       return request(server, '/analyze-ts', 'POST', { programId, filePath });
     }
   }
@@ -212,12 +220,19 @@ function collectFilesInFolder(folder: string, files: string[]) {
   });
 }
 
-async function executePromises(promises: Promise<unknown>[], parallelism: number, files: string[], projectPath: string) {
+async function executePromises(
+  promises: Promise<unknown>[],
+  parallelism: number,
+  files: string[],
+  projectPath: string,
+) {
   for (let i = 0; i < promises.length; i += parallelism) {
     const endIndex = Math.min(i + parallelism - 1, promises.length - 1);
     try {
       console.log(
-        `Analysing files from ${i+1} to ${endIndex+1} (out of ${promises.length}) for ${projectPath}`,
+        `Analysing files from ${i + 1} to ${endIndex + 1} (out of ${
+          promises.length
+        }) for ${projectPath}`,
       );
       await Promise.all(promises.slice(i, endIndex + 1));
     } catch (e) {
