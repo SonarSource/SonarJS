@@ -34,18 +34,19 @@ const start = Date.now();
 
 const ruleId = extractRuleFromArgs();
 const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
+const parallelism = extractParallelismFromArgs();
 
 (async () => {
   await requestInitLinter(server as http.Server, 'MAIN', ruleId);
 
   if (jsProjects !== undefined) {
     for (let i = 0; i < jsProjects.length; i++) {
-      await analyzeJSProject(server as http.Server, jsProjects[i]);
+      await analyzeJSProject(server as http.Server, jsProjects[i], parallelism);
     }
   }
   if (tsProjects !== undefined) {
     for (let i = 0; i < tsProjects.length; i++) {
-      await analyzeTsProject(server as http.Server, tsProjects[i]);
+      await analyzeTsProject(server as http.Server, tsProjects[i], parallelism);
     }
   }
 
@@ -134,6 +135,18 @@ function extractScopeFromArgs() {
   }
 }
 
+function extractParallelismFromArgs() {
+  let parallelism = 5;
+  if (process.argv.length < 5) {
+    return parallelism;
+  }
+  parallelism = parseInt(process.argv[4]);
+  if (isNaN(parallelism) || parallelism < 1) {
+    throw new Error(`Invalid parallelism parameter at 3rd position "${process.argv[4]}". Please prove a positive number.`);
+  }
+  return parallelism;
+}
+
 function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
   const config = {
     rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
@@ -141,7 +154,7 @@ function requestInitLinter(server: http.Server, fileType: string, ruleId: string
   return request(server, '/init-linter', 'POST', config);
 }
 
-async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
+async function analyzeTsProject(server: http.Server, tsConfigPath: string, parallelism) {
   console.log('####################################');
   console.log(`Analyzing TS project ${tsConfigPath}`);
   console.log('####################################');
@@ -149,7 +162,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
   const { programId, files } = await createProgram(server, tsConfigPath);
   console.log(`Created program with programId ${programId} containing ${files.length} files`);
   const promises: Promise<unknown>[] = buildPromises(server, programId, files);
-  await executePromises(promises, 5, files, tsConfigPath);
+  await executePromises(promises, parallelism, files, tsConfigPath);
 
   async function createProgram(server: http.Server, tsConfigPath: string): Promise<any> {
     try {
@@ -177,7 +190,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string) {
   }
 }
 
-async function analyzeJSProject(server: http.Server, projectPath: string) {
+async function analyzeJSProject(server: http.Server, projectPath: string, parallelism: number) {
   console.log('####################################');
   console.log(`Analyzing JS project ${projectPath}`);
   console.log('####################################');
@@ -188,7 +201,7 @@ async function analyzeJSProject(server: http.Server, projectPath: string) {
   files = files.filter(isJSFile);
   console.log(`of which ${files.length} are JS files`);
   const promises = buildPromises(server, files);
-  await executePromises(promises, 5, files, projectPath);
+  await executePromises(promises, parallelism, files, projectPath);
 
   function isJSFile(filePath: string) {
     return filePath.endsWith('.js');
