@@ -423,7 +423,8 @@ class JavaScriptEslintBasedSensorTest {
       new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
-      analysisProcessor
+      analysisProcessor,
+      null
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -439,7 +440,8 @@ class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      analysisProcessor
+      analysisProcessor,
+      null
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
@@ -489,7 +491,8 @@ class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
+      eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor, null).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -617,7 +620,7 @@ class JavaScriptEslintBasedSensorTest {
 
   private JavaScriptEslintBasedSensor createSensor() {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, null
     );
   }
 

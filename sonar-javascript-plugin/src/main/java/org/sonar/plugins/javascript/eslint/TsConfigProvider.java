@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,9 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -52,6 +48,7 @@ import org.sonarsource.analyzer.commons.FileProvider;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 class TsConfigProvider {
 
@@ -125,7 +122,7 @@ class TsConfigProvider {
         FileProvider fileProvider = new FileProvider(baseDir, pattern);
         List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
         if (!matchingTsconfigs.isEmpty()) {
-          tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+          tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).collect(toList()));
         }
       }
 
@@ -175,6 +172,34 @@ class TsConfigProvider {
     }
   }
 
+  static class SonarLintTsConfigProvider implements Provider {
+
+    private final SonarLintJavaScriptIndexer javascriptIndexer;
+    private final Map<String, Object> compilerOptions;
+
+    SonarLintTsConfigProvider(SonarLintJavaScriptIndexer javascriptIndexer, Map<String, Object> compilerOptions) {
+      this.javascriptIndexer = javascriptIndexer;
+      this.compilerOptions = Map.copyOf(compilerOptions);
+    }
+
+    @Override
+    public List<String> tsconfigs(SensorContext context) throws IOException {
+      var inputFiles = javascriptIndexer.getIndexedFiles();
+      var tsConfig = new TsConfig(inputFiles, compilerOptions);
+      var tsconfigFile = writeToJsonFile(tsConfig);
+      LOG.debug("Using generated tsconfig.json file {}", tsconfigFile);
+      return singletonList(tsconfigFile);
+    }
+
+    private static String writeToJsonFile(TsConfig tsConfig) throws IOException {
+      var json = new Gson().toJson(tsConfig);
+      var tempFile = Files.createTempFile(null, null);
+      Files.write(tempFile, json.getBytes(StandardCharsets.UTF_8));
+      return tempFile.toAbsolutePath().toString();
+    }
+
+  }
+
   static class DefaultTsConfigProvider implements Provider {
 
     private final TempFolder folder;
@@ -212,15 +237,16 @@ class TsConfigProvider {
       return tsconfigFile;
     }
 
-    private static class TsConfig {
-      List<String> files;
-      Map<String, Object> compilerOptions;
+  }
 
-      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
-        files = new ArrayList<>();
-        inputFiles.forEach(f -> files.add(f.absolutePath()));
-        this.compilerOptions = compilerOptions;
-      }
+  private static class TsConfig {
+    List<String> files;
+    Map<String, Object> compilerOptions;
+
+    TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
+      files = new ArrayList<>();
+      inputFiles.forEach(f -> files.add(f.absolutePath()));
+      this.compilerOptions = compilerOptions;
     }
   }
 }

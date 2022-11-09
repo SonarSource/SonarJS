@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -39,6 +40,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
+import org.sonar.plugins.javascript.eslint.TsConfigProvider.Provider;
+import org.sonar.plugins.javascript.eslint.TsConfigProvider.SonarLintTsConfigProvider;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -50,14 +53,17 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
   private AnalysisMode analysisMode;
+  private SonarLintJavaScriptIndexer sonarLintJavaScriptIndexer;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     AnalysisProcessor processAnalysis) {
+                                     AnalysisProcessor processAnalysis,
+                                     @Nullable SonarLintJavaScriptIndexer sonarLintJavaScriptIndexer) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
+    this.sonarLintJavaScriptIndexer = sonarLintJavaScriptIndexer;
   }
 
   @Override
@@ -71,8 +77,18 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     compilerOptions.put("allowJs", true);
     // to make TypeScript compiler "better infer types"
     compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
-    return provider.tsconfigs(context);
+    return getProvider(compilerOptions).tsconfigs(context);
+  }
+
+  private Provider getProvider(Map<String, Object> compilerOptions) {
+    if (sonarLintJavaScriptIndexer != null) {
+      sonarLintJavaScriptIndexer.buildOnce(context);
+      LOG.debug("Creating SonarLint TS config provider");
+      return new SonarLintTsConfigProvider(sonarLintJavaScriptIndexer, compilerOptions);
+    } else {
+      LOG.debug("Creating default TS config provider");
+      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
+    }
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
