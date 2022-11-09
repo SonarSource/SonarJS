@@ -1,5 +1,10 @@
-
 # ESlint-bridge profiling
+
+This tool allows identifying the bottlenecks of a rule performance.
+
+## Fetch dependencies
+
+Run: `npm i`
 
 ## Chrome dev tools
 
