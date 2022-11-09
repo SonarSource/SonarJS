@@ -43,10 +43,5 @@ const tsconfigs: TsConfigs = {
 };
 
 export function getTsConfig(type: string) {
-  try {
-    const tsconfig = require(type);
-    return JSON.stringify(tsconfig);
-  } catch {
-    return tsconfigs[type] || tsconfigs.missing;
-  }
+  return tsconfigs[type] || tsconfigs.missing;
 }
