@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class SonarLintJavaScriptIndexer implements ModuleFileListener, JavaScrip
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptIndexer.class);
 
   private final ModuleFileSystem moduleFileSystem;
-  private final Map<String, InputFile> indexedFiles = new HashMap<>();
+  private final Map<String, InputFile> indexedFiles = new LinkedHashMap<>();
 
   private boolean shouldBuild = true;
 
