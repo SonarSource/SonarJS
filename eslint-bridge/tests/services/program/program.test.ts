@@ -58,7 +58,7 @@ describe('program', () => {
   });
 
   it('should still create a program when extended tsconfig does not exist', () => {
-    const fixtures = path.join(__dirname, 'fixtures2');
+    const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing.json`);
 
     const config = createProgram(tsConfig);
@@ -70,8 +70,8 @@ describe('program', () => {
   });
 
   it('missing external tsconfig should be different than found external tsconfig', () => {
-    const tsConfigMissing = path.join(__dirname, 'fixtures2', `tsconfig_missing.json`);
-    const tsConfig = path.join(__dirname, 'fixtures2', `tsconfig.json`);
+    const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
+    const tsConfig = path.join(__dirname, 'fixtures', `tsconfig_found.json`);
 
     const { options: configMissing } = createProgramOptions(tsConfigMissing);
     const { options: configFound } = createProgramOptions(tsConfig);
