@@ -40,8 +40,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
+import org.sonar.plugins.javascript.eslint.TsConfigProvider.JavaScriptIndexerTsConfigProvider;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.Provider;
-import org.sonar.plugins.javascript.eslint.TsConfigProvider.SonarLintTsConfigProvider;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -53,17 +53,17 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
   private AnalysisMode analysisMode;
-  private SonarLintJavaScriptIndexer sonarLintJavaScriptIndexer;
+  private JavaScriptIndexer javascriptIndexer;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
                                      AnalysisProcessor processAnalysis,
-                                     @Nullable SonarLintJavaScriptIndexer sonarLintJavaScriptIndexer) {
+                                     @Nullable JavaScriptIndexer javaScriptIndexer) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.sonarLintJavaScriptIndexer = sonarLintJavaScriptIndexer;
+    this.javascriptIndexer = javaScriptIndexer;
   }
 
   @Override
@@ -81,10 +81,10 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private Provider getProvider(Map<String, Object> compilerOptions) {
-    if (sonarLintJavaScriptIndexer != null) {
-      sonarLintJavaScriptIndexer.buildOnce(context);
+    if (javascriptIndexer != null) {
+      javascriptIndexer.buildOnce(context);
       LOG.debug("Creating SonarLint TS config provider");
-      return new SonarLintTsConfigProvider(sonarLintJavaScriptIndexer, compilerOptions);
+      return new JavaScriptIndexerTsConfigProvider(javascriptIndexer, compilerOptions);
     } else {
       LOG.debug("Creating default TS config provider");
       return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);

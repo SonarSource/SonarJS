@@ -172,12 +172,16 @@ class TsConfigProvider {
     }
   }
 
-  static class SonarLintTsConfigProvider implements Provider {
+  static class JavaScriptIndexerTsConfigProvider implements Provider {
 
-    private final SonarLintJavaScriptIndexer javascriptIndexer;
+    private final JavaScriptIndexer javascriptIndexer;
     private final Map<String, Object> compilerOptions;
 
-    SonarLintTsConfigProvider(SonarLintJavaScriptIndexer javascriptIndexer, Map<String, Object> compilerOptions) {
+    JavaScriptIndexerTsConfigProvider(JavaScriptIndexer javascriptIndexer) {
+      this(javascriptIndexer, new HashMap<>());
+    }
+
+    JavaScriptIndexerTsConfigProvider(JavaScriptIndexer javascriptIndexer, Map<String, Object> compilerOptions) {
       this.javascriptIndexer = javascriptIndexer;
       this.compilerOptions = Map.copyOf(compilerOptions);
     }

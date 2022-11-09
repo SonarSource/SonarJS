@@ -38,7 +38,7 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 import static java.util.stream.Collectors.toList;
 
 @SonarLintSide(lifespan = "MODULE")
-public class SonarLintJavaScriptIndexer implements ModuleFileListener {
+public class SonarLintJavaScriptIndexer implements ModuleFileListener, JavaScriptIndexer {
 
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptIndexer.class);
 
@@ -51,10 +51,12 @@ public class SonarLintJavaScriptIndexer implements ModuleFileListener {
     this.moduleFileSystem = moduleFileSystem;
   }
 
+  @Override
   public List<InputFile> getIndexedFiles() {
     return List.copyOf(indexedFiles.values());
   }
 
+  @Override
   public void buildOnce(SensorContext context) {
     if (shouldBuild) {
       buildIndex(context);

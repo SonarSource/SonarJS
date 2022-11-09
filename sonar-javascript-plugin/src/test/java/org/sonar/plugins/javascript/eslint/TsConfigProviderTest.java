@@ -25,12 +25,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
@@ -41,8 +41,11 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TsConfigProviderTest {
 
@@ -175,7 +178,7 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_not_create_tsconfig_in_sonarlint() throws Exception {
+  void should_not_create_tsconfig_in_sonarlint_for_typescript() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
@@ -185,11 +188,36 @@ class TsConfigProviderTest {
     assertThat(tsconfigs).isEmpty();
   }
 
-  private static void createInputFile(SensorContextTester context, String relativePath) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setLanguage("ts")
+  @Test
+  void should_create_tsconfig_in_sonarlint_for_javascript() throws Exception {
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+
+    var moduleFileSystem = mock(ModuleFileSystem.class);
+    when(moduleFileSystem.files()).thenReturn(Stream.of(
+      createInputFile(ctx, "file1.js", "js"),
+      createInputFile(ctx, "file2.js", "js")
+    ));
+    var javascriptIndexer = new SonarLintJavaScriptIndexer(moduleFileSystem);
+    javascriptIndexer.buildOnce(ctx);
+
+    var tsconfigs = new TsConfigProvider.JavaScriptIndexerTsConfigProvider(javascriptIndexer).tsconfigs(ctx);
+    assertThat(tsconfigs)
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .containsExactly("{\"files\":[\"moduleKey/file1.js\",\"moduleKey/file2.js\"],\"compilerOptions\":{}}");
+  }
+
+  private static InputFile createInputFile(SensorContextTester context, String relativePath) {
+    return createInputFile(context, relativePath, "ts");
+  }
+
+  private static InputFile createInputFile(SensorContextTester context, String relativePath, String language) {
+    var inputFile = new TestInputFileBuilder("moduleKey", relativePath)
+      .setLanguage(language)
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
+    return inputFile;
   }
 }
