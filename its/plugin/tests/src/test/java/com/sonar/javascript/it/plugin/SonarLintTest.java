@@ -148,9 +148,7 @@ class SonarLintTest {
 
     String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S3504");
-    // FIXME: Uncomment this line once MMF-2630 is implemented
-    // assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
   }
 
   @Test
