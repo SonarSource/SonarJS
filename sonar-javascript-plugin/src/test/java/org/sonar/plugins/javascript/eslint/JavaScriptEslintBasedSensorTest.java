@@ -299,7 +299,7 @@ class JavaScriptEslintBasedSensorTest {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
 
-    JavaScriptEslintBasedSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor(mock(JavaScriptIndexer.class));
 
     DefaultInputFile inputFile = createInputFile(context);
 
@@ -508,7 +508,7 @@ class JavaScriptEslintBasedSensorTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(ctx);
+    createSensor(mock(JavaScriptIndexer.class)).execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
       "doFoo(); \n" +
@@ -619,8 +619,12 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   private JavaScriptEslintBasedSensor createSensor() {
+    return createSensor(null);
+  }
+
+  private JavaScriptEslintBasedSensor createSensor(JavaScriptIndexer javaScriptIndexer) {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, null
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, javaScriptIndexer
     );
   }
 
