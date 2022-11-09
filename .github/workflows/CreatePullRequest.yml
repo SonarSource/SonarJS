@@ -5,8 +5,8 @@ on:
     types: ["opened"]
 
 jobs:
-  assign_and_create_card:
-    name: Assign issue to sender and create Kanban card
+  CreateCardForStandalonePR_job:
+    name: Assign PR to the author and create a Kanban card
     runs-on: ubuntu-latest
     # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
     # PRs from forks don't have required token authorization
@@ -14,31 +14,8 @@ jobs:
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.sender.type != 'Bot'
-
     steps:
-      # https://github.com/actions/github-script
-      - uses: actions/github-script@v4.0.2
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForStandalonePR@v1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const IN_PROGRESS_COLUMN = 16320787;
-            //
-            async function addAssignee(issue, login) {
-                console.log("Assigning to: " + login);
-                await github.issues.addAssignees({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    assignees: [login]
-                });
-            }
-            //
-            const pr = context.payload.pull_request;
-            const matches = pr.body == null ? null : pr.body.match(/(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*#\d+/gi);
-            if (matches) {
-                console.log("Skip, contains '" + matches[0] + "'");
-            } else {
-                addAssignee(pr, context.payload.sender.login);
-                github.projects.createCard({ column_id: IN_PROGRESS_COLUMN, content_id: pr.id, content_type: "PullRequest" });
-                console.log("Done");
-            }
+          column-id: 16320787
