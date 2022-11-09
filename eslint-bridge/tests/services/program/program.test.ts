@@ -19,16 +19,21 @@
  */
 
 import path from 'path';
-import { createProgram, deleteProgram, getProgramById } from 'services/program';
+import {
+  createProgram,
+  createProgramOptions,
+  deleteProgram,
+  getProgramById,
+} from 'services/program';
 import { toUnixPath } from '../../tools';
 
 describe('program', () => {
-  it('should create a program', async () => {
+  it('should create a program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const reference = path.join(fixtures, `reference`);
     const tsConfig = path.join(fixtures, `tsconfig.json`);
 
-    const { programId, files, projectReferences } = await createProgram(tsConfig);
+    const { programId, files, projectReferences } = createProgram(tsConfig);
 
     expect(programId).toBeDefined();
     expect(files).toEqual(
@@ -40,22 +45,49 @@ describe('program', () => {
     expect(projectReferences).toEqual([toUnixPath(reference)]);
   });
 
-  it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
+  it('should fail creating a program with a syntactically incorrect tsconfig', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.syntax.json');
-    const error = await createProgram(tsConfig).catch(err => err);
-    expect(error).toBeInstanceOf(Error);
+    expect(() => createProgram(tsConfig)).toThrow();
   });
 
-  it('should fail creating a program with a semantically incorrect tsconfig', async () => {
+  it('should fail creating a program with a semantically incorrect tsconfig', () => {
     const tsConfig = path.join(__dirname, `fixtures/tsconfig.semantic.json`);
-    const error = await createProgram(tsConfig).catch(err => err);
-    expect(error.message).toMatch(/^Unknown compiler option 'targetSomething'./);
+    expect(() => createProgram(tsConfig)).toThrowError(
+      /^Unknown compiler option 'targetSomething'./,
+    );
   });
 
-  it('should find an existing program', async () => {
+  it('should still create a program when extended tsconfig does not exist', () => {
+    const fixtures = path.join(__dirname, 'fixtures2');
+    const tsConfig = path.join(fixtures, `tsconfig_missing.json`);
+
+    const config = createProgram(tsConfig);
+    const { programId, files, projectReferences } = config;
+
+    expect(programId).toBeDefined();
+    expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
+    expect(projectReferences).toEqual([]);
+  });
+
+  it('missing external tsconfig should be different than found external tsconfig', () => {
+    const tsConfigMissing = path.join(__dirname, 'fixtures2', `tsconfig_missing.json`);
+    const tsConfig = path.join(__dirname, 'fixtures2', `tsconfig.json`);
+
+    const { options: configMissing } = createProgramOptions(tsConfigMissing);
+    const { options: configFound } = createProgramOptions(tsConfig);
+
+    expect(configFound).toBeDefined();
+    expect(configFound.target).toBeDefined();
+    expect(configFound.module).toBeDefined();
+    expect(configMissing).toBeDefined();
+    expect(configMissing.target).toBeUndefined();
+    expect(configMissing.module).toBeUndefined();
+  });
+
+  it('should find an existing program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files, projectReferences } = await createProgram(tsConfig);
+    const { programId, files, projectReferences } = createProgram(tsConfig);
 
     const program = getProgramById(programId);
 
@@ -73,10 +105,10 @@ describe('program', () => {
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
   });
 
-  it('should delete a program', async () => {
+  it('should delete a program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = createProgram(tsConfig);
 
     deleteProgram(programId);
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);

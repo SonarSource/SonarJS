@@ -32,7 +32,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { debug } from 'helpers';
-import fs from 'fs/promises';
+import { getTsConfig } from './tsconfigs';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -69,37 +69,23 @@ export function getProgramById(programId: string): ts.Program {
   return program;
 }
 
-/**
- * Creates a TypeScript's Program instance
- *
- * TypeScript creates a Program instance per TSConfig file. This means that one
- * needs a TSConfig to create such a program. Therefore, the function expects a
- * TSConfig as an input, parses it and uses it to create a TypeScript's Program
- * instance. The program creation delegates to TypeScript the resolving of input
- * files considered by the TSConfig as well as any project references.
- *
- * @param inputTSConfig the TSConfig input to create a program for
- * @returns the identifier of the created TypeScript's Program along with the
- *          resolved files and project references
- */
-export async function createProgram(inputTSConfig: string): Promise<{
-  programId: string;
-  files: string[];
-  projectReferences: string[];
-}> {
-  let tsConfig = inputTSConfig;
-
-  if ((await fs.lstat(tsConfig)).isDirectory()) {
-    tsConfig = path.join(tsConfig, 'tsconfig.json');
-  }
-
-  debug(`creating program from ${tsConfig}`);
-
+export function createProgramOptions(tsConfig: string): ts.CreateProgramOptions {
   const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
-    fileExists: ts.sys.fileExists,
-    readFile: ts.sys.readFile,
+    fileExists: file => {
+      if (file.endsWith('package.json')) {
+        return ts.sys.fileExists(file);
+      }
+      return true;
+    },
+    readFile: file => {
+      const fileContents = ts.sys.readFile(file);
+      if (file.endsWith('package.json') || fileContents) {
+        return fileContents;
+      }
+      return getTsConfig(file);
+    },
   };
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
@@ -124,11 +110,32 @@ export async function createProgram(inputTSConfig: string): Promise<{
     throw Error(message);
   }
 
-  const programOptions: ts.CreateProgramOptions = {
+  return {
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
   };
+}
+
+/**
+ * Creates a TypeScript's Program instance
+ *
+ * TypeScript creates a Program instance per TSConfig file. This means that one
+ * needs a TSConfig to create such a program. Therefore, the function expects a
+ * TSConfig as an input, parses it and uses it to create a TypeScript's Program
+ * instance. The program creation delegates to TypeScript the resolving of input
+ * files considered by the TSConfig as well as any project references.
+ *
+ * @param tsConfig the TSConfig input to create a program for
+ * @returns the identifier of the created TypeScript's Program along with the
+ *          resolved files and project references
+ */
+export function createProgram(tsConfig: string): {
+  programId: string;
+  files: string[];
+  projectReferences: string[];
+} {
+  const programOptions = createProgramOptions(tsConfig);
 
   const program = ts.createProgram(programOptions);
   const maybeProjectReferences = program.getProjectReferences();
