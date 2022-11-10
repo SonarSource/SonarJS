@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -60,6 +60,11 @@ class TsConfigProviderTest {
   @BeforeEach
   void setUp() {
     tempFolder = new DefaultTempFolder(tempDir, true);
+  }
+
+  @AfterEach
+  void tearDown() {
+    TsConfigProvider.DefaultTsConfigProvider.resetDefaults();
   }
 
   @Test
@@ -175,14 +180,17 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_not_create_tsconfig_in_sonarlint() throws Exception {
+  void should_create_tsconfig_in_sonarlint() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
-    assertThat(tsconfigs).isEmpty();
+    var tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs)
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath()));
   }
 
   private static void createInputFile(SensorContextTester context, String relativePath) {

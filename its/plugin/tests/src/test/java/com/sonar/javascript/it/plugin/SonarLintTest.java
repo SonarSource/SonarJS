@@ -142,6 +142,16 @@ class SonarLintTest {
   }
 
   @Test
+  void should_analyze_js_with_typed_rules() throws IOException {
+    String fileName = "file.js";
+    Path filePath = TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+  }
+
+  @Test
   void should_not_analyze_ts_project_without_config() throws Exception {
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).isEmpty();

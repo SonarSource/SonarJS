@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,8 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -177,6 +175,31 @@ class TsConfigProvider {
 
   static class DefaultTsConfigProvider implements Provider {
 
+    private static List<String> createTemporaryTsConfigFile(SensorContext context, Map<String, Object> compilerOptions) {
+      try {
+        var projectBaseDirAbsolutePath = context.fileSystem().baseDir().getAbsolutePath();
+        var tsconfigFile = writeToTemporaryJsonFile(new TsConfig(List.of(projectBaseDirAbsolutePath + "/**/*"), compilerOptions));
+        LOG.debug("Using wildcard tsconfig.json file {}", tsconfigFile);
+        return singletonList(tsconfigFile);
+      } catch (IOException e) {
+        LOG.warn("Generating wildcard tsconfig failed", e);
+        return emptyList();
+      }
+    }
+
+    private static String writeToTemporaryJsonFile(TsConfig tsConfig) throws IOException {
+      var json = new Gson().toJson(tsConfig);
+      var tempFile = Files.createTempFile(null, null);
+      Files.write(tempFile, json.getBytes(StandardCharsets.UTF_8));
+      return tempFile.toAbsolutePath().toString();
+    }
+
+    public static void resetDefaults() {
+      tsconfigs = null;
+    }
+
+    private static List<String> tsconfigs;
+
     private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
     private final Map<String, Object> compilerOptions;
@@ -194,9 +217,10 @@ class TsConfigProvider {
     @Override
     public List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-        // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
-        LOG.warn("Generating temporary tsconfig is not supported in SonarLint context.");
-        return emptyList();
+        if (tsconfigs == null) {
+          tsconfigs = createTemporaryTsConfigFile(context, compilerOptions);
+        }
+        return tsconfigs;
       }
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
       TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
@@ -212,15 +236,28 @@ class TsConfigProvider {
       return tsconfigFile;
     }
 
-    private static class TsConfig {
-      List<String> files;
-      Map<String, Object> compilerOptions;
+  }
 
-      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
+  private static class TsConfig {
+    List<String> files;
+    Map<String, Object> compilerOptions;
+    List<String> include;
+
+    TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
+      this(inputFiles, compilerOptions, null);
+    }
+
+    TsConfig(List<String> include, Map<String, Object> compilerOptions) {
+      this(null, compilerOptions, include);
+    }
+
+    TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
+      if (inputFiles != null) {
         files = new ArrayList<>();
         inputFiles.forEach(f -> files.add(f.absolutePath()));
-        this.compilerOptions = compilerOptions;
       }
+      this.compilerOptions = compilerOptions;
+      this.include = include;
     }
   }
 }
