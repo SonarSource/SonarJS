@@ -168,6 +168,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string, paral
   console.log(`Created program with programId ${programId} containing ${files.length} files`);
   const promises: Promise<unknown>[] = buildPromises(server, programId, files);
   await executePromises(promises, parallelism, files, tsConfigPath);
+  await deleteProgram(server, programId);
 
   async function createProgram(server: http.Server, tsConfigPath: string): Promise<any> {
     try {
@@ -175,6 +176,14 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string, paral
       return JSON.parse(response as string);
     } catch (e) {
       console.error(`Error while creating program for ${tsConfigPath}. Error: ${e.message}`);
+    }
+  }
+
+  async function deleteProgram(server: http.Server, programId: string) {
+    try {
+      await request(server, '/delete-program', 'POST', { programId });
+    } catch (e) {
+      console.error(`Error while deleting program with programId: ${programId}. Error: ${e.message}`);
     }
   }
 
