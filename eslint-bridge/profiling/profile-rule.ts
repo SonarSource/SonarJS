@@ -32,27 +32,32 @@ const server = {
 
 const start = Date.now();
 
-const ruleId = extractRuleFromArgs();
-const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
-const parallelism = extractParallelismFromArgs();
+try {
+  const ruleId = extractRuleFromArgs();
+  const { js: jsProjects, ts: tsProjects } = extractScopeFromArgs() as any;
+  const parallelism = extractParallelismFromArgs();
 
-(async () => {
-  await requestInitLinter(server as http.Server, 'MAIN', ruleId);
+  (async () => {
+    await requestInitLinter(server as http.Server, 'MAIN', ruleId);
 
-  if (jsProjects !== undefined) {
-    for (let i = 0; i < jsProjects.length; i++) {
-      await analyzeJSProject(server as http.Server, jsProjects[i], parallelism);
+    if (jsProjects !== undefined) {
+      for (let i = 0; i < jsProjects.length; i++) {
+        await analyzeJSProject(server as http.Server, jsProjects[i], parallelism);
+      }
     }
-  }
-  if (tsProjects !== undefined) {
-    for (let i = 0; i < tsProjects.length; i++) {
-      await analyzeTsProject(server as http.Server, tsProjects[i], parallelism);
+    if (tsProjects !== undefined) {
+      for (let i = 0; i < tsProjects.length; i++) {
+        await analyzeTsProject(server as http.Server, tsProjects[i], parallelism);
+      }
     }
-  }
 
-  const timeSeconds = (Date.now() - start) / 1000;
-  console.log(`done in ${timeSeconds}s`);
-})();
+    const timeSeconds = (Date.now() - start) / 1000;
+    console.log(`done in ${timeSeconds}s`);
+  })();
+} catch (e) {
+  console.error(`Profiling exited because of Error: ${e.message}`);
+}
+
 
 function extractRuleFromArgs() {
   if (process.argv.length <= 2) {
@@ -123,7 +128,7 @@ function extractScopeFromArgs() {
   }
   const scope = process.argv[3];
   if (!SCOPES.includes(scope)) {
-    throw new Error(`unknown scope. Provide one of the available: ${SCOPES}`);
+    throw new Error(`Unknown scope. Please provide one of the available: ${SCOPES.map(scope => `"${scope}"`)}`);
   }
   switch (scope) {
     case 'js':
