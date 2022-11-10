@@ -5,33 +5,12 @@ on:
     types: ["moved"]
 
 jobs:
-  assign_to_self:
+  AssignCardToSender_job:
     runs-on: ubuntu-latest
     if: |
         github.event.changes.column_id.from == 16320786
-        && github.event.project_card.column_id == 16320787
         && github.event.project_card.content_url != null
     steps:
-      # https://github.com/actions/github-script
-      - uses: actions/github-script@v4.0.2
+      - uses: sonarsource/gh-action-lt-backlog/AssignCardToSender@v1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            //
-            async function addAssignee(issue, login) {
-                console.log("Assigning to: " + login);
-                await github.issues.addAssignees({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    assignees: [login]
-                });
-            }
-            //
-            const url = context.payload.project_card.content_url;
-            console.log("Processing " + url);
-            var issue = (await github.request(url)).data;
-            if(!issue.assignee){
-                addAssignee(issue, context.payload.sender.login);
-            }
-            console.log(`Done`);
