@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -66,11 +65,6 @@ class TsConfigProviderTest {
   @BeforeEach
   void setUp() {
     tempFolder = new DefaultTempFolder(tempDir, true);
-  }
-
-  @AfterEach
-  void tearDown() {
-    TsConfigProvider.DefaultTsConfigProvider.resetDefaultTsConfig();
   }
 
   @Test
@@ -196,7 +190,7 @@ class TsConfigProviderTest {
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath()));
+      .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
   }
 
   @Test
