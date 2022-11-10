@@ -166,7 +166,7 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string, paral
 
   const { programId, files } = await createProgram(server, tsConfigPath);
   console.log(`Created program with programId ${programId} containing ${files.length} files`);
-  const promises: Promise<unknown>[] = buildPromises(server, programId, files);
+  const promises: (() => Promise<any>)[] = buildPromises(server, programId, files);
   await executePromises(promises, parallelism, files, tsConfigPath);
   await deleteProgram(server, programId);
 
@@ -188,9 +188,9 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string, paral
   }
 
   function buildPromises(server: http.Server, tsConfigId: string, files: string[]) {
-    const promises: Promise<unknown>[] = [];
+    const promises: (() => Promise<any>)[] = [];
     for (const file of files) {
-      promises.push(analyzeFile(server, tsConfigId, file));
+      promises.push(() => analyzeFile(server, tsConfigId, file));
     }
     return promises;
 
@@ -222,9 +222,9 @@ async function analyzeJSProject(server: http.Server, projectPath: string, parall
   }
 
   function buildPromises(server: http.Server, files: string[]) {
-    const promises: Promise<unknown>[] = [];
+    const promises: (() => Promise<any>)[] = [];
     files.forEach(filePath => {
-      promises.push(analyzeFile(server, filePath));
+      promises.push(() => analyzeFile(server, filePath));
     });
     return promises;
 
@@ -251,7 +251,7 @@ function collectFilesInFolder(folder: string, files: string[]) {
 }
 
 async function executePromises(
-  promises: Promise<unknown>[],
+  promises: (() => Promise<any>)[],
   parallelism: number,
   files: string[],
   projectPath: string,
@@ -264,7 +264,7 @@ async function executePromises(
           promises.length
         }) for ${projectPath}`,
       );
-      await Promise.all(promises.slice(i, endIndex + 1));
+      await Promise.all(promises.slice(i, endIndex + 1).map(fn => fn()));
     } catch (e) {
       console.error(`Failed analyzing files: ${files.slice(i, endIndex + 1)}`);
     }
