@@ -573,7 +573,7 @@ class TypeScriptSensorTest {
   }
 
   private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis);
+    return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis, analysisWarnings);
   }
 
   private AnalysisResponse createResponse() {
