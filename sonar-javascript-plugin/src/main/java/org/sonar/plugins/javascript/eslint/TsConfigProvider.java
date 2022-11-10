@@ -189,8 +189,9 @@ class TsConfigProvider {
 
     private static List<String> createTemporaryTsConfigFile(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       try {
-        var projectBaseDirAbsolutePath = context.fileSystem().baseDir().getAbsolutePath();
-        var tsConfig = new TsConfig(List.of(projectBaseDirAbsolutePath + "/**/*"), compilerOptions);
+        var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
+        var normalizedBaseDir = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
+        var tsConfig = new TsConfig(List.of(normalizedBaseDir + "/**/*"), compilerOptions);
         var tsconfigFile = fileWriter.writeFile(new Gson().toJson(tsConfig));
         LOG.debug("Using wildcard tsconfig.json file {}", tsconfigFile);
         return singletonList(tsconfigFile);
