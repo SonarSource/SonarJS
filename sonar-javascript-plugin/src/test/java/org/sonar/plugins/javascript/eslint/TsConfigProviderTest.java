@@ -20,10 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +42,13 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TsConfigProviderTest {
 
@@ -64,7 +70,7 @@ class TsConfigProviderTest {
 
   @AfterEach
   void tearDown() {
-    TsConfigProvider.DefaultTsConfigProvider.resetDefaults();
+    TsConfigProvider.DefaultTsConfigProvider.resetDefaultTsConfig();
   }
 
   @Test
@@ -191,6 +197,21 @@ class TsConfigProviderTest {
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
       .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath()));
+  }
+
+  @Test
+  void should_not_fail_on_exception() throws Exception {
+    var ctx = SensorContextTester.create(baseDir);
+    createInputFile(ctx, "file1.js");
+    createInputFile(ctx, "file2.js");
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+
+    var fileWriter = mock(TsConfigProvider.DefaultTsConfigProvider.FileWriter.class);
+    when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
+
+    var provider = new TsConfigProvider.DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getTypeScriptPredicate, new HashMap<>(), fileWriter);
+    var tsconfigs = provider.tsconfigs(ctx);
+    assertThat(tsconfigs).isEmpty();
   }
 
   private static void createInputFile(SensorContextTester context, String relativePath) {

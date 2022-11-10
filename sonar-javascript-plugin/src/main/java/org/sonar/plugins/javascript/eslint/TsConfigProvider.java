@@ -175,10 +175,23 @@ class TsConfigProvider {
 
   static class DefaultTsConfigProvider implements Provider {
 
-    private static List<String> createTemporaryTsConfigFile(SensorContext context, Map<String, Object> compilerOptions) {
+    @FunctionalInterface
+    interface FileWriter {
+      String writeFile(String content) throws IOException;
+    }
+
+    private static List<String> createDefaultTsConfig(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
+      if (defaultTsConfig == null) {
+        defaultTsConfig = createTemporaryTsConfigFile(context, compilerOptions, fileWriter);
+      }
+      return defaultTsConfig;
+    }
+
+    private static List<String> createTemporaryTsConfigFile(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       try {
         var projectBaseDirAbsolutePath = context.fileSystem().baseDir().getAbsolutePath();
-        var tsconfigFile = writeToTemporaryJsonFile(new TsConfig(List.of(projectBaseDirAbsolutePath + "/**/*"), compilerOptions));
+        var tsConfig = new TsConfig(List.of(projectBaseDirAbsolutePath + "/**/*"), compilerOptions);
+        var tsconfigFile = fileWriter.writeFile(new Gson().toJson(tsConfig));
         LOG.debug("Using wildcard tsconfig.json file {}", tsconfigFile);
         return singletonList(tsconfigFile);
       } catch (IOException e) {
@@ -187,40 +200,42 @@ class TsConfigProvider {
       }
     }
 
-    private static String writeToTemporaryJsonFile(TsConfig tsConfig) throws IOException {
-      var json = new Gson().toJson(tsConfig);
+    static String writeFile(String content) throws IOException {
       var tempFile = Files.createTempFile(null, null);
-      Files.write(tempFile, json.getBytes(StandardCharsets.UTF_8));
+      Files.writeString(tempFile, content, StandardCharsets.UTF_8);
       return tempFile.toAbsolutePath().toString();
     }
 
-    public static void resetDefaults() {
-      tsconfigs = null;
+    public static void resetDefaultTsConfig() {
+      defaultTsConfig = null;
     }
 
-    private static List<String> tsconfigs;
+    private static List<String> defaultTsConfig;
 
     private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
     private final Map<String, Object> compilerOptions;
+    private final FileWriter fileWriter;
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
       this(folder, filePredicate, new HashMap<>());
     }
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate, Map<String, Object> compilerOptions) {
+      this(folder, filePredicate, compilerOptions, DefaultTsConfigProvider::writeFile);
+    }
+
+    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       this.folder = folder;
       this.filePredicateProvider = filePredicate;
       this.compilerOptions = compilerOptions;
+      this.fileWriter = fileWriter;
     }
 
     @Override
     public List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-        if (tsconfigs == null) {
-          tsconfigs = createTemporaryTsConfigFile(context, compilerOptions);
-        }
-        return tsconfigs;
+        return createDefaultTsConfig(context, compilerOptions, fileWriter);
       }
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
       TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
