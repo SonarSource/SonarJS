@@ -18,36 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AddressInfo } from 'net';
-import http from 'http';
 
-/**
- * Sends an HTTP request to a server's endpoint running on localhost.
- */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: '127.0.0.1',
-    path,
-    method,
-    port: (<AddressInfo>server.address()).port,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  };
+const server = require('../lib/server');
+const path = require('path');
+const context = require('../lib/helpers');
+const { tmpdir } = require('os');
 
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
+// must be the same as the one used in ./profile-rule.ts
+const port = 64829;
+const host = '127.0.0.1';
+const workDir = tmpdir();
 
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
-
-    request.write(JSON.stringify(data));
-    request.end();
-  });
-}
+context.setContext({ workDir, shouldUseTypeScriptParserForJS: false, sonarlint: false, bundles: [] });
+const BIG_TIMEOUT = 1719925474;
+server.start(port, host, BIG_TIMEOUT);

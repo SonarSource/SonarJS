@@ -8,8 +8,8 @@
     "check-format": "prettier --list-different \"{src,tests}/**/!(*.lint).ts\"",
     "test": "jest",
     "ctest": "jest tests/tools/testers/comment-based/launcher.test.ts --verbose=false",
-    "format": "prettier --write \"{src,tests,tools}/**/!(*.lint).ts\"",
-    "compile": "tsc -b src tests",
+    "format": "prettier --write \"{src,tests,tools,profiling}/**/!(*.lint).ts\"",
+    "compile": "tsc -b src tests profiling",
     "jar": "npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes && bash tools/check-distribution-filepath-length.sh",
     "new-rule": "ts-node tools/newRule.ts"
   },
