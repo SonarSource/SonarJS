@@ -159,7 +159,7 @@ class SonarLintTest {
 
     String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("typescript:S2870", "typescript:S3504");
   }
 
   @Test
