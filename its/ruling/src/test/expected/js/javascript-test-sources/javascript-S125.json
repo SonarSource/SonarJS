@@ -14,12 +14,6 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/validators/tag-settings-test.js':[
 10,
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/admin.js':[
-10,
-],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js':[
-1,
-],
 'javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/content_test.js':[
 70,
 75,

@@ -2,14 +2,8 @@
 'ant-design:components/alert/__tests__/index.test.tsx':[
 126,
 ],
-'ant-design:components/button/button-group.tsx':[
-23,
-],
 'ant-design:components/drawer/index.tsx':[
 148,
-],
-'ant-design:components/list/index.tsx':[
-160,
 ],
 'ant-design:components/popconfirm/index.tsx':[
 53,

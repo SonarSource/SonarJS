@@ -24,8 +24,11 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as babel from '@babel/eslint-parser';
 import { buildParserOptions } from 'parsing/jsts';
+import { CodeRecognizer, JavaScriptFootPrint } from '../linter/recognizers';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
+
+const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
 
 interface GroupComment {
   value: string;
@@ -138,6 +141,10 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
 }
 
 function containsCode(value: string) {
+  if (!couldBeJsCode(value)) {
+    return false;
+  }
+
   try {
     const options = buildParserOptions(
       { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
@@ -148,6 +155,10 @@ function containsCode(value: string) {
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {
     return false;
+  }
+
+  function couldBeJsCode(input: string): boolean {
+    return recognizer.extractCodeLines(input.split('\n')).length > 0;
   }
 }
 

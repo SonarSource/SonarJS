@@ -26,94 +26,112 @@ ruleTester.run('Sections of code should not be commented out', rule, {
     {
       code: `
         //
-      
-        //    
-        
+
+        //
+
         /* */
-        
+
         //
         //  // nested comment
         //
-      
+
         /**
          * // this should be ignored
          * if (something) { return true;}
          */
-      
+
         /*jslint bitwise: false, browser: true, continue: false, devel: true, eqeq: false, evil: false, forin: false, newcap: false, nomen: false, plusplus: true, regexp: true, stupid: false, sub: false, undef: false, vars: false */
-      
+
         /*jshint bitwise: false, curly: true, eqeqeq: true, forin: true, immed: true, latedef: true, newcap: true, noarg: true, noempty: false, nonew: true, plusplus: false, regexp: false, undef: true, strict: true, trailing: true, expr: true, regexdash: true, browser: true, jquery: true, onevar: true, nomen: true */
-      
+
         /*global myGlobal: true */
-      
+
         // ====
-      
+
         // ----
-      
+
         // ++++
-      
+
         // some text with semicolon at the end;
-      
+
         // http://www.example.com/ = http://www.example.com/
-      
+
         // labelName : id
-      
+
         // foo(), bar();
-      
+
         // continue
-      
+
         // return blabla
-      
+
         // break something
-      
+
         // throw exception
-      
+
         // throw exception;
-      
+
         // labelName : id;
-        
+
         const a = 1; // TODO: $ReadOnlyArray
         const b = 2; // TODO: Not in spec
-        
+
         //\t\t\t\tbreak;
-      
+
         // foo.bar
-      
+
         // a + b
-      
+
         // foo (see [123])
-      
+
         // IE
-      
+
         // shift
-      
+
         // reduce
-      
+
         //Object;
-      
+
         //+ 10;
-        
+
         // '\\r\\n'
         const c = 1; // '\\n'
-        
+
         // "abc";
-        
+
         // 42;
-      
+
         //"gradientunscaled";
-      
+
         // some text with some code is ok
         // if (condition) {
         // }
-      
-      
+
+
         /*
          some text with some code is ok
          if (condition) {
          }
         */
-      
+
         // }
+        `,
+    },
+    {
+      // FN since 2-step implementation
+      code: `
+            // return foo().bar()
+        `,
+    },
+    {
+      // FN since 2-step implementation
+      code: `
+            // throw foo().bar()
+        `,
+    },
+    {
+      // FN since 2-step implementation
+      code: `
+            // YUI().use('*'); // Comment following ';'
         `,
     },
   ],
@@ -165,45 +183,69 @@ ruleTester.run('Sections of code should not be commented out', rule, {
     },
     {
       code: `
-        // var object = {};
-      
-        // return foo().bar();
-      
-        // return foo().bar()
-      
-        // throw foo().bar()
-        
-        // foo();
-        // bar();
-        
-        /* foo();
-           bar(); */
-        const a = 1;
-        
-        /* throw foo().bar() */
-         
-        // if (condition) {
-        //   while (condition) {
-        //     doSomething();
-        
-        //   while (condition) {
-        //     doSomething();
-        //   }
-        // }
-      
-        // }}
-        
-        // {{
-      
-        //   }
-        // }
-        
-        // YUI().use('*'); // Comment following ';'
+            // return foo().bar();
         `,
-      errors: 13,
+      errors: 1,
     },
     {
-      code: `let x = /* let x = 42 */ 0;`,
+      code: `
+            // foo();
+            // bar();
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            /* foo();
+            bar(); */
+            const a = 1;
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            /* throw foo().bar(); */
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            // if (condition) {
+            //   while (condition) {
+            //     doSomething();
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            //   while (condition) {
+            //     doSomething();
+            //   }
+            // }
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            // }}
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            // {{
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+            //   }
+            // }
+        `,
+      errors: 1,
+    },
+    {
+      code: `let x = /* let x = 42; */ 0;`,
       errors: [
         { suggestions: [{ desc: 'Remove this commented out code', output: `let x =  0;` }] },
       ],
