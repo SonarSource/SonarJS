@@ -69,7 +69,10 @@ export function getProgramById(programId: string): ts.Program {
   return program;
 }
 
-export function createProgramOptions(tsConfig: string): ts.CreateProgramOptions {
+export function createProgramOptions(
+  tsConfig: string,
+): ts.CreateProgramOptions & { missingTSConfig: boolean } {
+  let missingTSConfig = false;
   const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
@@ -84,6 +87,8 @@ export function createProgramOptions(tsConfig: string): ts.CreateProgramOptions 
       if (file.endsWith('package.json') || fileContents) {
         return fileContents;
       }
+      missingTSConfig = true;
+      console.log(`WARN Could not find extended tsconfig: ${file}`);
       return getTsConfig(file);
     },
   };
@@ -114,6 +119,7 @@ export function createProgramOptions(tsConfig: string): ts.CreateProgramOptions 
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
+    missingTSConfig,
   };
 }
 
@@ -134,6 +140,7 @@ export function createProgram(tsConfig: string): {
   programId: string;
   files: string[];
   projectReferences: string[];
+  missingTSConfig: boolean;
 } {
   const programOptions = createProgramOptions(tsConfig);
 
@@ -146,7 +153,7 @@ export function createProgram(tsConfig: string): {
   programs.set(programId, program);
   debug(`program from ${tsConfig} with id ${programId} is created`);
 
-  return { programId, files, projectReferences };
+  return { programId, files, projectReferences, missingTSConfig: programOptions.missingTSConfig };
 }
 
 /**

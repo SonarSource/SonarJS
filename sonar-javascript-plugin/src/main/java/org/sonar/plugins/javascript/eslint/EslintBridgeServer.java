@@ -213,18 +213,29 @@ public interface EslintBridgeServer extends Startable {
     final List<String> files;
     final List<String> projectReferences;
     final String error;
+    final boolean missingTSConfig;
 
     TsProgram(String programId, List<String> files, List<String> projectReferences) {
       this.programId = programId;
       this.files = files;
       this.projectReferences = projectReferences;
       this.error = null;
+      this.missingTSConfig = false;
+    }
+
+    TsProgram(String programId, List<String> files, List<String> projectReferences, boolean missingTSConfig) {
+      this.programId = programId;
+      this.files = files;
+      this.projectReferences = projectReferences;
+      this.error = null;
+      this.missingTSConfig = missingTSConfig;
     }
 
     TsProgram(String error) {
       this.programId = null;
       this.files = null;
       this.projectReferences = null;
+      this.missingTSConfig = false;
       this.error = error;
     }
 
