@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -226,8 +227,9 @@ class SonarLintTest {
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
-    ClientInputFile inputFile = sonarLintInputFile(baseDir.resolve(filePath), sourceCode);
-
+    Path path = baseDir.resolve(filePath);
+    Files.writeString(path, sourceCode, StandardCharsets.UTF_8);
+    ClientInputFile inputFile = sonarLintInputFile(path, sourceCode);
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),

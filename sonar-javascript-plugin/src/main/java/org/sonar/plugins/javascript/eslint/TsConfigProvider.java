@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -181,16 +182,13 @@ class TsConfigProvider {
     }
 
     private static List<String> createDefaultTsConfig(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
-      if (defaultTsConfig == null) {
-        defaultTsConfig = createTemporaryTsConfigFile(context, compilerOptions, fileWriter);
-      }
-      return defaultTsConfig;
+      var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
+      var normalizedBaseDir = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
+      return defaultTsConfig.computeIfAbsent(normalizedBaseDir, dir -> createTemporaryTsConfigFile(dir, compilerOptions, fileWriter));
     }
 
-    private static List<String> createTemporaryTsConfigFile(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
+    private static List<String> createTemporaryTsConfigFile(String normalizedBaseDir, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       try {
-        var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
-        var normalizedBaseDir = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
         var tsConfig = new TsConfig(List.of(normalizedBaseDir + "/**/*"), compilerOptions);
         var tsconfigFile = fileWriter.writeFile(new Gson().toJson(tsConfig));
         LOG.debug("Using wildcard tsconfig.json file {}", tsconfigFile);
@@ -207,11 +205,7 @@ class TsConfigProvider {
       return tempFile.toAbsolutePath().toString();
     }
 
-    public static void resetDefaultTsConfig() {
-      defaultTsConfig = null;
-    }
-
-    private static List<String> defaultTsConfig;
+    private static Map<String, List<String>> defaultTsConfig = new ConcurrentHashMap<>();
 
     private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
