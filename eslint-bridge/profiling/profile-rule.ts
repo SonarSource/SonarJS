@@ -50,12 +50,12 @@ try {
         await analyzeTsProject(server as http.Server, tsProjects[i], parallelism);
       }
     }
-
-    const timeSeconds = (Date.now() - start) / 1000;
-    console.log(`done in ${timeSeconds}s`);
   })();
 } catch (e) {
   console.error(`Profiling exited because of Error: ${e.message}`);
+} finally {
+  const timeSeconds = (Date.now() - start) / 1000;
+  console.log(`done in ${timeSeconds}s`);
 }
 
 
