@@ -22,11 +22,13 @@
 const server = require('../lib/server');
 const path = require('path');
 const context = require('../lib/helpers');
+const { tmpdir } = require('os');
 
-// must be the same as the one used in ./analyze.ts
+// must be the same as the one used in ./profile-rule.ts
 const port = 64829;
 const host = '127.0.0.1';
-const workDir = '/tmp/dir';
+const workDir = tmpdir();
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS: false, sonarlint: false, bundles: [] });
-server.start(port, host, 1719925474);
+const BIG_TIMEOUT = 1719925474;
+server.start(port, host, BIG_TIMEOUT);

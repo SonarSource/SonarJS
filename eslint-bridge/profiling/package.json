@@ -1,0 +1,15 @@
+{
+  "name": "profiling",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "server": "node --inspect-brk server.js",
+    "compile-server": "cd ..; npm run compile; cd profiling; node --inspect-brk server.js",
+    "profile": "../node_modules/.bin/ts-node profile-rule.ts"
+  },
+  "license": "LGPL-3.0",
+  "devDependencies": {
+    "tsconfig-paths": "^4.1.0"
+  }
+}
