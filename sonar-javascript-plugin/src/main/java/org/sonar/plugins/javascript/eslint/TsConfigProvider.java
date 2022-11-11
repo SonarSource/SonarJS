@@ -193,7 +193,7 @@ class TsConfigProvider {
       }
     }
 
-    static String writeFile(String content) throws IOException {
+    private static String writeFile(String content) throws IOException {
       var tempFile = Files.createTempFile(null, null);
       Files.writeString(tempFile, content, StandardCharsets.UTF_8);
       return tempFile.toAbsolutePath().toString();
