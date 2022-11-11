@@ -145,21 +145,21 @@ class SonarLintTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"js,javascript", "ts,typescript"})
-  void should_analyze_js_with_typed_rules(String language, String rulePrefix) throws IOException {
+  @CsvSource({"javascript,js", "typescript,ts"})
+  void should_analyze_with_typed_rules(String language, String extension) throws IOException {
     String fileName;
     String content;
     List<Issue> issues;
 
-    fileName = "file." + language;
-    content = Files.readString(TestUtils.projectDir(language + "-sonarlint-project").toPath().resolve(fileName));
+    fileName = "file." + extension;
+    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(rulePrefix + ":S2870", rulePrefix + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
 
     fileName = "file.vue";
-    content = Files.readString(TestUtils.projectDir(language + "-sonarlint-project").toPath().resolve(fileName));
+    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(rulePrefix + ":S2870", rulePrefix + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
   }
 
   @Test

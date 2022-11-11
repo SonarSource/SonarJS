@@ -181,7 +181,7 @@ class TsConfigProviderTest {
 
   @Test
   void should_create_tsconfig_in_sonarlint() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
@@ -191,6 +191,28 @@ class TsConfigProviderTest {
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
       .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+  }
+
+  @Test
+  void should_not_recreate_tsconfig_in_sonarlint() throws Exception {
+    List<String> tsconfigs;
+    Path file;
+
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+
+    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).hasSize(1);
+
+    file = Path.of(tsconfigs.get(0));
+    assertThat(file).exists();
+    Files.delete(file);
+
+    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
+
+    file = Path.of(tsconfigs.get(0));
+    assertThat(file).doesNotExist();
   }
 
   @Test

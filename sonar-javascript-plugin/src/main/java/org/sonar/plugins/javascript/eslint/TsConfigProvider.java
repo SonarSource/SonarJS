@@ -231,12 +231,13 @@ class TsConfigProvider {
     public List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
         return createDefaultTsConfig(context, compilerOptions, fileWriter);
+      } else {
+        var inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
+        var tsConfig = new TsConfig(inputFiles, compilerOptions);
+        var tsconfigFile = writeToJsonFile(tsConfig);
+        LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
+        return singletonList(tsconfigFile.getAbsolutePath());
       }
-      Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
-      TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
-      File tsconfigFile = writeToJsonFile(tsConfig);
-      LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
-      return singletonList(tsconfigFile.getAbsolutePath());
     }
 
     private File writeToJsonFile(TsConfig tsConfig) throws IOException {
@@ -246,28 +247,28 @@ class TsConfigProvider {
       return tsconfigFile;
     }
 
-  }
+    private static class TsConfig {
 
-  private static class TsConfig {
-    List<String> files;
-    Map<String, Object> compilerOptions;
-    List<String> include;
+      List<String> files;
+      Map<String, Object> compilerOptions;
+      List<String> include;
 
-    TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
-      this(inputFiles, compilerOptions, null);
-    }
-
-    TsConfig(List<String> include, Map<String, Object> compilerOptions) {
-      this(null, compilerOptions, include);
-    }
-
-    TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
-      if (inputFiles != null) {
-        files = new ArrayList<>();
-        inputFiles.forEach(f -> files.add(f.absolutePath()));
+      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
+        this(inputFiles, compilerOptions, null);
       }
-      this.compilerOptions = compilerOptions;
-      this.include = include;
+
+      TsConfig(List<String> include, Map<String, Object> compilerOptions) {
+        this(null, compilerOptions, include);
+      }
+
+      TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
+        if (inputFiles != null) {
+          files = new ArrayList<>();
+          inputFiles.forEach(f -> files.add(f.absolutePath()));
+        }
+        this.compilerOptions = compilerOptions;
+        this.include = include;
+      }
     }
   }
 }
