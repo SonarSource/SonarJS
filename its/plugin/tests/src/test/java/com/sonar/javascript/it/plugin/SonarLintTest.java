@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
@@ -141,11 +144,22 @@ class SonarLintTest {
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
   }
 
-  @Test
-  void should_not_analyze_ts_project_without_config() throws Exception {
-    List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
-    assertThat(issues).isEmpty();
-    assertThat(logs).contains("No tsconfig.json file found, analysis will be skipped.");
+  @ParameterizedTest
+  @CsvSource({"javascript,js", "typescript,ts"})
+  void should_analyze_with_typed_rules(String language, String extension) throws IOException {
+    String fileName;
+    String content;
+    List<Issue> issues;
+
+    fileName = "file." + extension;
+    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
+
+    fileName = "file.vue";
+    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
   }
 
   @Test
@@ -213,8 +227,9 @@ class SonarLintTest {
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
-    ClientInputFile inputFile = sonarLintInputFile(baseDir.resolve(filePath), sourceCode);
-
+    Path path = baseDir.resolve(filePath);
+    Files.writeString(path, sourceCode, StandardCharsets.UTF_8);
+    ClientInputFile inputFile = sonarLintInputFile(path, sourceCode);
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),
