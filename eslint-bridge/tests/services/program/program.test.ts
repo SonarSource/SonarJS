@@ -61,12 +61,12 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing.json`);
 
-    const config = createProgram(tsConfig);
-    const { programId, files, projectReferences } = config;
+    const { programId, files, projectReferences, missingTsConfig } = createProgram(tsConfig);
 
     expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
+    expect(missingTsConfig).toBe(true);
   });
 
   it('missing external tsconfig should be different than found external tsconfig', () => {

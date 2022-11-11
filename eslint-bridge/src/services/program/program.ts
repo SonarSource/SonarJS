@@ -32,7 +32,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { debug } from 'helpers';
-import { getTsConfig } from './tsconfigs';
+import { basename } from 'path';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -71,31 +71,38 @@ export function getProgramById(programId: string): ts.Program {
 
 export function createProgramOptions(
   tsConfig: string,
-): ts.CreateProgramOptions & { missingTSConfig: boolean } {
-  let missingTSConfig = false;
+): ts.CreateProgramOptions & { missingTsConfig: boolean } {
+  let missingTsConfig = false;
   const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
-      if (file.endsWith('package.json')) {
-        return ts.sys.fileExists(file);
+      // When Typescript checks for tsconfig.json, we will always return true,
+      // If the file does not exist in FS, we will return an empty configuration
+      if (basename(file) === 'tsconfig.json') {
+        return true;
       }
-      return true;
+      return ts.sys.fileExists(file);
     },
     readFile: file => {
       const fileContents = ts.sys.readFile(file);
-      if (file.endsWith('package.json') || fileContents) {
-        return fileContents;
+      // When Typescript search for a tsconfig which does not exist, return empty configuration
+      if (basename(file) === 'tsconfig.json' && !fileContents) {
+        missingTsConfig = true;
+        console.log(`WARN Could not find tsconfig: ${file}`);
+        return '{}';
       }
-      missingTSConfig = true;
-      console.log(`WARN Could not find extended tsconfig: ${file}`);
-      return getTsConfig(file);
+      return fileContents;
     },
   };
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
-    console.error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
+    console.error(
+      `Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(
+        config.error,
+      )}); falling back to an empty configuration.`,
+    );
     throw Error(diagnosticToString(config.error));
   }
 
@@ -119,7 +126,7 @@ export function createProgramOptions(
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
-    missingTSConfig,
+    missingTsConfig,
   };
 }
 
@@ -140,7 +147,7 @@ export function createProgram(tsConfig: string): {
   programId: string;
   files: string[];
   projectReferences: string[];
-  missingTSConfig: boolean;
+  missingTsConfig: boolean;
 } {
   const programOptions = createProgramOptions(tsConfig);
 
@@ -153,7 +160,7 @@ export function createProgram(tsConfig: string): {
   programs.set(programId, program);
   debug(`program from ${tsConfig} with id ${programId} is created`);
 
-  return { programId, files, projectReferences, missingTSConfig: programOptions.missingTSConfig };
+  return { programId, files, projectReferences, missingTsConfig: programOptions.missingTsConfig };
 }
 
 /**

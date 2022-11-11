@@ -96,8 +96,8 @@ public class AnalysisWithProgram {
           PROFILER.stopInfo();
           continue;
         }
-        if (program.missingTSConfig) {
-          String msg = "At least one extended tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+        if (program.missingTsConfig) {
+          String msg = "At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }

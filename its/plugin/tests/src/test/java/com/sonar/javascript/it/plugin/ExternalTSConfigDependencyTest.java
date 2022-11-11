@@ -46,9 +46,7 @@ class ExternalTSConfigDependencyTest {
       .setProjectKey(PROJECT)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR)
-      // setting inclusions like this will exclude tsconfig.json files, which is what we want to test
-      .setProperty("sonar.inclusions", "**/*.ts");
+      .setProjectDir(PROJECT_DIR);
 
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "ts", "eslint-based-rules-profile");
