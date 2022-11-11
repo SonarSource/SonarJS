@@ -32,7 +32,6 @@
 import path from 'path';
 import ts from 'typescript';
 import { debug } from 'helpers';
-import { basename } from 'path';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -79,7 +78,7 @@ export function createProgramOptions(
     fileExists: file => {
       // When Typescript checks for tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
-      if (basename(file) === 'tsconfig.json') {
+      if (path.basename(file) === 'tsconfig.json') {
         return true;
       }
       return ts.sys.fileExists(file);
@@ -87,7 +86,7 @@ export function createProgramOptions(
     readFile: file => {
       const fileContents = ts.sys.readFile(file);
       // When Typescript search for a tsconfig which does not exist, return empty configuration
-      if (basename(file) === 'tsconfig.json' && !fileContents) {
+      if (path.basename(file) === 'tsconfig.json' && !fileContents) {
         missingTsConfig = true;
         console.log(`WARN Could not find tsconfig: ${file}`);
         return '{}';
