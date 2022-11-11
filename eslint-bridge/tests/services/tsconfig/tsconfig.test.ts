@@ -20,7 +20,7 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import { getFilesForTsConfig } from 'services/tsconfig';
-import { toUnixPath } from '../../tools';
+import { toUnixPath } from 'helpers';
 
 const defaultParseConfigHost: ts.ParseConfigHost = {
   useCaseSensitiveFileNames: true,

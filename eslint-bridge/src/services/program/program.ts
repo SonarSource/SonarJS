@@ -31,7 +31,7 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { debug } from 'helpers';
+import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
 import fs from 'fs/promises';
 
 /**
@@ -158,9 +158,7 @@ export async function createProgram(tsConfig: string): Promise<{
   const program = ts.createProgram(programOptions);
   const maybeProjectReferences = program.getProjectReferences();
   const projectReferences = maybeProjectReferences
-    ? maybeProjectReferences.map(p => {
-        return p.path.endsWith('.json') ? p.path : path.join(p.path, 'tsconfig.json');
-      })
+    ? maybeProjectReferences.map(p => addTsConfigIfMissing(toUnixPath(p.path)))
     : [];
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 

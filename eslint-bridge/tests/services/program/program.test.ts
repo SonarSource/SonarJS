@@ -25,7 +25,7 @@ import {
   deleteProgram,
   getProgramById,
 } from 'services/program';
-import { toUnixPath } from '../../tools';
+import { addTsConfigIfMissing, toUnixPath } from 'helpers';
 
 describe('program', () => {
   it('should create a program', async () => {
@@ -42,7 +42,7 @@ describe('program', () => {
         toUnixPath(path.join(reference, 'file.ts')),
       ]),
     );
-    expect(projectReferences).toEqual([toUnixPath(reference)]);
+    expect(projectReferences).toEqual([addTsConfigIfMissing(toUnixPath(reference))]);
   });
 
   it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
@@ -95,9 +95,11 @@ describe('program', () => {
     expect(program.getRootFileNames()).toEqual(
       files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
     );
-    expect(program.getProjectReferences().map(reference => reference.path)).toEqual(
-      projectReferences.map(toUnixPath),
-    );
+    expect(
+      program
+        .getProjectReferences()
+        .map(reference => addTsConfigIfMissing(toUnixPath(reference.path))),
+    ).toEqual(projectReferences.map(p => addTsConfigIfMissing(toUnixPath(p))));
   });
 
   it('should fail finding a non-existing program', () => {
