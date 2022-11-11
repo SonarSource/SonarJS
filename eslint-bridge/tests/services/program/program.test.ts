@@ -28,12 +28,12 @@ import {
 import { toUnixPath } from '../../tools';
 
 describe('program', () => {
-  it('should create a program', () => {
+  it('should create a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const reference = path.join(fixtures, `reference`);
     const tsConfig = path.join(fixtures, `tsconfig.json`);
 
-    const { programId, files, projectReferences } = createProgram(tsConfig);
+    const { programId, files, projectReferences } = await createProgram(tsConfig);
 
     expect(programId).toBeDefined();
     expect(files).toEqual(
@@ -45,23 +45,23 @@ describe('program', () => {
     expect(projectReferences).toEqual([toUnixPath(reference)]);
   });
 
-  it('should fail creating a program with a syntactically incorrect tsconfig', () => {
+  it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.syntax.json');
-    expect(() => createProgram(tsConfig)).toThrow();
+    const error = await createProgram(tsConfig).catch(err => err);
+    expect(error).toBeInstanceOf(Error);
   });
 
-  it('should fail creating a program with a semantically incorrect tsconfig', () => {
+  it('should fail creating a program with a semantically incorrect tsconfig', async () => {
     const tsConfig = path.join(__dirname, `fixtures/tsconfig.semantic.json`);
-    expect(() => createProgram(tsConfig)).toThrowError(
-      /^Unknown compiler option 'targetSomething'./,
-    );
+    const error = await createProgram(tsConfig).catch(err => err);
+    expect(error.message).toMatch(/^Unknown compiler option 'targetSomething'./);
   });
 
-  it('should still create a program when extended tsconfig does not exist', () => {
+  it('should still create a program when extended tsconfig does not exist', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing.json`);
 
-    const { programId, files, projectReferences, missingTsConfig } = createProgram(tsConfig);
+    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
 
     expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
@@ -84,10 +84,10 @@ describe('program', () => {
     expect(configMissing.module).toBeUndefined();
   });
 
-  it('should find an existing program', () => {
+  it('should find an existing program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files, projectReferences } = createProgram(tsConfig);
+    const { programId, files, projectReferences } = await createProgram(tsConfig);
 
     const program = getProgramById(programId);
 
@@ -105,10 +105,10 @@ describe('program', () => {
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
   });
 
-  it('should delete a program', () => {
+  it('should delete a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = createProgram(tsConfig);
+    const { programId } = await createProgram(tsConfig);
 
     deleteProgram(programId);
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);

@@ -32,6 +32,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { debug } from 'helpers';
+import fs from 'fs/promises';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -142,17 +143,25 @@ export function createProgramOptions(
  * @returns the identifier of the created TypeScript's Program along with the
  *          resolved files and project references
  */
-export function createProgram(tsConfig: string): {
+export async function createProgram(tsConfig: string): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
-} {
+}> {
+  if ((await fs.lstat(tsConfig)).isDirectory()) {
+    tsConfig = path.join(tsConfig, 'tsconfig.json');
+  }
+
   const programOptions = createProgramOptions(tsConfig);
 
   const program = ts.createProgram(programOptions);
   const maybeProjectReferences = program.getProjectReferences();
-  const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
+  const projectReferences = maybeProjectReferences
+    ? maybeProjectReferences.map(p => {
+        return p.path.endsWith('.json') ? p.path : path.join(p.path, 'tsconfig.json');
+      })
+    : [];
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
   const programId = nextId();
