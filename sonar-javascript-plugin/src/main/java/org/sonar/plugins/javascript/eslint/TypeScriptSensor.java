@@ -96,6 +96,11 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       return;
     }
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+    if (tsConfigs.isEmpty()) {
+      // This can happen where we are not able to create temporary file for generated tsconfig.json
+      LOG.warn("No tsconfig.json file found, analysis will be skipped.");
+      return;
+    }
     boolean success = false;
     ProgressReport progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);

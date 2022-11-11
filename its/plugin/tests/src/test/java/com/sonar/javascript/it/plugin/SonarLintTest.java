@@ -30,6 +30,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
@@ -142,24 +144,22 @@ class SonarLintTest {
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
   }
 
-  @Test
-  void should_analyze_js_with_typed_rules() throws IOException {
-    String fileName = "file.js";
-    Path filePath = TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName);
+  @ParameterizedTest
+  @CsvSource({"js,javascript", "ts,typescript"})
+  void should_analyze_js_with_typed_rules(String language, String rulePrefix) throws IOException {
+    String fileName;
+    String content;
+    List<Issue> issues;
 
-    String content = Files.readString(filePath);
-    List<Issue> issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
-  }
+    fileName = "file." + language;
+    content = Files.readString(TestUtils.projectDir(language + "-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains(rulePrefix + ":S2870", rulePrefix + ":S3504");
 
-  @Test
-  void should_analyze_ts_with_typed_rules() throws IOException {
-    String fileName = "file.ts";
-    Path filePath = TestUtils.projectDir("ts-sonarlint-project").toPath().resolve(fileName);
-
-    String content = Files.readString(filePath);
-    List<Issue> issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("typescript:S2870", "typescript:S3504");
+    fileName = "file.vue";
+    content = Files.readString(TestUtils.projectDir(language + "-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains(rulePrefix + ":S2870", rulePrefix + ":S3504");
   }
 
   @Test
