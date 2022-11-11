@@ -181,14 +181,38 @@ class TsConfigProvider {
       String writeFile(String content) throws IOException;
     }
 
+    private static class TsConfig {
+
+      List<String> files;
+      Map<String, Object> compilerOptions;
+      List<String> include;
+
+      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
+        this(inputFiles, compilerOptions, null);
+      }
+
+      TsConfig(List<String> include, Map<String, Object> compilerOptions) {
+        this(null, compilerOptions, include);
+      }
+
+      TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
+        if (inputFiles != null) {
+          files = new ArrayList<>();
+          inputFiles.forEach(f -> files.add(f.absolutePath()));
+        }
+        this.compilerOptions = compilerOptions;
+        this.include = include;
+      }
+    }
+
     private static List<String> createTemporaryTsConfigFile(String normalizedBaseDir, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       try {
         var tsConfig = new TsConfig(List.of(normalizedBaseDir + "/**/*"), compilerOptions);
         var tsconfigFile = fileWriter.writeFile(new Gson().toJson(tsConfig));
-        LOG.debug("Using wildcard tsconfig.json file {}", tsconfigFile);
+        LOG.debug("Using generated tsconfig.json file {}", tsconfigFile);
         return singletonList(tsconfigFile);
       } catch (IOException e) {
-        LOG.warn("Generating wildcard tsconfig failed", e);
+        LOG.warn("Generating tsconfig.json failed", e);
         return emptyList();
       }
     }
@@ -241,30 +265,6 @@ class TsConfigProvider {
       File tsconfigFile = folder.newFile();
       Files.write(tsconfigFile.toPath(), json.getBytes(StandardCharsets.UTF_8));
       return tsconfigFile;
-    }
-
-    private static class TsConfig {
-
-      List<String> files;
-      Map<String, Object> compilerOptions;
-      List<String> include;
-
-      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
-        this(inputFiles, compilerOptions, null);
-      }
-
-      TsConfig(List<String> include, Map<String, Object> compilerOptions) {
-        this(null, compilerOptions, include);
-      }
-
-      TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
-        if (inputFiles != null) {
-          files = new ArrayList<>();
-          inputFiles.forEach(f -> files.add(f.absolutePath()));
-        }
-        this.compilerOptions = compilerOptions;
-        this.include = include;
-      }
     }
   }
 }
