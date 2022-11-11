@@ -181,12 +181,6 @@ class TsConfigProvider {
       String writeFile(String content) throws IOException;
     }
 
-    private static List<String> createDefaultTsConfig(SensorContext context, Map<String, Object> compilerOptions, FileWriter fileWriter) {
-      var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
-      var normalizedBaseDir = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
-      return defaultTsConfig.computeIfAbsent(normalizedBaseDir, dir -> createTemporaryTsConfigFile(dir, compilerOptions, fileWriter));
-    }
-
     private static List<String> createTemporaryTsConfigFile(String normalizedBaseDir, Map<String, Object> compilerOptions, FileWriter fileWriter) {
       try {
         var tsConfig = new TsConfig(List.of(normalizedBaseDir + "/**/*"), compilerOptions);
@@ -230,7 +224,9 @@ class TsConfigProvider {
     @Override
     public List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-        return createDefaultTsConfig(context, compilerOptions, fileWriter);
+        var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
+        var normalizedBaseDir = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
+        return defaultTsConfig.computeIfAbsent(normalizedBaseDir, dir -> createTemporaryTsConfigFile(dir, compilerOptions, fileWriter));
       } else {
         var inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
         var tsConfig = new TsConfig(inputFiles, compilerOptions);
