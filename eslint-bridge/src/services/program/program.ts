@@ -71,10 +71,11 @@ export function getProgramById(programId: string): ts.Program {
 
 export function createProgramOptions(
   tsConfig: string,
+  configHost?: ts.ParseConfigHost,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = {
+  const parseConfigHost: ts.ParseConfigHost = configHost || {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -189,7 +190,7 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
   }
 }
 
-function isLastTsConfigCheck(file: string) {
+export function isLastTsConfigCheck(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join('/', 'node_modules')));
   return (

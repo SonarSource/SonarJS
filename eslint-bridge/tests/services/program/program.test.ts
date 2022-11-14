@@ -24,8 +24,10 @@ import {
   createProgramOptions,
   deleteProgram,
   getProgramById,
+  isLastTsConfigCheck,
 } from 'services/program';
 import { addTsConfigIfMissing, toUnixPath } from 'helpers';
+import ts from 'typescript';
 
 describe('program', () => {
   it('should create a program', async () => {
@@ -82,6 +84,34 @@ describe('program', () => {
     expect(configMissing).toBeDefined();
     expect(configMissing.target).toBeUndefined();
     expect(configMissing.module).toBeUndefined();
+  });
+
+  it('should check all paths until root node_modules', async () => {
+    const configHost = {
+      useCaseSensitiveFileNames: true,
+      readDirectory: ts.sys.readDirectory,
+      fileExists: jest.fn((_file: string) => false),
+      readFile: ts.sys.readFile,
+    };
+
+    const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
+    const searchedFiles = [];
+    let nodeModulesFolder = path.join(__dirname, 'fixtures');
+    let searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
+    do {
+      searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'package.json'));
+      searchedFiles.push(path.join(searchFolder, 'package.json'));
+      searchedFiles.push(path.join(searchFolder, 'tsconfig.json'));
+      searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'tsconfig.json'));
+      nodeModulesFolder = path.dirname(nodeModulesFolder);
+      searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
+    } while (!isLastTsConfigCheck(searchedFiles[searchedFiles.length - 1]));
+
+    expect(() => createProgramOptions(tsConfigMissing, configHost)).toThrow();
+    expect(configHost.fileExists).toHaveBeenCalledTimes(searchedFiles.length);
+    searchedFiles.forEach((file, index) => {
+      expect(configHost.fileExists).toHaveBeenNthCalledWith(index + 1, toUnixPath(file));
+    });
   });
 
   it('should find an existing program', async () => {
