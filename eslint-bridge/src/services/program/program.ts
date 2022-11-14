@@ -73,23 +73,27 @@ export function createProgramOptions(
   tsConfig: string,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
+
   const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
-      // When Typescript checks for tsconfig.json, we will always return true,
+      // When Typescript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
-      if (path.basename(file) === 'tsconfig.json') {
+      if (isLastTsConfigCheck(file)) {
         return true;
       }
       return ts.sys.fileExists(file);
     },
     readFile: file => {
       const fileContents = ts.sys.readFile(file);
-      // When Typescript search for a tsconfig which does not exist, return empty configuration
-      if (path.basename(file) === 'tsconfig.json' && !fileContents) {
+      // When Typescript search for tsconfig which does not exist, return empty configuration
+      // only when the check is for the last location at the root node_modules
+      if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
-        console.log(`WARN Could not find tsconfig: ${file}`);
+        console.log(
+          `WARN Could not find tsconfig: ${file}; falling back to an empty configuration.`,
+        );
         return '{}';
       }
       return fileContents;
@@ -98,11 +102,7 @@ export function createProgramOptions(
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
-    console.error(
-      `Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(
-        config.error,
-      )}); falling back to an empty configuration.`,
-    );
+    console.error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
     throw Error(diagnosticToString(config.error));
   }
 
@@ -187,4 +187,13 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
   } else {
     return text;
   }
+}
+
+function isLastTsConfigCheck(file: string) {
+  const normalizedFile = toUnixPath(file);
+  const topNodeModules = toUnixPath(path.resolve(path.join('/', 'node_modules')));
+  return (
+    path.posix.basename(normalizedFile) === 'tsconfig.json' &&
+    normalizedFile.startsWith(topNodeModules)
+  );
 }
