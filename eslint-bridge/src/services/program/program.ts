@@ -31,7 +31,7 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
+import { debug, toUnixPath } from 'helpers';
 import fs from 'fs/promises';
 
 /**
@@ -158,9 +158,7 @@ export async function createProgram(tsConfig: string): Promise<{
 
   const program = ts.createProgram(programOptions);
   const maybeProjectReferences = program.getProjectReferences();
-  const projectReferences = maybeProjectReferences
-    ? maybeProjectReferences.map(p => addTsConfigIfMissing(toUnixPath(p.path)))
-    : [];
+  const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
   const programId = nextId();
@@ -191,8 +189,10 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
 }
 
 export function isLastTsConfigCheck(file: string) {
+  const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
   const normalizedFile = toUnixPath(file);
-  const topNodeModules = toUnixPath(path.resolve(path.join('/', 'node_modules')));
+  const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
+  console.log(topNodeModules);
   return (
     path.posix.basename(normalizedFile) === 'tsconfig.json' &&
     normalizedFile.startsWith(topNodeModules)
