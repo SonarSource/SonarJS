@@ -31,8 +31,7 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { debug, toUnixPath } from 'helpers';
-import fs from 'fs/promises';
+import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -150,15 +149,25 @@ export async function createProgram(tsConfig: string): Promise<{
   projectReferences: string[];
   missingTsConfig: boolean;
 }> {
-  if ((await fs.lstat(tsConfig)).isDirectory()) {
-    tsConfig = path.join(tsConfig, 'tsconfig.json');
+  const sanitizedTsConfig = await addTsConfigIfMissing(tsConfig);
+  if (!sanitizedTsConfig) {
+    throw Error(`tsconfig not found in ${tsConfig}`);
   }
-
-  const programOptions = createProgramOptions(tsConfig);
+  const programOptions = createProgramOptions(sanitizedTsConfig);
 
   const program = ts.createProgram(programOptions);
   const maybeProjectReferences = program.getProjectReferences();
-  const projectReferences = maybeProjectReferences ? maybeProjectReferences.map(p => p.path) : [];
+  const projectReferences: string[] = [];
+
+  for (const reference of maybeProjectReferences || []) {
+    const sanitizedReference = await addTsConfigIfMissing(reference.path);
+    if (!sanitizedReference) {
+      console.log(`WARN Skipping missing referenced tsconfig: ${reference.path}`);
+      programOptions.missingTsConfig = true;
+    } else {
+      projectReferences.push(toUnixPath(sanitizedReference));
+    }
+  }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
   const programId = nextId();

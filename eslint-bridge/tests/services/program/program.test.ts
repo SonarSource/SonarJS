@@ -26,7 +26,7 @@ import {
   getProgramById,
   isRootNodeModules,
 } from 'services/program';
-import { toUnixPath } from 'helpers';
+import { addTsConfigIfMissing, toUnixPath } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 
 describe('program', () => {
@@ -44,7 +44,19 @@ describe('program', () => {
         toUnixPath(path.join(reference, 'file.ts')),
       ]),
     );
-    expect(projectReferences).toEqual([toUnixPath(reference)]);
+    expect(projectReferences).toEqual([toUnixPath(await addTsConfigIfMissing(reference))]);
+  });
+
+  it('should skip missing reference a program', async () => {
+    const fixtures = path.join(__dirname, 'fixtures');
+    const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
+
+    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
+
+    expect(programId).toBeDefined();
+    expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
+    expect(projectReferences).toEqual([]);
+    expect(missingTsConfig).toBe(true);
   });
 
   it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
@@ -134,8 +146,16 @@ describe('program', () => {
     expect(program.getRootFileNames()).toEqual(
       files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
     );
-    expect(program.getProjectReferences().map(reference => reference.path)).toEqual(
-      projectReferences.map(p => p),
+    expect(
+      await Promise.all(
+        program
+          .getProjectReferences()
+          .map(async reference => toUnixPath(await addTsConfigIfMissing(reference.path))),
+      ),
+    ).toEqual(
+      await Promise.all(
+        projectReferences.map(async p => toUnixPath(await addTsConfigIfMissing(p))),
+      ),
     );
   });
 
