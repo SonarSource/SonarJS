@@ -55,6 +55,7 @@ class EslintCustomRulesTest {
 
   static Orchestrator initOrchestrator(String customRulesArtifactId) {
     Orchestrator orchestrator = Orchestrator.builderEnv()
+      .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))

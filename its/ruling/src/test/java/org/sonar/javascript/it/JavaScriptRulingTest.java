@@ -62,6 +62,7 @@ class JavaScriptRulingTest {
   static final String SCANNER_VERSION = "4.7.0.2747";
 
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+    .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
