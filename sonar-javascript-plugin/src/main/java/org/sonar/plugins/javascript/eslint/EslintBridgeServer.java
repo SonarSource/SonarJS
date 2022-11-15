@@ -228,7 +228,7 @@ public interface EslintBridgeServer extends Startable {
     }
 
     TsProgram(String programId, List<String> files, List<String> projectReferences, boolean missingTsConfig) {
-      this(programId, files, projectReferences, missingTsConfig,null);
+      this(programId, files, projectReferences, missingTsConfig, null);
     }
 
     TsProgram(String error) {

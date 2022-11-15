@@ -188,13 +188,29 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
   }
 }
 
-export function isLastTsConfigCheck(file: string) {
+/**
+ * Typescript resolution will always search for extended tsconfigs in these 4 paths (in order):
+ *
+ * 1 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/package.json
+ * 2 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/../package.json
+ * 3 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE
+ * 4 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
+ *
+ * If not found in all 4, $TSCONFIG_PATH will be assigned to its parent and the same search will be performed,
+ * until $TSCONFIG_PATH is the system root. Meaning, the very last search Typescript will perform is (4) when
+ * TSCONFIG_PATH === '/':
+ *
+ * /node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
+ *
+ * @param file
+ */
+function isLastTsConfigCheck(file: string) {
+  return path.basename(file) === 'tsconfig.json' && isRootNodeModules(file);
+}
+
+export function isRootNodeModules(file: string) {
   const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
-  console.log(topNodeModules);
-  return (
-    path.posix.basename(normalizedFile) === 'tsconfig.json' &&
-    normalizedFile.startsWith(topNodeModules)
-  );
+  return normalizedFile.startsWith(topNodeModules);
 }

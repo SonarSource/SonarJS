@@ -24,10 +24,10 @@ import {
   createProgramOptions,
   deleteProgram,
   getProgramById,
-  isLastTsConfigCheck,
+  isRootNodeModules,
 } from 'services/program';
 import { toUnixPath } from 'helpers';
-import ts from 'typescript';
+import ts, { ModuleKind, ScriptTarget } from 'typescript';
 
 describe('program', () => {
   it('should create a program', async () => {
@@ -71,22 +71,31 @@ describe('program', () => {
     expect(missingTsConfig).toBe(true);
   });
 
-  it('missing external tsconfig should be different than found external tsconfig', () => {
+  it('On missing external tsconfig, Typescript should generate default compilerOptions', () => {
     const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
-    const tsConfig = path.join(__dirname, 'fixtures', `tsconfig_found.json`);
 
-    const { options: configMissing } = createProgramOptions(tsConfigMissing);
-    const { options: configFound } = createProgramOptions(tsConfig);
+    const { options, missingTsConfig } = createProgramOptions(tsConfigMissing);
 
-    expect(configFound).toBeDefined();
-    expect(configFound.target).toBeDefined();
-    expect(configFound.module).toBeDefined();
-    expect(configMissing).toBeDefined();
-    expect(configMissing.target).toBeUndefined();
-    expect(configMissing.module).toBeUndefined();
+    expect(missingTsConfig).toBe(true);
+    expect(options).toEqual({
+      configFilePath: toUnixPath(path.join(__dirname, 'fixtures', `tsconfig_missing.json`)),
+      noEmit: true,
+      allowNonTsExtensions: true,
+    });
   });
 
-  it('should check all paths until root node_modules', async () => {
+  it('External tsconfig should provide expected compilerOptions', () => {
+    const tsConfig = path.join(__dirname, 'fixtures', `tsconfig_found.json`);
+
+    const { options, missingTsConfig } = createProgramOptions(tsConfig);
+
+    expect(missingTsConfig).toBe(false);
+    expect(options).toBeDefined();
+    expect(options.target).toBe(ScriptTarget['ES2020']);
+    expect(options.module).toBe(ModuleKind['CommonJS']);
+  });
+
+  it('typescript tsconfig resolution should check all paths until root node_modules', async () => {
     const configHost = {
       useCaseSensitiveFileNames: true,
       readDirectory: ts.sys.readDirectory,
@@ -97,15 +106,15 @@ describe('program', () => {
     const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
     const searchedFiles = [];
     let nodeModulesFolder = path.join(__dirname, 'fixtures');
-    let searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
+    let searchFolder;
     do {
+      searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'package.json'));
       searchedFiles.push(path.join(searchFolder, 'package.json'));
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json'));
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'tsconfig.json'));
       nodeModulesFolder = path.dirname(nodeModulesFolder);
-      searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
-    } while (!isLastTsConfigCheck(searchedFiles[searchedFiles.length - 1]));
+    } while (!isRootNodeModules(searchFolder));
 
     expect(() => createProgramOptions(tsConfigMissing, configHost)).toThrow();
     expect(configHost.fileExists).toHaveBeenCalledTimes(searchedFiles.length);

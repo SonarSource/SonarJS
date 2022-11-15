@@ -1,6 +1,0 @@
-{
-  "devDependencies": {
-    "@tsconfig/node14": "1.0.3",
-    "typescript": "3.5.3"
-  }
-}

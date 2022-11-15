@@ -20,6 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,10 +52,20 @@ class ExternalTSConfigDependencyTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "ts", "eslint-based-rules-profile");
 
-    orchestrator.executeBuild(build);
+    BuildResult buildResult = orchestrator.executeBuild(build);
 
     assertThat(getIssues(PROJECT)).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
       tuple(4, "external-tsconfig-dependency-project:src/bar/main.ts")
     );
+    assertThat(buildResult.getLogsLines(l -> l.equals("WARN: At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."))).hasSize(1);
+
+    File rootDrive = PROJECT_DIR;
+    while (rootDrive.getParentFile() != null) {
+      rootDrive = rootDrive.getParentFile();
+    }
+
+    File lastTsConfigPath = new File(rootDrive, "node_modules" + File.separator + "@tsconfig" + File.separator + "node14" + File.separator + "tsconfig.json");
+
+    assertThat(buildResult.getLogsLines(l -> l.equals("WARN: Could not find tsconfig: " + lastTsConfigPath.getAbsolutePath().replace('\\', '/') + "; falling back to an empty configuration."))).hasSize(1);
   }
 }
