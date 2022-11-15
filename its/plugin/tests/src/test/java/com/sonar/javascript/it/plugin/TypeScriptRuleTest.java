@@ -49,6 +49,7 @@ class TypeScriptRuleTest {
   @BeforeAll
   public static void before() throws IOException, InterruptedException {
     orchestrator = Orchestrator.builderEnv()
+      .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
