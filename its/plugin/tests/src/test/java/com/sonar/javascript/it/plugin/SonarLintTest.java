@@ -30,8 +30,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
@@ -144,9 +142,10 @@ class SonarLintTest {
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
   }
 
-  @ParameterizedTest
-  @CsvSource({"javascript,js", "typescript,ts"})
-  void should_analyze_with_typed_rules(String language, String extension) throws IOException {
+  @Test
+  void should_analyze_with_typed_rules() throws IOException {
+    var language = "javascript";
+    var extension = "js";
     String fileName;
     String content;
     List<Issue> issues;

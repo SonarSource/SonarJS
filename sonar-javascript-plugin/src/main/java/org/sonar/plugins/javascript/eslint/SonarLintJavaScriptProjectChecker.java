@@ -1,0 +1,102 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2022 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.plugins.javascript.eslint;
+
+import java.util.List;
+import java.util.function.Predicate;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonarsource.api.sonarlint.SonarLintSide;
+import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
+
+import static java.util.stream.Collectors.toList;
+
+@SonarLintSide(lifespan = "MODULE")
+public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
+
+  private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
+  static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.type.maxlines";
+  private static final long DEFAULT_MAX_LINES_FOR_INDEXING = 1_000_000L;
+
+  private final ModuleFileSystem moduleFileSystem;
+
+  public boolean isBeyondLimit() {
+    return beyondLimit;
+  }
+
+  private boolean beyondLimit = false;
+
+  private boolean shouldBuild = true;
+
+  public SonarLintJavaScriptProjectChecker(ModuleFileSystem moduleFileSystem) {
+    this.moduleFileSystem = moduleFileSystem;
+  }
+
+  public void checkOnce(SensorContext context) {
+    if (shouldBuild) {
+      checkLimit(context);
+      shouldBuild = false;
+    }
+  }
+
+  private void checkLimit(SensorContext context) {
+    var maxLinesForTypeChecking = getMaxLinesForTypeChecking(context);
+    var numberOfLines = getNumberOfLines(context, maxLinesForTypeChecking);
+
+    beyondLimit = numberOfLines >= maxLinesForTypeChecking;
+    if (beyondLimit) {
+      // Avoid performance issues for large projects
+      LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {})", maxLinesForTypeChecking);
+      LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
+    } else {
+      LOG.debug("Project type checking for JavaScript files activated as project size (total number of lines is {}, maximum is {})",
+        numberOfLines, maxLinesForTypeChecking);
+    }
+  }
+
+  private static long getMaxLinesForTypeChecking(SensorContext context) {
+    return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_INDEXING);
+  }
+
+  private long getNumberOfLines(SensorContext context, long max) {
+    var total = 0L;
+    for (var file : getLanguageFiles(context)) {
+      total += file.lines();
+      if (total > max) {
+        return max;
+      }
+    }
+    return total;
+  }
+
+  private List<InputFile> getLanguageFiles(SensorContext context) {
+    Predicate<InputFile> javaScriptPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(context.fileSystem())::apply;
+    Predicate<InputFile> typeScriptPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(context.fileSystem())::apply;
+    return getModuleFiles(javaScriptPredicate.or(typeScriptPredicate));
+  }
+
+  private List<InputFile> getModuleFiles(Predicate<InputFile> predicate) {
+    return moduleFileSystem.files().filter(predicate).collect(toList());
+  }
+
+}

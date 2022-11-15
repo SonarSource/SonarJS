@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -43,36 +43,44 @@ import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
+import static org.sonar.plugins.javascript.eslint.TsConfigProvider.GeneratedTsConfigFileProvider.getDefaultCompilerOptions;
+
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
+
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
+  private final JavaScriptProjectChecker javascriptProjectChecker;
   private AnalysisMode analysisMode;
+  private TsConfigProvider.Provider tsConfigProvider;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     AnalysisProcessor processAnalysis) {
+                                     AnalysisProcessor processAnalysis,
+                                     @Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
+    this.javascriptProjectChecker = javaScriptProjectChecker;
   }
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
+    tsConfigProvider = getTsConfigProvider();
+    runEslintAnalysis(tsConfigProvider.tsconfigs(context), inputFiles);
   }
 
-  private List<String> provideDefaultTsConfig() throws IOException {
-    Map<String, Object> compilerOptions = new HashMap<>();
-    // to support parsing of JavaScript-specific syntax
-    compilerOptions.put("allowJs", true);
-    // to make TypeScript compiler "better infer types"
-    compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
-    return provider.tsconfigs(context);
+  private TsConfigProvider.Provider getTsConfigProvider() {
+    JavaScriptProjectChecker.checkOnce(javascriptProjectChecker, context);
+
+    if (isSonarLint()) {
+      return new TsConfigProvider.SonarLintProvider(javascriptProjectChecker);
+    } else {
+      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, getDefaultCompilerOptions());
+    }
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
@@ -112,7 +120,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigProvider.getTsConfigsForFile(tsConfigs, file), null,
+        analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
       cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
@@ -136,4 +145,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       .onlyOnLanguage(JavaScriptLanguage.KEY)
       .name("JavaScript analysis");
   }
+
+  private boolean isSonarLint() {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
+  }
+
 }

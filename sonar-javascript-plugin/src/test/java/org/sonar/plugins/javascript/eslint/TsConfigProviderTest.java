@@ -25,12 +25,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -41,7 +41,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -180,35 +179,84 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_create_tsconfig_in_sonarlint() throws Exception {
+  void should_create_wildcard_tsconfig() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx, "file1.ts");
-    createInputFile(ctx, "file2.ts");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx, "file1.js");
+    createInputFile(ctx, "file2.js");
 
-    var tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    var provider = new TsConfigProvider.WildcardTsConfigProvider();
+    var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+      .contains(String.format("{\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
   }
 
   @Test
-  void should_not_recreate_tsconfig_in_sonarlint() throws Exception {
+  void should_create_analysed_file_tsconfig() throws IOException {
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var file1 = createInputFile(ctx, "file1.js");
+    var file2 = createInputFile(ctx, "file2.js");
+
+    var provider = new TsConfigProvider.AnalysedFileTsConfigProvider();
+    var tsconfigs = provider.tsconfigs(ctx);
+    assertThat(tsconfigs).isEmpty();
+    assertThat(provider.getTsConfigsForFile(tsconfigs, file1))
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+    assertThat(provider.getTsConfigsForFile(tsconfigs, file2))
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .contains("{\"files\":[\"moduleKey/file2.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+  }
+
+  @Test
+  void should_use_right_sonarlint_provider() throws IOException {
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var file1 = createInputFile(ctx, "file1.js");
+
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var wildcardProvider = new TsConfigProvider.SonarLintProvider(checker);
+    assertThat(wildcardProvider.tsconfigs(ctx))
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .contains(String.format("{\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+
+    when(checker.isBeyondLimit()).thenReturn(true);
+    var analysedFileTsConfigProvider = new TsConfigProvider.SonarLintProvider(checker);
+    assertThat(analysedFileTsConfigProvider.tsconfigs(ctx)).isEmpty();
+    assertThat(analysedFileTsConfigProvider.getTsConfigsForFile(analysedFileTsConfigProvider.tsconfigs(ctx), file1))
+      .hasSize(1)
+      .extracting(path -> Files.readString(Paths.get(path)))
+      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+
+    var deactivatedProvider = new TsConfigProvider.SonarLintProvider(null);
+    assertThat(deactivatedProvider.tsconfigs(ctx)).isEmpty();
+    assertThat(deactivatedProvider.getTsConfigsForFile(deactivatedProvider.tsconfigs(ctx), file1)).isEmpty();
+  }
+
+  @Test
+  void should_not_recreate_wildcart_tsconfig_in_sonarlint() throws Exception {
     List<String> tsconfigs;
     Path file;
 
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
 
     file = Path.of(tsconfigs.get(0));
     assertThat(file).exists();
     Files.delete(file);
 
-    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider().tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
 
     file = Path.of(tsconfigs.get(0));
@@ -216,25 +264,59 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_not_fail_on_exception() throws Exception {
+  void should_not_recreate_analysed_file_tsconfig_in_sonarlint() throws Exception {
+    List<String> tsconfigs;
+    Path file;
+
     var ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx, "file1.js");
-    createInputFile(ctx, "file2.js");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var inputFile1 = createInputFile(ctx, "inputFile1.js");
+    var inputFile2 = createInputFile(ctx, "inputFile2.js");
 
-    var fileWriter = mock(TsConfigProvider.DefaultTsConfigProvider.FileWriter.class);
-    when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
+    var provider = new TsConfigProvider.AnalysedFileTsConfigProvider();
+    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile1);
+    assertThat(tsconfigs).hasSize(1);
 
-    var provider = new TsConfigProvider.DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getTypeScriptPredicate, new HashMap<>(), fileWriter);
-    var tsconfigs = provider.tsconfigs(ctx);
-    assertThat(tsconfigs).isEmpty();
+    file = Path.of(tsconfigs.get(0));
+    assertThat(file).exists();
+    Files.delete(file);
+
+    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile1);
+    assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
+
+    file = Path.of(tsconfigs.get(0));
+    assertThat(file).doesNotExist();
+
+    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile2);
+    assertThat(tsconfigs).hasSize(1);
+
+    file = Path.of(tsconfigs.get(0));
+    assertThat(file).exists();
   }
 
-  private static void createInputFile(SensorContextTester context, String relativePath) {
+  @Test
+  void should_not_fail_on_exception() throws Exception {
+    var ctx = SensorContextTester.create(baseDir);
+    var file = createInputFile(ctx, "file.js");
+
+    var fileWriter = mock(TsConfigProvider.GeneratedTsConfigFileProvider.FileWriter.class);
+    when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
+
+    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(fileWriter);
+    assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
+    assertThat(wildcardTsConfigProvider.getTsConfigsForFile(wildcardTsConfigProvider.tsconfigs(ctx), file)).isEmpty();
+
+    var analysedFileTsConfigProvider = new TsConfigProvider.AnalysedFileTsConfigProvider(fileWriter);
+    assertThat(analysedFileTsConfigProvider.tsconfigs(ctx)).isEmpty();
+    assertThat(analysedFileTsConfigProvider.getTsConfigsForFile(analysedFileTsConfigProvider.tsconfigs(ctx), file)).isEmpty();
+  }
+
+  private static InputFile createInputFile(SensorContextTester context, String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
+    return inputFile;
   }
 }

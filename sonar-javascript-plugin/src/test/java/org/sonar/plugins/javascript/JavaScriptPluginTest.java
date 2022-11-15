@@ -38,6 +38,7 @@ class JavaScriptPluginTest {
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
+  private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 1;
 
   public static final Version LTS_VERSION = Version.create(7, 9);
 
@@ -55,7 +56,7 @@ class JavaScriptPluginTest {
   @Test
   void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(LTS_VERSION));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + SONARLINT_ADDITIONAL_EXTENSIONS);
   }
 
   private List<PropertyDefinition> properties() {
