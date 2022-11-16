@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -386,9 +385,9 @@ class TypeScriptSensorTest {
     when(eslintBridgeServerMock.createProgram(any()))
       .thenReturn(
         new TsProgram("1", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList()),
-        new TsProgram("2", singletonList(file2.absolutePath()), Collections.singletonList("some-other-tsconfig.json")),
+        new TsProgram("2", singletonList(file2.absolutePath()), singletonList("some-other-tsconfig.json")),
         new TsProgram("something went wrong"),
-        new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), Collections.singletonList(tsconfig1)));
+        new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), singletonList(tsconfig1)));
 
     when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
 
@@ -404,6 +403,44 @@ class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, times(3)).deleteProgram(any());
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File already analyzed: '" + file2.absolutePath() +
+      "'. Check your project configuration to avoid files being part of multiple projects.");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to create program: something went wrong");
+  }
+
+  @Test
+  void should_analyze_by_program_nested() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    Path baseDir = Paths.get("src/test/resources/nested-tsconfigs").toAbsolutePath();
+    SensorContextTester context = createSensorContext(baseDir);
+
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
+    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir1/dir2/file.ts");
+    DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir1/dir2/dir3/file.ts");
+    inputFileFromResource(context, baseDir, "noconfig.ts");
+
+    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
+
+    when(eslintBridgeServerMock.createProgram(any()))
+      .thenReturn(
+        new TsProgram("1", singletonList(file3.absolutePath()), singletonList(tsconfig1.replaceAll("[\\\\/]", "/"))),
+        new TsProgram("2", Arrays.asList(file2.absolutePath(), file3.absolutePath()), singletonList("some-other-tsconfig.json")),
+        new TsProgram("3", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList()),
+        new TsProgram("something went wrong"));
+
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(3)).analyzeWithProgram(captor.capture());
+    assertThat(captor.getAllValues()).extracting(req -> req.filePath).isEqualTo(List.of(
+      file3.absolutePath(),
+      file2.absolutePath(),
+      file1.absolutePath()
+    ));
+
+    verify(eslintBridgeServerMock, times(3)).deleteProgram(any());
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File already analyzed: '" + file3.absolutePath() +
       "'. Check your project configuration to avoid files being part of multiple projects.");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to create program: something went wrong");
   }

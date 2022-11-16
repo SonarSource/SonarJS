@@ -19,12 +19,16 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
@@ -73,6 +77,7 @@ public class AnalysisWithProgram {
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
+    tsConfigs.sort(Comparator.comparingInt(tsconfig -> -tsconfig.split(Pattern.quote(File.separator)).length));
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
     boolean success = false;
@@ -82,7 +87,8 @@ public class AnalysisWithProgram {
       Set<InputFile> analyzedFiles = new HashSet<>();
       while (!workList.isEmpty()) {
         var tsConfig = workList.pop();
-        if (!analyzedProjects.add(tsConfig)) {
+        if (!analyzedProjects.add(tsConfig.replaceAll("[\\\\/]", Matcher.quoteReplacement((File.separator))))) {
+          LOG.debug("tsconfig already analyzed: '{}'. Skipping it...", tsConfig);
           continue;
         }
         monitoring.startProgram(tsConfig);
