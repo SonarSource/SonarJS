@@ -34,10 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 33;
+  private static final int BASE_EXTENSIONS = 34;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
-  private static final int CSS_ADDITIONAL_EXTENSIONS = 4;
+  private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
 
   public static final Version LTS_VERSION = Version.create(7, 9);
 

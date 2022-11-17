@@ -43,6 +43,7 @@ class CssRulingTest {
   private static final String PROJECT_KEY = "project";
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))

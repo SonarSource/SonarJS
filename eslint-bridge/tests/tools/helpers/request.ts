@@ -33,6 +33,7 @@ export function request(server: http.Server, path: string, method: string, data:
     headers: {
       'Content-Type': 'application/json',
     },
+    timeout: 10000,
   };
 
   return new Promise((resolve, reject) => {

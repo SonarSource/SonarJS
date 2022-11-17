@@ -5,111 +5,13 @@ on:
     types: ["review_requested"]
 
 jobs:
-  assign_and_move_card:
-    name: Assign issue to reviewer and move Kanban card
+  MoveCardToReview_job:
+    name: Move card to review
     runs-on: ubuntu-latest
     # PRs from forks don't have required token authorization
     if: github.event.pull_request.head.repo.full_name == github.repository
-
     steps:
-      # https://github.com/actions/github-script
-      - uses: actions/github-script@v4.0.2
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@v1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const TODO_COLUMN = 16320786;
-            const IN_PROGRESS_COLUMN = 16320787;
-            const IN_REVIEW_COLUMN = 16320793;
-            const RESOLVED_COLUMN = 16320799;
-            const DONE_COLUMN = 16320788;
-            //
-            async function getIssue(issue_number) {
-                try {
-                    return (await github.issues.get({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number
-                    })).data;
-                }
-                catch (error) {
-                    console.log(`Issue #${issue_number} not found: ${error}`);
-                    return null;
-                }
-            }
-            //
-            async function findCard(content_url) {
-                // Columns are searched from the most probable one
-                const allColumns = [IN_REVIEW_COLUMN, RESOLVED_COLUMN, IN_PROGRESS_COLUMN, TODO_COLUMN, DONE_COLUMN];
-                for (let i = 0; i < allColumns.length; i++) {
-                    let cards = await github.projects.listCards({ column_id: allColumns[i] });
-                    let card = cards.data.find(x => x.content_url == content_url);
-                    if (card) {
-                        return card;
-                    }
-                }
-                console.log("Card not found for: " + content_url);
-                return null;
-            }
-            //
-            async function removeAssignees(issue){
-                const oldAssignees = issue.assignees.map(x => x.login);
-                if (oldAssignees.length !== 0) {
-                    console.log("Removing assignees: " + oldAssignees.join(", "));
-                    await github.issues.removeAssignees({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issue.number,
-                        assignees: oldAssignees
-                    });
-                }
-            }
-            //
-            async function addAssignee(issue, login) {
-                console.log("Assigning to: " + login);
-                await github.issues.addAssignees({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    assignees: [login]
-                });
-            }
-            //
-            async function processIssue(issue) {
-                if(issue.state == "open") {
-                  await removeAssignees(issue);
-                  addAssignee(issue, context.payload.requested_reviewer.login);
-                  const card = await findCard(issue.url);
-                  if (card) {
-                      console.log("Moving card");
-                      github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: IN_REVIEW_COLUMN });
-                  } else if (issue.pull_request) {
-                      console.log("Creating PR card");
-                      github.projects.createCard({ column_id: IN_REVIEW_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
-                  } else {
-                      console.log("Creating Issue card");
-                      github.projects.createCard({ column_id: IN_REVIEW_COLUMN, content_id: issue.id, content_type: "Issue" });
-                  }
-                }
-            }
-            //
-            let processPR = true;
-            const pr = context.payload.pull_request;
-            const matches = pr.body == null ? null : pr.body.match(/(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*#\d+/gi);
-            if (matches) {
-                for (let i = 0; i < matches.length; i++) {
-                    console.log("Processing linked issue: " + matches[i]);
-                    let linkedIssue = await getIssue(matches[i].split("#")[1]);
-                    if (linkedIssue) {
-                        processPR = false;
-                        processIssue(linkedIssue);
-                    }
-                }
-            }
-            if (processPR) {
-                console.log("Processing PR: #" + pr.number);
-                const issue = await getIssue(pr.number);
-                if (issue) {
-                    processIssue(issue);
-                }
-            }
-            console.log("Done");
+          column-id: 16320793     # Kanban "In review" column

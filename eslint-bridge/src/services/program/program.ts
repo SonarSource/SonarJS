@@ -32,6 +32,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
+import fs from 'fs/promises';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -70,11 +71,10 @@ export function getProgramById(programId: string): ts.Program {
 
 export function createProgramOptions(
   tsConfig: string,
-  configHost?: ts.ParseConfigHost,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = configHost || {
+  const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -143,17 +143,17 @@ export function createProgramOptions(
  * @returns the identifier of the created TypeScript's Program along with the
  *          resolved files and project references
  */
-export async function createProgram(tsConfig: string): Promise<{
+export async function createProgram(inputTsConfig: string): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
 }> {
-  const sanitizedTsConfig = await addTsConfigIfMissing(tsConfig);
-  if (!sanitizedTsConfig) {
+  const tsConfig = await addTsConfigIfMissing(inputTsConfig);
+  if (!tsConfig) {
     throw Error(`tsconfig not found in ${tsConfig}`);
   }
-  const programOptions = createProgramOptions(sanitizedTsConfig);
+  const programOptions = createProgramOptions(tsConfig);
 
   const program = ts.createProgram(programOptions);
   const projectReferences = program.getProjectReferences() || [];

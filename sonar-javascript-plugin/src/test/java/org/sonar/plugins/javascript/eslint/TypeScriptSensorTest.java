@@ -84,7 +84,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -396,6 +395,7 @@ class TypeScriptSensorTest {
 
     verify(eslintBridgeServerMock, times(1)).deleteProgram(any());
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(analysisWarnings.warnings).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
   }
 
   @Test
@@ -519,17 +519,6 @@ class TypeScriptSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
-  }
-
-  @Test
-  void should_stop_without_tsconfig() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    SensorContextTester context = createSensorContext(tempDir);
-    inputFileFromResource(context, baseDir, "src/file.ts");
-
-    setSonarLintRuntime(context);
-    createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("No tsconfig.json file found, analysis will be skipped.");
   }
 
   @Test

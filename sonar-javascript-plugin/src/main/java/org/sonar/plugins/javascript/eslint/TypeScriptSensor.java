@@ -97,8 +97,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
-      // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
-      // See also https://github.com/SonarSource/SonarJS/issues/2506
+      // This can happen where we are not able to create temporary file for generated tsconfig.json
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
       return;
     }

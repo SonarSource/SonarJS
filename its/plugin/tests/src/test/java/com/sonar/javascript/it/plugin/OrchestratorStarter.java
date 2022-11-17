@@ -49,6 +49,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
