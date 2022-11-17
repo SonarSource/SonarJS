@@ -43,8 +43,6 @@ import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-import static org.sonar.plugins.javascript.eslint.TsConfigProvider.GeneratedTsConfigFileProvider.getDefaultCompilerOptions;
-
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
@@ -52,7 +50,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
-  private final JavaScriptProjectChecker javascriptProjectChecker;
+  private final JavaScriptProjectChecker javaScriptProjectChecker;
   private AnalysisMode analysisMode;
   private TsConfigProvider.Provider tsConfigProvider;
 
@@ -64,7 +62,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.javascriptProjectChecker = javaScriptProjectChecker;
+    this.javaScriptProjectChecker = javaScriptProjectChecker;
   }
 
   @Override
@@ -74,12 +72,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private TsConfigProvider.Provider getTsConfigProvider() {
-    JavaScriptProjectChecker.checkOnce(javascriptProjectChecker, context);
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
 
-    if (isSonarLint()) {
-      return new TsConfigProvider.SonarLintProvider(javascriptProjectChecker);
+    if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
+      return new TsConfigProvider.SonarLintTsConfigProvider(javaScriptProjectChecker);
     } else {
-      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, getDefaultCompilerOptions());
+      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
     }
   }
 
@@ -144,10 +142,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
       .name("JavaScript analysis");
-  }
-
-  private boolean isSonarLint() {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
 }

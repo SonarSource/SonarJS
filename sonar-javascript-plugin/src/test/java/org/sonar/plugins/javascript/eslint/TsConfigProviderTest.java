@@ -175,7 +175,7 @@ class TsConfigProviderTest {
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
-    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{}}");
+    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
   }
 
   @Test
@@ -190,7 +190,7 @@ class TsConfigProviderTest {
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+      .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
   }
 
   @Test
@@ -206,11 +206,11 @@ class TsConfigProviderTest {
     assertThat(provider.getTsConfigsForFile(tsconfigs, file1))
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
     assertThat(provider.getTsConfigsForFile(tsconfigs, file2))
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file2.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+      .contains("{\"files\":[\"moduleKey/file2.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
   }
 
   @Test
@@ -222,21 +222,21 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    var wildcardProvider = new TsConfigProvider.SonarLintProvider(checker);
+    var wildcardProvider = new TsConfigProvider.SonarLintTsConfigProvider(checker);
     assertThat(wildcardProvider.tsconfigs(ctx))
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+      .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
 
     when(checker.isBeyondLimit()).thenReturn(true);
-    var analysedFileTsConfigProvider = new TsConfigProvider.SonarLintProvider(checker);
+    var analysedFileTsConfigProvider = new TsConfigProvider.SonarLintTsConfigProvider(checker);
     assertThat(analysedFileTsConfigProvider.tsconfigs(ctx)).isEmpty();
     assertThat(analysedFileTsConfigProvider.getTsConfigsForFile(analysedFileTsConfigProvider.tsconfigs(ctx), file1))
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"noImplicitAny\":true,\"allowJs\":true}}");
+      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
 
-    var deactivatedProvider = new TsConfigProvider.SonarLintProvider(null);
+    var deactivatedProvider = new TsConfigProvider.SonarLintTsConfigProvider(null);
     assertThat(deactivatedProvider.tsconfigs(ctx)).isEmpty();
     assertThat(deactivatedProvider.getTsConfigsForFile(deactivatedProvider.tsconfigs(ctx), file1)).isEmpty();
   }

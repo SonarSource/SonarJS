@@ -34,9 +34,13 @@ import static java.util.stream.Collectors.toList;
 @SonarLintSide(lifespan = "MODULE")
 public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
 
+  private static long getMaxLinesForTypeChecking(SensorContext context) {
+    return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_TYPE_CHECKING);
+  }
+
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
-  static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.type.maxlines";
-  private static final long DEFAULT_MAX_LINES_FOR_INDEXING = 1_000_000L;
+  static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxlines";
+  private static final long DEFAULT_MAX_LINES_FOR_TYPE_CHECKING = 500_000L;
 
   private final ModuleFileSystem moduleFileSystem;
 
@@ -46,16 +50,16 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
   private boolean beyondLimit = false;
 
-  private boolean shouldBuild = true;
+  private boolean shouldCheck = true;
 
   public SonarLintJavaScriptProjectChecker(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
   }
 
   public void checkOnce(SensorContext context) {
-    if (shouldBuild) {
+    if (shouldCheck) {
       checkLimit(context);
-      shouldBuild = false;
+      shouldCheck = false;
     }
   }
 
@@ -65,7 +69,8 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
     beyondLimit = numberOfLines >= maxLinesForTypeChecking;
     if (beyondLimit) {
-      // Avoid performance issues for large projects
+      // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
+      // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
       LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {})", maxLinesForTypeChecking);
       LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
     } else {
@@ -74,13 +79,9 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static long getMaxLinesForTypeChecking(SensorContext context) {
-    return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_INDEXING);
-  }
-
   private long getNumberOfLines(SensorContext context, long max) {
     var total = 0L;
-    for (var file : getLanguageFiles(context)) {
+    for (var file : getFilesMatchingPluginLanguages(context)) {
       total += file.lines();
       if (total > max) {
         return max;
@@ -89,14 +90,10 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return total;
   }
 
-  private List<InputFile> getLanguageFiles(SensorContext context) {
+  private List<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
     Predicate<InputFile> javaScriptPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(context.fileSystem())::apply;
     Predicate<InputFile> typeScriptPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(context.fileSystem())::apply;
-    return getModuleFiles(javaScriptPredicate.or(typeScriptPredicate));
-  }
-
-  private List<InputFile> getModuleFiles(Predicate<InputFile> predicate) {
-    return moduleFileSystem.files().filter(predicate).collect(toList());
+    return moduleFileSystem.files().filter(javaScriptPredicate.or(typeScriptPredicate)).collect(toList());
   }
 
 }

@@ -70,7 +70,7 @@ class SonarLintJavaScriptProjectCheckerTest {
     );
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files activated as project size (total number of lines is 1, maximum is 1000000)");
+    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files activated as project size (total number of lines is 1, maximum is 500000)");
   }
 
   @Test
@@ -81,8 +81,8 @@ class SonarLintJavaScriptProjectCheckerTest {
     );
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (maximum is 1000000)",
-      "Update \"sonar.javascript.sonarlint.type.maxlines\" to set a different limit.");
+    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (maximum is 500000)",
+      "Update \"sonar.javascript.sonarlint.typechecking.maxlines\" to set a different limit.");
   }
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {

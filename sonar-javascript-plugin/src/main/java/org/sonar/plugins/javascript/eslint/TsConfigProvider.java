@@ -28,8 +28,8 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -216,32 +216,32 @@ class TsConfigProvider {
       }
     }
 
-    static Map<String, Object> getDefaultCompilerOptions() {
-      var compilerOptions = new HashMap<String, Object>();
-      // to support parsing of JavaScript-specific syntax
-      compilerOptions.put("allowJs", true);
-      // to make TypeScript compiler "better infer types"
-      compilerOptions.put("noImplicitAny", true);
-      return compilerOptions;
-    }
-
     private static String writeFile(String content) throws IOException {
       var tempFile = Files.createTempFile(null, null);
       Files.writeString(tempFile, content, StandardCharsets.UTF_8);
       return tempFile.toAbsolutePath().toString();
     }
 
-    final SonarProduct product;
-    final Map<String, Object> compilerOptions;
-    final FileWriter fileWriter;
+    static final Map<String, Object> DEFAULT_COMPILER_OPTIONS;
 
-    GeneratedTsConfigFileProvider(SonarProduct product, Map<String, Object> compilerOptions) {
-      this(product, compilerOptions, null);
+    static {
+      var compilerOptions = new LinkedHashMap<String, Object>();
+      // to support parsing of JavaScript-specific syntax
+      compilerOptions.put("allowJs", true);
+      // to make TypeScript compiler "better infer types"
+      compilerOptions.put("noImplicitAny", true);
+      DEFAULT_COMPILER_OPTIONS = compilerOptions;
     }
 
-    GeneratedTsConfigFileProvider(SonarProduct product, Map<String, Object> compilerOptions, @Nullable FileWriter fileWriter) {
+    final SonarProduct product;
+    final FileWriter fileWriter;
+
+    GeneratedTsConfigFileProvider(SonarProduct product) {
+      this(product, null);
+    }
+
+    GeneratedTsConfigFileProvider(SonarProduct product, @Nullable FileWriter fileWriter) {
       this.product = product;
-      this.compilerOptions = compilerOptions;
       this.fileWriter = fileWriter == null ? TsConfigProvider.GeneratedTsConfigFileProvider::writeFile : fileWriter;
     }
 
@@ -264,11 +264,7 @@ class TsConfigProvider {
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
-      this(folder, filePredicate, new HashMap<>());
-    }
-
-    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate, Map<String, Object> compilerOptions) {
-      super(SonarProduct.SONARQUBE, compilerOptions);
+      super(SonarProduct.SONARQUBE);
       this.folder = folder;
       this.filePredicateProvider = filePredicate;
     }
@@ -276,7 +272,7 @@ class TsConfigProvider {
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) throws IOException {
       var inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
-      var tsConfig = new TsConfig(inputFiles, compilerOptions);
+      var tsConfig = new TsConfig(inputFiles, DEFAULT_COMPILER_OPTIONS);
       var tsconfigFile = writeToJsonFile(tsConfig);
       LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
       return singletonList(tsconfigFile.getAbsolutePath());
@@ -290,10 +286,10 @@ class TsConfigProvider {
     }
   }
 
-  static class SonarLintProvider implements Provider {
+  static class SonarLintTsConfigProvider implements Provider {
     private final Provider provider;
 
-    SonarLintProvider(@Nullable JavaScriptProjectChecker checker) {
+    SonarLintTsConfigProvider(@Nullable JavaScriptProjectChecker checker) {
       if (checker == null) {
         provider = context -> emptyList();
       } else if (checker.isBeyondLimit()) {
@@ -318,11 +314,11 @@ class TsConfigProvider {
     private static final Map<String, List<String>> defaultSingleFileTsConfig = new ConcurrentHashMap<>();
 
     AnalysedFileTsConfigProvider() {
-      super(SonarProduct.SONARLINT, getDefaultCompilerOptions());
+      super(SonarProduct.SONARLINT);
     }
 
     AnalysedFileTsConfigProvider(FileWriter fileWriter) {
-      super(SonarProduct.SONARLINT, getDefaultCompilerOptions(), fileWriter);
+      super(SonarProduct.SONARLINT, fileWriter);
     }
 
     @Override
@@ -336,7 +332,7 @@ class TsConfigProvider {
     }
 
     List<String> writeTsConfigFileFor(InputFile inputFile) {
-      var config = new TsConfig(List.of(inputFile), compilerOptions);
+      var config = new TsConfig(List.of(inputFile), DEFAULT_COMPILER_OPTIONS);
       var file = config.writeFileWith(fileWriter);
       LOG.debug("Using generated tsconfig.json file using single file {}", file);
       return file;
@@ -352,11 +348,11 @@ class TsConfigProvider {
     private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
 
     WildcardTsConfigProvider() {
-      super(SonarProduct.SONARLINT, getDefaultCompilerOptions());
+      super(SonarProduct.SONARLINT);
     }
 
     WildcardTsConfigProvider(FileWriter fileWriter) {
-      super(SonarProduct.SONARLINT, getDefaultCompilerOptions(), fileWriter);
+      super(SonarProduct.SONARLINT, fileWriter);
     }
 
     @Override
@@ -365,7 +361,7 @@ class TsConfigProvider {
     }
 
     List<String> writeTsConfigFileFor(String root) {
-      var config = new TsConfig(List.of(root + "/**/*"), compilerOptions);
+      var config = new TsConfig(List.of(root + "/**/*"), DEFAULT_COMPILER_OPTIONS);
       var file = config.writeFileWith(fileWriter);
       LOG.debug("Using generated tsconfig.json file using wildcards {}", file);
       return file;

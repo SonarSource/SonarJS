@@ -143,22 +143,20 @@ class SonarLintTest {
   }
 
   @Test
-  void should_analyze_with_typed_rules() throws IOException {
-    var language = "javascript";
-    var extension = "js";
+  void should_analyze_js_with_typed_rules() throws IOException {
     String fileName;
     String content;
     List<Issue> issues;
 
-    fileName = "file." + extension;
-    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    fileName = "file.js";
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
 
     fileName = "file.vue";
-    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
   }
 
   @Test

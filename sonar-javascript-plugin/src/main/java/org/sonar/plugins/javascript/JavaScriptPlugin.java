@@ -284,16 +284,16 @@ public class JavaScriptPlugin implements Plugin {
           .build());
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarlintJavaScriptIndexer(context, new SonarLintPluginAPIVersion());
+      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, new SonarLintPluginAPIVersion());
     }
   }
 
   static class SonarLintPluginAPIManager {
-    public void addSonarlintJavaScriptIndexer(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
+    public void addSonarlintJavaScriptProjectChecker(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         context.addExtension(SonarLintJavaScriptProjectChecker.class);
       } else {
-        LOG.debug("Error while trying to inject SonarLintJavaScriptIndexer");
+        LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
       }
     }
   }

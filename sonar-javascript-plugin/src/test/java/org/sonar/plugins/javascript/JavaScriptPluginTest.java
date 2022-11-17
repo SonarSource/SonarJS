@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -29,8 +30,12 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class JavaScriptPluginTest {
 
@@ -41,6 +46,9 @@ class JavaScriptPluginTest {
   private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 1;
 
   public static final Version LTS_VERSION = Version.create(7, 9);
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void count_extensions_lts() throws Exception {
@@ -57,6 +65,17 @@ class JavaScriptPluginTest {
   void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(LTS_VERSION));
     assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + SONARLINT_ADDITIONAL_EXTENSIONS);
+  }
+
+  @Test
+  void classNotAvailable() {
+    var sonarLintPluginAPIVersion = mock(JavaScriptPlugin.SonarLintPluginAPIVersion.class);
+    when(sonarLintPluginAPIVersion.isDependencyAvailable()).thenReturn(false);
+    var sonarLintPluginAPIManager = new JavaScriptPlugin.SonarLintPluginAPIManager();
+    var context = mock(Plugin.Context.class);
+
+    sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, sonarLintPluginAPIVersion);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
   }
 
   private List<PropertyDefinition> properties() {
