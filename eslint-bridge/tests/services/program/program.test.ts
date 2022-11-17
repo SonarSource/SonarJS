@@ -152,11 +152,7 @@ describe('program', () => {
           .getProjectReferences()
           .map(async reference => await addTsConfigIfMissing(reference.path)),
       ),
-    ).toEqual(
-      await Promise.all(
-        projectReferences.map(async p => await addTsConfigIfMissing(p)),
-      ),
-    );
+    ).toEqual(await Promise.all(projectReferences.map(async p => await addTsConfigIfMissing(p))));
   });
 
   it('should fail finding a non-existing program', () => {
