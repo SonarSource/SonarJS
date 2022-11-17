@@ -223,6 +223,18 @@ public class JavaScriptPlugin implements Plugin {
       CssRuleSensor.class
     );
 
+    context.addExtension(
+      PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
+        .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
+        .name("File Suffixes")
+        .description(FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(CSS_CATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build());
+
+
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtensions(CoverageSensor.class,
         EslintReportSensor.class,
@@ -255,17 +267,6 @@ public class JavaScriptPlugin implements Plugin {
         CssMetricSensor.class,
         StylelintReportSensor.class
       );
-
-      context.addExtension(
-        PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
-          .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
-          .name("File Suffixes")
-          .description(FILE_SUFFIXES_DESCRIPTION)
-          .subCategory(GENERAL)
-          .category(CSS_CATEGORY)
-          .onQualifiers(Qualifiers.PROJECT)
-          .multiValues(true)
-          .build());
 
       context.addExtension(
         PropertyDefinition.builder(STYLELINT_REPORT_PATHS)
