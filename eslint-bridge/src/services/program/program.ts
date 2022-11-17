@@ -156,16 +156,15 @@ export async function createProgram(tsConfig: string): Promise<{
   const programOptions = createProgramOptions(sanitizedTsConfig);
 
   const program = ts.createProgram(programOptions);
-  const maybeProjectReferences = program.getProjectReferences();
-  const projectReferences: string[] = [];
+  const projectReferences = program.getProjectReferences() || [];
+  const sanitizedProjectReferences: string[] = [];
 
-  for (const reference of maybeProjectReferences || []) {
+  for (const reference of projectReferences) {
     const sanitizedReference = await addTsConfigIfMissing(reference.path);
     if (!sanitizedReference) {
       console.log(`WARN Skipping missing referenced tsconfig: ${reference.path}`);
-      programOptions.missingTsConfig = true;
     } else {
-      projectReferences.push(toUnixPath(sanitizedReference));
+      sanitizedProjectReferences.push(sanitizedReference);
     }
   }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
@@ -174,7 +173,12 @@ export async function createProgram(tsConfig: string): Promise<{
   programs.set(programId, program);
   debug(`program from ${tsConfig} with id ${programId} is created`);
 
-  return { programId, files, projectReferences, missingTsConfig: programOptions.missingTsConfig };
+  return {
+    programId,
+    files,
+    projectReferences: sanitizedProjectReferences,
+    missingTsConfig: programOptions.missingTsConfig,
+  };
 }
 
 /**

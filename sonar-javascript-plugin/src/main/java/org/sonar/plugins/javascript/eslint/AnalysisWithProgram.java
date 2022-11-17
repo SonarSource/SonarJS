@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -83,8 +84,10 @@ public class AnalysisWithProgram {
       Set<String> analyzedProjects = new HashSet<>();
       Set<InputFile> analyzedFiles = new HashSet<>();
       while (!workList.isEmpty()) {
-        var tsConfig = workList.pop();
+        var tsConfig = Path.of(workList.pop()).toString();
+        // Use of path.of as it normalizes Unix and Windows paths. Otherwise, project references returned by typescript may not match system slash
         if (!analyzedProjects.add(tsConfig)) {
+          LOG.debug("tsconfig already analyzed: '{}'. Skipping it.", tsConfig);
           continue;
         }
         monitoring.startProgram(tsConfig);
