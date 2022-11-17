@@ -44,7 +44,7 @@ describe('program', () => {
         toUnixPath(path.join(reference, 'file.ts')),
       ]),
     );
-    expect(projectReferences).toEqual([toUnixPath(await addTsConfigIfMissing(reference))]);
+    expect(projectReferences).toEqual([await addTsConfigIfMissing(reference)]);
   });
 
   it('should skip missing reference a program', async () => {
@@ -56,7 +56,7 @@ describe('program', () => {
     expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
-    expect(missingTsConfig).toBe(true);
+    expect(missingTsConfig).toBe(false);
   });
 
   it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
@@ -150,11 +150,11 @@ describe('program', () => {
       await Promise.all(
         program
           .getProjectReferences()
-          .map(async reference => toUnixPath(await addTsConfigIfMissing(reference.path))),
+          .map(async reference => await addTsConfigIfMissing(reference.path)),
       ),
     ).toEqual(
       await Promise.all(
-        projectReferences.map(async p => toUnixPath(await addTsConfigIfMissing(p))),
+        projectReferences.map(async p => await addTsConfigIfMissing(p)),
       ),
     );
   });
