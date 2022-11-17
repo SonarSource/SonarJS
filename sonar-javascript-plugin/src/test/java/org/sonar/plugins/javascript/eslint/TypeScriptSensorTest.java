@@ -372,6 +372,33 @@ class TypeScriptSensorTest {
   }
 
   @Test
+  void should_analyze_by_program_on_missing_extended_tsconfig() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/external-tsconfig").toAbsolutePath();
+    SensorContextTester context = createSensorContext(baseDir);
+
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/main.ts");
+
+    String tsconfig = absolutePath(baseDir, "tsconfig.json");
+
+    when(eslintBridgeServerMock.createProgram(any()))
+      .thenReturn(
+        new TsProgram("1", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList(), true));
+
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(1)).analyzeWithProgram(captor.capture());
+    assertThat(captor.getAllValues()).extracting(req -> req.filePath).containsExactlyInAnyOrder(
+      file1.absolutePath()
+    );
+
+    verify(eslintBridgeServerMock, times(1)).deleteProgram(any());
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(analysisWarnings.warnings).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+  }
+
+  @Test
   void should_analyze_by_program() throws Exception {
     Path baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
     SensorContextTester context = createSensorContext(baseDir);
@@ -561,7 +588,7 @@ class TypeScriptSensorTest {
   }
 
   private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis);
+    return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis, analysisWarnings);
   }
 
   private AnalysisResponse createResponse() {

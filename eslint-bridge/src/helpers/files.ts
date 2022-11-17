@@ -66,3 +66,11 @@ export function stripBOM(str: string) {
   }
   return str;
 }
+/**
+ * Converts a path to Unix format
+ * @param path the path to convert
+ * @returns the converted path
+ */
+export function toUnixPath(path: string) {
+  return path.replace(/[\\/]+/g, '/').replace(/(\.\/)/, '');
+}

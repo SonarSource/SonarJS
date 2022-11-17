@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { setContext } from 'helpers';
+import { setContext, toUnixPath } from 'helpers';
 import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
 import { start } from 'server';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
-import { request, toUnixPath } from '../tools';
+import { request } from '../tools';
 
 describe('router', () => {
   const port = 0;

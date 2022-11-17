@@ -52,16 +52,18 @@ public class AnalysisWithProgram {
   private final EslintBridgeServer eslintBridgeServer;
   private final Monitoring monitoring;
   private final AnalysisProcessor processAnalysis;
+  private final AnalysisWarningsWrapper analysisWarnings;
   private SensorContext context;
   private ContextUtils contextUtils;
   private AbstractChecks checks;
   private ProgressReport progressReport;
   private AnalysisMode analysisMode;
 
-  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis) {
+  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis, AnalysisWarningsWrapper analysisWarnings) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.monitoring = monitoring;
     this.processAnalysis = processAnalysis;
+    this.analysisWarnings = analysisWarnings;
   }
 
   void analyzeFiles(SensorContext context, AbstractChecks checks, List<InputFile> inputFiles) throws IOException {
@@ -93,6 +95,11 @@ public class AnalysisWithProgram {
           LOG.error("Failed to create program: " + program.error);
           PROFILER.stopInfo();
           continue;
+        }
+        if (program.missingTsConfig) {
+          String msg = "At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+          LOG.warn(msg);
+          this.analysisWarnings.addUnique(msg);
         }
         PROFILER.stopInfo();
         monitoring.stopProgram();
