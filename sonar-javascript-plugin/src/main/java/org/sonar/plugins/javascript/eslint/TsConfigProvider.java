@@ -58,10 +58,6 @@ class TsConfigProvider {
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
-
-    default List<String> getTsConfigsForFile(List<String> defaultTsConfigs, InputFile file) {
-      return defaultTsConfigs;
-    }
   }
 
   private final List<Provider> providers;
@@ -286,59 +282,6 @@ class TsConfigProvider {
     }
   }
 
-  static class SonarLintTsConfigProvider implements Provider {
-    private final Provider provider;
-
-    SonarLintTsConfigProvider(@Nullable JavaScriptProjectChecker checker) {
-      if (checker == null) {
-        provider = context -> emptyList();
-      } else if (checker.isBeyondLimit()) {
-        provider = new AnalysedFileTsConfigProvider();
-      } else {
-        provider = new WildcardTsConfigProvider();
-      }
-    }
-
-    @Override
-    public List<String> tsconfigs(SensorContext context) throws IOException {
-      return provider.tsconfigs(context);
-    }
-
-    @Override
-    public List<String> getTsConfigsForFile(List<String> defaultTsConfigs, InputFile file) {
-      return provider.getTsConfigsForFile(defaultTsConfigs, file);
-    }
-  }
-
-  static class AnalysedFileTsConfigProvider extends GeneratedTsConfigFileProvider {
-    private static final Map<String, List<String>> defaultSingleFileTsConfig = new ConcurrentHashMap<>();
-
-    AnalysedFileTsConfigProvider() {
-      super(SonarProduct.SONARLINT);
-    }
-
-    AnalysedFileTsConfigProvider(FileWriter fileWriter) {
-      super(SonarProduct.SONARLINT, fileWriter);
-    }
-
-    @Override
-    List<String> getDefaultTsConfigs(SensorContext context) {
-      return emptyList();
-    }
-
-    @Override
-    public List<String> getTsConfigsForFile(List<String> defaultTsConfigs, InputFile file) {
-      return defaultSingleFileTsConfig.computeIfAbsent(file.key(), key -> writeTsConfigFileFor(file));
-    }
-
-    List<String> writeTsConfigFileFor(InputFile inputFile) {
-      var config = new TsConfig(List.of(inputFile), DEFAULT_COMPILER_OPTIONS);
-      var file = config.writeFileWith(fileWriter);
-      LOG.debug("Using generated tsconfig.json file using single file {}", file);
-      return file;
-    }
-  }
-
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
     private static String getProjectRoot(SensorContext context) {
       var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
@@ -347,17 +290,24 @@ class TsConfigProvider {
 
     private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
 
-    WildcardTsConfigProvider() {
-      super(SonarProduct.SONARLINT);
+    private final boolean deactivated;
+
+    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker) {
+      this(checker, null);
     }
 
-    WildcardTsConfigProvider(FileWriter fileWriter) {
+    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, @Nullable FileWriter fileWriter) {
       super(SonarProduct.SONARLINT, fileWriter);
+      deactivated = checker == null || checker.isBeyondLimit();
     }
 
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) {
-      return defaultWildcardTsConfig.computeIfAbsent(getProjectRoot(context), this::writeTsConfigFileFor);
+      if (deactivated) {
+        return emptyList();
+      } else {
+        return defaultWildcardTsConfig.computeIfAbsent(getProjectRoot(context), this::writeTsConfigFileFor);
+      }
     }
 
     List<String> writeTsConfigFileFor(String root) {

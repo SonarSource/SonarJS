@@ -185,60 +185,22 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
 
-    var provider = new TsConfigProvider.WildcardTsConfigProvider();
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
     var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
       .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
-  }
-
-  @Test
-  void should_create_analysed_file_tsconfig() throws IOException {
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var file1 = createInputFile(ctx, "file1.js");
-    var file2 = createInputFile(ctx, "file2.js");
-
-    var provider = new TsConfigProvider.AnalysedFileTsConfigProvider();
-    var tsconfigs = provider.tsconfigs(ctx);
-    assertThat(tsconfigs).isEmpty();
-    assertThat(provider.getTsConfigsForFile(tsconfigs, file1))
-      .hasSize(1)
-      .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
-    assertThat(provider.getTsConfigsForFile(tsconfigs, file2))
-      .hasSize(1)
-      .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file2.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
-  }
-
-  @Test
-  void should_use_right_sonarlint_provider() throws IOException {
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var file1 = createInputFile(ctx, "file1.js");
-
-    var checker = mock(JavaScriptProjectChecker.class);
-    when(checker.isBeyondLimit()).thenReturn(false);
-
-    var wildcardProvider = new TsConfigProvider.SonarLintTsConfigProvider(checker);
-    assertThat(wildcardProvider.tsconfigs(ctx))
-      .hasSize(1)
-      .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
 
     when(checker.isBeyondLimit()).thenReturn(true);
-    var analysedFileTsConfigProvider = new TsConfigProvider.SonarLintTsConfigProvider(checker);
-    assertThat(analysedFileTsConfigProvider.tsconfigs(ctx)).isEmpty();
-    assertThat(analysedFileTsConfigProvider.getTsConfigsForFile(analysedFileTsConfigProvider.tsconfigs(ctx), file1))
-      .hasSize(1)
-      .extracting(path -> Files.readString(Paths.get(path)))
-      .contains("{\"files\":[\"moduleKey/file1.js\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
+    provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
+    assertThat(provider.tsconfigs(ctx)).isEmpty();
 
-    var deactivatedProvider = new TsConfigProvider.SonarLintTsConfigProvider(null);
-    assertThat(deactivatedProvider.tsconfigs(ctx)).isEmpty();
-    assertThat(deactivatedProvider.getTsConfigsForFile(deactivatedProvider.tsconfigs(ctx), file1)).isEmpty();
+    provider = new TsConfigProvider.WildcardTsConfigProvider(null);
+    assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
   @Test
@@ -249,49 +211,15 @@ class TsConfigProviderTest {
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider().tsconfigs(ctx);
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider(checker).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
 
     file = Path.of(tsconfigs.get(0));
     assertThat(file).exists();
     Files.delete(file);
-
-    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider().tsconfigs(ctx);
-    assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
-
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).doesNotExist();
-  }
-
-  @Test
-  void should_not_recreate_analysed_file_tsconfig_in_sonarlint() throws Exception {
-    List<String> tsconfigs;
-    Path file;
-
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var inputFile1 = createInputFile(ctx, "inputFile1.js");
-    var inputFile2 = createInputFile(ctx, "inputFile2.js");
-
-    var provider = new TsConfigProvider.AnalysedFileTsConfigProvider();
-    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile1);
-    assertThat(tsconfigs).hasSize(1);
-
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).exists();
-    Files.delete(file);
-
-    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile1);
-    assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
-
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).doesNotExist();
-
-    tsconfigs = provider.getTsConfigsForFile(provider.tsconfigs(ctx), inputFile2);
-    assertThat(tsconfigs).hasSize(1);
-
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).exists();
   }
 
   @Test
@@ -299,16 +227,14 @@ class TsConfigProviderTest {
     var ctx = SensorContextTester.create(baseDir);
     var file = createInputFile(ctx, "file.js");
 
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
     var fileWriter = mock(TsConfigProvider.GeneratedTsConfigFileProvider.FileWriter.class);
     when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
 
-    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(fileWriter);
+    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(checker, fileWriter);
     assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
-    assertThat(wildcardTsConfigProvider.getTsConfigsForFile(wildcardTsConfigProvider.tsconfigs(ctx), file)).isEmpty();
-
-    var analysedFileTsConfigProvider = new TsConfigProvider.AnalysedFileTsConfigProvider(fileWriter);
-    assertThat(analysedFileTsConfigProvider.tsconfigs(ctx)).isEmpty();
-    assertThat(analysedFileTsConfigProvider.getTsConfigsForFile(analysedFileTsConfigProvider.tsconfigs(ctx), file)).isEmpty();
   }
 
   private static InputFile createInputFile(SensorContextTester context, String relativePath) {

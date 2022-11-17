@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -57,9 +56,10 @@ class SonarLintJavaScriptProjectCheckerTest {
     return moduleFileSystem;
   }
 
-  @BeforeEach
-  void setUp() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+  private static ModuleFileSystem moduleFileSystem(RuntimeException error) {
+    var moduleFileSystem = mock(ModuleFileSystem.class);
+    when(moduleFileSystem.files()).thenThrow(error);
+    return moduleFileSystem;
   }
 
   @Test
@@ -74,19 +74,35 @@ class SonarLintJavaScriptProjectCheckerTest {
   }
 
   @Test
-  void should_check_detect_too_big_projects() throws IOException {
+  void should_detect_too_big_projects() throws IOException {
+    logTester.setLevel(LoggerLevel.DEBUG);
     var checker = sonarLintJavaScriptProjectChecker(
       inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 1000000),
       inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 3)
     );
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (maximum is 500000)",
+    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (total number of lines is 1000000, maximum is 500000)",
       "Update \"sonar.javascript.sonarlint.typechecking.maxlines\" to set a different limit.");
+  }
+
+  @Test
+  void should_detect_errors() throws IOException {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    var checker = sonarLintJavaScriptProjectChecker(new IllegalArgumentException());
+
+    assertThat(checker.isBeyondLimit()).isTrue();
+    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
   }
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {
     var checker = new SonarLintJavaScriptProjectChecker(moduleFileSystem(inputFiles));
+    checker.checkOnce(sensorContext());
+    return checker;
+  }
+
+  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
+    var checker = new SonarLintJavaScriptProjectChecker(moduleFileSystem(error));
     checker.checkOnce(sensorContext());
     return checker;
   }

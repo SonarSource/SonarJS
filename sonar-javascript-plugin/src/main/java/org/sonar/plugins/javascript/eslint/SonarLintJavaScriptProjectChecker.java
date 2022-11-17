@@ -38,6 +38,21 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_TYPE_CHECKING);
   }
 
+  private static long getCappedNumberOfLines(List<InputFile> files, long max) {
+    var total = 0L;
+    for (var file : files) {
+      total += file.lines();
+      if (total > max) {
+        return max;
+      }
+    }
+    return total;
+  }
+
+  private static long getNumberOfLines(List<InputFile> files) {
+    return files.stream().map(InputFile::lines).mapToLong(Integer::longValue).sum();
+  }
+
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
   static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxlines";
   private static final long DEFAULT_MAX_LINES_FOR_TYPE_CHECKING = 500_000L;
@@ -48,7 +63,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return beyondLimit;
   }
 
-  private boolean beyondLimit = false;
+  private boolean beyondLimit = true;
 
   private boolean shouldCheck = true;
 
@@ -64,30 +79,25 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
   }
 
   private void checkLimit(SensorContext context) {
-    var maxLinesForTypeChecking = getMaxLinesForTypeChecking(context);
-    var numberOfLines = getNumberOfLines(context, maxLinesForTypeChecking);
+    try {
+      var maxLinesForTypeChecking = getMaxLinesForTypeChecking(context);
+      var files = getFilesMatchingPluginLanguages(context);
+      var cappedNumberOfLines = getCappedNumberOfLines(files, maxLinesForTypeChecking);
 
-    beyondLimit = numberOfLines >= maxLinesForTypeChecking;
-    if (beyondLimit) {
-      // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
-      // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-      LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {})", maxLinesForTypeChecking);
-      LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
-    } else {
-      LOG.debug("Project type checking for JavaScript files activated as project size (total number of lines is {}, maximum is {})",
-        numberOfLines, maxLinesForTypeChecking);
-    }
-  }
-
-  private long getNumberOfLines(SensorContext context, long max) {
-    var total = 0L;
-    for (var file : getFilesMatchingPluginLanguages(context)) {
-      total += file.lines();
-      if (total > max) {
-        return max;
+      beyondLimit = cappedNumberOfLines >= maxLinesForTypeChecking;
+      if (!beyondLimit) {
+        LOG.debug("Project type checking for JavaScript files activated as project size (total number of lines is {}, maximum is {})",
+          cappedNumberOfLines, maxLinesForTypeChecking);
+      } else if (LOG.isDebugEnabled()) {
+        // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
+        // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
+        LOG.debug("Project type checking for JavaScript files deactivated due to project size (total number of lines is {}, maximum is {})",
+          getNumberOfLines(files), maxLinesForTypeChecking);
+        LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
       }
+    } catch (RuntimeException e) {
+      LOG.debug("Project type checking for JavaScript files deactivated because of unexpected error", e);
     }
-    return total;
   }
 
   private List<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {

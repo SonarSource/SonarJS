@@ -52,7 +52,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final AnalysisProcessor processAnalysis;
   private final JavaScriptProjectChecker javaScriptProjectChecker;
   private AnalysisMode analysisMode;
-  private TsConfigProvider.Provider tsConfigProvider;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
@@ -67,15 +66,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    tsConfigProvider = getTsConfigProvider();
-    runEslintAnalysis(tsConfigProvider.tsconfigs(context), inputFiles);
+    runEslintAnalysis(getTsConfigProvider().tsconfigs(context), inputFiles);
   }
 
   private TsConfigProvider.Provider getTsConfigProvider() {
     JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
 
     if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-      return new TsConfigProvider.SonarLintTsConfigProvider(javaScriptProjectChecker);
+      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker);
     } else {
       return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
     }
@@ -118,7 +116,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-        fileContent, contextUtils.ignoreHeaderComments(), tsConfigProvider.getTsConfigsForFile(tsConfigs, file), null,
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null,
         analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
