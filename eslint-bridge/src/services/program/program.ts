@@ -138,7 +138,7 @@ export function createProgramOptions(
  * instance. The program creation delegates to TypeScript the resolving of input
  * files considered by the TSConfig as well as any project references.
  *
- * @param tsConfig the TSConfig input to create a program for
+ * @param inputTsConfig the TSConfig input to create a program for
  * @returns the identifier of the created TypeScript's Program along with the
  *          resolved files and project references
  */
