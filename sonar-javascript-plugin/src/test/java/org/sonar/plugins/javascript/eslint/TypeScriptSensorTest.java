@@ -449,7 +449,7 @@ class TypeScriptSensorTest {
     when(eslintBridgeServerMock.createProgram(any()))
       .thenReturn(
         new TsProgram("1", singletonList(file1.absolutePath()), singletonList(tsconfig2.replaceAll("[\\\\/]", "/"))),
-        new TsProgram("2", singletonList(file2.absolutePath()), singletonList(tsconfig1.replaceAll("[\\\\/]", "\\\\"))));
+        new TsProgram("2", singletonList(file2.absolutePath()), singletonList(tsconfig1.replaceAll("[\\\\/]", "/"))));
 
     when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
 
