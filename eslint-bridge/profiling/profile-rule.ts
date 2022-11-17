@@ -58,7 +58,6 @@ try {
   console.log(`done in ${timeSeconds}s`);
 }
 
-
 function extractRuleFromArgs() {
   if (process.argv.length <= 2) {
     throw new Error('Missing rule id. Please provide a rule id as CLI argument');
@@ -128,7 +127,9 @@ function extractScopeFromArgs() {
   }
   const scope = process.argv[3];
   if (!SCOPES.includes(scope)) {
-    throw new Error(`Unknown scope. Please provide one of the available: ${SCOPES.map(scope => `"${scope}"`)}`);
+    throw new Error(
+      `Unknown scope. Please provide one of the available: ${SCOPES.map(scope => `"${scope}"`)}`,
+    );
   }
   switch (scope) {
     case 'js':
@@ -147,7 +148,9 @@ function extractParallelismFromArgs() {
   }
   parallelism = parseInt(process.argv[4]);
   if (isNaN(parallelism) || parallelism < 1) {
-    throw new Error(`Invalid parallelism parameter at 3rd position "${process.argv[4]}". Please prove a positive number.`);
+    throw new Error(
+      `Invalid parallelism parameter at 3rd position "${process.argv[4]}". Please prove a positive number.`,
+    );
   }
   return parallelism;
 }
@@ -183,7 +186,9 @@ async function analyzeTsProject(server: http.Server, tsConfigPath: string, paral
     try {
       await request(server, '/delete-program', 'POST', { programId });
     } catch (e) {
-      console.error(`Error while deleting program with programId: ${programId}. Error: ${e.message}`);
+      console.error(
+        `Error while deleting program with programId: ${programId}. Error: ${e.message}`,
+      );
     }
   }
 

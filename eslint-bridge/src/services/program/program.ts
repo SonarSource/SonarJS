@@ -32,7 +32,6 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
-import fs from 'fs/promises';
 
 /**
  * A cache of created TypeScript's Program instances
