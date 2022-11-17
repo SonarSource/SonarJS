@@ -71,11 +71,10 @@ export function getProgramById(programId: string): ts.Program {
 
 export function createProgramOptions(
   tsConfig: string,
-  configHost?: ts.ParseConfigHost,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = configHost || {
+  const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -144,15 +143,15 @@ export function createProgramOptions(
  * @returns the identifier of the created TypeScript's Program along with the
  *          resolved files and project references
  */
-export async function createProgram(tsConfig: string): Promise<{
+export async function createProgram(inputTsConfig: string): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
 }> {
-  if ((await fs.lstat(tsConfig)).isDirectory()) {
-    tsConfig = path.join(tsConfig, 'tsconfig.json');
-  }
+  const tsConfig = (await fs.lstat(inputTsConfig)).isDirectory()
+    ? path.join(inputTsConfig, 'tsconfig.json')
+    : inputTsConfig;
 
   const programOptions = createProgramOptions(tsConfig);
 

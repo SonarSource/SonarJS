@@ -32,8 +32,8 @@ import ts, { ModuleKind, ScriptTarget } from 'typescript';
 describe('program', () => {
   it('should create a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
-    const reference = path.join(fixtures, `reference`);
-    const tsConfig = path.join(fixtures, `tsconfig.json`);
+    const reference = path.join(fixtures, 'reference');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
 
     const { programId, files, projectReferences } = await createProgram(tsConfig);
 
@@ -54,14 +54,14 @@ describe('program', () => {
   });
 
   it('should fail creating a program with a semantically incorrect tsconfig', async () => {
-    const tsConfig = path.join(__dirname, `fixtures/tsconfig.semantic.json`);
+    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.semantic.json');
     const error = await createProgram(tsConfig).catch(err => err);
     expect(error.message).toMatch(/^Unknown compiler option 'targetSomething'./);
   });
 
   it('should still create a program when extended tsconfig does not exist', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
-    const tsConfig = path.join(fixtures, `tsconfig_missing.json`);
+    const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
     const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
 
@@ -72,20 +72,21 @@ describe('program', () => {
   });
 
   it('On missing external tsconfig, Typescript should generate default compilerOptions', () => {
-    const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
+    const fixtures = path.join(__dirname, 'fixtures');
+    const tsConfigMissing = path.join(fixtures, 'tsconfig_missing.json');
 
     const { options, missingTsConfig } = createProgramOptions(tsConfigMissing);
 
     expect(missingTsConfig).toBe(true);
     expect(options).toEqual({
-      configFilePath: toUnixPath(path.join(__dirname, 'fixtures', `tsconfig_missing.json`)),
+      configFilePath: toUnixPath(path.join(fixtures, 'tsconfig_missing.json')),
       noEmit: true,
       allowNonTsExtensions: true,
     });
   });
 
   it('External tsconfig should provide expected compilerOptions', () => {
-    const tsConfig = path.join(__dirname, 'fixtures', `tsconfig_found.json`);
+    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig_found.json');
 
     const { options, missingTsConfig } = createProgramOptions(tsConfig);
 
@@ -95,6 +96,11 @@ describe('program', () => {
     expect(options.module).toBe(ModuleKind['CommonJS']);
   });
 
+  /**
+   * Empty tsconfig.json fallback relies on Typescript resolution logic. This unit test
+   * asserts typescript resolution logic. If it changes, we will need to adapt our logic inside
+   * program.ts (createProgramOptions in program.ts)
+   */
   it('typescript tsconfig resolution should check all paths until root node_modules', async () => {
     const configHost = {
       useCaseSensitiveFileNames: true,
@@ -103,7 +109,7 @@ describe('program', () => {
       readFile: ts.sys.readFile,
     };
 
-    const tsConfigMissing = path.join(__dirname, 'fixtures', `tsconfig_missing.json`);
+    const tsConfigMissing = path.join(__dirname, 'fixtures', 'tsconfig_missing.json');
     const searchedFiles = [];
     let nodeModulesFolder = path.join(__dirname, 'fixtures');
     let searchFolder;
@@ -116,7 +122,18 @@ describe('program', () => {
       nodeModulesFolder = path.dirname(nodeModulesFolder);
     } while (!isRootNodeModules(searchFolder));
 
-    expect(() => createProgramOptions(tsConfigMissing, configHost)).toThrow();
+    const config = ts.readConfigFile(tsConfigMissing, configHost.readFile);
+    const parsedConfigFile = ts.parseJsonConfigFileContent(
+      config.config,
+      configHost,
+      path.resolve(path.dirname(tsConfigMissing)),
+      {
+        noEmit: true,
+      },
+      tsConfigMissing,
+    );
+
+    expect(parsedConfigFile.errors).not.toHaveLength(0);
     expect(configHost.fileExists).toHaveBeenCalledTimes(searchedFiles.length);
     searchedFiles.forEach((file, index) => {
       expect(configHost.fileExists).toHaveBeenNthCalledWith(index + 1, toUnixPath(file));
@@ -135,7 +152,7 @@ describe('program', () => {
       files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
     );
     expect(program.getProjectReferences().map(reference => reference.path)).toEqual(
-      projectReferences.map(p => p),
+      projectReferences,
     );
   });
 

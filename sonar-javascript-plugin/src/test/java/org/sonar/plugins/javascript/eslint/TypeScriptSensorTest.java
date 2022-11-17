@@ -396,6 +396,7 @@ class TypeScriptSensorTest {
 
     verify(eslintBridgeServerMock, times(1)).deleteProgram(any());
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(analysisWarnings.warnings).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
   }
 
   @Test
