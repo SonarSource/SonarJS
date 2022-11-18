@@ -44,7 +44,19 @@ describe('program', () => {
         toUnixPath(path.join(reference, 'file.ts')),
       ]),
     );
-    expect(projectReferences).toEqual([toUnixPath(reference)]);
+    expect(projectReferences).toEqual([path.join(reference, 'tsconfig.json')]);
+  });
+
+  it('should skip missing reference of a program', async () => {
+    const fixtures = path.join(__dirname, 'fixtures');
+    const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
+
+    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
+
+    expect(programId).toBeDefined();
+    expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
+    expect(projectReferences).toEqual([]);
+    expect(missingTsConfig).toBe(false);
   });
 
   it('should fail creating a program with a syntactically incorrect tsconfig', async () => {
@@ -143,16 +155,13 @@ describe('program', () => {
   it('should find an existing program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files, projectReferences } = await createProgram(tsConfig);
+    const { programId, files } = await createProgram(tsConfig);
 
     const program = getProgramById(programId);
 
     expect(program.getCompilerOptions().configFilePath).toEqual(toUnixPath(tsConfig));
     expect(program.getRootFileNames()).toEqual(
       files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
-    );
-    expect(program.getProjectReferences().map(reference => reference.path)).toEqual(
-      projectReferences,
     );
   });
 

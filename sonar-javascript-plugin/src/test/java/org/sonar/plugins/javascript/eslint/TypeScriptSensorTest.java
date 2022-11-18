@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,6 +73,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 
 import static java.util.Collections.emptyList;
@@ -394,8 +394,8 @@ class TypeScriptSensorTest {
     );
 
     verify(eslintBridgeServerMock, times(1)).deleteProgram(any());
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
-    assertThat(analysisWarnings.warnings).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(analysisWarnings.warnings).contains("At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
   }
 
   @Test
@@ -413,9 +413,9 @@ class TypeScriptSensorTest {
     when(eslintBridgeServerMock.createProgram(any()))
       .thenReturn(
         new TsProgram("1", Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"), emptyList()),
-        new TsProgram("2", singletonList(file2.absolutePath()), Collections.singletonList("some-other-tsconfig.json")),
+        new TsProgram("2", singletonList(file2.absolutePath()), singletonList("some-other-tsconfig.json")),
         new TsProgram("something went wrong"),
-        new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), Collections.singletonList(tsconfig1)));
+        new TsProgram("3", Arrays.asList(file2.absolutePath(), file3.absolutePath()), singletonList(tsconfig1)));
 
     when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
 
@@ -436,14 +436,46 @@ class TypeScriptSensorTest {
   }
 
   @Test
+  void should_not_analyze_references_twice() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/referenced-tsconfigs").toAbsolutePath();
+    SensorContextTester context = createSensorContext(baseDir);
+
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "file.ts");
+    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir/file.ts");
+
+    String tsconfig1 = absolutePath(baseDir, "tsconfig.json");
+    String tsconfig2 = absolutePath(baseDir, "dir/tsconfig.json");
+
+    when(eslintBridgeServerMock.createProgram(any()))
+      .thenReturn(
+        new TsProgram("1", singletonList(file1.absolutePath()), singletonList(tsconfig2.replaceAll("[\\\\/]", "/"))),
+        new TsProgram("2", singletonList(file2.absolutePath()), singletonList(tsconfig1.replaceAll("[\\\\/]", "/"))));
+
+    when(eslintBridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+
+    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(TsProgramRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(2)).createProgram(captorProgram.capture());
+    assertThat(captorProgram.getAllValues()).extracting(req -> req.tsConfig).isEqualTo(List.of(
+      tsconfig1,
+      tsconfig2
+    ));
+
+    verify(eslintBridgeServerMock, times(2)).deleteProgram(any());
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnlyOnce("TypeScript configuration file " + tsconfig1);
+    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnlyOnce("TypeScript configuration file " + tsconfig2);
+  }
+
+  @Test
   void should_do_nothing_when_no_tsconfig_when_analysis_with_program() throws IOException {
     var ctx = createSensorContext(baseDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig (enable debug logs to see the full list)");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig: dir/file.ts");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig.json: dir/file.ts");
   }
 
   @Test

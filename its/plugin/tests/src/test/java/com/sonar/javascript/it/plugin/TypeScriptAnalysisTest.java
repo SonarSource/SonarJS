@@ -200,8 +200,8 @@ class TypeScriptAnalysisTest {
       tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 file(s) because they were not part of any tsconfig"))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig: dir/file.excluded.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 file(s) because they were not part of any tsconfig.json"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig.json: dir/file.excluded.ts"))).hasSize(1);
   }
 
   @Test
@@ -224,7 +224,7 @@ class TypeScriptAnalysisTest {
       tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig"))).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
   }
 
   @Test
@@ -249,6 +249,6 @@ class TypeScriptAnalysisTest {
       tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig"))).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
   }
 }

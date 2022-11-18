@@ -24,21 +24,18 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues.Issue;
 
 import java.io.File;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
-class ExternalTSConfigDependencyTest {
+class ReferencedTSConfigTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
-  private static final String PROJECT = "external-tsconfig-dependency-project";
+  private static final String PROJECT = "referenced-tsconfigs";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT);
 
   @Test
@@ -54,18 +51,6 @@ class ExternalTSConfigDependencyTest {
 
     BuildResult buildResult = orchestrator.executeBuild(build);
 
-    assertThat(getIssues(PROJECT)).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, "external-tsconfig-dependency-project:src/bar/main.ts")
-    );
-    assertThat(buildResult.getLogsLines(l -> l.equals("WARN: At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."))).hasSize(1);
-
-    File rootDrive = PROJECT_DIR;
-    while (rootDrive.getParentFile() != null) {
-      rootDrive = rootDrive.getParentFile();
-    }
-
-    File lastTsConfigPath = new File(rootDrive, "node_modules" + File.separator + "@tsconfig" + File.separator + "node14" + File.separator + "tsconfig.json");
-
-    assertThat(buildResult.getLogsLines(l -> l.equals("WARN: Could not find tsconfig.json: " + lastTsConfigPath.getAbsolutePath().replace('\\', '/') + "; falling back to an empty configuration."))).hasSize(1);
+    assertThat(buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file"))).hasSize(2);
   }
 }
