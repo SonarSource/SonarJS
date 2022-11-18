@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -298,6 +299,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_save_only_nosonar_metric_in_sonarlint() throws Exception {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
 
     JavaScriptEslintBasedSensor sensor = createSensor(mock(JavaScriptProjectChecker.class));
 
@@ -501,6 +503,8 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_send_content_on_sonarlint() throws Exception {
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
+
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setNextCache(mock(WriteCache.class));
     ctx.setPreviousCache(mock(ReadCache.class));
@@ -514,6 +518,7 @@ class JavaScriptEslintBasedSensorTest {
       "doFoo(); \n" +
       "else \n" +
       "doFoo();");
+    assertThat(captor.getValue().tsConfigs).containsExactly("/path/to/file");
 
     clearInvocations(eslintBridgeServerMock);
     ctx = SensorContextTester.create(baseDir);

@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -230,6 +231,16 @@ class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
 
     assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
+  }
+
+  @Test
+  void should_create_tsconfig_files() throws IOException {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
+    assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
   }
 
   @Test
