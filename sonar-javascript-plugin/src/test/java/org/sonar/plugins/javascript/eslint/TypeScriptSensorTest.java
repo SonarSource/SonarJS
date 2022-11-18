@@ -394,8 +394,8 @@ class TypeScriptSensorTest {
     );
 
     verify(eslintBridgeServerMock, times(1)).deleteProgram(any());
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
-    assertThat(analysisWarnings.warnings).contains("At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
+    assertThat(analysisWarnings.warnings).contains("At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.");
   }
 
   @Test
@@ -475,7 +475,7 @@ class TypeScriptSensorTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig: dir/file.ts");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig.json: dir/file.ts");
   }
 
   @Test
