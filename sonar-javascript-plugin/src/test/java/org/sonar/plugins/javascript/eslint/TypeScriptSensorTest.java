@@ -474,7 +474,7 @@ class TypeScriptSensorTest {
     createSensor().execute(ctx);
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig (enable debug logs to see the full list)");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File not part of any tsconfig: dir/file.ts");
   }
 
