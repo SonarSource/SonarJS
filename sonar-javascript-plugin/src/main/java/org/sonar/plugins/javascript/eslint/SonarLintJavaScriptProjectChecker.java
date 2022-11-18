@@ -59,16 +59,16 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
   private final ModuleFileSystem moduleFileSystem;
 
-  public boolean isBeyondLimit() {
-    return beyondLimit;
-  }
-
   private boolean beyondLimit = true;
 
   private boolean shouldCheck = true;
 
   public SonarLintJavaScriptProjectChecker(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
+  }
+
+  public boolean isBeyondLimit() {
+    return beyondLimit;
   }
 
   public void checkOnce(SensorContext context) {

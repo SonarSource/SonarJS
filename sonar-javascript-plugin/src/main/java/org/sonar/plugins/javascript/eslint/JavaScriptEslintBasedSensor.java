@@ -70,9 +70,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private TsConfigProvider.Provider getTsConfigProvider() {
-    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-
     if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
+      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
       return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker);
     } else {
       return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
@@ -116,8 +115,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null,
-        analysisMode.getLinterIdFor(file));
+        fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
       processAnalysis.processResponse(context, checks, file, response);
       cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);

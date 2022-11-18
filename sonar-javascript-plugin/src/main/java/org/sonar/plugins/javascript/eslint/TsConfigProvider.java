@@ -182,23 +182,16 @@ class TsConfigProvider {
 
     static class TsConfig {
       List<String> files;
-      Map<String, Object> compilerOptions;
+      Map<String, Object> compilerOptions = new LinkedHashMap<>();
       List<String> include;
 
-      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
-        this(inputFiles, compilerOptions, null);
-      }
-
-      TsConfig(List<String> include, Map<String, Object> compilerOptions) {
-        this(null, compilerOptions, include);
-      }
-
-      TsConfig(@Nullable Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions, @Nullable List<String> include) {
+      TsConfig(@Nullable Iterable<InputFile> inputFiles, @Nullable List<String> include) {
+        compilerOptions.put("allowJs", true);
+        compilerOptions.put("noImplicitAny", true);
         if (inputFiles != null) {
           files = new ArrayList<>();
           inputFiles.forEach(f -> files.add(f.absolutePath()));
         }
-        this.compilerOptions = compilerOptions;
         this.include = include;
       }
 
@@ -216,17 +209,6 @@ class TsConfigProvider {
       var tempFile = Files.createTempFile(null, null);
       Files.writeString(tempFile, content, StandardCharsets.UTF_8);
       return tempFile.toAbsolutePath().toString();
-    }
-
-    static final Map<String, Object> DEFAULT_COMPILER_OPTIONS;
-
-    static {
-      var compilerOptions = new LinkedHashMap<String, Object>();
-      // to support parsing of JavaScript-specific syntax
-      compilerOptions.put("allowJs", true);
-      // to make TypeScript compiler "better infer types"
-      compilerOptions.put("noImplicitAny", true);
-      DEFAULT_COMPILER_OPTIONS = compilerOptions;
     }
 
     final SonarProduct product;
@@ -268,7 +250,7 @@ class TsConfigProvider {
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) throws IOException {
       var inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
-      var tsConfig = new TsConfig(inputFiles, DEFAULT_COMPILER_OPTIONS);
+      var tsConfig = new TsConfig(inputFiles, null);
       var tsconfigFile = writeToJsonFile(tsConfig);
       LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
       return singletonList(tsconfigFile.getAbsolutePath());
@@ -311,7 +293,7 @@ class TsConfigProvider {
     }
 
     List<String> writeTsConfigFileFor(String root) {
-      var config = new TsConfig(List.of(root + "/**/*"), DEFAULT_COMPILER_OPTIONS);
+      var config = new TsConfig(null, singletonList(root + "/**/*"));
       var file = config.writeFileWith(fileWriter);
       LOG.debug("Using generated tsconfig.json file using wildcards {}", file);
       return file;
