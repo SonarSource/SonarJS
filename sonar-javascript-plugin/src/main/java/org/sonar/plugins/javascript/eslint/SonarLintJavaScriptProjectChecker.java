@@ -96,6 +96,8 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
         LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
       }
     } catch (RuntimeException e) {
+      // Any runtime error raised by the SonarLint API would be caught here to let the analyzer proceed with the rules that don't require
+      // type checking.
       LOG.debug("Project type checking for JavaScript files deactivated because of unexpected error", e);
     }
   }
