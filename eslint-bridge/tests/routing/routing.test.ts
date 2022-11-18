@@ -26,7 +26,7 @@ import { start } from 'server';
 import { createProgram } from 'services/program';
 import { promisify } from 'util';
 import { request } from '../tools';
-import * as fs from "fs";
+import * as fs from 'fs';
 
 describe('router', () => {
   const port = 0;
@@ -231,7 +231,9 @@ describe('router', () => {
   });
 
   it('should write tsconfig.json file', async () => {
-    const response = await request(server, '/write-tsconfig-file', 'POST', { include: ['/path/to/project/**/*'] }) as string;
+    const response = (await request(server, '/write-tsconfig-file', 'POST', {
+      include: ['/path/to/project/**/*'],
+    })) as string;
     const json = JSON.parse(response);
     expect(json).toBeTruthy();
     expect(json.filename).toBeTruthy();
