@@ -230,7 +230,7 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    var fileWriter = mock(TsConfigProvider.GeneratedTsConfigFileProvider.FileWriter.class);
+    var fileWriter = mock(TsConfigProvider.FileWriter.class);
     when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
 
     var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(checker, fileWriter);

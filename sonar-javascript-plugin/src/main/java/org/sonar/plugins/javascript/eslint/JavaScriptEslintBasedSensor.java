@@ -72,10 +72,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private TsConfigProvider.Provider getTsConfigProvider() {
     if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
       JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker);
+      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, this::writeFile);
     } else {
       return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
     }
+  }
+
+  private String writeFile(String content) throws IOException {
+    return eslintBridgeServer.writeTsConfigFile(content).filename;
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {

@@ -60,6 +60,11 @@ class TsConfigProvider {
     List<String> tsconfigs(SensorContext context) throws IOException;
   }
 
+  @FunctionalInterface
+  interface FileWriter {
+    String writeFile(String content) throws IOException;
+  }
+
   private final List<Provider> providers;
 
   /**
@@ -175,10 +180,6 @@ class TsConfigProvider {
   }
 
   abstract static class GeneratedTsConfigFileProvider implements Provider {
-    @FunctionalInterface
-    interface FileWriter {
-      String writeFile(String content) throws IOException;
-    }
 
     static class TsConfig {
       List<String> files;
@@ -214,10 +215,6 @@ class TsConfigProvider {
     final SonarProduct product;
     final FileWriter fileWriter;
 
-    GeneratedTsConfigFileProvider(SonarProduct product) {
-      this(product, null);
-    }
-
     GeneratedTsConfigFileProvider(SonarProduct product, @Nullable FileWriter fileWriter) {
       this.product = product;
       this.fileWriter = fileWriter == null ? TsConfigProvider.GeneratedTsConfigFileProvider::writeFile : fileWriter;
@@ -242,7 +239,7 @@ class TsConfigProvider {
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
-      super(SonarProduct.SONARQUBE);
+      super(SonarProduct.SONARQUBE, null);
       this.folder = folder;
       this.filePredicateProvider = filePredicate;
     }
