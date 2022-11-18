@@ -299,7 +299,7 @@ class JavaScriptEslintBasedSensorTest {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
 
-    JavaScriptEslintBasedSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor(mock(JavaScriptProjectChecker.class));
 
     DefaultInputFile inputFile = createInputFile(context);
 
@@ -423,7 +423,8 @@ class JavaScriptEslintBasedSensorTest {
       new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
-      analysisProcessor
+      analysisProcessor,
+      null
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -439,7 +440,8 @@ class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      analysisProcessor
+      analysisProcessor,
+      null
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
@@ -489,7 +491,8 @@ class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
+      eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor, null).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -505,7 +508,7 @@ class JavaScriptEslintBasedSensorTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(ctx);
+    createSensor(mock(JavaScriptProjectChecker.class)).execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
       "doFoo(); \n" +
@@ -616,8 +619,12 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   private JavaScriptEslintBasedSensor createSensor() {
+    return createSensor(null);
+  }
+
+  private JavaScriptEslintBasedSensor createSensor(JavaScriptProjectChecker javaScriptProjectChecker) {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, javaScriptProjectChecker
     );
   }
 

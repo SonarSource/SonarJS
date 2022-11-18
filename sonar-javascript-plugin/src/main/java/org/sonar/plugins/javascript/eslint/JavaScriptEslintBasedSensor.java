@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,33 +46,36 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
+
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
+  private final JavaScriptProjectChecker javaScriptProjectChecker;
   private AnalysisMode analysisMode;
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     AnalysisProcessor processAnalysis) {
+                                     AnalysisProcessor processAnalysis,
+                                     @Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
+    this.javaScriptProjectChecker = javaScriptProjectChecker;
   }
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
+    runEslintAnalysis(getTsConfigProvider().tsconfigs(context), inputFiles);
   }
 
-  private List<String> provideDefaultTsConfig() throws IOException {
-    Map<String, Object> compilerOptions = new HashMap<>();
-    // to support parsing of JavaScript-specific syntax
-    compilerOptions.put("allowJs", true);
-    // to make TypeScript compiler "better infer types"
-    compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
-    return provider.tsconfigs(context);
+  private TsConfigProvider.Provider getTsConfigProvider() {
+    if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
+      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker);
+    } else {
+      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
+    }
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
@@ -136,4 +139,5 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       .onlyOnLanguage(JavaScriptLanguage.KEY)
       .name("JavaScript analysis");
   }
+
 }

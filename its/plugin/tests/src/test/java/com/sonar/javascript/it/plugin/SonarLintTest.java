@@ -30,8 +30,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
@@ -144,22 +142,21 @@ class SonarLintTest {
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
   }
 
-  @ParameterizedTest
-  @CsvSource({"javascript,js", "typescript,ts"})
-  void should_analyze_with_typed_rules(String language, String extension) throws IOException {
+  @Test
+  void should_analyze_js_with_typed_rules() throws IOException {
     String fileName;
     String content;
     List<Issue> issues;
 
-    fileName = "file." + extension;
-    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    fileName = "file.js";
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
 
     fileName = "file.vue";
-    content = Files.readString(TestUtils.projectDir(extension + "-sonarlint-project").toPath().resolve(fileName));
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains(language + ":S2870", language + ":S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
   }
 
   @Test

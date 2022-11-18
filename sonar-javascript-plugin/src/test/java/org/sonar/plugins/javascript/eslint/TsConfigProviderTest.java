@@ -25,12 +25,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -41,7 +41,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -176,65 +175,74 @@ class TsConfigProviderTest {
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
-    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{}}");
+    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
   }
 
   @Test
-  void should_create_tsconfig_in_sonarlint() throws Exception {
+  void should_create_wildcard_tsconfig() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx, "file1.ts");
-    createInputFile(ctx, "file2.ts");
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx, "file1.js");
+    createInputFile(ctx, "file2.js");
 
-    var tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
+    var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+      .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+
+    when(checker.isBeyondLimit()).thenReturn(true);
+    provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
+    assertThat(provider.tsconfigs(ctx)).isEmpty();
+
+    provider = new TsConfigProvider.WildcardTsConfigProvider(null);
+    assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
   @Test
-  void should_not_recreate_tsconfig_in_sonarlint() throws Exception {
+  void should_not_recreate_wildcart_tsconfig_in_sonarlint() throws Exception {
     List<String> tsconfigs;
     Path file;
 
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider(checker).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
 
     file = Path.of(tsconfigs.get(0));
     assertThat(file).exists();
     Files.delete(file);
-
-    tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
-    assertThat(tsconfigs).hasSize(1).extracting(Path::of).contains(file);
-
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).doesNotExist();
   }
 
   @Test
   void should_not_fail_on_exception() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx, "file1.js");
-    createInputFile(ctx, "file2.js");
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var file = createInputFile(ctx, "file.js");
 
-    var fileWriter = mock(TsConfigProvider.DefaultTsConfigProvider.FileWriter.class);
+    var checker = mock(JavaScriptProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var fileWriter = mock(TsConfigProvider.GeneratedTsConfigFileProvider.FileWriter.class);
     when(fileWriter.writeFile(anyString())).thenThrow(IOException.class);
 
-    var provider = new TsConfigProvider.DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getTypeScriptPredicate, new HashMap<>(), fileWriter);
-    var tsconfigs = provider.tsconfigs(ctx);
-    assertThat(tsconfigs).isEmpty();
+    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(checker, fileWriter);
+    assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
   }
 
-  private static void createInputFile(SensorContextTester context, String relativePath) {
+  private static InputFile createInputFile(SensorContextTester context, String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
+    return inputFile;
   }
 }

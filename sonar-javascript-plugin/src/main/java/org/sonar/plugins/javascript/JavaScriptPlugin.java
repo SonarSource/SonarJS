@@ -24,6 +24,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.CssProfileDefinition;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
@@ -40,6 +42,7 @@ import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
+import org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker;
 import org.sonar.plugins.javascript.eslint.TypeScriptChecks;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
@@ -56,6 +59,7 @@ import org.sonarsource.nodejs.ProcessWrapperImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
+  private static final Logger LOG = Loggers.get(JavaScriptPlugin.class);
 
   // Subcategories
 
@@ -278,7 +282,30 @@ public class JavaScriptPlugin implements Plugin {
           .subCategory("CSS")
           .multiValues(true)
           .build());
+    } else {
+      var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
+      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, new SonarLintPluginAPIVersion());
     }
   }
 
+  static class SonarLintPluginAPIManager {
+    public void addSonarlintJavaScriptProjectChecker(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
+      if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
+        context.addExtension(SonarLintJavaScriptProjectChecker.class);
+      } else {
+        LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
+      }
+    }
+  }
+
+  static class SonarLintPluginAPIVersion {
+    boolean isDependencyAvailable() {
+      try {
+        Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem");
+      } catch (ClassNotFoundException e) {
+        return false;
+      }
+      return true;
+    }
+  }
 }
