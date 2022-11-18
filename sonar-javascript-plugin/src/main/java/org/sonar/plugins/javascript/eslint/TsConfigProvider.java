@@ -206,18 +206,10 @@ class TsConfigProvider {
       }
     }
 
-    private static String createTsConfigFile(String content) throws IOException {
-      var tempFile = Files.createTempFile(null, null);
-      Files.writeString(tempFile, content, StandardCharsets.UTF_8);
-      return tempFile.toAbsolutePath().toString();
-    }
-
     final SonarProduct product;
-    final TsConfigFileCreator tsConfigFileCreator;
 
-    GeneratedTsConfigFileProvider(SonarProduct product, @Nullable TsConfigFileCreator tsConfigFileCreator) {
+    GeneratedTsConfigFileProvider(SonarProduct product) {
       this.product = product;
-      this.tsConfigFileCreator = tsConfigFileCreator == null ? TsConfigProvider.GeneratedTsConfigFileProvider::createTsConfigFile : tsConfigFileCreator;
     }
 
     @Override
@@ -239,7 +231,7 @@ class TsConfigProvider {
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
-      super(SonarProduct.SONARQUBE, null);
+      super(SonarProduct.SONARQUBE);
       this.folder = folder;
       this.filePredicateProvider = filePredicate;
     }
@@ -269,14 +261,12 @@ class TsConfigProvider {
 
     private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
 
+    final TsConfigFileCreator tsConfigFileCreator;
     private final boolean deactivated;
 
-    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker) {
-      this(checker, null);
-    }
-
-    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, @Nullable TsConfigFileCreator tsConfigFileCreator) {
-      super(SonarProduct.SONARLINT, tsConfigFileCreator);
+    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, TsConfigFileCreator tsConfigFileCreator) {
+      super(SonarProduct.SONARLINT);
+      this.tsConfigFileCreator = tsConfigFileCreator;
       deactivated = checker == null || checker.isBeyondLimit();
     }
 

@@ -188,7 +188,7 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    var provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
+    var provider = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
     var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
@@ -196,10 +196,10 @@ class TsConfigProviderTest {
       .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
 
     when(checker.isBeyondLimit()).thenReturn(true);
-    provider = new TsConfigProvider.WildcardTsConfigProvider(checker);
+    provider = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
     assertThat(provider.tsconfigs(ctx)).isEmpty();
 
-    provider = new TsConfigProvider.WildcardTsConfigProvider(null);
+    provider = new TsConfigProvider.WildcardTsConfigProvider(null, TsConfigProviderTest::createTsConfigFile);
     assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
@@ -214,7 +214,7 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider(checker).tsconfigs(ctx);
+    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
 
     file = Path.of(tsconfigs.get(0));
@@ -225,7 +225,7 @@ class TsConfigProviderTest {
   @Test
   void should_not_fail_on_exception() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
-    var file = createInputFile(ctx, "file.js");
+    createInputFile(ctx, "file.js");
 
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
@@ -245,4 +245,11 @@ class TsConfigProviderTest {
     context.fileSystem().add(inputFile);
     return inputFile;
   }
+
+  private static String createTsConfigFile(String content) throws IOException {
+    var tempFile = Files.createTempFile(null, null);
+    Files.writeString(tempFile, content, StandardCharsets.UTF_8);
+    return tempFile.toAbsolutePath().toString();
+  }
+
 }
