@@ -20,6 +20,9 @@
 
 import * as path from 'path';
 import * as ts from 'typescript';
+import tmp from 'tmp';
+import fs from 'fs/promises';
+import { promisify } from 'util';
 
 /**
  * Gets the files resolved by a TSConfig
@@ -78,6 +81,22 @@ export function getFilesForTsConfig(
     : [];
 
   return { files: parsed.fileNames, projectReferences };
+}
+
+tmp.setGracefulCleanup();
+
+/**
+ * Write the TSConfig file and returns its path.
+ *
+ * The file is written in a temporary location and is marked to be removed after NodeJS exit.
+ *
+ * @param tsConfig TSConfig to write
+ * @returns the resolved TSConfig file path
+ */
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+  const filename = await promisify(tmp.file)();
+  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+  return { filename };
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {

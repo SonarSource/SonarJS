@@ -385,6 +385,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return "OK!".equals(response);
   }
 
+  @Override
+  public TsConfigFile writeTsConfigFile(String content) throws IOException {
+    var response = request(content, "write-tsconfig-file");
+    return GSON.fromJson(response, TsConfigFile.class);
+  }
+
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
     return list == null ? emptyList() : list;
   }
