@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -237,13 +236,12 @@ class TsConfigProviderTest {
     assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
   }
 
-  private static InputFile createInputFile(SensorContextTester context, String relativePath) {
+  private static void createInputFile(SensorContextTester context, String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
-    return inputFile;
   }
 
   private static String createTsConfigFile(String content) throws IOException {
