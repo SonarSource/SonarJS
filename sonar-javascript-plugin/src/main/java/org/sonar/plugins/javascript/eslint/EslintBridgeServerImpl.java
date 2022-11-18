@@ -386,8 +386,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public TsConfigFile writeTsConfigFile(String content) throws IOException {
-    var response = request(content, "write-tsconfig-file");
+  public TsConfigFile createTsConfigFile(String content) throws IOException {
+    var response = request(content, "create-tsconfig-file");
     return GSON.fromJson(response, TsConfigFile.class);
   }
 

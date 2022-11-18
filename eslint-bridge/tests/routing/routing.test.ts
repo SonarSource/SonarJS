@@ -231,7 +231,7 @@ describe('router', () => {
   });
 
   it('should write tsconfig.json file', async () => {
-    const response = (await request(server, '/write-tsconfig-file', 'POST', {
+    const response = (await request(server, '/create-tsconfig-file', 'POST', {
       include: ['/path/to/project/**/*'],
     })) as string;
     const json = JSON.parse(response);

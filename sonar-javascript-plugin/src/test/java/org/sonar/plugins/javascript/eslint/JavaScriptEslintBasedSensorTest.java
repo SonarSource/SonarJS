@@ -299,7 +299,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_save_only_nosonar_metric_in_sonarlint() throws Exception {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
-    when(eslintBridgeServerMock.writeTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
 
     JavaScriptEslintBasedSensor sensor = createSensor(mock(JavaScriptProjectChecker.class));
 
@@ -503,7 +503,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_send_content_on_sonarlint() throws Exception {
-    when(eslintBridgeServerMock.writeTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setNextCache(mock(WriteCache.class));

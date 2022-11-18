@@ -239,7 +239,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    var tsConfig = eslintBridgeServer.writeTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
+    var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
     assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
   }
 

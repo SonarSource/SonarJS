@@ -29,7 +29,7 @@ import onInitLinter from './on-init-linter';
 import onNewTSConfig from './on-new-tsconfig';
 import onStatus from './on-status';
 import onTSConfigFiles from './on-tsconfig-files';
-import onWriteTSConfigFile from './on-write-tsconfig-file';
+import onCreateTSConfigFile from './on-create-tsconfig-file';
 
 const router = express.Router();
 
@@ -44,6 +44,6 @@ router.post('/init-linter', onInitLinter);
 router.post('/new-tsconfig', onNewTSConfig);
 router.get('/status', onStatus);
 router.post('/tsconfig-files', onTSConfigFiles);
-router.post('/write-tsconfig-file', onWriteTSConfigFile);
+router.post('/create-tsconfig-file', onCreateTSConfigFile);
 
 export default router;

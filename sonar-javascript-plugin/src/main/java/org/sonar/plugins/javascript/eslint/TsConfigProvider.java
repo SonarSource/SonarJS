@@ -61,8 +61,8 @@ class TsConfigProvider {
   }
 
   @FunctionalInterface
-  interface FileWriter {
-    String writeFile(String content) throws IOException;
+  interface TsConfigFileCreator {
+    String createTsConfigFile(String content) throws IOException;
   }
 
   private final List<Provider> providers;
@@ -196,9 +196,9 @@ class TsConfigProvider {
         this.include = include;
       }
 
-      List<String> writeFileWith(FileWriter fileWriter) {
+      List<String> writeFileWith(TsConfigFileCreator tsConfigFileCreator) {
         try {
-          return singletonList(fileWriter.writeFile(new Gson().toJson(this)));
+          return singletonList(tsConfigFileCreator.createTsConfigFile(new Gson().toJson(this)));
         } catch (IOException e) {
           LOG.warn("Generating tsconfig.json failed", e);
           return emptyList();
@@ -206,18 +206,18 @@ class TsConfigProvider {
       }
     }
 
-    private static String writeFile(String content) throws IOException {
+    private static String createTsConfigFile(String content) throws IOException {
       var tempFile = Files.createTempFile(null, null);
       Files.writeString(tempFile, content, StandardCharsets.UTF_8);
       return tempFile.toAbsolutePath().toString();
     }
 
     final SonarProduct product;
-    final FileWriter fileWriter;
+    final TsConfigFileCreator tsConfigFileCreator;
 
-    GeneratedTsConfigFileProvider(SonarProduct product, @Nullable FileWriter fileWriter) {
+    GeneratedTsConfigFileProvider(SonarProduct product, @Nullable TsConfigFileCreator tsConfigFileCreator) {
       this.product = product;
-      this.fileWriter = fileWriter == null ? TsConfigProvider.GeneratedTsConfigFileProvider::writeFile : fileWriter;
+      this.tsConfigFileCreator = tsConfigFileCreator == null ? TsConfigProvider.GeneratedTsConfigFileProvider::createTsConfigFile : tsConfigFileCreator;
     }
 
     @Override
@@ -275,8 +275,8 @@ class TsConfigProvider {
       this(checker, null);
     }
 
-    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, @Nullable FileWriter fileWriter) {
-      super(SonarProduct.SONARLINT, fileWriter);
+    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, @Nullable TsConfigFileCreator tsConfigFileCreator) {
+      super(SonarProduct.SONARLINT, tsConfigFileCreator);
       deactivated = checker == null || checker.isBeyondLimit();
     }
 
@@ -291,7 +291,7 @@ class TsConfigProvider {
 
     List<String> writeTsConfigFileFor(String root) {
       var config = new TsConfig(null, singletonList(root + "/**/*"));
-      var file = config.writeFileWith(fileWriter);
+      var file = config.writeFileWith(tsConfigFileCreator);
       LOG.debug("Using generated tsconfig.json file using wildcards {}", file);
       return file;
     }

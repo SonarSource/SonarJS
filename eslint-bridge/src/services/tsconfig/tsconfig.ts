@@ -83,12 +83,15 @@ export function getFilesForTsConfig(
   return { files: parsed.fileNames, projectReferences };
 }
 
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
 tmp.setGracefulCleanup();
 
 /**
- * Write the TSConfig file and returns its path.
+ * Create the TSConfig file and returns its path.
  *
- * The file is written in a temporary location and is marked to be removed after NodeJS exit.
+ * The file is written in a temporary location in the file system and is marked to be removed after Node.js process terminates.
  *
  * @param tsConfig TSConfig to write
  * @returns the resolved TSConfig file path
