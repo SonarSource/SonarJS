@@ -87,7 +87,7 @@ public class AnalysisWithProgram {
         var tsConfig = Path.of(workList.pop()).toString();
         // Use of path.of as it normalizes Unix and Windows paths. Otherwise, project references returned by typescript may not match system slash
         if (!analyzedProjects.add(tsConfig)) {
-          LOG.debug("tsconfig already analyzed: '{}'. Skipping it.", tsConfig);
+          LOG.debug("tsconfig.json already analyzed: '{}'. Skipping it.", tsConfig);
           continue;
         }
         monitoring.startProgram(tsConfig);
@@ -100,7 +100,7 @@ public class AnalysisWithProgram {
           continue;
         }
         if (program.missingTsConfig) {
-          String msg = "At least one tsconfig was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+          String msg = "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }
@@ -113,8 +113,8 @@ public class AnalysisWithProgram {
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
       if (!skippedFiles.isEmpty()) {
-        LOG.info("Skipped {} file(s) because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
-        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
+        LOG.info("Skipped {} file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)", skippedFiles.size());
+        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig.json: {}", f));
       }
       success = true;
     } finally {

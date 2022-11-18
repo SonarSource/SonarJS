@@ -26,7 +26,7 @@ import {
   getProgramById,
   isRootNodeModules,
 } from 'services/program';
-import { addTsConfigIfMissing, toUnixPath } from 'helpers';
+import { toUnixPath } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 
 describe('program', () => {
@@ -44,10 +44,10 @@ describe('program', () => {
         toUnixPath(path.join(reference, 'file.ts')),
       ]),
     );
-    expect(projectReferences).toEqual([await addTsConfigIfMissing(reference)]);
+    expect(projectReferences).toEqual([path.join(reference, 'tsconfig.json')]);
   });
 
-  it('should skip missing reference a program', async () => {
+  it('should skip missing reference of a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
 
@@ -155,7 +155,7 @@ describe('program', () => {
   it('should find an existing program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files, projectReferences } = await createProgram(tsConfig);
+    const { programId, files } = await createProgram(tsConfig);
 
     const program = getProgramById(programId);
 
@@ -163,13 +163,6 @@ describe('program', () => {
     expect(program.getRootFileNames()).toEqual(
       files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
     );
-    expect(
-      await Promise.all(
-        program
-          .getProjectReferences()
-          .map(async reference => await addTsConfigIfMissing(reference.path)),
-      ),
-    ).toEqual(projectReferences);
   });
 
   it('should fail finding a non-existing program', () => {

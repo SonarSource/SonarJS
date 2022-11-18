@@ -31,7 +31,7 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfMissing, debug, toUnixPath } from 'helpers';
+import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
 
 /**
  * A cache of created TypeScript's Program instances
@@ -91,7 +91,7 @@ export function createProgramOptions(
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
         console.log(
-          `WARN Could not find tsconfig: ${file}; falling back to an empty configuration.`,
+          `WARN Could not find tsconfig.json: ${file}; falling back to an empty configuration.`,
         );
         return '{}';
       }
@@ -138,32 +138,30 @@ export function createProgramOptions(
  * instance. The program creation delegates to TypeScript the resolving of input
  * files considered by the TSConfig as well as any project references.
  *
- * @param inputTsConfig the TSConfig input to create a program for
+ * @param tsConfig the TSConfig input to create a program for
  * @returns the identifier of the created TypeScript's Program along with the
- *          resolved files and project references
+ *          resolved files, project references and a boolean 'missingTsConfig'
+ *          which is true when an extended tsconfig.json path was not found,
+ *          which defaulted to default Typescript configuration
  */
-export async function createProgram(inputTsConfig: string): Promise<{
+export async function createProgram(tsConfig: string): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
 }> {
-  const tsConfig = await addTsConfigIfMissing(inputTsConfig);
-  if (!tsConfig) {
-    throw Error(`tsconfig not found in ${tsConfig}`);
-  }
   const programOptions = createProgramOptions(tsConfig);
 
   const program = ts.createProgram(programOptions);
-  const projectReferences = program.getProjectReferences() || [];
-  const sanitizedProjectReferences: string[] = [];
+  const inputProjectReferences = program.getProjectReferences() || [];
+  const projectReferences: string[] = [];
 
-  for (const reference of projectReferences) {
-    const sanitizedReference = await addTsConfigIfMissing(reference.path);
+  for (const reference of inputProjectReferences) {
+    const sanitizedReference = await addTsConfigIfDirectory(reference.path);
     if (!sanitizedReference) {
-      console.log(`WARN Skipping missing referenced tsconfig: ${reference.path}`);
+      console.log(`WARN Skipping missing referenced tsconfig.json: ${reference.path}`);
     } else {
-      sanitizedProjectReferences.push(sanitizedReference);
+      projectReferences.push(sanitizedReference);
     }
   }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
@@ -175,7 +173,7 @@ export async function createProgram(inputTsConfig: string): Promise<{
   return {
     programId,
     files,
-    projectReferences: sanitizedProjectReferences,
+    projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
   };
 }

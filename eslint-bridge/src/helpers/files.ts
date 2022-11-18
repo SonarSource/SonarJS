@@ -81,10 +81,10 @@ export function toUnixPath(path: string) {
  *
  * @param tsConfig
  */
-export async function addTsConfigIfMissing(tsConfig: string) {
+export async function addTsConfigIfDirectory(tsConfig: string) {
   try {
     if ((await fs.lstat(tsConfig)).isDirectory()) {
-      tsConfig = path.join(tsConfig, 'tsconfig.json');
+      return path.join(tsConfig, 'tsconfig.json');
     }
 
     return tsConfig;
