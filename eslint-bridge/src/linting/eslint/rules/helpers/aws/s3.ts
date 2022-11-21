@@ -21,12 +21,13 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleAndCalledMethod,
+  getFullyQualifiedName,
   getNodeParent,
   getValueOfExpression,
   isIdentifier,
   isProperty,
 } from '..';
+import { normalizeFQN } from './cdk';
 
 /**
  * A rule template for AWS S3 Buckets
@@ -65,8 +66,7 @@ export function S3BucketTemplate(
  * new s3.Bucket();
  */
 export function isS3BucketConstructor(context: Rule.RuleContext, node: estree.NewExpression) {
-  const { module, method } = getModuleAndCalledMethod(node.callee, context);
-  return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'Bucket');
+  return normalizeFQN(getFullyQualifiedName(context, node)) === 'aws_cdk_lib.aws_s3.Bucket';
 }
 
 /**
@@ -79,8 +79,9 @@ export function isS3BucketDeploymentConstructor(
   context: Rule.RuleContext,
   node: estree.NewExpression,
 ) {
-  const { module, method } = getModuleAndCalledMethod(node.callee, context);
-  return module?.value === 'aws-cdk-lib/aws-s3' && isIdentifier(method, 'BucketDeployment');
+  return (
+    normalizeFQN(getFullyQualifiedName(context, node)) === 'aws_cdk_lib.aws_s3.BucketDeployment'
+  );
 }
 
 /**

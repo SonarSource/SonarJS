@@ -21,12 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleAndCalledMethod,
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-  isTestCode,
-} from './helpers';
+import { getFullyQualifiedName, isTestCode } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -102,26 +97,7 @@ function isException(
   if (name === 'Notification') {
     return true;
   }
-  let identifierFromModule: estree.Identifier;
-  if (node.type === 'MemberExpression' && node.object.type === 'Identifier') {
-    identifierFromModule = node.object;
-  } else if (node.type === 'Identifier') {
-    identifierFromModule = node;
-  } else {
-    return false;
-  }
-  // handle require
-  let { module } = getModuleAndCalledMethod(node, context);
-  // handle import
-  if (module === undefined) {
-    module = getModuleNameOfIdentifier(context, identifierFromModule);
-  }
-  if (module?.value === 'vue') {
-    return true;
-  }
-  const moduleOfImport = getModuleNameOfImportedIdentifier(context, identifierFromModule);
-  if (name === 'Grid' && moduleOfImport?.value === '@ag-grid-community/core') {
-    return true;
-  }
-  return false;
+
+  const fqn = getFullyQualifiedName(context, node);
+  return fqn === 'vue' || fqn === '@ag-grid-community.core.Grid';
 }

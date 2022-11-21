@@ -21,11 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isIdentifier,
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-} from './helpers';
+import { isIdentifier, getFullyQualifiedName } from './helpers';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 
@@ -43,34 +39,19 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
+      CallExpression: (node: estree.Node) => checkOSCommand(context, node as estree.CallExpression),
     };
   },
 };
 
-function checkCallExpression(
-  { callee, arguments: args }: estree.CallExpression,
-  context: Rule.RuleContext,
-) {
-  if (callee.type === 'MemberExpression') {
-    if (callee.object.type === 'Identifier') {
-      const moduleName = getModuleNameOfIdentifier(context, callee.object);
-      checkOSCommand(moduleName, callee.property, args, context);
-    }
-  } else if (callee.type === 'Identifier') {
-    const moduleName = getModuleNameOfImportedIdentifier(context, callee);
-    checkOSCommand(moduleName, callee, args, context);
+function checkOSCommand(context: Rule.RuleContext, call: estree.CallExpression) {
+  const { callee, arguments: args } = call;
+  const fqn = getFullyQualifiedName(context, call);
+  if (!fqn) {
+    return;
   }
-}
-
-function checkOSCommand(
-  moduleName: estree.Literal | undefined,
-  callee: estree.Expression | estree.PrivateIdentifier,
-  args: Argument[],
-  context: Rule.RuleContext,
-) {
-  if (moduleName && moduleName.value === CHILD_PROCESS_MODULE && isQuestionable(callee, args)) {
+  const [module, method] = fqn.split('.');
+  if (module === CHILD_PROCESS_MODULE && isQuestionable(method, args)) {
     context.report({
       node: callee,
       messageId: 'safeOSCommand',
@@ -78,19 +59,16 @@ function checkOSCommand(
   }
 }
 
-function isQuestionable(
-  expression: estree.Expression | estree.PrivateIdentifier,
-  [command, ...otherArguments]: Argument[],
-) {
+function isQuestionable(method: string, [command, ...otherArguments]: Argument[]) {
   // if command is hardcoded => no issue
   if (!command || command.type === 'Literal') {
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
-  if (isIdentifier(expression, ...SPAWN_EXEC_FILE_FUNCTIONS)) {
+  if (SPAWN_EXEC_FILE_FUNCTIONS.some(fun => fun === method)) {
     return containsShellOption(otherArguments);
   }
-  return isIdentifier(expression, ...EXEC_FUNCTIONS);
+  return EXEC_FUNCTIONS.some(fun => fun === method);
 }
 
 function containsShellOption(otherArguments: Argument[]) {

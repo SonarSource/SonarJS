@@ -25,9 +25,9 @@ import {
   getPropertyWithValue,
   getValueOfExpression,
   getObjectExpressionProperty,
-  isCallToFQN,
   toEncodedMessage,
   isNullLiteral,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -117,8 +117,9 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression: estree.CallExpression = node as estree.CallExpression;
-        const isCallToSign = isCallToFQN(context, callExpression, 'jsonwebtoken', 'sign');
-        const isCallToVerify = isCallToFQN(context, callExpression, 'jsonwebtoken', 'verify');
+        const fqn = getFullyQualifiedName(context, callExpression);
+        const isCallToSign = fqn === 'jsonwebtoken.sign';
+        const isCallToVerify = fqn === 'jsonwebtoken.verify';
         if (!isCallToSign && !isCallToVerify) {
           return;
         }

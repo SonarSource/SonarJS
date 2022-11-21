@@ -23,11 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
-  isIdentifier,
-  getModuleNameOfNode,
   getValueOfExpression,
   getObjectExpressionProperty,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -46,17 +45,7 @@ export const rule: Rule.RuleModule = {
       NewExpression: (node: estree.Node) => {
         const newExpression = node as estree.NewExpression;
         const { callee } = newExpression;
-        let isSignaleCall = false;
-        if (callee.type !== 'MemberExpression') {
-          isSignaleCall =
-            getModuleNameOfNode(context, callee)?.value === 'signale' &&
-            isIdentifier(callee, 'Signale');
-        } else {
-          isSignaleCall =
-            getModuleNameOfNode(context, callee.object)?.value === 'signale' &&
-            isIdentifier(callee.property, 'Signale');
-        }
-        if (!isSignaleCall) {
+        if (getFullyQualifiedName(context, callee) !== 'signale.Signale') {
           return;
         }
         if (newExpression.arguments.length === 0) {

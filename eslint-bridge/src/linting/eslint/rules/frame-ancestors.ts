@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getModuleNameOfNode, getObjectExpressionProperty } from './helpers';
+import { Express, getFullyQualifiedName, getObjectExpressionProperty } from './helpers';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -58,24 +58,9 @@ function findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet(
 }
 
 function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.CallExpression) {
-  const { callee } = callExpr;
-
-  /* csp(options) */
-  if (callee.type === 'Identifier' && getModuleNameOfNode(context, callee)?.value === HELMET_CSP) {
-    return true;
-  }
-
-  /* helmet.contentSecurityPolicy(options) */
-  if (
-    callee.type === 'MemberExpression' &&
-    getModuleNameOfNode(context, callee.object)?.value === HELMET &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === CONTENT_SECURITY_POLICY
-  ) {
-    return true;
-  }
-
-  return false;
+  /* csp(options) or helmet.contentSecurityPolicy(options) */
+  const fqn = getFullyQualifiedName(context, callExpr);
+  return fqn === HELMET_CSP || fqn === `${HELMET}.${CONTENT_SECURITY_POLICY}`;
 }
 
 function isSetNoneFrameAncestorsProperty(frameAncestors: estree.Property): boolean {

@@ -24,11 +24,10 @@ import Variable = ESLintScope.Variable;
 import Scope = ESLintScope.Scope;
 import * as estree from 'estree';
 import {
-  getModuleNameOfImportedIdentifier,
+  getFullyQualifiedName,
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
-  isMemberExpression,
 } from './helpers';
 
 type HookDeclarator = estree.VariableDeclarator & {
@@ -43,7 +42,6 @@ type SetterCall = estree.CallExpression & {
 };
 
 const REACT_MODULE = 'react';
-const REACT_ROOT = 'React';
 const REACT_PATTERN = /^[^a-z]/;
 const HOOK_FUNCTION = 'useState';
 
@@ -55,19 +53,11 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    function isReactName(identifier: estree.Identifier): boolean {
-      const module = getModuleNameOfImportedIdentifier(context, identifier);
-      return module?.value === REACT_MODULE;
-    }
-
     function isHookCall(node: estree.CallExpression): boolean {
-      let identifier: estree.Identifier | null = null;
-      if (isIdentifier(node.callee, HOOK_FUNCTION)) {
-        identifier = node.callee;
-      } else if (isMemberExpression(node.callee, REACT_ROOT, HOOK_FUNCTION)) {
-        identifier = (node.callee as estree.MemberExpression).property as estree.Identifier;
-      }
-      return identifier !== null && isReactName(identifier) && node.arguments.length === 1;
+      return (
+        getFullyQualifiedName(context, node) === `${REACT_MODULE}.${HOOK_FUNCTION}` &&
+        node.arguments.length === 1
+      );
     }
 
     function getReactComponentScope(): Scope | null {

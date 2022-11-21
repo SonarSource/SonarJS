@@ -21,7 +21,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfNode,
+  getFullyQualifiedName,
   isModuleExports,
   isMethodInvocation,
   flattenArgs,
@@ -45,12 +45,9 @@ export namespace Express {
     context: Rule.RuleContext,
   ): estree.Identifier | undefined {
     const rhs = varDecl.init;
-    if (rhs && rhs.type === 'CallExpression') {
-      const { callee } = rhs as estree.CallExpression;
-      if (getModuleNameOfNode(context, callee)?.value === EXPRESS) {
-        const pattern = varDecl.id;
-        return pattern.type === 'Identifier' ? pattern : undefined;
-      }
+    if (rhs && rhs.type === 'CallExpression' && getFullyQualifiedName(context, rhs) === EXPRESS) {
+      const pattern = varDecl.id;
+      return pattern.type === 'Identifier' ? pattern : undefined;
     }
     return undefined;
   }
@@ -108,10 +105,8 @@ export namespace Express {
     n: estree.Node,
   ): boolean {
     if (n.type === 'CallExpression') {
-      const usedMiddleware = getModuleNameOfNode(context, n.callee)?.value;
-      if (usedMiddleware) {
-        return middlewares.includes(String(usedMiddleware));
-      }
+      const fqn = getFullyQualifiedName(context, n);
+      return middlewares.some(middleware => middleware === fqn);
     }
     return false;
   }

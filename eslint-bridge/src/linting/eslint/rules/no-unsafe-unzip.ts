@@ -21,17 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isIdentifier,
-  isLiteral,
-  getImportDeclarations,
-  getRequireCalls,
-  isCallToFQN,
-  getValueOfExpression,
-  getModuleNameOfIdentifier,
-} from './helpers';
-
-const ADM_ZIP = 'adm-zip';
+import { isIdentifier, isLiteral, getValueOfExpression, getFullyQualifiedName } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -48,26 +38,8 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isCallToAdmZipExtractAll({ callee }: estree.CallExpression) {
-      return callee.type === 'MemberExpression' && isIdentifier(callee.property, 'extractAllTo');
-    }
-
-    function isAdmZipLibraryInScope() {
-      return isAdmZipLibraryImported() || isAdmZipLibraryRequired();
-    }
-
-    function isAdmZipLibraryImported() {
-      return getImportDeclarations(context).some(i => i.source.value === ADM_ZIP);
-    }
-
-    function isAdmZipLibraryRequired() {
-      return getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === ADM_ZIP,
-      );
-    }
-
-    function isSensiteTarCall(call: estree.CallExpression) {
-      if (isCallToFQN(context, call, 'tar', 'x')) {
+    function isSensiteTarCall(call: estree.CallExpression, fqn: string | null) {
+      if (fqn === 'tar.x') {
         const firstArg = call.arguments.length > 0 ? call.arguments[0] : null;
         if (!firstArg) {
           return false;
@@ -80,11 +52,8 @@ export const rule: Rule.RuleModule = {
       return false;
     }
 
-    function isSensiteExtractZipCall(call: estree.CallExpression) {
-      if (
-        call.callee.type === 'Identifier' &&
-        getModuleNameOfIdentifier(context, call.callee)?.value === 'extract-zip'
-      ) {
+    function isSensiteExtractZipCall(call: estree.CallExpression, fqn: string | null) {
+      if (fqn === 'extract-zip') {
         const secondArg = call.arguments.length > 1 ? call.arguments[1] : null;
         if (!secondArg) {
           return false;
@@ -101,12 +70,13 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;
+        const fqn = getFullyQualifiedName(context, call);
         if (
-          isSensiteTarCall(call) ||
-          (isCallToAdmZipExtractAll(call) && isAdmZipLibraryInScope()) ||
-          isCallToFQN(context, call, 'jszip', 'loadAsync') ||
-          isCallToFQN(context, call, 'yauzl', 'open') ||
-          isSensiteExtractZipCall(call)
+          isSensiteTarCall(call, fqn) ||
+          isSensiteExtractZipCall(call, fqn) ||
+          fqn === 'jszip.loadAsync' ||
+          fqn === 'yauzl.open' ||
+          fqn === 'adm-zip.extractAllTo'
         ) {
           context.report({
             messageId: 'safeExpanding',

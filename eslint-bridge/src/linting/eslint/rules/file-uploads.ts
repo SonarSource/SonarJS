@@ -23,13 +23,12 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfImportedIdentifier,
-  getModuleNameOfIdentifier,
   getLhsVariable,
   getValueOfExpression,
   getObjectExpressionProperty,
   getVariableFromName,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -80,20 +79,21 @@ export const rule: Rule.RuleModule = {
 
 function checkCallExpression(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   const { callee } = callExpression;
-
   if (callee.type !== 'Identifier') {
     return;
   }
 
-  const moduleName =
-    getModuleNameOfImportedIdentifier(context, callee) ||
-    getModuleNameOfIdentifier(context, callee);
+  const fqn = getFullyQualifiedName(context, callee);
+  if (!fqn) {
+    return;
+  }
+  const [moduleName] = fqn.split('.');
 
-  if (moduleName?.value === FORMIDABLE_MODULE) {
+  if (moduleName === FORMIDABLE_MODULE) {
     checkFormidable(context, callExpression);
   }
 
-  if (moduleName?.value === MULTER_MODULE) {
+  if (moduleName === MULTER_MODULE) {
     checkMulter(context, callExpression);
   }
 }
