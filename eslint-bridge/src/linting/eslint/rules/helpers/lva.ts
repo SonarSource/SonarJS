@@ -75,7 +75,7 @@ export class LiveVariables {
   /**
    * variables needed by successors
    */
-  out = new Set<Variable>();
+  out: Variable[] = [];
 
   /**
    * collects references in order they are evaluated, set in JS maintains insertion order
@@ -96,13 +96,14 @@ export class LiveVariables {
   }
 
   propagate(liveVariablesMap: Map<string, LiveVariables>) {
-    this.out.clear();
+    const out: Variable[] = [];
     this.segment.nextSegments.forEach(next => {
-      liveVariablesMap.get(next.id)!.in.forEach(v => this.out.add(v));
+      out.push(...liveVariablesMap.get(next.id)!.in);
     });
-    const newIn = union(this.gen, difference(this.out, this.kill));
-    if (!equals(this.in, newIn)) {
-      this.in = newIn;
+    const diff = difference(out, this.kill);
+    this.out = out;
+    if (shouldUpdate(this.in, this.gen, diff)) {
+      this.in = new Set([...this.gen, ...diff]);
       return true;
     } else {
       return false;
@@ -110,14 +111,29 @@ export class LiveVariables {
   }
 }
 
-function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
-  return new Set<T>([...a].filter(e => !b.has(e)));
+function difference<T>(a: T[], b: Set<T>): T[] {
+  if (b.size === 0) {
+    return a;
+  }
+  const diff = [];
+  for (const e of a) {
+    if (!b.has(e)) {
+      diff.push(e);
+    }
+  }
+  return diff;
 }
 
-function union<T>(a: Set<T>, b: Set<T>): Set<T> {
-  return new Set<T>([...a, ...b]);
-}
-
-function equals<T>(a: Set<T>, b: Set<T>): boolean {
-  return a.size === b.size && [...a].every(e => b.has(e));
+function shouldUpdate(inSet: Set<Variable>, gen: Set<Variable>, diff: Variable[]): boolean {
+  for (const e of gen) {
+    if (!inSet.has(e)) {
+      return true;
+    }
+  }
+  for (const e of diff) {
+    if (!inSet.has(e)) {
+      return true;
+    }
+  }
+  return false;
 }

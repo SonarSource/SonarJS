@@ -325,8 +325,9 @@ export const rule: Rule.RuleModule = {
     function resolveReferenceRecursively(
       node: estree.Identifier,
       scope: Scope.Scope | null,
+      depth = 0,
     ): { ref: ReferenceLike | null; variable: Scope.Variable | null } {
-      if (scope === null) {
+      if (scope === null || depth > 2) {
         return { ref: null, variable: null };
       }
       const ref = scope.references.find(r => r.identifier === node);
@@ -338,17 +339,14 @@ export const rule: Rule.RuleModule = {
         if (variable) {
           return { ref: null, variable };
         }
-        // in theory we only need 1-level recursion, only for switch expression, which is likely a bug in eslint
-        // generic recursion is used for safety & readability
-        return resolveReferenceRecursively(node, scope.upper);
+        // we only need 1-level recursion, only for switch expression, which is likely a bug in eslint
+        return resolveReferenceRecursively(node, scope.upper, depth + 1);
       }
     }
   },
 };
 
 class CodePathContext {
-  liveVariablesMap = new Map<string, LiveVariables>();
-  liveVariablesStack: LiveVariables[] = [];
   codePath: CodePath;
   segments = new Map<string, CodePathSegment>();
   assignmentStack: AssignmentContext[] = [];
