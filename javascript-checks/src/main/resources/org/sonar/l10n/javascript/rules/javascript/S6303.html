@@ -1,6 +1,11 @@
-<p>Amazon Relational Database Service (RDS) allows to easily host and manage a relational database in the cloud. RDS databases can be encrypted,
-ensuring the security of data-at-rest. In the case that adversaries gain physical access to the storage medium they are not able to access the
-data.</p>
+<p>Using unencrypted RDS DB resources exposes data to unauthorized access to the underlying storage.<br> This includes database data, logs, automatic
+backups, read replicas, snapshots, and cluster metadata.</p>
+<p>This situation can occur in a variety of scenarios, such as:</p>
+<ul>
+  <li> a malicious insider working at the cloud provider gains physical access to the storage device and exfiltrates data. </li>
+  <li> unknown attackers penetrate the cloud provider’s logical infrastructure and systems for extortion. </li>
+</ul>
+<p>AWS-managed encryption at rest reduces this risk with a simple switch.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The database contains sensitive data that could cause harm when leaked. </li>
@@ -8,8 +13,8 @@ data.</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt databases that contain sensitive information. Encryption and decryption are handled transparently by RDS, so no further
-modifications to the application are necessary.</p>
+<p>It is recommended to enable encryption at rest on any RDS DB resource, regardless of the engine.<br> In any case, no further maintenance is
+required as encryption at rest is fully managed by AWS.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a
 href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.CfnDBCluster.html"><code>aws-cdk-lib.aws_rds.CfnDBCluster</code></a>:</p>
