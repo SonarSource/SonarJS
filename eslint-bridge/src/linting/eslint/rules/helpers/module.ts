@@ -20,6 +20,7 @@
 import assert from 'assert';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   Node,
   isDefaultSpecifier,
@@ -270,7 +271,7 @@ export function hasFullyQualifiedName(
  */
 export function getFullyQualifiedName(
   context: Rule.RuleContext,
-  node: Node,
+  node: estree.Node,
   fqn: string[] = [],
   scope?: Scope.Scope,
 ): string | null {
@@ -339,7 +340,7 @@ export function getFullyQualifiedName(
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-export function reduceToIdentifier(node: Node, fqn: string[] = []): Node {
+export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estree.Node {
   return reduceTo('Identifier', node, fqn);
 }
 
@@ -351,8 +352,12 @@ export function reduceToIdentifier(node: Node, fqn: string[] = []): Node {
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-export function reduceTo<T extends Node['type']>(type: T, node: Node, fqn: string[] = []): Node {
-  let nodeToCheck: Node = node;
+export function reduceTo<T extends estree.Node['type']>(
+  type: T,
+  node: estree.Node,
+  fqn: string[] = [],
+): estree.Node {
+  let nodeToCheck: estree.Node = node;
 
   while (nodeToCheck.type !== type) {
     if (nodeToCheck.type === 'MemberExpression') {
@@ -369,8 +374,10 @@ export function reduceTo<T extends Node['type']>(type: T, node: Node, fqn: strin
       nodeToCheck = nodeToCheck.callee;
     } else if (nodeToCheck.type === 'ChainExpression') {
       nodeToCheck = nodeToCheck.expression;
-    } else if (nodeToCheck.type === 'TSNonNullExpression') {
-      nodeToCheck = nodeToCheck.expression;
+    } else if ((nodeToCheck as TSESTree.Node).type === 'TSNonNullExpression') {
+      // we should migrate to use only TSESTree types everywhere to avoid casting
+      nodeToCheck = (nodeToCheck as unknown as TSESTree.TSNonNullExpression)
+        .expression as estree.Expression;
     } else {
       break;
     }

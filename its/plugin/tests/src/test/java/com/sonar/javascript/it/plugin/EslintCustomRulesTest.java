@@ -98,7 +98,7 @@ class EslintCustomRulesTest {
     BuildResult buildResult = runBuild(orchestrator);
     assertThat(buildResult.getLogsLines(l -> l.matches(".*DEBUG: Deploying custom rules bundle jar:file:.*/custom-eslint-based-rules-1\\.0\\.0\\.tgz to .*"))).hasSize(1);
     assertThat(buildResult.getLogsLines(l -> l.contains("Custom JavaScript rules are deprecated and API will be removed in future version."))).isEmpty();
-    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 4.8.3"))).hasSize(2);
+    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 4.9.3"))).hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);
     assertThat(issues).extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)

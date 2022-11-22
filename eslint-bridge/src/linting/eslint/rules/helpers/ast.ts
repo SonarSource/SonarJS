@@ -267,12 +267,12 @@ export function getUniqueWriteUsageOrNode(
   }
 }
 
-export function getValueOfExpression<T extends Node['type']>(
+export function getValueOfExpression<T extends estree.Node['type']>(
   context: Rule.RuleContext,
-  expr: Node | undefined | null,
+  expr: estree.Node | undefined | null,
   type: T,
   recursive = false,
-): Extract<Node, { type: T }> | undefined {
+): Extract<estree.Node, { type: T }> | undefined {
   if (!expr) {
     return undefined;
   }

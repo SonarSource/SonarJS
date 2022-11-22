@@ -1,4 +1,7 @@
 {
+'prototype:src/prototype/ajax/request.js':[
+327,
+],
 'prototype:src/prototype/ajax/response.js':[
 159,
 ],
