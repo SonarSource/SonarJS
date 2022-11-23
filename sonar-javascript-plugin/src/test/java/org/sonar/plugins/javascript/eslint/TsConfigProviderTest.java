@@ -188,8 +188,7 @@ class TsConfigProviderTest {
     verify(tsConfigFileCreator).createTsConfigFile(contentCaptor.capture());
     var projectBaseDir = baseDir.toAbsolutePath().toString();
     var normalized = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
-    assertThat(contentCaptor.getValue()).isEqualTo("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"" +
-      normalized + "/**/*\"]}");
+    assertThat(contentCaptor.getValue()).isEqualTo(normalized);
   }
 
   @Test
@@ -260,8 +259,9 @@ class TsConfigProviderTest {
     context.fileSystem().add(inputFile);
   }
 
-  public static String createTsConfigFile(String content) throws IOException {
+  public static String createTsConfigFile(String baseDir) throws IOException {
     var tempFile = Files.createTempFile(null, null);
+    var content = String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir);
     Files.writeString(tempFile, content, StandardCharsets.UTF_8);
     return tempFile.toAbsolutePath().toString();
   }

@@ -387,8 +387,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public TsConfigFile createTsConfigFile(String content) throws IOException {
-    var response = request(content, "create-tsconfig-file");
+  public TsConfigFile createTsConfigFile(String baseDir) throws IOException {
+    var request = new CreateTsConfigFileRequest(baseDir);
+    var response = request(GSON.toJson(request), "create-tsconfig-file");
     return GSON.fromJson(response, TsConfigFile.class);
   }
 
@@ -465,6 +466,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
+    }
+  }
+
+
+  static class CreateTsConfigFileRequest {
+    final String baseDir;
+
+    public CreateTsConfigFileRequest(String baseDir) {
+      this.baseDir = baseDir;
     }
   }
 

@@ -64,7 +64,7 @@ public interface EslintBridgeServer extends Startable {
 
   boolean deleteProgram(TsProgram tsProgram) throws IOException;
 
-  TsConfigFile createTsConfigFile(String content) throws IOException;
+  TsConfigFile createTsConfigFile(String baseDir) throws IOException;
 
   class JsAnalysisRequest {
     final String filePath;

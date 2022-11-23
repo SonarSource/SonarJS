@@ -224,7 +224,7 @@ class EslintBridgeServerImplTest {
     // values from 'startServer.js'
     assertThat(programCreated.programId).isEqualTo("42");
     assertThat(programCreated.projectReferences).isEmpty();
-    assertThat(programCreated.files.size()).isEqualTo(3);
+    assertThat(programCreated.files).hasSize(3);
 
     JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
       null, true, null, programCreated.programId, DEFAULT_LINTER_ID);
@@ -239,7 +239,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
+    var tsConfig = eslintBridgeServer.createTsConfigFile("/path/to/project");
     assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
   }
 

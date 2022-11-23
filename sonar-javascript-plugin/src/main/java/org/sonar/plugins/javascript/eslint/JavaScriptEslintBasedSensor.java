@@ -129,8 +129,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private String createTsConfigFile(String content) throws IOException {
-    return eslintBridgeServer.createTsConfigFile(content).getFilename();
+  private String createTsConfigFile(String baseDir) throws IOException {
+    return eslintBridgeServer.createTsConfigFile(baseDir).getFilename();
   }
 
   @Override
