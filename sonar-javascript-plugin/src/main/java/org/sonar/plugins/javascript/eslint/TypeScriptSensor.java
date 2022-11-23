@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -61,17 +60,14 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private final TypeScriptChecks checks;
 
   private AnalysisMode analysisMode;
-  private final ProjectChecker projectChecker;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
                           AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
-                          AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram,
-                          @Nullable ProjectChecker projectChecker) {
+                          AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
-    this.projectChecker = projectChecker;
   }
 
   @Override
@@ -98,8 +94,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
     }
-    var tsConfigProvider = TsConfigProvider.builder(context).with(projectChecker).with(this::createTsConfigFile).build();
-    var tsConfigs = tsConfigProvider.tsconfigs();
+    var tsConfigs = TsConfigProvider.build(context).tsconfigs();
     if (tsConfigs.isEmpty()) {
       // This can happen where we are not able to create temporary file for generated tsconfig.json
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");

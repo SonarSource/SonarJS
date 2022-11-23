@@ -207,6 +207,7 @@ class TypeScriptSensorTest {
   @Test
   void should_not_explode_if_no_response() throws Exception {
     createVueInputFile();
+    createTsConfigFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
 
     TypeScriptSensor sensor = createSensor();
@@ -253,6 +254,7 @@ class TypeScriptSensorTest {
   @Test
   void should_raise_a_parsing_error_without_line() throws IOException {
     createVueInputFile();
+    createTsConfigFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class));
     createInputFile(context);
@@ -330,6 +332,7 @@ class TypeScriptSensorTest {
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
     createVueInputFile();
+    createTsConfigFile();
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file1.ts] from TypeScript: Debug Failure. False expression.");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file2.ts] from TypeScript: Debug Failure. False expression.");
@@ -547,6 +550,7 @@ class TypeScriptSensorTest {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
+    createTsConfigFile();
     assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
@@ -611,8 +615,8 @@ class TypeScriptSensorTest {
       analysisWarnings,
       monitoring,
       processAnalysis,
-      analysisWithProgram(),
-      null);
+      analysisWithProgram()
+    );
   }
 
   private AnalysisWithProgram analysisWithProgram() {

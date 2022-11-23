@@ -92,10 +92,6 @@ public abstract class AbstractEslintSensor implements Sensor {
     }
   }
 
-  protected String createTsConfigFile(String content) throws IOException {
-    return eslintBridgeServer.createTsConfigFile(content).getFilename();
-  }
-
   protected void logErrorOrWarn(String msg, Throwable e) {
     LOG.error(msg, e);
   }
