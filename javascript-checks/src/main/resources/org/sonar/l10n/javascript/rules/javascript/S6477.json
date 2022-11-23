@@ -1,0 +1,18 @@
+{
+  "title": "FIXME",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "reactjs",
+    "jsx"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6477",
+  "sqKey": "S6477",
+  "scope": "All",
+  "quickfix": "unknown"
+}
