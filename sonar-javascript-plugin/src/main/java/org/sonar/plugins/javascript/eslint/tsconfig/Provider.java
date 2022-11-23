@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.plugins.javascript.eslint.tsconfig;
 
-import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(@Nullable JavaScriptProjectChecker javascriptProjectChecker, SensorContext context) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(context);
-    }
-  }
-
-  void checkOnce(SensorContext context);
-  boolean isBeyondLimit();
+interface Provider {
+  List<String> tsconfigs(SensorContext context) throws IOException;
 }

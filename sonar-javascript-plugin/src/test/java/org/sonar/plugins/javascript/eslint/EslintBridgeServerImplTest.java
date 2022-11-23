@@ -240,7 +240,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context, emptyList());
 
     var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
-    assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
+    assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
   }
 
   @Test
@@ -426,9 +426,9 @@ class EslintBridgeServerImplTest {
     assertThat(tsConfigResponse.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
     assertThat(tsConfigResponse.error).isNull();
 
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
-    assertThat(tsConfigFile.filename).isEqualTo(tsconfig);
+    var tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
+    assertThat(tsConfigFile.getFiles()).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigFile.getFilename()).isEqualTo(tsconfig);
   }
 
   @Test
@@ -447,8 +447,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
     assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
+    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.getFiles()).isEmpty();
   }
 
   @Test
@@ -457,8 +457,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
+    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.getFiles()).isEmpty();
     assertThat(logTester.logs(ERROR)).contains("Other error");
   }
 

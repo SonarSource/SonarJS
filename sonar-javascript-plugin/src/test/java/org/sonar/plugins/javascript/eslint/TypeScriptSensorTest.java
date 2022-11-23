@@ -58,13 +58,11 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -73,8 +71,9 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
@@ -111,8 +110,6 @@ class TypeScriptSensorTest {
   @TempDir
   Path tempDir;
 
-  TempFolder tempFolder;
-
   @TempDir
   Path workDir;
   private Monitoring monitoring;
@@ -134,7 +131,7 @@ class TypeScriptSensorTest {
           .collect(Collectors.toList());
         return new TsConfigFile(tsConfigPath, files, emptyList());
       });
-
+    when(eslintBridgeServerMock.createTsConfigFile(anyString())).thenReturn(new TsConfigFile("/path/to/tsconfig.json", emptyList(), emptyList()));
 
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -142,7 +139,6 @@ class TypeScriptSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     monitoring = new Monitoring(new MapSettings().asConfig());
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
   }
@@ -613,10 +609,10 @@ class TypeScriptSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder,
       monitoring,
       processAnalysis,
-      analysisWithProgram());
+      analysisWithProgram(),
+      null);
   }
 
   private AnalysisWithProgram analysisWithProgram() {
