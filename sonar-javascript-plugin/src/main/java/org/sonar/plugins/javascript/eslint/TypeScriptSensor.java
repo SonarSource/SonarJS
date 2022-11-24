@@ -94,7 +94,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
     }
-    var tsConfigs = TsConfigProvider.build(context).tsconfigs();
+    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
     if (tsConfigs.isEmpty()) {
       // This can happen where we are not able to create temporary file for generated tsconfig.json
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");

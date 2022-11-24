@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint.tsconfig;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -31,72 +30,50 @@ import static java.util.Collections.emptyList;
 
 public class TsConfigProvider {
 
-  public static Builder builder(SensorContext context) {
-    return new Builder(context);
+  public static List<String> generateDefaultTsConfigFile(SensorContext context, @Nullable ProjectChecker projectChecker,
+    TsConfigFileCreator tsConfigFileCreator) throws IOException {
+    return getTsConfigFiles(context, projectChecker, tsConfigFileCreator);
   }
 
-  public static TsConfigProvider build(SensorContext context) {
-    return builder(context).build();
+  public static List<String> searchForTsConfigFiles(SensorContext context) throws IOException {
+    return getTsConfigFiles(context, null, null);
   }
 
   /**
    * Relying on (in order of priority)
-   * 1. Property sonar.typescript.tsconfigPath(s) if not skipSearchForTsConfigFiles
-   * 2. Looking up file system if not skipSearchForTsConfigFiles
+   * 1. Property sonar.typescript.tsconfigPath(s) if no tsconfig.json file creator
+   * 2. Looking up file system if no tsconfig.json file creator
    * 3. Creating a tmp tsconfig.json if SonarQube or SonarLint below limit (see SonarLintProjectChecker)
    */
-  public static class Builder {
-    private final SensorContext context;
-    private boolean search = true;
-    private TsConfigFileCreator tsConfigFileCreator;
-    private ProjectChecker projectChecker;
-
-    private Builder(SensorContext context) {
-      this.context = context;
+  private static List<String> getTsConfigFiles(SensorContext context, @Nullable ProjectChecker projectChecker,
+    @Nullable TsConfigFileCreator tsConfigFileCreator) throws IOException {
+    List<Provider> providers;
+    if (tsConfigFileCreator == null) {
+      providers = List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider());
+    } else if (!isBeyondLimit(context, projectChecker)) {
+      providers = List.of(new DefaultTsConfigProvider(tsConfigFileCreator));
+    } else {
+      providers = emptyList();
     }
+    var tsConfigProvider = new TsConfigProvider(context, providers);
+    return tsConfigProvider.tsconfigs();
+  }
 
-    public Builder skipSearchForTsConfigFiles() {
-      search = false;
-      return this;
-    }
-
-    public Builder with(TsConfigFileCreator tsConfigFileCreator) {
-      this.tsConfigFileCreator = tsConfigFileCreator;
-      return this;
-    }
-
-    public Builder with(@Nullable ProjectChecker projectChecker) {
-      this.projectChecker = projectChecker;
-      return this;
-    }
-
-    public TsConfigProvider build() {
-      var providers = new ArrayList<Provider>();
-      if (search) {
-        providers.addAll(List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider()));
-      }
-      if (!isBeyondLimit() && tsConfigFileCreator != null) {
-        providers.add(new DefaultTsConfigProvider(tsConfigFileCreator));
-      }
-      return new TsConfigProvider(context, providers);
-    }
-
-    boolean isBeyondLimit() {
-      if (context.runtime().getProduct() == SonarProduct.SONARQUBE) {
-        return false;
-      } else if (projectChecker == null) {
-        return true;
-      } else {
-        projectChecker.checkOnce(context);
-        return projectChecker.isBeyondLimit();
-      }
+  private static boolean isBeyondLimit(SensorContext context, @Nullable ProjectChecker projectChecker) {
+    if (context.runtime().getProduct() == SonarProduct.SONARQUBE) {
+      return false;
+    } else if (projectChecker == null) {
+      return true;
+    } else {
+      projectChecker.checkOnce(context);
+      return projectChecker.isBeyondLimit();
     }
   }
 
   private final SensorContext context;
   private final List<Provider> providers;
 
-  private TsConfigProvider(SensorContext context, List<Provider> providers) {
+  public TsConfigProvider(SensorContext context, List<Provider> providers) {
     this.context = context;
     this.providers = List.copyOf(providers);
   }

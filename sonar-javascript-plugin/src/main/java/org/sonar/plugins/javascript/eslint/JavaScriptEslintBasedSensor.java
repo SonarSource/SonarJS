@@ -71,15 +71,11 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    runEslintAnalysis(getTsConfigProvider().tsconfigs(), inputFiles);
+    runEslintAnalysis(getTsConfigFiles(), inputFiles);
   }
 
-  private TsConfigProvider getTsConfigProvider() {
-    return TsConfigProvider.builder(context)
-      .with(projectChecker)
-      .with(this::createTsConfigFile)
-      .skipSearchForTsConfigFiles()
-      .build();
+  private List<String> getTsConfigFiles() throws IOException {
+    return TsConfigProvider.generateDefaultTsConfigFile(context, projectChecker, this::createTsConfigFile);
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {

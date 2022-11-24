@@ -73,7 +73,7 @@ public class AnalysisWithProgram {
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    var tsConfigs = TsConfigProvider.build(context).tsconfigs();
+    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
