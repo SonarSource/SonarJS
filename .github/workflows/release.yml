@@ -1,5 +1,7 @@
+---
 name: sonar-release
-
+# This workflow is triggered when publishing a new github release
+# yamllint disable-line rule:truthy
 on:
   release:
     types:
@@ -7,80 +9,11 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    name: Release
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.BINARIES_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.BINARIES_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.BINARIES_AWS_REGION }}
-      - name: Release
-        id: release
-        env:
-          ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
-          BINARIES_AWS_DEPLOY: ${{ secrets.BINARIES_AWS_DEPLOY }}
-          BURGRX_USER: ${{ secrets.BURGRX_USER }}
-          BURGRX_PASSWORD: ${{ secrets.BURGRX_PASSWORD }}
-          CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
-          PATH_PREFIX: ${{ secrets.BINARIES_PATH_PREFIX }}
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-          RELEASE_SSH_USER: ${{ secrets.RELEASE_SSH_USER }}
-          RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
-          SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
-        uses: SonarSource/gh-action_release/main@v4
-        with:
-          publish_to_binaries: true
-          slack_channel: team-lang-js-ts-css
-      - name: Release action results
-        if: always()
-        run: |
-          echo "${{ steps.release.outputs.releasability }}"
-          echo "${{ steps.release.outputs.promote }}"
-          echo "${{ steps.release.outputs.publish_to_binaries }}"
-          echo "${{ steps.release.outputs.release }}"
-
-  maven-central-sync:
-    runs-on: ubuntu-latest
-    name: Maven Central Sync
-    needs:
-      - release
-    steps:
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v1
-      - name: JFrog config
-        run: jfrog rt config repox --url https://repox.jfrog.io/artifactory/ --apikey $ARTIFACTORY_API_KEY --basic-auth-only
-        env:
-          ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
-      - name: Get the version
-        id: get_version
-        run: |
-          IFS=. read major minor patch build <<< "${{ github.event.release.tag_name }}"
-          echo ::set-output name=build::"${build}"
-      - name: Create local repository directory
-        id: local_repo
-        run: echo ::set-output name=dir::"$(mktemp -d repo.XXXXXXXX)"
-      - name: Download Artifacts
-        uses: SonarSource/gh-action_release/download-build@v4
-        with:
-          build-number: ${{ steps.get_version.outputs.build }}
-          local-repo-dir: ${{ steps.local_repo.outputs.dir }}
-      - name: Maven Central Sync
-        id: maven-central-sync
-        continue-on-error: true
-        uses: SonarSource/gh-action_release/maven-central-sync@v4
-        with:
-          local-repo-dir: ${{ steps.local_repo.outputs.dir }}
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-      - name: Notify on failure
-        if: ${{ failure() || steps.maven-central-sync.outcome == 'failure' }}
-        uses: 8398a7/action-slack@v3
-        with:
-          text: 'Maven sync failed'
-          status: failure
-          fields: repo,author,eventName
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_BUILD_WEBHOOK }}
+    permissions:
+      id-token: write
+      contents: write
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v5
+    with:
+      publishToBinaries: true
+      mavenCentralSync: true
+      slackChannel:  team-lang-js-ts-css
