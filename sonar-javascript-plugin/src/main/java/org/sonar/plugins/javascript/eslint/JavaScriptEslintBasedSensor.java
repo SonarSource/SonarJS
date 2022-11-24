@@ -53,6 +53,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private final JavaScriptProjectChecker javaScriptProjectChecker;
   private AnalysisMode analysisMode;
 
+  // This constructor is required to avoid an error in SonarCloud because there's no implementation available for the interface
+  // JavaScriptProjectChecker. The implementation for that interface is available only in SonarLint. Unlike SonarCloud,
+  // SonarQube is simply passing null and doesn't throw any error.
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
                                      AnalysisProcessor processAnalysis) {
