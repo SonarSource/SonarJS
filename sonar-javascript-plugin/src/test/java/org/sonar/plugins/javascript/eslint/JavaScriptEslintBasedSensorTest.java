@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -425,8 +426,7 @@ class JavaScriptEslintBasedSensorTest {
       new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
-      analysisProcessor,
-      null
+      analysisProcessor
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -442,8 +442,7 @@ class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      analysisProcessor,
-      null
+      analysisProcessor
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
@@ -494,7 +493,7 @@ class JavaScriptEslintBasedSensorTest {
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
-      eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor, null).execute(context);
+      eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -627,7 +626,7 @@ class JavaScriptEslintBasedSensorTest {
     return createSensor(null);
   }
 
-  private JavaScriptEslintBasedSensor createSensor(JavaScriptProjectChecker javaScriptProjectChecker) {
+  private JavaScriptEslintBasedSensor createSensor(@Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, javaScriptProjectChecker
     );

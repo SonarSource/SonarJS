@@ -55,6 +55,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
                                      AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
+                                     AnalysisProcessor processAnalysis) {
+    this(checks, eslintBridgeServer, analysisWarnings, folder, monitoring, processAnalysis, null);
+  }
+
+  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
+                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
                                      AnalysisProcessor processAnalysis,
                                      @Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
