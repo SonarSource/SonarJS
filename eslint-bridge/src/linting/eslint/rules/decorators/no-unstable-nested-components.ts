@@ -23,11 +23,12 @@ import { Rule } from 'eslint';
 import { interceptReport } from './helpers';
 
 export function decorateNoUnstableNestedComponents(rule: Rule.RuleModule): Rule.RuleModule {
-  // interceptReport() by default doesn't work with the React plugin as the rules fail to find the context getFirstTokens() function.
-  return interceptReport(rule, messageChanger(urlRemover()), overrideContextReport);
+  return interceptReport(rule, messageChanger(urlRemover()), contextOverriderForReact);
 }
 
-function overrideContextReport(
+// interceptReport() by default doesn't work with the React plugin
+// as the rules fail to find the context getFirstTokens() function.
+function contextOverriderForReact(
   context: Rule.RuleContext,
   onReport: (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void,
 ): Rule.RuleContext {
