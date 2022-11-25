@@ -242,6 +242,7 @@ public final class CheckList {
       NoInferrableTypesCheck.class,
       NoInvalidAwaitCheck.class,
       NoInvertedBooleanCheckCheck.class,
+      JsxNoBindCheck.class,
       NoMagicNumbersCheck.class,
       NoMimeSniffCheck.class,
       NoMisleadingArrayReverseCheck.class,

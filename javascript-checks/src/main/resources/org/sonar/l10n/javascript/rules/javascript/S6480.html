@@ -1,0 +1,23 @@
+<p>Using <code>Function.prototype.bind</code> and arrows functions as attributes will negatively impact performance in React. Each time the parent is
+rendered, the function will be re-created and trigger a render of the component causing excessive renders and more memory use. Wrapping the function
+in a useCallback hook will avoid additional renders. This rule ignores <code>Refs</code>. This rule does not raise findings on DOM nodes since that
+may require wrapping the DOM in a component. Still, better performance can be achieved if this rule is respected in DOM nodes too.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+&lt;Component onClick={this._handleClick.bind(this)}&gt;&lt;/Component&gt;
+
+&lt;Component onClick={() =&gt; handleClick()}&gt;&lt;/Component&gt;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function handleClick() {
+    //...
+}
+
+&lt;Component onClick={handleClick}&gt;&lt;/Component&gt;
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://reactjs.org/docs/faq-functions.html">Passing Functions to Components</a> - React documentation </li>
+</ul>
+
