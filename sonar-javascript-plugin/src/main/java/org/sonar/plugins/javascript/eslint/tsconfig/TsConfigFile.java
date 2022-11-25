@@ -62,6 +62,7 @@ public class TsConfigFile implements Predicate<InputFile> {
     return files.contains(inputFile.absolutePath());
   }
 
+  // Visible for testing
   public static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
     Map<TsConfigFile, List<InputFile>> result = new LinkedHashMap<>();
     inputFiles.forEach(inputFile -> {

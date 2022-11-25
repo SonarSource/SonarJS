@@ -36,6 +36,9 @@ public class TsConfigProvider {
   }
 
   public static List<String> searchForTsConfigFiles(SensorContext context) throws IOException {
+    // When searching for tsconfig.json files we don't generate default files therefore we don't need either
+    // TSConfigFileCreator or ProjectChecker. The later aims at verifying there are not too many files for
+    // TypeScript when using the default tsconfig.json file.
     return getTsConfigFiles(context, null, null);
   }
 

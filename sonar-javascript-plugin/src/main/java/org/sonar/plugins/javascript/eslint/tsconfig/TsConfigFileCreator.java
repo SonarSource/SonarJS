@@ -23,5 +23,5 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface TsConfigFileCreator {
-  String createTsConfigFile(String content) throws IOException;
+  String createTsConfigFile(String baseDir) throws IOException;
 }

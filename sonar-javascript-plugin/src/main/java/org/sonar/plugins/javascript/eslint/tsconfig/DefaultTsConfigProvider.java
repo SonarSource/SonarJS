@@ -57,7 +57,7 @@ class DefaultTsConfigProvider implements Provider {
     List<String> file = emptyList();
     try {
       file = singletonList(tsConfigFileCreator.createTsConfigFile(baseDir));
-      LOG.debug("Using generated tsconfig.json file using wildcards {}", file);
+      LOG.debug("Using generated tsconfig.json file using wildcard {}", file);
     } catch (IOException e) {
       LOG.warn("Generating tsconfig.json failed", e);
     }
