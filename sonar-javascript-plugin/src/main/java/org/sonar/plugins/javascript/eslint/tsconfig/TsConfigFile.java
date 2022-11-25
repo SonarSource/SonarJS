@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.plugins.javascript.eslint.tsconfig;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,19 +30,31 @@ import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
 
-class TsConfigFile implements Predicate<InputFile> {
+public class TsConfigFile implements Predicate<InputFile> {
   private static final Logger LOG = Loggers.get(TsConfigFile.class);
 
-  static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile("NO_CONFIG", emptyList(), emptyList());
+  public static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile("NO_CONFIG", emptyList(), emptyList());
 
   final String filename;
   final List<String> files;
   final List<String> projectReferences;
 
-  TsConfigFile(String filename, List<String> files, List<String> projectReferences) {
+  public TsConfigFile(String filename, List<String> files, List<String> projectReferences) {
     this.filename = filename;
     this.files = files;
     this.projectReferences = projectReferences;
+  }
+
+  public String getFilename() {
+    return filename;
+  }
+
+  public List<String> getFiles() {
+    return files;
+  }
+
+  public List<String> getProjectReferences() {
+    return projectReferences;
   }
 
   @Override
@@ -50,7 +62,8 @@ class TsConfigFile implements Predicate<InputFile> {
     return files.contains(inputFile.absolutePath());
   }
 
-  static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
+  // Visible for testing
+  public static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
     Map<TsConfigFile, List<InputFile>> result = new LinkedHashMap<>();
     inputFiles.forEach(inputFile -> {
       TsConfigFile tsconfig = tsConfigFiles.stream()

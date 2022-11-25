@@ -69,10 +69,7 @@ describe('getFilesForTsConfig', () => {
   });
 
   it('should write tsconfig file', async () => {
-    const { filename } = await writeTSConfigFile({
-      compilerOptions: { allowJs: true, noImplicitAny: true },
-      include: ['/path/to/project/**/*'],
-    });
+    const { filename } = await writeTSConfigFile('/path/to/project');
     const content = await fs.readFile(filename, { encoding: 'utf-8' });
     expect(content).toBe(
       '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',

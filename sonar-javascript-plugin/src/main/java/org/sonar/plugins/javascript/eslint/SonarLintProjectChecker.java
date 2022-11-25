@@ -32,7 +32,7 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 import static java.util.stream.Collectors.toList;
 
 @SonarLintSide(lifespan = "MODULE")
-public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
+public class SonarLintProjectChecker implements ProjectChecker {
 
   private static long getMaxLinesForTypeChecking(SensorContext context) {
     return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_TYPE_CHECKING);
@@ -53,7 +53,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return files.stream().map(InputFile::lines).mapToLong(Integer::longValue).sum();
   }
 
-  private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
+  private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
   static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxlines";
   private static final long DEFAULT_MAX_LINES_FOR_TYPE_CHECKING = 500_000L;
 
@@ -63,7 +63,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
   private boolean shouldCheck = true;
 
-  public SonarLintJavaScriptProjectChecker(ModuleFileSystem moduleFileSystem) {
+  public SonarLintProjectChecker(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
   }
 

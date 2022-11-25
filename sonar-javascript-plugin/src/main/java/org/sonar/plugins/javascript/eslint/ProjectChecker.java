@@ -17,22 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.javascript.eslint;
 
-import express from 'express';
-import { writeTSConfigFile } from 'services/tsconfig';
+import org.sonar.api.batch.sensor.SensorContext;
 
-/**
- * Handles TSConfig file creation requests
- */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { baseDir } = request.body;
-    response.json(await writeTSConfigFile(baseDir));
-  } catch (error) {
-    next(error);
-  }
+public interface ProjectChecker {
+  void checkOnce(SensorContext context);
+  boolean isBeyondLimit();
 }
