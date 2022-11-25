@@ -20,29 +20,20 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6478/javascript
 
 import { Rule } from 'eslint';
+import { interceptReport } from './helpers';
 
 export function decorateNoUnstableNestedComponents(rule: Rule.RuleModule): Rule.RuleModule {
-  return changeReportMessage(rule, urlRemover());
-}
-
-// interceptReport() doesn't work with the React plugin as the rules fail to find the context getFirstTokens() function.
-function changeReportMessage(rule: Rule.RuleModule, messageChanger: (message: string) => string) {
-  return {
-    // meta should be defined only when it's defined on original rule, otherwise RuleTester will fail
-    ...(!!rule.meta && { meta: rule.meta }),
-    create(context: Rule.RuleContext) {
-      return rule.create(overrideContextReport(context, messageChanger));
-    },
-  };
+  // interceptReport() by default doesn't work with the React plugin as the rules fail to find the context getFirstTokens() function.
+  return interceptReport(rule, messageChanger(urlRemover()), overrideContextReport);
 }
 
 function overrideContextReport(
   context: Rule.RuleContext,
-  messageChanger: (message: string) => string,
+  onReport: (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void,
 ): Rule.RuleContext {
   const overriddenReportContext = {
     report(reportDescriptor: Rule.ReportDescriptor) {
-      context.report(changeMessage(reportDescriptor, messageChanger));
+      onReport(context, reportDescriptor);
     },
   };
 
@@ -51,15 +42,14 @@ function overrideContextReport(
   return overriddenReportContext as Rule.RuleContext;
 }
 
-function changeMessage(
-  reportDescriptor: Rule.ReportDescriptor,
-  messageChanger: (message: string) => string,
-) {
-  const report = reportDescriptor as { message?: string };
-  if (report.message) {
-    report.message = messageChanger(report.message);
-  }
-  return reportDescriptor;
+function messageChanger(messageChanger: (message: string) => string) {
+  return (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => {
+    const report = reportDescriptor as { message?: string };
+    if (report.message) {
+      report.message = messageChanger(report.message);
+    }
+    context.report(reportDescriptor);
+  };
 }
 
 function urlRemover() {
