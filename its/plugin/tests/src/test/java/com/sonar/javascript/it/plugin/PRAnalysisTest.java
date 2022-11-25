@@ -70,7 +70,8 @@ class PRAnalysisTest {
       var helloFile = "hello." + language;
 
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+      var buildResult = scanWith(getMasterScannerIn(projectPath, projectKey));
+      BuildResultAssert.assertThat(buildResult)
         .withProjectKey(projectKey)
         .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
         .logsOnce("DEBUG: Initializing linter \"default\"")
@@ -78,7 +79,7 @@ class PRAnalysisTest {
         .cacheFileStrategy("WRITE_ONLY")
           .withReason("current analysis requires all files to be analyzed")
           .forFiles(indexFile, helloFile)
-          .withCachedFilesCounts(1, 2)
+          .withCachedFilesCounts(1, 1)
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
         .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
@@ -101,7 +102,7 @@ class PRAnalysisTest {
         .cacheFileStrategy("WRITE_ONLY")
           .withReason("the current file is changed")
           .forFiles(helloFile)
-          .withCachedFilesCounts(4)
+          .withCachedFilesCounts(1)
           .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
@@ -177,8 +178,8 @@ class PRAnalysisTest {
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "LATEST_RELEASE"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
+      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
       .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
