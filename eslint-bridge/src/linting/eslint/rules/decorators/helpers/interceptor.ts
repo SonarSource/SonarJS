@@ -115,3 +115,24 @@ export function interceptReport(
     },
   };
 }
+
+// interceptReport() by default doesn't work with the React plugin
+// as the rules fail to find the context getFirstTokens() function.
+export function interceptReportForReact(rule: Rule.RuleModule, onReport: ReportOverrider) {
+  return interceptReport(rule, onReport, contextOverriderForReact);
+}
+
+function contextOverriderForReact(
+  context: Rule.RuleContext,
+  onReport: (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void,
+): Rule.RuleContext {
+  const overriddenReportContext = {
+    report(reportDescriptor: Rule.ReportDescriptor) {
+      onReport(context, reportDescriptor);
+    },
+  };
+
+  Object.setPrototypeOf(overriddenReportContext, context);
+
+  return overriddenReportContext as Rule.RuleContext;
+}

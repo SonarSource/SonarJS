@@ -20,30 +20,13 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6478/javascript
 
 import { Rule } from 'eslint';
-import { interceptReport } from './helpers';
+import { interceptReportForReact } from './helpers';
 
 export function decorateNoUnstableNestedComponents(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, messageChanger(urlRemover()), contextOverriderForReact);
+  return interceptReportForReact(rule, changeMessageWith(urlRemover()));
 }
 
-// interceptReport() by default doesn't work with the React plugin
-// as the rules fail to find the context getFirstTokens() function.
-function contextOverriderForReact(
-  context: Rule.RuleContext,
-  onReport: (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void,
-): Rule.RuleContext {
-  const overriddenReportContext = {
-    report(reportDescriptor: Rule.ReportDescriptor) {
-      onReport(context, reportDescriptor);
-    },
-  };
-
-  Object.setPrototypeOf(overriddenReportContext, context);
-
-  return overriddenReportContext as Rule.RuleContext;
-}
-
-function messageChanger(messageChanger: (message: string) => string) {
+function changeMessageWith(messageChanger: (message: string) => string) {
   return (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => {
     const report = reportDescriptor as { message?: string };
     if (report.message) {
