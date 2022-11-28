@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import { decorateAccessorPairs } from './accessor-pairs-decorator';
 import { decorateBraceStyle } from './brace-style-decorator';
 import { decorateDefaultParamLast } from './default-param-last-decorator';
+import { decorateJsxKey } from './jsx-key-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
@@ -62,6 +63,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'accessor-pairs': decorateAccessorPairs,
   'brace-style': decorateBraceStyle,
   'default-param-last': decorateDefaultParamLast,
+  'jsx-key': decorateJsxKey,
   'no-dupe-keys': decorateNoDupeKeys,
   'no-duplicate-imports': decorateNoDuplicateImports,
   'no-empty': decorateNoEmpty,
