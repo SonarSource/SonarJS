@@ -25,12 +25,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -38,48 +36,46 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
 
-  private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
   private final AnalysisProcessor processAnalysis;
-  private final JavaScriptProjectChecker javaScriptProjectChecker;
+  private final ProjectChecker projectChecker;
   private AnalysisMode analysisMode;
 
+  // This constructor is required to avoid an error in SonarCloud because there's no implementation available for the interface
+  // JavaScriptProjectChecker. The implementation for that interface is available only in SonarLint. Unlike SonarCloud,
+  // SonarQube is simply passing null and doesn't throw any error.
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
-                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
+                                     AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
+                                     AnalysisProcessor processAnalysis) {
+    this(checks, eslintBridgeServer, analysisWarnings, monitoring, processAnalysis, null);
+  }
+
+  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
+                                     AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
                                      AnalysisProcessor processAnalysis,
-                                     @Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
+                                     @Nullable ProjectChecker projectChecker) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
-    this.tempFolder = folder;
     this.checks = checks;
     this.processAnalysis = processAnalysis;
-    this.javaScriptProjectChecker = javaScriptProjectChecker;
+    this.projectChecker = projectChecker;
   }
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    runEslintAnalysis(getTsConfigProvider().tsconfigs(context), inputFiles);
+    runEslintAnalysis(getTsConfigFiles(), inputFiles);
   }
 
-  private TsConfigProvider.Provider getTsConfigProvider() {
-    if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
-      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, this::createTsConfigFile);
-    } else {
-      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
-    }
-  }
-
-  private String createTsConfigFile(String content) throws IOException {
-    return eslintBridgeServer.createTsConfigFile(content).filename;
+  private List<String> getTsConfigFiles() throws IOException {
+    return TsConfigProvider.generateDefaultTsConfigFile(context, projectChecker, this::createTsConfigFile);
   }
 
   private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
@@ -127,6 +123,10 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
     }
+  }
+
+  private String createTsConfigFile(String baseDir) throws IOException {
+    return eslintBridgeServer.createTsConfigFile(baseDir).getFilename();
   }
 
   @Override

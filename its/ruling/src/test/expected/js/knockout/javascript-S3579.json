@@ -1,5 +1,11 @@
 {
+'knockout:src/binding/defaultBindings/foreach.js':[
+38,
+],
 'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
 155,
+],
+'knockout:src/templating/templating.js':[
+339,
 ],
 }

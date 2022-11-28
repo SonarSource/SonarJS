@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import express from 'express';
-import { writeTSConfigFile } from 'services/tsconfig';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-/**
- * Handles TSConfig file creation requests
- */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { baseDir } = request.body;
-    response.json(await writeTSConfigFile(baseDir));
-  } catch (error) {
-    next(error);
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6478")
+public class NoUnstableNestedComponentsCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-unstable-nested-components";
   }
+
 }

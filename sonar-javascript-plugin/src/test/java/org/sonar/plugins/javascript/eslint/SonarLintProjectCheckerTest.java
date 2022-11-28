@@ -40,9 +40,9 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.MAX_LINES_PROPERTY;
+import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_LINES_PROPERTY;
 
-class SonarLintJavaScriptProjectCheckerTest {
+class SonarLintProjectCheckerTest {
 
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -95,14 +95,14 @@ class SonarLintJavaScriptProjectCheckerTest {
     assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
   }
 
-  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {
-    var checker = new SonarLintJavaScriptProjectChecker(moduleFileSystem(inputFiles));
+  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {
+    var checker = new SonarLintProjectChecker(moduleFileSystem(inputFiles));
     checker.checkOnce(sensorContext());
     return checker;
   }
 
-  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
-    var checker = new SonarLintJavaScriptProjectChecker(moduleFileSystem(error));
+  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
+    var checker = new SonarLintProjectChecker(moduleFileSystem(error));
     checker.checkOnce(sensorContext());
     return checker;
   }

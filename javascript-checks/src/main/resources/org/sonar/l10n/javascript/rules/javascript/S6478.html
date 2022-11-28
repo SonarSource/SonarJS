@@ -1,0 +1,72 @@
+<p>Nested components are recreated on each render because React does not know that they haven’t changed. This hurts performance as the components are
+recreated at each render. However, this can also hide surprising bugs where the state of the nested components is lost between renders. Trying to
+<code>useCallback</code> hooks for child components should also be discouraged. You should refactor this code to define the component on its own,
+passing props if required.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function Component() {
+  function UnstableNestedComponent() {
+    return &lt;div/&gt;;
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;UnstableNestedComponent /&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+<pre>
+function SomeComponent({ footer: Footer }) {
+  return (
+    &lt;div&gt;
+      &lt;Footer /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Component() {
+  return (
+    &lt;div&gt;
+      &lt;SomeComponent footer={ () =&gt; &lt;div /&gt; } /&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+<pre>
+class Component extends React.Component {
+  render() {
+    function UnstableNestedComponent() {
+      return &lt;div /&gt;;
+    }
+
+    return (
+      &lt;div&gt;
+        &lt;UnstableNestedComponent /&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function OutsideDefinedComponent(props) {
+  return &lt;div /&gt;;
+}
+
+function Component() {
+  return (
+    &lt;div&gt;
+      &lt;OutsideDefinedComponent /&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+<pre>
+function Component() {
+  return &lt;SomeComponent footer={ &lt;div /&gt; } /&gt;;
+}
+</pre>
+<h2>See</h2>
+<p>TODO</p>
+

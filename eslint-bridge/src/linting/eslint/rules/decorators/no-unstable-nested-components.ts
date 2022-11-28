@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+// https://sonarsource.github.io/rspec/#/rspec/S6478/javascript
 
-import javax.annotation.Nullable;
-import org.sonar.api.batch.sensor.SensorContext;
+import { Rule } from 'eslint';
+import { interceptReportForReact } from './helpers';
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(@Nullable JavaScriptProjectChecker javascriptProjectChecker, SensorContext context) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(context);
+export function decorateNoUnstableNestedComponents(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReportForReact(rule, changeMessageWith(urlRemover()));
+}
+
+function changeMessageWith(messageChanger: (message: string) => string) {
+  return (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => {
+    const report = reportDescriptor as { message?: string };
+    if (report.message) {
+      report.message = messageChanger(report.message);
     }
-  }
+    context.report(reportDescriptor);
+  };
+}
 
-  void checkOnce(SensorContext context);
-  boolean isBeyondLimit();
+function urlRemover() {
+  const urlRegexp = / \(https:[^)]+\)/;
+  return (message: string) => message.replace(urlRegexp, '');
 }

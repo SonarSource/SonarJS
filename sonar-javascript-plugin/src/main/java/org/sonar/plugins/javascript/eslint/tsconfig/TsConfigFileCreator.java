@@ -17,22 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.javascript.eslint.tsconfig;
 
-import express from 'express';
-import { writeTSConfigFile } from 'services/tsconfig';
+import java.io.IOException;
 
-/**
- * Handles TSConfig file creation requests
- */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { baseDir } = request.body;
-    response.json(await writeTSConfigFile(baseDir));
-  } catch (error) {
-    next(error);
-  }
+@FunctionalInterface
+public interface TsConfigFileCreator {
+  String createTsConfigFile(String baseDir) throws IOException;
 }

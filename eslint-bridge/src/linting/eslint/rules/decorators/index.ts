@@ -32,6 +32,7 @@ import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThisAlias } from './no-this-alias-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
+import { decorateNoUnstableNestedComponents } from './no-unstable-nested-components';
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
@@ -70,6 +71,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-this-alias': decorateNoThisAlias,
   'no-throw-literal': decorateNoThrowLiteral,
   'no-unreachable': decorateNoUnreachable,
+  'no-unstable-nested-components': decorateNoUnstableNestedComponents,
   'no-unused-expressions': decorateNoUnusedExpressions,
   'no-var': decorateNoVar,
   'object-shorthand': decorateObjectShorthand,
