@@ -22,11 +22,15 @@ import { Rule } from 'eslint';
 import { interceptReportForReact } from './helpers';
 
 export function decorateJsxKey(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(rule, (context, reportDescriptor) => {
+  return interceptReportForReact(rule, reportExempting(hasSpreadOperator));
+}
+
+function reportExempting(exemptionCondition: (property: TSESTree.Node) => boolean) {
+  return (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => {
     // check if node has attribute containing spread operator
     if ('node' in reportDescriptor) {
       const { node, ...rest } = reportDescriptor;
-      if (hasSpreadOperator(node as TSESTree.Node)) {
+      if (exemptionCondition(node as TSESTree.Node)) {
         return;
       }
       context.report({
@@ -34,7 +38,7 @@ export function decorateJsxKey(rule: Rule.RuleModule): Rule.RuleModule {
         ...rest,
       });
     }
-  });
+  };
 }
 
 function hasSpreadOperator(node: TSESTree.Node) {
