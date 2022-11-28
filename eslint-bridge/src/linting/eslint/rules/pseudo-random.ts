@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isMemberExpression } from './helpers';
+import { getFullyQualifiedName } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -31,9 +31,9 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      CallExpression(node: estree.Node) {
-        const { callee } = node as estree.CallExpression;
-        if (isMemberExpression(callee, 'Math', 'random')) {
+      CallExpression(node: estree.CallExpression) {
+        const fqn = getFullyQualifiedName(context, node);
+        if (fqn === 'Math.random') {
           context.report({
             messageId: 'safeGenerator',
             node,
