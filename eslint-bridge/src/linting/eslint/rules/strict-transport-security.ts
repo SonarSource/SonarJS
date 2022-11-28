@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   Express,
-  getModuleNameOfNode,
   getPropertyWithValue,
   getObjectExpressionProperty,
   getValueOfExpression,
+  getFullyQualifiedName,
 } from './helpers';
 
 const HSTS = 'hsts';
@@ -64,7 +64,7 @@ function findSensitiveHsts(
   middleware: estree.Node,
   options: estree.ObjectExpression,
 ): estree.Property | undefined {
-  if (isModuleNode(context, middleware, HELMET)) {
+  if (getFullyQualifiedName(context, middleware) === HELMET) {
     return getPropertyWithValue(context, options, HSTS, false);
   }
   return undefined;
@@ -102,15 +102,6 @@ function findSensitiveIncludeSubDomains(
 }
 
 function isHstsMiddlewareNode(context: Rule.RuleContext, node: estree.Node): boolean {
-  return (
-    isModuleNode(context, node, HSTS) ||
-    (node.type === 'MemberExpression' &&
-      isModuleNode(context, node.object, HELMET) &&
-      node.property.type === 'Identifier' &&
-      node.property.name === HSTS)
-  );
-}
-
-function isModuleNode(context: Rule.RuleContext, node: estree.Node, moduleName: string): boolean {
-  return node.type === 'Identifier' && getModuleNameOfNode(context, node)?.value === moduleName;
+  const fqn = getFullyQualifiedName(context, node);
+  return fqn === `${HELMET}.${HSTS}` || fqn === HSTS;
 }

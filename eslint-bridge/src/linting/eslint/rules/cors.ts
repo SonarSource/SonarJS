@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfNode,
   getUniqueWriteUsage,
   getObjectExpressionProperty,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
@@ -50,16 +50,15 @@ export const rule: Rule.RuleModule = {
       context.report({ message, node });
     }
 
-    function isCorsCall(callee: estree.Node) {
-      return getModuleNameOfNode(context, callee)?.value === 'cors';
+    function isCorsCall(call: estree.CallExpression) {
+      return getFullyQualifiedName(context, call) === 'cors';
     }
 
     return {
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;
-        const { callee } = call;
 
-        if (isCorsCall(callee)) {
+        if (isCorsCall(call)) {
           if (call.arguments.length === 0) {
             report(call);
             return;

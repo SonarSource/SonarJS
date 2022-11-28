@@ -76,7 +76,7 @@ ruleTester.run('Executing OS commands is security-sensitive', rule, {
           message: 'Make sure that executing this OS command is safe here.',
           line: 3,
           endLine: 3,
-          column: 12,
+          column: 9,
           endColumn: 16,
         },
       ],

@@ -21,12 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleAndCalledMethod,
-  getUniqueWriteUsageOrNode,
-  isIdentifier,
-  isStringLiteral,
-} from './helpers';
+import { getFullyQualifiedName, getUniqueWriteUsageOrNode, isStringLiteral } from './helpers';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
@@ -47,27 +42,19 @@ const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['sha-1']);
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    function checkNodejsCrypto(node: estree.CallExpression) {
+    function checkNodejsCrypto(fqn: string | null, node: estree.CallExpression) {
       // crypto#createHash
       const { callee, arguments: args } = node;
-      const { module, method } = getModuleAndCalledMethod(callee, context);
-      if (module?.value === 'crypto' && isIdentifier(method, 'createHash')) {
-        checkUnsecureAlgorithm(method, args[0], CRYPTO_UNSECURE_HASH_ALGORITHMS);
+      if (fqn === 'crypto.createHash') {
+        checkUnsecureAlgorithm(callee, args[0], CRYPTO_UNSECURE_HASH_ALGORITHMS);
       }
     }
 
-    function checkSubtleCrypto(node: estree.CallExpression) {
+    function checkSubtleCrypto(fqn: string | null, node: estree.CallExpression) {
       // crypto.subtle#digest
       const { callee, arguments: args } = node;
-      if (callee.type === 'MemberExpression' && isIdentifier(callee.property, 'digest')) {
-        const { object, property: method } = callee;
-        if (
-          object.type === 'MemberExpression' &&
-          isIdentifier(object.object, 'crypto') &&
-          isIdentifier(object.property, 'subtle')
-        ) {
-          checkUnsecureAlgorithm(method, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS);
-        }
+      if (fqn === 'crypto.subtle.digest') {
+        checkUnsecureAlgorithm(callee, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS);
       }
     }
 
@@ -91,8 +78,9 @@ export const rule: Rule.RuleModule = {
     return {
       'CallExpression[arguments.length > 0]': (node: estree.Node) => {
         const callExpr = node as estree.CallExpression;
-        checkNodejsCrypto(callExpr);
-        checkSubtleCrypto(callExpr);
+        const fqn = getFullyQualifiedName(context, callExpr);
+        checkNodejsCrypto(fqn, callExpr);
+        checkSubtleCrypto(fqn, callExpr);
       },
     };
   },

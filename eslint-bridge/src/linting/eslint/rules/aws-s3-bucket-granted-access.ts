@@ -24,13 +24,14 @@ import estree from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 import { mergeRules } from './decorators/helpers';
 import {
+  getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
-  hasFullyQualifiedName,
   isIdentifier,
   isMethodCall,
   toEncodedMessage,
 } from './helpers';
+import { normalizeFQN } from './helpers/aws/cdk';
 import {
   S3BucketTemplate,
   isS3BucketDeploymentConstructor,
@@ -130,7 +131,8 @@ function checkConstantParam(
   const propertyLiteralValue = getValueOfExpression(context, property.value, 'MemberExpression');
   if (
     propertyLiteralValue !== undefined &&
-    hasFullyQualifiedName(context, propertyLiteralValue, 'aws-cdk-lib/aws-s3', ...paramQualifiers)
+    normalizeFQN(getFullyQualifiedName(context, propertyLiteralValue)) ===
+      `aws_cdk_lib.aws_s3.${paramQualifiers.join('.')}`
   ) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
     context.report({

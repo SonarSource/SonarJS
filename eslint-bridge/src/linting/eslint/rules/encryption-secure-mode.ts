@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isCallToFQN } from './helpers';
+import { getFullyQualifiedName, getValueOfExpression } from './helpers';
 
 const aliases: string[] = [
   'AES128',
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        if (!isCallToFQN(context, callExpression, 'crypto', 'createCipheriv')) {
+        if (getFullyQualifiedName(context, callExpression) !== 'crypto.createCipheriv') {
           return;
         }
         const sensitiveArgument = callExpression.arguments[0];

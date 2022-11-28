@@ -24,8 +24,8 @@ import * as estree from 'estree';
 import {
   getValueOfExpression,
   getPropertyWithValue,
-  isCallToFQN,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -78,13 +78,14 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        if (isCallToFQN(context, callExpression, 'https', 'request')) {
+        const fqn = getFullyQualifiedName(context, callExpression);
+        if (fqn === 'https.request') {
           checkSensitiveArgument(callExpression, 0);
         }
-        if (isCallToFQN(context, callExpression, 'request', 'get')) {
+        if (fqn === 'request.get') {
           checkSensitiveArgument(callExpression, 0);
         }
-        if (isCallToFQN(context, callExpression, 'tls', 'connect')) {
+        if (fqn === 'tls.connect') {
           checkSensitiveArgument(callExpression, 2);
         }
       },

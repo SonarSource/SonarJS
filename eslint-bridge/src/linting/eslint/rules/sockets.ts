@@ -21,13 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier } from './helpers';
-
-const NET_MODULE = 'net';
-
-const SOCKET_CREATION_FUNCTIONS = new Set(['createConnection', 'connect']);
-
-const SOCKET_CONSTRUCTOR = 'Socket';
+import { getFullyQualifiedName } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -38,43 +32,25 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.NewExpression, context),
+        checkCallExpression(node as estree.NewExpression, context, 'net.Socket'),
       CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
+        checkCallExpression(
+          node as estree.CallExpression,
+          context,
+          'net.createConnection',
+          'net.connect',
+        ),
     };
   },
 };
 
-function checkCallExpression({ callee, type }: estree.CallExpression, context: Rule.RuleContext) {
-  let moduleName;
-  let expression: estree.Expression | estree.PrivateIdentifier | undefined;
-  if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
-    moduleName = getModuleNameOfIdentifier(context, callee.object);
-    expression = callee.property;
-  }
-
-  if (callee.type === 'Identifier') {
-    moduleName = getModuleNameOfImportedIdentifier(context, callee);
-    expression = callee;
-  }
-
-  if (expression && isQuestionable(expression, type === 'NewExpression', moduleName)) {
-    context.report({ messageId: 'safeSocket', node: callee });
-  }
-}
-
-function isQuestionable(
-  expression: estree.Expression | estree.PrivateIdentifier,
-  isConstructor: boolean,
-  moduleName?: estree.Literal,
+function checkCallExpression(
+  callExpr: estree.CallExpression,
+  context: Rule.RuleContext,
+  ...sensitiveFqns: string[]
 ) {
-  if (!moduleName || moduleName.value !== NET_MODULE || expression.type !== 'Identifier') {
-    return false;
+  const callFqn = getFullyQualifiedName(context, callExpr);
+  if (sensitiveFqns.some(sensitiveFqn => sensitiveFqn === callFqn)) {
+    context.report({ messageId: 'safeSocket', node: callExpr.callee });
   }
-
-  if (isConstructor) {
-    return expression.name === SOCKET_CONSTRUCTOR;
-  }
-
-  return SOCKET_CREATION_FUNCTIONS.has(expression.name);
 }

@@ -20,8 +20,11 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import {
-  getModuleNameOfImportedIdentifier,
+  getImportDeclarations,
+  getModuleNameFromRequire,
   getObjectExpressionProperty,
+  getUniqueWriteUsage,
+  isIdentifier,
 } from 'linting/eslint/rules/helpers';
 
 /**
@@ -82,3 +85,39 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Returns the module name, when an identifier represents a binding imported from another module.
+ * Returns undefined otherwise.
+ * example: Given `import { f } from 'module_name'`, `getModuleNameOfImportedIdentifier(f)` returns `module_name`
+ */
+function getModuleNameOfImportedIdentifier(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+) {
+  // check if importing using `import { f } from 'module_name'`
+  const importedDeclaration = getImportDeclarations(context).find(({ specifiers }) =>
+    specifiers.some(
+      spec => spec.type === 'ImportSpecifier' && spec.imported.name === identifier.name,
+    ),
+  );
+  if (importedDeclaration) {
+    return importedDeclaration.source;
+  }
+  // check if importing using `const f = require('module_name').f` or `const { f } = require('module_name')`
+  const writeExpression = getUniqueWriteUsage(context, identifier.name);
+  if (writeExpression) {
+    let maybeRequireCall: estree.Node;
+    if (
+      writeExpression.type === 'MemberExpression' &&
+      isIdentifier(writeExpression.property, identifier.name)
+    ) {
+      maybeRequireCall = writeExpression.object;
+    } else {
+      maybeRequireCall = writeExpression;
+    }
+    return getModuleNameFromRequire(maybeRequireCall);
+  }
+
+  return undefined;
+}
