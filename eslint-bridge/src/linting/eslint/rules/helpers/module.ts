@@ -121,6 +121,15 @@ export function getFullyQualifiedName(
     return null;
   }
 
+  // built-in variable
+  // ESLint marks built-in global variables with an undocumented hidden `writeable` property that should equal `false`.
+  // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/linter/linter.js#L207
+  // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
+  if ((variable as any).writeable === false) {
+    fqn.unshift(nodeToCheck.name);
+    return fqn.join('.');
+  }
+
   const definition = variable.defs.find(({ type }) => ['ImportBinding', 'Variable'].includes(type));
 
   if (!definition) {
