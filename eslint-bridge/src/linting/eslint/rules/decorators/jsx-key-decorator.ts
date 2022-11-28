@@ -26,8 +26,7 @@ export function decorateJsxKey(rule: Rule.RuleModule): Rule.RuleModule {
     // check if node has attribute containing spread operator
     if ('node' in reportDescriptor) {
       const { node, ...rest } = reportDescriptor;
-      const cNode = node as TSESTree.Node;
-      if (hasSpreadOperator(cNode)) {
+      if (hasSpreadOperator(node as TSESTree.Node)) {
         return;
       }
       context.report({
