@@ -108,8 +108,6 @@ export function getFullyQualifiedName(
       const maybeRequire = reduceTo('CallExpression', node.callee, qualifiers);
       const module = getModuleNameFromRequire(maybeRequire);
       if (typeof module?.value === 'string') {
-        const qualifiers: string[] = [];
-        reduceToIdentifier(node.callee, qualifiers);
         qualifiers.unshift(module.value);
         return qualifiers.join('.');
       }
