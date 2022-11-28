@@ -65,10 +65,10 @@ function isQuestionable(method: string, [command, ...otherArguments]: Argument[]
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
-  if (SPAWN_EXEC_FILE_FUNCTIONS.some(fun => fun === method)) {
+  if (SPAWN_EXEC_FILE_FUNCTIONS.includes(method)) {
     return containsShellOption(otherArguments);
   }
-  return EXEC_FUNCTIONS.some(fun => fun === method);
+  return EXEC_FUNCTIONS.includes(method);
 }
 
 function containsShellOption(otherArguments: Argument[]) {
