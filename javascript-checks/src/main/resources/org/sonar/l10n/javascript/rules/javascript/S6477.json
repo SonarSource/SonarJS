@@ -1,5 +1,5 @@
 {
-  "title": "FIXME",
+  "title": "Mandatory keys in JSX list components",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
