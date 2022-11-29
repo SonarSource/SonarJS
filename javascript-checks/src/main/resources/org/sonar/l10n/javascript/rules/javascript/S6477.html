@@ -1,0 +1,28 @@
+<p>React expects a unique identifier <code>key</code> in each component to optimize rendering. Missing keys will negatively impact performance and can
+bring your application to a halt when there are enough elements.</p>
+<p>Avoid Array indexes since they are not stable. Instead, use a unique attribute like an id.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const React = require('react');
+class App extends React.Component {
+  render() {
+    &lt;LoginButton /&gt;;
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const React = require('react');
+class App extends React.Component {
+  render() {
+    &lt;LoginButton key="loginBtn" /&gt;;
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a
+  href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">https://reactjs.org/docs/reconciliation.html#recursing-on-children</a> -
+  React API reference </li>
+</ul>
+
