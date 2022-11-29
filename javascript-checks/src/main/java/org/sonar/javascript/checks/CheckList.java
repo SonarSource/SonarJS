@@ -196,6 +196,7 @@ public final class CheckList {
       IpForwardCheck.class,
       JsxKeyCheck.class,
       JsxNoCommentTextnodesCheck.class,
+      JsxNoConstructedContextValuesCheck.class,
       JsxNoLeakedRenderCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
