@@ -29,13 +29,17 @@ function changeRuleMessagesWith(
   rule: Rule.RuleModule,
   messageChanger: (message: string) => string,
 ) {
-  rule.meta!.messages = Object.fromEntries(
-    Object.entries(rule.meta!.messages!).map(([key, value]) => [key, messageChanger(value)]),
-  );
+  if (rule.meta?.messages) {
+    const messages = rule.meta.messages;
+    const newMessages = Object.fromEntries(
+      Object.entries(messages).map(([key, value]) => [key, messageChanger(value)]),
+    );
+    rule.meta.messages = newMessages;
+  }
   return rule;
 }
 
 function lineRemover() {
-  const lineRegexp = / \(at line [^)]+\)/;
+  const lineRegexp = / \(at line [^)]+\)/g;
   return (message: string) => message.replace(lineRegexp, '');
 }
