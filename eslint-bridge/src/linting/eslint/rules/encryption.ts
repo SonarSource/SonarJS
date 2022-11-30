@@ -21,12 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isIdentifier,
-  isMemberWithProperty,
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-} from './helpers';
+import { isIdentifier, isMemberWithProperty, getFullyQualifiedName } from './helpers';
 
 const getEncryptionRuleModule = (
   clientSideMethods: string[],
@@ -81,18 +76,8 @@ function checkForServerSide(
   context: Rule.RuleContext,
   serverSideMethods: string[],
 ) {
-  let moduleName: estree.Literal | undefined;
-
-  if (
-    callee.type === 'MemberExpression' &&
-    isMemberWithProperty(callee, ...serverSideMethods) &&
-    callee.object.type === 'Identifier'
-  ) {
-    moduleName = getModuleNameOfIdentifier(context, callee.object);
-  } else if (isIdentifier(callee, ...serverSideMethods)) {
-    moduleName = getModuleNameOfImportedIdentifier(context, callee);
-  }
-  if (moduleName && moduleName.value === 'crypto') {
+  const fqn = getFullyQualifiedName(context, callee);
+  if (serverSideMethods.some(method => fqn === `crypto.${method}`)) {
     context.report({
       messageId: 'safeEncryption',
       node: callee,

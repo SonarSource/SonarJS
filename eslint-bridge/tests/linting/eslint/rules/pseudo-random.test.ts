@@ -53,5 +53,9 @@ ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensiti
       code: `foo(Math.random())`,
       errors: 1,
     },
+    {
+      code: `let random = Math.random; foo(random());`,
+      errors: 1,
+    },
   ],
 });

@@ -24,8 +24,8 @@ import {
   isIdentifier,
   getValueOfExpression,
   getObjectExpressionProperty,
-  getModuleNameOfNode,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 
 export class CookieFlagCheck {
@@ -155,26 +155,23 @@ export class CookieFlagCheck {
   public checkCookiesFromCallExpression(node: estree.Node) {
     const callExpression = node as estree.CallExpression;
     const { callee } = callExpression;
-    const moduleName = getModuleNameOfNode(this.context, callee);
-    if (moduleName?.value === 'cookie-session') {
+    const fqn = getFullyQualifiedName(this.context, callee);
+    if (fqn === 'cookie-session') {
       this.checkCookieSession(callExpression);
       return;
     }
-    if (moduleName?.value === 'csurf') {
+    if (fqn === 'csurf') {
       this.checkCsurf(callExpression);
       return;
     }
-    if (moduleName?.value === 'express-session') {
+    if (fqn === 'express-session') {
       this.checkExpressSession(callExpression);
       return;
     }
     if (callee.type === 'MemberExpression') {
       const objectValue = getValueOfExpression(this.context, callee.object, 'NewExpression');
-      if (objectValue) {
-        const module = getModuleNameOfNode(this.context, objectValue.callee);
-        if (module?.value === 'cookies') {
-          this.checkCookiesMethodCall(callExpression);
-        }
+      if (objectValue && getFullyQualifiedName(this.context, objectValue.callee) === 'cookies') {
+        this.checkCookiesMethodCall(callExpression);
       }
     }
   }

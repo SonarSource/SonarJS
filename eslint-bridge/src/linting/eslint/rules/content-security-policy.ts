@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getModuleNameOfNode, getPropertyWithValue } from './helpers';
+import { Express, getFullyQualifiedName, getPropertyWithValue } from './helpers';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
@@ -42,8 +42,7 @@ function findFalseContentSecurityPolicyPropertyFromHelmet(
   let sensitive: estree.Property | undefined;
   const { callee, arguments: args } = node;
   if (
-    callee.type === 'Identifier' &&
-    getModuleNameOfNode(context, callee)?.value === HELMET &&
+    getFullyQualifiedName(context, callee) === HELMET &&
     args.length === 1 &&
     args[0].type === 'ObjectExpression'
   ) {

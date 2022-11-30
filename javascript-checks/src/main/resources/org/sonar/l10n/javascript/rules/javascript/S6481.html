@@ -1,0 +1,29 @@
+<p>Providing values like an object to a React <code>Context</code> will provoke additional re-renders as React doesn’t know the object is the same.
+This can significantly impact performance since the whole component tree will be re-rendered each time. Wrapping the value in a <code>useMemo</code>
+hook will avoid additional render passes.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function Component() {
+  return (
+    &lt;SomeContext.Provider value={{foo: 'bar'}}&gt; { /* value is an object expression */ }
+      &lt;SomeComponent /&gt;
+    &lt;/SomeContext.Provider&gt;
+  );
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function Component() {
+  const foo = useMemo(() =&gt; ({foo: 'bar'}), []);
+  return (
+    &lt;SomeContext.Provider value={foo}&gt;
+      &lt;SomeComponent /&gt;
+    &lt;/SomeContext.Provider&gt;
+  );
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://reactjs.org/docs/context.html#caveats">Context Caveats</a> - React documentation </li>
+</ul>
+

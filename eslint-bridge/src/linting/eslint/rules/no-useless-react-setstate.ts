@@ -20,11 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6443/javascript
 
 import { Rule, Scope } from 'eslint';
-import {
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-  getVariableFromName,
-} from './helpers';
+import { getFullyQualifiedName, getVariableFromName } from './helpers';
 import * as estree from 'estree';
 
 type Reference = {
@@ -93,13 +89,10 @@ export const rule: Rule.RuleModule = {
 };
 
 function isReactCall(context: Rule.RuleContext, callExpr: estree.CallExpression): boolean {
-  if (callExpr.callee.type === 'Identifier') {
-    return getModuleNameOfImportedIdentifier(context, callExpr.callee)?.value === 'react';
-  } else if (callExpr.callee.type === 'MemberExpression') {
-    return (
-      getModuleNameOfIdentifier(context, callExpr.callee.object as estree.Identifier)?.value ===
-      'react'
-    );
+  const fqn = getFullyQualifiedName(context, callExpr);
+  if (fqn) {
+    const [module] = fqn.split('.');
+    return module === 'react';
   }
   return false;
 }

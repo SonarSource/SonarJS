@@ -21,11 +21,12 @@
 import { Linter, SourceCode } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { rules as reactESLintRules } from 'eslint-plugin-react';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
-const externalRules = { ...eslintRules, ...typescriptESLintRules };
+const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLintRules };
 const decoratedExternalRules = decorateExternalRules(externalRules);
 
 describe('decorateExternalRules', () => {

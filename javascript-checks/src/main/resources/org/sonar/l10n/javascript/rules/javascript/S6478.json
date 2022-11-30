@@ -1,0 +1,21 @@
+{
+  "title": "React components should not be nested",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6478",
+  "sqKey": "S6478",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

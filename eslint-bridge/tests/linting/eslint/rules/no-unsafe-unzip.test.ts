@@ -45,14 +45,6 @@ ruleTesterTs.run(
         tar.x({file: 'foo.tar.gz', ...other});
         tar.x({file: 'foo.tar.gz', 'filter': somePredicate});`,
       },
-      {
-        code: `
-        import {x} from 'tar';
-
-        x({ // FN
-          file: 'foo.tar.gz'
-        });`,
-      },
     ],
     invalid: [
       {
@@ -77,6 +69,15 @@ ruleTesterTs.run(
         import * as tar from 'tar';
 
         tar.x({ // Sensitive
+          file: 'foo.tar.gz'
+        });`,
+        errors: 1,
+      },
+      {
+        code: `
+        import {x} from 'tar';
+
+        x({ // FN
           file: 'foo.tar.gz'
         });`,
         errors: 1,

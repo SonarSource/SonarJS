@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -72,7 +73,7 @@ public class AnalysisWithProgram {
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    var tsConfigs = new TsConfigProvider().tsconfigs(context);
+    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }

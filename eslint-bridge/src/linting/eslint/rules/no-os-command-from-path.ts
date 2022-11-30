@@ -21,12 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isIdentifier,
-  isStringLiteral,
-  getModuleAndCalledMethod,
-  getValueOfExpression,
-} from './helpers';
+import { isStringLiteral, getValueOfExpression, getFullyQualifiedName } from './helpers';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
@@ -40,8 +35,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {
-        const { module, method } = getModuleAndCalledMethod(node.callee, context);
-        if (module?.value === 'child_process' && isIdentifier(method, ...SENSITIVE_METHODS)) {
+        const fqn = getFullyQualifiedName(context, node);
+        if (SENSITIVE_METHODS.some(method => fqn === `child_process.${method}`)) {
           const sensitiveArg = findSensitiveArgument(
             context,
             node.arguments as estree.Expression[],

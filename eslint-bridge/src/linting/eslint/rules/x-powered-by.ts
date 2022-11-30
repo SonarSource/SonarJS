@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, isMethodInvocation, getModuleNameOfNode } from './helpers';
+import { Express, isMethodInvocation, getFullyQualifiedName } from './helpers';
 
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
@@ -87,13 +87,7 @@ export const rule: Rule.RuleModule = {
  */
 function isHidePoweredByFromHelmet(context: Rule.RuleContext, n: estree.Node): boolean {
   if (n.type === 'CallExpression') {
-    const callee = n.callee;
-    return (
-      callee.type === 'MemberExpression' &&
-      getModuleNameOfNode(context, callee.object)?.value === HELMET &&
-      callee.property.type === 'Identifier' &&
-      callee.property.name === 'hidePoweredBy'
-    );
+    return getFullyQualifiedName(context, n) === `${HELMET}.hidePoweredBy`;
   }
   return false;
 }

@@ -22,12 +22,7 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getImportDeclarations,
-  getRequireCalls,
-  getObjectExpressionProperty,
-  toEncodedMessage,
-} from './helpers';
+import { getObjectExpressionProperty, toEncodedMessage, getFullyQualifiedName } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const XML_LIBRARY = 'libxmljs';
@@ -44,29 +39,8 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
-      return (
-        ((call.callee.type === 'Identifier' && XML_PARSERS.includes(call.callee.name)) ||
-          (call.callee.type === 'MemberExpression' &&
-            call.callee.property.type === 'Identifier' &&
-            XML_PARSERS.includes(call.callee.property.name))) &&
-        call.arguments.length > 1
-      );
-    }
-
-    function isXmlLibraryInScope() {
-      return isXmlLibraryImported() || isXmlLibraryRequired();
-    }
-
-    function isXmlLibraryImported() {
-      return getImportDeclarations(context).findIndex(i => i.source.value === XML_LIBRARY) > -1;
-    }
-
-    function isXmlLibraryRequired() {
-      return (
-        getRequireCalls(context).findIndex(
-          r => r.arguments[0].type === 'Literal' && r.arguments[0].value === XML_LIBRARY,
-        ) > -1
-      );
+      const fqn = getFullyQualifiedName(context, call);
+      return XML_PARSERS.some(parser => fqn === `${XML_LIBRARY}.${parser}`);
     }
 
     function isNoEntSet(property: estree.Property) {
@@ -76,7 +50,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
-        if (isXmlParserCall(call) && isXmlLibraryInScope()) {
+        if (isXmlParserCall(call)) {
           const noent = getObjectExpressionProperty(call.arguments[1], 'noent');
           if (noent && isNoEntSet(noent)) {
             context.report({

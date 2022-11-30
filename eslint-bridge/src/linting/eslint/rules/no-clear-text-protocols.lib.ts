@@ -25,10 +25,10 @@ import { URL } from 'url';
 import {
   getValueOfExpression,
   getObjectExpressionProperty,
-  getModuleNameOfNode,
-  isCallToFQN,
   getParent,
+  getFullyQualifiedName,
 } from './helpers';
+import { normalizeFQN } from './helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
@@ -99,12 +99,15 @@ export const rule: Rule.RuleModule = {
         getObjectExpressionProperty(configuration, 'ses')?.value,
         'NewExpression',
       );
-      if (!ses || !isCallToFQN(context, ses, '@aws-sdk/client-ses', 'SES')) {
+      if (!ses || normalizeFQN(getFullyQualifiedName(context, ses)) !== '@aws_sdk.client_ses.SES') {
         return false;
       }
 
       const aws = getObjectExpressionProperty(configuration, 'aws');
-      if (!aws || getModuleNameOfNode(context, aws.value)?.value !== '@aws-sdk/client-ses') {
+      if (
+        !aws ||
+        normalizeFQN(getFullyQualifiedName(context, aws.value)) !== '@aws_sdk.client_ses'
+      ) {
         return false;
       }
 
@@ -122,10 +125,7 @@ export const rule: Rule.RuleModule = {
           callExpression.callee.object,
           'NewExpression',
         );
-        if (
-          !!newExpression &&
-          getModuleNameOfNode(context, newExpression.callee)?.value === 'ftp'
-        ) {
+        if (!!newExpression && getFullyQualifiedName(context, newExpression.callee) === 'ftp') {
           const firstArg = callExpression.arguments.length > 0 ? callExpression.arguments[0] : null;
           if (!firstArg) {
             return;
@@ -202,7 +202,7 @@ export const rule: Rule.RuleModule = {
       },
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        if (isCallToFQN(context, callExpression, 'nodemailer', 'createTransport')) {
+        if (getFullyQualifiedName(context, callExpression) === 'nodemailer.createTransport') {
           checkNodemailer(callExpression);
         }
         checkCallToFtp(callExpression);

@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(@Nullable JavaScriptProjectChecker javascriptProjectChecker, SensorContext context) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(context);
-    }
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6477")
+public class JsxKeyCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "jsx-key";
   }
 
-  void checkOnce(SensorContext context);
-  boolean isBeyondLimit();
 }
