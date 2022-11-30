@@ -260,6 +260,7 @@ public final class CheckList {
       NoSameArgumentAssertCheck.class,
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
+      NoUniqKeyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
