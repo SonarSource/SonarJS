@@ -1,0 +1,19 @@
+{
+  "title": "No uniq values as keys for JSX list components",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "jsx",
+    "performance"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6486",
+  "sqKey": "S6486",
+  "scope": "All",
+  "quickfix": "infeasible"
+}
