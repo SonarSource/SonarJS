@@ -220,6 +220,7 @@ public final class CheckList {
       NoAngularBypassSanitizationCheck.class,
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
+      NoArrayIndexKeyCheck.class,
       NoClearTextProtocolsCheck.class,
       NoCodeAfterDoneCheck.class,
       NoControlRegexCheck.class,
