@@ -79,11 +79,11 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     return;
   }
 
-  /* if (node.type === 'BinaryExpression') {
+  if (node.type === 'BinaryExpression') {
     // key={'foo' + bar}
-    const identifiers = getIdentifiersFromBinaryExpression(node);
+    const identifiers = getIdentifiersFromBinaryExpression(node) as TSESTree.Identifier[];
 
-    identifiers?.filter(isGeneratedExpression).forEach(() => {
+    identifiers.filter(isGeneratedExpression).forEach(() => {
       context.report({
         messageId: 'noGeneratedKeys',
         node: node as estree.Node,
@@ -91,7 +91,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     });
 
     return;
-  } */
+  }
 
   if (
     node.type === 'CallExpression' &&
@@ -146,7 +146,7 @@ function isGeneratedExpression(node: TSESTree.Node) {
   }
 }
 
-/* function getIdentifiersFromBinaryExpression(side: TSESTree.Node) {
+function getIdentifiersFromBinaryExpression(side: TSESTree.Node) {
   if (side.type === 'Identifier') {
     return side;
   }
@@ -159,4 +159,4 @@ function isGeneratedExpression(node: TSESTree.Node) {
   }
 
   return null;
-} */
+}
