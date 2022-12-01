@@ -141,7 +141,7 @@ function isGeneratedExpression(node: TSESTree.Node) {
 }
 
 function getIdentifiersFromBinaryExpression(side: TSESTree.Node) {
-  if (side.type === 'Identifier') {
+  if (side.type === 'CallExpression') {
     return side;
   }
 
