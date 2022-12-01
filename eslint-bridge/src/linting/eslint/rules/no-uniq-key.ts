@@ -23,7 +23,7 @@
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
 import { Rule } from 'eslint';
-import { isMemberExpression, isRequiredParserServices } from './helpers';
+import { isMemberExpression } from './helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
 
@@ -34,12 +34,6 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
     return {
       "JSXAttribute[name.name='key']": (pNode: estree.Node) => {
         // hack: it's not possible to type the argument node from TSESTree
