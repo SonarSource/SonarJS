@@ -18,7 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './css';
-export * from './html';
-export * from './js';
-export * from './yaml';
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
+
+/**
+ * A HTML analysis input
+ *
+ * (currently empty but might change later on)
+ */
+export type HtmlAnalysisInput = JsTsAnalysisInput;
+
+/**
+ * A HTML analysis output
+ *
+ * A HTML analysis only returns issues that were found during
+ * linting. Because the JavaScript analyzer doesn't "own" the
+ * `HTML` language, it cannot save anything else than issues
+ * using SonarQube API, especially analysis data like metrics.
+ *
+ * @param issues the found issues
+ */
+export type HtmlAnalysisOutput = JsTsAnalysisOutput;

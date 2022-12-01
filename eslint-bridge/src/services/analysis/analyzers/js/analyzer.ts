@@ -117,7 +117,7 @@ function analyzeFile(
  * @param cognitiveComplexity the computed cognitive complexity of the code
  * @returns the extended metrics of the code
  */
-function computeExtendedMetrics(
+export function computeExtendedMetrics(
   input: JsTsAnalysisInput,
   sourceCode: SourceCode,
   highlightedSymbols: SymbolHighlight[],

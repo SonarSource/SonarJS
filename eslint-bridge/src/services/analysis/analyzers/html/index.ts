@@ -18,7 +18,5 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './css';
-export * from './html';
-export * from './js';
-export * from './yaml';
+export * from './analysis';
+export * from './analyzer';

@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './css';
-export * from './html';
-export * from './js';
-export * from './yaml';
+import { runner, analyzeHTML, HtmlAnalysisInput } from 'services/analysis';
+
+/**
+ * Handles TypeScript analysis requests
+ */
+export default runner(input => Promise.resolve(analyzeHTML(input as HtmlAnalysisInput)));

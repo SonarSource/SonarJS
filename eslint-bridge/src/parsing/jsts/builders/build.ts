@@ -51,7 +51,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
   }
 }
 
-function shouldTryTypeScriptParser() {
+export function shouldTryTypeScriptParser() {
   const context = getContext();
   return context ? context.shouldUseTypeScriptParserForJS : true;
 }

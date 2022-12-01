@@ -20,6 +20,7 @@
 
 import express from 'express';
 import onAnalyzeCss from './on-analyze-css';
+import onAnalyzeHtml from './on-analyze-html';
 import onAnalyzeJs from './on-analyze-js';
 import onAnalyzeTs from './on-analyze-ts';
 import onAnalyzeYaml from './on-analyze-yaml';
@@ -35,6 +36,7 @@ const router = express.Router();
 
 router.post('/analyze-css', onAnalyzeCss);
 router.post('/analyze-js', onAnalyzeJs);
+router.post('/analyze-html', onAnalyzeHtml);
 router.post('/analyze-ts', onAnalyzeTs);
 router.post('/analyze-with-program', onAnalyzeTs);
 router.post('/analyze-yaml', onAnalyzeYaml);
