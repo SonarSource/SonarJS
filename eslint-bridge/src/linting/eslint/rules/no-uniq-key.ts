@@ -75,7 +75,9 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (node.type === 'BinaryExpression') {
     // key={'foo' + bar}
-    const callExpressions = getCallExpressionsFromBinaryExpression(node) as TSESTree.CallExpression[];
+    const callExpressions = getCallExpressionsFromBinaryExpression(
+      node,
+    ) as TSESTree.CallExpression[];
 
     callExpressions.filter(isGeneratedExpression).forEach(() => {
       context.report({
