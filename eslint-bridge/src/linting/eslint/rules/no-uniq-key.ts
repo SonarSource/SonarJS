@@ -75,7 +75,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (node.type === 'BinaryExpression') {
     // key={'foo' + bar}
-    const identifiers = getIdentifiersFromBinaryExpression(node) as TSESTree.Identifier[];
+    const identifiers = getCallExpressionsFromBinaryExpression(node) as TSESTree.Identifier[];
 
     identifiers.filter(isGeneratedExpression).forEach(() => {
       context.report({
@@ -140,15 +140,15 @@ function isGeneratedExpression(node: TSESTree.Node) {
   }
 }
 
-function getIdentifiersFromBinaryExpression(side: TSESTree.Node) {
+function getCallExpressionsFromBinaryExpression(side: TSESTree.Node) {
   if (side.type === 'CallExpression') {
     return side;
   }
 
   if (side.type === 'BinaryExpression') {
     // recurse
-    const left: any = getIdentifiersFromBinaryExpression(side.left);
-    const right: any = getIdentifiersFromBinaryExpression(side.right);
+    const left: any = getCallExpressionsFromBinaryExpression(side.left);
+    const right: any = getCallExpressionsFromBinaryExpression(side.right);
     return [].concat(left, right).filter(Boolean);
   }
 
