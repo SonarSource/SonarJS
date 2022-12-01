@@ -75,9 +75,9 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (node.type === 'BinaryExpression') {
     // key={'foo' + bar}
-    const identifiers = getCallExpressionsFromBinaryExpression(node) as TSESTree.Identifier[];
+    const callExpressions = getCallExpressionsFromBinaryExpression(node) as TSESTree.CallExpression[];
 
-    identifiers.filter(isGeneratedExpression).forEach(() => {
+    callExpressions.filter(isGeneratedExpression).forEach(() => {
       context.report({
         messageId: 'noGeneratedKeys',
         node: node as estree.Node,
