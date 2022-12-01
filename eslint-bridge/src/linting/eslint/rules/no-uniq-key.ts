@@ -19,22 +19,20 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6486/javascript
 
-import { Rule } from 'eslint';
-import { isRequiredParserServices } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
-import * as estree from 'estree';
+// inspired from `no-array-index` from `eslint-plugin-react`:
+// https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
-const message = `TODO: add message`;
+import { Rule } from 'eslint';
+import { isMemberExpression, isRequiredParserServices } from './helpers';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },  
+    messages: {
+      noGeneratedKeys: 'Do not use generated values for React component keys.',
+    },
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
@@ -42,6 +40,123 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    return {};
+    return {
+      "JSXAttribute[name.name='key']": (pNode: estree.Node) => {
+        // hack: it's not possible to type the argument node from TSESTree
+        const node = pNode as unknown as TSESTree.JSXAttribute;
+
+        const value = node.value;
+        if (!value || value.type !== 'JSXExpressionContainer') {
+          // key='foo' or just simply 'key'
+          return;
+        }
+
+        checkPropValue(context, value.expression);
+      },
+    };
   },
 };
+
+function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
+  if (isGeneratedExpression(node)) {
+    // key={bar}
+    context.report({
+      messageId: 'noGeneratedKeys',
+      node: node as estree.Node,
+    });
+    return;
+  }
+
+  if (node.type === 'TemplateLiteral') {
+    // key={`foo-${bar}`}
+    node.expressions.filter(isGeneratedExpression).forEach(() => {
+      context.report({
+        messageId: 'noGeneratedKeys',
+        node: node as estree.Node,
+      });
+    });
+
+    return;
+  }
+
+  /* if (node.type === 'BinaryExpression') {
+    // key={'foo' + bar}
+    const identifiers = getIdentifiersFromBinaryExpression(node);
+
+    identifiers?.filter(isGeneratedExpression).forEach(() => {
+      context.report({
+        messageId: 'noGeneratedKeys',
+        node: node as estree.Node,
+      });
+    });
+
+    return;
+  } */
+
+  if (
+    node.type === 'CallExpression' &&
+    node.callee &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object &&
+    isGeneratedExpression(node.callee.object) &&
+    node.callee.property &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.property.name === 'toString'
+  ) {
+    // key={bar.toString()}
+    context.report({
+      messageId: 'noGeneratedKeys',
+      node: node as estree.Node,
+    });
+    return;
+  }
+
+  if (
+    node.type === 'CallExpression' &&
+    node.callee &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'String' &&
+    Array.isArray(node.arguments) &&
+    node.arguments.length > 0 &&
+    isGeneratedExpression(node.arguments[0])
+  ) {
+    // key={String(bar)}
+    context.report({
+      messageId: 'noGeneratedKeys',
+      node: node.arguments[0] as estree.Node,
+    });
+  }
+}
+
+function isGeneratedExpression(node: TSESTree.Node) {
+  return isMathRandom(node) || isDateNow(node);
+
+  function isMathRandom(node: TSESTree.Node) {
+    return (
+      node.type === 'CallExpression' &&
+      isMemberExpression(node.callee as estree.Node, 'Math', 'random')
+    );
+  }
+
+  function isDateNow(node: TSESTree.Node) {
+    return (
+      node.type === 'CallExpression' &&
+      isMemberExpression(node.callee as estree.Node, 'Date', 'now')
+    );
+  }
+}
+
+/* function getIdentifiersFromBinaryExpression(side: TSESTree.Node) {
+  if (side.type === 'Identifier') {
+    return side;
+  }
+
+  if (side.type === 'BinaryExpression') {
+    // recurse
+    const left: any = getIdentifiersFromBinaryExpression(side.left);
+    const right: any = getIdentifiersFromBinaryExpression(side.right);
+    return [].concat(left, right).filter(Boolean);
+  }
+
+  return null;
+} */
