@@ -30,7 +30,7 @@ import * as estree from 'estree';
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      noGeneratedKeys: 'Do not use generated values for React component keys.',
+      noGeneratedKeys: 'Do not use generated values for keys of React list components.',
     },
   },
   create(context: Rule.RuleContext) {
