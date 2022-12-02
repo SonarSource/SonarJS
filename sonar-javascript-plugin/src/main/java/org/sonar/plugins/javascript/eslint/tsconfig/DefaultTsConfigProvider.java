@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript.eslint.tsconfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +40,10 @@ class DefaultTsConfigProvider implements Provider {
     return "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
   }
 
+  private static boolean isValidTsConfigFile(List<String> tsconfigs) {
+    return tsconfigs.size() == 1 && tsconfigs.get(0) != null && Files.exists(Path.of(tsconfigs.get(0)));
+  }
+
   private static final Logger LOG = Loggers.get(DefaultTsConfigProvider.class);
 
   private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
@@ -50,7 +56,9 @@ class DefaultTsConfigProvider implements Provider {
 
   @Override
   public List<String> tsconfigs(SensorContext context) {
-    return defaultWildcardTsConfig.computeIfAbsent(getBaseDir(context), this::writeTsConfigFileFor);
+    var baseDir = getBaseDir(context);
+    defaultWildcardTsConfig.computeIfPresent(baseDir, (dir, tsconfigs) -> isValidTsConfigFile(tsconfigs) ? tsconfigs : null);
+    return defaultWildcardTsConfig.computeIfAbsent(baseDir, this::writeTsConfigFileFor);
   }
 
   List<String> writeTsConfigFileFor(String baseDir) {
