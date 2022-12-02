@@ -221,7 +221,7 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_not_recreate_wildcart_tsconfig_in_sonarlint_if_not_necessary() throws IOException {
+  void should_not_recreate_wildcard_tsconfig_in_sonarlint_if_not_necessary() throws IOException {
     List<String> previous;
     List<String> last;
 

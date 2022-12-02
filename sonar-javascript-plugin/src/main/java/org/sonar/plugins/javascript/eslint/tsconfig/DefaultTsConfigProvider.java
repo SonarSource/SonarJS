@@ -23,9 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -40,13 +40,9 @@ class DefaultTsConfigProvider implements Provider {
     return "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
   }
 
-  private static boolean isValidTsConfigFile(List<String> tsconfigs) {
-    return tsconfigs.size() == 1 && tsconfigs.get(0) != null && Files.exists(Path.of(tsconfigs.get(0)));
-  }
-
   private static final Logger LOG = Loggers.get(DefaultTsConfigProvider.class);
 
-  private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
+  private static final Map<String, List<String>> defaultWildcardTsConfig = new HashMap<>();
 
   final TsConfigFileCreator tsConfigFileCreator;
 
@@ -70,5 +66,9 @@ class DefaultTsConfigProvider implements Provider {
       LOG.warn("Generating tsconfig.json failed", e);
     }
     return file;
+  }
+
+  private static boolean isValidTsConfigFile(List<String> tsconfigs) {
+    return tsconfigs.size() == 1 && tsconfigs.get(0) != null && Files.exists(Path.of(tsconfigs.get(0)));
   }
 }
