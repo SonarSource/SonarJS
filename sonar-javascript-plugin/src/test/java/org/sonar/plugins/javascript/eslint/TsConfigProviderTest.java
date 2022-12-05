@@ -253,6 +253,22 @@ class TsConfigProviderTest {
   }
 
   @Test
+  void should_not_fail_and_not_store_on_null() throws IOException {
+    var ctx = SensorContextTester.create(baseDir);
+
+    var checker = mock(ProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var tsConfigFileCreator = mock(TsConfigFileCreator.class);
+    when(tsConfigFileCreator.createTsConfigFile(anyString())).thenReturn(null);
+
+    TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    verify(tsConfigFileCreator, times(1)).createTsConfigFile(anyString());
+    TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    verify(tsConfigFileCreator, times(2)).createTsConfigFile(anyString());
+  }
+
+  @Test
   void should_not_fail_on_exception() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file.js");
