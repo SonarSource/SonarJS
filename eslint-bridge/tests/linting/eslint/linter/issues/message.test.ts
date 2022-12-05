@@ -34,7 +34,7 @@ describe('convertMessage', () => {
     const linter = new Linter();
     const [message] = linter.verify(sourceCode, config);
 
-    expect(convertMessage(sourceCode, message)).toEqual({
+    expect(convertMessage(message, sourceCode)).toEqual({
       ruleId,
       line: 1,
       column: 9,
@@ -63,7 +63,7 @@ describe('convertMessage', () => {
 
   it('should return null when an ESLint message is missing a rule id', () => {
     console.error = jest.fn();
-    expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
+    expect(convertMessage({} as Linter.LintMessage, {} as SourceCode)).toEqual(null);
     expect(console.error).toHaveBeenCalledWith("Illegal 'null' ruleId for eslint issue");
   });
 });

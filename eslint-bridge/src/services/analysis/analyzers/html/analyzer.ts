@@ -18,12 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ESLint } from 'eslint';
 import { HtmlAnalysisInput, HtmlAnalysisOutput } from './analysis';
 import { debug } from 'helpers';
-// @ts-ignore
-import { htmlPlugin } from 'eslint-plugin-html';
-import { getLinter, transformMessages } from 'linting/eslint';
+import {getESLint, getLinter, transformMessages} from 'linting/eslint';
 import { buildParserOptions, parsers, shouldTryTypeScriptParser } from 'parsing/jsts';
 import path from 'path';
 import { computeExtendedMetrics } from '../js';
@@ -35,22 +32,11 @@ export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysi
     ? [parsers.typescript.parser, buildParserOptions(input, false)]
     : [parsers.javascript.parser, buildParserOptions(input, true)];
   const linter = getLinter(input.linterId);
-  const overrideConfig = linter.config[input.fileType || 'MAIN'];
-  overrideConfig.parser = parser;
-  overrideConfig.parserOptions = parserOptions;
-  const eslint = new ESLint({ overrideConfig, plugins: { html: htmlPlugin } });
-  const { getESLintPrivateMembers } = await import(
-    path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
-  );
-  const { getCLIEngineInternalSlots } = await import(
-    path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
-  );
+  const eslint = getESLint(input.linterId);
   const { getLinterInternalSlots } = await import(
     path.join(require.resolve('eslint'), '..', 'linter', 'linter')
-  );
-  const { cliEngine } = getESLintPrivateMembers(eslint);
-  const slots = getCLIEngineInternalSlots(cliEngine);
-  slots.linter = linter.linter;
+    );
+  getLinterInternalSlots(linter.linter).lastConfigArray = {parser, parserOptions};
 
   const results = await (input.fileContent
     ? eslint.lintText(input.fileContent, { filePath: input.filePath })

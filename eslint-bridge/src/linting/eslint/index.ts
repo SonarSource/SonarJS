@@ -21,10 +21,15 @@
 import { APIError } from 'errors';
 import { debug } from 'helpers';
 import { LinterWrapper, RuleConfig } from './linter';
+// @ts-ignore
+import { htmlPlugin } from 'eslint-plugin-html';
+import {ESLint} from "eslint";
+import path from "path";
 
 export * from './linter';
 export * from './rules';
 type Linters = { [id: string]: LinterWrapper };
+type ESLintsWithHTML = { [id: string]: ESLint };
 /**
  * The global ESLint linters
  *
@@ -38,6 +43,7 @@ type Linters = { [id: string]: LinterWrapper };
  * is needed in order to not run all rules on 'unchanged' files
  */
 const linters: Linters = {};
+const eslints: ESLintsWithHTML = {};
 
 /**
  * Initializes the global linter wrapper
@@ -46,14 +52,28 @@ const linters: Linters = {};
  * @param globals the global variables
  * @param linterId key of the linter
  */
-export function initializeLinter(
+export async function initializeLinter(
   inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
   linterId = 'default',
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-  linters[linterId] = new LinterWrapper({ inputRules, environments, globals });
+  const linter = new LinterWrapper({ inputRules, environments, globals });
+  const overrideConfig = linters[linterId].config['MAIN'];
+  const eslint = new ESLint({ overrideConfig, plugins: { html: htmlPlugin } });
+  const { getESLintPrivateMembers } = await import(
+    path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
+    );
+  const { getCLIEngineInternalSlots } = await import(
+    path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
+    );
+  const { cliEngine } = getESLintPrivateMembers(eslint);
+  const slots = getCLIEngineInternalSlots(cliEngine);
+  slots.linter = linter.linter;
+
+  linters[linterId] = linter;
+  eslints[linterId] = eslint;
 }
 
 /**
@@ -68,4 +88,18 @@ export function getLinter(linterId: keyof Linters = 'default') {
     throw APIError.linterError(`Linter ${linterId} does not exist. Did you call /init-linter?`);
   }
   return linters[linterId];
+}
+
+/**
+ * Returns the ESLint instance with the given ID
+ *
+ * @param eslintId key of the linter/ESLint instance
+ *
+ * Throws a runtime error if the global linter wrapper and ESLint instance are not initialized.
+ */
+export function getESLint(eslintId: keyof ESLintsWithHTML = 'default') {
+  if (!eslints[eslintId]) {
+    throw APIError.linterError(`ESLint instance ${eslintId} does not exist. Did you call /init-linter?`);
+  }
+  return eslints[eslintId];
 }
