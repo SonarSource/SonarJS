@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -48,6 +49,7 @@ import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -219,9 +221,9 @@ class TsConfigProviderTest {
   }
 
   @Test
-  void should_not_recreate_wildcart_tsconfig_in_sonarlint() throws Exception {
-    List<String> tsconfigs;
-    Path file;
+  void should_not_recreate_wildcard_tsconfig_in_sonarlint_if_not_necessary() throws IOException {
+    List<String> previous;
+    List<String> last;
 
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
@@ -229,12 +231,41 @@ class TsConfigProviderTest {
     var checker = mock(ProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    tsconfigs = TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, TsConfigProviderTest::createTsConfigFile);
-    assertThat(tsconfigs).hasSize(1);
+    var tsConfigFileCreator = mock(TsConfigFileCreator.class);
+    when(tsConfigFileCreator.createTsConfigFile(anyString()))
+      .thenAnswer((Answer<String>) invocation -> TsConfigProviderTest.createTsConfigFile(invocation.getArgument(0, String.class)));
 
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).exists();
-    Files.delete(file);
+    last = TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    assertThat(last).hasSize(1);
+    previous = last;
+    verify(tsConfigFileCreator, times(1)).createTsConfigFile(anyString());
+
+    last = TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    assertThat(last).isEqualTo(previous);
+    previous = last;
+    verify(tsConfigFileCreator, times(1)).createTsConfigFile(anyString());
+
+    Files.delete(Path.of(last.get(0)));
+
+    last = TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    assertThat(last).isNotEqualTo(previous);
+    verify(tsConfigFileCreator, times(2)).createTsConfigFile(anyString());
+  }
+
+  @Test
+  void should_not_fail_and_not_store_on_null() throws IOException {
+    var ctx = SensorContextTester.create(baseDir);
+
+    var checker = mock(ProjectChecker.class);
+    when(checker.isBeyondLimit()).thenReturn(false);
+
+    var tsConfigFileCreator = mock(TsConfigFileCreator.class);
+    when(tsConfigFileCreator.createTsConfigFile(anyString())).thenReturn(null);
+
+    TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    verify(tsConfigFileCreator, times(1)).createTsConfigFile(anyString());
+    TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
+    verify(tsConfigFileCreator, times(2)).createTsConfigFile(anyString());
   }
 
   @Test
