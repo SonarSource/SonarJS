@@ -7,14 +7,15 @@
     "constantCost": "5min"
   },
   "tags": [
-    "reactjs",
-    "jsx"
+    "react",
+    "jsx",
+    "performance"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6477",
   "sqKey": "S6477",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -1,20 +1,20 @@
-<p>Clear-text protocols such as <code>ftp</code>, <code>telnet</code> or non-secure <code>http</code> lack encryption of transported data, as well as
-the capability to build an authenticated connection. It means that an attacker able to sniff traffic from the network can read, modify or corrupt the
+<p>Clear-text protocols such as <code>ftp</code>, <code>telnet</code>, or <code>http</code> lack encryption of transported data, as well as the
+capability to build an authenticated connection. It means that an attacker able to sniff traffic from the network can read, modify, or corrupt the
 transported content. These protocols are not secure as they expose applications to an extensive range of risks:</p>
 <ul>
-  <li> Sensitive data exposure </li>
-  <li> Traffic redirected to a malicious endpoint </li>
-  <li> Malware infected software update or installer </li>
-  <li> Execution of client side code </li>
-  <li> Corruption of critical information </li>
+  <li> sensitive data exposure </li>
+  <li> traffic redirected to a malicious endpoint </li>
+  <li> malware-infected software update or installer </li>
+  <li> execution of client-side code </li>
+  <li> corruption of critical information </li>
 </ul>
 <p>Even in the context of isolated networks like offline environments or segmented cloud environments, the insider threat exists. Thus, attacks
 involving communications being sniffed or tampered with can still happen.</p>
 <p>For example, attackers could successfully compromise prior security layers by:</p>
 <ul>
-  <li> Bypassing isolation mechanisms </li>
-  <li> Compromising a component of the network </li>
-  <li> Getting the credentials of an internal IAM account (either from a service account or an actual person) </li>
+  <li> bypassing isolation mechanisms </li>
+  <li> compromising a component of the network </li>
+  <li> getting the credentials of an internal IAM account (either from a service account or an actual person) </li>
 </ul>
 <p>In such cases, encrypting communications would decrease the chances of attackers to successfully leak data or steal credentials from other network
 components. By layering various security practices (segmentation and encryption, for example), the application will follow the
@@ -30,10 +30,10 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> Application data needs to be protected against falsifications or leaks when transiting over the network. </li>
-  <li> Application data transits over a network that is considered untrusted. </li>
+  <li> Application data transits over an untrusted network. </li>
   <li> Compliance rules require the service to encrypt data in transit. </li>
   <li> Your application renders web pages with a relaxed mixed content policy. </li>
-  <li> OS level protections against clear-text traffic are deactivated. </li>
+  <li> OS-level protections against clear-text traffic are deactivated. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -41,16 +41,16 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
   <li> Make application data transit over a secure, authenticated and encrypted protocol like TLS or SSH. Here are a few alternatives to the most
   common clear-text protocols:
     <ul>
-      <li> Use<code>ssh</code> as an alternative to <code>telnet</code> </li>
-      <li> Use <code>sftp</code>, <code>scp</code> or <code>ftps</code> instead of <code>ftp</code> </li>
-      <li> Use <code>https</code> instead of <code>http</code> </li>
-      <li> Use <code>SMTP</code> over <code>SSL/TLS</code> or <code>SMTP</code> with <code>STARTTLS</code> instead of clear-text SMTP </li>
+      <li> Use <code>ssh</code> as an alternative to <code>telnet</code>. </li>
+      <li> Use <code>sftp</code>, <code>scp</code>, or <code>ftps</code> instead of <code>ftp</code>. </li>
+      <li> Use <code>https</code> instead of <code>http</code>. </li>
+      <li> Use <code>SMTP</code> over <code>SSL/TLS</code> or <code>SMTP</code> with <code>STARTTLS</code> instead of clear-text SMTP. </li>
     </ul>  </li>
-  <li> Enable encryption of cloud components communications whenever it’s possible. </li>
+  <li> Enable encryption of cloud components communications whenever it is possible. </li>
   <li> Configure your application to block mixed content when rendering web pages. </li>
-  <li> If available, enforce OS level deactivation of all clear-text traffic </li>
+  <li> If available, enforce OS-level deactivation of all clear-text traffic. </li>
 </ul>
-<p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
+<p>It is recommended to secure all transport channels, even on local networks, as it can take a single non-secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -453,7 +453,7 @@ new CfnStream(this, 'cfnstream-explicit-encrypted', {
 <h2>Exceptions</h2>
 <p>No issue is reported for the following cases because they are not considered sensitive:</p>
 <ul>
-  <li> Insecure protocol scheme followed by loopback addresses like 127.0.0.1 or <code>localhost</code> </li>
+  <li> Insecure protocol scheme followed by loopback addresses like 127.0.0.1 or <code>localhost</code>. </li>
 </ul>
 <h2>See</h2>
 <ul>
