@@ -1,5 +1,5 @@
 {
-  "title": "Stable unique keys for JSX list components",
+  "title": "No array index for keys in JSX list components",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -7,14 +7,15 @@
     "constantCost": "5min"
   },
   "tags": [
-    "reactjs",
-    "jsx"
+    "react",
+    "jsx",
+    "performance"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6479",
   "sqKey": "S6479",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

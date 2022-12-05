@@ -1,10 +1,11 @@
 <p>React expects a unique identifier for performance optimizations. Using generated values like <code>Math.random()</code> or <code>Date.now()</code>
 is discouraged as it would force a re-render every time and might also provoke bugs if values collide.</p>
+<p>Instead, use a unique attribute like an ID or a combination of attributes.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
-    &lt;Button key={Math.random()}&gt;button.number&lt;/Button&gt;
+    &lt;Button key={Math.random()}&gt;{button.number}&lt;/Button&gt;
   });
 }
 </pre>
@@ -12,15 +13,13 @@ function generateButtons(props) {
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
-    &lt;Button key={button.number}&gt;button.number&lt;/Button&gt;
+    &lt;Button key={button.number}&gt;{button.number}&lt;/Button&gt;
   });
 }
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a
-  href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">https://reactjs.org/docs/reconciliation.html#recursing-on-children</a> -
-  React API reference </li>
+  <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
   <li> {rule:javascript:S6477} </li>
   <li> {rule:javascript:S6479} </li>
 </ul>

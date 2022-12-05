@@ -7,7 +7,9 @@
     "constantCost": "5min"
   },
   "tags": [
-    "react"
+    "react",
+    "jsx",
+    "performance"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6478",

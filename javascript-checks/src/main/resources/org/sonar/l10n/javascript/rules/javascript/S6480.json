@@ -1,5 +1,5 @@
 {
-  "title": "Disallow `.bind()` and arrow functions in JSX props ",
+  "title": "Disallow `.bind()` and arrow functions in JSX props",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -7,7 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "reactjs",
+    "react",
     "jsx",
     "performance"
   ],
