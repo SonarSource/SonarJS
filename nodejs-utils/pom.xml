@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript</artifactId>
-    <version>9.12.0-SNAPSHOT</version>
+    <version>9.13.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>nodejs-utils</artifactId>
