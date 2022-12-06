@@ -80,10 +80,10 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String ENVIRONMENTS = "sonar.javascript.environments";
   public static final String[] ENVIRONMENTS_DEFAULT_VALUE = {
-    "amd", "applescript", "atomtest", "browser", "commonjs", "couch", "embertest", "flow",
+    "amd", "applescript", "atomtest", "browser", "commonjs", "embertest",
     "greasemonkey", "jasmine", "jest", "jquery", "meteor", "mocha", "mongo", "nashorn",
-    "node", "phantomjs", "prototypejs", "protractor", "qunit", "rhino", "serviceworker",
-    "shared-node-browser", "shelljs", "webextensions", "worker", "wsh", "yui"
+    "node", "phantomjs", "prototypejs", "protractor", "qunit", "serviceworker",
+    "shared-node-browser", "shelljs", "webextensions", "worker"
   };
 
   public static final String GLOBALS = "sonar.javascript.globals";
