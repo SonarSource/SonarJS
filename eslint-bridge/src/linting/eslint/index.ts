@@ -70,7 +70,11 @@ export async function initializeLinter(
       true,
     ),
   };
-  const eslint = new ESLint({ overrideConfig, plugins: { html: htmlPlugin } });
+  const eslint = new ESLint({
+    cwd: path.join(require.resolve('eslint'), '..', '..'),
+    overrideConfig,
+    plugins: { html: htmlPlugin },
+  });
   const { getESLintPrivateMembers } = await import(
     path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
   );
