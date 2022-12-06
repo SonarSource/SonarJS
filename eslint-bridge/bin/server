@@ -15,7 +15,7 @@ const server = require('../lib/server');
 const path = require('path');
 const context = require('../lib/helpers');
 
-const port = process.argv[2] || 60000;
+const port = process.argv[2];
 const host = process.argv[3];
 const workDir = process.argv[4];
 const shouldUseTypeScriptParserForJS = process.argv[5] === 'true';
@@ -27,4 +27,4 @@ if (process.argv[7]) {
 }
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
-server.start(port, host, 600000000);
+server.start(port, host);
