@@ -19,8 +19,12 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
@@ -29,33 +33,12 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 
-import static java.util.stream.Collectors.toList;
-
 @SonarLintSide(lifespan = "MODULE")
 public class SonarLintProjectChecker implements ProjectChecker {
 
-  private static long getMaxLinesForTypeChecking(SensorContext context) {
-    return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_TYPE_CHECKING);
-  }
-
-  private static long getCappedNumberOfLines(List<InputFile> files, long max) {
-    var total = 0L;
-    for (var file : files) {
-      total += file.lines();
-      if (total > max) {
-        return max;
-      }
-    }
-    return total;
-  }
-
-  private static long getNumberOfLines(List<InputFile> files) {
-    return files.stream().map(InputFile::lines).mapToLong(Integer::longValue).sum();
-  }
-
   private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
-  static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxlines";
-  private static final long DEFAULT_MAX_LINES_FOR_TYPE_CHECKING = 500_000L;
+  static final String MAX_MEGA_BYTES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxmegabytes";
+  private static final int DEFAULT_MAX_MEGA_BYTES_FOR_TYPE_CHECKING = 20;
 
   private final ModuleFileSystem moduleFileSystem;
 
@@ -63,8 +46,14 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
   private boolean shouldCheck = true;
 
+  private Function<InputFile, Long> fileLengthProvider = SonarLintProjectChecker::getFileLength;
+
   public SonarLintProjectChecker(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
+  }
+
+  public void setFileLengthProvider(Function<InputFile, Long> fileLengthProvider) {
+    this.fileLengthProvider = fileLengthProvider;
   }
 
   public boolean isBeyondLimit() {
@@ -80,21 +69,24 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
   private void checkLimit(SensorContext context) {
     try {
-      var maxLinesForTypeChecking = getMaxLinesForTypeChecking(context);
+      var start = Instant.now();
+      var maxMegaBytesForTypeChecking = getMaxMegaBytesForTypeChecking(context);
       var files = getFilesMatchingPluginLanguages(context);
-      var cappedNumberOfLines = getCappedNumberOfLines(files, maxLinesForTypeChecking);
+      var cappedMegaBytes = getCappedMegaBytes(files, maxMegaBytesForTypeChecking);
 
-      beyondLimit = cappedNumberOfLines >= maxLinesForTypeChecking;
+      beyondLimit = cappedMegaBytes >= maxMegaBytesForTypeChecking;
       if (!beyondLimit) {
-        LOG.debug("Project type checking for JavaScript files activated as project size (total number of lines is {}, maximum is {})",
-          cappedNumberOfLines, maxLinesForTypeChecking);
-      } else if (LOG.isDebugEnabled()) {
+        LOG.debug("Project type checking for JavaScript files activated as project size (total number of mega-bytes is {}, maximum is {})",
+          cappedMegaBytes, maxMegaBytesForTypeChecking);
+      } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug("Project type checking for JavaScript files deactivated due to project size (total number of lines is {}, maximum is {})",
-          getNumberOfLines(files), maxLinesForTypeChecking);
-        LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
+        LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {} mega-bytes)", maxMegaBytesForTypeChecking);
+        // We can't inform the user of the actual limit as the performance impact may be too high for large projects.
+        LOG.debug("Update \"{}\" to set a different limit (in mega-bytes).", MAX_MEGA_BYTES_PROPERTY);
       }
+
+      LOG.debug("Project checker duration took: {}ms", Duration.between(start, Instant.now()).toMillis());
     } catch (RuntimeException e) {
       // Any runtime error raised by the SonarLint API would be caught here to let the analyzer proceed with the rules that don't require
       // type checking.
@@ -102,10 +94,30 @@ public class SonarLintProjectChecker implements ProjectChecker {
     }
   }
 
-  private List<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
+  private static int getMaxMegaBytesForTypeChecking(SensorContext context) {
+    return context.config().getInt(MAX_MEGA_BYTES_PROPERTY).orElse(DEFAULT_MAX_MEGA_BYTES_FOR_TYPE_CHECKING);
+  }
+
+  private long getCappedMegaBytes(Stream<InputFile> files, int maxMegaBytes) {
+    var maxBytes = maxMegaBytes * 1024 * 1024;
+    var totalBytes = 0L;
+    for (var iterator = files.iterator(); iterator.hasNext();) {
+      totalBytes += fileLengthProvider.apply(iterator.next());
+      if (totalBytes > maxBytes) {
+        return maxMegaBytes;
+      }
+    }
+    return totalBytes / 1024 / 1024;
+  }
+
+  private static long getFileLength(InputFile file) {
+    return Path.of(file.uri()).toFile().length();
+  }
+
+  private Stream<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
     Predicate<InputFile> javaScriptPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(context.fileSystem())::apply;
     Predicate<InputFile> typeScriptPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(context.fileSystem())::apply;
-    return moduleFileSystem.files().filter(javaScriptPredicate.or(typeScriptPredicate)).collect(toList());
+    return moduleFileSystem.files().filter(javaScriptPredicate.or(typeScriptPredicate));
   }
 
 }

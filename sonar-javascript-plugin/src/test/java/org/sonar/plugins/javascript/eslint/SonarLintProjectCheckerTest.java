@@ -22,8 +22,11 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -40,7 +43,7 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_LINES_PROPERTY;
+import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_MEGA_BYTES_PROPERTY;
 
 class SonarLintProjectCheckerTest {
 
@@ -49,6 +52,13 @@ class SonarLintProjectCheckerTest {
 
   @TempDir
   Path baseDir;
+
+  Map<String, Long> fileLengths;
+
+  @BeforeEach
+  public void setUp() {
+    fileLengths = new HashMap<>();
+  }
 
   private static ModuleFileSystem moduleFileSystem(InputFile... inputFiles) {
     var moduleFileSystem = mock(ModuleFileSystem.class);
@@ -65,25 +75,25 @@ class SonarLintProjectCheckerTest {
   @Test
   void should_check_javascript_files() throws IOException {
     var checker = sonarLintJavaScriptProjectChecker(
-      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 1),
-      inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 3)
+      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY),
+      inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 20000001)
     );
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files activated as project size (total number of lines is 1, maximum is 500000)");
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files activated as project size (total number of mega-bytes is 0, maximum is 20)");
   }
 
   @Test
   void should_detect_too_big_projects() throws IOException {
     logTester.setLevel(LoggerLevel.DEBUG);
     var checker = sonarLintJavaScriptProjectChecker(
-      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 1000000),
-      inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 3)
+      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 10_000_000),
+      inputFile("file.cjs", "function foo() {}", JavaScriptLanguage.KEY, 20_000_000)
     );
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (total number of lines is 1000000, maximum is 500000)",
-      "Update \"sonar.javascript.sonarlint.typechecking.maxlines\" to set a different limit.");
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files deactivated due to project size (maximum is 20 mega-bytes)",
+      "Update \"sonar.javascript.sonarlint.typechecking.maxmegabytes\" to set a different limit (in mega-bytes).");
   }
 
   @Test
@@ -97,6 +107,7 @@ class SonarLintProjectCheckerTest {
 
   private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {
     var checker = new SonarLintProjectChecker(moduleFileSystem(inputFiles));
+    checker.setFileLengthProvider(this::getFileLength);
     checker.checkOnce(sensorContext());
     return checker;
   }
@@ -109,7 +120,7 @@ class SonarLintProjectCheckerTest {
 
   private SensorContext sensorContext() {
     var config = mock(Configuration.class);
-    when(config.get(MAX_LINES_PROPERTY)).thenReturn(Optional.of("10"));
+    when(config.get(MAX_MEGA_BYTES_PROPERTY)).thenReturn(Optional.of("10"));
 
     var context = mock(SensorContext.class);
     when(context.config()).thenReturn(config);
@@ -117,14 +128,24 @@ class SonarLintProjectCheckerTest {
     return context;
   }
 
-  private InputFile inputFile(String filename, @Nullable String contents, String language, Integer lines) throws IOException {
+  private InputFile inputFile(String filename, @Nullable String contents, String language) throws IOException {
+    return inputFile(filename, contents, language, contents == null ? 0 : contents.length());
+  }
+
+  private InputFile inputFile(String filename, @Nullable String contents, String language, int fileLength) throws IOException {
     var file = mock(InputFile.class);
+    var uri = baseDir.resolve(filename).toUri();
+
     when(file.language()).thenReturn(language);
     when(file.contents()).thenReturn(contents);
     when(file.filename()).thenReturn(filename);
-    when(file.uri()).thenReturn(baseDir.resolve(filename).toUri());
-    when(file.lines()).thenReturn(lines);
+    when(file.uri()).thenReturn(uri);
+    fileLengths.put(Path.of(file.uri()).toString(), (long) fileLength);
     return file;
+  }
+
+  private long getFileLength(InputFile file) {
+    return fileLengths.get(Path.of(file.uri()).toString());
   }
 
 }
