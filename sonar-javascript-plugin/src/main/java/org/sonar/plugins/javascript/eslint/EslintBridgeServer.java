@@ -49,6 +49,8 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
 
+  AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
+
   void clean();
 
   String getCommandInfo();

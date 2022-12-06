@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.eslint.AnalysisWithProgram;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
+import org.sonar.plugins.javascript.eslint.HtmlSensor;
 import org.sonar.plugins.javascript.eslint.JavaScriptChecks;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
@@ -132,7 +133,8 @@ public class JavaScriptPlugin implements Plugin {
       Monitoring.class,
       AnalysisWithProgram.class,
       AnalysisProcessor.class,
-      YamlSensor.class
+      YamlSensor.class,
+      HtmlSensor.class
     );
 
     context.addExtensions(
