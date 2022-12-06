@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,8 +35,8 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 public class SonarLintProjectChecker implements ProjectChecker {
 
   private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
-  static final String MAX_MEGA_BYTES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxmegabytes";
-  private static final int DEFAULT_MAX_MEGA_BYTES_FOR_TYPE_CHECKING = 20;
+  static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
+  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 1000;
 
   private final ModuleFileSystem moduleFileSystem;
 
@@ -46,14 +44,8 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
   private boolean shouldCheck = true;
 
-  private Function<InputFile, Long> fileLengthProvider = SonarLintProjectChecker::getFileLength;
-
   public SonarLintProjectChecker(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
-  }
-
-  public void setFileLengthProvider(Function<InputFile, Long> fileLengthProvider) {
-    this.fileLengthProvider = fileLengthProvider;
   }
 
   public boolean isBeyondLimit() {
@@ -70,20 +62,20 @@ public class SonarLintProjectChecker implements ProjectChecker {
   private void checkLimit(SensorContext context) {
     try {
       var start = Instant.now();
-      var maxMegaBytesForTypeChecking = getMaxMegaBytesForTypeChecking(context);
+      var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
       var files = getFilesMatchingPluginLanguages(context);
-      var cappedMegaBytes = getCappedMegaBytes(files, maxMegaBytesForTypeChecking);
+      var cappedFiles = getCappedFiles(files, maxFilesForTypeChecking);
 
-      beyondLimit = cappedMegaBytes >= maxMegaBytesForTypeChecking;
+      beyondLimit = cappedFiles >= maxFilesForTypeChecking;
       if (!beyondLimit) {
-        LOG.debug("Project type checking for JavaScript files activated as project size (total number of mega-bytes is {}, maximum is {})",
-          cappedMegaBytes, maxMegaBytesForTypeChecking);
+        LOG.debug("Project type checking for JavaScript files activated as project size (total number of files is {}, maximum is {})",
+          cappedFiles, maxFilesForTypeChecking);
       } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {} mega-bytes)", maxMegaBytesForTypeChecking);
+        LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {} files)", maxFilesForTypeChecking);
         // We can't inform the user of the actual limit as the performance impact may be too high for large projects.
-        LOG.debug("Update \"{}\" to set a different limit (in mega-bytes).", MAX_MEGA_BYTES_PROPERTY);
+        LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
       }
 
       LOG.debug("Project checker duration took: {}ms", Duration.between(start, Instant.now()).toMillis());
@@ -94,24 +86,20 @@ public class SonarLintProjectChecker implements ProjectChecker {
     }
   }
 
-  private static int getMaxMegaBytesForTypeChecking(SensorContext context) {
-    return context.config().getInt(MAX_MEGA_BYTES_PROPERTY).orElse(DEFAULT_MAX_MEGA_BYTES_FOR_TYPE_CHECKING);
+  private static int getMaxFilesForTypeChecking(SensorContext context) {
+    return context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING);
   }
 
-  private long getCappedMegaBytes(Stream<InputFile> files, int maxMegaBytes) {
-    var maxBytes = maxMegaBytes * 1024 * 1024;
-    var totalBytes = 0L;
+  private static long getCappedFiles(Stream<InputFile> files, int maxFiles) {
+    var totalFiles = 0L;
     for (var iterator = files.iterator(); iterator.hasNext();) {
-      totalBytes += fileLengthProvider.apply(iterator.next());
-      if (totalBytes > maxBytes) {
-        return maxMegaBytes;
+      iterator.next();
+      totalFiles++;
+      if (totalFiles > maxFiles) {
+        return maxFiles;
       }
     }
-    return totalBytes / 1024 / 1024;
-  }
-
-  private static long getFileLength(InputFile file) {
-    return Path.of(file.uri()).toFile().length();
+    return totalFiles;
   }
 
   private Stream<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
