@@ -47,7 +47,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should analyze YAML file', async () => {
-    initializeLinter([
+    await initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const {
@@ -65,7 +65,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should return an empty issues list on parsing error', async () => {
-    initializeLinter([
+    await initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const analysisInput = await yamlInput({ filePath: join(fixturesPath, 'malformed.yaml') });
@@ -75,7 +75,9 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'quickfix.yaml') }));
     const {
       issues: [
@@ -98,7 +100,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using "enforce-trailing-comma" rule', async () => {
-    initializeLinter([
+    await initializeLinter([
       {
         key: 'enforce-trailing-comma',
         configurations: ['always-multiline'],
@@ -128,7 +130,9 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'secondary.yaml') }));
     const {
       issues: [
@@ -146,7 +150,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    initializeLinter([
+    await initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'regex.yaml') }));
@@ -164,7 +168,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not return issues outside of the embedded JS', async () => {
-    initializeLinter([
+    await initializeLinter([
       { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
@@ -192,7 +196,7 @@ describe('analyzeYAML', () => {
         },
       },
     };
-    initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
     getLinter().linter.defineRule(rule.key, rule.module);
     analyzeYAML(await yamlInput({ filePath }));
   });

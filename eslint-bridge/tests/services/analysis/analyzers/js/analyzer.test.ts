@@ -48,8 +48,8 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    await initializeLinter(rules);
+    await initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.js');
     const language = 'js';
@@ -76,8 +76,8 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    await initializeLinter(rules);
+    await initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
@@ -103,7 +103,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'code.vue');
     const language = 'js';
@@ -123,7 +123,7 @@ describe('analyzeJSTS', () => {
       { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'main.js');
     const language = 'js';
@@ -142,7 +142,7 @@ describe('analyzeJSTS', () => {
       { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'test.js');
     const fileType = 'TEST';
@@ -166,7 +166,7 @@ describe('analyzeJSTS', () => {
       { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
       { key: 'no-exclusive-tests', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'mixed.js');
     const fileType = 'TEST';
@@ -186,7 +186,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'shebang.js');
     const language = 'js';
@@ -205,7 +205,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'bom.js');
     const language = 'js';
@@ -224,7 +224,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = '/tmp/dir';
     const fileContent = `'foo' + bar + 'baz'`;
@@ -244,7 +244,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'tsconfig.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
@@ -264,7 +264,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
 
@@ -292,7 +292,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'different-types-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'type.js');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
@@ -312,7 +312,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'issue.js');
     const language = 'js';
@@ -336,7 +336,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'secondary.js');
     const language = 'js';
@@ -359,7 +359,7 @@ describe('analyzeJSTS', () => {
     const rules = [
       { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'quickfix.js');
     const language = 'js';
@@ -401,7 +401,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on main files', async () => {
     const rules = [] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
     const language = 'js';
@@ -645,7 +645,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on test files', async () => {
     const rules = [] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
     const fileType = 'TEST';
@@ -699,7 +699,7 @@ describe('analyzeJSTS', () => {
     });
 
     const rules = [] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
     const language = 'js';
@@ -723,7 +723,7 @@ describe('analyzeJSTS', () => {
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'measure.js');
     const language = 'js';
@@ -737,7 +737,7 @@ describe('analyzeJSTS', () => {
 
   it('should return parsing errors', async () => {
     const rules = [];
-    initializeLinter(rules);
+    await initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
     const language = 'js';

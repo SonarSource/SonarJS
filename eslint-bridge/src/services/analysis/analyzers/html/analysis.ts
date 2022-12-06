@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from 'services/analysis';
+import { AnalysisInput, AnalysisOutput } from 'services/analysis';
+import { Issue } from '../../../../linting/eslint';
 
 /**
  * A HTML analysis input
  *
  * (currently empty but might change later on)
  */
-export type HtmlAnalysisInput = JsTsAnalysisInput;
+export interface HtmlAnalysisInput extends AnalysisInput {}
 
 /**
  * A HTML analysis output
@@ -37,4 +38,8 @@ export type HtmlAnalysisInput = JsTsAnalysisInput;
  *
  * @param issues the found issues
  */
-export type HtmlAnalysisOutput = JsTsAnalysisOutput;
+
+export interface HtmlAnalysisOutput extends AnalysisOutput {
+  issues: Issue[];
+  ucfgPaths?: string[];
+}

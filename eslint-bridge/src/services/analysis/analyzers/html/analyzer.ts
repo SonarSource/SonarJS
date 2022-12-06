@@ -20,38 +20,20 @@
 
 import { HtmlAnalysisInput, HtmlAnalysisOutput } from './analysis';
 import { debug } from 'helpers';
-import {getESLint, getLinter, transformMessages} from 'linting/eslint';
-import { buildParserOptions, parsers, shouldTryTypeScriptParser } from 'parsing/jsts';
-import path from 'path';
-import { computeExtendedMetrics } from '../js';
+import { getESLint, getLinter, transformMessages } from 'linting/eslint';
 
 export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
-  const tryTypeScriptParser = shouldTryTypeScriptParser();
-  const [parser, parserOptions] = tryTypeScriptParser
-    ? [parsers.typescript.parser, buildParserOptions(input, false)]
-    : [parsers.javascript.parser, buildParserOptions(input, true)];
   const linter = getLinter(input.linterId);
   const eslint = getESLint(input.linterId);
-  const { getLinterInternalSlots } = await import(
-    path.join(require.resolve('eslint'), '..', 'linter', 'linter')
-    );
-  getLinterInternalSlots(linter.linter).lastConfigArray = {parser, parserOptions};
 
   const results = await (input.fileContent
     ? eslint.lintText(input.fileContent, { filePath: input.filePath })
     : eslint.lintFiles(input.filePath));
 
-  const sourceCode = getLinterInternalSlots(linter.linter).lastSourceCode;
-  const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = transformMessages(
+  const { issues, ucfgPaths } = transformMessages(
     results?.length === 1 ? results[0].messages : [],
-    { sourceCode, rules: linter.linter.getRules() },
+    { rules: linter.linter.getRules() },
   );
-  const extendedMetrics = computeExtendedMetrics(
-    input,
-    sourceCode,
-    highlightedSymbols,
-    cognitiveComplexity,
-  );
-  return { issues, ucfgPaths, ...extendedMetrics };
+  return { issues, ucfgPaths };
 }

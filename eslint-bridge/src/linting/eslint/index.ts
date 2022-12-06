@@ -23,8 +23,10 @@ import { debug } from 'helpers';
 import { LinterWrapper, RuleConfig } from './linter';
 // @ts-ignore
 import { htmlPlugin } from 'eslint-plugin-html';
-import {ESLint} from "eslint";
-import path from "path";
+import { ESLint } from 'eslint';
+import path from 'path';
+import { buildParserOptions, parsers } from '../../parsing/jsts';
+import { JsTsAnalysisInput } from '../../services/analysis';
 
 export * from './linter';
 export * from './rules';
@@ -60,14 +62,21 @@ export async function initializeLinter(
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
   const linter = new LinterWrapper({ inputRules, environments, globals });
-  const overrideConfig = linters[linterId].config['MAIN'];
+  const overrideConfig = {
+    ...linter.config['MAIN'],
+    parser: parsers.javascript.parser,
+    parserOptions: buildParserOptions(
+      { fileContent: '', filePath: '', fileType: 'MAIN' } as JsTsAnalysisInput,
+      true,
+    ),
+  };
   const eslint = new ESLint({ overrideConfig, plugins: { html: htmlPlugin } });
   const { getESLintPrivateMembers } = await import(
     path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
-    );
+  );
   const { getCLIEngineInternalSlots } = await import(
     path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
-    );
+  );
   const { cliEngine } = getESLintPrivateMembers(eslint);
   const slots = getCLIEngineInternalSlots(cliEngine);
   slots.linter = linter.linter;
@@ -99,7 +108,9 @@ export function getLinter(linterId: keyof Linters = 'default') {
  */
 export function getESLint(eslintId: keyof ESLintsWithHTML = 'default') {
   if (!eslints[eslintId]) {
-    throw APIError.linterError(`ESLint instance ${eslintId} does not exist. Did you call /init-linter?`);
+    throw APIError.linterError(
+      `ESLint instance ${eslintId} does not exist. Did you call /init-linter?`,
+    );
   }
   return eslints[eslintId];
 }

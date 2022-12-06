@@ -19,7 +19,7 @@
  */
 
 import { FileType, readFile } from 'helpers';
-import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
+import { HtmlAnalysisInput, JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 
 export async function jsTsInput({
   filePath = '',
@@ -51,5 +51,13 @@ export async function yamlInput({
   fileContent = undefined,
   linterId = 'default',
 }): Promise<YamlAnalysisInput> {
+  return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
+}
+
+export async function htmlInput({
+  filePath = '',
+  fileContent = undefined,
+  linterId = 'default',
+}): Promise<HtmlAnalysisInput> {
   return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
 }

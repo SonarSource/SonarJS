@@ -1,2 +1,0 @@
-a: 1st
-a: duplicate key 'a' should throw an error at parsing on line 2
