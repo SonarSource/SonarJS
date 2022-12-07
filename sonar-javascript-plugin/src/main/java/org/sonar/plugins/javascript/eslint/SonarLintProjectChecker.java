@@ -35,7 +35,8 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
   private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
   static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
-  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 10_000;
+  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
+  private static final int FILE_WALK_MAX_DEPTH = 20;
 
   private boolean beyondLimit = true;
 
@@ -81,7 +82,7 @@ public class SonarLintProjectChecker implements ProjectChecker {
   private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
-    try (var files = Files.walk(context.fileSystem().baseDir().toPath())) {
+    try (var files = Files.walk(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH)) {
       return files.filter(Files::isRegularFile)
         .map(path -> path.getFileName().toString())
         .filter(isPluginFile)
@@ -93,7 +94,7 @@ public class SonarLintProjectChecker implements ProjectChecker {
   }
 
   private static int getMaxFilesForTypeChecking(SensorContext context) {
-    return context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING);
+    return Math.max(context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING), 0);
   }
 
 }
