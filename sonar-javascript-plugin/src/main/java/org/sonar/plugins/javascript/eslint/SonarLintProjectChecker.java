@@ -19,34 +19,27 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-import org.sonar.api.batch.fs.InputFile;
+import java.util.regex.Pattern;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 
 @SonarLintSide(lifespan = "MODULE")
 public class SonarLintProjectChecker implements ProjectChecker {
 
   private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
   static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
-  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 1000;
-
-  private final ModuleFileSystem moduleFileSystem;
+  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 10_000;
 
   private boolean beyondLimit = true;
 
   private boolean shouldCheck = true;
-
-  public SonarLintProjectChecker(ModuleFileSystem moduleFileSystem) {
-    this.moduleFileSystem = moduleFileSystem;
-  }
 
   public boolean isBeyondLimit() {
     return beyondLimit;
@@ -63,13 +56,12 @@ public class SonarLintProjectChecker implements ProjectChecker {
     try {
       var start = Instant.now();
       var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
-      var files = getFilesMatchingPluginLanguages(context);
-      var cappedFiles = getCappedFiles(files, maxFilesForTypeChecking);
+      long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
 
-      beyondLimit = cappedFiles >= maxFilesForTypeChecking;
+      beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
         LOG.debug("Project type checking for JavaScript files activated as project size (total number of files is {}, maximum is {})",
-          cappedFiles, maxFilesForTypeChecking);
+          cappedFileCount, maxFilesForTypeChecking);
       } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
@@ -86,26 +78,22 @@ public class SonarLintProjectChecker implements ProjectChecker {
     }
   }
 
+  private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
+    var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
+
+    try (var files = Files.walk(context.fileSystem().baseDir().toPath())) {
+      return files.filter(Files::isRegularFile)
+        .map(path -> path.getFileName().toString())
+        .filter(isPluginFile)
+        .limit(maxFilesForTypeChecking)
+        .count();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to count plugin files", e);
+    }
+  }
+
   private static int getMaxFilesForTypeChecking(SensorContext context) {
     return context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING);
-  }
-
-  private static long getCappedFiles(Stream<InputFile> files, int maxFiles) {
-    var totalFiles = 0L;
-    for (var iterator = files.iterator(); iterator.hasNext();) {
-      iterator.next();
-      totalFiles++;
-      if (totalFiles > maxFiles) {
-        return maxFiles;
-      }
-    }
-    return totalFiles;
-  }
-
-  private Stream<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
-    Predicate<InputFile> javaScriptPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(context.fileSystem())::apply;
-    Predicate<InputFile> typeScriptPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(context.fileSystem())::apply;
-    return moduleFileSystem.files().filter(javaScriptPredicate.or(typeScriptPredicate));
   }
 
 }
