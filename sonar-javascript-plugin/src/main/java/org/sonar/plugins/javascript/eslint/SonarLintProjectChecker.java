@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @SonarLintSide(lifespan = "MODULE")
@@ -61,13 +62,13 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
       beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
-        LOG.debug("Project type checking for JavaScript files activated as project size (total number of files is {}, maximum is {})",
+        LOG.debug("Project type checking for JavaScript files activated as project size is below limit (total number of files is {}, maximum is {})",
           cappedFileCount, maxFilesForTypeChecking);
       } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug("Project type checking for JavaScript files deactivated due to project size (maximum is {} files)", maxFilesForTypeChecking);
-        // We can't inform the user of the actual limit as the performance impact may be too high for large projects.
+        LOG.debug("Project type checking for JavaScript files deactivated as project has too many files (maximum is {} files)", maxFilesForTypeChecking);
+        // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
         LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
       }
 
@@ -82,15 +83,18 @@ public class SonarLintProjectChecker implements ProjectChecker {
   private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
-    try (var files = Files.walk(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH)) {
+    try (var files = walkProjectFiles(context)) {
       return files.filter(Files::isRegularFile)
         .map(path -> path.getFileName().toString())
         .filter(isPluginFile)
         .limit(maxFilesForTypeChecking)
         .count();
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to count plugin files", e);
     }
+  }
+
+  private static Stream<Path> walkProjectFiles(SensorContext context) {
+    // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
+    return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
   }
 
   private static int getMaxFilesForTypeChecking(SensorContext context) {

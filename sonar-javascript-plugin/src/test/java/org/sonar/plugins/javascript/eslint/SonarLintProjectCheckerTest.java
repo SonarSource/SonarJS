@@ -20,22 +20,26 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.utils.PathWalker;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,25 +56,25 @@ class SonarLintProjectCheckerTest {
 
   @Test
   void should_check_javascript_files() throws IOException {
-    inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY);
-    inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY);
+    inputFile("file.js");
+    inputFile("file.css");
     var checker = sonarLintJavaScriptProjectChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs()).contains("Project type checking for JavaScript files activated as project size (total number of files is 1, maximum is 2)");
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files activated as project size is below limit (total number of files is 1, maximum is 2)");
   }
 
   @Test
-  void should_detect_too_big_projects() throws IOException {
+  void should_detect_projects_with_too_many_files() throws IOException {
     logTester.setLevel(LoggerLevel.DEBUG);
-    inputFile("file1.js", "function foo() {}", JavaScriptLanguage.KEY);
-    inputFile("file2.ts", "function foo() {}", JavaScriptLanguage.KEY);
-    inputFile("file3.cjs", "function foo() {}", JavaScriptLanguage.KEY);
-    inputFile("file4.cts", "function foo() {}", JavaScriptLanguage.KEY);
+    inputFile("file1.js");
+    inputFile("file2.ts");
+    inputFile("file3.cjs");
+    inputFile("file4.cts");
     var checker = sonarLintJavaScriptProjectChecker(3);
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).contains("Project type checking for JavaScript files deactivated due to project size (maximum is 3 files)",
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files deactivated as project has too many files (maximum is 3 files)",
       "Update \"sonar.javascript.sonarlint.typechecking.maxfiles\" to set a different limit.");
   }
 
@@ -81,6 +85,74 @@ class SonarLintProjectCheckerTest {
 
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
+  }
+
+  @Test
+  void should_walk_files() {
+    var root = baseDir.resolve("walk");
+    var depth = 5;
+    var width = 2;
+
+    var folders = createFolder(root, depth, width).collect(toList());
+    var createdPaths = getPaths(folders.stream(), 5);
+    var iteratedPaths = getPaths(PathWalker.stream(root, depth), 5);
+    assertThat(createdPaths).containsExactlyElementsOf(iteratedPaths);
+  }
+
+  @Test
+  void should_walk_files_until_max_depth() {
+    var root = baseDir.resolve("walk");
+    var depth = 5;
+    var width = 2;
+
+    var folders = createFolder(root, depth, width).collect(toList());
+    var createdPaths = getPaths(folders.stream(), depth - 1);
+    var iteratedPaths = getPaths(PathWalker.stream(root, depth), depth - 1);
+    assertThat(createdPaths).containsExactlyElementsOf(iteratedPaths);
+  }
+
+  @NotNull
+  private List<String> getPaths(Stream<Path> folder, int maxDepth) {
+    return folder.map(path -> baseDir.relativize(path))
+      .filter(path -> StreamSupport.stream(path.spliterator(), false).count() <= maxDepth)
+      .map(Path::toString)
+      .sorted()
+      .collect(toList());
+  }
+
+  private Stream<Path> createFolder(Path path, int depth, int width) {
+    try {
+      Stream.Builder<Path> streamBuilder = Stream.builder();
+      streamBuilder.add(path);
+
+      Files.createDirectory(path);
+
+      if (depth > 0) {
+        IntStream.range(0, width)
+          .mapToObj(n -> path.resolve(String.format("folder-%d", n)))
+          .flatMap(folder -> createFolder(folder, depth - 1, width))
+          .forEach(streamBuilder::add);
+
+        Files.createSymbolicLink(path.resolve("folder"), path.resolve(String.format("folder-%d", width - 1)));
+
+        IntStream.range(0, width)
+          .mapToObj(n -> path.resolve(String.format("file-%d.js", n)))
+          .peek(SonarLintProjectCheckerTest::createFile)
+          .forEach(streamBuilder::add);
+      }
+
+      return streamBuilder.build();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private static void createFile(Path path) {
+    try {
+      Files.writeString(path, "File Content");
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
@@ -111,19 +183,9 @@ class SonarLintProjectCheckerTest {
     return context;
   }
 
-  private void inputFile(String filename, @Nullable String contents, String language) throws IOException {
-    var file = mock(InputFile.class);
+  private void inputFile(String filename) throws IOException {
     var path = baseDir.resolve(filename);
-    var uri = path.toUri();
-
-    if (contents != null) {
-      Files.writeString(path, contents);
-    }
-
-    when(file.language()).thenReturn(language);
-    when(file.contents()).thenReturn(contents);
-    when(file.filename()).thenReturn(filename);
-    when(file.uri()).thenReturn(uri);
+    Files.writeString(path, "inputFile");
   }
 
 }
