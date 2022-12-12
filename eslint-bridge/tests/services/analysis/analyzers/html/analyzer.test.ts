@@ -92,7 +92,7 @@ describe('analyzeHTML', () => {
     );
   });
 
-  it.only('should not break when using a rule with secondary locations', async () => {
+  it('should not break when using a rule with secondary locations', async () => {
     await initializeLinter([
       { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
@@ -107,10 +107,10 @@ describe('analyzeHTML', () => {
       ],
     } = result;
     expect(secondaryLocation).toEqual({
-      line: 7,
-      column: 35,
-      endLine: 7,
-      endColumn: 41,
+      line: 10,
+      column: 20,
+      endLine: 10,
+      endColumn: 26,
     });
   });
 

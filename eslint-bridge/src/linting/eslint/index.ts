@@ -28,6 +28,13 @@ import path from 'path';
 import { buildParserOptions, parsers } from '../../parsing/jsts';
 import { JsTsAnalysisInput } from '../../services/analysis';
 
+const { getESLintPrivateMembers } = require(
+  path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
+  );
+const { getCLIEngineInternalSlots } = require(
+  path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
+  );
+
 export * from './linter';
 export * from './rules';
 type Linters = { [id: string]: LinterWrapper };
@@ -54,7 +61,7 @@ const eslints: ESLintsWithHTML = {};
  * @param globals the global variables
  * @param linterId key of the linter
  */
-export async function initializeLinter(
+export function initializeLinter(
   inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
@@ -72,18 +79,16 @@ export async function initializeLinter(
   };
   const eslint = new ESLint({
     cwd: path.join(require.resolve('eslint'), '..', '..'),
+    ignore: false,
+    useEslintrc: false,
     overrideConfig,
     plugins: { html: htmlPlugin },
   });
-  const { getESLintPrivateMembers } = await import(
-    path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
-  );
-  const { getCLIEngineInternalSlots } = await import(
-    path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
-  );
   const { cliEngine } = getESLintPrivateMembers(eslint);
   const slots = getCLIEngineInternalSlots(cliEngine);
   slots.linter = linter.linter;
+  const getConfig = slots.configArrayFactory.getConfigArrayForFile.bind(slots.configArrayFactory);
+  slots.configArrayFactory.getConfigArrayForFile = () => getConfig();
 
   linters[linterId] = linter;
   eslints[linterId] = eslint;
@@ -98,7 +103,8 @@ export async function initializeLinter(
  */
 export function getLinter(linterId: keyof Linters = 'default') {
   if (!linters[linterId]) {
-    throw APIError.linterError(`Linter ${linterId} does not exist. Did you call /init-linter?`);
+    console.log(`Linter ${linterId} does not exist. Did you call /init-linter?`);
+    initializeLinter([], [], [], linterId as string)
   }
   return linters[linterId];
 }

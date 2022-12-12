@@ -138,7 +138,14 @@ export class LinterWrapper {
   private createConfig(options: WrapperOptions) {
     const mainRules: RuleConfig[] = [];
     const testRules: RuleConfig[] = [];
-    for (const inputRule of options.inputRules ?? []) {
+    const linterRules = this.linter.getRules();
+    let { inputRules } = options;
+    if (!inputRules || !inputRules.length) {
+      inputRules = Array.from(linterRules.keys()).map(key => ({
+        key, configurations: [], fileTypeTarget: ['MAIN']
+      }))
+    }
+    for (const inputRule of inputRules) {
       if (inputRule.fileTypeTarget.includes('MAIN')) {
         mainRules.push(inputRule);
       }
@@ -146,7 +153,6 @@ export class LinterWrapper {
         testRules.push(inputRule);
       }
     }
-    const linterRules = this.linter.getRules();
     const mainConfig = createLinterConfig(
       mainRules,
       linterRules,
