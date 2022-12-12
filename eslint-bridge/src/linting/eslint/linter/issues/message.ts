@@ -41,7 +41,7 @@ export function convertMessage(message: Linter.LintMessage, source?: SourceCode)
    * happen because we lint ready SourceCode instances and not file contents.
    */
   if (!message.ruleId) {
-    console.error("Illegal 'null' ruleId for eslint issue");
+    console.error(`Illegal 'null' ruleId for eslint issue, message [${message.message}]`);
     return null;
   }
   return {

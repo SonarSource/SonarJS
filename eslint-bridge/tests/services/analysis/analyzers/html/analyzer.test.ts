@@ -92,7 +92,7 @@ describe('analyzeHTML', () => {
     );
   });
 
-  it('should not break when using a rule with secondary locations', async () => {
+  it.only('should not break when using a rule with secondary locations', async () => {
     await initializeLinter([
       { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);

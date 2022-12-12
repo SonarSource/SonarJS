@@ -70,32 +70,33 @@ class JavaScriptRulingTest {
     .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
     // required to load YAML files
     .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .build();
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      jsProject("amplify", "external/**", "test"),
-      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
-      jsProject("backbone", "", "test"),
-      jsProject("es5-shim", "", "tests"),
-      jsProject("file-for-rules", "", "tests"),
-      jsProject("fireact", "", ""),
-      jsProject("javascript-test-sources", "", ""),
-      jsProject("jira-clone", "", ""),
-      jsProject("jquery", "", "test"),
-      jsProject("jshint", "", "tests"),
-      jsProject("jStorage", "", "tests"),
-      jsProject("knockout", "", "spec"),
-      jsProject("mootools-core", "", "Specs"),
-      jsProject("ocanvas", "build/**", ""),
-      jsProject("p5.js", "", "test"),
-      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
-      jsProject("prototype", "", "test"),
-      jsProject("qunit", "", "test"),
-      jsProject("react-cloud-music", "", ""),
-      jsProject("sizzle", "external/**", "test"),
-      jsProject("underscore", "", "test"),
-      jsProject("yaml", "", "")
+//      jsProject("amplify", "external/**", "test"),
+//      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+//      jsProject("backbone", "", "test"),
+//      jsProject("es5-shim", "", "tests"),
+//      jsProject("file-for-rules", "", "tests"),
+//      jsProject("fireact", "", ""),
+      jsProject("javascript-test-sources", "src/ace/**/*.js", "")
+//      jsProject("jira-clone", "", ""),
+//      jsProject("jquery", "", "test"),
+//      jsProject("jshint", "", "tests"),
+//      jsProject("jStorage", "", "tests"),
+//      jsProject("knockout", "", "spec"),
+//      jsProject("mootools-core", "", "Specs"),
+//      jsProject("ocanvas", "build/**", ""),
+//      jsProject("p5.js", "", "test"),
+//      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+//      jsProject("prototype", "", "test"),
+//      jsProject("qunit", "", "test"),
+//      jsProject("react-cloud-music", "", ""),
+//      jsProject("sizzle", "external/**", "test"),
+//      jsProject("underscore", "", "test"),
+//      jsProject("yaml", "", "")
     );
   }
 
@@ -131,6 +132,7 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-html-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-kubernetes-profile.xml"));
@@ -173,6 +175,7 @@ class JavaScriptRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "web", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "terraform", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "cloudformation", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "kubernetes", "empty-profile");
