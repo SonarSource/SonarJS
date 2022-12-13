@@ -18,27 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { APIError } from 'errors';
 import { debug } from 'helpers';
 import { LinterWrapper, RuleConfig } from './linter';
-// @ts-ignore
-import { htmlPlugin } from 'eslint-plugin-html';
-import { ESLint } from 'eslint';
-import path from 'path';
-import { buildParserOptions, parsers } from '../../parsing/jsts';
-import { JsTsAnalysisInput } from '../../services/analysis';
-
-const { getESLintPrivateMembers } = require(
-  path.join(require.resolve('eslint'), '..', 'eslint', 'eslint')
-  );
-const { getCLIEngineInternalSlots } = require(
-  path.join(require.resolve('eslint'), '..', 'cli-engine', 'cli-engine')
-  );
 
 export * from './linter';
 export * from './rules';
 type Linters = { [id: string]: LinterWrapper };
-type ESLintsWithHTML = { [id: string]: ESLint };
 /**
  * The global ESLint linters
  *
@@ -52,7 +37,6 @@ type ESLintsWithHTML = { [id: string]: ESLint };
  * is needed in order to not run all rules on 'unchanged' files
  */
 const linters: Linters = {};
-const eslints: ESLintsWithHTML = {};
 
 /**
  * Initializes the global linter wrapper
@@ -68,30 +52,7 @@ export function initializeLinter(
   linterId = 'default',
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-  const linter = new LinterWrapper({ inputRules, environments, globals });
-  const overrideConfig = {
-    ...linter.config['MAIN'],
-    parser: parsers.javascript.parser,
-    parserOptions: buildParserOptions(
-      { fileContent: '', filePath: '', fileType: 'MAIN' } as JsTsAnalysisInput,
-      true,
-    ),
-  };
-  const eslint = new ESLint({
-    cwd: path.join(require.resolve('eslint'), '..', '..'),
-    ignore: false,
-    useEslintrc: false,
-    overrideConfig,
-    plugins: { html: htmlPlugin },
-  });
-  const { cliEngine } = getESLintPrivateMembers(eslint);
-  const slots = getCLIEngineInternalSlots(cliEngine);
-  slots.linter = linter.linter;
-  const getConfig = slots.configArrayFactory.getConfigArrayForFile.bind(slots.configArrayFactory);
-  slots.configArrayFactory.getConfigArrayForFile = () => getConfig();
-
-  linters[linterId] = linter;
-  eslints[linterId] = eslint;
+  linters[linterId] = new LinterWrapper({ inputRules, environments, globals });
 }
 
 /**
@@ -107,20 +68,4 @@ export function getLinter(linterId: keyof Linters = 'default') {
     initializeLinter([], [], [], linterId as string)
   }
   return linters[linterId];
-}
-
-/**
- * Returns the ESLint instance with the given ID
- *
- * @param eslintId key of the linter/ESLint instance
- *
- * Throws a runtime error if the global linter wrapper and ESLint instance are not initialized.
- */
-export function getESLint(eslintId: keyof ESLintsWithHTML = 'default') {
-  if (!eslints[eslintId]) {
-    throw APIError.linterError(
-      `ESLint instance ${eslintId} does not exist. Did you call /init-linter?`,
-    );
-  }
-  return eslints[eslintId];
 }

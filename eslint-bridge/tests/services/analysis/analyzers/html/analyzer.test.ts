@@ -20,10 +20,9 @@
 
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { analyzeHTML } from 'services/analysis';
+import { analyzeJSTS } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
-import { APIError } from 'errors';
-import { htmlInput } from '../../../../tools';
+import { jsTsInput } from '../../../../tools';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -37,20 +36,13 @@ describe('analyzeHTML', () => {
     });
   });
 
-  it('should fail on uninitialized linter', async () => {
-    const input = {} as any;
-    await expect(analyzeHTML(input)).rejects.toEqual(
-      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
-    );
-  });
-
   it('should analyze HTML file', async () => {
     await initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const {
       issues: [issue],
-    } = await analyzeHTML(await htmlInput({ filePath: join(fixturesPath, 'file.html') }));
+    } = await analyzeJSTS(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), 'html');
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -70,8 +62,8 @@ describe('analyzeHTML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = await analyzeHTML(
-      await htmlInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
+    const { issues } = await analyzeJSTS(
+      await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }), 'html',
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -96,8 +88,8 @@ describe('analyzeHTML', () => {
     await initializeLinter([
       { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = await analyzeHTML(
-      await htmlInput({ filePath: join(fixturesPath, 'secondary.html') }),
+    const result = await analyzeJSTS(
+      await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }), 'html',
     );
     const {
       issues: [
@@ -118,8 +110,8 @@ describe('analyzeHTML', () => {
     await initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = await analyzeHTML(
-      await htmlInput({ filePath: join(fixturesPath, 'regex.html') }),
+    const result = await analyzeJSTS(
+      await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }), 'html'
     );
     const {
       issues: [issue],

@@ -26,4 +26,4 @@
  * but also to analyze source code. However, there are minor parsing
  * details that require a clear distinction between the two.
  */
-export type Language = 'js' | 'ts';
+export type Language = 'js' | 'ts' | 'html';

@@ -24,6 +24,7 @@ import { buildJs } from './build-js';
 import { buildTs } from './build-ts';
 import { buildVue } from './build-vue';
 import { Language } from 'parsing/jsts';
+import {buildHtml} from "./build-html";
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -43,6 +44,10 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
   }
 
   const tryTypeScriptParser = shouldTryTypeScriptParser();
+
+  if (language === 'html') {
+    return buildHtml(input, tryTypeScriptParser);
+  }
 
   if (isVueFile) {
     return buildVue(input, tryTypeScriptParser);
