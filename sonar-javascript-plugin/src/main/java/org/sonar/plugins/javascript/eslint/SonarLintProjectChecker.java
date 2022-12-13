@@ -19,53 +19,29 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.List;
-import java.util.function.Predicate;
-import org.sonar.api.batch.fs.InputFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
-
-import static java.util.stream.Collectors.toList;
 
 @SonarLintSide(lifespan = "MODULE")
 public class SonarLintProjectChecker implements ProjectChecker {
 
-  private static long getMaxLinesForTypeChecking(SensorContext context) {
-    return context.config().getLong(MAX_LINES_PROPERTY).orElse(DEFAULT_MAX_LINES_FOR_TYPE_CHECKING);
-  }
-
-  private static long getCappedNumberOfLines(List<InputFile> files, long max) {
-    var total = 0L;
-    for (var file : files) {
-      total += file.lines();
-      if (total > max) {
-        return max;
-      }
-    }
-    return total;
-  }
-
-  private static long getNumberOfLines(List<InputFile> files) {
-    return files.stream().map(InputFile::lines).mapToLong(Integer::longValue).sum();
-  }
-
   private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
-  static final String MAX_LINES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxlines";
-  private static final long DEFAULT_MAX_LINES_FOR_TYPE_CHECKING = 500_000L;
-
-  private final ModuleFileSystem moduleFileSystem;
+  static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
+  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
+  private static final int FILE_WALK_MAX_DEPTH = 20;
 
   private boolean beyondLimit = true;
 
   private boolean shouldCheck = true;
-
-  public SonarLintProjectChecker(ModuleFileSystem moduleFileSystem) {
-    this.moduleFileSystem = moduleFileSystem;
-  }
 
   public boolean isBeyondLimit() {
     return beyondLimit;
@@ -80,21 +56,23 @@ public class SonarLintProjectChecker implements ProjectChecker {
 
   private void checkLimit(SensorContext context) {
     try {
-      var maxLinesForTypeChecking = getMaxLinesForTypeChecking(context);
-      var files = getFilesMatchingPluginLanguages(context);
-      var cappedNumberOfLines = getCappedNumberOfLines(files, maxLinesForTypeChecking);
+      var start = Instant.now();
+      var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
+      long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
 
-      beyondLimit = cappedNumberOfLines >= maxLinesForTypeChecking;
+      beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
-        LOG.debug("Project type checking for JavaScript files activated as project size (total number of lines is {}, maximum is {})",
-          cappedNumberOfLines, maxLinesForTypeChecking);
-      } else if (LOG.isDebugEnabled()) {
+        LOG.debug("Project type checking for JavaScript files activated as project size is below limit (total number of files is {}, maximum is {})",
+          cappedFileCount, maxFilesForTypeChecking);
+      } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug("Project type checking for JavaScript files deactivated due to project size (total number of lines is {}, maximum is {})",
-          getNumberOfLines(files), maxLinesForTypeChecking);
-        LOG.debug("Update \"{}\" to set a different limit.", MAX_LINES_PROPERTY);
+        LOG.debug("Project type checking for JavaScript files deactivated as project has too many files (maximum is {} files)", maxFilesForTypeChecking);
+        // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
+        LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
       }
+
+      LOG.debug("Project checker duration took: {}ms", Duration.between(start, Instant.now()).toMillis());
     } catch (RuntimeException e) {
       // Any runtime error raised by the SonarLint API would be caught here to let the analyzer proceed with the rules that don't require
       // type checking.
@@ -102,10 +80,25 @@ public class SonarLintProjectChecker implements ProjectChecker {
     }
   }
 
-  private List<InputFile> getFilesMatchingPluginLanguages(SensorContext context) {
-    Predicate<InputFile> javaScriptPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(context.fileSystem())::apply;
-    Predicate<InputFile> typeScriptPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(context.fileSystem())::apply;
-    return moduleFileSystem.files().filter(javaScriptPredicate.or(typeScriptPredicate)).collect(toList());
+  private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
+    var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
+
+    try (var files = walkProjectFiles(context)) {
+      return files.filter(Files::isRegularFile)
+        .map(path -> path.getFileName().toString())
+        .filter(isPluginFile)
+        .limit(maxFilesForTypeChecking)
+        .count();
+    }
+  }
+
+  private static Stream<Path> walkProjectFiles(SensorContext context) {
+    // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
+    return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
+  }
+
+  private static int getMaxFilesForTypeChecking(SensorContext context) {
+    return Math.max(context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING), 0);
   }
 
 }

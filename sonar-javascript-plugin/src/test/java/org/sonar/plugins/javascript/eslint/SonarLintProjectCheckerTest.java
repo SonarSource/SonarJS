@@ -20,27 +20,23 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_LINES_PROPERTY;
+import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_FILES_PROPERTY;
 
 class SonarLintProjectCheckerTest {
 
@@ -50,44 +46,32 @@ class SonarLintProjectCheckerTest {
   @TempDir
   Path baseDir;
 
-  private static ModuleFileSystem moduleFileSystem(InputFile... inputFiles) {
-    var moduleFileSystem = mock(ModuleFileSystem.class);
-    when(moduleFileSystem.files()).thenReturn(Arrays.stream(inputFiles));
-    return moduleFileSystem;
-  }
-
-  private static ModuleFileSystem moduleFileSystem(RuntimeException error) {
-    var moduleFileSystem = mock(ModuleFileSystem.class);
-    when(moduleFileSystem.files()).thenThrow(error);
-    return moduleFileSystem;
-  }
-
   @Test
   void should_check_javascript_files() throws IOException {
-    var checker = sonarLintJavaScriptProjectChecker(
-      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 1),
-      inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 3)
-    );
+    inputFile("file.js");
+    inputFile("file.css");
+    var checker = sonarLintJavaScriptProjectChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files activated as project size (total number of lines is 1, maximum is 500000)");
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files activated as project size is below limit (total number of files is 1, maximum is 2)");
   }
 
   @Test
-  void should_detect_too_big_projects() throws IOException {
+  void should_detect_projects_with_too_many_files() throws IOException {
     logTester.setLevel(LoggerLevel.DEBUG);
-    var checker = sonarLintJavaScriptProjectChecker(
-      inputFile("file.js", "function foo() {}", JavaScriptLanguage.KEY, 1000000),
-      inputFile("file.css", "h1 {\n  font-weight: bold;\n}", CssLanguage.KEY, 3)
-    );
+    inputFile("file1.js");
+    inputFile("file2.ts");
+    inputFile("file3.cjs");
+    inputFile("file4.cts");
+    var checker = sonarLintJavaScriptProjectChecker(3);
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated due to project size (total number of lines is 1000000, maximum is 500000)",
-      "Update \"sonar.javascript.sonarlint.typechecking.maxlines\" to set a different limit.");
+    assertThat(logTester.logs()).contains("Project type checking for JavaScript files deactivated as project has too many files (maximum is 3 files)",
+      "Update \"sonar.javascript.sonarlint.typechecking.maxfiles\" to set a different limit.");
   }
 
   @Test
-  void should_detect_errors() throws IOException {
+  void should_detect_errors() {
     logTester.setLevel(LoggerLevel.DEBUG);
     var checker = sonarLintJavaScriptProjectChecker(new IllegalArgumentException());
 
@@ -95,21 +79,27 @@ class SonarLintProjectCheckerTest {
     assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
   }
 
-  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(InputFile... inputFiles) {
-    var checker = new SonarLintProjectChecker(moduleFileSystem(inputFiles));
-    checker.checkOnce(sensorContext());
+  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
+    var checker = new SonarLintProjectChecker();
+    checker.checkOnce(sensorContext(maxFiles));
     return checker;
   }
 
   private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
-    var checker = new SonarLintProjectChecker(moduleFileSystem(error));
-    checker.checkOnce(sensorContext());
+    var checker = new SonarLintProjectChecker();
+    var context = sensorContext();
+    when(context.fileSystem().baseDir()).thenThrow(error);
+    checker.checkOnce(context);
     return checker;
   }
 
   private SensorContext sensorContext() {
+    return sensorContext(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING);
+  }
+
+  private SensorContext sensorContext(int maxFiles) {
     var config = mock(Configuration.class);
-    when(config.get(MAX_LINES_PROPERTY)).thenReturn(Optional.of("10"));
+    when(config.getInt(MAX_FILES_PROPERTY)).thenReturn(Optional.of(maxFiles));
 
     var context = mock(SensorContext.class);
     when(context.config()).thenReturn(config);
@@ -117,14 +107,9 @@ class SonarLintProjectCheckerTest {
     return context;
   }
 
-  private InputFile inputFile(String filename, @Nullable String contents, String language, Integer lines) throws IOException {
-    var file = mock(InputFile.class);
-    when(file.language()).thenReturn(language);
-    when(file.contents()).thenReturn(contents);
-    when(file.filename()).thenReturn(filename);
-    when(file.uri()).thenReturn(baseDir.resolve(filename).toUri());
-    when(file.lines()).thenReturn(lines);
-    return file;
+  private void inputFile(String filename) throws IOException {
+    var path = baseDir.resolve(filename);
+    Files.writeString(path, "inputFile");
   }
 
 }
