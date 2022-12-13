@@ -108,9 +108,9 @@ describe('analyzeHTML', () => {
     } = result;
     expect(secondaryLocation).toEqual({
       line: 10,
-      column: 20,
+      column: 19,
       endLine: 10,
-      endColumn: 26,
+      endColumn: 25,
     });
   });
 
