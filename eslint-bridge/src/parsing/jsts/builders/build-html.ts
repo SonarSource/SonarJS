@@ -18,16 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {AST, SourceCode} from 'eslint';
-import { debug } from 'helpers';
+import { SourceCode} from 'eslint';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parsers } from 'parsing/jsts';
-import {ESLintHtmlParseResult, HTMLSyntaxTree, parseForESLint} from 'eslint-html-parser';
-import {APIError} from "errors";
+import {ESLintHtmlParseResult, parseForESLint} from 'eslint-html-parser';
 
-function isAST(result: HTMLSyntaxTree | AST.Program): result is AST.Program {
-  return 'body' in result;
-}
 
 /**
  * Builds an instance of ESLint SourceCode for JavaScript
@@ -46,42 +41,42 @@ function isAST(result: HTMLSyntaxTree | AST.Program): result is AST.Program {
  * @returns the parsed JavaScript code
  */
 export function buildHtml(input: JsTsAnalysisInput, tryTypeScriptESLintParser: boolean): SourceCode {
-  let result: ESLintHtmlParseResult;
+  let result: ESLintHtmlParseResult | undefined;
+  let moduleError: Error | undefined;
   if (tryTypeScriptESLintParser) {
     try {
-      const options = buildParserOptions(input, false);
-      options.parser = parsers.typescript.parser;
+      const options = buildParserOptions(input, true);
+      options.parser = parsers.javascript.parser;
+      result = parseForESLint(input.fileContent, options);
+    } catch (err) {
+      moduleError = new Error(`Failed to parse ${input.filePath} with TypeScript parser: ${err.message}`);
+    }
+  }
+
+  if (moduleError) {
+    try {
+      const options = buildParserOptions(input, true);
+      options.parser = parsers.javascript.parser;
       result = parseForESLint(input.fileContent, options);
     } catch (error) {
-      debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
+      moduleError = error;
+    }
+
+    if (moduleError) {
+      try {
+        const options = buildParserOptions(input, true, undefined, 'script');
+        options.parser = parsers.javascript.parser;
+        result = parseForESLint(input.fileContent, options);
+      } catch (_) {
+      }
     }
   }
-
-  let moduleError;
-  try {
-    const options = buildParserOptions(input, true);
-    options.parser = parsers.javascript.parser;
-    result = parseForESLint(input.fileContent, options);
-  } catch (error) {
-    moduleError = error;
-  }
-
-  try {
-    const options = buildParserOptions(input, true, undefined, 'script');
-    options.parser = parsers.javascript.parser;
-    result = parseForESLint(input.fileContent, options);
-  } catch (_) {
-    /**
-     * We prefer displaying parsing error as module if parsing as script also failed,
-     * as it is more likely that the expected source type is module.
-     */
+  if (moduleError || !result) {
     throw moduleError;
   }
-  if (result) {
-    const { ast, services: parserServices, scopeManager, visitorKeys} = result;
-    if (isAST(ast)) {
-      return new SourceCode({ast, parserServices, scopeManager, visitorKeys, text: input.fileContent});
-    }
+  else {
+    const {ast, services: parserServices, scopeManager, visitorKeys} = result;
+    // @ts-ignore
+    return new SourceCode({ast, parserServices, scopeManager, visitorKeys, text: input.fileContent});
   }
-  throw APIError.unexpectedError('No JavaScript found in file');
 }
