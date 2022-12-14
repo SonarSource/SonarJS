@@ -26,7 +26,7 @@ container_definition: &CONTAINER_DEFINITION
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
-  builder_instance_type: t2.small
+  builder_instance_type: t3.small
   builder_subnet_id: ${CIRRUS_AWS_SUBNET}
   region: eu-central-1
   namespace: default
