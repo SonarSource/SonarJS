@@ -25,12 +25,11 @@ import * as estree from 'estree';
 import {
   isIdentifier,
   isLiteral,
-  getUniqueWriteUsage,
-  getModuleNameOfIdentifier,
-  getModuleNameFromRequire,
   getObjectExpressionProperty,
   flattenArgs,
   toEncodedMessage,
+  getFullyQualifiedName,
+  isRequireModule,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -70,36 +69,23 @@ export const rule: Rule.RuleModule = {
     }
 
     function isCsurfMiddleware(node: estree.Node | undefined) {
-      if (node?.type === 'Identifier') {
-        node = getUniqueWriteUsage(context, node.name);
-      }
-
-      if (node && node.type === 'CallExpression' && node.callee.type === 'Identifier') {
-        const module = getModuleNameOfIdentifier(context, node.callee);
-        return module?.value === CSURF_MODULE;
-      }
-      return false;
+      return node && getFullyQualifiedName(context, node) === CSURF_MODULE;
     }
 
     function checkCallExpression(callExpression: estree.CallExpression) {
       const { callee } = callExpression;
 
       // require('csurf')
-      const requiredModule = getModuleNameFromRequire(callExpression);
-      if (requiredModule?.value === CSURF_MODULE) {
+      if (isRequireModule(callExpression, CSURF_MODULE)) {
         importedCsrfMiddleware = true;
       }
 
       // csurf(...)
-      if (callee.type === 'Identifier') {
-        const moduleName = getModuleNameOfIdentifier(context, callee);
-
-        if (moduleName?.value === CSURF_MODULE) {
-          const [args] = callExpression.arguments;
-          const ignoredMethods = getObjectExpressionProperty(args, 'ignoreMethods');
-          if (ignoredMethods) {
-            checkIgnoredMethods(ignoredMethods);
-          }
+      if (getFullyQualifiedName(context, callee) === CSURF_MODULE) {
+        const [args] = callExpression.arguments;
+        const ignoredMethods = getObjectExpressionProperty(args, 'ignoreMethods');
+        if (ignoredMethods) {
+          checkIgnoredMethods(ignoredMethods);
         }
       }
 

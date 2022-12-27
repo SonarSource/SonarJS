@@ -1,0 +1,38 @@
+<p>React expects a unique identifier <code>key</code> in list components to optimize rendering. Missing keys will negatively impact performance and
+can bring your application to a halt when there are enough elements. Avoid <code>Array</code> indexes since they are not stable. Instead, use a unique
+attribute like an ID or a combination of attributes.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function Blog(props) {
+  return (
+    &lt;ul&gt;
+      {props.posts.map((post) =&gt;
+        &lt;li&gt;
+          {post.title}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function Blog(props) {
+  return (
+    &lt;ul&gt;
+      {props.posts.map((post) =&gt;
+        &lt;li key={post.id}&gt;
+          {post.title}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
+  <li> {rule:javascript:S6479} </li>
+  <li> {rule:javascript:S6486} </li>
+</ul>
+

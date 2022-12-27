@@ -23,9 +23,9 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   Express,
-  getModuleNameOfNode,
   getPropertyWithValue,
   getObjectExpressionProperty,
+  getFullyQualifiedName,
 } from './helpers';
 
 const HELMET = 'helmet';
@@ -49,28 +49,18 @@ function findNoReferrerPolicyPropertyFromHelmet(
     const [options] = args;
 
     /* helmet({ referrerPolicy: false }) or helmet.referrerPolicy({ policy: <unsafe_value> }) */
-    if (isHelmetModuleNode(context, callee) && options.type === 'ObjectExpression') {
+    const fqn = getFullyQualifiedName(context, callee);
+    if (fqn === HELMET && options.type === 'ObjectExpression') {
       sensitive = getPropertyWithValue(context, options, REFERRER_POLICY, false);
-    } else if (callee.type === 'MemberExpression') {
-      const { object, property } = callee;
-      if (
-        isHelmetModuleNode(context, object) &&
-        property.type === 'Identifier' &&
-        property.name === REFERRER_POLICY
-      ) {
-        const maybePolicy = getObjectExpressionProperty(options, POLICY);
-        if (maybePolicy && !isSafePolicy(maybePolicy)) {
-          sensitive = maybePolicy;
-        }
+    } else if (fqn === `${HELMET}.${REFERRER_POLICY}`) {
+      const maybePolicy = getObjectExpressionProperty(options, POLICY);
+      if (maybePolicy && !isSafePolicy(maybePolicy)) {
+        sensitive = maybePolicy;
       }
     }
   }
 
   return sensitive ? [sensitive] : [];
-}
-
-function isHelmetModuleNode(context: Rule.RuleContext, node: estree.Node): boolean {
-  return node.type === 'Identifier' && getModuleNameOfNode(context, node)?.value === HELMET;
 }
 
 function isSafePolicy(policy: estree.Property): boolean {

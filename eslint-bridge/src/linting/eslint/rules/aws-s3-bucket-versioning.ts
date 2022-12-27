@@ -31,7 +31,7 @@ const messages = {
   unversioned: 'Make sure using unversioned S3 bucket is safe here.',
   omitted:
     'Omitting the "versioned" argument disables S3 bucket versioning. Make sure it is safe here.',
-  secondary: 'Propagated setting.',
+  secondary: 'Propagated setting',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate(

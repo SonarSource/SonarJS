@@ -30,7 +30,7 @@ import {
 } from './helpers';
 
 import * as estree from 'estree';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
+import { AwsCdkTemplate, normalizeFQN } from './helpers/aws/cdk';
 
 const CfnDBCluster = 'CfnDBCluster';
 const CfnDBInstance = 'CfnDBInstance';
@@ -119,7 +119,7 @@ function checkStorage(storage: string) {
         return false;
       }
 
-      const fqn = getFullyQualifiedName(ctx, exceptionValue.callee)?.replace(/-/g, '_');
+      const fqn = normalizeFQN(getFullyQualifiedName(ctx, exceptionValue.callee));
       return fqn === 'aws_cdk_lib.aws_kms.Key' || fqn === 'aws_cdk_lib.aws_kms.Alias';
     }
 

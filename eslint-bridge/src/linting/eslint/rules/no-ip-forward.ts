@@ -22,12 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
   getObjectExpressionProperty,
   getValueOfExpression,
-  isCallToFQN,
-  getModuleNameOfNode,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -66,17 +64,9 @@ export const rule: Rule.RuleModule = {
 };
 
 function isSensitiveFQN(context: Rule.RuleContext, call: estree.CallExpression) {
-  const { callee } = call;
-  if (callee.type === 'MemberExpression') {
-    return (
-      isCallToFQN(context, call, 'http-proxy', 'createProxyServer') ||
-      isCallToFQN(context, call, 'http-proxy-middleware', 'createProxyMiddleware')
-    );
-  }
+  const fqn = getFullyQualifiedName(context, call);
   return (
-    (isIdentifier(callee, 'createProxyServer') &&
-      getModuleNameOfNode(context, callee)?.value === 'http-proxy') ||
-    (isIdentifier(callee, 'createProxyMiddleware') &&
-      getModuleNameOfNode(context, callee)?.value === 'http-proxy-middleware')
+    fqn &&
+    ['http-proxy.createProxyServer', 'http-proxy-middleware.createProxyMiddleware'].includes(fqn)
   );
 }

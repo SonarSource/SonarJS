@@ -22,6 +22,8 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
 
+export type Node = estree.Node | TSESTree.Node;
+
 export type LoopLike =
   | estree.WhileStatement
   | estree.DoWhileStatement
@@ -33,6 +35,8 @@ export type FunctionNodeType =
   | estree.FunctionDeclaration
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
+
+export type StringLiteral = estree.Literal & { value: string };
 
 export const FUNCTION_NODES = [
   'FunctionDeclaration',
@@ -48,7 +52,7 @@ export const functionLike = new Set([
 ]);
 
 export function isIdentifier(
-  node: estree.Node | undefined,
+  node: Node | undefined,
   ...values: string[]
 ): node is estree.Identifier {
   return (
@@ -198,7 +202,7 @@ export function isFalseLiteral(n: estree.Node): boolean {
   return isLiteral(n) && n.value === false;
 }
 
-export function isUndefined(node: estree.Node | TSESTree.Node): boolean {
+export function isUndefined(node: Node): boolean {
   return node.type === 'Identifier' && node.name === 'undefined';
 }
 
@@ -231,6 +235,12 @@ export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
 
 export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
   const variable = getVariableFromName(context, name);
+  return getUniqueWriteReference(variable);
+}
+
+export function getUniqueWriteReference(
+  variable: Scope.Variable | undefined,
+): estree.Node | undefined {
   if (variable) {
     const writeReferences = variable.references.filter(reference => reference.isWrite());
     if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
@@ -285,10 +295,10 @@ export function getValueOfExpression<T extends estree.Node['type']>(
 }
 
 // see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
-function isNodeType<T extends estree.Node['type']>(
-  node: estree.Node,
+function isNodeType<T extends Node['type']>(
+  node: Node,
   type: T,
-): node is Extract<estree.Node, { type: T }> {
+): node is Extract<Node, { type: T }> {
   return node.type === type;
 }
 
@@ -310,14 +320,18 @@ export function getLhsVariable(context: Rule.RuleContext): Scope.Variable | unde
   return undefined;
 }
 
-export function getVariableFromName(context: Rule.RuleContext, name: string) {
-  let scope: Scope.Scope | null = context.getScope();
+export function getVariableFromScope(scope: Scope.Scope | null, name: string) {
   let variable;
   while (variable == null && scope != null) {
     variable = scope.variables.find(value => value.name === name);
     scope = scope.upper;
   }
   return variable;
+}
+
+export function getVariableFromName(context: Rule.RuleContext, name: string) {
+  const scope: Scope.Scope | null = context.getScope();
+  return getVariableFromScope(scope, name);
 }
 
 /**
@@ -528,7 +542,7 @@ export function checkSensitiveCall(
   }
 }
 
-export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
+export function isStringLiteral(node: estree.Node): node is StringLiteral {
   return isLiteral(node) && typeof node.value === 'string';
 }
 

@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport, mergeRules } from './decorators/helpers';
 import { eslintRules } from './core';
-import { getModuleNameOfImportedIdentifier, isFunctionCall, isIdentifier } from './helpers';
+import { getFullyQualifiedName, isFunctionCall, isIdentifier } from './helpers';
 
 const eslintMaxParams = eslintRules['max-params'];
 
@@ -86,8 +86,7 @@ export const rule: Rule.RuleModule = {
                 const node = decorator.expression as estree.Node;
                 return (
                   isFunctionCall(node) &&
-                  isIdentifier(node.callee, 'Component') &&
-                  getModuleNameOfImportedIdentifier(context, node.callee)?.value === '@angular/core'
+                  getFullyQualifiedName(context, node.callee) === '@angular.core.Component'
                 );
               })
             );

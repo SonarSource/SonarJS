@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
   flattenArgs,
   getUniqueWriteUsageOrNode,
-  getModuleNameOfNode,
+  getFullyQualifiedName,
+  isMemberWithProperty,
 } from './helpers';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
@@ -53,19 +53,12 @@ function checkErrorHandlerMiddleware(
   callExpression: estree.CallExpression,
 ) {
   const { callee, arguments: args } = callExpression;
-  if (
-    callee.type === 'MemberExpression' &&
-    isIdentifier(callee.property, 'use') &&
-    args.length > 0 &&
-    !isInsideConditional(context)
-  ) {
+  if (isMemberWithProperty(callee, 'use') && args.length > 0 && !isInsideConditional(context)) {
     for (const m of flattenArgs(context, args)) {
       const middleware = getUniqueWriteUsageOrNode(context, m);
-
       if (
-        middleware &&
         middleware.type === 'CallExpression' &&
-        getModuleNameOfNode(context, middleware.callee)?.value === ERRORHANDLER_MODULE
+        getFullyQualifiedName(context, middleware) === ERRORHANDLER_MODULE
       ) {
         context.report({
           node: middleware,

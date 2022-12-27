@@ -20,7 +20,7 @@ export class IAMStack extends cdk.Stack {
     policyDocument.addStatements(new iam.PolicyStatement({
       sid: "AllowAllResources",
       effect: iam.Effect.ALLOW,
-//            ^^^^^^^^^^^^^^^^> {{Related effect.}}
+//            ^^^^^^^^^^^^^^^^> {{Related effect}}
       actions: ["iam:CreatePolicyVersion"],
       resources: ["*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                ^^^
@@ -29,7 +29,7 @@ export class IAMStack extends cdk.Stack {
     policyDocument.addStatements(new iam.PolicyStatement({
       sid: "AllowAllResources",
       effect: iam.Effect.ALLOW,
-//            ^^^^^^^^^^^^^^^^> {{Related effect.}}
+//            ^^^^^^^^^^^^^^^^> {{Related effect}}
       actions: ["iam:CreatePolicyVersion"],
       resources: ["arn:aws:service:::a_resource/*", "*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                                                  ^^^
@@ -53,7 +53,7 @@ export class IAMStack extends cdk.Stack {
     const policyStatementFromJson1 = iam.PolicyStatement.fromJson({
       "Sid": "AllowAllResourcesList",
       "Effect": "Allow",
-//              ^^^^^^^> {{Related effect.}}
+//              ^^^^^^^> {{Related effect}}
       "Action": ["iam:CreatePolicyVersion"],
       "Resource": ["arn:aws:service:::a_resource/*", "*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                                                   ^^^
@@ -61,7 +61,7 @@ export class IAMStack extends cdk.Stack {
     const policyStatementFromJson2 = iam.PolicyStatement.fromJson({
       "Sid": "AllowAllResourcesList",
       "Effect": "Allow",
-//              ^^^^^^^> {{Related effect.}}
+//              ^^^^^^^> {{Related effect}}
       "Action": ["iam:CreatePolicyVersion"],
       "Resource": ["*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                 ^^^
@@ -87,7 +87,7 @@ export class IAMStack extends cdk.Stack {
         {
           "Sid": "AllowAllResourcesList",
           "Effect": "Allow",
-//                  ^^^^^^^> {{Related effect.}}
+//                  ^^^^^^^> {{Related effect}}
           "Action": ["iam:CreatePolicyVersion"],
           "Resource": ["*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                     ^^^
@@ -95,7 +95,7 @@ export class IAMStack extends cdk.Stack {
         {
           "Sid": "AllowAllResourcesStar",
           "Effect": "Allow",
-//                  ^^^^^^^> {{Related effect.}}
+//                  ^^^^^^^> {{Related effect}}
           "Action": ["iam:CreatePolicyVersion"],
           "Resource": ["arn:aws:service:::a_resource/*", "*"] // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                                                       ^^^
@@ -103,7 +103,7 @@ export class IAMStack extends cdk.Stack {
         {
           "Sid": "AllowAllResourcesStar",
           "Effect": "Allow",
-//                  ^^^^^^^> {{Related effect.}}
+//                  ^^^^^^^> {{Related effect}}
           "Action": ["iam:CreatePolicyVersion"],
           "Resource": "*" // Noncompliant {{Make sure granting access to all resources is safe here.}}
 //                    ^^^

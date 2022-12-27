@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { RuleTester } from 'eslint';
 import { AwsCdkTemplate } from 'linting/eslint/rules/helpers/aws/cdk';
+import { TypeScriptRuleTester } from '../../../../../tools';
 
 const rule = AwsCdkTemplate({
   'aws-cdk-lib.aws_module.Class': (node, context) => {
@@ -27,7 +27,7 @@ const rule = AwsCdkTemplate({
   },
 });
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('AWS CDK Rule Template', rule, {
   valid: [
     {
@@ -84,8 +84,30 @@ new foo();
     },
     {
       code: `
+const { Class: foo } = require('aws-cdk-lib/aws-module');
+const bar = foo;
+new bar();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
 const { Class } = require('aws-cdk-lib').aws_module;
 new Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const foo = require('aws-cdk-lib').aws_module?.Class;
+new foo();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const foo = require('aws-cdk-lib').aws_module!.Class;
+new foo();
       `,
       errors: 1,
     },
@@ -114,6 +136,14 @@ new foo();
       code: `
 const { aws_module: cdk } = require('aws-cdk-lib');
 new cdk.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const { aws_module: cdk } = require('aws-cdk-lib');
+const foo = cdk?.Class;
+new foo();
       `,
       errors: 1,
     },
@@ -163,6 +193,13 @@ new foo.Class();
       code: `
 import cdk from 'aws-cdk-lib';
 new cdk.aws_module.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+import cdk from 'aws-cdk-lib';
+new cdk.aws_module!.Class();
       `,
       errors: 1,
     },

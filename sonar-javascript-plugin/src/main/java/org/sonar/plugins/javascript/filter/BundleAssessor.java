@@ -36,8 +36,7 @@ public class BundleAssessor implements Assessor {
   static final String PROPERTY = "sonar.javascript.detectBundles";
   private static final Pattern COMMENT_OPERATOR_FUNCTION = bundleRegexPattern();
   private static final int READ_CHARACTERS_LIMIT = 2048;
-
-  private boolean triggered;
+  private boolean isInfoLogged;
 
   @Override
   public boolean test(InputFile inputFile) {
@@ -46,7 +45,12 @@ public class BundleAssessor implements Assessor {
       var matcher = COMMENT_OPERATOR_FUNCTION.matcher(content);
       if (matcher.find()) {
         LOG.debug("File {} was excluded because it looks like a bundle. (Disable detection with " + PROPERTY + "=false)", inputFile);
-        triggered = true;
+        if (!isInfoLogged) {
+          LOG.info("Some of the project files were automatically excluded because they looked like generated code. " +
+            "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
+            BundleAssessor.PROPERTY + "=false");
+          isInfoLogged = true;
+        }
         return true;
       }
     } catch (IOException e) {
@@ -55,14 +59,10 @@ public class BundleAssessor implements Assessor {
     return false;
   }
 
-  boolean triggered() {
-    return triggered;
-  }
-
   private static Pattern bundleRegexPattern() {
     var COMMENT = "/\\*.*\\*/";
     var OPERATOR = "[!;+(]";
     var OPTIONAL_FUNCTION_NAME = "(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?";
-    return  Pattern.compile(COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(", DOTALL);
+    return Pattern.compile(COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(", DOTALL);
   }
 }

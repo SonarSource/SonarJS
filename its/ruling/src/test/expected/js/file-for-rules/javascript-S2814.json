@@ -2,4 +2,7 @@
 'file-for-rules:DuplicateFunctionArgument.js':[
 3,
 ],
+'file-for-rules:S6329.js':[
+64,
+],
 }

@@ -20,17 +20,16 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6275/javascript
 
 import { Rule } from 'eslint';
-import { isBooleanLiteral } from './helpers';
-import { NewExpression, Node } from 'estree';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
-import { getResultOfExpression } from './helpers/result';
-
-const VOLUME_PROPS_POSITION = 2;
-const ENCRYPTED_PROPERTY = 'encrypted';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws-ec2.Volume': volumeChecker,
+    'aws-cdk-lib.aws-ec2.Volume': AwsCdkCheckArguments(
+      ['encryptionOmitted', 'encryptionDisabled'],
+      true,
+      'encrypted',
+      { primitives: { invalid: [false] } },
+    ),
   },
   {
     meta: {
@@ -42,25 +41,3 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     },
   },
 );
-
-function volumeChecker(expr: NewExpression, ctx: Rule.RuleContext) {
-  const call = getResultOfExpression(ctx, expr);
-  const argument = call.getArgument(VOLUME_PROPS_POSITION);
-  const isEncrypted = argument.getProperty(ENCRYPTED_PROPERTY);
-
-  if (isEncrypted.isMissing) {
-    ctx.report({
-      messageId: 'encryptionOmitted',
-      node: isEncrypted.node,
-    });
-  } else if (isEncrypted.isFound && isUnencrypted(isEncrypted.node)) {
-    ctx.report({
-      messageId: 'encryptionDisabled',
-      node: isEncrypted.node,
-    });
-  }
-
-  function isUnencrypted(node: Node) {
-    return isBooleanLiteral(node) && !node.value;
-  }
-}

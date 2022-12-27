@@ -34,7 +34,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -45,6 +44,8 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 import static java.util.Collections.singletonList;
@@ -54,7 +55,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   static final String PROGRESS_REPORT_TITLE = "Progress of TypeScript analysis";
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
-  private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisProcessor analysisProcessor;
   private final TypeScriptChecks checks;
@@ -62,10 +62,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private AnalysisMode analysisMode;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
-                          AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
+                          AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
                           AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
-    this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
@@ -95,10 +94,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
     }
-    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
     if (tsConfigs.isEmpty()) {
-      // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
-      // See also https://github.com/SonarSource/SonarJS/issues/2506
+      // This can happen where we are not able to create temporary file for generated tsconfig.json
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
       return;
     }
@@ -156,7 +154,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: " + file.uri());
       String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisMode.getLinterIdFor(file));
+        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.getFilename()), null, analysisMode.getLinterIdFor(file));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       analysisProcessor.processResponse(context, checks, file, response);
       cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
@@ -175,10 +173,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       if (processed.add(path)) {
         TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(path);
         tsConfigFiles.add(tsConfigFile);
-        if (!tsConfigFile.projectReferences.isEmpty()) {
-          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.projectReferences);
+        if (!tsConfigFile.getProjectReferences().isEmpty()) {
+          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
         }
-        workList.addAll(tsConfigFile.projectReferences);
+        workList.addAll(tsConfigFile.getProjectReferences());
       }
     }
     return tsConfigFiles;

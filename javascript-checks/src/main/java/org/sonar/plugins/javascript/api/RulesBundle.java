@@ -32,6 +32,12 @@ public interface RulesBundle {
    */
   String bundlePath();
 
+  default String bundleKey() {
+    return null;
+  }
 
+  default String bundleVersion() {
+    return null;
+  }
 
 }

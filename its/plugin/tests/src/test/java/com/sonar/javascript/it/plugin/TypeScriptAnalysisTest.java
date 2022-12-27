@@ -61,7 +61,7 @@ class TypeScriptAnalysisTest {
     assertThat(issuesList.get(0).getLine()).isEqualTo(4);
 
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
-    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "classes")).isZero();
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
@@ -132,7 +132,7 @@ class TypeScriptAnalysisTest {
   }
 
   @Test
-  void should_analyze_without_tsconfig() throws Exception {
+  void should_analyze_without_tsconfig() {
     File dir = TestUtils.projectDir("missing-tsconfig");
 
     String projectKey = "missing-tsconfig";
@@ -157,7 +157,7 @@ class TypeScriptAnalysisTest {
    * This is legacy behavior, which we might discontinue to support, because it's not very realistic
    */
   @Test
-  void should_analyze_without_tsconfig_vue() throws Exception {
+  void should_analyze_without_tsconfig_vue() {
     File dir = TestUtils.projectDir("missing-tsconfig-vue");
 
     String projectKey = "missing-tsconfig-vue";
@@ -172,16 +172,12 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
-      tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
-    );
-
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
+    assertThat(issuesList).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).isEmpty();
   }
 
   @Test
-  void should_exclude_from_extended_tsconfig() throws Exception {
+  void should_exclude_from_extended_tsconfig() {
     File dir = TestUtils.projectDir("tsproject-extended");
 
     String projectKey = "tsproject-extended";
@@ -200,8 +196,8 @@ class TypeScriptAnalysisTest {
       tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 file(s) because they were not part of any tsconfig"))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig: dir/file.excluded.ts"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 file(s) because they were not part of any tsconfig.json"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig.json: dir/file.excluded.ts"))).hasSize(1);
   }
 
   @Test
@@ -224,7 +220,7 @@ class TypeScriptAnalysisTest {
       tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig"))).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
   }
 
   @Test
@@ -249,6 +245,6 @@ class TypeScriptAnalysisTest {
       tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
     );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig"))).isEmpty();
+    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
   }
 }

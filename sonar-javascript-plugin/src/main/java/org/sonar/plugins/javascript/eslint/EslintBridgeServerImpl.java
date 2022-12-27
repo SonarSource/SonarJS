@@ -48,6 +48,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -227,6 +228,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       }
       deploy();
       List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
+      rulesBundles
+        .getUcfgRulesBundle()
+        .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(context, deployedBundles);
 
     } catch (NodeCommandException e) {
@@ -382,6 +386,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return "OK!".equals(response);
   }
 
+  @Override
+  public TsConfigFile createTsConfigFile(String baseDir) throws IOException {
+    var request = new CreateTsConfigFileRequest(baseDir);
+    var response = request(GSON.toJson(request), "create-tsconfig-file");
+    return GSON.fromJson(response, TsConfigFile.class);
+  }
+
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
     return list == null ? emptyList() : list;
   }
@@ -455,6 +466,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
+    }
+  }
+
+
+  static class CreateTsConfigFileRequest {
+    final String baseDir;
+
+    public CreateTsConfigFileRequest(String baseDir) {
+      this.baseDir = baseDir;
     }
   }
 

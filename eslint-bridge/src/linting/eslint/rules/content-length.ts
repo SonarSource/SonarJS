@@ -24,11 +24,10 @@ import * as estree from 'estree';
 import { getVariablePropertyFromAssignment } from './file-uploads';
 import { parse } from 'bytes';
 import {
-  getModuleNameOfImportedIdentifier,
-  getModuleNameOfIdentifier,
   getLhsVariable,
   getValueOfExpression,
   getObjectExpressionProperty,
+  getFullyQualifiedName,
 } from './helpers';
 
 const FORMIDABLE_MODULE = 'formidable';
@@ -83,23 +82,21 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
     return;
   }
 
-  const moduleName =
-    getModuleNameOfImportedIdentifier(context, identifierFromModule) ||
-    getModuleNameOfIdentifier(context, identifierFromModule);
-
-  if (!moduleName) {
+  const fqn = getFullyQualifiedName(context, identifierFromModule);
+  if (!fqn) {
     return;
   }
+  const [moduleName] = fqn.split('.');
 
-  if (moduleName.value === FORMIDABLE_MODULE) {
+  if (moduleName === FORMIDABLE_MODULE) {
     checkFormidable(context, callExpression);
   }
 
-  if (moduleName.value === MULTER_MODULE) {
+  if (moduleName === MULTER_MODULE) {
     checkMulter(context, callExpression);
   }
 
-  if (moduleName.value === BODY_PARSER_MODULE) {
+  if (moduleName === BODY_PARSER_MODULE) {
     checkBodyParser(context, callExpression);
   }
 }

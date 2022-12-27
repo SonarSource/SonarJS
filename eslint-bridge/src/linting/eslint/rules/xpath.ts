@@ -25,7 +25,7 @@ import {
   isMemberExpression,
   isMemberWithProperty,
   isLiteral,
-  getModuleAndCalledMethod,
+  getFullyQualifiedName,
 } from './helpers';
 
 const xpathModule = 'xpath';
@@ -81,14 +81,8 @@ function checkCallExpression(
   }
 
   // "xpath" module
-  const { module, method } = getModuleAndCalledMethod(callee, context);
-  if (
-    method &&
-    module &&
-    module.value === xpathModule &&
-    method.type === 'Identifier' &&
-    xpathEvalMethods.includes(method.name)
-  ) {
+  const fqn = getFullyQualifiedName(context, callee);
+  if (xpathEvalMethods.some(method => fqn === `${xpathModule}.${method}`)) {
     context.report({ messageId: 'checkXPath', node: callee });
   }
 }

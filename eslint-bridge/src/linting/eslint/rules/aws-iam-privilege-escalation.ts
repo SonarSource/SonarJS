@@ -21,14 +21,9 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { toEncodedMessage } from './helpers';
+import { StringLiteral, toEncodedMessage } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
-import {
-  AwsIamPolicyTemplate,
-  getSensitiveEffect,
-  PolicyCheckerOptions,
-  StringLiteral,
-} from './helpers/aws/iam';
+import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from './helpers/aws/iam';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 

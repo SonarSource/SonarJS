@@ -35,7 +35,7 @@ const notVersioned = new s3.Bucket(this, 'id', {
 
 (() => {
   const versioned = false;
-//      ^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
+//      ^^^^^^^^^^^^^^^^^> {{Propagated setting}}
   const isNotVersioned = new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
     versioned: versioned, // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}

@@ -1,0 +1,23 @@
+{
+  "title": "No array index for keys in JSX list components",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "jsx",
+    "performance"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6479",
+  "sqKey": "S6479",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

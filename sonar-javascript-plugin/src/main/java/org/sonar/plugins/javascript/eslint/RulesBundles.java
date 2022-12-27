@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.api.RulesBundle;
@@ -41,17 +41,20 @@ public class RulesBundles {
 
   private static final Logger LOG = Loggers.get(RulesBundles.class);
 
-  private final List<URL> bundles;
+  private final List<URL> bundleUrls;
+  private final List<RulesBundle> bundles;
 
   /**
    * This constructor is used by pico container when no RulesBundle is provided on classpath
    */
   public RulesBundles() {
     this.bundles = Collections.emptyList();
+    this.bundleUrls = Collections.emptyList();
   }
 
   public RulesBundles(RulesBundle[] rulesBundles) {
-    bundles = Arrays.stream(rulesBundles)
+    bundles = List.of(rulesBundles);
+    bundleUrls = Arrays.stream(rulesBundles)
       .map(bundle -> {
         URL resource = bundle.getClass().getResource(bundle.bundlePath());
         if (resource == null) {
@@ -68,7 +71,7 @@ public class RulesBundles {
    */
   public List<Path> deploy(Path target) {
     List<Path> unpackedBundles = new ArrayList<>();
-    bundles.forEach(bundle -> {
+    bundleUrls.forEach(bundle -> {
       try {
         Path location = Files.createTempDirectory(target, "custom-rules");
         LOG.debug("Deploying custom rules bundle {} to {}", bundle, location);
@@ -85,6 +88,12 @@ public class RulesBundles {
       }
     });
     return unpackedBundles;
+  }
+
+  public Optional<RulesBundle> getUcfgRulesBundle() {
+    return bundles.stream()
+      .filter(bundle -> "ucfg".equals(bundle.bundleKey()))
+      .findAny();
   }
 
 }

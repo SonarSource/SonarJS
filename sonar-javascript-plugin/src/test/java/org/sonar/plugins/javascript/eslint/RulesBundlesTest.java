@@ -73,12 +73,48 @@ class RulesBundlesTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
   }
 
+  @Test
+  void test_get_ucfg_bundle() {
+    TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
+    TestUcfgRulesBundle ucfgRulesBundle = new TestUcfgRulesBundle("/test-bundle.tgz");
+
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    assertThat(rulesBundles.getUcfgRulesBundle()).isEmpty();
+
+    rulesBundles = new RulesBundles(new TestUcfgRulesBundle[]{ucfgRulesBundle});
+    assertThat(rulesBundles.getUcfgRulesBundle()).contains(ucfgRulesBundle);
+  }
+
   static class TestRulesBundle implements RulesBundle {
 
     final String bundle;
 
     TestRulesBundle(String bundle) {
       this.bundle = bundle;
+    }
+
+    @Override
+    public String bundlePath() {
+      return bundle;
+    }
+  }
+
+  static class TestUcfgRulesBundle implements RulesBundle {
+
+    final String bundle;
+
+    TestUcfgRulesBundle(String bundle) {
+      this.bundle = bundle;
+    }
+
+    @Override
+    public String bundleKey() {
+      return "ucfg";
+    }
+
+    @Override
+    public String bundleVersion() {
+      return "some_bundle_version";
     }
 
     @Override

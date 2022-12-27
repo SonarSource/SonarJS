@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isCallToFQN, getValueOfExpression } from './helpers';
+import { getValueOfExpression, getFullyQualifiedName } from './helpers';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 
@@ -35,7 +35,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression(node: estree.Node) {
         const callExpression = node as estree.CallExpression;
-        if (isCallToFQN(context, callExpression, 'crypto', 'createCipheriv')) {
+        if (getFullyQualifiedName(context, callExpression) === 'crypto.createCipheriv') {
           const algorithm = getValueOfExpression(context, callExpression.arguments[0], 'Literal');
           const algorithmValue = algorithm?.value?.toString().toLowerCase();
           if (

@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
+import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -52,16 +54,18 @@ public class AnalysisWithProgram {
   private final EslintBridgeServer eslintBridgeServer;
   private final Monitoring monitoring;
   private final AnalysisProcessor processAnalysis;
+  private final AnalysisWarningsWrapper analysisWarnings;
   private SensorContext context;
   private ContextUtils contextUtils;
   private AbstractChecks checks;
   private ProgressReport progressReport;
   private AnalysisMode analysisMode;
 
-  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis) {
+  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis, AnalysisWarningsWrapper analysisWarnings) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.monitoring = monitoring;
     this.processAnalysis = processAnalysis;
+    this.analysisWarnings = analysisWarnings;
   }
 
   void analyzeFiles(SensorContext context, AbstractChecks checks, List<InputFile> inputFiles) throws IOException {
@@ -69,7 +73,7 @@ public class AnalysisWithProgram {
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    var tsConfigs = new TsConfigProvider().tsconfigs(context);
+    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
@@ -81,8 +85,10 @@ public class AnalysisWithProgram {
       Set<String> analyzedProjects = new HashSet<>();
       Set<InputFile> analyzedFiles = new HashSet<>();
       while (!workList.isEmpty()) {
-        var tsConfig = workList.pop();
+        var tsConfig = Path.of(workList.pop()).toString();
+        // Use of path.of as it normalizes Unix and Windows paths. Otherwise, project references returned by typescript may not match system slash
         if (!analyzedProjects.add(tsConfig)) {
+          LOG.debug("tsconfig.json already analyzed: '{}'. Skipping it.", tsConfig);
           continue;
         }
         monitoring.startProgram(tsConfig);
@@ -94,6 +100,11 @@ public class AnalysisWithProgram {
           PROFILER.stopInfo();
           continue;
         }
+        if (program.missingTsConfig) {
+          String msg = "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+          LOG.warn(msg);
+          this.analysisWarnings.addUnique(msg);
+        }
         PROFILER.stopInfo();
         monitoring.stopProgram();
         analyzeProgram(program, analyzedFiles);
@@ -103,8 +114,8 @@ public class AnalysisWithProgram {
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
       if (!skippedFiles.isEmpty()) {
-        LOG.info("Skipped {} file(s) because they were not part of any tsconfig (enable debug logs to see the full list)", skippedFiles.size());
-        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig: {}", f));
+        LOG.info("Skipped {} file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)", skippedFiles.size());
+        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig.json: {}", f));
       }
       success = true;
     } finally {

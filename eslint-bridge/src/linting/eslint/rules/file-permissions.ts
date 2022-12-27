@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression, getUniqueWriteUsage, isCallToFQN } from './helpers';
+import {
+  isIdentifier,
+  isMemberExpression,
+  getUniqueWriteUsage,
+  getFullyQualifiedName,
+} from './helpers';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
@@ -129,7 +134,7 @@ export const rule: Rule.RuleModule = {
         if (isChmodLikeFunction(callExpression)) {
           checkModeArgument(callExpression.arguments[0], 0);
           checkModeArgument(callExpression.arguments[1], 0);
-        } else if (isCallToFQN(context, callExpression, 'process', 'umask')) {
+        } else if (getFullyQualifiedName(context, callExpression) === 'process.umask') {
           checkModeArgument(callExpression.arguments[0], 7);
         }
       },

@@ -206,7 +206,7 @@ public class Monitoring implements Startable {
 
     Metric(MetricType metricType, String executionId, boolean canSkipUnchangedFiles) {
       this.executionId = executionId;
-      pluginVersion = PluginUtils.getVersion();
+      pluginVersion = PluginInfo.getVersion();
       pluginBuild = ManifestUtils.getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build").get(0);
       this.metricType = metricType;
       this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));

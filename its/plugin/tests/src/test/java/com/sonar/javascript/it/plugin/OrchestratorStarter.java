@@ -49,6 +49,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
@@ -156,16 +157,15 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   static List<Issue> getIssues(String componentKey) {
-    return getIssues(componentKey, null);
+    return getIssues(ORCHESTRATOR, componentKey, null, null);
   }
 
-  static List<Issue> getIssues(String componentKey, String pullRequest) {
-    return getIssues(ORCHESTRATOR, componentKey, pullRequest);
-  }
-
-  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String pullRequest) {
+  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String branch, String pullRequest) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
     if (pullRequest != null) {
       request.setPullRequest(pullRequest);
     }

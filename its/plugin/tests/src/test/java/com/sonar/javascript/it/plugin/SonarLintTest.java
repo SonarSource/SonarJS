@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -132,10 +133,30 @@ class SonarLintTest {
   }
 
   @Test
-  void should_not_analyze_ts_project_without_config() throws Exception {
-    List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
-    assertThat(issues).isEmpty();
-    assertThat(logs).contains("No tsconfig.json file found, analysis will be skipped.");
+  void should_analyze_css() throws IOException {
+    String fileName = "file.css";
+    Path filePath = TestUtils.projectDir("css-sonarlint-project").toPath().resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
+  }
+
+  @Test
+  void should_analyze_js_with_typed_rules() throws IOException {
+    String fileName;
+    String content;
+    List<Issue> issues;
+
+    fileName = "file.js";
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+
+    fileName = "file.vue";
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    issues = analyze(fileName, content);
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
   }
 
   @Test
@@ -203,8 +224,9 @@ class SonarLintTest {
   }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
-    ClientInputFile inputFile = sonarLintInputFile(baseDir.resolve(filePath), sourceCode);
-
+    Path path = baseDir.resolve(filePath);
+    Files.writeString(path, sourceCode, StandardCharsets.UTF_8);
+    ClientInputFile inputFile = sonarLintInputFile(path, sourceCode);
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),
@@ -228,6 +250,7 @@ class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
+      .addEnabledLanguage(Language.CSS)
       .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)

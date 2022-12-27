@@ -19,6 +19,7 @@
  */
 
 import fs from 'fs/promises';
+import path from 'path';
 
 /**
  * Byte Order Marker
@@ -65,4 +66,29 @@ export function stripBOM(str: string) {
     return str.slice(1);
   }
   return str;
+}
+/**
+ * Converts a path to Unix format
+ * @param path the path to convert
+ * @returns the converted path
+ */
+export function toUnixPath(path: string) {
+  return path.replace(/[\\/]+/g, '/').replace(/(\.\/)/, '');
+}
+
+/**
+ * Adds tsconfig.json to a path if it does not exist
+ *
+ * @param tsConfig
+ */
+export async function addTsConfigIfDirectory(tsConfig: string) {
+  try {
+    if ((await fs.lstat(tsConfig)).isDirectory()) {
+      return path.join(tsConfig, 'tsconfig.json');
+    }
+
+    return tsConfig;
+  } catch {
+    return null;
+  }
 }

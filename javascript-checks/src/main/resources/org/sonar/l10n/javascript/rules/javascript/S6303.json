@@ -1,5 +1,5 @@
 {
-  "title": "Using unencrypted RDS databases is security-sensitive",
+  "title": "Using unencrypted RDS DB resources is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {

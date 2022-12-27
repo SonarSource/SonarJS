@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CallExpression, Literal, NewExpression, Node } from 'estree';
+import { CallExpression, NewExpression, Node } from 'estree';
 import { Rule } from 'eslint';
-import { AwsCdkTemplate } from './cdk';
+import { AwsCdkTemplate, normalizeFQN } from './cdk';
 import { SONAR_RUNTIME } from '../../../linter/parameters';
 import { getResultOfExpression, Result } from '../result';
-import { flattenArgs, isStringLiteral } from '../ast';
+import { flattenArgs, isStringLiteral, StringLiteral } from '../ast';
 import { getFullyQualifiedName } from '../module';
-
-export type StringLiteral = Literal & { value: string };
 
 export interface PolicyCheckerOptions {
   effect: {
@@ -140,7 +138,7 @@ export function getSensitiveEffect(
   const effect = properties.getProperty(options.effect.property);
   return effect.filter(node => {
     if (options.effect.type === 'FullyQualifiedName') {
-      const fullyQualifiedName = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
+      const fullyQualifiedName = normalizeFQN(getFullyQualifiedName(ctx, node));
       return fullyQualifiedName === options.effect.allowValue;
     } else {
       return isStringLiteral(node) && node.value === options.effect.allowValue;

@@ -21,19 +21,18 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { toEncodedMessage } from './helpers';
+import { StringLiteral, toEncodedMessage } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
 import {
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-  StringLiteral,
 } from './helpers/aws/iam';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
-  secondary: 'Related effect.',
+  secondary: 'Related effect',
 };
 
 const KMS_PREFIX = 'kms:';

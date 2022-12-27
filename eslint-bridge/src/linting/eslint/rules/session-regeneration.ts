@@ -25,9 +25,9 @@ import { childrenOf } from 'linting/eslint';
 import {
   isIdentifier,
   getPropertyWithValue,
-  isCallToFQN,
   last,
   getValueOfExpression,
+  getFullyQualifiedName,
 } from './helpers';
 
 export const rule: Rule.RuleModule = {
@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        if (isCallToFQN(context, callExpression, 'passport', 'authenticate')) {
+        if (getFullyQualifiedName(context, callExpression) === 'passport.authenticate') {
           if (hasSessionFalseOption(callExpression)) {
             return;
           }

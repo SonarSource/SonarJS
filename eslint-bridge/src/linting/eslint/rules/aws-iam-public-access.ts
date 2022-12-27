@@ -25,6 +25,7 @@ import {
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
+  StringLiteral,
   toEncodedMessage,
 } from './helpers';
 import { getResultOfExpression, Result } from './helpers/result';
@@ -33,8 +34,8 @@ import {
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-  StringLiteral,
 } from './helpers/aws/iam';
+import { normalizeFQN } from './helpers/aws/cdk';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -42,7 +43,7 @@ const ARN_PRINCIPAL = 'aws_cdk_lib.aws_iam.ArnPrincipal';
 
 const MESSAGES = {
   message: 'Make sure granting public access is safe here.',
-  secondary: 'Related effect.',
+  secondary: 'Related effect',
 };
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(publicAccessStatementChecker);
@@ -118,10 +119,11 @@ function isSensitivePrincipalNewExpression(
   options: PolicyCheckerOptions,
 ) {
   return (options.principals.anyValues ?? []).some(anyValue => {
-    if (anyValue === ARN_PRINCIPAL && isStringLiteral(newExpression.arguments[0])) {
-      return isAnyLiteral(newExpression.arguments[0]);
+    if (anyValue === ARN_PRINCIPAL) {
+      const argument = newExpression.arguments[0];
+      return isStringLiteral(argument) && isAnyLiteral(argument);
     } else {
-      return anyValue === getFullyQualifiedName(ctx, newExpression.callee)?.replace(/-/g, '_');
+      return anyValue === normalizeFQN(getFullyQualifiedName(ctx, newExpression.callee));
     }
   });
 }

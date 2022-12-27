@@ -1,0 +1,28 @@
+<p>React expects a unique identifier for performance optimizations. An array index is not a stable identifier most of the time. This results in
+unnecessary renders when the array items change index following some mutation. When components have state, this might also provoke bugs that are hard
+to diagnose.</p>
+<p>We recommend using an explicit identifier to avoid misuse and accidental re-renders. If there is no unique attribute available, consider
+concatenating existing properties - hashing them if necessary - or creating a dedicated unique identifier.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function generateButtons(props) {
+  return props.buttons.map((button, index) =&gt; {
+    &lt;Button key={index}&gt;{button.number}&lt;/Button&gt;
+  });
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function generateButtons(props) {
+  return props.buttons.map((button, index) =&gt; {
+    &lt;Button key={button.number}&gt;{button.number}&lt;/Button&gt;
+  });
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
+  <li> {rule:javascript:S6477} </li>
+  <li> {rule:javascript:S6486} </li>
+</ul>
+

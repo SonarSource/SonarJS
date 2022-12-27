@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getModuleNameOfNode, isCallToFQN, getObjectExpressionProperty } from './helpers';
+import { Express, getObjectExpressionProperty, getFullyQualifiedName } from './helpers';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -56,15 +56,8 @@ function findDirectivesWithMissingMixedContentPropertyFromHelmet(
 }
 
 function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.CallExpression) {
-  const { callee } = callExpr;
-
-  /* csp(options) */
-  if (callee.type === 'Identifier' && getModuleNameOfNode(context, callee)?.value === HELMET_CSP) {
-    return true;
-  }
-
-  /* helmet.contentSecurityPolicy(options) */
-  return isCallToFQN(context, callExpr, HELMET, CONTENT_SECURITY_POLICY);
+  const fqn = getFullyQualifiedName(context, callExpr);
+  return fqn === `${HELMET}.${CONTENT_SECURITY_POLICY}` || fqn === HELMET_CSP;
 }
 
 function isMissingMixedContentProperty(directives: estree.Property): boolean {

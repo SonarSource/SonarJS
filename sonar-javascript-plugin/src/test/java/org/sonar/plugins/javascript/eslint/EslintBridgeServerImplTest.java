@@ -20,12 +20,14 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
@@ -61,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
@@ -221,13 +224,23 @@ class EslintBridgeServerImplTest {
     // values from 'startServer.js'
     assertThat(programCreated.programId).isEqualTo("42");
     assertThat(programCreated.projectReferences).isEmpty();
-    assertThat(programCreated.files.size()).isEqualTo(3);
+    assertThat(programCreated.files).hasSize(3);
 
     JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
       null, true, null, programCreated.programId, DEFAULT_LINTER_ID);
     assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
 
     assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
+  }
+
+  @Test
+  void should_create_tsconfig_files() throws IOException {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    var tsConfig = eslintBridgeServer.createTsConfigFile("/path/to/project");
+    assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
   }
 
   @Test
@@ -413,9 +426,9 @@ class EslintBridgeServerImplTest {
     assertThat(tsConfigResponse.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
     assertThat(tsConfigResponse.error).isNull();
 
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
-    assertThat(tsConfigFile.filename).isEqualTo(tsconfig);
+    var tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
+    assertThat(tsConfigFile.getFiles()).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigFile.getFilename()).isEqualTo(tsconfig);
   }
 
   @Test
@@ -434,8 +447,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
     assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
+    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.getFiles()).isEmpty();
   }
 
   @Test
@@ -444,8 +457,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
+    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.getFiles()).isEmpty();
     assertThat(logTester.logs(ERROR)).contains("Other error");
   }
 
@@ -549,6 +562,20 @@ class EslintBridgeServerImplTest {
       .map(m -> ((Monitoring.RuleMetric) m).ruleKey)
       .collect(Collectors.toList());
     assertThat(rules).containsExactly("no-commented-code", "arguments-order", "deprecation");
+  }
+
+  @Test
+  void test_ucfg_bundle_version() throws Exception {
+    RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle("/test-bundle.tgz");
+
+    RulesBundles rulesBundles = mock(RulesBundles.class);
+    when(rulesBundles.getUcfgRulesBundle()).thenReturn(Optional.of(ucfgRulesBundle));
+
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS,
+      new TestBundle(START_SERVER_SCRIPT), rulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer.startServerLazily(context);
+
+    assertThat(logTester.logs(DEBUG)).contains("Security Frontend version is available: [some_bundle_version]");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

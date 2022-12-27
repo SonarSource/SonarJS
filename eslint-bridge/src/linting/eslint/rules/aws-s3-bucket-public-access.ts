@@ -23,12 +23,13 @@ import { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 import {
+  getFullyQualifiedName,
   getValueOfExpression,
-  hasFullyQualifiedName,
   isIdentifier,
   isProperty,
   toEncodedMessage,
 } from './helpers';
+import { normalizeFQN } from './helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from './helpers/aws/s3';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
@@ -68,13 +69,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       );
       if (
         blockPublicAccessMember !== undefined &&
-        hasFullyQualifiedName(
-          context,
-          blockPublicAccessMember,
-          'aws-cdk-lib/aws-s3',
-          'BlockPublicAccess',
-          'BLOCK_ACLS',
-        )
+        normalizeFQN(getFullyQualifiedName(context, blockPublicAccessMember)) ===
+          'aws_cdk_lib.aws_s3.BlockPublicAccess.BLOCK_ACLS'
       ) {
         const propagated = findPropagatedSetting(blockPublicAccess, blockPublicAccessMember);
         context.report({
@@ -145,7 +141,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       function isS3BlockPublicAccessConstructor(expr: NewExpression) {
         return (
           expr.callee.type === 'MemberExpression' &&
-          hasFullyQualifiedName(context, expr.callee, 'aws-cdk-lib/aws-s3', 'BlockPublicAccess')
+          normalizeFQN(getFullyQualifiedName(context, expr.callee)) ===
+            'aws_cdk_lib.aws_s3.BlockPublicAccess'
         );
       }
     }

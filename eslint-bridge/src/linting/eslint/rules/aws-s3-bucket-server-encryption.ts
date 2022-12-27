@@ -22,7 +22,8 @@
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import { getValueOfExpression, hasFullyQualifiedName, toEncodedMessage } from './helpers';
+import { getFullyQualifiedName, getValueOfExpression, toEncodedMessage } from './helpers';
+import { normalizeFQN } from './helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from './helpers/aws/s3';
 
 const ENCRYPTED_KEY = 'encryption';
@@ -61,12 +62,9 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
     }
 
     function isUnencrypted(encrypted: MemberExpression) {
-      return hasFullyQualifiedName(
-        context,
-        encrypted,
-        'aws-cdk-lib/aws-s3',
-        'BucketEncryption',
-        'UNENCRYPTED',
+      return (
+        normalizeFQN(getFullyQualifiedName(context, encrypted)) ===
+        'aws_cdk_lib.aws_s3.BucketEncryption.UNENCRYPTED'
       );
     }
   },

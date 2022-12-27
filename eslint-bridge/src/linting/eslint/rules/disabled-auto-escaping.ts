@@ -26,10 +26,9 @@ import {
   getValueOfExpression,
   isRequiredParserServices,
   resolveFromFunctionReference,
-  isCallToFQN,
   checkSensitiveCall,
-  getModuleNameOfNode,
   toEncodedMessage,
+  getFullyQualifiedName,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
@@ -104,25 +103,20 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        if (isCallToFQN(context, callExpression, 'handlebars', 'compile')) {
+        const fqn = getFullyQualifiedName(context, callExpression);
+        if (fqn === 'handlebars.compile') {
           checkSensitiveCall(context, callExpression, 1, 'noEscape', true, MESSAGE);
         }
-        if (isCallToFQN(context, callExpression, 'marked', 'setOptions')) {
+        if (fqn === 'marked.setOptions') {
           checkSensitiveCall(context, callExpression, 0, 'sanitize', false, MESSAGE);
         }
-        const calleeModule = getModuleNameOfNode(context, callExpression.callee);
-        if (calleeModule?.value === 'markdown-it') {
+        if (fqn === 'markdown-it') {
           checkSensitiveCall(context, callExpression, 0, 'html', true, MESSAGE);
         }
       },
       NewExpression: (node: estree.Node) => {
         const newExpression = node as estree.NewExpression;
-        const { callee } = newExpression;
-        if (callee.type !== 'MemberExpression') {
-          return;
-        }
-        const module = getModuleNameOfNode(context, callee.object);
-        if (module?.value === 'kramed' && isIdentifier(callee.property, 'Renderer')) {
+        if (getFullyQualifiedName(context, newExpression) === 'kramed.Renderer') {
           checkSensitiveCall(context, newExpression, 0, 'sanitize', false, MESSAGE);
         }
       },
@@ -134,8 +128,8 @@ export const rule: Rule.RuleModule = {
         }
         if (
           !(
-            (isMustacheModule(context, left.object) || isMustacheIdentifier(left.object)) &&
-            isIdentifier(left.property, 'escape')
+            getFullyQualifiedName(context, left) === 'mustache.escape' ||
+            (isMustacheIdentifier(left.object) && isIdentifier(left.property, 'escape'))
           )
         ) {
           return;
@@ -152,10 +146,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isMustacheIdentifier(node: estree.Node) {
-  return isIdentifier(node) && node.name === 'Mustache';
-}
-
-function isMustacheModule(context: Rule.RuleContext, node: estree.Node) {
-  const module = getModuleNameOfNode(context, node);
-  return module?.value === 'mustache';
+  return isIdentifier(node, 'Mustache');
 }

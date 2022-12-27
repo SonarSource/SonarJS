@@ -20,73 +20,29 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6308/javascript
 
 import { Rule } from 'eslint';
-import { AwsCdkTemplate } from './helpers/aws/cdk';
-import { NewExpression, Node } from 'estree';
-import { getFullyQualifiedName, isUndefined } from './helpers';
-import { getResultOfExpression } from './helpers/result';
-
-const QUEUE_PROPS_POSITION = 2;
-
-interface QueueCheckerOptions {
-  encryptionProperty: string;
-  hasUnencryptedValue: boolean;
-}
+import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
-    'aws-cdk-lib.aws-sqs.Queue': queueChecker({
-      encryptionProperty: 'encryption',
-      hasUnencryptedValue: true,
-    }),
-    'aws-cdk-lib.aws-sqs.CfnQueue': queueChecker({
-      encryptionProperty: 'kmsMasterKeyId',
-      hasUnencryptedValue: false,
-    }),
+    'aws-cdk-lib.aws-sqs.Queue': AwsCdkCheckArguments(
+      ['OmittedQueue', 'DisabledQueue'],
+      true,
+      'encryption',
+      { fqns: { invalid: ['aws-cdk-lib.aws-sqs.QueueEncryption.UNENCRYPTED'] } },
+    ),
+    'aws-cdk-lib.aws-sqs.CfnQueue': AwsCdkCheckArguments('CfnQueue', true, 'kmsMasterKeyId'),
   },
   {
     meta: {
       messages: {
-        encryptionDisabled:
-          'Setting {{encryptionProperty}} to QueueEncryption.UNENCRYPTED disables SQS queues encryption. ' +
+        CfnQueue:
+          'Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.',
+        OmittedQueue:
+          'Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.',
+        DisabledQueue:
+          'Setting "encryption" to "QueueEncryption.UNENCRYPTED" disables SQS queues encryption.' +
           'Make sure it is safe here.',
-        encryptionOmitted:
-          'Omitting {{encryptionProperty}} disables SQS queues encryption. Make sure it is safe here.',
       },
     },
   },
 );
-
-function queueChecker(options: QueueCheckerOptions) {
-  return (expr: NewExpression, ctx: Rule.RuleContext) => {
-    const result = getResultOfExpression(ctx, expr);
-    const argument = result.getArgument(QUEUE_PROPS_POSITION);
-    const encryptionProperty = argument.getProperty(options.encryptionProperty);
-
-    if (encryptionProperty.isMissing) {
-      ctx.report({
-        messageId: 'encryptionOmitted',
-        node: encryptionProperty.node,
-        data: {
-          encryptionProperty: options.encryptionProperty,
-        },
-      });
-    } else if (encryptionProperty.isFound && isUnencrypted(encryptionProperty.node, options)) {
-      ctx.report({
-        messageId: 'encryptionDisabled',
-        node: encryptionProperty.node,
-        data: {
-          encryptionProperty: options.encryptionProperty,
-        },
-      });
-    }
-
-    function isUnencrypted(node: Node, options: QueueCheckerOptions) {
-      if (options.hasUnencryptedValue) {
-        const fqn = getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
-        return fqn === 'aws_cdk_lib.aws_sqs.QueueEncryption.UNENCRYPTED';
-      } else {
-        return !options.hasUnencryptedValue && isUndefined(node);
-      }
-    }
-  };
-}

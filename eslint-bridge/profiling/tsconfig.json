@@ -1,0 +1,22 @@
+{
+  "extends": "../src/tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["../src/*"]
+    },
+  },
+  "references": [
+    {
+      "path": "../src/tsconfig.json"
+    }
+  ],
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  }
+}

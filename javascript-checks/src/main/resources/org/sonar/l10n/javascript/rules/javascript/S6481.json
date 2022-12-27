@@ -1,0 +1,23 @@
+{
+  "title": "React Context Provider values should not have non-stable identities",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "jsx",
+    "performance"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6481",
+  "sqKey": "S6481",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

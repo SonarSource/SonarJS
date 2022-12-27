@@ -22,10 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfNode,
-  isCallToFQN,
   getObjectExpressionProperty,
   getValueOfExpression,
+  getFullyQualifiedName,
 } from './helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
@@ -117,7 +116,7 @@ export const rule: Rule.RuleModule = {
         collectIdentifiersFromBinary(node.right, acc);
       } else if (
         node.type === 'MemberExpression' &&
-        getModuleNameOfNode(context, node.object)?.value === 'constants' &&
+        getFullyQualifiedName(context, node.object) === 'constants' &&
         node.property.type === 'Identifier'
       ) {
         acc.push(node.property.name);
@@ -130,23 +129,24 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
+        const fqn = getFullyQualifiedName(context, callExpression);
         // https://nodejs.org/api/https.html#https_https_get_options_callback
-        if (isCallToFQN(context, callExpression, 'https', 'request')) {
+        if (fqn === 'https.request') {
           checkSslOptions(callExpression.arguments[0]);
           checkSslOptions(callExpression.arguments[1]);
         }
         // https://github.com/request/request#tlsssl-protocol
-        if (isCallToFQN(context, callExpression, 'request', 'get')) {
+        if (fqn === 'request.get') {
           checkSslOptions(callExpression.arguments[0]);
         }
         // https://nodejs.org/api/tls.html#tls_tls_connect_options_callback
-        if (isCallToFQN(context, callExpression, 'tls', 'connect')) {
+        if (fqn === 'tls.connect') {
           checkSslOptions(callExpression.arguments[0]);
           checkSslOptions(callExpression.arguments[1]);
           checkSslOptions(callExpression.arguments[2]);
         }
         // https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options
-        if (isCallToFQN(context, callExpression, 'tls', 'createSecureContext')) {
+        if (fqn === 'tls.createSecureContext') {
           checkSslOptions(callExpression.arguments[0]);
         }
       },

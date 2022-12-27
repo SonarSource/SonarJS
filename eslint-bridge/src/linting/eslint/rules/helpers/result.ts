@@ -22,11 +22,12 @@ import {
   getProperty,
   getUniqueWriteUsageOrNode,
   isArrayExpression,
+  isBooleanLiteral,
   isStringLiteral,
   isUndefined,
+  StringLiteral,
 } from './ast';
 import { Rule } from 'eslint';
-import { StringLiteral } from './aws/iam';
 
 export class Result {
   constructor(
@@ -41,6 +42,14 @@ export class Result {
 
   get isMissing() {
     return this.status === 'missing';
+  }
+
+  get isTrue() {
+    return this.isFound && isBooleanLiteral(this.node) && this.node.value;
+  }
+
+  ofType(type: Node['type']) {
+    return this.isFound && this.node.type === type;
   }
 
   getArgument(position: number): Result {
@@ -75,22 +84,48 @@ export class Result {
     }
   }
 
+  getMemberObject(): Result {
+    if (!this.isFound) {
+      return this;
+    } else if (this.node.type !== 'MemberExpression') {
+      return unknown(this.ctx, this.node);
+    } else {
+      return getResultOfExpression(this.ctx, this.node.object).filter(n => n.type !== 'Super');
+    }
+  }
+
+  findInArray(closure: (item: Result) => Result | null | undefined) {
+    if (!this.isFound) {
+      return this;
+    } else if (!isArrayExpression(this.node)) {
+      return unknown(this.ctx, this.node);
+    }
+
+    let isMissing = true;
+
+    for (const element of this.node.elements) {
+      const result = element != null ? closure(getResultOfExpression(this.ctx, element)) : null;
+      if (result?.isFound) {
+        return result;
+      }
+      isMissing &&= result?.isMissing ?? true;
+    }
+
+    return isMissing ? missing(this.ctx, this.node) : unknown(this.ctx, this.node);
+  }
+
   everyStringLiteral(closure: (item: StringLiteral) => boolean) {
     if (!this.isFound) {
       return false;
     } else if (isStringLiteral(this.node)) {
       return closure(this.node);
-    } else if (this.node.type !== 'ArrayExpression') {
+    } else if (!isArrayExpression(this.node)) {
       return false;
     }
 
     for (const element of this.node.elements) {
-      if (element == null || element.type === 'SpreadElement') {
-        return false;
-      }
-
-      const child = getResultOfExpression(this.ctx, element);
-      if (!child.isFound || !isStringLiteral(child.node) || !closure(child.node)) {
+      const child = element == null ? null : getResultOfExpression(this.ctx, element);
+      if (!child?.isFound || !isStringLiteral(child.node) || !closure(child.node)) {
         return false;
       }
     }
@@ -123,11 +158,11 @@ export class Result {
     return !this.isFound ? null : closure(this.node as N);
   }
 
-  filter<N extends Node>(closure: (node: N) => boolean): Result {
+  filter<N extends Node>(closure: (node: N, ctx: Rule.RuleContext) => boolean): Result {
     if (!this.isFound) {
       return this;
     }
-    return !closure(this.node as N) ? unknown(this.ctx, this.node) : this;
+    return !closure(this.node as N, this.ctx) ? unknown(this.ctx, this.node) : this;
   }
 }
 
@@ -144,10 +179,6 @@ function found(ctx: Rule.RuleContext, node: Node): Result {
 }
 
 export function getResultOfExpression(ctx: Rule.RuleContext, node: Node): Result {
-  if (isUndefined(node)) {
-    return missing(ctx, node);
-  } else {
-    const value = getUniqueWriteUsageOrNode(ctx, node);
-    return value === node ? found(ctx, node) : getResultOfExpression(ctx, value);
-  }
+  const value = getUniqueWriteUsageOrNode(ctx, node, true);
+  return isUndefined(value) ? missing(ctx, value) : found(ctx, value);
 }

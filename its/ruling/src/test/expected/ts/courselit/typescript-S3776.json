@@ -2,10 +2,4 @@
 'courselit:apps/web/components/admin/courses/course-editor/index.tsx':[
 123,
 ],
-'courselit:apps/web/components/admin/settings.tsx':[
-100,
-],
-'courselit:apps/web/pages/profile/[id].tsx':[
-26,
-],
 }

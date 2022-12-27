@@ -8,41 +8,40 @@ class S6330NonCompliantStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue1 = new Queue(this, 'UnencryptedQueue1'); // Noncompliant {{Omitting encryption disables SQS queues encryption. Make sure it is safe here.}}
-//                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    const queue2 = new Queue(this, 'UnencryptedQueue2', {}); // Noncompliant {{Omitting encryption disables SQS queues encryption. Make sure it is safe here.}}
+    const queue1 = new Queue(this, 'UnencryptedQueue1'); // Noncompliant {{Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.}}
+//                     ^^^^^
+    const queue2 = new Queue(this, 'UnencryptedQueue2', {}); // Noncompliant {{Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.}}
 //                                                      ^^
-    const queue3 = new Queue(this, 'UnencryptedQueue3', undefined); // Noncompliant {{Omitting encryption disables SQS queues encryption. Make sure it is safe here.}}
-//                                                      ^^^^^^^^^
+    const queue3 = new Queue(this, 'UnencryptedQueue3', undefined); // Noncompliant {{Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.}}
+//                     ^^^^^
     const queue4 = new Queue(this, 'UnencryptedQueue5', {
-      encryption: undefined // Noncompliant {{Omitting encryption disables SQS queues encryption. Make sure it is safe here.}}
+      encryption: undefined // Noncompliant {{Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.}}
 //                ^^^^^^^^^
     });
     const queue5 = new Queue(this, 'UnencryptedQueue4', {
-      encryption: QueueEncryption.UNENCRYPTED // Noncompliant {{Setting encryption to QueueEncryption.UNENCRYPTED disables SQS queues encryption. Make sure it is safe here.})
+      encryption: QueueEncryption.UNENCRYPTED // Noncompliant {{Setting "encryption" to QueueEncryption.UNENCRYPTED disables SQS queues encryption. Make sure it is safe here.})
 //                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     });
 
-    const cfnQueue1 = new CfnQueue(this, 'UnencryptedCfnQueue1'); // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
-//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    const cfnQueue2 = new CfnQueue(this, 'UnencryptedCfnQueue2', {}); // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
+    const cfnQueue1 = new CfnQueue(this, 'UnencryptedCfnQueue1'); // Noncompliant {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
+//                        ^^^^^^^^
+    const cfnQueue2 = new CfnQueue(this, 'UnencryptedCfnQueue2', {}); // Noncompliant {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
 //                                                               ^^
-    const cfnQueue3 = new CfnQueue(this, 'UnencryptedCfnQueue3', undefined); // Noncompliant  {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
-//                                                               ^^^^^^^^^
+    const cfnQueue3 = new CfnQueue(this, 'UnencryptedCfnQueue3', undefined); // Noncompliant  {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
+//                        ^^^^^^^^
     const cfnQueue4 = new CfnQueue(this, 'UnencryptedCfnQueue4', {
-      kmsMasterKeyId: undefined // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
+      kmsMasterKeyId: undefined // Noncompliant {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
 //                    ^^^^^^^^^
     });
 
     const props1 = {
-      kmsMasterKeyId: undefined // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
-//                    ^^^^^^^^^
+      kmsMasterKeyId: undefined
     };
-    const cfnQueue5 = new CfnQueue(this, 'UnencryptedCfnQueue4', { ...props1 });
-
-    const props2 = undefined; // Noncompliant {{Omitting kmsMasterKeyId disables SQS queues encryption. Make sure it is safe here.}}
-//                 ^^^^^^^^^
-    const cfnQueue6 = new CfnQueue(this, 'UnencryptedCfnQueue4', props2);
+    const cfnQueue5 = new CfnQueue(this, 'UnencryptedCfnQueue4', { ...props1 }); // Noncompliant {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
+//                                                               ^^^^^^^^^^^^^
+    const props2 = undefined;
+    const cfnQueue6 = new CfnQueue(this, 'UnencryptedCfnQueue4', props2); // Noncompliant {{Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
+//                                                               ^^^^^^
   }
 }
 

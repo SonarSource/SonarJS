@@ -1,0 +1,23 @@
+{
+  "title": "Disallow `.bind()` and arrow functions in JSX props",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "jsx",
+    "performance"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6480",
+  "sqKey": "S6480",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

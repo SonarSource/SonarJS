@@ -19,8 +19,9 @@
  */
 import * as ts from 'typescript';
 import * as path from 'path';
-import { getFilesForTsConfig } from 'services/tsconfig';
-import { toUnixPath } from '../../tools';
+import { getFilesForTsConfig, writeTSConfigFile } from 'services/tsconfig';
+import { toUnixPath } from 'helpers';
+import * as fs from 'fs/promises';
 
 const defaultParseConfigHost: ts.ParseConfigHost = {
   useCaseSensitiveFileNames: true,
@@ -64,6 +65,14 @@ describe('getFilesForTsConfig', () => {
       expect.objectContaining({
         files: expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.vue'))]),
       }),
+    );
+  });
+
+  it('should write tsconfig file', async () => {
+    const { filename } = await writeTSConfigFile('/path/to/project');
+    const content = await fs.readFile(filename, { encoding: 'utf-8' });
+    expect(content).toBe(
+      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
     );
   });
 });

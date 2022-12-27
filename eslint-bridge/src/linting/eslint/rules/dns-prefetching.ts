@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { checkSensitiveCall, isCallToFQN, getModuleNameOfNode } from './helpers';
+import { checkSensitiveCall, getFullyQualifiedName } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
@@ -39,15 +39,14 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        const { callee } = callExpression;
-        if (isCallToFQN(context, callExpression, 'helmet', 'dnsPrefetchControl')) {
+        const fqn = getFullyQualifiedName(context, callExpression);
+        if (fqn === 'helmet.dnsPrefetchControl') {
           checkSensitiveCall(context, callExpression, 0, 'allow', true, MESSAGE);
         }
-        const calledModule = getModuleNameOfNode(context, callee);
-        if (calledModule?.value === 'helmet') {
+        if (fqn === 'helmet') {
           checkSensitiveCall(context, callExpression, 0, 'dnsPrefetchControl', false, MESSAGE);
         }
-        if (calledModule?.value === 'dns-prefetch-control') {
+        if (fqn === 'dns-prefetch-control') {
           checkSensitiveCall(context, callExpression, 0, 'allow', true, MESSAGE);
         }
       },

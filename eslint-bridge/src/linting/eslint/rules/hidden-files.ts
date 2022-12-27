@@ -21,11 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfIdentifier,
-  getUniqueWriteUsage,
-  getObjectExpressionProperty,
-} from './helpers';
+import { getUniqueWriteUsage, getObjectExpressionProperty, getFullyQualifiedName } from './helpers';
 
 const SERVE_STATIC = 'serve-static';
 
@@ -38,14 +34,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
-        const { callee, arguments: args } = node as estree.CallExpression;
-        if (callee.type !== 'Identifier') {
-          return;
-        }
-
         // serveStatic(...)
-        const module = getModuleNameOfIdentifier(context, callee);
-        if (module?.value === SERVE_STATIC && args.length > 1) {
+        const { callee, arguments: args } = node as estree.CallExpression;
+        if (getFullyQualifiedName(context, callee) === SERVE_STATIC && args.length > 1) {
           let options: estree.Node | undefined = args[1];
           if (options.type === 'Identifier') {
             options = getUniqueWriteUsage(context, options.name);
