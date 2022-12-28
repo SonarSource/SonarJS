@@ -5,7 +5,7 @@ module.exports = {
   name: "SonarJS linter helper functions",
   out: "./docs",
   searchInComments: true,
-  plugin: ["sonarjs-typedoc-plugin"],
+  plugin: ["searchable-parameters-plugin"],
   readme: "./main.md",
   tsconfig: "../src/tsconfig.json",
   json: "models/reflections.json",

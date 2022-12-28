@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const linkPath = path.join(__dirname, '..', '..', 'node_modules', 'sonarjs-typedoc-plugin');
+const linkPath = path.join(__dirname, '..', '..', 'node_modules', 'searchable-parameters-plugin');
 const targetPath = path.join(__dirname);
 
 fs.symlinkSync(targetPath, linkPath);

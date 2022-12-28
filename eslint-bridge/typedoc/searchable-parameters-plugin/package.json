@@ -1,0 +1,15 @@
+{
+  "name": "searchable-parameters-plugin",
+  "version": "1.0.0",
+  "description": "Plugin for Typedoc that makes functions searchable by parameter types",
+  "main": "index.js",
+  "scripts": {
+    "setup": "node setup.js"
+  },
+  "keywords": ["typedoc-plugin"],
+  "author": "Ilia Kebets",
+  "license": "LGPL-3.0",
+  "dependencies": {
+    "typedoc": "^0.23.18"
+  }
+}
