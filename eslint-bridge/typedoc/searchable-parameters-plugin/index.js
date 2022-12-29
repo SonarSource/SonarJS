@@ -20,10 +20,22 @@ module.exports.load = function load(app) {
     });
 }
 
+/**
+ * Initialises object[propName] to ''
+ *
+ * @param {*} object
+ * @param {*} propName
+ */
 function initPropIfNeeded(object, propName) {
     if (! object[propName]) object[propName] = '';
 }
 
+/**
+ * Removes the last 2 characters ", " from object[propName]
+ *
+ * @param {*} object
+ * @param {*} propName
+ */
 function cleanupIfNeeded(object, propName) {
     if (object[propName]?.length > 0) {
         object[propName] = object[propName].slice(0,-2);
