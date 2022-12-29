@@ -23,7 +23,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/chai.ts",
 							"line": 40,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L40"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L40"
 						}
 					],
 					"signatures": [
@@ -66,7 +66,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/chai.ts",
 							"line": 32,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L32"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L32"
 						}
 					],
 					"signatures": [
@@ -113,7 +113,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/chai.ts",
 					"line": 31,
 					"character": 17,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L31"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/chai.ts#L31"
 				}
 			]
 		},
@@ -143,7 +143,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/express.ts",
 							"line": 132,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L132"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L132"
 						}
 					],
 					"signatures": [
@@ -200,7 +200,7 @@
 													"fileName": "src/linting/eslint/rules/helpers/express.ts",
 													"line": 133,
 													"character": 29,
-													"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L133"
+													"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L133"
 												}
 											],
 											"signatures": [
@@ -292,7 +292,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/express.ts",
 							"line": 59,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L59"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L59"
 						}
 					],
 					"signatures": [
@@ -383,7 +383,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/express.ts",
 							"line": 43,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L43"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L43"
 						}
 					],
 					"signatures": [
@@ -474,7 +474,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/express.ts",
 							"line": 102,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L102"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L102"
 						}
 					],
 					"signatures": [
@@ -568,7 +568,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/express.ts",
 							"line": 85,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L85"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L85"
 						}
 					],
 					"signatures": [
@@ -661,7 +661,7 @@
 													"fileName": "src/linting/eslint/rules/helpers/express.ts",
 													"line": 89,
 													"character": 29,
-													"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L89"
+													"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L89"
 												}
 											],
 											"signatures": [
@@ -721,7 +721,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/express.ts",
 					"line": 36,
 					"character": 17,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L36"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/express.ts#L36"
 				}
 			]
 		},
@@ -750,7 +750,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 									"line": 37,
 									"character": 4,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L37"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L37"
 								}
 							],
 							"type": {
@@ -771,7 +771,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 									"line": 36,
 									"character": 4,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L36"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L36"
 								}
 							],
 							"type": {
@@ -796,7 +796,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 							"line": 35,
 							"character": 19,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L35"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L35"
 						}
 					]
 				},
@@ -811,7 +811,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 							"line": 55,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L55"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L55"
 						}
 					],
 					"signatures": [
@@ -864,7 +864,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 							"line": 66,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L66"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L66"
 						}
 					],
 					"signatures": [
@@ -907,7 +907,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 							"line": 40,
 							"character": 18,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L40"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L40"
 						}
 					],
 					"signatures": [
@@ -976,7 +976,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/mocha.ts",
 					"line": 23,
 					"character": 17,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L23"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/mocha.ts#L23"
 				}
 			]
 		},
@@ -998,7 +998,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 57,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L57"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L57"
 						}
 					],
 					"signatures": [
@@ -1050,7 +1050,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 66,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L66"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L66"
 						}
 					],
 					"type": {
@@ -1088,7 +1088,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 74,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L74"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L74"
 						}
 					],
 					"type": {
@@ -1126,7 +1126,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 70,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L70"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L70"
 						}
 					],
 					"type": {
@@ -1164,7 +1164,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 78,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L78"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L78"
 						}
 					],
 					"type": {
@@ -1197,7 +1197,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 83,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L83"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L83"
 						}
 					],
 					"type": {
@@ -1226,7 +1226,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 61,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L61"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L61"
 						}
 					],
 					"type": {
@@ -1247,7 +1247,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 85,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L85"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L85"
 						}
 					],
 					"signatures": [
@@ -1289,7 +1289,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 98,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L98"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L98"
 						}
 					],
 					"signatures": [
@@ -1364,7 +1364,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 					"line": 56,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L56"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L56"
 				}
 			]
 		},
@@ -1386,7 +1386,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 56,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L56"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L56"
 						}
 					],
 					"signatures": [
@@ -1430,7 +1430,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 62,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L62"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L62"
 						}
 					],
 					"type": {
@@ -1465,7 +1465,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 64,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L64"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L64"
 						}
 					],
 					"type": {
@@ -1508,7 +1508,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 69,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L69"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L69"
 						}
 					],
 					"type": {
@@ -1538,7 +1538,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 60,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L60"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L60"
 						}
 					],
 					"type": {
@@ -1559,7 +1559,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 71,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L71"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L71"
 						}
 					],
 					"signatures": [
@@ -1602,7 +1602,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 106,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L106"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L106"
 						}
 					],
 					"signatures": [
@@ -1658,7 +1658,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 78,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L78"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L78"
 						}
 					],
 					"signatures": [
@@ -1712,7 +1712,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 							"line": 93,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L93"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L93"
 						}
 					],
 					"signatures": [
@@ -1802,7 +1802,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 55,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L55"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L55"
 				}
 			]
 		},
@@ -1824,7 +1824,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 40,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L40"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L40"
 						}
 					],
 					"type": {
@@ -1845,7 +1845,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 39,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L39"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L39"
 						}
 					],
 					"type": {
@@ -1853,15 +1853,15 @@
 						"types": [
 							{
 								"type": "reference",
-								"name": "Identifier",
-								"qualifiedName": "Identifier",
-								"package": "@types/estree"
-							},
-							{
-								"type": "reference",
 								"name": "JSXIdentifier",
 								"qualifiedName": "JSXIdentifier",
 								"package": "@typescript-eslint/types"
+							},
+							{
+								"type": "reference",
+								"name": "Identifier",
+								"qualifiedName": "Identifier",
+								"package": "@types/estree"
 							}
 						]
 					}
@@ -1877,7 +1877,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 43,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L43"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L43"
 						}
 					],
 					"type": {
@@ -1896,7 +1896,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 41,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L41"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L41"
 						}
 					],
 					"type": {
@@ -1926,7 +1926,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 42,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L42"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L42"
 						}
 					],
 					"type": {
@@ -1956,7 +1956,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 47,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L47"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L47"
 						}
 					],
 					"signatures": [
@@ -1984,7 +1984,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 51,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L51"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L51"
 						}
 					],
 					"signatures": [
@@ -2012,7 +2012,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 53,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L53"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L53"
 						}
 					],
 					"signatures": [
@@ -2040,7 +2040,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 45,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L45"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L45"
 						}
 					],
 					"signatures": [
@@ -2068,7 +2068,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 							"line": 49,
 							"character": 2,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L49"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L49"
 						}
 					],
 					"signatures": [
@@ -2113,7 +2113,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 					"line": 38,
 					"character": 17,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L38"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L38"
 				}
 			]
 		},
@@ -2128,7 +2128,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 34,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L34"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L34"
 				}
 			],
 			"type": {
@@ -2166,7 +2166,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/location.ts",
 					"line": 25,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
 				}
 			],
 			"type": {
@@ -2210,7 +2210,7 @@
 											"fileName": "src/linting/eslint/rules/helpers/location.ts",
 											"line": 25,
 											"character": 73,
-											"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
+											"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
 										}
 									],
 									"type": {
@@ -2234,7 +2234,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/location.ts",
 									"line": 25,
 									"character": 71,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L25"
 								}
 							]
 						}
@@ -2253,7 +2253,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 27,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L27"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L27"
 				}
 			],
 			"type": {
@@ -2303,7 +2303,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 25,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L25"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L25"
 				}
 			],
 			"type": {
@@ -2392,7 +2392,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 25,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L25"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L25"
 				}
 			],
 			"type": {
@@ -2426,7 +2426,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 39,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
 				}
 			],
 			"type": {
@@ -2458,7 +2458,7 @@
 											"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 											"line": 39,
 											"character": 47,
-											"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
+											"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
 										}
 									],
 									"type": {
@@ -2480,7 +2480,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 									"line": 39,
 									"character": 45,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L39"
 								}
 							]
 						}
@@ -2499,7 +2499,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 40,
 					"character": 12,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L40"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L40"
 				}
 			],
 			"type": {
@@ -2529,7 +2529,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 41,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L41"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L41"
 				}
 			],
 			"type": {
@@ -2554,7 +2554,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 					"line": 20,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L20"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L20"
 				}
 			],
 			"type": {
@@ -2579,7 +2579,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 47,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L47"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L47"
 				}
 			],
 			"type": {
@@ -2609,7 +2609,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 					"line": 22,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L22"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L22"
 				}
 			],
 			"type": {
@@ -2632,7 +2632,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 791,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L791"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L791"
 								}
 							],
 							"type": {
@@ -2655,7 +2655,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1097,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1097"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1097"
 								}
 							],
 							"type": {
@@ -2678,7 +2678,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1131,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1131"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1131"
 								}
 							],
 							"type": {
@@ -2701,7 +2701,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 85,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L85"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L85"
 								}
 							],
 							"type": {
@@ -2724,7 +2724,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 23,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L23"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L23"
 								}
 							],
 							"type": {
@@ -2747,7 +2747,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 790,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L790"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L790"
 								}
 							],
 							"type": {
@@ -2770,7 +2770,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 879,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L879"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L879"
 								}
 							],
 							"type": {
@@ -2793,7 +2793,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1142,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1142"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1142"
 								}
 							],
 							"type": {
@@ -2816,7 +2816,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1175,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1175"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1175"
 								}
 							],
 							"type": {
@@ -2839,7 +2839,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1159,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1159"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1159"
 								}
 							],
 							"type": {
@@ -2862,7 +2862,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 818,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L818"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L818"
 								}
 							],
 							"type": {
@@ -2885,7 +2885,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 838,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L838"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L838"
 								}
 							],
 							"type": {
@@ -2908,7 +2908,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 948,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L948"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L948"
 								}
 							],
 							"type": {
@@ -2931,7 +2931,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1020,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1020"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1020"
 								}
 							],
 							"type": {
@@ -2954,7 +2954,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 794,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L794"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L794"
 								}
 							],
 							"type": {
@@ -2977,7 +2977,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1064,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1064"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1064"
 								}
 							],
 							"type": {
@@ -3000,7 +3000,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 915,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L915"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L915"
 								}
 							],
 							"type": {
@@ -3023,7 +3023,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 773,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L773"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L773"
 								}
 							],
 							"type": {
@@ -3046,7 +3046,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 878,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L878"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L878"
 								}
 							],
 							"type": {
@@ -3069,7 +3069,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 980,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L980"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L980"
 								}
 							],
 							"type": {
@@ -3092,7 +3092,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1156,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1156"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1156"
 								}
 							],
 							"type": {
@@ -3115,7 +3115,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 857,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L857"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L857"
 								}
 							],
 							"type": {
@@ -3138,7 +3138,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 892,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L892"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L892"
 								}
 							],
 							"type": {
@@ -3161,7 +3161,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1110,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1110"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1110"
 								}
 							],
 							"type": {
@@ -3184,7 +3184,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1157,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1157"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1157"
 								}
 							],
 							"type": {
@@ -3207,7 +3207,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 950,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L950"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L950"
 								}
 							],
 							"type": {
@@ -3230,7 +3230,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 1158,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1158"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L1158"
 								}
 							],
 							"type": {
@@ -3253,7 +3253,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 702,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L702"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L702"
 								}
 							],
 							"type": {
@@ -3276,7 +3276,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 935,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L935"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L935"
 								}
 							],
 							"type": {
@@ -3299,7 +3299,7 @@
 									"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 									"line": 949,
 									"character": 2,
-									"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L949"
+									"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L949"
 								}
 							],
 							"type": {
@@ -3354,7 +3354,7 @@
 							"fileName": "src/linting/eslint/rules/helpers/globals.ts",
 							"line": 22,
 							"character": 34,
-							"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L22"
+							"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/globals.ts#L22"
 						}
 					]
 				}
@@ -3374,7 +3374,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/rule-detect-react.ts",
 					"line": 34,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/rule-detect-react.ts#L34"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/rule-detect-react.ts#L34"
 				}
 			],
 			"type": {
@@ -3398,7 +3398,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 					"line": 40,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L40"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L40"
 				}
 			],
 			"type": {
@@ -3423,7 +3423,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 36,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L36"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L36"
 				}
 			],
 			"type": {
@@ -3445,7 +3445,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 					"line": 22,
 					"character": 13,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L22"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L22"
 				}
 			],
 			"type": {
@@ -3468,7 +3468,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 43,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L43"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L43"
 				}
 			],
 			"signatures": [
@@ -3535,7 +3535,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 515,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L515"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L515"
 				}
 			],
 			"signatures": [
@@ -3635,7 +3635,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 32,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L32"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L32"
 				}
 			],
 			"signatures": [
@@ -3678,7 +3678,7 @@
 											"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 											"line": 34,
 											"character": 13,
-											"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L34"
+											"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L34"
 										}
 									],
 									"signatures": [
@@ -3742,7 +3742,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 25,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L25"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L25"
 				}
 			],
 			"signatures": [
@@ -3785,7 +3785,7 @@
 											"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 											"line": 27,
 											"character": 13,
-											"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L27"
+											"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L27"
 										}
 									],
 									"signatures": [
@@ -3849,7 +3849,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 					"line": 42,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L42"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L42"
 				}
 			],
 			"signatures": [
@@ -3910,7 +3910,7 @@
 											"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 											"line": 42,
 											"character": 42,
-											"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L42"
+											"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L42"
 										}
 									],
 									"signatures": [
@@ -3970,7 +3970,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 354,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L354"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L354"
 				}
 			],
 			"signatures": [
@@ -4058,7 +4058,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 96,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L96"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L96"
 				}
 			],
 			"signatures": [
@@ -4217,7 +4217,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L26"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L26"
 				}
 			],
 			"signatures": [
@@ -4265,7 +4265,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 308,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L308"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L308"
 				}
 			],
 			"signatures": [
@@ -4343,7 +4343,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 64,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L64"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L64"
 				}
 			],
 			"signatures": [
@@ -4396,7 +4396,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 76,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L76"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L76"
 				}
 			],
 			"signatures": [
@@ -4476,7 +4476,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 416,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L416"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L416"
 				}
 			],
 			"signatures": [
@@ -4554,7 +4554,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 57,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L57"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L57"
 				}
 			],
 			"signatures": [
@@ -4588,6 +4588,12 @@
 							},
 							{
 								"type": "reference",
+								"name": "MethodDefinition",
+								"qualifiedName": "MethodDefinition",
+								"package": "@types/estree"
+							},
+							{
+								"type": "reference",
 								"name": "Property",
 								"qualifiedName": "Property",
 								"package": "@types/estree"
@@ -4618,6 +4624,18 @@
 							},
 							{
 								"type": "reference",
+								"name": "FunctionExpression",
+								"qualifiedName": "FunctionExpression",
+								"package": "@types/estree"
+							},
+							{
+								"type": "reference",
+								"name": "ArrowFunctionExpression",
+								"qualifiedName": "ArrowFunctionExpression",
+								"package": "@types/estree"
+							},
+							{
+								"type": "reference",
 								"name": "Identifier",
 								"qualifiedName": "Identifier",
 								"package": "@types/estree"
@@ -4644,12 +4662,6 @@
 								"type": "reference",
 								"name": "ArrayExpression",
 								"qualifiedName": "ArrayExpression",
-								"package": "@types/estree"
-							},
-							{
-								"type": "reference",
-								"name": "ArrowFunctionExpression",
-								"qualifiedName": "ArrowFunctionExpression",
 								"package": "@types/estree"
 							},
 							{
@@ -4692,12 +4704,6 @@
 								"type": "reference",
 								"name": "ConditionalExpression",
 								"qualifiedName": "ConditionalExpression",
-								"package": "@types/estree"
-							},
-							{
-								"type": "reference",
-								"name": "FunctionExpression",
-								"qualifiedName": "FunctionExpression",
 								"package": "@types/estree"
 							},
 							{
@@ -4776,12 +4782,6 @@
 								"type": "reference",
 								"name": "FunctionDeclaration",
 								"qualifiedName": "FunctionDeclaration",
-								"package": "@types/estree"
-							},
-							{
-								"type": "reference",
-								"name": "MethodDefinition",
-								"qualifiedName": "MethodDefinition",
 								"package": "@types/estree"
 							},
 							{
@@ -5040,7 +5040,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 448,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L448"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L448"
 				}
 			],
 			"signatures": [
@@ -5122,7 +5122,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 432,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L432"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L432"
 				}
 			],
 			"signatures": [
@@ -5242,7 +5242,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 36,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L36"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L36"
 				}
 			],
 			"signatures": [
@@ -5290,7 +5290,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 96,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L96"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L96"
 				}
 			],
 			"signatures": [
@@ -5358,7 +5358,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 91,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L91"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L91"
 				}
 			],
 			"signatures": [
@@ -5426,7 +5426,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 86,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L86"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L86"
 				}
 			],
 			"signatures": [
@@ -5483,7 +5483,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 81,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L81"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L81"
 				}
 			],
 			"signatures": [
@@ -5542,7 +5542,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 241,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L241"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L241"
 				}
 			],
 			"signatures": [
@@ -5605,7 +5605,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 236,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L236"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L236"
 				}
 			],
 			"signatures": [
@@ -5670,7 +5670,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 253,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L253"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L253"
 				}
 			],
 			"signatures": [
@@ -5740,7 +5740,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 270,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L270"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L270"
 				}
 			],
 			"signatures": [
@@ -5762,6 +5762,22 @@
 								"types": [
 									{
 										"type": "literal",
+										"value": "FunctionDeclaration"
+									},
+									{
+										"type": "literal",
+										"value": "FunctionExpression"
+									},
+									{
+										"type": "literal",
+										"value": "ArrowFunctionExpression"
+									},
+									{
+										"type": "literal",
+										"value": "MethodDefinition"
+									},
+									{
+										"type": "literal",
 										"value": "CatchClause"
 									},
 									{
@@ -5775,10 +5791,6 @@
 									{
 										"type": "literal",
 										"value": "Literal"
-									},
-									{
-										"type": "literal",
-										"value": "MethodDefinition"
 									},
 									{
 										"type": "literal",
@@ -5822,10 +5834,6 @@
 									},
 									{
 										"type": "literal",
-										"value": "ArrowFunctionExpression"
-									},
-									{
-										"type": "literal",
 										"value": "AssignmentExpression"
 									},
 									{
@@ -5851,10 +5859,6 @@
 									{
 										"type": "literal",
 										"value": "ConditionalExpression"
-									},
-									{
-										"type": "literal",
-										"value": "FunctionExpression"
 									},
 									{
 										"type": "literal",
@@ -5914,10 +5918,6 @@
 									},
 									{
 										"type": "literal",
-										"value": "FunctionDeclaration"
-									},
-									{
-										"type": "literal",
 										"value": "ImportDeclaration"
 									},
 									{
@@ -5931,6 +5931,38 @@
 									{
 										"type": "literal",
 										"value": "ExportAllDeclaration"
+									},
+									{
+										"type": "literal",
+										"value": "ImportSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ImportDefaultSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ImportNamespaceSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ExportSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ObjectPattern"
+									},
+									{
+										"type": "literal",
+										"value": "ArrayPattern"
+									},
+									{
+										"type": "literal",
+										"value": "RestElement"
+									},
+									{
+										"type": "literal",
+										"value": "AssignmentPattern"
 									},
 									{
 										"type": "literal",
@@ -6011,38 +6043,6 @@
 									{
 										"type": "literal",
 										"value": "VariableDeclaration"
-									},
-									{
-										"type": "literal",
-										"value": "ArrayPattern"
-									},
-									{
-										"type": "literal",
-										"value": "AssignmentPattern"
-									},
-									{
-										"type": "literal",
-										"value": "ExportSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportDefaultSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportNamespaceSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ObjectPattern"
-									},
-									{
-										"type": "literal",
-										"value": "RestElement"
 									}
 								]
 							}
@@ -6145,7 +6145,7 @@
 															"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 															"line": 275,
 															"character": 26,
-															"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L275"
+															"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L275"
 														}
 													],
 													"type": {
@@ -6168,7 +6168,7 @@
 													"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 													"line": 275,
 													"character": 24,
-													"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L275"
+													"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L275"
 												}
 											]
 										}
@@ -6198,7 +6198,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 167,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L167"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L167"
 				}
 			],
 			"signatures": [
@@ -6265,7 +6265,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 332,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L332"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L332"
 				}
 			],
 			"signatures": [
@@ -6330,7 +6330,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 323,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L323"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L323"
 				}
 			],
 			"signatures": [
@@ -6404,7 +6404,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 77,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L77"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L77"
 				}
 			],
 			"signatures": [
@@ -6447,7 +6447,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 27,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L27"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L27"
 				}
 			],
 			"signatures": [
@@ -6504,7 +6504,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 93,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L93"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L93"
 				}
 			],
 			"signatures": [
@@ -6563,7 +6563,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 44,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L44"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L44"
 				}
 			],
 			"signatures": [
@@ -6606,7 +6606,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 83,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L83"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L83"
 				}
 			],
 			"signatures": [
@@ -6664,7 +6664,7 @@
 														"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 														"line": 85,
 														"character": 39,
-														"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L85"
+														"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L85"
 													}
 												],
 												"type": {
@@ -6686,7 +6686,7 @@
 												"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 												"line": 85,
 												"character": 37,
-												"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L85"
+												"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L85"
 											}
 										]
 									}
@@ -6708,7 +6708,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 549,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
 				}
 			],
 			"signatures": [
@@ -6766,7 +6766,7 @@
 														"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 														"line": 549,
 														"character": 80,
-														"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
+														"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
 													}
 												],
 												"type": {
@@ -6788,7 +6788,7 @@
 												"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 												"line": 549,
 												"character": 78,
-												"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
+												"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L549"
 											}
 										]
 									}
@@ -6810,7 +6810,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 151,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L151"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L151"
 				}
 			],
 			"signatures": [
@@ -6885,7 +6885,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 171,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L171"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L171"
 				}
 			],
 			"signatures": [
@@ -6939,7 +6939,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 561,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L561"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L561"
 				}
 			],
 			"signatures": [
@@ -6997,7 +6997,7 @@
 														"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 														"line": 563,
 														"character": 39,
-														"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L563"
+														"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L563"
 													}
 												],
 												"type": {
@@ -7021,7 +7021,7 @@
 												"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 												"line": 563,
 												"character": 37,
-												"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L563"
+												"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L563"
 											}
 										]
 									}
@@ -7043,7 +7043,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 216,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L216"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L216"
 				}
 			],
 			"signatures": [
@@ -7107,7 +7107,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 201,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L201"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L201"
 				}
 			],
 			"signatures": [
@@ -7150,7 +7150,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 56,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L56"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L56"
 				}
 			],
 			"signatures": [
@@ -7207,7 +7207,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 135,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L135"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L135"
 				}
 			],
 			"signatures": [
@@ -7255,7 +7255,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 123,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L123"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L123"
 				}
 			],
 			"signatures": [
@@ -7320,7 +7320,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 187,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L187"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L187"
 				}
 			],
 			"signatures": [
@@ -7369,7 +7369,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 54,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L54"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L54"
 				}
 			],
 			"signatures": [
@@ -7443,7 +7443,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 193,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L193"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L193"
 				}
 			],
 			"signatures": [
@@ -7502,7 +7502,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/file.ts",
 					"line": 23,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/file.ts#L23"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/file.ts#L23"
 				}
 			],
 			"signatures": [
@@ -7545,7 +7545,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 68,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L68"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L68"
 				}
 			],
 			"signatures": [
@@ -7615,7 +7615,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 64,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L64"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L64"
 				}
 			],
 			"signatures": [
@@ -7674,7 +7674,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 141,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L141"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L141"
 				}
 			],
 			"signatures": [
@@ -7722,7 +7722,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 108,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L108"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L108"
 				}
 			],
 			"signatures": [
@@ -7798,7 +7798,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 177,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L177"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L177"
 				}
 			],
 			"signatures": [
@@ -7841,7 +7841,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 165,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L165"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L165"
 				}
 			],
 			"signatures": [
@@ -7895,7 +7895,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 197,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L197"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L197"
 				}
 			],
 			"signatures": [
@@ -7938,7 +7938,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 38,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L38"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L38"
 				}
 			],
 			"signatures": [
@@ -7995,7 +7995,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 553,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L553"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L553"
 				}
 			],
 			"signatures": [
@@ -8043,7 +8043,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 48,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L48"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L48"
 				}
 			],
 			"signatures": [
@@ -8086,7 +8086,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 567,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L567"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L567"
 				}
 			],
 			"signatures": [
@@ -8147,7 +8147,7 @@
 																"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 																"line": 570,
 																"character": 35,
-																"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L570"
+																"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L570"
 															}
 														],
 														"type": {
@@ -8171,7 +8171,7 @@
 														"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 														"line": 570,
 														"character": 33,
-														"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L570"
+														"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L570"
 													}
 												]
 											}
@@ -8207,7 +8207,7 @@
 																"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 																"line": 571,
 																"character": 37,
-																"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L571"
+																"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L571"
 															}
 														],
 														"type": {
@@ -8231,7 +8231,7 @@
 														"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 														"line": 571,
 														"character": 35,
-														"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L571"
+														"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L571"
 													}
 												]
 											}
@@ -8255,7 +8255,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 588,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L588"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L588"
 				}
 			],
 			"signatures": [
@@ -8305,7 +8305,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 232,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L232"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L232"
 				}
 			],
 			"signatures": [
@@ -8361,7 +8361,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 557,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L557"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L557"
 				}
 			],
 			"signatures": [
@@ -8411,7 +8411,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 97,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L97"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L97"
 				}
 			],
 			"signatures": [
@@ -8535,7 +8535,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 578,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L578"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L578"
 				}
 			],
 			"signatures": [
@@ -8585,7 +8585,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 32,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L32"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L32"
 				}
 			],
 			"signatures": [
@@ -8642,7 +8642,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 545,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L545"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L545"
 				}
 			],
 			"signatures": [
@@ -8691,7 +8691,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 52,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L52"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L52"
 				}
 			],
 			"signatures": [
@@ -8734,7 +8734,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/file.ts",
 					"line": 27,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/file.ts#L27"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/file.ts#L27"
 				}
 			],
 			"signatures": [
@@ -8777,7 +8777,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 70,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L70"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L70"
 				}
 			],
 			"signatures": [
@@ -8834,7 +8834,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 584,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L584"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L584"
 				}
 			],
 			"signatures": [
@@ -8884,7 +8884,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 89,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L89"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L89"
 				}
 			],
 			"signatures": [
@@ -8943,7 +8943,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 205,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L205"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L205"
 				}
 			],
 			"signatures": [
@@ -8985,7 +8985,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/type.ts",
 					"line": 62,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L62"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/type.ts#L62"
 				}
 			],
 			"signatures": [
@@ -9042,7 +9042,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 602,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L602"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L602"
 				}
 			],
 			"signatures": [
@@ -9135,7 +9135,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/collection.ts",
 					"line": 50,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L50"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/collection.ts#L50"
 				}
 			],
 			"signatures": [
@@ -9190,7 +9190,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ancestor.ts",
 					"line": 39,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L39"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ancestor.ts#L39"
 				}
 			],
 			"signatures": [
@@ -9238,7 +9238,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/lva.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L26"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/lva.ts#L26"
 				}
 			],
 			"signatures": [
@@ -9292,7 +9292,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 42,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L42"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L42"
 				}
 			],
 			"signatures": [
@@ -9346,7 +9346,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 198,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L198"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L198"
 				}
 			],
 			"signatures": [
@@ -9376,6 +9376,22 @@
 								"types": [
 									{
 										"type": "literal",
+										"value": "FunctionDeclaration"
+									},
+									{
+										"type": "literal",
+										"value": "FunctionExpression"
+									},
+									{
+										"type": "literal",
+										"value": "ArrowFunctionExpression"
+									},
+									{
+										"type": "literal",
+										"value": "MethodDefinition"
+									},
+									{
+										"type": "literal",
 										"value": "CatchClause"
 									},
 									{
@@ -9389,10 +9405,6 @@
 									{
 										"type": "literal",
 										"value": "Literal"
-									},
-									{
-										"type": "literal",
-										"value": "MethodDefinition"
 									},
 									{
 										"type": "literal",
@@ -9436,10 +9448,6 @@
 									},
 									{
 										"type": "literal",
-										"value": "ArrowFunctionExpression"
-									},
-									{
-										"type": "literal",
 										"value": "AssignmentExpression"
 									},
 									{
@@ -9465,10 +9473,6 @@
 									{
 										"type": "literal",
 										"value": "ConditionalExpression"
-									},
-									{
-										"type": "literal",
-										"value": "FunctionExpression"
 									},
 									{
 										"type": "literal",
@@ -9528,10 +9532,6 @@
 									},
 									{
 										"type": "literal",
-										"value": "FunctionDeclaration"
-									},
-									{
-										"type": "literal",
 										"value": "ImportDeclaration"
 									},
 									{
@@ -9545,6 +9545,38 @@
 									{
 										"type": "literal",
 										"value": "ExportAllDeclaration"
+									},
+									{
+										"type": "literal",
+										"value": "ImportSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ImportDefaultSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ImportNamespaceSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ExportSpecifier"
+									},
+									{
+										"type": "literal",
+										"value": "ObjectPattern"
+									},
+									{
+										"type": "literal",
+										"value": "ArrayPattern"
+									},
+									{
+										"type": "literal",
+										"value": "RestElement"
+									},
+									{
+										"type": "literal",
+										"value": "AssignmentPattern"
 									},
 									{
 										"type": "literal",
@@ -9625,38 +9657,6 @@
 									{
 										"type": "literal",
 										"value": "VariableDeclaration"
-									},
-									{
-										"type": "literal",
-										"value": "ArrayPattern"
-									},
-									{
-										"type": "literal",
-										"value": "AssignmentPattern"
-									},
-									{
-										"type": "literal",
-										"value": "ExportSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportDefaultSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportNamespaceSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ImportSpecifier"
-									},
-									{
-										"type": "literal",
-										"value": "ObjectPattern"
-									},
-									{
-										"type": "literal",
-										"value": "RestElement"
 									}
 								]
 							}
@@ -9748,7 +9748,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/module.ts",
 					"line": 186,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L186"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/module.ts#L186"
 				}
 			],
 			"signatures": [
@@ -9832,7 +9832,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/quickfix.ts",
 					"line": 23,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/quickfix.ts#L23"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/quickfix.ts#L23"
 				}
 			],
 			"signatures": [
@@ -9916,7 +9916,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/reaching-definitions.ts",
 					"line": 119,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L119"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/reaching-definitions.ts#L119"
 				}
 			],
 			"signatures": [
@@ -10021,7 +10021,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 484,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L484"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L484"
 				}
 			],
 			"signatures": [
@@ -10094,7 +10094,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 502,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L502"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L502"
 				}
 			],
 			"signatures": [
@@ -10161,7 +10161,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/ast.ts",
 					"line": 369,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L369"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/ast.ts#L369"
 				}
 			],
 			"signatures": [
@@ -10221,7 +10221,7 @@
 					"fileName": "src/linting/eslint/rules/helpers/location.ts",
 					"line": 44,
 					"character": 16,
-					"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44"
+					"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44"
 				}
 			],
 			"signatures": [
@@ -10516,7 +10516,7 @@
 			"fileName": "src/linting/eslint/rules/helpers/index.ts",
 			"line": 21,
 			"character": 0,
-			"url": "https://github.com/SonarSource/SonarJS/blob/598c72a2e/eslint-bridge/src/linting/eslint/rules/helpers/index.ts#L21"
+			"url": "https://github.com/SonarSource/SonarJS/blob/78e375f2f/eslint-bridge/src/linting/eslint/rules/helpers/index.ts#L21"
 		}
 	]
 }

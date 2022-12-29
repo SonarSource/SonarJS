@@ -3,7 +3,7 @@
 module.exports = {
   entryPoints: ["../src/linting/eslint/rules/helpers/index.ts"],
   name: "SonarJS linter helper functions",
-  out: "./docs",
+  out: "./site",
   searchInComments: true,
   plugin: ["searchable-parameters-plugin"],
   readme: "./main.md",
