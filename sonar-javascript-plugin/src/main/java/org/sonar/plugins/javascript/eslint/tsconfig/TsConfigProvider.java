@@ -24,11 +24,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.ProjectChecker;
 
 import static java.util.Collections.emptyList;
 
 public class TsConfigProvider {
+
+  private static final Logger LOG = Loggers.get(TsConfigProvider.class);
 
   public static List<String> generateDefaultTsConfigFile(SensorContext context, @Nullable ProjectChecker projectChecker,
     TsConfigFileCreator tsConfigFileCreator) throws IOException {
@@ -59,7 +63,9 @@ public class TsConfigProvider {
       providers = emptyList();
     }
     var tsConfigProvider = new TsConfigProvider(context, providers);
-    return tsConfigProvider.tsconfigs();
+    List<String> tsconfigs = tsConfigProvider.tsconfigs();
+    LOG.info("Generated the list of tsconfig files: {}", tsconfigs);
+    return tsconfigs;
   }
 
   private static boolean isBeyondLimit(SensorContext context, @Nullable ProjectChecker projectChecker) {
