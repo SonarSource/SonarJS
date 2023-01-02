@@ -48,6 +48,24 @@ const minMaxVersion = {
   invalid: [
     {
       code: `
+      const tls = require('node:tls');
+      const constants = require('constants');
+      tls.connect({
+        minVersion: 'TLSv1.1',
+      });
+      `,
+      errors: [
+        {
+          message: "Change 'minVersion' to use at least TLS v1.2.",
+          line: 5,
+          column: 21,
+          endLine: 5,
+          endColumn: 30,
+        },
+      ],
+    },
+    {
+      code: `
       const tls = require('tls');
       const constants = require('constants');
       tls.connect({
