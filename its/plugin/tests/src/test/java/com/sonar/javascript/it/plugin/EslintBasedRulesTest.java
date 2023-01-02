@@ -117,8 +117,7 @@ class EslintBasedRulesTest {
     orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssueList(projectKey, "javascript:S3525");
-    assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+    assertThat(issuesList).isEmpty();
   }
 
   @Test

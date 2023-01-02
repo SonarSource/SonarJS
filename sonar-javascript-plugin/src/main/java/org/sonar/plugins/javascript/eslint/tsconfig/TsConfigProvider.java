@@ -64,7 +64,7 @@ public class TsConfigProvider {
 
   private static boolean isBeyondLimit(SensorContext context, @Nullable ProjectChecker projectChecker) {
     if (context.runtime().getProduct() == SonarProduct.SONARQUBE) {
-      return false;
+      return true;
     } else if (projectChecker == null) {
       return true;
     } else {

@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -185,14 +184,7 @@ class TsConfigProviderTest {
     when(checker.isBeyondLimit()).thenReturn(false);
 
     var tsconfigs = TsConfigProvider.generateDefaultTsConfigFile(ctx, checker, tsConfigFileCreator);
-    assertThat(tsconfigs).hasSize(1);
-    assertThat(tsconfigs.get(0)).isEqualTo(tsConfigFile);
-
-    var contentCaptor = ArgumentCaptor.forClass(String.class);
-    verify(tsConfigFileCreator).createTsConfigFile(contentCaptor.capture());
-    var projectBaseDir = baseDir.toAbsolutePath().toString();
-    var normalized = "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
-    assertThat(contentCaptor.getValue()).isEqualTo(normalized);
+    assertThat(tsconfigs).isEmpty();
   }
 
   @Test
@@ -255,6 +247,7 @@ class TsConfigProviderTest {
   @Test
   void should_not_fail_and_not_store_on_null() throws IOException {
     var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     var checker = mock(ProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
