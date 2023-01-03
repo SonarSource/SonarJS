@@ -217,6 +217,32 @@ const testCasesHttps = {
     },
     {
       code: `
+      const https = require('node:https');
+      const constants = require('node:constants');
+
+      var options = {
+        hostname: 'wrong.host.badssl.com',
+        port: 443,
+        path: '/',
+        method: 'GET',
+        secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1,
+        rejectUnauthorized: false,
+        checkServerIdentity: (servername, peer) => {
+          console.log("test1: checkServerIdentity");
+          if (servername !== "www.google.com") {
+            return new Error ('Error');
+          }
+        }
+      };
+
+      var req = https.request(options, (res) => {
+        res.on('data', (d) => {});
+      }); // Noncompliant: rejectUnauthorized is false
+            `,
+      errors: 1
+    },
+    {
+      code: `
       const https = require('https');
       const constants = require('constants');
 
@@ -457,6 +483,27 @@ const testCasesTls = {
     {
       code: `
       const tls = require('tls');
+
+      var options = {
+        checkServerIdentity: (servername, peer) => {
+            console.log("checkServerIdentity");
+            if (servername !== "www.google.com") {
+                return new Error ('Error');
+            }
+        },
+        rejectUnauthorized: false // Noncompliant
+      };
+
+      var socket = tls.connect(443, "www.google.fr", options, () => {
+        process.stdin.pipe(socket);
+        process.stdin.resume();
+      });
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      const tls = require('node:tls');
 
       var options = {
         checkServerIdentity: (servername, peer) => {

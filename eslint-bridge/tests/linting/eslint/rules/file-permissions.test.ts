@@ -143,6 +143,13 @@ let tests = {
     },
     {
       code: `
+      const fs = require('node:fs');
+      // Octal
+      fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
+      errors: 1
+    },
+    {
+      code: `
       const fs = require('fs');
 
       fs.chmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx

@@ -135,6 +135,26 @@ const testCasesHttps = {
         },
       ],
     },
+    {
+      code: `
+    const https = require('node:https');
+    const constants = require('node:constants');
+
+    var options = {
+      hostname: 'self-signed.badssl.com',
+      port: 443,
+      path: '/',
+      method: 'GET',
+      secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1,
+      rejectUnauthorized: false  // Noncompliant
+    };
+
+    var req = https.request(options, (res) => {
+      res.on('data', (d) => {});
+    }); // Noncompliant
+          `,
+      errors: 1
+    },
   ],
 };
 const testCasesRequest = {
@@ -193,6 +213,17 @@ const testCasesTls = {
     {
       code: `
       const tls = require('tls');
+
+      var options = {
+          rejectUnauthorized: false  // Noncompliant
+      };
+      var socket = tls.connect(443, "self-signed.badssl.com", options, () => {}); // Noncompliant
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      const tls = require('node:tls');
 
       var options = {
           rejectUnauthorized: false  // Noncompliant

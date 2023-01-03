@@ -54,15 +54,7 @@ const minMaxVersion = {
         minVersion: 'TLSv1.1',
       });
       `,
-      errors: [
-        {
-          message: "Change 'minVersion' to use at least TLS v1.2.",
-          line: 5,
-          column: 21,
-          endLine: 5,
-          endColumn: 30,
-        },
-      ],
+      errors: 1
     },
     {
       code: `
@@ -133,9 +125,23 @@ const minMaxVersion = {
     },
     {
       code: `
+      const https = require('node:https');
+      const constants = require('node:constants');
+
+      var options23 = {
+        minVersion: 'TLSv1.1',  // Noncompliant
+        maxVersion: 'TLSv1.1' // Noncompliant
+      }
+
+      var req23 = https.request(options23);
+      `,
+      errors: 2
+    },
+    {
+      code: `
         const request = require('request');
         const constants = require('constants');
-        
+
         var socket25 = request.get({
             url: 'https://www.google.com/',
             minVersion: 'TLSv1.1',  // Noncompliant

@@ -109,6 +109,15 @@ const testCases = {
     },
     {
       code: `
+      const crypto = require('node:crypto');
+      var key = crypto.randomBytes(16);
+      var iv = Buffer.from(crypto.randomBytes(16));
+      crypto.createCipheriv("AES-128-CBC", key, iv);
+            `,
+      errors: 1
+    },
+    {
+      code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
