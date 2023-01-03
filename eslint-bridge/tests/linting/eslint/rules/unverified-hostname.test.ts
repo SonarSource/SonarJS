@@ -239,7 +239,7 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Noncompliant: rejectUnauthorized is false
             `,
-      errors: 1
+      errors: 1,
     },
     {
       code: `

@@ -107,7 +107,7 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
 
       crypto.createCipheriv("DES", key, iv);
             `,
-      errors: 1
+      errors: 1,
     },
     {
       code: `

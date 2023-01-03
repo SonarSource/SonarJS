@@ -146,7 +146,7 @@ let tests = {
       const fs = require('node:fs');
       // Octal
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
-      errors: 1
+      errors: 1,
     },
     {
       code: `

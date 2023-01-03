@@ -54,7 +54,7 @@ const minMaxVersion = {
         minVersion: 'TLSv1.1',
       });
       `,
-      errors: 1
+      errors: 1,
     },
     {
       code: `
@@ -135,7 +135,7 @@ const minMaxVersion = {
 
       var req23 = https.request(options23);
       `,
-      errors: 2
+      errors: 2,
     },
     {
       code: `

@@ -153,7 +153,7 @@ const testCasesHttps = {
       res.on('data', (d) => {});
     }); // Noncompliant
           `,
-      errors: 1
+      errors: 1,
     },
   ],
 };
