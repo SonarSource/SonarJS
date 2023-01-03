@@ -74,6 +74,8 @@ export function getModuleNameFromRequire(node: Node): estree.Literal | undefined
 /**
  * Returns the fully qualified name of ESLint node
  *
+ * This function filters out the `node:` prefix
+ *
  * A fully qualified name here denotes a value that is accessed through an imported
  * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
  * or an import statement:
@@ -99,14 +101,15 @@ export function getFullyQualifiedName(
   fqn: string[] = [],
   scope?: Scope.Scope,
 ): string | null {
-  return removeNodeNamespaceIfExists(getFullyQualifiedNameInternal(context, node, fqn, scope));
+  return removeNodeNamespaceIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
 }
 
 /**
- * The contents of getFullyQualifiedName() were extracted here so we can easily ensure that
- * removeNodeNamespaceIfExists() wraps its returned value.
+ * Just like getFullyQualifiedName(), but does not filter out the `node:` prefix.
+ *
+ * To be used for rules that need to work with the `node:` prefix.
  */
-function getFullyQualifiedNameInternal(
+export function getFullyQualifiedNameRaw(
   context: Rule.RuleContext,
   node: estree.Node,
   fqn: string[],
@@ -184,7 +187,7 @@ function getFullyQualifiedNameInternal(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedNameInternal(context, nodeToCheck, fqn, variable.scope);
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
