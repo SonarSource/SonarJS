@@ -145,8 +145,8 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     if (pullRequest != null) {
       request.setPullRequest(pullRequest);
     }
-    ComponentWsResponse response = newWsClient(orchestrator).measures().component(request);
-    List<Measure> measures = response.getComponent().getMeasuresList();
+    var response = newWsClient(orchestrator).measures().component(request);
+    var measures = response.getComponent().getMeasuresList();
     return measures.size() == 1 ? measures.get(0) : null;
   }
 
@@ -163,7 +163,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
-    Measure measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
+    var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 

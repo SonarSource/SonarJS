@@ -124,7 +124,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       }
     } else {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
-      processAnalysis.processCacheAnalysis(context, file, cacheStrategy.readAnalysisFromCache());
+      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+      processAnalysis.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
 

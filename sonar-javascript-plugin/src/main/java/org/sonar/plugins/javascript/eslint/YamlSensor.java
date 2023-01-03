@@ -162,7 +162,8 @@ public class YamlSensor extends AbstractEslintSensor {
       }
     } else {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
-      analysisProcessor.processCacheAnalysis(context, file, cacheStrategy.readAnalysisFromCache());
+      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
 }
