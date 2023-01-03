@@ -65,7 +65,7 @@ public class CacheStrategies {
     }
 
     var cacheKey = CacheKey.forFile(inputFile);
-    var serialization = new UCFGFilesSerialization(context, cacheKey);
+    var serialization = new CacheAnalysisSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
       var strategy = writeOnly(serialization);
@@ -85,25 +85,26 @@ public class CacheStrategies {
       return strategy;
     }
 
-    if (!writeFilesFromCache(serialization)) {
+    var cacheAnalysis = readFromCache(serialization);
+    if (cacheAnalysis == null) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
       return strategy;
     }
 
-    var strategy = readAndWrite(serialization);
+    var strategy = readAndWrite(cacheAnalysis, serialization);
     REPORTER.logAndIncrement(strategy, inputFile, null);
     return strategy;
   }
 
-  static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
+  static CacheAnalysis readFromCache(CacheAnalysisSerialization serialization) {
     try {
-      serialization.readFromCache();
+      var cacheAnalysis = serialization.readFromCache();
       serialization.copyFromPrevious();
-      return true;
+      return cacheAnalysis;
     } catch (IOException e) {
       LOG.error("Failure when reading cache entry", e);
-      return false;
+      return null;
     }
   }
 

@@ -27,7 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -35,8 +34,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class YamlSensor extends AbstractEslintSensor {
@@ -84,10 +83,7 @@ public class YamlSensor extends AbstractEslintSensor {
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired()) {
-            analyze(inputFile, cacheStrategy);
-          }
+          analyze(inputFile);
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
         }
@@ -111,7 +107,7 @@ public class YamlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  // Inspired from 
+  // Inspired from
   // https://github.com/SonarSource/sonar-security/blob/14251a6e51d210d268fa71abbac40e4996d03227/sonar-security-plugin/src/main/java/com/sonar/security/aws/AwsSensorUtils.java#L51
   private static boolean isSamTemplate(InputFile inputFile, Logger logger) {
     boolean hasAwsTransform = false;
@@ -143,24 +139,30 @@ public class YamlSensor extends AbstractEslintSensor {
     return false;
   }
 
-  private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
-    try {
-      LOG.debug("Analyzing file: {}", file.uri());
-      var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      var jsAnalysisRequest = new JsAnalysisRequest(
-        file.absolutePath(),
-        file.type().toString(),
-        fileContent,
-        contextUtils.ignoreHeaderComments(),
-        null,
-        null,
-        analysisMode.getLinterIdFor(file));
-      var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
-      analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
-    } catch (IOException e) {
-      LOG.error("Failed to get response while analyzing " + file.uri(), e);
-      throw e;
+  private void analyze(InputFile file) throws IOException {
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: {}", file.uri());
+        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var jsAnalysisRequest = new JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          fileContent,
+          contextUtils.ignoreHeaderComments(),
+          null,
+          null,
+          analysisMode.getLinterIdFor(file));
+        var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens));
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
+        throw e;
+      }
+    } else {
+      LOG.debug("Processing cache analysis of file: {}", file.uri());
+      analysisProcessor.processCacheAnalysis(context, file, cacheStrategy.readAnalysisFromCache());
     }
   }
 }

@@ -25,13 +25,14 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import org.assertj.core.data.Offset;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
@@ -44,6 +45,7 @@ import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,13 +61,13 @@ class PRAnalysisTest {
   @ParameterizedTest
   @ValueSource(strings = {"js", "ts"})
   void should_analyse_js_ts_pull_requests(String language) {
-    var testProject = new TestProject(language);
-    var projectKey = testProject.getProjectKey();
+    var testProjectCase = TestProject.fromName(language);
+    var projectKey = testProjectCase.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(projectKey + "-profile", language));
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProjectCase.getProfileName(), language));
 
-    try (var gitExecutor = testProject.createIn(projectPath)) {
+    try (var gitExecutor = testProjectCase.createIn(projectPath)) {
       var indexFile = "index." + language;
       var helloFile = "hello." + language;
 
@@ -117,16 +119,16 @@ class PRAnalysisTest {
 
   @Test
   void should_analyse_cloudformation_pull_requests() {
-    var testProject = new TestProject("cloudformation");
-    var projectKey = testProject.getProjectKey();
+    var cloudformation = TestProject.CLOUDFORMATION;
+    var projectKey = cloudformation.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
     OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      "pr-analysis-cloudformation-profile", "cloudformation",
-      "pr-analysis-js-profile", "js"
+      cloudformation.getProfileName(), "cloudformation",
+      TestProject.JS.getProfileName(), "js"
     ));
 
-    try (var gitExecutor = testProject.createIn(projectPath)) {
+    try (var gitExecutor = cloudformation.createIn(projectPath)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
@@ -171,9 +173,52 @@ class PRAnalysisTest {
     }
   }
 
+  @Test
+  void should_generate_cpds() {
+    var testProjectCase = TestProject.CPD;
+    var projectKey = testProjectCase.getProjectKey();
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+    var offset = Offset.offset(0.01d);
+
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProjectCase.getProfileName(), "js"));
+
+    try (var gitExecutor = testProjectCase.createIn(projectPath)) {
+      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
+      scanWith(getMasterScannerIn(projectPath, projectKey));
+
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file1.js", "duplicated_lines", Main.BRANCH, null)).isEqualTo(30.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file1.js", "duplicated_blocks", Main.BRANCH, null)).isEqualTo(1.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file1.js", "duplicated_files", Main.BRANCH, null)).isEqualTo(1.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file1.js", "duplicated_lines_density", Main.BRANCH, null)).isEqualTo(93.8d, offset);
+
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file2.js", "duplicated_lines", Main.BRANCH, null)).isEqualTo(30.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file2.js", "duplicated_blocks", Main.BRANCH, null)).isEqualTo(1.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file2.js", "duplicated_files", Main.BRANCH, null)).isEqualTo(1.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file2.js", "duplicated_lines_density", Main.BRANCH, null)).isEqualTo(88.2, offset);
+
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_lines", Main.BRANCH, null)).isEqualTo(60.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_blocks", Main.BRANCH, null)).isEqualTo(2.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_files", Main.BRANCH, null)).isEqualTo(2.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_lines_density", Main.BRANCH, null)).isEqualTo(90.9d, offset);
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      scanWith(getBranchScannerIn(projectPath, projectKey));
+
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file3.js", "duplicated_lines", null, PR.BRANCH)).isEqualTo(31.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file3.js", "duplicated_blocks", null, PR.BRANCH)).isEqualTo(2.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file3.js", "duplicated_files", null, PR.BRANCH)).isEqualTo(1.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey + ":file3.js", "duplicated_lines_density", null, PR.BRANCH)).isEqualTo(96.9d, offset);
+
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_lines", null, PR.BRANCH)).isEqualTo(92.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_blocks", null, PR.BRANCH)).isEqualTo(5.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_files", null, PR.BRANCH)).isEqualTo(3.0d, offset);
+      assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_lines_density", null, PR.BRANCH)).isEqualTo(93.9d, offset);
+    }
+  }
+
   @BeforeAll
   public static void startOrchestrator() {
-    orchestrator = Orchestrator.builderEnv()
+    var builder = Orchestrator.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -181,11 +226,13 @@ class PRAnalysisTest {
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
       .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-cloudformation.xml"))
-      .build();
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"));
+
+    for (var projectTestCase : TestProject.values()) {
+      builder.restoreProfileAtStartup(FileLocation.ofClasspath(projectTestCase.getProfileFile()));
+    }
+
+    orchestrator = builder.build();
     // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
     synchronized (OrchestratorStarter.class) {
       orchestrator.start();
@@ -225,23 +272,40 @@ class PRAnalysisTest {
     return result;
   }
 
-  static class TestProject {
+  enum TestProject {
 
-    private final File mainProjectDir;
-    private final File branchProjectDir;
-    private final String projectKey;
+    JS("js"), TS("ts"), CLOUDFORMATION("cloudformation"), CPD("cpd");
 
-    TestProject(String language) {
-      projectKey = "pr-analysis-" + language;
-      mainProjectDir = TestUtils.projectDir(projectKey + "-main");
-      branchProjectDir = TestUtils.projectDir(projectKey + "-branch");
+    private final String name;
+
+    TestProject(String name) {
+      this.name = name;
+    }
+
+    static TestProject fromName(String name) {
+      for (var value : values()) {
+        if (value.name.equals(name)) {
+          return value;
+        }
+      }
+      throw new NoSuchElementException();
     }
 
     String getProjectKey() {
-      return projectKey;
+      return "pr-analysis-" + name;
+    }
+
+    String getProfileName() {
+      return getProjectKey() + "-profile";
+    }
+
+    String getProfileFile() {
+      return "/" + getProjectKey() + ".xml";
     }
 
     GitExecutor createIn(Path projectDir) {
+      var mainProjectDir = TestUtils.projectDir(getProjectKey() + "-main");
+      var branchProjectDir = TestUtils.projectDir(getProjectKey() + "-branch");
       var executor = new GitExecutor(projectDir);
 
       TestUtils.copyFiles(projectDir, mainProjectDir.toPath());

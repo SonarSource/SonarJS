@@ -40,12 +40,17 @@ class CacheKeyTest {
   @Test
   void test_no_ucfg_version_in_key() {
     PluginInfo.setUcfgPluginVersion(null);
-    assertThat(CacheKey.forFile(inputFile)).hasToString("jssecurity:ucfgs:fileKey");
+    assertThat(CacheKey.forFile(inputFile).forUcfg()).hasToString("jssecurity:ucfgs:fileKey");
+  }
+
+  @Test
+  void test_cpd_data_key() {
+    assertThat(CacheKey.forFile(inputFile).forCpd()).hasToString("js:cpd:data:fileKey");
   }
 
   @Test
   void test_ucfg_version_in_key() {
     PluginInfo.setUcfgPluginVersion("ucfg_version");
-    assertThat(CacheKey.forFile(inputFile)).hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
+    assertThat(CacheKey.forFile(inputFile).forUcfg()).hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
   }
 }

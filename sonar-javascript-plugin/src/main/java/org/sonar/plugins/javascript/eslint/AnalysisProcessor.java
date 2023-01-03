@@ -43,6 +43,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
@@ -96,6 +97,16 @@ public class AnalysisProcessor {
       saveHighlightedSymbols(response.highlightedSymbols);
       saveCpd(response.cpdTokens);
       monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
+    }
+  }
+
+  void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
+    this.context = context;
+    contextUtils = new ContextUtils(context);
+    this.file = file;
+
+    if (!YamlSensor.LANGUAGE.equals(file.language())) {
+      saveCpd(cacheAnalysis.getCpdTokens());
     }
   }
 

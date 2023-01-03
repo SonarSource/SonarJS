@@ -42,8 +42,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -138,10 +138,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       }
       if (eslintBridgeServer.isAlive()) {
         monitoring.startFile(inputFile);
-        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-        if (cacheStrategy.isAnalysisRequired()) {
-          analyze(inputFile, tsConfigFile, cacheStrategy);
-        }
+        analyze(inputFile, tsConfigFile);
         progressReport.nextFile(inputFile.absolutePath());
       } else {
         throw new IllegalStateException("eslint-bridge server is not answering");
@@ -149,18 +146,24 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, TsConfigFile tsConfigFile, CacheStrategy cacheStrategy) throws IOException {
-    try {
-      LOG.debug("Analyzing file: " + file.uri());
-      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.getFilename()), null, analysisMode.getLinterIdFor(file));
-      AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
-      analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
-    } catch (IOException e) {
-      LOG.error("Failed to get response while analyzing " + file, e);
-      throw e;
+  private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: " + file.uri());
+        String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
+          contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.getFilename()), null, analysisMode.getLinterIdFor(file));
+        AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens));
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file, e);
+        throw e;
+      }
+    } else {
+      LOG.debug("Processing cache analysis of file: {}", file.uri());
+      analysisProcessor.processCacheAnalysis(context, file, cacheStrategy.readAnalysisFromCache());
     }
   }
 

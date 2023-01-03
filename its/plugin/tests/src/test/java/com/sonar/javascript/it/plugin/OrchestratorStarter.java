@@ -131,9 +131,21 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Measure getMeasure(String componentKey, String metricKey) {
-    ComponentWsResponse response = newWsClient(ORCHESTRATOR).measures().component(new ComponentRequest()
+    return getMeasure(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  private static Measure getMeasure(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    var request = new ComponentRequest()
       .setComponent(componentKey)
-      .setMetricKeys(singletonList(metricKey)));
+      .setMetricKeys(singletonList(metricKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
+    if (pullRequest != null) {
+      request.setPullRequest(pullRequest);
+    }
+    ComponentWsResponse response = newWsClient(orchestrator).measures().component(request);
     List<Measure> measures = response.getComponent().getMeasuresList();
     return measures.size() == 1 ? measures.get(0) : null;
   }
@@ -146,7 +158,12 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Double getMeasureAsDouble(String componentKey, String metricKey) {
-    Measure measure = getMeasure(componentKey, metricKey);
+    return getMeasureAsDouble(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    Measure measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 

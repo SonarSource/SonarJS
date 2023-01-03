@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class CacheStrategy {
@@ -30,25 +30,25 @@ public class CacheStrategy {
   static final String WRITE_ONLY = "WRITE_ONLY";
 
   private final String name;
-  private final boolean analysisRequired;
-  private final UCFGFilesSerialization serialization;
+  private final CacheAnalysis cacheAnalysis;
+  private final CacheAnalysisSerialization serialization;
 
-  private CacheStrategy(String name, boolean analysisRequired, UCFGFilesSerialization serialization) {
+  private CacheStrategy(String name, @Nullable CacheAnalysis cacheAnalysis, @Nullable CacheAnalysisSerialization serialization) {
     this.name = name;
-    this.analysisRequired = analysisRequired;
+    this.cacheAnalysis = cacheAnalysis;
     this.serialization = serialization;
   }
 
   static CacheStrategy noCache() {
-    return new CacheStrategy(NO_CACHE, true, null);
+    return new CacheStrategy(NO_CACHE, null, null);
   }
 
-  static CacheStrategy writeOnly(UCFGFilesSerialization serialization) {
-    return new CacheStrategy(WRITE_ONLY, true, serialization);
+  static CacheStrategy writeOnly(CacheAnalysisSerialization serialization) {
+    return new CacheStrategy(WRITE_ONLY, null, serialization);
   }
 
-  static CacheStrategy readAndWrite(UCFGFilesSerialization serialization) {
-    return new CacheStrategy(READ_AND_WRITE, false, serialization);
+  static CacheStrategy readAndWrite(CacheAnalysis cacheAnalysis, CacheAnalysisSerialization serialization) {
+    return new CacheStrategy(READ_AND_WRITE, cacheAnalysis, serialization);
   }
 
   String getName() {
@@ -56,13 +56,17 @@ public class CacheStrategy {
   }
 
   public boolean isAnalysisRequired() {
-    return analysisRequired;
+    return cacheAnalysis == null;
   }
 
-  public void writeGeneratedFilesToCache(@Nullable List<String> generatedFiles) throws IOException {
+  public void writeAnalysisToCache(CacheAnalysis analysis) throws IOException {
     if (serialization != null) {
-      serialization.writeToCache(generatedFiles);
+      serialization.writeToCache(analysis);
     }
+  }
+
+  public CacheAnalysis readAnalysisFromCache() {
+    return Objects.requireNonNull(cacheAnalysis);
   }
 
 }

@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 class CacheKey {
@@ -40,19 +41,28 @@ class CacheKey {
   }
 
   static CacheKey forFile(InputFile inputFile) {
-    List<String> prefixes = Arrays.asList(
-      "jssecurity", "ucfgs",
+    return new CacheKey(inputFile.key(), emptyList());
+  }
+
+  CacheKey forCpd() {
+    return withPrefixes("js", "cpd", "data");
+  }
+
+  CacheKey forUcfg() {
+    return withPrefixes("jssecurity", "ucfgs",
       PluginInfo.getVersion(),
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
       // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
       // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)
       PluginInfo.getUcfgPluginVersion().orElse(null));
-
-    return new CacheKey(inputFile.key(), prefixes);
   }
 
   CacheKey withPrefix(String prefix) {
     return new CacheKey(file, Stream.concat(prefixes.stream(), Stream.of(prefix)).collect(toList()));
+  }
+
+  CacheKey withPrefixes(String... prefixes) {
+    return new CacheKey(file, Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()));
   }
 
   @Override

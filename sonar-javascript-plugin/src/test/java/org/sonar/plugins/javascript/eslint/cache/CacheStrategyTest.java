@@ -36,7 +36,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 import org.apache.commons.compress.utils.CountingInputStream;
 import org.apache.commons.io.input.InfiniteCircularInputStream;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -49,8 +48,10 @@ import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,9 +69,10 @@ import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  UCFGFilesSerialization serialization;
+  CacheAnalysisSerialization serialization;
   String jsonCacheKey;
   String seqCacheKey;
+  String cpdCacheKey;
   @TempDir
   Path baseDir;
   @TempDir
@@ -100,10 +102,11 @@ class CacheStrategyTest {
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
-    serialization = new UCFGFilesSerialization(context, CacheKey.forFile(inputFile));
+    serialization = new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile));
 
-    jsonCacheKey = CacheKey.forFile(inputFile).withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
-    seqCacheKey = CacheKey.forFile(inputFile).withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
+    jsonCacheKey = CacheKey.forFile(inputFile).forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
+    seqCacheKey = CacheKey.forFile(inputFile).forUcfg().withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
+    cpdCacheKey = CacheKey.forFile(inputFile).forCpd().toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
@@ -182,7 +185,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeGeneratedFilesToCache(ucfgFiles);
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, new EslintBridgeServer.CpdToken[0]));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -199,8 +202,8 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var generatedFiles = List.of("inexistent.ucfg");
-    assertThatThrownBy(() -> strategy.writeGeneratedFilesToCache(generatedFiles))
-      .isInstanceOf(UncheckedIOException.class);
+    var cacheAnalysis = new CacheAnalysis(generatedFiles, null);
+    assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis)).isInstanceOf(UncheckedIOException.class);
     verify(nextCache, never()).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache, never()).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -231,7 +234,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeGeneratedFilesToCache(null);
+    strategy.writeAnalysisToCache(CacheAnalysis.fromResponse(null, new EslintBridgeServer.CpdToken[0]));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -259,9 +262,11 @@ class CacheStrategyTest {
         .isEqualTo(tempDir.resolve(ucfgFileRelativePath).toAbsolutePath().toString());
     }
 
-    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
-    verify(nextCache).write(anyString(), any(byte[].class));
-    verify(nextCache).write(anyString(), any(InputStream.class));
+    var ucfgPaths = ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList());
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, new EslintBridgeServer.CpdToken[0]));
+    verify(nextCache).write(eq(cpdCacheKey), any(byte[].class));
+    verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
+    verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
 
   @Test
@@ -288,7 +293,7 @@ class CacheStrategyTest {
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
-    when(previousCache.read(jsonCacheKey)).thenReturn(new ByteArrayInputStream("invalid-json".getBytes(StandardCharsets.UTF_8)));
+    when(previousCache.read(jsonCacheKey)).thenReturn(inputStream("invalid-json"));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -349,7 +354,8 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
+    var ucfgPaths = ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList());
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, new EslintBridgeServer.CpdToken[0]));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -375,7 +381,8 @@ class CacheStrategyTest {
     verify(previousCache, never()).read(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
 
-    strategy.writeGeneratedFilesToCache(ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList()));
+    var ucfgPaths = ucfgFileRelativePaths.stream().map(workDir::resolve).map(Path::toString).collect(toList());
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, new EslintBridgeServer.CpdToken[0]));
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
   }
@@ -383,7 +390,7 @@ class CacheStrategyTest {
   @Test
   void should_log() {
     when(inputFile.toString()).thenReturn("test.js");
-    assertThat(CacheStrategies.getLogMessage(readAndWrite(serialization), inputFile, "this is a test"))
+    assertThat(CacheStrategies.getLogMessage(readAndWrite(CacheAnalysis.fromCache(new EslintBridgeServer.CpdToken[0]), serialization), inputFile, "this is a test"))
       .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
     assertThat(CacheStrategies.getLogMessage(writeOnly(serialization), inputFile, null))
       .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
@@ -423,29 +430,30 @@ class CacheStrategyTest {
       var input = invocation.getArgument(1, InputStream.class);
       Files.copy(input, binFile, StandardCopyOption.REPLACE_EXISTING);
       return null;
-    }).when(tempCache).write(anyString(), any(InputStream.class));
+    }).when(tempCache).write(eq(seqCacheKey), any(InputStream.class));
     doAnswer(invocation -> {
       var bytes = invocation.getArgument(1, byte[].class);
       Files.deleteIfExists(jsonFile);
       Files.write(jsonFile, bytes);
       return null;
-    }).when(tempCache).write(anyString(), any(byte[].class));
+    }).when(tempCache).write(eq(jsonCacheKey), any(byte[].class));
 
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
-    serialization.writeToCache(ucfgFiles);
+    serialization.writeToCache(CacheAnalysis.fromResponse(ucfgFiles, new EslintBridgeServer.CpdToken[0]));
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
     when(context.nextCache()).thenReturn(nextCache);
 
-    when(previousCache.read(jsonCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(jsonFile)));
-    when(previousCache.read(seqCacheKey)).thenReturn(new BufferedInputStream(Files.newInputStream(binFile)));
+    when(previousCache.read(jsonCacheKey)).thenReturn(inputStream(jsonFile));
+    when(previousCache.read(seqCacheKey)).thenReturn(inputStream(binFile));
+    when(previousCache.read(cpdCacheKey)).thenReturn(inputStream(new CpdData(emptyList())));
     when(previousCache.contains(jsonCacheKey)).thenReturn(true);
     when(previousCache.contains(seqCacheKey)).thenReturn(true);
+    when(previousCache.contains(cpdCacheKey)).thenReturn(true);
 
     return ucfgFileRelativePaths;
   }
 
-  @NotNull
   private List<String> createUcfgFiles(Path dir) {
     var ucfgFileRelativePaths = List.of("ucfg/file_js_1.ucfg", "ucfg/file_js_2.ucfg", "ucfg/d/file_js_3.ucfg");
     ucfgFileRelativePaths.stream().map(dir::resolve).forEach(this::createFile);
@@ -460,6 +468,18 @@ class CacheStrategyTest {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  private static InputStream inputStream(String string) {
+    return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static InputStream inputStream(Object object) {
+    return inputStream(new Gson().toJson(object));
+  }
+
+  private static InputStream inputStream(Path path) throws IOException {
+    return new BufferedInputStream(Files.newInputStream(path));
   }
 
 }
