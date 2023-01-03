@@ -101,7 +101,7 @@ export function getFullyQualifiedName(
   fqn: string[] = [],
   scope?: Scope.Scope,
 ): string | null {
-  return removeNodeNamespaceIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
+  return removeNodePrefixIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
 }
 
 /**
@@ -194,6 +194,8 @@ export function getFullyQualifiedNameRaw(
 }
 
 /**
+ * Removes `node:` prefix if such exists
+ *
  * Node.js builtin modules can be referenced with a `node:` prefix (eg.: node:fs/promises)
  *
  * https://nodejs.org/api/esm.html#node-imports
@@ -201,7 +203,7 @@ export function getFullyQualifiedNameRaw(
  * @param fqn Fully Qualified Name (ex.: `node:https.request`)
  * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
  */
-function removeNodeNamespaceIfExists(fqn: string | null) {
+function removeNodePrefixIfExists(fqn: string | null) {
   if (fqn === null) {
     return null;
   }
