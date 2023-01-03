@@ -99,6 +99,19 @@ export function getFullyQualifiedName(
   fqn: string[] = [],
   scope?: Scope.Scope,
 ): string | null {
+  return removeNodeNamespaceIfExists(getFullyQualifiedNameInternal(context, node, fqn, scope));
+}
+
+/**
+ * The contents of getFullyQualifiedName() were extracted here so we can easily ensure that
+ * removeNodeNamespaceIfExists() wraps its returned value.
+ */
+function getFullyQualifiedNameInternal(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  fqn: string[] = [],
+  scope?: Scope.Scope,
+): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
@@ -109,7 +122,7 @@ export function getFullyQualifiedName(
       const module = getModuleNameFromRequire(maybeRequire);
       if (typeof module?.value === 'string') {
         qualifiers.unshift(module.value);
-        return removeNodeNamespaceIfExists(qualifiers.join('.'));
+        return qualifiers.join('.');
       }
     }
     return null;
@@ -127,7 +140,7 @@ export function getFullyQualifiedName(
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
   if ((variable as any).writeable === false) {
     fqn.unshift(nodeToCheck.name);
-    return removeNodeNamespaceIfExists(fqn.join('.'));
+    return fqn.join('.');
   }
 
   const definition = variable.defs.find(({ type }) => ['ImportBinding', 'Variable'].includes(type));
@@ -148,7 +161,7 @@ export function getFullyQualifiedName(
     if (typeof importDeclaration.source?.value === 'string') {
       const importedQualifiers = importDeclaration.source.value.split('/');
       fqn.unshift(...importedQualifiers);
-      return removeNodeNamespaceIfExists(fqn.join('.'));
+      return fqn.join('.');
     }
   }
 
@@ -169,9 +182,9 @@ export function getFullyQualifiedName(
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
-      return removeNodeNamespaceIfExists(fqn.join('.'));
+      return fqn.join('.');
     } else {
-      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
+      return getFullyQualifiedNameInternal(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
@@ -185,7 +198,10 @@ export function getFullyQualifiedName(
  * @param fqn Fully Qualified Name (ex.: `node:https.request`)
  * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
  */
-function removeNodeNamespaceIfExists(fqn: string) {
+function removeNodeNamespaceIfExists(fqn: string | null) {
+  if (fqn === null) {
+    return null;
+  }
   const NODE_NAMESPACE = 'node:';
   if (fqn.startsWith(NODE_NAMESPACE)) {
     return fqn.substring(NODE_NAMESPACE.length);
