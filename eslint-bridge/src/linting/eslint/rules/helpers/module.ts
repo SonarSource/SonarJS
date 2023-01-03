@@ -80,9 +80,9 @@ export function getModuleNameFromRequire(node: Node): estree.Literal | undefined
  *
  * ```
  * const foo = require('lib');
- * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo.bar.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux' (not 'foo.bar.baz.qux')
  * const foo2 = require('lib').bar;
- * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo2.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux'
  * ```
  *
  * Returns null when an FQN could not be found.
