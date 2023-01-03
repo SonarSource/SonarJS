@@ -109,7 +109,7 @@ export function getFullyQualifiedName(
       const module = getModuleNameFromRequire(maybeRequire);
       if (typeof module?.value === 'string') {
         qualifiers.unshift(module.value);
-        return qualifiers.join('.');
+        return removeNodeNamespaceIfExists(qualifiers.join('.'));
       }
     }
     return null;
@@ -127,7 +127,7 @@ export function getFullyQualifiedName(
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
   if ((variable as any).writeable === false) {
     fqn.unshift(nodeToCheck.name);
-    return fqn.join('.');
+    return removeNodeNamespaceIfExists(fqn.join('.'));
   }
 
   const definition = variable.defs.find(({ type }) => ['ImportBinding', 'Variable'].includes(type));
@@ -148,7 +148,7 @@ export function getFullyQualifiedName(
     if (typeof importDeclaration.source?.value === 'string') {
       const importedQualifiers = importDeclaration.source.value.split('/');
       fqn.unshift(...importedQualifiers);
-      return fqn.join('.');
+      return removeNodeNamespaceIfExists(fqn.join('.'));
     }
   }
 
@@ -169,12 +169,28 @@ export function getFullyQualifiedName(
     if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
-      return fqn.join('.');
+      return removeNodeNamespaceIfExists(fqn.join('.'));
     } else {
       return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
+}
+
+/**
+ * Node.js builtin modules can be referenced with a `node:` prefix (eg.: node:fs/promises)
+ *
+ * https://nodejs.org/api/esm.html#node-imports
+ *
+ * @param fqn Fully Qualified Name (ex.: `node:https.request`)
+ * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
+ */
+function removeNodeNamespaceIfExists(fqn: string) {
+  const NODE_NAMESPACE = 'node:';
+  if (fqn.startsWith(NODE_NAMESPACE)) {
+    return fqn.substring(NODE_NAMESPACE.length);
+  }
+  return fqn;
 }
 
 /**
