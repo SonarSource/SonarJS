@@ -109,7 +109,7 @@ export function getFullyQualifiedName(
 function getFullyQualifiedNameInternal(
   context: Rule.RuleContext,
   node: estree.Node,
-  fqn: string[] = [],
+  fqn: string[],
   scope?: Scope.Scope,
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
