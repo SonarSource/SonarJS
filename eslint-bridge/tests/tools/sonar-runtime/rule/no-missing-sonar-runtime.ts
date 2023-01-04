@@ -116,11 +116,8 @@ function getModuleNameOfImportedIdentifier(
     } else {
       maybeRequireCall = writeExpression;
     }
-    const fqn = getFullyQualifiedName(context, maybeRequireCall, []);
-    if (fqn === null) {
-      return null;
-    }
-    return fqn.split('.')[0];
+    const fqn = getFullyQualifiedName(context, maybeRequireCall);
+    return fqn?.split('.')[0];
   }
 
   return undefined;
