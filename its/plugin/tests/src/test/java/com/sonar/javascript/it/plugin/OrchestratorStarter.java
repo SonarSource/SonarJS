@@ -30,7 +30,6 @@ import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -162,7 +161,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   @CheckForNull
-  static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+  public static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
     var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }

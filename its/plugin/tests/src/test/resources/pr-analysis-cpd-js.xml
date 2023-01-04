@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <profile>
-  <name>pr-analysis-cpd-profile</name>
+  <name>pr-analysis-cpd-js-profile</name>
   <language>js</language>
   <rules>
   </rules>
