@@ -61,7 +61,15 @@ function isRequire(node: Node) {
   );
 }
 
-export function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
+/**
+ * Returns 'module' if `node` is a `require('module')` CallExpression
+ *
+ * For usage inside rules, prefer getFullyQualifiedName()
+ *
+ * @param node
+ * @returns the module name or undefined
+ */
+function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (isRequire(node)) {
     const moduleName = (node as estree.CallExpression).arguments[0];
     if (moduleName.type === 'Literal') {
