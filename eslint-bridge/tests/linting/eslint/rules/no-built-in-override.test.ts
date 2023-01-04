@@ -31,7 +31,7 @@ const tests = {
     },
     {
       code: `var System = 2`,
-    }
+    },
   ],
   invalid: [
     {
