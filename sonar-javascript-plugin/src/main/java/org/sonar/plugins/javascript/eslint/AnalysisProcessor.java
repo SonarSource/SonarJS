@@ -106,6 +106,9 @@ public class AnalysisProcessor {
     this.file = file;
 
     if (!YamlSensor.LANGUAGE.equals(file.language())) {
+      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
+      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
+      // from Cloudformation configurations, we can only save issues for these files.
       saveCpd(cacheAnalysis.getCpdTokens());
     }
   }
