@@ -29,6 +29,9 @@ const tests = {
     {
       code: `var obj = new Object();`,
     },
+    {
+      code: `var System = 2`,
+    },
   ],
   invalid: [
     {
