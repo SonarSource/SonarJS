@@ -51,7 +51,6 @@ export const globalsByLibraries = {
     'String',
     'Symbol',
     'SyntaxError',
-    'System',
     'TypeError',
     'URIError',
     'Uint16Array',
