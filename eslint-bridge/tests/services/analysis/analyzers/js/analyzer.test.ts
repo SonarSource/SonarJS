@@ -746,4 +746,18 @@ describe('analyzeJSTS', () => {
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
+
+  it('should parse code with reserved keywords as variable names for S1527 (future-reserved-words)', async () => {
+    const rules = [
+      { key: 'future-reserved-words', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 's1527.js');
+    const language = 'js';
+
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
+
+    expect(issues).toHaveLength(7);
+  });
 });
