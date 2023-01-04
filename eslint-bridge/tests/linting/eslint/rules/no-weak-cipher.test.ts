@@ -103,6 +103,14 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
     },
     {
       code: `
+      const crypto = require('node:crypto');
+
+      crypto.createCipheriv("DES", key, iv);
+            `,
+      errors: 1,
+    },
+    {
+      code: `
       const crypto = require('crypto');
       
       crypto.createCipheriv("DES", key, iv); 

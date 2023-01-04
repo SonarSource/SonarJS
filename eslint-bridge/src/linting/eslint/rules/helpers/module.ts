@@ -61,7 +61,15 @@ function isRequire(node: Node) {
   );
 }
 
-export function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
+/**
+ * Returns 'module' if `node` is a `require('module')` CallExpression
+ *
+ * For usage inside rules, prefer getFullyQualifiedName()
+ *
+ * @param node
+ * @returns the module name or undefined
+ */
+function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (isRequire(node)) {
     const moduleName = (node as estree.CallExpression).arguments[0];
     if (moduleName.type === 'Literal') {
@@ -74,15 +82,17 @@ export function getModuleNameFromRequire(node: Node): estree.Literal | undefined
 /**
  * Returns the fully qualified name of ESLint node
  *
+ * This function filters out the `node:` prefix
+ *
  * A fully qualified name here denotes a value that is accessed through an imported
  * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
  * or an import statement:
  *
  * ```
  * const foo = require('lib');
- * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo.bar.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux' (not 'foo.bar.baz.qux')
  * const foo2 = require('lib').bar;
- * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo2.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux'
  * ```
  *
  * Returns null when an FQN could not be found.
@@ -97,6 +107,20 @@ export function getFullyQualifiedName(
   context: Rule.RuleContext,
   node: estree.Node,
   fqn: string[] = [],
+  scope?: Scope.Scope,
+): string | null {
+  return removeNodePrefixIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
+}
+
+/**
+ * Just like getFullyQualifiedName(), but does not filter out the `node:` prefix.
+ *
+ * To be used for rules that need to work with the `node:` prefix.
+ */
+export function getFullyQualifiedNameRaw(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  fqn: string[],
   scope?: Scope.Scope,
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
@@ -171,10 +195,31 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope);
     }
   }
   return null;
+}
+
+/**
+ * Removes `node:` prefix if such exists
+ *
+ * Node.js builtin modules can be referenced with a `node:` prefix (eg.: node:fs/promises)
+ *
+ * https://nodejs.org/api/esm.html#node-imports
+ *
+ * @param fqn Fully Qualified Name (ex.: `node:https.request`)
+ * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
+ */
+function removeNodePrefixIfExists(fqn: string | null) {
+  if (fqn === null) {
+    return null;
+  }
+  const NODE_NAMESPACE = 'node:';
+  if (fqn.startsWith(NODE_NAMESPACE)) {
+    return fqn.substring(NODE_NAMESPACE.length);
+  }
+  return fqn;
 }
 
 /**
