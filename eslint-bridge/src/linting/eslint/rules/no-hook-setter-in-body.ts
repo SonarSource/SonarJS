@@ -82,7 +82,7 @@ export const rule: Rule.RuleModule = {
       return scope !== null && searchUpperFunctionScope(context.getScope()) === scope;
     }
 
-    function isConditional(node: estree.Node): boolean {
+    function isInsideConditional(node: estree.Node): boolean {
       return (
         findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'IfStatement') !==
         undefined
@@ -129,7 +129,7 @@ export const rule: Rule.RuleModule = {
         if (
           !isInsideFunctionScope(reactComponentScope) ||
           setters.length === 0 ||
-          isConditional(node)
+          isInsideConditional(node)
         ) {
           return;
         }
