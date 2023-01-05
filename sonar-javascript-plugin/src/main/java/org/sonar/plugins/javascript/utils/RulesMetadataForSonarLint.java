@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
@@ -49,9 +50,12 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.css.CssProfileDefinition;
+import org.sonar.plugins.javascript.css.CssRules;
+import org.sonar.plugins.javascript.css.CssRulesDefinition;
+import org.sonar.plugins.javascript.css.rules.CssRule;
+import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
-
-import static org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition.METADATA_LOCATION;
 
 /**
  * This class is used to generate static json file with rule metadata used by SonarLint Visual Studio because
@@ -68,37 +72,32 @@ public class RulesMetadataForSonarLint {
 
   private final List<Rule> rules = new ArrayList<>();
 
-  RulesMetadataForSonarLint(String repositoryKey, List<Class<? extends JavaScriptCheck>> checks) {
-    addRules(repositoryKey, checks);
-  }
-
   RulesMetadataForSonarLint() {
-    addRules(CheckList.JS_REPOSITORY_KEY, Collections.unmodifiableList(CheckList.getJavaScriptChecks()));
-    addRules(CheckList.TS_REPOSITORY_KEY, Collections.unmodifiableList(CheckList.getTypeScriptChecks()));
+
   }
 
-  void addRules(String repositoryKey, List<Class<? extends JavaScriptCheck>> ruleClasses) {
+  void addRules(String repositoryKey, List<? extends Class<?>> ruleClasses, String metadataLocation, String profilePath) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository repository = context
       .createRepository(repositoryKey, JavaScriptLanguage.KEY)
       .setName("dummy");
 
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, getSonarlintRuntime());
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(metadataLocation, profilePath, getSonarlintRuntime());
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(ruleClasses));
     repository.done();
 
-    Map<String, EslintBasedCheck> ruleKeyToCheck = ruleClasses.stream()
-      .filter(EslintBasedCheck.class::isAssignableFrom)
-      .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::javaScriptCheck));
+    Map<String, Object> ruleKeyToCheck = ruleClasses.stream()
+      .filter(c -> EslintBasedCheck.class.isAssignableFrom(c) || CssRule.class.isAssignableFrom(c))
+      .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::checkInstance));
 
     context.repository(repositoryKey).rules().stream()
       .map(r -> {
-        EslintBasedCheck check = ruleKeyToCheck.get(r.key());
+        var check = ruleKeyToCheck.get(r.key());
         if (check != null) {
-          return Rule.fromSqRule(repositoryKey, r, check.eslintKey(), check.configurations());
+          return Rule.fromSqRule(repositoryKey, r, check);
         } else {
-          return Rule.fromSqRule(repositoryKey, r, null, Collections.emptyList());
+          return Rule.fromSqRule(repositoryKey, r, null);
         }
       })
       .forEach(rules::add);
@@ -109,9 +108,9 @@ public class RulesMetadataForSonarLint {
     return ruleAnnotation.key();
   }
 
-  static EslintBasedCheck javaScriptCheck(Class<? extends JavaScriptCheck> clazz) {
+  static <T> T checkInstance(Class<T> clazz) {
     try {
-      return (EslintBasedCheck) clazz.getDeclaredConstructor().newInstance();
+      return clazz.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
       throw new IllegalStateException("failed to instantiate " + clazz.getSimpleName(), e);
     }
@@ -128,7 +127,14 @@ public class RulesMetadataForSonarLint {
       throw new IllegalStateException("Missing argument - provide path where to save metadata");
     }
     try {
-      new RulesMetadataForSonarLint().save(Paths.get(args[0]));
+      var metadata = new RulesMetadataForSonarLint();
+      metadata.addRules(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks(),
+        JavaScriptRulesDefinition.METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
+      metadata.addRules(CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks(),
+        JavaScriptRulesDefinition.METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
+      metadata.addRules(CssRulesDefinition.REPOSITORY_KEY, CssRules.getRuleClasses(),
+        CssRulesDefinition.RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY, CssProfileDefinition.PROFILE_PATH);
+      metadata.save(Paths.get(args[0]));
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);
@@ -173,8 +179,9 @@ public class RulesMetadataForSonarLint {
     private RuleScope scope;
     private String eslintKey;
     private boolean activatedByDefault;
+    private String stylelintKey;
 
-    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, String eslintKey, List<Object> defaultParams) {
+    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, @Nullable Object check) {
       Rule rule = new Rule();
       rule.ruleKey = RuleKey.of(repository, sqRule.key()).toString();
       rule.type = sqRule.type();
@@ -185,9 +192,16 @@ public class RulesMetadataForSonarLint {
       rule.tags = sqRule.tags();
       rule.params = sqRule.params();
       rule.scope = sqRule.scope();
-      rule.eslintKey = eslintKey;
       rule.activatedByDefault = sqRule.activatedByDefault();
-      rule.defaultParams = defaultParams;
+      if (check instanceof EslintBasedCheck) {
+        var eslintBasedCheck = (EslintBasedCheck) check;
+        rule.eslintKey = eslintBasedCheck.eslintKey();
+        rule.defaultParams = eslintBasedCheck.configurations();
+      } else if (check instanceof CssRule) {
+        var cssRule = (CssRule) check;
+        rule.stylelintKey = cssRule.stylelintKey();
+        rule.defaultParams = cssRule.stylelintOptions();
+      }
       return rule;
     }
   }
