@@ -116,8 +116,7 @@ function NestedInvalid() {
   const [language, setLanguage] = useState(navigator.language);
 
   if (language === 'fr') {
-    setLanguage('en'); // Noncompliant
-//  ^^^^^^^^^^^
+    setLanguage('en'); // no longer raised, because used conditionally
   }
 
   return (
@@ -149,3 +148,11 @@ function NestedValid() {
 const [count, setCount] = useState(0);
 setCount(1);
 
+
+function ConditionalComponent() {
+  const [language, setLanguage] = useState("fr-FR");
+
+  if (enjoySharpKnives) {
+    setLanguage(navigator.language);
+  }
+}
