@@ -30,8 +30,8 @@ export default async function (
   next: express.NextFunction,
 ) {
   try {
-    const { baseDir } = request.body;
-    response.json(await writeTSConfigFile(baseDir));
+    const tsconfig = request.body;
+    response.json(await writeTSConfigFile(tsconfig));
   } catch (error) {
     next(error);
   }

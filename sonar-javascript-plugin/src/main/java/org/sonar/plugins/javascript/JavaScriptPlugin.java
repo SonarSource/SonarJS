@@ -42,7 +42,7 @@ import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
-import org.sonar.plugins.javascript.eslint.SonarLintProjectChecker;
+import org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker;
 import org.sonar.plugins.javascript.eslint.TypeScriptChecks;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
@@ -291,7 +291,7 @@ public class JavaScriptPlugin implements Plugin {
   static class SonarLintPluginAPIManager {
     public void addSonarlintJavaScriptProjectChecker(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtension(SonarLintProjectChecker.class);
+        context.addExtension(SonarLintJavaScriptProjectChecker.class);
       } else {
         LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
       }
