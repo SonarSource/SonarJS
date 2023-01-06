@@ -1,8 +1,9 @@
+@angular-eslint/eslint-plugin v15.1.0
+@typescript-eslint/eslint-plugin v5.48.0
 eslint-plugin-react v7.10.0
 eslint-plugin-flowtype v2.50.0
 eslint-plugin-import v2.13.0
 eslint-plugin-promise v3.8.0
-eslint-plugin-angular v3.3.0
 eslint-plugin-vue v4.5.0
 eslint-plugin-ember v5.2.0
 eslint-plugin-jsx-a11y v6.1.0
