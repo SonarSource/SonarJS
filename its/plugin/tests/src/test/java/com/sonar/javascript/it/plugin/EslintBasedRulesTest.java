@@ -36,12 +36,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static com.sonar.javascript.it.plugin.ProfileGenerator.generateProfile;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 class EslintBasedRulesTest {
@@ -210,6 +212,30 @@ class EslintBasedRulesTest {
     var issue = issuesList.get(0);
     assertThat(issue.getLine()).isEqualTo(2);
     assertThat(issue.getQuickFixAvailable()).isTrue();
+  }
+
+  @Test
+  void jsFileNamedAsTsFile() {
+    var projectKey = "same-filename";
+    var projectDir = TestUtils.projectDir(projectKey);
+    SonarScanner build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setDebugLogs(true)
+      .setProjectDir(projectDir);
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
+//    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.getLogsLines(l -> l.contains("Failed to parse") && l.contains("with TypeScript parser"))).isEmpty();
+
+    var issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getRule, Issue::getComponent).containsExactlyInAnyOrder(
+      tuple("javascript:S3403", projectKey + ":file.js"), // rule requires type information
+      tuple("javascript:S3923", projectKey + ":file.js"), // rule does not require type information
+      tuple("typescript:S3923", projectKey + ":file.ts")
+    );
   }
 
   @NotNull
