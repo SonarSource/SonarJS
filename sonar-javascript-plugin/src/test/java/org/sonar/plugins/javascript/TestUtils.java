@@ -23,10 +23,12 @@ import com.google.gson.Gson;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -42,6 +44,9 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.cache.CpdData;
+import org.sonar.plugins.javascript.eslint.cache.CpdSerializer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -90,13 +95,28 @@ public class TestUtils {
     when(cache.read("jssecurity:ucfgs:JSON:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream("{\"fileSizes\":[]}".getBytes(StandardCharsets.UTF_8)));
     when(cache.contains("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(true);
     when(cache.read("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(new byte[0]));
+
     when(cache.contains("js:cpd:data:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("js:cpd:data:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(CPD_TOKENS.getBytes(StandardCharsets.UTF_8)));
+    when(cache.contains("js:cpd:stringTable:moduleKey:" + filePath)).thenReturn(true);
+
+    try {
+      var result = CpdSerializer.toBinary(new CpdData(getCpdTokens(), "1.2.3"));
+      when(cache.read("js:cpd:data:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getData()));
+      when(cache.read("js:cpd:stringTable:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getStringTable()));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
     when(cache.contains("js:filemetadata:moduleKey:" + filePath)).thenReturn(true);
     when(cache.read("js:filemetadata:moduleKey:" + filePath)).thenReturn(
       inputStream("{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
         "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"));
+
     return context;
+  }
+
+  public static List<EslintBridgeServer.CpdToken> getCpdTokens() {
+    return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
   }
 
   public static InputStream inputStream(String string) {

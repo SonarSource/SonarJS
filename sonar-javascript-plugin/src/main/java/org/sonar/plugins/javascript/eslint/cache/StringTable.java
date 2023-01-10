@@ -19,25 +19,44 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import java.util.Map;
+import javax.annotation.Nullable;
 
-public class CpdData {
+public class StringTable {
 
-  private final List<EslintBridgeServer.CpdToken> cpdTokens;
-  private final String pluginVersion;
+  private final Map<String, Integer> table;
+  private final List<String> byIndex;
 
-  public CpdData(List<EslintBridgeServer.CpdToken> cpdTokens, String pluginVersion) {
-    this.cpdTokens = List.copyOf(cpdTokens);
-    this.pluginVersion = pluginVersion;
+  public StringTable() {
+    table = new HashMap<>();
+    byIndex = new ArrayList<>();
   }
 
-  public List<EslintBridgeServer.CpdToken> getCpdTokens() {
-    return cpdTokens;
+  public StringTable(List<String> byIndex) {
+    table = new HashMap<>();
+    this.byIndex = byIndex;
+    for (int i = 0; i < byIndex.size(); i++) {
+      table.put(byIndex.get(i), i);
+    }
   }
 
-  String getPluginVersion() {
-    return pluginVersion;
+  public int getIndex(@Nullable String string) {
+    return table.computeIfAbsent(string, s -> {
+      byIndex.add(s);
+      return byIndex.size() - 1;
+    });
+  }
+
+  public String getString(int index) {
+    return byIndex.get(index);
+  }
+
+  public List<String> getStringList() {
+    return Collections.unmodifiableList(byIndex);
   }
 
 }

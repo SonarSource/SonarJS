@@ -45,7 +45,7 @@ class CacheKey {
   }
 
   CacheKey forCpd() {
-    return withPrefixes("js", "cpd", "data");
+    return withPrefixes("js", "cpd");
   }
 
   CacheKey forUcfg() {

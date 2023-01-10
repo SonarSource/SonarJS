@@ -45,7 +45,7 @@ class CacheKeyTest {
 
   @Test
   void test_cpd_data_key() {
-    assertThat(CacheKey.forFile(inputFile).forCpd()).hasToString("js:cpd:data:fileKey");
+    assertThat(CacheKey.forFile(inputFile).forCpd()).hasToString("js:cpd:fileKey");
   }
 
   @Test

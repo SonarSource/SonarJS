@@ -19,25 +19,22 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
-import java.util.List;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+public class SerializationResult {
 
-public class CpdData {
+  private final byte[] data;
+  private final byte[] stringTable;
 
-  private final List<EslintBridgeServer.CpdToken> cpdTokens;
-  private final String pluginVersion;
-
-  public CpdData(List<EslintBridgeServer.CpdToken> cpdTokens, String pluginVersion) {
-    this.cpdTokens = List.copyOf(cpdTokens);
-    this.pluginVersion = pluginVersion;
+  SerializationResult(byte[] data, byte[] stringTable) {
+    this.data = data;
+    this.stringTable = stringTable;
   }
 
-  public List<EslintBridgeServer.CpdToken> getCpdTokens() {
-    return cpdTokens;
+  public byte[] getData() {
+    return data;
   }
 
-  String getPluginVersion() {
-    return pluginVersion;
+  public byte[] getStringTable() {
+    return stringTable;
   }
 
 }
