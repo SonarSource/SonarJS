@@ -76,6 +76,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
     keys.stream()
       .filter(activeKeysForBothLanguages::contains)
+      // deprecated for Typescript: https://github.com/SonarSource/SonarJS/issues/3580
+      .filter(key -> !TypeScriptLanguage.KEY.equals(language) || !"S2814".equals(key))
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
 
     addSecurityRules(newProfile, language);
