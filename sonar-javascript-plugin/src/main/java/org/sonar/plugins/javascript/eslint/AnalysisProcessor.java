@@ -105,10 +105,12 @@ public class AnalysisProcessor {
     contextUtils = new ContextUtils(context);
     this.file = file;
 
-    if (!YamlSensor.LANGUAGE.equals(file.language())) {
+    if (YamlSensor.LANGUAGE.equals(file.language())) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files.
+      LOG.debug("Skipping processing of the analysis extracted from cache because YAML files are not handled by the javascript plugin");
+    } else {
       saveCpd(cacheAnalysis.getCpdTokens());
     }
   }

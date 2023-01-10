@@ -239,7 +239,8 @@ class YamlSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).isNull();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Processing cache analysis of file: " + file.uri());
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .doesNotContain("Processing cache analysis of file: " + file.uri());
   }
 
   private static JavaScriptChecks checks(String... ruleKeys) {
