@@ -275,7 +275,8 @@ class PRAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(projectDir.toFile())
       .setProperty("sonar.scm.provider", "git")
-      .setProperty("sonar.scm.disabled", "false");
+      .setProperty("sonar.scm.disabled", "false")
+      .setProperty("sonar.internal.analysis.failFast", "true");
   }
 
   private static BuildResult scanWith(SonarScanner scanner) {

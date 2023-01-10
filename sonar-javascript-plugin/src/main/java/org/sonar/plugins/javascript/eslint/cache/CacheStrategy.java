@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint.cache;
 import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
 
 public class CacheStrategy {
 
@@ -59,9 +60,9 @@ public class CacheStrategy {
     return cacheAnalysis == null;
   }
 
-  public void writeAnalysisToCache(CacheAnalysis analysis) throws IOException {
+  public void writeAnalysisToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     if (serialization != null) {
-      serialization.writeToCache(analysis);
+      serialization.writeToCache(analysis, file);
     }
   }
 

@@ -57,7 +57,7 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
+  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
@@ -73,7 +73,8 @@ public class CacheStrategies {
       return strategy;
     }
 
-    if (inputFile.status() != InputFile.Status.SAME) {
+    var fileMetadata = serialization.fileMetadata();
+    if (fileMetadata.isEmpty() || !isSameFile(fileMetadata.get(), inputFile)) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.FILE_CHANGED);
       return strategy;
@@ -95,6 +96,10 @@ public class CacheStrategies {
     var strategy = readAndWrite(cacheAnalysis, serialization);
     REPORTER.logAndIncrement(strategy, inputFile, null);
     return strategy;
+  }
+
+  private static boolean isSameFile(FileMetadata fileMetadata, InputFile inputFile) throws IOException {
+    return fileMetadata.compareTo(inputFile);
   }
 
   static CacheAnalysis readFromCache(CacheAnalysisSerialization serialization) {

@@ -57,6 +57,10 @@ class CacheKey {
       PluginInfo.getUcfgPluginVersion().orElse(null));
   }
 
+  CacheKey forFileMetadata() {
+    return withPrefixes("js", "filemetadata");
+  }
+
   CacheKey withPrefix(String prefix) {
     return new CacheKey(file, Stream.concat(prefixes.stream(), Stream.of(prefix)).collect(toList()));
   }

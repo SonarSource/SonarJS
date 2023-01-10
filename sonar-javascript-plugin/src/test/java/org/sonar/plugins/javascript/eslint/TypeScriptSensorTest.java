@@ -518,6 +518,7 @@ class TypeScriptSensorTest {
     Path filePath = baseDir.resolve(file);
     DefaultInputFile inputFile = new TestInputFileBuilder("projectKey", baseDir.toFile(), filePath.toFile())
       .setContents(Files.readString(filePath))
+      .setCharset(StandardCharsets.UTF_8)
       .setLanguage("ts")
       .build();
     context.fileSystem().add(inputFile);

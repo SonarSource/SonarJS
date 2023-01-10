@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
+import java.util.Optional;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
@@ -29,16 +31,26 @@ public class CacheAnalysisSerialization extends AbstractSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
   private final JsonSerialization<CpdData> cpdDataSerialization;
+  private final JsonSerialization<FileMetadata> fileMetadataSerialization;
 
   CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdDataSerialization = new JsonSerialization<>(CpdData.class, context, cacheKey.forCpd());
+    fileMetadataSerialization = new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
   }
 
   @Override
   boolean isInCache() {
     return ucfgFileSerialization.isInCache() && cpdDataSerialization.isInCache();
+  }
+
+  Optional<FileMetadata> fileMetadata() throws IOException {
+    if (fileMetadataSerialization.isInCache()) {
+      return Optional.of(fileMetadataSerialization.readFromCache());
+    } else {
+      return Optional.empty();
+    }
   }
 
   CacheAnalysis readFromCache() throws IOException {
@@ -52,9 +64,10 @@ public class CacheAnalysisSerialization extends AbstractSerialization {
     return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0]));
   }
 
-  void writeToCache(CacheAnalysis analysis) throws IOException {
+  void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
     cpdDataSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens())));
+    fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
 
   @Override
