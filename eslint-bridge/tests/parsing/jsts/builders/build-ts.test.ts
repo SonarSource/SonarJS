@@ -75,8 +75,6 @@ describe('buildTs', () => {
 
     const analysisInput = await jsTsInput({ filePath, tsConfigs });
     const isVueFile = false;
-    expect(() => buildTs(analysisInput, isVueFile)).toThrow(
-      /^"parserOptions.project" has been set for @typescript-eslint\/parser/,
-    );
+    expect(() => buildTs(analysisInput, isVueFile)).toThrow(/TSConfig does not include this file./);
   });
 });
