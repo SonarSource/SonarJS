@@ -109,7 +109,7 @@ public class AnalysisProcessor {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files.
-      LOG.debug("Skipping processing of the analysis extracted from cache because YAML files are not handled by the javascript plugin");
+      LOG.debug("Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files");
     } else {
       saveCpd(cacheAnalysis.getCpdTokens());
     }
