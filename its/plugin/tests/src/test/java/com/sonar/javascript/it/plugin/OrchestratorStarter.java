@@ -30,7 +30,6 @@ import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -131,10 +130,22 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Measure getMeasure(String componentKey, String metricKey) {
-    ComponentWsResponse response = newWsClient(ORCHESTRATOR).measures().component(new ComponentRequest()
+    return getMeasure(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  private static Measure getMeasure(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    var request = new ComponentRequest()
       .setComponent(componentKey)
-      .setMetricKeys(singletonList(metricKey)));
-    List<Measure> measures = response.getComponent().getMeasuresList();
+      .setMetricKeys(singletonList(metricKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
+    if (pullRequest != null) {
+      request.setPullRequest(pullRequest);
+    }
+    var response = newWsClient(orchestrator).measures().component(request);
+    var measures = response.getComponent().getMeasuresList();
     return measures.size() == 1 ? measures.get(0) : null;
   }
 
@@ -146,7 +157,12 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Double getMeasureAsDouble(String componentKey, String metricKey) {
-    Measure measure = getMeasure(componentKey, metricKey);
+    return getMeasureAsDouble(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  public static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 

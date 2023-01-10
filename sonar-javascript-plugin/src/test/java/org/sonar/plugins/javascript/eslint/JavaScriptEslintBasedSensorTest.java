@@ -45,8 +45,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.cache.ReadCache;
-import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -64,6 +62,7 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
@@ -74,6 +73,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -108,6 +108,10 @@ class JavaScriptEslintBasedSensorTest {
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
+    // reset is required as this static value might be set by another test
+    PluginInfo.setUcfgPluginVersion(null);
+
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
@@ -347,7 +351,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_save_cpd() throws Exception {
-    AnalysisResponse responseCpdTokens = response("{ cpdTokens: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}] }");
+    AnalysisResponse responseCpdTokens = response(TestUtils.CPD_TOKENS);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
@@ -497,8 +501,6 @@ class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.createTsConfigFile(anyString())).thenReturn(new TsConfigFile("/path/to/file", emptyList(), emptyList()));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setNextCache(mock(WriteCache.class));
-    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
@@ -513,8 +515,6 @@ class JavaScriptEslintBasedSensorTest {
 
     clearInvocations(eslintBridgeServerMock);
     ctx = SensorContextTester.create(baseDir);
-    ctx.setNextCache(mock(WriteCache.class));
-    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
@@ -525,8 +525,6 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_send_content_when_not_utf8() throws Exception {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setNextCache(mock(WriteCache.class));
-    ctx.setPreviousCache(mock(ReadCache.class));
     ctx.fileSystem().setWorkDir(workDir);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
@@ -574,6 +572,19 @@ class JavaScriptEslintBasedSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+  }
+
+  @Test
+  void should_save_cached_cpd() {
+    var path = "dir/file.js";
+    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
+    var sensor = createSensor();
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(file.key())).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Processing cache analysis of file: " + file.uri());
   }
 
   @Test

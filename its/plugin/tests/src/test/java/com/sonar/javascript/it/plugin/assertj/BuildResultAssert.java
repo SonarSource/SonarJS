@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package com.sonar.javascript.it.plugin;
+package com.sonar.javascript.it.plugin.assertj;
 
 import com.sonar.orchestrator.build.BuildResult;
 import java.io.IOException;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 
 @SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
-class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
+public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
 
   private String projectKey;
 
@@ -51,7 +51,7 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     super(actual, BuildResultAssert.class);
   }
 
-  static BuildResultAssert assertThat(BuildResult buildResult) {
+  public static BuildResultAssert assertThat(BuildResult buildResult) {
     return new BuildResultAssert(buildResult);
   }
 
@@ -79,35 +79,35 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfgs");
   }
 
-  FileCacheStrategy cacheFileStrategy(String strategy) {
+  public FileCacheStrategy cacheFileStrategy(String strategy) {
     return new FileCacheStrategy(strategy);
   }
 
-  BuildResultAssert withProjectKey(String projectKey) {
+  public BuildResultAssert withProjectKey(String projectKey) {
     this.projectKey = projectKey;
     return this;
   }
 
-  BuildResultAssert logsOnce(String... logs) {
+  public BuildResultAssert logsOnce(String... logs) {
     return logsTimes(1, logs);
   }
 
-  BuildResultAssert logsOnce(Pattern pattern) {
+  public BuildResultAssert logsOnce(Pattern pattern) {
     return logsTimes(1, pattern);
   }
 
-  BuildResultAssert doesNotLog(String log) {
+  public BuildResultAssert doesNotLog(String log) {
     return logsTimes(0, log);
   }
 
-  BuildResultAssert logsTimes(int times, String... logs) {
+  public BuildResultAssert logsTimes(int times, String... logs) {
     for (var log : logs) {
       logsTimesWhere(format("has log \"%s\" %d time(s)", log, times), times, line -> line.contains(log));
     }
     return this;
   }
 
-  BuildResultAssert logsTimes(int times, Pattern pattern) {
+  public BuildResultAssert logsTimes(int times, Pattern pattern) {
     return logsTimesWhere(format("contains regexp /%s/ %d time(s)", pattern.pattern(), times), times, pattern.asPredicate());
   }
 
@@ -117,11 +117,11 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return has(new HamcrestCondition<>(matcher));
   }
 
-  BuildResultAssert logsAtLeastOnce(String log) {
+  public BuildResultAssert logsAtLeastOnce(String log) {
     return has(new HamcrestCondition<>(logMatcher(format("has at least log [%s]", log), line -> line.contains(log), n -> n > 0)));
   }
 
-  BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
+  public BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
     List<Path> ucfgFiles;
     try {
       ucfgFiles = findUcfgFilesIn(projectPath);
@@ -136,7 +136,7 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
     return this;
   }
 
-  class FileCacheStrategy {
+  public class FileCacheStrategy {
 
     private final String strategy;
     private List<String> files;
@@ -147,22 +147,22 @@ class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
       this.strategy = strategy;
     }
 
-    FileCacheStrategy forFiles(String... files) {
+    public FileCacheStrategy forFiles(String... files) {
       this.files = List.of(files);
       return this;
     }
 
-    FileCacheStrategy withCachedFilesCounts(int... cachedFilesCounts) {
+    public FileCacheStrategy withCachedFilesCounts(int... cachedFilesCounts) {
       this.cachedFilesCounts = IntStream.of(cachedFilesCounts).boxed().collect(toList());
       return this;
     }
 
-    FileCacheStrategy withReason(String reason) {
+    public FileCacheStrategy withReason(String reason) {
       this.reason = reason;
       return this;
     }
 
-    BuildResultAssert isUsed() {
+    public BuildResultAssert isUsed() {
       IntStream.range(0, files.size())
         .mapToObj(i -> tuple(files.get(i), cachedFilesCounts.get(i)))
         .forEach(this::check);

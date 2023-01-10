@@ -68,6 +68,7 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
@@ -118,6 +119,9 @@ class TypeScriptSensorTest {
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
+    // reset is required as this static value might be set by another test
+    PluginInfo.setUcfgPluginVersion(null);
 
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
@@ -606,6 +610,40 @@ class TypeScriptSensorTest {
 
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+  }
+
+  @Test
+  void should_save_cached_cpd() throws IOException {
+    var path = "dir/file.ts";
+    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
+    var sensor = createSensor();
+
+    createVueInputFile(context);
+    createTsConfigFile();
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList()));
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(file.key())).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Processing cache analysis of file: " + file.uri());
+  }
+
+  @Test
+  void should_save_cached_cpd_with_program() throws IOException {
+    var path = "dir/file.ts";
+    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
+    var sensor = createSensor();
+
+    createTsConfigFile();
+    var tsProgram = new TsProgram("1", List.of(file.absolutePath()), List.of());
+    when(eslintBridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(file.key())).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Processing cache analysis of file: " + file.uri());
   }
 
   private TypeScriptSensor createSensor() {
