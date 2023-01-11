@@ -156,7 +156,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
           contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.getFilename()), null, analysisMode.getLinterIdFor(file));
         AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens));
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file, e);
         throw e;

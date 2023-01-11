@@ -19,8 +19,13 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.gson.Gson;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -87,7 +92,22 @@ public class TestUtils {
     when(cache.read("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(new byte[0]));
     when(cache.contains("js:cpd:data:moduleKey:" + filePath)).thenReturn(true);
     when(cache.read("js:cpd:data:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(CPD_TOKENS.getBytes(StandardCharsets.UTF_8)));
+    when(cache.contains("js:filemetadata:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("js:filemetadata:moduleKey:" + filePath)).thenReturn(
+      inputStream("{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
+        "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"));
     return context;
   }
 
+  public static InputStream inputStream(String string) {
+    return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public static InputStream inputStream(Object object) {
+    return inputStream(new Gson().toJson(object));
+  }
+
+  public static InputStream inputStream(Path path) throws IOException {
+    return new BufferedInputStream(Files.newInputStream(path));
+  }
 }

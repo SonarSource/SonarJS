@@ -166,7 +166,7 @@ public class AnalysisWithProgram {
           file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
         EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
         processAnalysis.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens));
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file, e);
         throw e;

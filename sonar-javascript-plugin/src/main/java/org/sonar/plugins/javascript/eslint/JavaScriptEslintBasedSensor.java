@@ -117,7 +117,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
           fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
         AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
         processAnalysis.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens));
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
