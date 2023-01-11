@@ -51,8 +51,8 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
     commentRegularExpression.setTemplate(true);
 
     // deprecated for Typescript: https://github.com/SonarSource/SonarJS/issues/3580
-    NewRule redeclaredVariables = repository.rule("S2814");
-    redeclaredVariables.setStatus(RuleStatus.DEPRECATED);
+    NewRule redeclaredSymbol = repository.rule("S2814");
+    redeclaredSymbol.setStatus(RuleStatus.DEPRECATED);
 
     repository.done();
   }
