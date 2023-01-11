@@ -225,7 +225,6 @@ class EslintBasedRulesTest {
       .setDebugLogs(true)
       .setProjectDir(projectDir);
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
-//    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.contains("Failed to parse") && l.contains("with TypeScript parser"))).isEmpty();

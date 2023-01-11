@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <profile>
-  <name>eslint-based-rules-profile</name>
+  <name>eslint-based-rules-profile-js</name>
   <language>js</language>
   <rules>
     <rule>
