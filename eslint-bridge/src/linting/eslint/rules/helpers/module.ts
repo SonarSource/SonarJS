@@ -22,6 +22,7 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast';
+import Variable = Scope.Variable;
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.getSourceCode().ast;
@@ -122,6 +123,7 @@ export function getFullyQualifiedNameRaw(
   node: estree.Node,
   fqn: string[],
   scope?: Scope.Scope,
+  visitedVars: Variable[] = [],
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
@@ -149,7 +151,7 @@ export function getFullyQualifiedNameRaw(
   // ESLint marks built-in global variables with an undocumented hidden `writeable` property that should equal `false`.
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/linter/linter.js#L207
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
-  if ((variable as any).writeable === false) {
+  if ((variable as any).writeable === false || visitedVars.includes(variable)) {
     fqn.unshift(nodeToCheck.name);
     return fqn.join('.');
   }
@@ -195,7 +197,13 @@ export function getFullyQualifiedNameRaw(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope);
+      return getFullyQualifiedNameRaw(
+        context,
+        nodeToCheck,
+        fqn,
+        variable.scope,
+        visitedVars.concat(variable),
+      );
     }
   }
   return null;
