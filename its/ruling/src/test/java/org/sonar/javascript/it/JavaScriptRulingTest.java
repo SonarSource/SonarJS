@@ -129,10 +129,7 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-kubernetes-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
       "S124",

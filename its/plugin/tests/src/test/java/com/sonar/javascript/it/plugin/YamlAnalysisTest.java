@@ -48,13 +48,11 @@ public class YamlAnalysisTest {
       .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "yaml-aws-lambda-profile", "cloudformation",
       "eslint-based-rules-profile", "js"));
     BuildResult result = orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(5, "cloudformation:S6295"),
       tuple(12, "javascript:S3923")
     );
     assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
@@ -71,7 +69,6 @@ public class YamlAnalysisTest {
       .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "yaml-aws-lambda-profile", "cloudformation",
       "eslint-based-rules-profile", "js"));
     BuildResult result = orchestrator.executeBuild(build);
     assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(0);
