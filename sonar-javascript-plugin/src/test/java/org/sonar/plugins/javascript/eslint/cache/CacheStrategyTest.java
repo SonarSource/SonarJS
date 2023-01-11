@@ -67,6 +67,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.TestUtils.inputStream;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 
@@ -131,7 +132,7 @@ class CacheStrategyTest {
     when(context.fileSystem()).thenReturn(fileSystem);
 
     when(previousCache.contains(metadataCacheKey)).thenReturn(true);
-    var metadata = TestUtils.inputStream(new Gson().toJson(FileMetadata.from(inputFile)));
+    var metadata = inputStream(new Gson().toJson(FileMetadata.from(inputFile)));
     when(previousCache.read(metadataCacheKey)).thenReturn(metadata);
   }
 
@@ -186,7 +187,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)));
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)), inputFile);
 
     var sequenceCaptor = ArgumentCaptor.forClass(InputStream.class);
     verify(nextCache).write(eq(seqCacheKey), sequenceCaptor.capture());
@@ -330,7 +331,7 @@ class CacheStrategyTest {
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
-    when(previousCache.read(jsonCacheKey)).thenReturn(TestUtils.inputStream("invalid-json"));
+    when(previousCache.read(jsonCacheKey)).thenReturn(inputStream("invalid-json"));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -352,7 +353,7 @@ class CacheStrategyTest {
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
-    when(previousCache.read(cpdDataCacheKey)).thenReturn(TestUtils.inputStream("invalid-cpd-data"));
+    when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream("invalid-cpd-data"));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(inputStream("invalid-cpd-stringTable"));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
@@ -377,7 +378,7 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var serializationResult = CpdSerializer.toBinary(new CpdData(emptyList(), "1.2.3"));
-    when(previousCache.read(cpdDataCacheKey)).thenReturn(TestUtils.inputStream(serializationResult.getData()));
+    when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream(serializationResult.getData()));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(inputStream(serializationResult.getStringTable()));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
@@ -552,11 +553,11 @@ class CacheStrategyTest {
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
     when(context.nextCache()).thenReturn(nextCache);
 
-    when(previousCache.read(jsonCacheKey)).thenReturn(TestUtils.inputStream(jsonFile));
-    when(previousCache.read(seqCacheKey)).thenReturn(TestUtils.inputStream(binFile));
+    when(previousCache.read(jsonCacheKey)).thenReturn(inputStream(jsonFile));
+    when(previousCache.read(seqCacheKey)).thenReturn(inputStream(binFile));
 
     var serializationResult = CpdSerializer.toBinary(new CpdData(CPD_TOKENS, PLUGIN_VERSION));
-    when(previousCache.read(cpdDataCacheKey)).thenReturn(TestUtils.inputStream(serializationResult.getData()));
+    when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream(serializationResult.getData()));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(inputStream(serializationResult.getStringTable()));
     when(previousCache.contains(jsonCacheKey)).thenReturn(true);
     when(previousCache.contains(seqCacheKey)).thenReturn(true);

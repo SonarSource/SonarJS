@@ -119,8 +119,12 @@ public class TestUtils {
     return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
   }
 
+  public static InputStream inputStream(byte[] bytes) {
+    return new ByteArrayInputStream(bytes);
+  }
+
   public static InputStream inputStream(String string) {
-    return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+    return inputStream(string.getBytes(StandardCharsets.UTF_8));
   }
 
   public static InputStream inputStream(Object object) {
@@ -130,4 +134,5 @@ public class TestUtils {
   public static InputStream inputStream(Path path) throws IOException {
     return new BufferedInputStream(Files.newInputStream(path));
   }
+
 }
