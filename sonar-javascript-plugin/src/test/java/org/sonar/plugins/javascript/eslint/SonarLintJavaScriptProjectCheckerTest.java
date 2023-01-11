@@ -35,8 +35,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-import static org.sonar.plugins.javascript.eslint.SonarLintProjectChecker.MAX_FILES_PROPERTY;
+import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
 
 class SonarLintProjectCheckerTest {
 
@@ -79,14 +79,14 @@ class SonarLintProjectCheckerTest {
     assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
   }
 
-  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
-    var checker = new SonarLintProjectChecker();
+  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
+    var checker = new SonarLintJavaScriptProjectChecker();
     checker.checkOnce(sensorContext(maxFiles));
     return checker;
   }
 
-  private SonarLintProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
-    var checker = new SonarLintProjectChecker();
+  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
+    var checker = new SonarLintJavaScriptProjectChecker();
     var context = sensorContext();
     when(context.fileSystem().baseDir()).thenThrow(error);
     checker.checkOnce(context);

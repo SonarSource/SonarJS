@@ -32,9 +32,9 @@ import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @SonarLintSide(lifespan = "MODULE")
-public class SonarLintProjectChecker implements ProjectChecker {
+public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
 
-  private static final Logger LOG = Loggers.get(SonarLintProjectChecker.class);
+  private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
   static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
   static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
   private static final int FILE_WALK_MAX_DEPTH = 20;

@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
@@ -64,7 +63,7 @@ public interface EslintBridgeServer extends Startable {
 
   boolean deleteProgram(TsProgram tsProgram) throws IOException;
 
-  TsConfigFile createTsConfigFile(String baseDir) throws IOException;
+  TsConfigFile createTsConfigFile(String content) throws IOException;
 
   class JsAnalysisRequest {
     final String filePath;

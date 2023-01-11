@@ -8,5 +8,10 @@
       <key>S3923</key> <!-- all duplicate branches -->
       <priority>INFO</priority>
     </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3403</key> <!-- different-types-comparison -->
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>

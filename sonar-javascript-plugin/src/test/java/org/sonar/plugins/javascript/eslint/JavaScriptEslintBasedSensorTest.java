@@ -20,10 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -52,11 +54,13 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -65,15 +69,11 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 import org.sonarsource.nodejs.NodeCommandException;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -97,6 +97,11 @@ class JavaScriptEslintBasedSensorTest {
   @TempDir
   Path baseDir;
 
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
+
   private SensorContextTester context;
 
   @TempDir
@@ -115,10 +120,10 @@ class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
-    when(eslintBridgeServerMock.createTsConfigFile(anyString())).thenReturn(new TsConfigFile("/path/to/tsconfig.json", emptyList(), emptyList()));
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+    tempFolder = new DefaultTempFolder(tempDir, true);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -298,9 +303,9 @@ class JavaScriptEslintBasedSensorTest {
   void should_save_only_nosonar_metric_in_sonarlint() throws Exception {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
-    when(eslintBridgeServerMock.createTsConfigFile(anyString())).thenReturn(new TsConfigFile("/path/to/file", emptyList(), emptyList()));
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
 
-    JavaScriptEslintBasedSensor sensor = createSensor(mock(ProjectChecker.class));
+    JavaScriptEslintBasedSensor sensor = createSensor(mock(JavaScriptProjectChecker.class));
 
     DefaultInputFile inputFile = createInputFile(context);
 
@@ -422,6 +427,7 @@ class JavaScriptEslintBasedSensorTest {
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
       eslintBridgeServerMock,
       new AnalysisWarningsWrapper(),
+      tempFolder,
       monitoring,
       analysisProcessor
     );
@@ -437,6 +443,7 @@ class JavaScriptEslintBasedSensorTest {
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
       eslintBridgeServerMock,
       analysisWarnings,
+      tempFolder,
       monitoring,
       analysisProcessor
     );
@@ -489,7 +496,7 @@ class JavaScriptEslintBasedSensorTest {
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
-      eslintBridgeServerMock, null, monitoring, analysisProcessor).execute(context);
+      eslintBridgeServerMock, null, tempFolder, monitoring, analysisProcessor).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -498,14 +505,14 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_send_content_on_sonarlint() throws Exception {
-    when(eslintBridgeServerMock.createTsConfigFile(anyString())).thenReturn(new TsConfigFile("/path/to/file", emptyList(), emptyList()));
+    when(eslintBridgeServerMock.createTsConfigFile(any())).thenReturn(new TsConfigFile("/path/to/file", Collections.emptyList(), Collections.emptyList()));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.fileSystem().setWorkDir(workDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor(mock(ProjectChecker.class)).execute(ctx);
+    createSensor(mock(JavaScriptProjectChecker.class)).execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
       "doFoo(); \n" +
@@ -629,9 +636,9 @@ class JavaScriptEslintBasedSensorTest {
     return createSensor(null);
   }
 
-  private JavaScriptEslintBasedSensor createSensor(@Nullable ProjectChecker projectChecker) {
+  private JavaScriptEslintBasedSensor createSensor(@Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"),
-      eslintBridgeServerMock, new AnalysisWarningsWrapper(), monitoring, analysisProcessor, projectChecker
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, monitoring, analysisProcessor, javaScriptProjectChecker
     );
   }
 
