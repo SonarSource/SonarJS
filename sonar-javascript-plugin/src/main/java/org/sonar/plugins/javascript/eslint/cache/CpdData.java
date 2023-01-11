@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
 public class CpdData {
@@ -27,9 +29,13 @@ public class CpdData {
   private final List<EslintBridgeServer.CpdToken> cpdTokens;
   private final String pluginVersion;
 
-  public CpdData(List<EslintBridgeServer.CpdToken> cpdTokens, String pluginVersion) {
+  public CpdData(List<EslintBridgeServer.CpdToken> cpdTokens, @Nullable String pluginVersion) {
     this.cpdTokens = List.copyOf(cpdTokens);
-    this.pluginVersion = pluginVersion;
+    this.pluginVersion = Objects.requireNonNullElse(pluginVersion, "");
+  }
+
+  boolean isSameVersionAs(@Nullable String pluginVersion) {
+    return this.pluginVersion.equals(Objects.requireNonNullElse(pluginVersion, ""));
   }
 
   public List<EslintBridgeServer.CpdToken> getCpdTokens() {

@@ -57,7 +57,7 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) throws IOException {
+  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile, @Nullable String pluginVersion) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
@@ -65,7 +65,7 @@ public class CacheStrategies {
     }
 
     var cacheKey = CacheKey.forFile(inputFile);
-    var serialization = new CacheAnalysisSerialization(context, cacheKey);
+    var serialization = new CacheAnalysisSerialization(context, cacheKey, pluginVersion);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
       var strategy = writeOnly(serialization);

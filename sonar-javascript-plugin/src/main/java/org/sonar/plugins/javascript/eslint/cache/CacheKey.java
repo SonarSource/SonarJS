@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
@@ -48,9 +49,9 @@ class CacheKey {
     return withPrefixes("js", "cpd");
   }
 
-  CacheKey forUcfg() {
+  CacheKey forUcfg(@Nullable String pluginVersion) {
     return withPrefixes("jssecurity", "ucfgs",
-      PluginInfo.getVersion(),
+      pluginVersion,
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
       // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
       // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)

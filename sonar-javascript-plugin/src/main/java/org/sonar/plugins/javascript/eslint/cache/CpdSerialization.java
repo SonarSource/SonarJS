@@ -50,12 +50,7 @@ class CpdSerialization extends CacheSerialization {
   CpdData readFromCache() throws IOException {
     var data = cpdDataSerialization.readBytesFromCache();
     var stringTable = cpdStringTableSerialization.readBytesFromCache();
-
-    if (data != null && stringTable != null) {
-      return CpdDeserializer.fromBinary(data, stringTable);
-    } else {
-      throw new IOException("The CPD serialized data and/or string table are missing");
-    }
+    return CpdDeserializer.fromBinary(data, stringTable);
   }
 
   void writeToCache(CpdData cpdData) throws IOException {

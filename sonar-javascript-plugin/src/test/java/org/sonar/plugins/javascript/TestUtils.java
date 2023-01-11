@@ -100,7 +100,7 @@ public class TestUtils {
     when(cache.contains("js:cpd:stringTable:moduleKey:" + filePath)).thenReturn(true);
 
     try {
-      var result = CpdSerializer.toBinary(new CpdData(getCpdTokens(), "1.2.3"));
+      var result = CpdSerializer.toBinary(new CpdData(getCpdTokens(), null));
       when(cache.read("js:cpd:data:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getData()));
       when(cache.read("js:cpd:stringTable:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getStringTable()));
     } catch (IOException e) {

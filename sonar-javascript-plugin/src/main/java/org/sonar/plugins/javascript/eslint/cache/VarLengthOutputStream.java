@@ -57,10 +57,6 @@ public class VarLengthOutputStream implements Closeable {
     out.write(bytes);
   }
 
-  public void write(byte[] b) throws IOException {
-    out.write(b);
-  }
-
   @Override
   public void close() throws IOException {
     out.close();
