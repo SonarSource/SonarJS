@@ -119,13 +119,12 @@ class PRAnalysisTest {
   }
 
   @Test
-  void should_analyse_cloudformation_pull_requests() {
-    var cloudformation = TestProject.CLOUDFORMATION;
+  void should_analyse_yaml_pull_requests() {
+    var cloudformation = TestProject.YAML;
     var projectKey = cloudformation.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
     OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      cloudformation.getProfileName(), cloudformation.getLanguage(),
       TestProject.JS.getProfileName(), TestProject.JS.getLanguage()
     ));
 
@@ -146,9 +145,7 @@ class PRAnalysisTest {
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
-        .hasSize(1)
-        .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
-        .contains(tuple(projectKey + ":file1.yaml", "cloudformation:S6295"));
+        .isEmpty();
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
@@ -237,7 +234,6 @@ class PRAnalysisTest {
       .setEdition(Edition.DEVELOPER).activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
-      .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"));
 
     for (var projectTestCase : TestProject.values()) {
@@ -289,7 +285,7 @@ class PRAnalysisTest {
 
     JS("js", "js"),
     TS("ts", "ts"),
-    CLOUDFORMATION("cloudformation", "cloudformation"),
+    YAML("yaml", "js"),
     CPD_JS("cpd-js", "js"),
     CPD_TS("cpd-ts", "ts");
 
