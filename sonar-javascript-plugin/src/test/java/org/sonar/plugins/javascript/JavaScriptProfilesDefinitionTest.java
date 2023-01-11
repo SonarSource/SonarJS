@@ -75,6 +75,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(100);
+    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S2814");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
@@ -95,6 +96,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(100);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
+    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).doesNotContain("S2814");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }

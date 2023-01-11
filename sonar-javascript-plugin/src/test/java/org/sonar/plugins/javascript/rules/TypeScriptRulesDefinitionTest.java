@@ -29,6 +29,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition.Param;
@@ -120,6 +121,7 @@ class TypeScriptRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
     assertThat(rule.type()).isEqualTo(RuleType.BUG);
     assertThat(repository.rule("S124").template()).isTrue();
+    assertThat(repository.rule("S2814").status()).isEqualTo(RuleStatus.DEPRECATED);
   }
 
   private void assertAllRuleParametersHaveDescription(Repository repository) {

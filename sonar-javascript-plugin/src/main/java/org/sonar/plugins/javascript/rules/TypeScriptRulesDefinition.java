@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.rules;
 
 import java.util.Collections;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
@@ -49,7 +50,10 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);
 
+    // deprecated for Typescript: https://github.com/SonarSource/SonarJS/issues/3580
+    NewRule redeclaredSymbol = repository.rule("S2814");
+    redeclaredSymbol.setStatus(RuleStatus.DEPRECATED);
+
     repository.done();
   }
-
 }
