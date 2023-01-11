@@ -119,8 +119,8 @@ class PRAnalysisTest {
   }
 
   @Test
-  void should_analyse_cloudformation_pull_requests() {
-    var cloudformation = TestProject.CLOUDFORMATION;
+  void should_analyse_yaml_pull_requests() {
+    var cloudformation = TestProject.YAML;
     var projectKey = cloudformation.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
@@ -284,7 +284,7 @@ class PRAnalysisTest {
 
     JS("js", "js"),
     TS("ts", "ts"),
-    CLOUDFORMATION("cloudformation", "cloudformation"),
+    YAML("yaml", "js"),
     CPD_JS("cpd-js", "js"),
     CPD_TS("cpd-ts", "ts");
 
