@@ -175,14 +175,14 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
 
       if ("WRITE_ONLY".equals(strategy)) {
         logsOnce(format("Cache strategy set to '%s' for file '%s' as %s", strategy, file, reason));
-        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:(.+):SEQ:%s:%s' containing %d file\\(s\\)",
+        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:SEQ:(.+):%s:%s' containing %d file\\(s\\)",
           projectKey, file, cachedFileCount)));
-        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:(.+):JSON:%s:%s'", projectKey, file)));
+        logsOnce(compile(format("DEBUG: Cache entry created for key 'jssecurity:ucfgs:JSON:(.+):%s:%s'", projectKey, file)));
       } else if ("READ_AND_WRITE".equals(strategy)) {
         logsOnce(String.format("Cache strategy set to 'READ_AND_WRITE' for file '%s'", file));
-        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:(.+):SEQ:%s:%s' containing %d file\\(s\\)",
+        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:SEQ:(.+):%s:%s' containing %d file\\(s\\)",
           projectKey, file, cachedFileCount)));
-        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:(.+):JSON:%s:%s'", projectKey, file)));
+        logsOnce(Pattern.compile(String.format("DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:JSON:(.+):%s:%s'", projectKey, file)));
       } else {
         fail("Unknown strategy " + strategy);
       }
