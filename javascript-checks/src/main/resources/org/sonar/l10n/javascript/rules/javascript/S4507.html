@@ -8,8 +8,8 @@
 detailed information on both the system running the application and users.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> the code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
-  <li> the application runs by default with debug features activated. </li>
+  <li> The code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
+  <li> The application runs by default with debug features activated. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -31,8 +31,8 @@ const errorhandler = require('errorhandler');
 
 let app = express();
 
-if (process.env.NODE_ENV === 'development') {  // Compliant
-  app.use(errorhandler());  // Compliant
+if (process.env.NODE_ENV === 'development') {
+  app.use(errorhandler());
 }
 </pre>
 <h2>See</h2>
