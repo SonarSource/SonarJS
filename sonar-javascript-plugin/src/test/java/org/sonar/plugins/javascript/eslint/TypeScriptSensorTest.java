@@ -75,6 +75,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 
 import static java.util.Collections.emptyList;
@@ -616,7 +617,7 @@ class TypeScriptSensorTest {
   @Test
   void should_save_cached_cpd() throws IOException {
     var path = "dir/file.ts";
-    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 
@@ -633,7 +634,7 @@ class TypeScriptSensorTest {
   @Test
   void should_save_cached_cpd_with_program() throws IOException {
     var path = "dir/file.ts";
-    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 

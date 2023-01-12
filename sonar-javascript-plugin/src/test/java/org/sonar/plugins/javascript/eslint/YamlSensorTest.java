@@ -56,6 +56,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -232,7 +233,7 @@ class YamlSensorTest {
   @Test
   void should_not_save_cached_cpd() {
     var path = "dir/file.yaml";
-    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 

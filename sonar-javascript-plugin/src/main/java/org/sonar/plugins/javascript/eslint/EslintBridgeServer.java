@@ -169,6 +169,38 @@ public interface EslintBridgeServer extends Startable {
     int endLine;
     int endCol;
 
+    public int getStartLine() {
+      return startLine;
+    }
+
+    public int getStartCol() {
+      return startCol;
+    }
+
+    public int getEndLine() {
+      return endLine;
+    }
+
+    public int getEndCol() {
+      return endCol;
+    }
+
+    public void setStartLine(int startLine) {
+      this.startLine = startLine;
+    }
+
+    public void setStartCol(int startCol) {
+      this.startCol = startCol;
+    }
+
+    public void setEndLine(int endLine) {
+      this.endLine = endLine;
+    }
+
+    public void setEndCol(int endCol) {
+      this.endCol = endCol;
+    }
+
     TextRange toTextRange(InputFile inputFile) {
       return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
     }
@@ -189,6 +221,22 @@ public interface EslintBridgeServer extends Startable {
   class CpdToken {
     Location location;
     String image;
+
+    public void setLocation(Location location) {
+      this.location = location;
+    }
+
+    public void setImage(String image) {
+      this.image = image;
+    }
+
+    public Location getLocation() {
+      return location;
+    }
+
+    public String getImage() {
+      return image;
+    }
   }
 
   class Perf {

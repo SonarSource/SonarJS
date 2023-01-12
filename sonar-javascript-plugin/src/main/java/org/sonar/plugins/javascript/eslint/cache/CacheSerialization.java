@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.io.IOException;
 import java.io.InputStream;
 import org.sonar.api.batch.sensor.SensorContext;
 
-abstract class AbstractSerialization {
+class CacheSerialization {
 
   private final SensorContext context;
   private final CacheKey cacheKey;
 
-  AbstractSerialization(SensorContext context, CacheKey cacheKey) {
+  CacheSerialization(SensorContext context, CacheKey cacheKey) {
     this.context = context;
     this.cacheKey = cacheKey;
   }
@@ -52,11 +53,17 @@ abstract class AbstractSerialization {
     return context.previousCache().read(cacheKey.toString());
   }
 
-  void write(byte[] bytes) {
+  byte[] readBytesFromCache() throws IOException {
+    try (var input = getInputStream()) {
+      return input.readAllBytes();
+    }
+  }
+
+  void writeToCache(byte[] bytes) {
     context.nextCache().write(cacheKey.toString(), bytes);
   }
 
-  void write(InputStream sequence) {
+  void writeToCache(InputStream sequence) {
     context.nextCache().write(cacheKey.toString(), sequence);
   }
 

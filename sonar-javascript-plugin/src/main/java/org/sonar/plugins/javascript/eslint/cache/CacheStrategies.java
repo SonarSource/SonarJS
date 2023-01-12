@@ -28,6 +28,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.AnalysisMode;
+import org.sonar.plugins.javascript.eslint.PluginInfo;
 
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
@@ -58,13 +59,17 @@ public class CacheStrategies {
   }
 
   public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) throws IOException {
+    return getStrategyFor(context, inputFile, PluginInfo.getVersion());
+  }
+
+  static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile, @Nullable String pluginVersion) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
       return strategy;
     }
 
-    var cacheKey = CacheKey.forFile(inputFile);
+    var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
     var serialization = new CacheAnalysisSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {

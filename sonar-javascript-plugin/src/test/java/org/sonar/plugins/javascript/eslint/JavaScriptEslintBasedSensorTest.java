@@ -69,6 +69,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -356,7 +357,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_save_cpd() throws Exception {
-    AnalysisResponse responseCpdTokens = response(TestUtils.CPD_TOKENS);
+    AnalysisResponse responseCpdTokens = response(CacheTestUtils.CPD_TOKENS);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
@@ -584,7 +585,7 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_save_cached_cpd() {
     var path = "dir/file.js";
-    var context = TestUtils.createContextWithCache(baseDir, workDir, path);
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 

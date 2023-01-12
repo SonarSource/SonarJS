@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 
-class UCFGFilesSerialization extends AbstractSerialization {
+class UCFGFilesSerialization extends CacheSerialization {
 
   static final String SEQ_PREFIX = "SEQ";
   static final String JSON_PREFIX = "JSON";

@@ -27,22 +27,22 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
 import static java.util.Arrays.asList;
 
-public class CacheAnalysisSerialization extends AbstractSerialization {
+public class CacheAnalysisSerialization extends CacheSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
-  private final JsonSerialization<CpdData> cpdDataSerialization;
+  private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
 
   CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
-    cpdDataSerialization = new JsonSerialization<>(CpdData.class, context, cacheKey.forCpd());
+    cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
     fileMetadataSerialization = new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
   }
 
   @Override
   boolean isInCache() {
-    return ucfgFileSerialization.isInCache() && cpdDataSerialization.isInCache();
+    return ucfgFileSerialization.isInCache() && cpdSerialization.isInCache();
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {
@@ -56,24 +56,20 @@ public class CacheAnalysisSerialization extends AbstractSerialization {
   CacheAnalysis readFromCache() throws IOException {
     ucfgFileSerialization.readFromCache();
 
-    var cpdData = cpdDataSerialization.readFromCache();
-    if (cpdData == null || cpdData.getCpdTokens() == null) {
-      throw new IOException("The CPD tokens are null");
-    }
-
+    var cpdData = cpdSerialization.readFromCache();
     return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0]));
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
-    cpdDataSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens())));
+    cpdSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens())));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
 
   @Override
   void copyFromPrevious() {
     ucfgFileSerialization.copyFromPrevious();
-    cpdDataSerialization.copyFromPrevious();
+    cpdSerialization.copyFromPrevious();
   }
 
 }
