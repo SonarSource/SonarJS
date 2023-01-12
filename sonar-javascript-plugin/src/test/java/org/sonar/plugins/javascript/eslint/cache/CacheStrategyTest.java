@@ -43,6 +43,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
@@ -63,6 +64,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.eslint.cache.CacheTestUtils.inputStream;
@@ -522,6 +524,35 @@ class CacheStrategyTest {
       assertThat(iterator.next()).isNotNull();
     });
     assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
+  void should_check_file_hash() throws Exception {
+    when(context.canSkipUnchangedFiles()).thenReturn(true);
+
+    var inputFile = TestInputFileBuilder.create("dir", "file.ts")
+      .setContents("abc")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    var pluginVersion = "1.0.0";
+    var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
+    var metadataKey = cacheKey.forFileMetadata().toString();
+
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile, pluginVersion);
+    assertThat(cacheStrategy.getName()).isEqualTo("WRITE_ONLY");
+    verify(previousCache).contains(metadataKey);
+    verify(previousCache, never()).read(metadataKey);
+    verify(previousCache, never()).contains(cacheKey.forUcfg().toString());
+
+    reset(previousCache);
+    when(previousCache.contains(metadataKey)).thenReturn(true);
+    when(previousCache.read(metadataKey))
+      .thenReturn(inputStream(new Gson().toJson(FileMetadata.from(inputFile))));
+    CacheStrategies.getStrategyFor(context, inputFile, pluginVersion);
+
+    verify(previousCache).contains(metadataKey);
+    verify(previousCache).read(metadataKey);
+    verify(previousCache).contains(cacheKey.forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString());
   }
 
   private String readFile(Path file) {
