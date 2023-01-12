@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.io.IOException;
-import javax.annotation.Nullable;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -33,14 +32,12 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   private final UCFGFilesSerialization ucfgFileSerialization;
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
-  private final String pluginVersion;
 
-  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey, @Nullable String pluginVersion) {
+  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
-    ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg(pluginVersion));
+    ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
     fileMetadataSerialization = new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
-    this.pluginVersion = pluginVersion;
   }
 
   @Override
@@ -60,20 +57,12 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.readFromCache();
 
     var cpdData = cpdSerialization.readFromCache();
-    validateCpdData(cpdData);
-
     return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0]));
-  }
-
-  private void validateCpdData(CpdData cpdData) throws IOException {
-    if (!cpdData.isSameVersionAs(pluginVersion)) {
-      throw new IOException(String.format("The CPD plugin version [%s] doesn't match the plugin version [%s]", cpdData.getPluginVersion(), pluginVersion));
-    }
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
-    cpdSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens()), pluginVersion));
+    cpdSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens())));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
 

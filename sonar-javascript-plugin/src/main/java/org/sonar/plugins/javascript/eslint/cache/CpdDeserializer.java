@@ -45,8 +45,6 @@ public class CpdDeserializer {
     try (in; stringTableIn) {
       stringTable = readStringTable();
 
-      var pluginVersion = readString();
-
       var sizeOfCpdTokens = readInt();
       var cpdTokens = new ArrayList<EslintBridgeServer.CpdToken>(sizeOfCpdTokens);
 
@@ -58,7 +56,7 @@ public class CpdDeserializer {
         throw new IOException("Can't read data from cache, format corrupted");
       }
 
-      return new CpdData(cpdTokens, pluginVersion);
+      return new CpdData(cpdTokens);
     } catch (IOException e) {
       throw new IOException("Can't deserialize data from the cache", e);
     }

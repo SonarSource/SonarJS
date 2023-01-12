@@ -121,7 +121,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, PluginInfo.getVersion());
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());

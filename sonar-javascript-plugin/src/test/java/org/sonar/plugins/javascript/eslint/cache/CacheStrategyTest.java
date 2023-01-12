@@ -49,8 +49,6 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
@@ -67,14 +65,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.TestUtils.inputStream;
+import static org.sonar.plugins.javascript.eslint.cache.CacheTestUtils.inputStream;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  static final List<EslintBridgeServer.CpdToken> CPD_TOKENS = TestUtils.getCpdTokens();
+  static final List<EslintBridgeServer.CpdToken> CPD_TOKENS = CacheTestUtils.getCpdTokens();
   static final String PLUGIN_VERSION = "1.0.0";
 
   CacheAnalysisSerialization serialization;
@@ -117,13 +115,13 @@ class CacheStrategyTest {
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
-    serialization = new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile), PLUGIN_VERSION);
+    serialization = new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile, PLUGIN_VERSION));
 
-    jsonCacheKey = CacheKey.forFile(inputFile).forUcfg(PLUGIN_VERSION).withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
-    seqCacheKey = CacheKey.forFile(inputFile).forUcfg(PLUGIN_VERSION).withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
-    cpdDataCacheKey = CacheKey.forFile(inputFile).forCpd().withPrefix(CpdSerialization.DATA_PREFIX).toString();
-    cpdStringTableCacheKey = CacheKey.forFile(inputFile).forCpd().withPrefix(CpdSerialization.STRING_TABLE_PREFIX).toString();
-    metadataCacheKey = CacheKey.forFile(inputFile).forFileMetadata().toString();
+    jsonCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
+    seqCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forUcfg().withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
+    cpdDataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forCpd().withPrefix(CpdSerialization.DATA_PREFIX).toString();
+    cpdStringTableCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forCpd().withPrefix(CpdSerialization.STRING_TABLE_PREFIX).toString();
+    metadataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forFileMetadata().toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
@@ -138,12 +136,12 @@ class CacheStrategyTest {
 
   @Test
   void should_generate_cache_keys() {
-    assertThat(CacheKey.forFile(inputFile).forUcfg(null).withPrefix(UCFGFilesSerialization.JSON_PREFIX)).hasToString("jssecurity:ucfgs:JSON:src/test.js");
-    assertThat(CacheKey.forFile(inputFile).forUcfg(null).withPrefix(UCFGFilesSerialization.SEQ_PREFIX)).hasToString("jssecurity:ucfgs:SEQ:src/test.js");
-    assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:1.0.0:JSON:src/test.js");
-    assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:1.0.0:SEQ:src/test.js");
-    assertThat(cpdDataCacheKey).isEqualTo("js:cpd:data:src/test.js");
-    assertThat(cpdStringTableCacheKey).isEqualTo("js:cpd:stringTable:src/test.js");
+    assertThat(CacheKey.forFile(inputFile, null).forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX)).hasToString("jssecurity:ucfgs:JSON:src/test.js");
+    assertThat(CacheKey.forFile(inputFile, null).forUcfg().withPrefix(UCFGFilesSerialization.SEQ_PREFIX)).hasToString("jssecurity:ucfgs:SEQ:src/test.js");
+    assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:JSON:1.0.0:src/test.js");
+    assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:SEQ:1.0.0:src/test.js");
+    assertThat(cpdDataCacheKey).isEqualTo("js:cpd:DATA:1.0.0:src/test.js");
+    assertThat(cpdStringTableCacheKey).isEqualTo("js:cpd:STRING_TABLE:1.0.0:src/test.js");
   }
 
   @Test
@@ -371,31 +369,41 @@ class CacheStrategyTest {
   }
 
   @Test
-  void should_handle_cpd_tokens_from_different_version() throws IOException {
+  void should_handle_different_version() throws IOException {
+    var pluginVersion = "1.2.3";
+
     createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var serializationResult = CpdSerializer.toBinary(new CpdData(emptyList(), "1.2.3"));
+    var serializationResult = CpdSerializer.toBinary(new CpdData(emptyList()));
     when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream(serializationResult.getData()));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(inputStream(serializationResult.getStringTable()));
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
-    var logs = logTester.getLogs(LoggerLevel.ERROR);
-    assertThat(logs).extracting("formattedMsg").containsExactly("Failure when reading cache entry");
-    var args = logs.get(0).getArgs();
-    assertThat(args).isPresent();
-    assertThat(args.get()).extracting("message").containsExactly("The CPD plugin version [1.2.3] doesn't match the plugin version [1.0.0]");
-
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, pluginVersion);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    verify(previousCache).read(jsonCacheKey);
-    verify(previousCache).read(seqCacheKey);
-    verify(previousCache).read(cpdDataCacheKey);
-    verify(previousCache).read(cpdStringTableCacheKey);
+    var metadataCacheKey = CacheKey.forFile(inputFile, pluginVersion).forFileMetadata().toString();
+    var jsonCacheKey = CacheKey.forFile(inputFile, pluginVersion).forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString();
+    var seqCacheKey = CacheKey.forFile(inputFile, pluginVersion).forUcfg().withPrefix(UCFGFilesSerialization.SEQ_PREFIX).toString();
+    var cpdDataCacheKey = CacheKey.forFile(inputFile, pluginVersion).forCpd().withPrefix(CpdSerialization.DATA_PREFIX).toString();
+    var cpdStringTableCacheKey = CacheKey.forFile(inputFile, pluginVersion).forCpd().withPrefix(CpdSerialization.STRING_TABLE_PREFIX).toString();
 
+    verify(previousCache).contains(metadataCacheKey);
+    verify(previousCache, never()).contains(jsonCacheKey);
+    verify(previousCache, never()).contains(seqCacheKey);
+    verify(previousCache, never()).contains(cpdDataCacheKey);
+    verify(previousCache, never()).contains(cpdStringTableCacheKey);
+
+    verify(previousCache, never()).read(metadataCacheKey);
+    verify(previousCache, never()).read(jsonCacheKey);
+    verify(previousCache, never()).read(seqCacheKey);
+    verify(previousCache, never()).read(cpdDataCacheKey);
+    verify(previousCache, never()).read(cpdStringTableCacheKey);
+
+    verify(nextCache, never()).copyFromPrevious(metadataCacheKey);
     verify(nextCache, never()).copyFromPrevious(seqCacheKey);
     verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
     verify(nextCache, never()).copyFromPrevious(cpdDataCacheKey);
@@ -556,7 +564,7 @@ class CacheStrategyTest {
     when(previousCache.read(jsonCacheKey)).thenReturn(inputStream(jsonFile));
     when(previousCache.read(seqCacheKey)).thenReturn(inputStream(binFile));
 
-    var serializationResult = CpdSerializer.toBinary(new CpdData(CPD_TOKENS, PLUGIN_VERSION));
+    var serializationResult = CpdSerializer.toBinary(new CpdData(CPD_TOKENS));
     when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream(serializationResult.getData()));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(inputStream(serializationResult.getStringTable()));
     when(previousCache.contains(jsonCacheKey)).thenReturn(true);

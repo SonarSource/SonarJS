@@ -25,7 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
-public class CpdSerializer {
+class CpdSerializer {
 
   private final ByteArrayOutputStream stream;
   private final VarLengthOutputStream out;
@@ -37,7 +37,7 @@ public class CpdSerializer {
     stringTable = new StringTable();
   }
 
-  public static SerializationResult toBinary(CpdData cpdData) throws IOException {
+  static SerializationResult toBinary(CpdData cpdData) throws IOException {
     var serializer = new CpdSerializer();
     return serializer.convert(cpdData);
   }
@@ -45,9 +45,6 @@ public class CpdSerializer {
 
   private SerializationResult convert(CpdData cpdData) throws IOException {
     try (out; stream) {
-      String pluginVersion = cpdData.getPluginVersion();
-      writeText(pluginVersion);
-
       var cpdTokens = cpdData.getCpdTokens();
       writeInt(cpdTokens.size());
       for (var cpdToken : cpdTokens) {
@@ -91,4 +88,25 @@ public class CpdSerializer {
     output.writeUTF("END");
     return stringTableStream.toByteArray();
   }
+
+  static class SerializationResult {
+
+    private final byte[] data;
+    private final byte[] stringTable;
+
+    private SerializationResult(byte[] data, byte[] stringTable) {
+      this.data = data;
+      this.stringTable = stringTable;
+    }
+
+    byte[] getData() {
+      return data;
+    }
+
+    byte[] getStringTable() {
+      return stringTable;
+    }
+
+  }
+
 }

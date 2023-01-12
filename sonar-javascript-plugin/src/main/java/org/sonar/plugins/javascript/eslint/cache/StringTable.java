@@ -26,17 +26,17 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class StringTable {
+class StringTable {
 
   private final Map<String, Integer> table;
   private final List<String> byIndex;
 
-  public StringTable() {
+  StringTable() {
     table = new HashMap<>();
     byIndex = new ArrayList<>();
   }
 
-  public StringTable(List<String> byIndex) {
+  StringTable(List<String> byIndex) {
     table = new HashMap<>();
     this.byIndex = byIndex;
     for (int i = 0; i < byIndex.size(); i++) {
@@ -44,18 +44,18 @@ public class StringTable {
     }
   }
 
-  public int getIndex(@Nullable String string) {
+  int getIndex(@Nullable String string) {
     return table.computeIfAbsent(string, s -> {
       byIndex.add(s);
       return byIndex.size() - 1;
     });
   }
 
-  public String getString(int index) {
+  String getString(int index) {
     return byIndex.get(index);
   }
 
-  public List<String> getStringList() {
+  List<String> getStringList() {
     return Collections.unmodifiableList(byIndex);
   }
 

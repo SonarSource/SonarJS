@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,23 +35,24 @@ class CacheKey {
 
   private final String file;
   private final List<String> prefixes;
+  private final String pluginVersion;
 
-  private CacheKey(String file, List<String> prefixes) {
-    this.file = file;
+  private CacheKey(List<String> prefixes, @Nullable String pluginVersion, String file) {
     this.prefixes = prefixes.stream().filter(Objects::nonNull).collect(toList());
+    this.pluginVersion = pluginVersion;
+    this.file = file;
   }
 
-  static CacheKey forFile(InputFile inputFile) {
-    return new CacheKey(inputFile.key(), emptyList());
+  static CacheKey forFile(InputFile inputFile, @Nullable String pluginVersion) {
+    return new CacheKey(emptyList(), pluginVersion, inputFile.key());
   }
 
   CacheKey forCpd() {
-    return withPrefixes("js", "cpd");
+    return withPrefix("js", "cpd");
   }
 
-  CacheKey forUcfg(@Nullable String pluginVersion) {
-    return withPrefixes("jssecurity", "ucfgs",
-      pluginVersion,
+  CacheKey forUcfg() {
+    return withPrefix("jssecurity", "ucfgs",
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
       // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
       // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)
@@ -59,20 +60,21 @@ class CacheKey {
   }
 
   CacheKey forFileMetadata() {
-    return withPrefixes("js", "filemetadata");
+    return withPrefix("js", "filemetadata");
   }
 
-  CacheKey withPrefix(String prefix) {
-    return new CacheKey(file, Stream.concat(prefixes.stream(), Stream.of(prefix)).collect(toList()));
-  }
-
-  CacheKey withPrefixes(String... prefixes) {
-    return new CacheKey(file, Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()));
+  CacheKey withPrefix(String... prefixes) {
+    return new CacheKey(Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()), pluginVersion, file);
   }
 
   @Override
   public String toString() {
-    return Stream.concat(prefixes.stream(), Stream.of(file)).collect(Collectors.joining(":"));
+    var elements = new ArrayList<>(prefixes);
+    if (pluginVersion != null) {
+      elements.add(pluginVersion);
+    }
+    elements.add(file);
+    return String.join(":", elements);
   }
 
 }

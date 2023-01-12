@@ -140,7 +140,7 @@ public class YamlSensor extends AbstractEslintSensor {
   }
 
   private void analyze(InputFile file) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, PluginInfo.getVersion());
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
     // See AnalysisProcessor for more details.
     if (cacheStrategy.isAnalysisRequired()) {

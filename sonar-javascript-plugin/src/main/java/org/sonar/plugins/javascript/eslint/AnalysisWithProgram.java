@@ -155,7 +155,7 @@ public class AnalysisWithProgram {
     if (context.isCancelled()) {
       throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
     }
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, PluginInfo.getVersion());
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());

@@ -148,7 +148,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, PluginInfo.getVersion());
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: " + file.uri());

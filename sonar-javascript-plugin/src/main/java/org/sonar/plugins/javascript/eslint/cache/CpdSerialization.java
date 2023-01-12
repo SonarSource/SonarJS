@@ -24,8 +24,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 
 class CpdSerialization extends CacheSerialization {
 
-  static final String DATA_PREFIX = "data";
-  static final String STRING_TABLE_PREFIX = "stringTable";
+  static final String DATA_PREFIX = "DATA";
+  static final String STRING_TABLE_PREFIX = "STRING_TABLE";
 
   private final CacheSerialization cpdDataSerialization;
   private final CacheSerialization cpdStringTableSerialization;
