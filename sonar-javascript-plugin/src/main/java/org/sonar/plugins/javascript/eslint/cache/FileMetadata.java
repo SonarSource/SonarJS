@@ -27,9 +27,9 @@ import org.sonar.api.batch.fs.InputFile;
 
 public class FileMetadata {
 
-  private long size;
+  private final long size;
 
-  private byte[] hash;
+  private final byte[] hash;
 
   FileMetadata(long size, byte[] hash) {
     this.size = size;
