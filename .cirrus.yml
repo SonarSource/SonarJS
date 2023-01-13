@@ -70,13 +70,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
-  always:
-    surefire_report_artifacts:
-      path: "its/plugin/tests/target/site/**/*"
-      type: text/html
-    surefire_artifacts:
-      path: "its/plugin/tests/target/surefire-reports/**/*"
-      type: text/xml
+
 
 build_task:
   eks_container:
