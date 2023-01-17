@@ -175,6 +175,31 @@ export function getFullyQualifiedNameRaw(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     }
+    // import s3 = require('aws-cdk-lib/aws-s3');
+    if ((importDeclaration as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
+      const importedModule = (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration)
+        .moduleReference;
+      if (
+        importedModule.type === 'TSExternalModuleReference' &&
+        importedModule.expression.type === 'Literal' &&
+        typeof importedModule.expression.value === 'string'
+      ) {
+        const importedQualifiers = importedModule.expression.value.split('/');
+        fqn.unshift(...importedQualifiers);
+        return fqn.join('.');
+      }
+      //import s3 = cdk.aws_s3;
+      if (importedModule.type === 'TSQualifiedName') {
+        let nodeToCheck = reduceToIdentifier(importedModule as unknown as estree.Node, fqn);
+        return getFullyQualifiedNameRaw(
+          context,
+          nodeToCheck,
+          fqn,
+          variable.scope,
+          visitedVars.concat(variable),
+        );
+      }
+    }
   }
 
   const value = getUniqueWriteReference(variable);
@@ -273,6 +298,14 @@ export function reduceTo<T extends estree.Node['type']>(
       // we should migrate to use only TSESTree types everywhere to avoid casting
       nodeToCheck = (nodeToCheck as unknown as TSESTree.TSNonNullExpression)
         .expression as estree.Expression;
+    } else if ((nodeToCheck as TSESTree.Node).type === 'TSQualifiedName') {
+      const qualified = nodeToCheck as unknown as TSESTree.TSQualifiedName;
+      if (qualified.right?.type === 'Identifier') {
+        fqn.unshift(qualified.right.name);
+        nodeToCheck = qualified.left as estree.Node;
+      } else {
+        break;
+      }
     } else {
       break;
     }

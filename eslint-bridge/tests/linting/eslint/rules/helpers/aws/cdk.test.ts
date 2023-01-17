@@ -204,6 +204,21 @@ new cdk.aws_module!.Class();
     },
     {
       code: `
+import cdk = require('aws-cdk-lib');
+new cdk.aws_module.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+import cdk = require('aws-cdk-lib');
+import module = cdk.aws_module;
+new module.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
 import * as cdk from 'aws-cdk-lib';
 new cdk.aws_module.Class();
       `,
