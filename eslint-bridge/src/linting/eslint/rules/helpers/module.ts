@@ -190,10 +190,9 @@ export function getFullyQualifiedNameRaw(
       }
       //import s3 = cdk.aws_s3;
       if (importedModule.type === 'TSQualifiedName') {
-        let nodeToCheck = reduceToIdentifier(importedModule as unknown as estree.Node, fqn);
         return getFullyQualifiedNameRaw(
           context,
-          nodeToCheck,
+          importedModule as unknown as estree.Node,
           fqn,
           variable.scope,
           visitedVars.concat(variable),
