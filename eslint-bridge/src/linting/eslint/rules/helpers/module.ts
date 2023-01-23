@@ -299,12 +299,8 @@ export function reduceTo<T extends estree.Node['type']>(
         .expression as estree.Expression;
     } else if ((nodeToCheck as TSESTree.Node).type === 'TSQualifiedName') {
       const qualified = nodeToCheck as unknown as TSESTree.TSQualifiedName;
-      if (qualified.right?.type === 'Identifier') {
-        fqn.unshift(qualified.right.name);
-        nodeToCheck = qualified.left as estree.Node;
-      } else {
-        break;
-      }
+      fqn.unshift(qualified.right.name);
+      nodeToCheck = qualified.left as estree.Node;
     } else {
       break;
     }
