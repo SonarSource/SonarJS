@@ -60,6 +60,14 @@ import { default as cdk } from 'aws-cdk-lib';
 new cdk.aws_module.Class(...args);
       `,
     },
+    {
+      code: `
+const awsCdk = 'aws-cdk-lib';
+import cdk = require(awsCdk);
+import module = cdk.aws_module;
+new module.Class();
+      `,
+    },
   ],
   invalid: [
     {
