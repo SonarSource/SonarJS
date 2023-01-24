@@ -146,7 +146,8 @@ function iterateScripts(code: string, onChunk: any) {
       })
     }
     let startChunkIndex = 0
-    for (let index = 1; index < chunks.length; index += 1) {
+    let index: number;
+    for (index = 1; index < chunks.length; index += 1) {
       if (chunks[startChunkIndex].type === chunks[index].type) continue
       emitChunk()
       startChunkIndex = index
