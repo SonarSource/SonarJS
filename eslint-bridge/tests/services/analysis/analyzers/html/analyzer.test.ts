@@ -63,7 +63,8 @@ describe('analyzeHTML', () => {
       },
     ]);
     const { issues } = await analyzeJSTS(
-      await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }), 'html',
+      await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
+      'html',
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -89,7 +90,8 @@ describe('analyzeHTML', () => {
       { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = await analyzeJSTS(
-      await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }), 'html',
+      await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
+      'html',
     );
     const {
       issues: [
@@ -111,7 +113,8 @@ describe('analyzeHTML', () => {
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = await analyzeJSTS(
-      await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }), 'html'
+      await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
+      'html',
     );
     const {
       issues: [issue],

@@ -85,7 +85,7 @@ export class TransformableString {
     return this._cache;
   }
 
-  getOriginalLine(n) {
+  getOriginalLine(n: number) {
     if (n < 1 || n > this._lineStarts.length) {
       throw new Error('Invalid line number');
     }
