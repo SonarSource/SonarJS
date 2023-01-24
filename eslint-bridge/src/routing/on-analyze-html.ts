@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2022 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {runner, analyzeJSTS, JsTsAnalysisInput} from 'services/analysis';
+
 /**
- * A discriminator between JavaScript and TypeScript analysis inputs
- *
- * Analyzing JavaScript and TypeScript code is rather transparent and
- * indistinguishable since we use ESLint-based APIs not only to parse
- * but also to analyze source code. However, there are minor parsing
- * details that require a clear distinction between the two.
+ * Handles TypeScript analysis requests
  */
-export type Language = 'js' | 'ts' | 'html';
+export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'html')));
