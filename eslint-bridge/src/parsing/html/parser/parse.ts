@@ -40,7 +40,7 @@ type CdataLocation = {
 
 function iterateScripts(code: string, onChunk: any) {
   if (!code) return
-  const javaScriptTagNames = ["script"]
+  const javaScriptTagNames = ['script']
   let index: number = 0
   let inScript = false
   let cdata: CdataLocation[] = []
@@ -117,11 +117,11 @@ function iterateScripts(code: string, onChunk: any) {
 
       oncomment(comment: string) {
         comment = comment.trim()
-        if (comment === "eslint-disable") {
+        if (comment === 'eslint-disable') {
           ignoreState = IGNORE_UNTIL_ENABLE
-        } else if (comment === "eslint-enable") {
+        } else if (comment === 'eslint-enable') {
           ignoreState = NO_IGNORE
-        } else if (comment === "eslint-disable-next-script") {
+        } else if (comment === 'eslint-disable-next-script') {
           ignoreState = IGNORE_NEXT
         }
       },
@@ -159,7 +159,7 @@ function iterateScripts(code: string, onChunk: any) {
 function computeIndent(descriptor: any, previousHTML: string, slice: string) {
   if (!descriptor) {
     const indentMatch = /[\n\r]+([ \t]*)/.exec(slice)
-    return indentMatch ? indentMatch[1] : ""
+    return indentMatch ? indentMatch[1] : ''
   }
 
   if (descriptor.relative) {
@@ -196,17 +196,17 @@ function* dedent(indent: string, slice: string) {
       // Remove the first line if it is empty
       const fromIndex = match.index === 0 ? 0 : match.index + newLine.length
       yield {
-        type: "dedent",
+        type: 'dedent',
         from: fromIndex,
         to: lastIndex,
       }
     } else if (isEmptyLine) {
       yield {
-        type: "empty",
+        type: 'empty',
       }
     } else {
       yield {
-        type: "bad-indent",
+        type: 'bad-indent',
       }
     }
 
@@ -218,7 +218,7 @@ function* dedent(indent: string, slice: string) {
   const endSpaces = slice.slice(lastIndex).match(/[ \t]*$/)?.[0].length
   if (endSpaces) {
     yield {
-      type: "dedent",
+      type: 'dedent',
       from: slice.length - endSpaces,
       to: slice.length,
     }
@@ -232,39 +232,39 @@ export function parseHTML(
   const badIndentationLines: number[] = []
   const codeParts: TransformableString[] = []
   let lineNumber = 1
-  let previousHTML = ""
+  let previousHTML = ''
 
   iterateScripts(
     code,
     (chunk: any) => {
       const slice = code.slice(chunk.start, chunk.end)
-      if (chunk.type === "html") {
+      if (chunk.type === 'html') {
         const match = slice.match(/\r\n|\n|\r/g)
         if (match) lineNumber += match.length
         previousHTML = slice
-      } else if (chunk.type === "script") {
+      } else if (chunk.type === 'script') {
         const transformedCode = new TransformableString(code)
         let indentSlice = slice
         for (const cdata of chunk.cdata) {
-          transformedCode.replace(cdata.start, cdata.end, "")
+          transformedCode.replace(cdata.start, cdata.end, '')
           if (cdata.end === chunk.end) {
             indentSlice = code.slice(chunk.start, cdata.start)
           }
         }
-        transformedCode.replace(0, chunk.start, "")
-        transformedCode.replace(chunk.end, code.length, "")
+        transformedCode.replace(0, chunk.start, '')
+        transformedCode.replace(chunk.end, code.length, '')
         for (const action of dedent(
           computeIndent(indentDescriptor, previousHTML, indentSlice),
           indentSlice
         )) {
           lineNumber += 1
-          if (action.type === "dedent") {
+          if (action.type === 'dedent') {
             transformedCode.replace(
               chunk.start + action.from,
               chunk.start + action.to,
-              ""
+              ''
             )
-          } else if (action.type === "bad-indent") {
+          } else if (action.type === 'bad-indent') {
             badIndentationLines.push(lineNumber)
           }
         }
@@ -276,6 +276,6 @@ export function parseHTML(
   return {
     code: codeParts,
     badIndentationLines,
-    hasBOM: code.startsWith("\uFEFF"),
+    hasBOM: code.startsWith('\uFEFF'),
   }
 }
