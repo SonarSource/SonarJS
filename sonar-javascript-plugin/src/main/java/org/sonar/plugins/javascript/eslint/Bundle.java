@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import org.sonarsource.nodejs.BundlePathResolver;
+import org.sonar.plugins.javascript.nodejs.BundlePathResolver;
 
 interface Bundle extends BundlePathResolver {
 
