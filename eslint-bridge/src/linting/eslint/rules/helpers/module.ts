@@ -252,14 +252,8 @@ function checkFqnFromRequire(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      visitedVars.push(variable)
-      return getFullyQualifiedNameRaw(
-        context,
-        nodeToCheck,
-        fqn,
-        variable.scope,
-        visitedVars,
-      );
+      visitedVars.push(variable);
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope, visitedVars);
     }
   }
   return null;
