@@ -23,10 +23,17 @@ import { readFile } from 'helpers';
 
 describe('parseYaml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'simple.html');
+    const filePath = path.join(__dirname, '..', 'fixtures', 'simple.html');
     const fileContent = await readFile(filePath);
-    const { code } = parseHTML(fileContent, '');
-    expect(code).toBeDefined();
+    const embeddedJss = parseHTML(fileContent);
+    expect(embeddedJss).toBeDefined();
+
+    console.log('got', JSON.stringify(embeddedJss, null, 2));
+
+    for (const code of embeddedJss) {
+      console.log('copmute', '"' + code + '"');
+    }
+
     /* expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',

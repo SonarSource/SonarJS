@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as htmlparser from 'htmlparser2';
+import { EmbeddedJS } from 'parsing/yaml';
 import { TransformableString } from './TransformableString';
 
 const NO_IGNORE = 0;
@@ -41,7 +42,7 @@ type CdataLocation = {
 function iterateScripts(code: string, onChunk: any) {
   if (!code) return;
   const javaScriptTagNames = ['script'];
-  let index: number = 0;
+  let index = 0;
   let inScript = false;
   let cdata: CdataLocation[] = [];
   let ignoreState = NO_IGNORE;
@@ -129,6 +130,8 @@ function iterateScripts(code: string, onChunk: any) {
   parser.parseComplete(code);
 
   pushChunk('html', parser.endIndex + 1);
+
+  console.log('created chunks', JSON.stringify(chunks, null, 2));
 
   {
     const emitChunk = (index: number) => {
@@ -222,14 +225,17 @@ function* dedent(indent: string, slice: string) {
   }
 }
 
-export function parseHTML(code: string, indentDescriptor: string) {
+export function parseHTML(code: string, indentDescriptor: any = {}) {
   const badIndentationLines: number[] = [];
-  const codeParts: TransformableString[] = [];
   let lineNumber = 1;
   let previousHTML = '';
 
+  const embeddedJSs: EmbeddedJS[] = [];
+
   iterateScripts(code, (chunk: any) => {
     const slice = code.slice(chunk.start, chunk.end);
+    /* console.log('analysin slice');
+    console.log(slice); */
     if (chunk.type === 'html') {
       const match = slice.match(/\r\n|\n|\r/g);
       if (match) lineNumber += match.length;
@@ -256,13 +262,30 @@ export function parseHTML(code: string, indentDescriptor: string) {
           badIndentationLines.push(lineNumber);
         }
       }
-      codeParts.push(transformedCode);
+      /* codeParts.push(transformedCode); */
+      embeddedJSs.push({
+        code: transformedCode.toString(),
+        line: 2,
+        column: computeCol(chunk.start, transformedCode._lineStarts),
+        offset: chunk.start,
+        lineStarts: transformedCode._compute().lineStarts,
+        fileLineStarts: transformedCode._lineStarts,
+        format: 'PLAIN',
+        text: code,
+        extras: {},
+      });
     }
   });
 
-  return {
-    code: codeParts,
-    badIndentationLines,
-    hasBOM: code.startsWith('\uFEFF'),
-  };
+  return embeddedJSs;
+}
+
+function computeCol(offset: number, fileLineStarts: number[]) {
+  let i = 0;
+  for (; i < fileLineStarts.length; i++) {
+    if (fileLineStarts[i] > offset) {
+      break;
+    }
+  }
+  return offset - fileLineStarts[i - 1];
 }
