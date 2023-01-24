@@ -160,7 +160,29 @@ export function getFullyQualifiedNameRaw(
   if (!definition) {
     return null;
   }
+
   // imports
+  const fqnFromImport = checkFqnFromImport(variable, definition, context, fqn, visitedVars);
+  if (fqnFromImport !== null) {
+    return fqnFromImport;
+  }
+
+  // requires
+  const fqnFromRequire = checkFqnFromRequire(variable, definition, context, fqn, visitedVars);
+  if (fqnFromRequire !== null) {
+    return fqnFromRequire;
+  }
+
+  return null;
+}
+
+function checkFqnFromImport(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[] = [],
+) {
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
     const importDeclaration = definition.parent;
@@ -190,17 +212,27 @@ export function getFullyQualifiedNameRaw(
       }
       //import s3 = cdk.aws_s3;
       if (importedModule.type === 'TSQualifiedName') {
+        visitedVars.push(variable);
         return getFullyQualifiedNameRaw(
           context,
           importedModule as unknown as estree.Node,
           fqn,
           variable.scope,
-          visitedVars.concat(variable),
+          visitedVars,
         );
       }
     }
   }
+  return null;
+}
 
+function checkFqnFromRequire(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[] = [],
+) {
   const value = getUniqueWriteReference(variable);
   // requires
   if (definition.type === 'Variable' && value) {
@@ -220,12 +252,13 @@ export function getFullyQualifiedNameRaw(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
+      visitedVars.push(variable)
       return getFullyQualifiedNameRaw(
         context,
         nodeToCheck,
         fqn,
         variable.scope,
-        visitedVars.concat(variable),
+        visitedVars,
       );
     }
   }
