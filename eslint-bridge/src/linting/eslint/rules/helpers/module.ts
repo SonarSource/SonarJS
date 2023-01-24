@@ -181,7 +181,7 @@ function checkFqnFromImport(
   definition: Scope.Definition,
   context: Rule.RuleContext,
   fqn: string[],
-  visitedVars: Variable[] = [],
+  visitedVars: Variable[],
 ) {
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
@@ -231,7 +231,7 @@ function checkFqnFromRequire(
   definition: Scope.Definition,
   context: Rule.RuleContext,
   fqn: string[],
-  visitedVars: Variable[] = [],
+  visitedVars: Variable[],
 ) {
   const value = getUniqueWriteReference(variable);
   // requires

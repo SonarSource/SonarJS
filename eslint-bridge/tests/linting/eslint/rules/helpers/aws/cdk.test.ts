@@ -63,7 +63,7 @@ new cdk.aws_module.Class(...args);
     {
       code: `
 const awsCdk = 'aws-cdk-lib';
-import cdk = require(awsCdk);
+import cdk = require(awsCdk); // FN
 import module = cdk.aws_module;
 new module.Class();
       `,
