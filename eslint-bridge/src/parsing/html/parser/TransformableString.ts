@@ -17,47 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const lineEndingsRe = /\r\n|\r|\n/g
+const lineEndingsRe = /\r\n|\r|\n/g;
 function lineStarts(str: string) {
-  const result = [0]
-  lineEndingsRe.lastIndex = 0
+  const result = [0];
+  lineEndingsRe.lastIndex = 0;
   while (true) {
-    const match = lineEndingsRe.exec(str)
-    if (!match) break
-    result.push(lineEndingsRe.lastIndex)
+    const match = lineEndingsRe.exec(str);
+    if (!match) break;
+    result.push(lineEndingsRe.lastIndex);
   }
-  return result
+  return result;
 }
 
 type Location = {
-  line: number,
-  column: number,
-}
+  line: number;
+  column: number;
+};
 
 function locationToIndex(location: Location, lineStarts: number[]) {
-  if (
-    !location.line ||
-    location.line < 0 ||
-    !location.column ||
-    location.column < 0
-  ) {
-    throw new Error("Invalid location")
+  if (!location.line || location.line < 0 || !location.column || location.column < 0) {
+    throw new Error('Invalid location');
   }
-  return lineStarts[location.line - 1] + location.column - 1
+  return lineStarts[location.line - 1] + location.column - 1;
 }
 
 function indexToLocation(index: number, lineStarts: number[]) {
-  if (index < 0) throw new Error("Invalid index")
+  if (index < 0) throw new Error('Invalid index');
 
-  let line = 0
+  let line = 0;
   while (line + 1 < lineStarts.length && lineStarts[line + 1] <= index) {
-    line += 1
+    line += 1;
   }
 
   return {
     line: line + 1,
     column: index - lineStarts[line] + 1,
-  }
+  };
 }
 
 export class TransformableString {
@@ -67,88 +62,85 @@ export class TransformableString {
   _cache: any;
 
   constructor(original: string) {
-    this._original = original
-    this._blocks = []
-    this._lineStarts = lineStarts(original)
-    this._cache = null
+    this._original = original;
+    this._blocks = [];
+    this._lineStarts = lineStarts(original);
+    this._cache = null;
   }
 
   _compute() {
     if (!this._cache) {
-      let result = ""
-      let index = 0
+      let result = '';
+      let index = 0;
       for (const block of this._blocks) {
-        result += this._original.slice(index, block.from) + block.str
-        index = block.to
+        result += this._original.slice(index, block.from) + block.str;
+        index = block.to;
       }
-      result += this._original.slice(index)
+      result += this._original.slice(index);
       this._cache = {
         lineStarts: lineStarts(result),
         result,
-      }
+      };
     }
-    return this._cache
+    return this._cache;
   }
 
   getOriginalLine(n) {
     if (n < 1 || n > this._lineStarts.length) {
-      throw new Error("Invalid line number")
+      throw new Error('Invalid line number');
     }
     return this._original
       .slice(this._lineStarts[n - 1], this._lineStarts[n])
-      .replace(lineEndingsRe, "")
+      .replace(lineEndingsRe, '');
   }
 
   toString() {
-    return this._compute().result
+    return this._compute().result;
   }
 
   replace(from: number, to: number, str: string) {
-    this._cache = null
+    this._cache = null;
     if (from > to || from < 0 || to > this._original.length) {
-      throw new Error("Invalid slice indexes")
+      throw new Error('Invalid slice indexes');
     }
-    const newBlock = { from, to, str }
-    if (
-      !this._blocks.length ||
-      this._blocks[this._blocks.length - 1].to <= from
-    ) {
-      this._blocks.push(newBlock)
+    const newBlock = { from, to, str };
+    if (!this._blocks.length || this._blocks[this._blocks.length - 1].to <= from) {
+      this._blocks.push(newBlock);
     } else {
-      const index = this._blocks.findIndex((other) => other.to > from)
-      if (this._blocks[index].from < to) throw new Error("Can't replace slice")
-      this._blocks.splice(index, 0, newBlock)
+      const index = this._blocks.findIndex(other => other.to > from);
+      if (this._blocks[index].from < to) throw new Error("Can't replace slice");
+      this._blocks.splice(index, 0, newBlock);
     }
   }
 
   originalIndex(index: number) {
-    let block
+    let block;
     for (block of this._blocks) {
-      if (index < block.from) break
+      if (index < block.from) break;
 
       if (index < block.from + block.str.length) {
-        return
+        return;
       } else {
-        index += block.to - block.from - block.str.length
+        index += block.to - block.from - block.str.length;
       }
     }
     if (index < 0 || index > this._original.length) {
-      throw new Error("Invalid index")
+      throw new Error('Invalid index');
     }
     if (index == this._original.length) {
       if (block.to && block.to === this._original.length) {
-        return block.from + block.str.length
+        return block.from + block.str.length;
       }
-      return this._original.length
+      return this._original.length;
     }
-    return index
+    return index;
   }
 
   originalLocation(location: Location) {
-    const index = locationToIndex(location, this._compute().lineStarts)
-    const originalIndex = this.originalIndex(index)
+    const index = locationToIndex(location, this._compute().lineStarts);
+    const originalIndex = this.originalIndex(index);
     if (originalIndex !== undefined) {
-      return indexToLocation(originalIndex, this._lineStarts)
+      return indexToLocation(originalIndex, this._lineStarts);
     }
   }
 }
