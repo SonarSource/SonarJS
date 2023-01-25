@@ -36,12 +36,12 @@ describe('analyzeHTML', () => {
   });
 
   it('should analyze HTML file', async () => {
-    await initializeLinter([
+    initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const {
       issues: [issue],
-    } = await analyzeYAML(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), true);
+    } = analyzeYAML(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), true);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -54,14 +54,14 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using "enforce-trailing-comma" rule', async () => {
-    await initializeLinter([
+    initializeLinter([
       {
         key: 'enforce-trailing-comma',
         configurations: ['always-multiline'],
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = await analyzeYAML(
+    const { issues } = analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
       true,
     );
@@ -85,10 +85,8 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    await initializeLinter([
-      { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
-    const result = await analyzeYAML(
+    initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const result = analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
       true,
     );
@@ -108,10 +106,10 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    await initializeLinter([
+    initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = await analyzeYAML(
+    const result = analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
       true,
     );

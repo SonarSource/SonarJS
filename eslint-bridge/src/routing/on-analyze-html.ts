@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
+import { runner, JsTsAnalysisInput, analyzeYAML } from 'services/analysis';
 
 /**
  * Handles TypeScript analysis requests
  */
-export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'html')));
+export default runner(input => Promise.resolve(analyzeYAML(input as JsTsAnalysisInput, true)));
