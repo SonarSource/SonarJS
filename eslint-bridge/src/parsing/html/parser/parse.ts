@@ -296,5 +296,5 @@ function computeCol(offset: number, fileLineStarts: number[]) {
       break;
     }
   }
-  return offset - fileLineStarts[i - 1];
+  return offset - fileLineStarts[i - 1] + 1;
 }

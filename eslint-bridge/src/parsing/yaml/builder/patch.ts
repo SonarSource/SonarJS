@@ -56,7 +56,7 @@ export function patchSourceCode(
    *    `Object.create()` because these particular SourceCode's properties are frozen.
    */
   const patchedSourceCode = Object.create(originalSourceCode, {
-    lineStartIndices: { value: embeddedJS.lineStarts },
+    lineStartIndices: { value: embeddedJS.fileLineStarts },
     text: { value: embeddedJS.text },
     lines: { value: lines },
   });

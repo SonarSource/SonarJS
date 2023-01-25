@@ -24,9 +24,10 @@ import { yamlInput } from '../../../tools';
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, '..', 'fixtures');
   it('should build source code from an HTML file', async () => {
-    const filePath = join(fixturesPath, 'simple.html');
+    const filePath = join(fixturesPath, 'single.html');
     const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), true);
-    expect(sourceCodes).toHaveLength(2);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 5, column: 5 });
+    expect(sourceCodes).toHaveLength(1);
+    //console.log(sourceCodes[0])
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 3 });
   });
 });
