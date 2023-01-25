@@ -37,7 +37,10 @@ export type Language = 'html' | 'yaml';
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(input: YamlAnalysisInput, language: Language = 'yaml'): ExtendedSourceCode[] {
+export function buildSourceCodes(
+  input: YamlAnalysisInput,
+  language: Language = 'yaml',
+): ExtendedSourceCode[] {
   let embeddedJSs: EmbeddedJS[];
   if (language === 'html') {
     embeddedJSs = parseHTML(input.fileContent);

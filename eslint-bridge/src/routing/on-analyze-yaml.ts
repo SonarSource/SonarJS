@@ -22,4 +22,6 @@ import { runner, analyzeEmbedded, YamlAnalysisInput } from 'services/analysis';
 /**
  * Handles YAML analysis requests
  */
-export default runner(input => Promise.resolve(analyzeEmbedded(input as YamlAnalysisInput, 'yaml')));
+export default runner(input =>
+  Promise.resolve(analyzeEmbedded(input as YamlAnalysisInput, 'yaml')),
+);

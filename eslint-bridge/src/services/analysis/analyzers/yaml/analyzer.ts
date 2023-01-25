@@ -51,7 +51,10 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export function analyzeEmbedded(input: YamlAnalysisInput, language: Language = 'yaml'): YamlAnalysisOutput {
+export function analyzeEmbedded(
+  input: YamlAnalysisInput,
+  language: Language = 'yaml',
+): YamlAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
   const extendedSourceCodes = buildSourceCodes(input, language);

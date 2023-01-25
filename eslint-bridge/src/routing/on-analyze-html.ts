@@ -22,4 +22,6 @@ import { runner, JsTsAnalysisInput, analyzeEmbedded } from 'services/analysis';
 /**
  * Handles TypeScript analysis requests
  */
-export default runner(input => Promise.resolve(analyzeEmbedded(input as JsTsAnalysisInput, 'html')));
+export default runner(input =>
+  Promise.resolve(analyzeEmbedded(input as JsTsAnalysisInput, 'html')),
+);

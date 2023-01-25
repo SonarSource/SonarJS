@@ -75,7 +75,9 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeEmbedded(await yamlInput({ filePath: join(fixturesPath, 'quickfix.yaml') }));
+    const result = analyzeEmbedded(
+      await yamlInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
+    );
     const {
       issues: [
         {
@@ -128,7 +130,9 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeEmbedded(await yamlInput({ filePath: join(fixturesPath, 'secondary.yaml') }));
+    const result = analyzeEmbedded(
+      await yamlInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
+    );
     const {
       issues: [
         {

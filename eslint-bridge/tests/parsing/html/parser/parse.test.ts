@@ -28,12 +28,6 @@ describe('parseYaml', () => {
     const embeddedJss = parseHTML(fileContent);
     expect(embeddedJss).toBeDefined();
 
-    console.log('got', JSON.stringify(embeddedJss, null, 2));
-
-    for (const code of embeddedJss) {
-      console.log('copmute', '"' + code + '"');
-    }
-
     /* expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',
