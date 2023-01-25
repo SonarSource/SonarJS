@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -119,7 +120,7 @@ public class HtmlSensor extends AbstractEslintSensor {
         analysisMode.getLinterIdFor(file));
       var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
+      cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
