@@ -20,14 +20,14 @@
 import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
-import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
+import { EmbeddedJS, parseAwsFromYaml, parseHTML } from 'parsing/embedded';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';
-import { parseHTML } from 'parsing/html';
-//import { parseHTML } from 'parsing/html';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
+
+export type Language = 'html' | 'yaml';
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
@@ -37,12 +37,14 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(input: YamlAnalysisInput, isHtml = false): ExtendedSourceCode[] {
+export function buildSourceCodes(input: YamlAnalysisInput, language: Language = 'yaml'): ExtendedSourceCode[] {
   let embeddedJSs: EmbeddedJS[];
-  if (isHtml) {
+  if (language === 'html') {
     embeddedJSs = parseHTML(input.fileContent);
-  } else {
+  } else if (language === 'yaml') {
     embeddedJSs = parseAwsFromYaml(input.fileContent);
+  } else {
+    throw new Error(`Unknown language: ${language}`);
   }
 
   const extendedSourceCodes: ExtendedSourceCode[] = [];

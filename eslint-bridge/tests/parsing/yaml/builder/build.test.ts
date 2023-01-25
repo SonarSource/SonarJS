@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/yaml';
+import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/embedded';
 import { APIError } from 'errors';
 import { yamlInput } from '../../../tools';
 

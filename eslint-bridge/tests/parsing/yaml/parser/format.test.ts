@@ -20,7 +20,7 @@
 import * as yaml from 'yaml';
 import path from 'path';
 import { readFile } from 'helpers';
-import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from 'parsing/yaml';
+import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from 'parsing/embedded';
 
 describe('isSupportedFormat', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'format');

@@ -20,7 +20,7 @@
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
 import { getLinter, Issue } from 'linting/eslint';
-import { buildSourceCodes } from 'parsing/yaml';
+import { buildSourceCodes, Language } from 'parsing/embedded';
 import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
 import { debug } from 'helpers';
 
@@ -51,10 +51,10 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export function analyzeYAML(input: YamlAnalysisInput, isHtml = false): YamlAnalysisOutput {
+export function analyzeEmbedded(input: YamlAnalysisInput, language: Language = 'yaml'): YamlAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input, isHtml);
+  const extendedSourceCodes = buildSourceCodes(input, language);
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {

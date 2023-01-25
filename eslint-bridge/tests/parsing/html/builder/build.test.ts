@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { buildSourceCodes } from 'parsing/yaml';
+import { buildSourceCodes } from 'parsing/embedded';
 import { yamlInput } from '../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, '..', 'fixtures');
   it('should build source code from an HTML file', async () => {
     const filePath = join(fixturesPath, 'single.html');
-    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), true);
+    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), 'html');
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 2 });
   });

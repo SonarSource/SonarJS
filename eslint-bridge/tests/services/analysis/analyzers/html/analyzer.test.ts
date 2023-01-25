@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { analyzeYAML } from 'services/analysis';
+import { analyzeEmbedded } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
 import { jsTsInput } from '../../../../tools';
 
@@ -41,7 +41,7 @@ describe('analyzeHTML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeYAML(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), true);
+    } = analyzeEmbedded(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), 'html');
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -61,9 +61,9 @@ describe('analyzeHTML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyzeYAML(
+    const { issues } = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
-      true,
+      'html',
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -86,9 +86,9 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML(
+    const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
-      true,
+      'html',
     );
     const {
       issues: [
@@ -109,9 +109,9 @@ describe('analyzeHTML', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeYAML(
+    const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
-      true,
+      'html',
     );
     const {
       issues: [issue],

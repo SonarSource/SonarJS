@@ -18,5 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export * from './embedded-js';
-export * from './format';
-export * from './parse';
+export * from './yaml/format';
+export * from './parse-yaml';
+export * from './parse-html';

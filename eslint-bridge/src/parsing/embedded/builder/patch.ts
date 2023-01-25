@@ -20,7 +20,7 @@
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
 import { visit } from 'linting/eslint';
-import { EmbeddedJS } from 'parsing/yaml';
+import { EmbeddedJS } from 'parsing/embedded';
 import { APIError } from 'errors';
 
 /**

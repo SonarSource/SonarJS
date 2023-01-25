@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as htmlparser from 'htmlparser2';
-import { EmbeddedJS } from 'parsing/yaml';
-import { TransformableString } from './TransformableString';
+import { EmbeddedJS } from 'parsing/embedded';
+import { TransformableString } from './html/TransformableString';
 
 // strongly inspired from https://github.com/BenoitZugmeyer/eslint-plugin-html/blob/12047e752d3f0904541e37ad7ffacde6149e2388/src/extract.js#L10
 

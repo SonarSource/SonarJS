@@ -20,7 +20,7 @@
 import path from 'path';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
-import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/yaml';
+import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
 import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {

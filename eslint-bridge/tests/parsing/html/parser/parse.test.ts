@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseHTML } from 'parsing/html';
+import { parseHTML } from 'parsing/embedded';
 import { readFile } from 'helpers';
 
 describe('parseYaml', () => {
