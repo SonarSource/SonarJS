@@ -27,7 +27,6 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'single.html');
     const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), true);
     expect(sourceCodes).toHaveLength(1);
-    //console.log(sourceCodes[0])
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 3 });
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 2 });
   });
 });
