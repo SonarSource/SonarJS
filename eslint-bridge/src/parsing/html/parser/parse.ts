@@ -262,7 +262,7 @@ export function parseHTML(code: string, indentDescriptor: any = {}) {
           badIndentationLines.push(lineNumber);
         }
       }
-      /* codeParts.push(transformedCode); */
+
       embeddedJSs.push({
         code: transformedCode.toString(),
         line: 2,

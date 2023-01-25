@@ -33,13 +33,22 @@ import { APIError } from 'errors';
  * location-related information within reported issues and quick fixes will be relative to
  * the YAML file (YAML referential).
  */
-export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
+export function patchSourceCode(
+  originalSourceCode: SourceCode,
+  embeddedJS: EmbeddedJS,
+  isHtml = false,
+) {
   /**
    * 1. Recomputes the lines from the original YAML file content, as the lines in the original
    *    SourceCode include only those from the embedded JavaScript code snippet and these
    *    lines are used internally by the SourceCode for various purposes.
    */
-  const lines = computeLines();
+  let lines;
+  if (isHtml) {
+    lines = embeddedJS.fileLineStarts;
+  } else {
+    lines = computeLines(); // no
+  }
 
   /**
    * 2. Overrides the values `lineStartIndices`, `text` and `lines` of the original SourceCode

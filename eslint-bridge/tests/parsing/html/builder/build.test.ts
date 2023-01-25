@@ -17,9 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
+import { join } from 'path';
+import { buildSourceCodes } from 'parsing/yaml';
+import { yamlInput } from '../../../tools';
 
-/**
- * Handles TypeScript analysis requests
- */
-export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'html')));
+describe('buildSourceCodes()', () => {
+  const fixturesPath = join(__dirname, '..', 'fixtures');
+  it('should build source code from YAML lambda file', async () => {
+    const filePath = join(fixturesPath, 'simple.html');
+    const sourceCodes = buildSourceCodes(await yamlInput({ filePath }));
+    expect(sourceCodes).toHaveLength(1);
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
+  });
+});

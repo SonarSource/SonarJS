@@ -20,10 +20,11 @@
 import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
-import { parseAwsFromYaml } from 'parsing/yaml';
+import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';
+//import { parseHTML } from 'parsing/html';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 
@@ -35,8 +36,13 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(input: YamlAnalysisInput): ExtendedSourceCode[] {
-  const embeddedJSs = parseAwsFromYaml(input.fileContent);
+export function buildSourceCodes(input: YamlAnalysisInput, isHtml = false): ExtendedSourceCode[] {
+  let embeddedJSs: EmbeddedJS[];
+  if (isHtml) {
+    embeddedJSs = []; //parseHTML(input.fileContent);
+  } else {
+    embeddedJSs = parseAwsFromYaml(input.fileContent);
+  }
 
   const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
