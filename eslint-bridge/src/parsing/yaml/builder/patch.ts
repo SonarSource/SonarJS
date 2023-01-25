@@ -36,19 +36,13 @@ import { APIError } from 'errors';
 export function patchSourceCode(
   originalSourceCode: SourceCode,
   embeddedJS: EmbeddedJS,
-  isHtml = false,
 ) {
   /**
    * 1. Recomputes the lines from the original YAML file content, as the lines in the original
    *    SourceCode include only those from the embedded JavaScript code snippet and these
    *    lines are used internally by the SourceCode for various purposes.
    */
-  let lines;
-  if (isHtml) {
-    lines = embeddedJS.fileLineStarts;
-  } else {
-    lines = computeLines(); // no
-  }
+  const lines = computeLines();
 
   /**
    * 2. Overrides the values `lineStartIndices`, `text` and `lines` of the original SourceCode
@@ -56,7 +50,7 @@ export function patchSourceCode(
    *    `Object.create()` because these particular SourceCode's properties are frozen.
    */
   const patchedSourceCode = Object.create(originalSourceCode, {
-    lineStartIndices: { value: embeddedJS.fileLineStarts },
+    lineStartIndices: { value: embeddedJS.lineStarts },
     text: { value: embeddedJS.text },
     lines: { value: lines },
   });
@@ -66,6 +60,7 @@ export function patchSourceCode(
    *    in the JavaScript referential
    */
   patchASTLocations(patchedSourceCode, embeddedJS.offset);
+  console.log('after patchin locations', patchedSourceCode.ast.loc.start);
 
   /**
    * 4. Rebuilds the SourceCode from the patched values because
