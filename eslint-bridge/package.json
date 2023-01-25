@@ -97,6 +97,7 @@
     "eslint-plugin-sonarjs",
     "express",
     "functional-red-black-tree",
+    "htmlparser2",
     "lodash.clone",
     "module-alias",
     "postcss-html",
