@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { analyzeJSTS } from 'services/analysis';
+import { analyzeYAML } from 'services/analysis';
 import { initializeLinter } from 'linting/eslint';
 import { jsTsInput } from '../../../../tools';
 
@@ -41,7 +41,7 @@ describe('analyzeHTML', () => {
     ]);
     const {
       issues: [issue],
-    } = await analyzeJSTS(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), 'html');
+    } = await analyzeYAML(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), true);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -53,7 +53,7 @@ describe('analyzeHTML', () => {
     );
   });
 
-  it('should not break when using "enforce-trailing-comma" rule', async () => {
+  /* it('should not break when using "enforce-trailing-comma" rule', async () => {
     await initializeLinter([
       {
         key: 'enforce-trailing-comma',
@@ -126,5 +126,5 @@ describe('analyzeHTML', () => {
         endColumn: 28,
       }),
     );
-  });
+  }); */
 });

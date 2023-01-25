@@ -51,10 +51,10 @@ export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
  * @param input the YAML analysis input
  * @returns the YAML analysis output
  */
-export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
+export function analyzeYAML(input: YamlAnalysisInput, isHtml = false): YamlAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input);
+  const extendedSourceCodes = buildSourceCodes(input, isHtml);
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
@@ -63,6 +63,7 @@ export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
+    console.log('got issues', issues);
     const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
     aggregatedUcfgPaths.push(...ucfgPaths);
