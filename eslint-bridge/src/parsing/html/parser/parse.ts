@@ -234,8 +234,7 @@ export function parseHTML(code: string, indentDescriptor: any = {}) {
 
   iterateScripts(code, (chunk: any) => {
     const slice = code.slice(chunk.start, chunk.end);
-    /* console.log('analysin slice');
-    console.log(slice); */
+
     if (chunk.type === 'html') {
       const match = slice.match(/\r\n|\n|\r/g);
       if (match) lineNumber += match.length;
@@ -265,7 +264,7 @@ export function parseHTML(code: string, indentDescriptor: any = {}) {
 
       embeddedJSs.push({
         code: transformedCode.toString(),
-        line: 2,
+        line: computeLine(chunk.start, transformedCode._lineStarts),
         column: computeCol(chunk.start, transformedCode._lineStarts),
         offset: chunk.start,
         lineStarts: transformedCode._compute().lineStarts,
@@ -278,6 +277,16 @@ export function parseHTML(code: string, indentDescriptor: any = {}) {
   });
 
   return embeddedJSs;
+}
+
+function computeLine(offset: number, fileLineStarts: number[]) {
+  let i = 0;
+  for (; i < fileLineStarts.length; i++) {
+    if (fileLineStarts[i] > offset) {
+      break;
+    }
+  }
+  return i;
 }
 
 function computeCol(offset: number, fileLineStarts: number[]) {
