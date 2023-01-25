@@ -24,6 +24,7 @@ import { EmbeddedJS, parseAwsFromYaml } from 'parsing/yaml';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';
+import { parseHTML } from 'parsing/html';
 //import { parseHTML } from 'parsing/html';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
@@ -39,7 +40,7 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 export function buildSourceCodes(input: YamlAnalysisInput, isHtml = false): ExtendedSourceCode[] {
   let embeddedJSs: EmbeddedJS[];
   if (isHtml) {
-    embeddedJSs = []; //parseHTML(input.fileContent);
+    embeddedJSs = parseHTML(input.fileContent);
   } else {
     embeddedJSs = parseAwsFromYaml(input.fileContent);
   }
