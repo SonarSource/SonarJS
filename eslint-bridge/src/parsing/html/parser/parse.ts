@@ -131,8 +131,6 @@ function iterateScripts(code: string, onChunk: any) {
 
   pushChunk('html', parser.endIndex + 1);
 
-  console.log('created chunks', JSON.stringify(chunks, null, 2));
-
   {
     const emitChunk = (index: number) => {
       const cdata: CdataLocation[] = [];

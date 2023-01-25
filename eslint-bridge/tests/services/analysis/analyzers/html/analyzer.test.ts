@@ -53,7 +53,7 @@ describe('analyzeHTML', () => {
     );
   });
 
-  /* it('should not break when using "enforce-trailing-comma" rule', async () => {
+  it('should not break when using "enforce-trailing-comma" rule', async () => {
     await initializeLinter([
       {
         key: 'enforce-trailing-comma',
@@ -61,9 +61,9 @@ describe('analyzeHTML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = await analyzeJSTS(
+    const { issues } = await analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
-      'html',
+      true,
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -71,7 +71,7 @@ describe('analyzeHTML', () => {
         line: 13,
         column: 16,
         endLine: 14,
-        endColumn: 4,
+        endColumn: 0,
       }),
     );
     expect(issues[1]).toEqual(
@@ -79,7 +79,7 @@ describe('analyzeHTML', () => {
         line: 14,
         column: 7,
         endLine: 15,
-        endColumn: 4,
+        endColumn: 0,
       }),
     );
   });
@@ -88,9 +88,9 @@ describe('analyzeHTML', () => {
     await initializeLinter([
       { key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = await analyzeJSTS(
+    const result = await analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
-      'html',
+      true,
     );
     const {
       issues: [
@@ -111,9 +111,9 @@ describe('analyzeHTML', () => {
     await initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = await analyzeJSTS(
+    const result = await analyzeYAML(
       await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
-      'html',
+      true,
     );
     const {
       issues: [issue],
@@ -126,5 +126,5 @@ describe('analyzeHTML', () => {
         endColumn: 28,
       }),
     );
-  }); */
+  });
 });

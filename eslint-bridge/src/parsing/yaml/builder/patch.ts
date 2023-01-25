@@ -33,10 +33,7 @@ import { APIError } from 'errors';
  * location-related information within reported issues and quick fixes will be relative to
  * the YAML file (YAML referential).
  */
-export function patchSourceCode(
-  originalSourceCode: SourceCode,
-  embeddedJS: EmbeddedJS,
-) {
+export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
   /**
    * 1. Recomputes the lines from the original YAML file content, as the lines in the original
    *    SourceCode include only those from the embedded JavaScript code snippet and these
@@ -60,7 +57,6 @@ export function patchSourceCode(
    *    in the JavaScript referential
    */
   patchASTLocations(patchedSourceCode, embeddedJS.offset);
-  console.log('after patchin locations', patchedSourceCode.ast.loc.start);
 
   /**
    * 4. Rebuilds the SourceCode from the patched values because
@@ -75,7 +71,7 @@ export function patchSourceCode(
   });
 
   /* Taken from eslint/lib/source-code/source-code.js#constructor */
-  function computeLines() {
+  function computeLines(): string[] {
     const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
     const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
     const lines = [];

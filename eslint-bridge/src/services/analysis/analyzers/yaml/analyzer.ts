@@ -63,7 +63,6 @@ export function analyzeYAML(input: YamlAnalysisInput, isHtml = false): YamlAnaly
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
-    console.log('got issues', issues);
     const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
     aggregatedUcfgPaths.push(...ucfgPaths);
