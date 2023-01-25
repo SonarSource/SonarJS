@@ -160,7 +160,29 @@ export function getFullyQualifiedNameRaw(
   if (!definition) {
     return null;
   }
+
   // imports
+  const fqnFromImport = checkFqnFromImport(variable, definition, context, fqn, visitedVars);
+  if (fqnFromImport !== null) {
+    return fqnFromImport;
+  }
+
+  // requires
+  const fqnFromRequire = checkFqnFromRequire(variable, definition, context, fqn, visitedVars);
+  if (fqnFromRequire !== null) {
+    return fqnFromRequire;
+  }
+
+  return null;
+}
+
+function checkFqnFromImport(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[],
+) {
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
     const importDeclaration = definition.parent;
@@ -175,8 +197,42 @@ export function getFullyQualifiedNameRaw(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     }
+    // import s3 = require('aws-cdk-lib/aws-s3');
+    if ((importDeclaration as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
+      const importedModule = (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration)
+        .moduleReference;
+      if (
+        importedModule.type === 'TSExternalModuleReference' &&
+        importedModule.expression.type === 'Literal' &&
+        typeof importedModule.expression.value === 'string'
+      ) {
+        const importedQualifiers = importedModule.expression.value.split('/');
+        fqn.unshift(...importedQualifiers);
+        return fqn.join('.');
+      }
+      //import s3 = cdk.aws_s3;
+      if (importedModule.type === 'TSQualifiedName') {
+        visitedVars.push(variable);
+        return getFullyQualifiedNameRaw(
+          context,
+          importedModule as unknown as estree.Node,
+          fqn,
+          variable.scope,
+          visitedVars,
+        );
+      }
+    }
   }
+  return null;
+}
 
+function checkFqnFromRequire(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[],
+) {
   const value = getUniqueWriteReference(variable);
   // requires
   if (definition.type === 'Variable' && value) {
@@ -196,13 +252,8 @@ export function getFullyQualifiedNameRaw(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedNameRaw(
-        context,
-        nodeToCheck,
-        fqn,
-        variable.scope,
-        visitedVars.concat(variable),
-      );
+      visitedVars.push(variable);
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope, visitedVars);
     }
   }
   return null;
@@ -273,6 +324,10 @@ export function reduceTo<T extends estree.Node['type']>(
       // we should migrate to use only TSESTree types everywhere to avoid casting
       nodeToCheck = (nodeToCheck as unknown as TSESTree.TSNonNullExpression)
         .expression as estree.Expression;
+    } else if ((nodeToCheck as TSESTree.Node).type === 'TSQualifiedName') {
+      const qualified = nodeToCheck as unknown as TSESTree.TSQualifiedName;
+      fqn.unshift(qualified.right.name);
+      nodeToCheck = qualified.left as estree.Node;
     } else {
       break;
     }
