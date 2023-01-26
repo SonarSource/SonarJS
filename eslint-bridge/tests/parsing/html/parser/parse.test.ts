@@ -41,17 +41,10 @@ describe('parseYaml', () => {
     );
   });
 
-  /* it('should return parsing errors', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
+  it('should ignore script tags with the "src" attribute', async () => {
+    const filePath = path.join(__dirname, '..', 'fixtures', 'src.html');
     const fileContent = await readFile(filePath);
-    const parsingContexts = [
-      {
-        predicate: (_key: any, _node: any, _ancestors: any) => false,
-        picker: noOpPicker,
-      },
-    ];
-    expect(() => parseYaml(parsingContexts, fileContent)).toThrow(
-      APIError.parsingError('Missing closing "quote', { line: 2 }),
-    );
-  }); */
+    const embeddedJss = parseHTML(fileContent);
+    expect(embeddedJss).toHaveLength(0);
+  });
 });
