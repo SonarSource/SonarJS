@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { buildSourceCodes } from 'parsing/embedded';
+import { buildSourceCodes, Language } from 'parsing/embedded';
 import { yamlInput } from '../../../tools';
 
 describe('buildSourceCodes()', () => {
@@ -28,5 +28,18 @@ describe('buildSourceCodes()', () => {
     const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), 'html');
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 2 });
+  });
+
+  it('throw an error if the language is unknown', async () => {
+    const language = 'unknown language wallaaaaa';
+    expect(() =>
+      buildSourceCodes(
+        {
+          filePath: '',
+          fileContent: '',
+        },
+        language as Language,
+      ),
+    ).toThrow(`Unknown language: ${language}`);
   });
 });
