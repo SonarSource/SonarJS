@@ -23,7 +23,7 @@ import { EmbeddedJS } from 'parsing/embedded';
 // strongly inspired from https://github.com/BenoitZugmeyer/eslint-plugin-html/blob/12047e752d3f0904541e37ad7ffacde6149e2388/src/extract.js#L10
 
 export function parseHTML(code: string) {
-  if (!code) return;
+  if (!code) return [];
   const lineStarts = computeLineStarts(code);
   const embeddedJSs: EmbeddedJS[] = [];
   const javaScriptTagNames = ['script'];
