@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.javascript.checks;
-
-import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,12 +27,10 @@ class GetterSetterCheckTest {
   @Test
   void configutestrations() {
     GetterSetterCheck check = new GetterSetterCheck();
-    String configAsString = new Gson().toJson(check.configurations());
     // default configuration
-    assertThat(configAsString).isEqualTo("[{\"getWithoutSet\":false}]");
+    assertThat(check.configurations()).containsExactly(false);
     // custom configuration
     check.getWithoutSet = true;
-    configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"getWithoutSet\":false}]");
+    assertThat(check.configurations()).containsExactly(true);
   }
 }
