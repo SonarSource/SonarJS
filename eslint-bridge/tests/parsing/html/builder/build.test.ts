@@ -24,10 +24,10 @@ import { yamlInput } from '../../../tools';
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, '..', 'fixtures');
   it('should build source code from an HTML file', async () => {
-    const filePath = join(fixturesPath, 'single.html');
+    const filePath = join(fixturesPath, 'simple.html');
     const sourceCodes = buildSourceCodes(await yamlInput({ filePath }), 'html');
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 10, column: 2 });
+    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
   });
 
   it('throw an error if the language is unknown', async () => {
