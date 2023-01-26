@@ -86,7 +86,8 @@ public class AnalysisProcessor {
     if (YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
-      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML analysis.
+      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
+      // sonar-html plugin.
       saveIssues(response.issues);
     } else {
       // it's important to have an order here:
@@ -105,10 +106,11 @@ public class AnalysisProcessor {
     contextUtils = new ContextUtils(context);
     this.file = file;
 
-    if (YamlSensor.LANGUAGE.equals(file.language())) {
+    if (YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
-      // from Cloudformation configurations, we can only save issues for these files.
+      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
+      // sonar-html plugin.
       LOG.debug("Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files");
     } else {
       saveCpd(cacheAnalysis.getCpdTokens());
