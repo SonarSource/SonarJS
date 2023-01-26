@@ -23,10 +23,6 @@ import { TransformableString } from './html/TransformableString';
 
 // strongly inspired from https://github.com/BenoitZugmeyer/eslint-plugin-html/blob/12047e752d3f0904541e37ad7ffacde6149e2388/src/extract.js#L10
 
-const NO_IGNORE = 0;
-const IGNORE_NEXT = 1;
-const IGNORE_UNTIL_ENABLE = 2;
-
 type CodeType = 'html' | 'script';
 
 type Chunk = {
@@ -47,7 +43,6 @@ function iterateScripts(code: string, onChunk: any) {
   let index = 0;
   let inScript = false;
   let cdata: CdataLocation[] = [];
-  let ignoreState = NO_IGNORE;
 
   const chunks: Chunk[] = [];
   function pushChunk(type: CodeType, end: number) {
@@ -64,15 +59,6 @@ function iterateScripts(code: string, onChunk: any) {
       }
 
       if (attrs.src) {
-        return;
-      }
-
-      if (ignoreState === IGNORE_NEXT) {
-        ignoreState = NO_IGNORE;
-        return;
-      }
-
-      if (ignoreState === IGNORE_UNTIL_ENABLE) {
         return;
       }
 
@@ -122,28 +108,27 @@ function iterateScripts(code: string, onChunk: any) {
 
   pushChunk('html', parser.endIndex + 1);
 
-  {
-    const emitChunk = (index: number) => {
-      const cdata: CdataLocation[] = [];
-      for (let i = startChunkIndex; i < index; i += 1) {
-        cdata.push.apply(cdata, chunks[i].cdata);
-      }
-      onChunk({
-        type: chunks[startChunkIndex].type,
-        start: chunks[startChunkIndex].start,
-        end: chunks[index - 1].end,
-        cdata,
-      });
-    };
-    let startChunkIndex = 0;
-    let index = 1;
-    for (; index < chunks.length; index += 1) {
-      if (chunks[startChunkIndex].type === chunks[index].type) continue;
-      emitChunk(index);
-      startChunkIndex = index;
-    }
+  let startChunkIndex = 0;
+  let i = 1;
+  for (; i < chunks.length; i += 1) {
+    if (chunks[startChunkIndex].type === chunks[i].type) continue;
+    emitChunk(i, startChunkIndex);
+    startChunkIndex = i;
+  }
 
-    emitChunk(index);
+  emitChunk(i, startChunkIndex);
+
+  function emitChunk(index: number, startIndex: number) {
+    const cdata: CdataLocation[] = [];
+    for (let i = startIndex; i < index; i += 1) {
+      cdata.push(...chunks[i].cdata);
+    }
+    onChunk({
+      type: chunks[startIndex].type,
+      start: chunks[startIndex].start,
+      end: chunks[index - 1].end,
+      cdata,
+    });
   }
 }
 
