@@ -18,9 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// copied from https://github.com/BenoitZugmeyer/eslint-plugin-html/blob/12047e752d3f0904541e37ad7ffacde6149e2388/src/TransformableString.js
+// Inspired from https://github.com/BenoitZugmeyer/eslint-plugin-html/blob/12047e752d3f0904541e37ad7ffacde6149e2388/src/TransformableString.js
 
 const lineEndingsRe = /\r\n|\r|\n/g;
+
+/**
+ * Computes the line start offsets for the provided string
+ *
+ * @param str
+ * @returns
+ */
 function lineStarts(str: string) {
   const result = [0];
   lineEndingsRe.lastIndex = 0;
@@ -32,37 +39,35 @@ function lineStarts(str: string) {
   return result;
 }
 
-type Location = {
-  line: number;
-  column: number;
+/**
+ * Block of characters containing not JS code
+ *
+ * @param from the start offset
+ * @param to the end offset
+ * @param str the characters that are between 'from' and 'to'
+ */
+type NonJsBlock = {
+  from: number;
+  to: number;
+  str: string;
 };
 
-function locationToIndex(location: Location, lineStarts: number[]) {
-  if (!location.line || location.line < 0 || !location.column || location.column < 0) {
-    throw new Error('Invalid location');
-  }
-  return lineStarts[location.line - 1] + location.column - 1;
-}
-
-function indexToLocation(index: number, lineStarts: number[]) {
-  if (index < 0) throw new Error('Invalid index');
-
-  let line = 0;
-  while (line + 1 < lineStarts.length && lineStarts[line + 1] <= index) {
-    line += 1;
-  }
-
-  return {
-    line: line + 1,
-    column: index - lineStarts[line] + 1,
-  };
-}
+/**
+ * JS code and line start offsets in the reference of JS
+ *
+ * @param lineStarts the line start offsets in the reference of the JS snippet
+ * @param result the JS code
+ */
+type JsCode = {
+  lineStarts: number[];
+  result: string;
+};
 
 export class TransformableString {
   _original: string;
-  _blocks: any[];
+  _blocks: NonJsBlock[];
   _lineStarts: number[];
-  _cache: any;
+  _cache?: JsCode | null;
 
   constructor(original: string) {
     this._original = original;
@@ -71,6 +76,9 @@ export class TransformableString {
     this._cache = null;
   }
 
+  /**
+   * Computes JsCode saves it in this._cache and returns it
+   */
   _compute() {
     if (!this._cache) {
       let result = '';
@@ -88,62 +96,29 @@ export class TransformableString {
     return this._cache;
   }
 
-  getOriginalLine(n: number) {
-    if (n < 1 || n > this._lineStarts.length) {
-      throw new Error('Invalid line number');
-    }
-    return this._original
-      .slice(this._lineStarts[n - 1], this._lineStarts[n])
-      .replace(lineEndingsRe, '');
-  }
-
+  /**
+   * Returns the JS code as string
+   */
   toString() {
     return this._compute().result;
   }
 
+  /**
+   * Replaces - i don't know what yet.
+   * Resets this._cache
+   */
   replace(from: number, to: number, str: string) {
     this._cache = null;
     if (from > to || from < 0 || to > this._original.length) {
       throw new Error('Invalid slice indexes');
     }
     const newBlock = { from, to, str };
-    if (!this._blocks.length || this._blocks[this._blocks.length - 1].to <= from) {
+    if (this._blocks.length === 0 || this._blocks[this._blocks.length - 1].to <= from) {
       this._blocks.push(newBlock);
     } else {
       const index = this._blocks.findIndex(other => other.to > from);
       if (this._blocks[index].from < to) throw new Error("Can't replace slice");
       this._blocks.splice(index, 0, newBlock);
-    }
-  }
-
-  originalIndex(index: number) {
-    let block;
-    for (block of this._blocks) {
-      if (index < block.from) break;
-
-      if (index < block.from + block.str.length) {
-        return;
-      } else {
-        index += block.to - block.from - block.str.length;
-      }
-    }
-    if (index < 0 || index > this._original.length) {
-      throw new Error('Invalid index');
-    }
-    if (index == this._original.length) {
-      if (block.to && block.to === this._original.length) {
-        return block.from + block.str.length;
-      }
-      return this._original.length;
-    }
-    return index;
-  }
-
-  originalLocation(location: Location) {
-    const index = locationToIndex(location, this._compute().lineStarts);
-    const originalIndex = this.originalIndex(index);
-    if (originalIndex !== undefined) {
-      return indexToLocation(originalIndex, this._lineStarts);
     }
   }
 }

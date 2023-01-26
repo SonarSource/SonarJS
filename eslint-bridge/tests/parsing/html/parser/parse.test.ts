@@ -27,17 +27,18 @@ describe('parseYaml', () => {
     const fileContent = await readFile(filePath);
     const embeddedJss = parseHTML(fileContent);
     expect(embeddedJss).toBeDefined();
-
-    /* expect(embedded).toEqual(
+    expect(embeddedJss).toHaveLength(1);
+    const [embeddedJs] = embeddedJss;
+    expect(embeddedJs).toEqual(
       expect.objectContaining({
         code: 'f(x)',
-        line: 2,
-        column: 13,
-        offset: 17,
-        lineStarts: [0, 17, 25, 33, 55, 64, 73],
+        line: 4,
+        column: 9,
+        offset: 38,
+        lineStarts: [0, 16, 23, 30, 52, 53, 68, 69, 77, 85],
         text: fileContent,
       }),
-    ); */
+    );
   });
 
   /* it('should return parsing errors', async () => {
