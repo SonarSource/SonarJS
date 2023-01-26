@@ -21,7 +21,7 @@ import path from 'path';
 import { parseHTML } from 'parsing/embedded';
 import { readFile } from 'helpers';
 
-describe('parseYaml', () => {
+describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {
     const filePath = path.join(__dirname, '..', 'fixtures', 'simple.html');
     const fileContent = await readFile(filePath);
