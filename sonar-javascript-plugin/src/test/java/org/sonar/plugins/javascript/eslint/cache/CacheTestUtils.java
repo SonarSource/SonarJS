@@ -56,8 +56,8 @@ public class CacheTestUtils {
     return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
   }
 
-  public static SensorContextTester createContextWithCache(Path baseDir, Path workDir, String filePath) {
-    var context = SensorContextTester.create(baseDir);
+  public static SensorContextTester createContextWithCache(Path baseDir, Path workDir, String filePath) throws IOException {
+    var context = SensorContextTester.create(baseDir.toRealPath());
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
     context.setNextCache(mock(WriteCache.class));

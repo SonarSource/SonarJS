@@ -85,6 +85,8 @@ class PathWalkerTest {
           .flatMap(folder -> createFolder(folder, depth - 1, width))
           .forEach(streamBuilder::add);
 
+        // For Windows this requires special permissions, user running test to be added in 'gpedit.msc':
+        // "Computer Configuration → Windows Settings → Security Settings → Local Policies → User Rights Assignment → Create symbolic links"
         Files.createSymbolicLink(path.resolve("folder"), path.resolve(String.format("folder-%d", width - 1)));
 
         IntStream.range(0, width)

@@ -231,7 +231,7 @@ class YamlSensorTest {
   }
 
   @Test
-  void should_not_save_cached_cpd() {
+  void should_not_save_cached_cpd() throws IOException {
     var path = "dir/file.yaml";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(InputFile.Status.SAME);
