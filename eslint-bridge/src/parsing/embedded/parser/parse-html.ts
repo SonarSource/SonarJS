@@ -33,7 +33,7 @@ type Chunk = {
   type: CodeType;
   start: number;
   end: number;
-  cdata: any[];
+  cdata: CdataLocation[];
 };
 
 type CdataLocation = {
@@ -57,7 +57,7 @@ function iterateScripts(code: string, onChunk: any) {
   }
 
   const parser = new htmlparser.Parser({
-    onopentag(name: string, attrs: any) {
+    onopentag(name: string, attrs: { src: string }) {
       // Test if current tag is a valid <script> tag.
       if (!javaScriptTagNames.includes(name)) {
         return;
@@ -115,17 +115,6 @@ function iterateScripts(code: string, onChunk: any) {
       }
 
       pushChunk('script', parser.endIndex + 1);
-    },
-
-    oncomment(comment: string) {
-      comment = comment.trim();
-      if (comment === 'eslint-disable') {
-        ignoreState = IGNORE_UNTIL_ENABLE;
-      } else if (comment === 'eslint-enable') {
-        ignoreState = NO_IGNORE;
-      } else if (comment === 'eslint-disable-next-script') {
-        ignoreState = IGNORE_NEXT;
-      }
     },
   });
 
@@ -225,7 +214,7 @@ function* dedent(indent: string, slice: string) {
   }
 }
 
-export function parseHTML(code: string, indentDescriptor: any = {}) {
+export function parseHTML(code: string) {
   const badIndentationLines: number[] = [];
   let lineNumber = 1;
   let previousHTML = '';
@@ -250,10 +239,7 @@ export function parseHTML(code: string, indentDescriptor: any = {}) {
       }
       transformedCode.replace(0, chunk.start, '');
       transformedCode.replace(chunk.end, code.length, '');
-      for (const action of dedent(
-        computeIndent(indentDescriptor, previousHTML, indentSlice),
-        indentSlice,
-      )) {
+      for (const action of dedent(computeIndent(null, previousHTML, indentSlice), indentSlice)) {
         lineNumber += 1;
         if (action.type === 'dedent') {
           transformedCode.replace(chunk.start + action.from, chunk.start + action.to, '');
