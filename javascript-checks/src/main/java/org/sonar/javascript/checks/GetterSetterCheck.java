@@ -50,5 +50,4 @@ public class GetterSetterCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "accessor-pairs";
   }
-
 }
