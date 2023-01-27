@@ -80,7 +80,7 @@ class JavaScriptRulingTest {
       jsProject("es5-shim", "", "tests"),
       jsProject("file-for-rules", "", "tests"),
       jsProject("fireact", "", ""),
-      jsProject("javascript-test-sources", "src/ace/**", ""),
+      jsProject("javascript-test-sources", "", ""),
       jsProject("jira-clone", "", ""),
       jsProject("jquery", "", "test"),
       jsProject("jshint", "", "tests"),

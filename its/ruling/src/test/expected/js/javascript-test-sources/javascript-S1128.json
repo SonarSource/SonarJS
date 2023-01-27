@@ -1,4 +1,7 @@
 {
+'javascript-test-sources:src/ace/demo/webpack/demo.js':[
+6,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/acceptance/authentication-test.js':[
 12,
 12,
