@@ -3111,4 +3111,7 @@
 'angular.js:src/stringify.js':[
 6,
 ],
+'angular.js:test/e2e/fixtures/ng-jq-jquery/index.html':[
+8,
+],
 }

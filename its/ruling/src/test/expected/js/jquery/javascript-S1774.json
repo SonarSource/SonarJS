@@ -271,4 +271,13 @@
 24,
 37,
 ],
+'jquery:test/data/manipulation/iframe-denied.html':[
+32,
+],
+'jquery:test/delegatetest.html':[
+154,
+],
+'jquery:test/localfile.html':[
+59,
+],
 }

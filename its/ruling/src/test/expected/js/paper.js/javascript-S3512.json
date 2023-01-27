@@ -1,4 +1,8 @@
 {
+'paper.js:examples/Animated/BooleanOperations.html':[
+89,
+92,
+],
 'paper.js:examples/Node.js/AnimatedStar.js':[
 23,
 ],
@@ -7,6 +11,16 @@
 ],
 'paper.js:examples/Node.js/Tadpoles.js':[
 14,
+],
+'paper.js:examples/Paperjs.org/BooleanOperattions.html':[
+89,
+92,
+],
+'paper.js:examples/Paperjs.org/Simplify.html':[
+55,
+],
+'paper.js:examples/Tools/Vektor.html':[
+115,
 ],
 'paper.js:gulp/tasks/build.js':[
 72,

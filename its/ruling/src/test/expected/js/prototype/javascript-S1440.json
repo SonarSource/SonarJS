@@ -80,4 +80,14 @@
 'prototype:src/prototype/prototype.js':[
 80,
 ],
+'prototype:test/functional/event.html':[
+127,
+164,
+164,
+184,
+184,
+224,
+225,
+226,
+],
 }

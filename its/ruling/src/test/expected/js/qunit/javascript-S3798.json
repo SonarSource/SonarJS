@@ -110,4 +110,11 @@
 864,
 868,
 ],
+'qunit:test/reporter-html/no-qunit-element.html':[
+9,
+],
+'qunit:test/reporter-html/window-onerror-preexisting-handler.html':[
+9,
+9,
+],
 }

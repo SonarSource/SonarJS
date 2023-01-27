@@ -107,4 +107,7 @@
 'p5.js:tasks/build/combineModules.js':[
 24,
 ],
+'p5.js:test/test-reference.html':[
+138,
+],
 }

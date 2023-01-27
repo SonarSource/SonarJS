@@ -34,4 +34,16 @@
 679,
 680,
 ],
+'prototype:test/console.html':[
+31,
+],
+'prototype:test/functional/event.html':[
+59,
+127,
+143,
+224,
+312,
+321,
+330,
+],
 }

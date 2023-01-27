@@ -5,4 +5,7 @@
 'p5.js:src/core/init.js':[
 24,
 ],
+'p5.js:test/manual-test-examples/module.html':[
+12,
+],
 }

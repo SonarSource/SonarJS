@@ -14,4 +14,7 @@
 'prototype:src/prototype/dom/form.js':[
 248,
 ],
+'prototype:test/functional/event.html':[
+58,
+],
 }

@@ -1,4 +1,55 @@
 {
+'paper.js:examples/JSON/Circle Testing.html':[
+24,
+],
+'paper.js:examples/JSON/Compound Path.html':[
+15,
+],
+'paper.js:examples/JSON/Empty Path Testing.html':[
+21,
+],
+'paper.js:examples/JSON/Gradients.html':[
+24,
+],
+'paper.js:examples/JSON/Group Transform.html':[
+18,
+],
+'paper.js:examples/JSON/Line Testing.html':[
+34,
+],
+'paper.js:examples/JSON/Random Path Testing.html':[
+32,
+],
+'paper.js:examples/JSON/Raster.html':[
+19,
+],
+'paper.js:examples/JSON/Rect and Attribute Testing.html':[
+46,
+],
+'paper.js:examples/JSON/Rotated Primitives.html':[
+45,
+],
+'paper.js:examples/JSON/Selection.html':[
+33,
+],
+'paper.js:examples/JSON/Shapes.html':[
+44,
+],
+'paper.js:examples/JSON/Symbols.html':[
+20,
+],
+'paper.js:examples/JSON/Text Testing.html':[
+28,
+],
+'paper.js:examples/JSON/Tiger.html':[
+12,
+],
+'paper.js:examples/JSON/Transform Test 1.html':[
+22,
+],
+'paper.js:examples/JSON/Transform Test 2.html':[
+20,
+],
 'paper.js:examples/Node.js/AnimatedStar.js':[
 20,
 23,
@@ -26,6 +77,38 @@
 'paper.js:examples/Node.js/Tadpoles.js':[
 11,
 14,
+],
+'paper.js:examples/Rasters/Raster.html':[
+14,
+],
+'paper.js:examples/SVG Export/Tiger.html':[
+14,
+17,
+],
+'paper.js:examples/SVG Import/Butterfly.html':[
+11,
+],
+'paper.js:examples/SVG Import/From File.html':[
+17,
+],
+'paper.js:examples/SVG Import/Inkscape Pivot.html':[
+35,
+],
+'paper.js:examples/SVG Import/Inkscape.html':[
+11,
+],
+'paper.js:examples/SVG Import/Rect Testing.html':[
+10,
+],
+'paper.js:examples/SVG Import/Tiger.html':[
+11,
+],
+'paper.js:examples/Scripts/BooleanOperations.html':[
+34,
+],
+'paper.js:examples/Worker/Main.html':[
+31,
+39,
 ],
 'paper.js:examples/Worker/Worker.js':[
 10,

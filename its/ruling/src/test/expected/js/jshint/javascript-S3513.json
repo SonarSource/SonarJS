@@ -13,4 +13,8 @@
 57,
 65,
 ],
+'jshint:tests/helpers/browser/index.html':[
+23,
+30,
+],
 }

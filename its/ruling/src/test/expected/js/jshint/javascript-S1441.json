@@ -3019,4 +3019,8 @@
 718,
 719,
 ],
+'jshint:tests/helpers/browser/index.html':[
+17,
+20,
+],
 }

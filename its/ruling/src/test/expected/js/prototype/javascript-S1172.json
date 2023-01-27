@@ -26,4 +26,7 @@
 'prototype:src/prototype/lang/string.js':[
 583,
 ],
+'prototype:test/functional/event.html':[
+250,
+],
 }
