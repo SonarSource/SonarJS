@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
         if (
           knowledge &&
           returnStatement.argument &&
-          (returnStatement.argument as any).type === 'JSXElement'
+          (returnStatement.argument as any).type.startsWith('JSX')
         ) {
           knowledge.returnsJSX = true;
         }
@@ -177,9 +177,9 @@ function isReactFunctionComponent(knowledge: FunctionKnowledge) {
 }
 
 function nameStartsWithCapital(node: estree.Node) {
-  return (
-    node.type === 'FunctionDeclaration' &&
-    node.id !== null &&
+  return !!(
+    (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
+    node.id &&
     node.id.name[0] === node.id.name[0].toUpperCase()
   );
 }
