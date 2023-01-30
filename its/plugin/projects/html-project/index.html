@@ -3,5 +3,7 @@
   function handler(event, context) {
     if (foo()) bar(); else bar(); /* Noncompliant (S3923) */
   }
+
+  var symbol = new Symbol("foo"); /* Noncompliant (S3834) */
 </script>
 </html>

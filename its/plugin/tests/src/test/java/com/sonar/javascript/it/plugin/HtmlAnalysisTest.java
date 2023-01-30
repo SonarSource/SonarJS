@@ -24,6 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
@@ -52,10 +53,21 @@ public class HtmlAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
+
+    Common.TextRange primaryLocation = issuesList.get(2).getTextRange();
+    Common.TextRange secondaryLocation = issuesList.get(2).getFlows(0).getLocations(0).getTextRange();
+
+    assertThat(primaryLocation.getStartOffset()).isEqualTo(15);
+    assertThat(primaryLocation.getEndOffset()).isEqualTo(18);
+    assertThat(secondaryLocation.getStartOffset()).isEqualTo(19);
+    assertThat(secondaryLocation.getEndOffset()).isEqualTo(25);
+
     assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
       tuple(1, "Web:DoctypePresenceCheck"),
-      tuple(4, "javascript:S3923")
+      tuple(4, "javascript:S3923"),
+      tuple(7, "javascript:S3834")
     );
+
 //    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
   }
 }
