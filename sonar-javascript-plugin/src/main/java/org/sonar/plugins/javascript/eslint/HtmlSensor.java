@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
@@ -101,7 +102,13 @@ public class HtmlSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
     FilePredicates p = fileSystem.predicates();
-    var filePredicate = p.hasLanguage(HtmlSensor.LANGUAGE);
+    var filePredicate = p.and(
+      p.hasLanguage(HtmlSensor.LANGUAGE),
+      fileSystem.predicates().or(
+        fileSystem.predicates().hasExtension("htm"),
+        fileSystem.predicates().hasExtension("html")
+      )
+    );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
