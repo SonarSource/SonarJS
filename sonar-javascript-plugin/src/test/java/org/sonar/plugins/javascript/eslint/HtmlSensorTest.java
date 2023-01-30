@@ -154,6 +154,31 @@ class HtmlSensorTest {
   }
 
   @Test
+  void should_ignore_template_extensions() throws Exception {
+    var htmPath = "dir/file.HTM";
+    var htmlPath = "dir/file.html";
+    var templatePath = "dir/file.chtml";
+
+    var context = SensorContextTester.create(baseDir);
+    context.setPreviousCache(mock(ReadCache.class));
+    context.setNextCache(mock(WriteCache.class));
+    context.fileSystem().setWorkDir(workDir);
+
+    var htmFile = TestUtils.createInputFile(context, getInputFileContent(), htmPath, "web");
+    var htmlFile = TestUtils.createInputFile(context, getInputFileContent(), htmlPath, "web");
+    var templateFile = TestUtils.createInputFile(context, getInputFileContent(), templatePath, "web");
+
+    when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
+
+    HtmlSensor sensor = createSensor();
+    sensor.execute(context);
+    verify(eslintBridgeServerMock, times(2)).analyzeHtml(any());
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmFile.uri());
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmlFile.uri());
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).doesNotContain("Analyzing file: " + templateFile.uri());
+  }
+
+  @Test
   void should_raise_a_parsing_error() throws IOException {
     when(eslintBridgeServerMock.analyzeHtml(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
