@@ -22,12 +22,4 @@
 'p5.js:src/image/image.js':[
 210,
 ],
-'p5.js:test/test-reference.html':[
-27,
-34,
-37,
-],
-'p5.js:test/test.html':[
-30,
-],
 }
