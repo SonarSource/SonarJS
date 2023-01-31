@@ -1,10 +1,4 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js':[
-4374,
-],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js':[
-4206,
-],
 'javascript-test-sources:src/ecmascript6/http/src/IConnection.js':[
 10,
 ],

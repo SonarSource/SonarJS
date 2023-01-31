@@ -1,16 +1,4 @@
 {
-'javascript-test-sources:src/ace/doc/site/js/ga.js':[
-7,
-],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js':[
-13,
-],
-'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
-2613,
-],
-'javascript-test-sources:src/ace/static.js':[
-154,
-],
 'javascript-test-sources:src/ecmascript6/Ghost/config.example.js':[
 14,
 ],

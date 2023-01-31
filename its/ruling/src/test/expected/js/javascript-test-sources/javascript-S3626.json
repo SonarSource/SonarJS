@@ -1,13 +1,4 @@
 {
-'javascript-test-sources:src/ace/Makefile.dryice.js':[
-516,
-],
-'javascript-test-sources:src/ace/src/keyboard/vim.js':[
-1398,
-],
-'javascript-test-sources:src/ace/src/mode/folding/sqlserver.js':[
-46,
-],
 'javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/check-ssl_spec.js':[
 94,
 115,
