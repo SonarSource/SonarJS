@@ -28,6 +28,8 @@ import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
 
+import java.util.HashSet;
+
 public enum AnalysisMode {
   DEFAULT, SKIP_UNCHANGED;
 
@@ -68,6 +70,12 @@ public enum AnalysisMode {
   static List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {
     var rule = EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     return rule == null ? emptyList() : List.of(rule);
+  }
+
+  static List<EslintRule> getHtmlFileRules(List<EslintRule> rules) {
+    var blackListRuleKeys = new HashSet<String>();
+    blackListRuleKeys.add("no-reference-error");
+    return EslintRule.findAllBut(rules, blackListRuleKeys);
   }
 
   String getLinterIdFor(InputFile file) {

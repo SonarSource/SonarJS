@@ -1,0 +1,9 @@
+<html>  <!-- Noncompliant (DoctypePresenceCheck) -->
+<script>
+  function handler(event, context) {
+    if (foo()) bar(); else bar(); /* Noncompliant (S3923) */
+  }
+
+  ace.foo();
+</script>
+</html>

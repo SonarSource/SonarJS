@@ -52,7 +52,7 @@ public class HtmlSensor extends AbstractEslintSensor {
       AnalysisWarningsWrapper analysisWarnings,
       Monitoring monitoring,
       AnalysisProcessor processAnalysis) {
-    // The monitoring sensor remains inactive during YAML files analysis, as the
+    // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
@@ -73,7 +73,7 @@ public class HtmlSensor extends AbstractEslintSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+      eslintBridgeServer.initLinter(AnalysisMode.getHtmlFileRules(checks.eslintRules()), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");

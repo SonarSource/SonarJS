@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>html-blacklist-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3923</key> <!-- all duplicate branches -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3827</key> <!-- no-reference-error -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

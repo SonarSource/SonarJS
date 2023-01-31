@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
@@ -48,12 +49,22 @@ class EslintRule {
       .orElse(null);
   }
 
+  static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
+    return rules.stream()
+      .filter(rule -> ! blackListRuleKeys.contains(rule.key))
+      .collect(Collectors.toList());
+  }
+
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {
     return rule -> rule.key.equals(eslintKey);
   }
 
   @Override
   public String toString() {
+    return key;
+  }
+
+  public String getKey() {
     return key;
   }
 }

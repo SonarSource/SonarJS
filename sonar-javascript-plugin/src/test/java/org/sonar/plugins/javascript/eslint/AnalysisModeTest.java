@@ -117,6 +117,13 @@ class AnalysisModeTest {
       AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID);
   }
 
+  @Test
+  void should_filter_out_rules_for_html() {
+    var rules = rules("key1", "key2", "ucfg", "no-reference-error");
+    var filteredRules = AnalysisMode.getHtmlFileRules(rules);
+    assertThat(filteredRules).hasSize(3).extracting(EslintRule::getKey).containsExactlyInAnyOrder("key1", "key2", "ucfg");
+  }
+
   private static List<EslintRule> rules(String... keys) {
     return Arrays.stream(keys).map(key -> new EslintRule(key, emptyList(), emptyList())).collect(toList());
   }

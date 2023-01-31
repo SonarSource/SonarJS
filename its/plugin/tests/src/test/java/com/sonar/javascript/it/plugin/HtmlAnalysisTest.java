@@ -38,7 +38,7 @@ public class HtmlAnalysisTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void test() {
+  void should_raise_issues_in_html_files() {
     var projectKey = "html-project";
     var build = getSonarScanner()
       .setProjectKey(projectKey)
@@ -50,7 +50,7 @@ public class HtmlAnalysisTest {
     OrchestratorStarter.setProfiles(projectKey, Map.of(
       "html-profile", "web",
       "eslint-based-rules-profile", "js"));
-    BuildResult result = orchestrator.executeBuild(build);
+    orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
 
@@ -67,7 +67,29 @@ public class HtmlAnalysisTest {
       tuple(4, "javascript:S3923"),
       tuple(7, "javascript:S3834")
     );
+  }
 
-//    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
+  @Test
+  void should_not_raise_issues_for_blacklisted_rules() {
+    var projectKey = "html-project-blacklisted-rules";
+    var build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setDebugLogs(true)
+      .setProjectDir(TestUtils.projectDir(projectKey));
+
+    OrchestratorStarter.setProfiles(projectKey, Map.of(
+      "html-profile", "web",
+      "html-blacklist-profile", "js"));
+    orchestrator.executeBuild(build);
+
+    var issuesList = getIssues(projectKey);
+
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
+      tuple(1, "Web:DoctypePresenceCheck"),
+      tuple(4, "javascript:S3923")
+    );
   }
 }
+
