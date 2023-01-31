@@ -76,7 +76,7 @@ public class HtmlSensor extends AbstractEslintSensor {
       eslintBridgeServer.initLinter(AnalysisMode.getHtmlFileRules(checks.eslintRules()), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
-          throw new CancellationException("Analysis interrupted because the SensorContext is in a cancelled state");
+          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.toString());
