@@ -1,4 +1,10 @@
 {
+'javascript-test-sources:src/ace/demo/scrollable-page.html':[
+125,
+],
+'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+3183,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-error-message.js':[
 32,
 ],

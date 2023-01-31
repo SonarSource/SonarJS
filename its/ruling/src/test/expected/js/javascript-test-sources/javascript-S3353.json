@@ -1,4 +1,17 @@
 {
+'javascript-test-sources:src/ace/src/editor.js':[
+1745,
+],
+'javascript-test-sources:src/ace/src/layer/decorators.js':[
+81,
+82,
+83,
+105,
+106,
+],
+'javascript-test-sources:src/ace/src/layer/text.js':[
+515,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/base.js':[
 51,
 ],
