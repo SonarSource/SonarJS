@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -61,24 +62,24 @@ public class HtmlSensor extends AbstractEslintSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("JavaScript inside HTML analysis")
-      .onlyOnLanguage(LANGUAGE);
+      .onlyOnLanguage(LANGUAGE)
+      .name("JavaScript inside HTML analysis");
   }
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
+    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var success = false;
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       eslintBridgeServer.initLinter(AnalysisMode.getHtmlFileRules(checks.eslintRules()), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.absolutePath());
+          progressReport.nextFile(inputFile.toString());
           var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
           if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, cacheStrategy);
@@ -101,7 +102,7 @@ public class HtmlSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
     FilePredicates p = fileSystem.predicates();
-    var filePredicate = p.and(
+    FilePredicate filePredicate = p.and(
       p.hasLanguage(HtmlSensor.LANGUAGE),
       fileSystem.predicates().or(
         fileSystem.predicates().hasExtension("htm"),
@@ -117,7 +118,7 @@ public class HtmlSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
-        file.absolutePath(),
+        file.toString(),
         file.type().toString(),
         fileContent,
         contextUtils.ignoreHeaderComments(),
