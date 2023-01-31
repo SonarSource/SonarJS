@@ -48,9 +48,9 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonarsource.nodejs.NodeCommand;
-import org.sonarsource.nodejs.NodeCommandBuilder;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;

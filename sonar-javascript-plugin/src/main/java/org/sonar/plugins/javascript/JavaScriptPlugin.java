@@ -55,8 +55,8 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonarsource.nodejs.NodeCommandBuilderImpl;
-import org.sonarsource.nodejs.ProcessWrapperImpl;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class JavaScriptPlugin implements Plugin {
 

@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.nodejs;
+package org.sonar.plugins.javascript.nodejs;
 
-public class NodeCommandException extends RuntimeException {
+@FunctionalInterface
+public interface BundlePathResolver {
 
-  public NodeCommandException(String message) {
-    super(message);
-  }
+  String resolve(String relativePath);
 
-  public NodeCommandException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

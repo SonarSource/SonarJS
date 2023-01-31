@@ -53,9 +53,9 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
-import org.sonarsource.nodejs.NodeCommand;
-import org.sonarsource.nodejs.NodeCommandBuilder;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;

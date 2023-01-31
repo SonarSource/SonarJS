@@ -139,9 +139,9 @@ plugin_qa_task:
     dockerfile: .cirrus/nodejs.jdk17.Dockerfile
     docker_arguments:
       matrix:
-        - NODE_VERSION: v14.20.0
-        - NODE_VERSION: v16.16.0
-        - NODE_VERSION: v18.6.0
+        - NODE_VERSION: 14
+        - NODE_VERSION: 16
+        - NODE_VERSION: 18
   env:
     SQ_VERSION: LATEST_RELEASE
 

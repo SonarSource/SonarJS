@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.nodejs;
+package org.sonar.plugins.javascript.nodejs;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -309,7 +309,7 @@ class NodeCommandTest {
     nodeCommand.start();
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).hasSize(2);
-    assertThat(value.get(0)).endsWith("nodejs-utils/src/test/resources/package/node_modules/run-node/run-node");
+    assertThat(value.get(0)).endsWith("src/test/resources/package/node_modules/run-node/run-node");
     assertThat(value.get(1)).isEqualTo("script.js");
   }
 

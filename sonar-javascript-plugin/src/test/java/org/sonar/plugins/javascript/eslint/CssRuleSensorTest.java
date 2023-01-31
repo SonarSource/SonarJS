@@ -57,7 +57,7 @@ import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.css.TestActiveRules;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
