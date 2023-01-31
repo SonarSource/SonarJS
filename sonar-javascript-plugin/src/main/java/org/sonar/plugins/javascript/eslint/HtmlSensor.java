@@ -30,7 +30,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
@@ -55,8 +54,8 @@ public class HtmlSensor extends AbstractEslintSensor {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
     super(eslintBridgeServer, analysisWarnings, monitoring);
-    this.checks = checks;
     this.analysisProcessor = processAnalysis;
+    this.checks = checks;
   }
 
   @Override
