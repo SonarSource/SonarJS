@@ -97,6 +97,16 @@ function
       }`,
       options: [2],
     },
+    {
+      // React Function Component using function expressions and JSXFragments
+      code: `
+      let a = function Welcome() {
+        const greeting = 'Hello, world!';
+
+        return <><h1>{greeting}</h1></>
+      }`,
+      options: [2],
+    },
   ],
   invalid: [
     {
