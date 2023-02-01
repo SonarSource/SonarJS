@@ -14,4 +14,6 @@ module.exports = {
     'ESlint dev guide': 'https://eslint.org/docs/latest/developer-guide/working-with-rules',
   },
   skipErrorChecking: true,
+  visibilityFilters: {
+  },
 };
