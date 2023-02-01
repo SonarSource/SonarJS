@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,9 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,6 +93,10 @@ class YamlSensorTest {
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
+    // reset is required as this static value might be set by another test
+    PluginInfo.setUcfgPluginVersion(null);
+
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
@@ -224,6 +230,20 @@ class YamlSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).doesNotContain("Analyzing file: " + inputFile.uri());
   }
 
+  @Test
+  void should_not_save_cached_cpd() {
+    var path = "dir/file.yaml";
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(InputFile.Status.SAME);
+    var sensor = createSensor();
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(file.key())).isNull();
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .doesNotContain("Processing cache analysis of file: " + file.uri());
+  }
+
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -233,10 +253,14 @@ class YamlSensorTest {
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
+    return createInputFile(context, getInputFileContent());
+  }
+
+  private static String getInputFileContent() {
     String contents = "Transform: " + YamlSensor.SAM_TRANSFORM_FIELD;
     contents += "\nRuntime: nodejs10.x  # hello";
     contents += "\nif (cond)\ndoFoo(); \nelse \ndoFoo();";
-    return createInputFile(context, contents);
+    return contents;
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context, String contents) {

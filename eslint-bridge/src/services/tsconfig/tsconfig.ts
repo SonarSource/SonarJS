@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import * as path from 'path';
 import * as ts from 'typescript';
 import tmp from 'tmp';
@@ -91,21 +90,13 @@ tmp.setGracefulCleanup();
 /**
  * Create the TSConfig file and returns its path.
  *
- * The file is written in a temporary location in the file system and is marked to be removed after Node.js process
- * terminates.
+ * The file is written in a temporary location in the file system and is marked to be removed after Node.js process terminates.
  *
- * @param baseDir Project base directory
+ * @param tsConfig TSConfig to write
  * @returns the resolved TSConfig file path
  */
-export async function writeTSConfigFile(baseDir: string): Promise<{ filename: string }> {
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
   const filename = await promisify(tmp.file)();
-  const tsConfig = {
-    compilerOptions: {
-      allowJs: true,
-      noImplicitAny: true,
-    },
-    include: [baseDir + '/**/*'],
-  };
   await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
   return { filename };
 }

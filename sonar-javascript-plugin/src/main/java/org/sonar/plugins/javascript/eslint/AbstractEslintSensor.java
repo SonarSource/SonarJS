@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 public abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);

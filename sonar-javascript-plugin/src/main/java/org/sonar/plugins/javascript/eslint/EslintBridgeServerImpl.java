@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -48,10 +48,9 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
-import org.sonarsource.nodejs.NodeCommand;
-import org.sonarsource.nodejs.NodeCommandBuilder;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
@@ -387,9 +386,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public TsConfigFile createTsConfigFile(String baseDir) throws IOException {
-    var request = new CreateTsConfigFileRequest(baseDir);
-    var response = request(GSON.toJson(request), "create-tsconfig-file");
+  public TsConfigFile createTsConfigFile(String content) throws IOException {
+    var response = request(content, "create-tsconfig-file");
     return GSON.fromJson(response, TsConfigFile.class);
   }
 
@@ -466,15 +464,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
-    }
-  }
-
-
-  static class CreateTsConfigFileRequest {
-    final String baseDir;
-
-    public CreateTsConfigFileRequest(String baseDir) {
-      this.baseDir = baseDir;
     }
   }
 

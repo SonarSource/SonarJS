@@ -1,5 +1,5 @@
 {
-  "title": "React\u0027s useState hook should only be used in the render function or body of a component",
+  "title": "React\u0027s useState hook should not be used directly in the render function or body of a component",
   "type": "BUG",
   "status": "ready",
   "remediation": {

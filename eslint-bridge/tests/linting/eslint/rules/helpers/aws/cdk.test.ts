@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { AwsCdkTemplate } from 'linting/eslint/rules/helpers/aws/cdk';
 import { TypeScriptRuleTester } from '../../../../../tools';
 
@@ -59,6 +58,14 @@ function b() {
       code: `
 import { default as cdk } from 'aws-cdk-lib';
 new cdk.aws_module.Class(...args);
+      `,
+    },
+    {
+      code: `
+const awsCdk = 'aws-cdk-lib';
+import cdk = require(awsCdk); // FN
+import module = cdk.aws_module;
+new module.Class();
       `,
     },
   ],
@@ -200,6 +207,21 @@ new cdk.aws_module.Class();
       code: `
 import cdk from 'aws-cdk-lib';
 new cdk.aws_module!.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+import cdk = require('aws-cdk-lib');
+new cdk.aws_module.Class();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+import cdk = require('aws-cdk-lib');
+import module = cdk.aws_module;
+new module.Class();
       `,
       errors: 1,
     },

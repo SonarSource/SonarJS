@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,9 +36,8 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -73,7 +72,7 @@ public class AnalysisWithProgram {
     this.contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
+    var tsConfigs = new TsConfigProvider().tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
@@ -142,10 +141,7 @@ public class AnalysisWithProgram {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-        if (cacheStrategy.isAnalysisRequired()) {
-          analyze(inputFile, program, cacheStrategy);
-        }
+        analyze(inputFile, program);
         counter++;
       } else {
         LOG.debug("File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.", file);
@@ -155,22 +151,29 @@ public class AnalysisWithProgram {
     LOG.info("Analyzed {} file(s) with current program", counter);
   }
 
-  private void analyze(InputFile file, TsProgram tsProgram, CacheStrategy cacheStrategy) throws IOException {
+  private void analyze(InputFile file, TsProgram tsProgram) throws IOException {
     if (context.isCancelled()) {
       throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
     }
-    try {
-      LOG.debug("Analyzing file: {}", file.uri());
-      progressReport.nextFile(file.absolutePath());
-      monitoring.startFile(file);
-      EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-        file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
-      EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
-      processAnalysis.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
-    } catch (IOException e) {
-      LOG.error("Failed to get response while analyzing " + file, e);
-      throw e;
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: {}", file.uri());
+        progressReport.nextFile(file.absolutePath());
+        monitoring.startFile(file);
+        EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
+          file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
+        EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
+        processAnalysis.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file, e);
+        throw e;
+      }
+    } else {
+      LOG.debug("Processing cache analysis of file: {}", file.uri());
+      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+      processAnalysis.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
 

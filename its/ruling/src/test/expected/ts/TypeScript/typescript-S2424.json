@@ -17,9 +17,6 @@
 908,
 2199,
 ],
-'TypeScript:src/compiler/sys.ts':[
-15,
-],
 'TypeScript:src/compiler/transformers/es2015.ts':[
 867,
 897,
@@ -36,9 +33,6 @@
 'TypeScript:src/compiler/types.ts':[
 12,
 2862,
-],
-'TypeScript:src/server/protocol.ts':[
-2359,
 ],
 'TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts':[
 13,

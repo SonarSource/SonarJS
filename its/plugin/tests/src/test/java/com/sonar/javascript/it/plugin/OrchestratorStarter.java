@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2022 SonarSource SA
+ * Copyright (C) 2012-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -53,7 +52,6 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
-    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
     // required to load YAML files
     .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -64,7 +62,6 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/yaml-aws-lambda-profile.xml"))
     .build();
 
   private static volatile boolean started;
@@ -131,10 +128,22 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Measure getMeasure(String componentKey, String metricKey) {
-    ComponentWsResponse response = newWsClient(ORCHESTRATOR).measures().component(new ComponentRequest()
+    return getMeasure(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  private static Measure getMeasure(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    var request = new ComponentRequest()
       .setComponent(componentKey)
-      .setMetricKeys(singletonList(metricKey)));
-    List<Measure> measures = response.getComponent().getMeasuresList();
+      .setMetricKeys(singletonList(metricKey));
+    if (branch != null) {
+      request.setBranch(branch);
+    }
+    if (pullRequest != null) {
+      request.setPullRequest(pullRequest);
+    }
+    var response = newWsClient(orchestrator).measures().component(request);
+    var measures = response.getComponent().getMeasuresList();
     return measures.size() == 1 ? measures.get(0) : null;
   }
 
@@ -146,7 +155,12 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   @CheckForNull
   static Double getMeasureAsDouble(String componentKey, String metricKey) {
-    Measure measure = getMeasure(componentKey, metricKey);
+    return getMeasureAsDouble(ORCHESTRATOR, componentKey, metricKey, null, null);
+  }
+
+  @CheckForNull
+  public static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+    var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import {
+  getFullyQualifiedName,
   getImportDeclarations,
-  getModuleNameFromRequire,
   getObjectExpressionProperty,
   getUniqueWriteUsage,
   isIdentifier,
@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
         const { callee } = node as estree.CallExpression;
         if (callee.type === 'Identifier' && callee.name === 'toEncodedMessage') {
           isSecondaryLocationUsed =
-            getModuleNameOfImportedIdentifier(context, callee)?.value === './helpers';
+            getModuleNameOfImportedIdentifier(context, callee) === './helpers';
         }
       },
       ObjectExpression: (node: estree.Node) => {
@@ -102,7 +102,7 @@ function getModuleNameOfImportedIdentifier(
     ),
   );
   if (importedDeclaration) {
-    return importedDeclaration.source;
+    return importedDeclaration.source.value;
   }
   // check if importing using `const f = require('module_name').f` or `const { f } = require('module_name')`
   const writeExpression = getUniqueWriteUsage(context, identifier.name);
@@ -116,7 +116,8 @@ function getModuleNameOfImportedIdentifier(
     } else {
       maybeRequireCall = writeExpression;
     }
-    return getModuleNameFromRequire(maybeRequireCall);
+    const fqn = getFullyQualifiedName(context, maybeRequireCall);
+    return fqn?.split('.')[0];
   }
 
   return undefined;

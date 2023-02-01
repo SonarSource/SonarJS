@@ -70,13 +70,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
-  always:
-    surefire_report_artifacts:
-      path: "its/plugin/tests/target/site/**/*"
-      type: text/html
-    surefire_artifacts:
-      path: "its/plugin/tests/target/surefire-reports/**/*"
-      type: text/xml
+
 
 build_task:
   eks_container:
@@ -142,16 +136,19 @@ ws_scan_task:
 plugin_qa_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
+    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
     docker_arguments:
       matrix:
-        - NODE_VERSION: v14.20.0
-        - NODE_VERSION: v16.16.0
-        - NODE_VERSION: v18.6.0
+        - NODE_VERSION: 14
+        - NODE_VERSION: 16
+        - NODE_VERSION: 18
   env:
     SQ_VERSION: LATEST_RELEASE
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
+  eks_container:
+    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
   env:
     SQ_VERSION: DEV
 
@@ -189,6 +186,7 @@ ruling_task:
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
     cpu: 15
     memory: 24G
   env:

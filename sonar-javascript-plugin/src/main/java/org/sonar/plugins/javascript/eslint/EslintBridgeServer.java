@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
@@ -64,7 +63,7 @@ public interface EslintBridgeServer extends Startable {
 
   boolean deleteProgram(TsProgram tsProgram) throws IOException;
 
-  TsConfigFile createTsConfigFile(String baseDir) throws IOException;
+  TsConfigFile createTsConfigFile(String content) throws IOException;
 
   class JsAnalysisRequest {
     final String filePath;
@@ -170,6 +169,38 @@ public interface EslintBridgeServer extends Startable {
     int endLine;
     int endCol;
 
+    public int getStartLine() {
+      return startLine;
+    }
+
+    public int getStartCol() {
+      return startCol;
+    }
+
+    public int getEndLine() {
+      return endLine;
+    }
+
+    public int getEndCol() {
+      return endCol;
+    }
+
+    public void setStartLine(int startLine) {
+      this.startLine = startLine;
+    }
+
+    public void setStartCol(int startCol) {
+      this.startCol = startCol;
+    }
+
+    public void setEndLine(int endLine) {
+      this.endLine = endLine;
+    }
+
+    public void setEndCol(int endCol) {
+      this.endCol = endCol;
+    }
+
     TextRange toTextRange(InputFile inputFile) {
       return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
     }
@@ -190,6 +221,22 @@ public interface EslintBridgeServer extends Startable {
   class CpdToken {
     Location location;
     String image;
+
+    public void setLocation(Location location) {
+      this.location = location;
+    }
+
+    public void setImage(String image) {
+      this.image = image;
+    }
+
+    public Location getLocation() {
+      return location;
+    }
+
+    public String getImage() {
+      return image;
+    }
   }
 
   class Perf {

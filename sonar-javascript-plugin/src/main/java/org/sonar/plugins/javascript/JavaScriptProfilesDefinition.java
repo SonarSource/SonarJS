@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -76,6 +76,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
     keys.stream()
       .filter(activeKeysForBothLanguages::contains)
+      // deprecated for Typescript: https://github.com/SonarSource/SonarJS/issues/3580
+      .filter(key -> !TypeScriptLanguage.KEY.equals(language) || !"S2814".equals(key))
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
 
     addSecurityRules(newProfile, language);

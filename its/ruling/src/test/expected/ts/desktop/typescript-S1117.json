@@ -44,10 +44,6 @@
 'desktop:app/src/lib/markdown-filters/emoji-filter.ts':[
 141,
 ],
-'desktop:app/src/lib/path.ts':[
-40,
-42,
-],
 'desktop:app/src/lib/promise.ts':[
 25,
 40,

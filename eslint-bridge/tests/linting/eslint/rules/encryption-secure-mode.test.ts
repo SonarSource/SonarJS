@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -106,6 +106,15 @@ const testCases = {
           message: 'Use a secure mode and padding scheme.',
         },
       ],
+    },
+    {
+      code: `
+      const crypto = require('node:crypto');
+      var key = crypto.randomBytes(16);
+      var iv = Buffer.from(crypto.randomBytes(16));
+      crypto.createCipheriv("AES-128-CBC", key, iv);
+            `,
+      errors: 1,
     },
     {
       code: `

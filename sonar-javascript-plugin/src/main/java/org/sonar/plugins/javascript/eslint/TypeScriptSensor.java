@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -42,10 +43,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigFile;
-import org.sonar.plugins.javascript.eslint.tsconfig.TsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 import static java.util.Collections.singletonList;
@@ -55,6 +54,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   static final String PROGRESS_REPORT_TITLE = "Progress of TypeScript analysis";
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
+  private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisProcessor analysisProcessor;
   private final TypeScriptChecks checks;
@@ -62,9 +62,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private AnalysisMode analysisMode;
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
-                          AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
+                          AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
                           AnalysisProcessor analysisProcessor, AnalysisWithProgram analysisWithProgram) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
+    this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisProcessor = analysisProcessor;
     checks = typeScriptChecks;
@@ -94,7 +95,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       analysisWithProgram.analyzeFiles(context, checks, inputFiles);
       return;
     }
-    var tsConfigs = TsConfigProvider.searchForTsConfigFiles(context);
+    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       // This can happen where we are not able to create temporary file for generated tsconfig.json
       LOG.warn("No tsconfig.json file found, analysis will be skipped.");
@@ -138,10 +139,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       }
       if (eslintBridgeServer.isAlive()) {
         monitoring.startFile(inputFile);
-        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-        if (cacheStrategy.isAnalysisRequired()) {
-          analyze(inputFile, tsConfigFile, cacheStrategy);
-        }
+        analyze(inputFile, tsConfigFile);
         progressReport.nextFile(inputFile.absolutePath());
       } else {
         throw new IllegalStateException("eslint-bridge server is not answering");
@@ -149,18 +147,25 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, TsConfigFile tsConfigFile, CacheStrategy cacheStrategy) throws IOException {
-    try {
-      LOG.debug("Analyzing file: " + file.uri());
-      String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-        contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.getFilename()), null, analysisMode.getLinterIdFor(file));
-      AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
-      analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeGeneratedFilesToCache(response.ucfgPaths);
-    } catch (IOException e) {
-      LOG.error("Failed to get response while analyzing " + file, e);
-      throw e;
+  private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: " + file.uri());
+        String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        JsAnalysisRequest request = new JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
+          contextUtils.ignoreHeaderComments(), singletonList(tsConfigFile.filename), null, analysisMode.getLinterIdFor(file));
+        AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file, e);
+        throw e;
+      }
+    } else {
+      LOG.debug("Processing cache analysis of file: {}", file.uri());
+      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
 
@@ -173,10 +178,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       if (processed.add(path)) {
         TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(path);
         tsConfigFiles.add(tsConfigFile);
-        if (!tsConfigFile.getProjectReferences().isEmpty()) {
-          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
+        if (!tsConfigFile.projectReferences.isEmpty()) {
+          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.projectReferences);
         }
-        workList.addAll(tsConfigFile.getProjectReferences());
+        workList.addAll(tsConfigFile.projectReferences);
       }
     }
     return tsConfigFiles;

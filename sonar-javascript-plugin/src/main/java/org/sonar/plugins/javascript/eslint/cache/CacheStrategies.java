@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.AnalysisMode;
+import org.sonar.plugins.javascript.eslint.PluginInfo;
 
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
 import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
@@ -57,15 +58,19 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) {
+  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) throws IOException {
+    return getStrategyFor(context, inputFile, PluginInfo.getVersion());
+  }
+
+  static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile, @Nullable String pluginVersion) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
       return strategy;
     }
 
-    var cacheKey = CacheKey.forFile(inputFile);
-    var serialization = new UCFGFilesSerialization(context, cacheKey);
+    var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
+    var serialization = new CacheAnalysisSerialization(context, cacheKey);
 
     if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
       var strategy = writeOnly(serialization);
@@ -73,7 +78,8 @@ public class CacheStrategies {
       return strategy;
     }
 
-    if (inputFile.status() != InputFile.Status.SAME) {
+    var fileMetadata = serialization.fileMetadata();
+    if (fileMetadata.isEmpty() || !isSameFile(fileMetadata.get(), inputFile)) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.FILE_CHANGED);
       return strategy;
@@ -85,25 +91,30 @@ public class CacheStrategies {
       return strategy;
     }
 
-    if (!writeFilesFromCache(serialization)) {
+    var cacheAnalysis = readFromCache(serialization);
+    if (cacheAnalysis == null) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
       return strategy;
     }
 
-    var strategy = readAndWrite(serialization);
+    var strategy = readAndWrite(cacheAnalysis, serialization);
     REPORTER.logAndIncrement(strategy, inputFile, null);
     return strategy;
   }
 
-  static boolean writeFilesFromCache(UCFGFilesSerialization serialization) {
+  private static boolean isSameFile(FileMetadata fileMetadata, InputFile inputFile) throws IOException {
+    return fileMetadata.compareTo(inputFile);
+  }
+
+  static CacheAnalysis readFromCache(CacheAnalysisSerialization serialization) {
     try {
-      serialization.readFromCache();
+      var cacheAnalysis = serialization.readFromCache();
       serialization.copyFromPrevious();
-      return true;
+      return cacheAnalysis;
     } catch (IOException e) {
       LOG.error("Failure when reading cache entry", e);
-      return false;
+      return null;
     }
   }
 

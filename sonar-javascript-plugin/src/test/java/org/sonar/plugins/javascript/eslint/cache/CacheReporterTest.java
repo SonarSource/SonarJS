@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -81,11 +82,11 @@ class CacheReporterTest {
   }
 
   private CacheStrategy createReadAndWrite() {
-    return CacheStrategy.readAndWrite(createSerialization());
+    return CacheStrategy.readAndWrite(CacheAnalysis.fromCache(new EslintBridgeServer.CpdToken[0]), createSerialization());
   }
 
-  private UCFGFilesSerialization createSerialization() {
-    return new UCFGFilesSerialization(context, CacheKey.forFile(inputFile));
+  private CacheAnalysisSerialization createSerialization() {
+    return new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile, null));
   }
 
 }

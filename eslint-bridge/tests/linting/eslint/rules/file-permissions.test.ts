@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -140,6 +140,13 @@ let tests = {
           endColumn: 37,
         },
       ],
+    },
+    {
+      code: `
+      const fs = require('node:fs');
+      // Octal
+      fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
+      errors: 1,
     },
     {
       code: `

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-class SequenceSerialization extends AbstractSerialization {
+class SequenceSerialization extends CacheSerialization {
 
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
@@ -106,7 +106,7 @@ class SequenceSerialization extends AbstractSerialization {
     var iterator = new FileIterator(paths);
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
-      write(sequence);
+      writeToCache(sequence);
     }
 
     LOG.debug("Cache entry created for key '{}' containing {} file(s)", getCacheKey(), iterator.getCount());

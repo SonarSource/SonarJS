@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -53,9 +53,9 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
-import org.sonarsource.nodejs.NodeCommand;
-import org.sonarsource.nodejs.NodeCommandBuilder;
-import org.sonarsource.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -224,7 +224,7 @@ class EslintBridgeServerImplTest {
     // values from 'startServer.js'
     assertThat(programCreated.programId).isEqualTo("42");
     assertThat(programCreated.projectReferences).isEmpty();
-    assertThat(programCreated.files).hasSize(3);
+    assertThat(programCreated.files.size()).isEqualTo(3);
 
     JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
       null, true, null, programCreated.programId, DEFAULT_LINTER_ID);
@@ -239,8 +239,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    var tsConfig = eslintBridgeServer.createTsConfigFile("/path/to/project");
-    assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
+    var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
+    assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
   }
 
   @Test
@@ -426,9 +426,9 @@ class EslintBridgeServerImplTest {
     assertThat(tsConfigResponse.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
     assertThat(tsConfigResponse.error).isNull();
 
-    var tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.getFiles()).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
-    assertThat(tsConfigFile.getFilename()).isEqualTo(tsconfig);
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
+    assertThat(tsConfigFile.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigFile.filename).isEqualTo(tsconfig);
   }
 
   @Test
@@ -447,8 +447,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
     assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
-    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.getFiles()).isEmpty();
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.files).isEmpty();
   }
 
   @Test
@@ -457,8 +457,8 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    var tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.getFiles()).isEmpty();
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.files).isEmpty();
     assertThat(logTester.logs(ERROR)).contains("Other error");
   }
 

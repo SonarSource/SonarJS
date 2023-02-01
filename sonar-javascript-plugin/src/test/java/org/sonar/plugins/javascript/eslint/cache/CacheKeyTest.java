@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,12 +40,17 @@ class CacheKeyTest {
   @Test
   void test_no_ucfg_version_in_key() {
     PluginInfo.setUcfgPluginVersion(null);
-    assertThat(CacheKey.forFile(inputFile)).hasToString("jssecurity:ucfgs:fileKey");
+    assertThat(CacheKey.forFile(inputFile, null).forUcfg()).hasToString("jssecurity:ucfgs:fileKey");
+  }
+
+  @Test
+  void test_cpd_data_key() {
+    assertThat(CacheKey.forFile(inputFile, null).forCpd()).hasToString("js:cpd:fileKey");
   }
 
   @Test
   void test_ucfg_version_in_key() {
     PluginInfo.setUcfgPluginVersion("ucfg_version");
-    assertThat(CacheKey.forFile(inputFile)).hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
+    assertThat(CacheKey.forFile(inputFile, null).forUcfg()).hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
   }
 }

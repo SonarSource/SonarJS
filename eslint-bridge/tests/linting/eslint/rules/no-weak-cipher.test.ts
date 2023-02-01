@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -100,6 +100,14 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
           message: 'Use a strong cipher algorithm.',
         },
       ],
+    },
+    {
+      code: `
+      const crypto = require('node:crypto');
+
+      crypto.createCipheriv("DES", key, iv);
+            `,
+      errors: 1,
     },
     {
       code: `

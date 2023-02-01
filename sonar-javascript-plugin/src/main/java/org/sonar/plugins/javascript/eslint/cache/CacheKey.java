@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,45 +19,62 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 class CacheKey {
 
   private final String file;
   private final List<String> prefixes;
+  private final String pluginVersion;
 
-  private CacheKey(String file, List<String> prefixes) {
-    this.file = file;
+  private CacheKey(List<String> prefixes, @Nullable String pluginVersion, String file) {
     this.prefixes = prefixes.stream().filter(Objects::nonNull).collect(toList());
+    this.pluginVersion = pluginVersion;
+    this.file = file;
   }
 
-  static CacheKey forFile(InputFile inputFile) {
-    List<String> prefixes = Arrays.asList(
-      "jssecurity", "ucfgs",
-      PluginInfo.getVersion(),
+  static CacheKey forFile(InputFile inputFile, @Nullable String pluginVersion) {
+    return new CacheKey(emptyList(), pluginVersion, inputFile.key());
+  }
+
+  CacheKey forCpd() {
+    return withPrefix("js", "cpd");
+  }
+
+  CacheKey forUcfg() {
+    return withPrefix("jssecurity", "ucfgs",
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
       // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
       // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)
       PluginInfo.getUcfgPluginVersion().orElse(null));
-
-    return new CacheKey(inputFile.key(), prefixes);
   }
 
-  CacheKey withPrefix(String prefix) {
-    return new CacheKey(file, Stream.concat(prefixes.stream(), Stream.of(prefix)).collect(toList()));
+  CacheKey forFileMetadata() {
+    return withPrefix("js", "filemetadata");
+  }
+
+  CacheKey withPrefix(String... prefixes) {
+    return new CacheKey(Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()), pluginVersion, file);
   }
 
   @Override
   public String toString() {
-    return Stream.concat(prefixes.stream(), Stream.of(file)).collect(Collectors.joining(":"));
+    var elements = new ArrayList<>(prefixes);
+    if (pluginVersion != null) {
+      elements.add(pluginVersion);
+    }
+    elements.add(file);
+    return String.join(":", elements);
   }
 
 }

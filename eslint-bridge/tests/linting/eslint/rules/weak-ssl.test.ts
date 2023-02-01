@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,6 +46,16 @@ const minMaxVersion = {
     },
   ],
   invalid: [
+    {
+      code: `
+      const tls = require('node:tls');
+      const constants = require('constants');
+      tls.connect({
+        minVersion: 'TLSv1.1',
+      });
+      `,
+      errors: 1,
+    },
     {
       code: `
       const tls = require('tls');
@@ -115,9 +125,23 @@ const minMaxVersion = {
     },
     {
       code: `
+      const https = require('node:https');
+      const constants = require('node:constants');
+
+      var options23 = {
+        minVersion: 'TLSv1.1',  // Noncompliant
+        maxVersion: 'TLSv1.1' // Noncompliant
+      }
+
+      var req23 = https.request(options23);
+      `,
+      errors: 2,
+    },
+    {
+      code: `
         const request = require('request');
         const constants = require('constants');
-        
+
         var socket25 = request.get({
             url: 'https://www.google.com/',
             minVersion: 'TLSv1.1',  // Noncompliant

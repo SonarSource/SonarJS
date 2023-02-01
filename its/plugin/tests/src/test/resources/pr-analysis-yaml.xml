@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>pr-analysis-yaml-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S1116</key> <!-- empty statement -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

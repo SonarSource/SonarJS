@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2022 SonarSource SA
+ * Copyright (C) 2012-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,17 +19,20 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import com.sonar.javascript.it.plugin.assertj.BuildResultAssert;
+import com.sonar.javascript.it.plugin.assertj.Measures;
+import com.sonar.javascript.it.plugin.assertj.MeasuresAssert;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import org.eclipse.jgit.api.Git;
@@ -59,11 +62,11 @@ class PRAnalysisTest {
   @ParameterizedTest
   @ValueSource(strings = {"js", "ts"})
   void should_analyse_js_ts_pull_requests(String language) {
-    var testProject = new TestProject(language);
+    var testProject = TestProject.fromName(language);
     var projectKey = testProject.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(projectKey + "-profile", language));
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProject.getProfileName(), testProject.getLanguage()));
 
     try (var gitExecutor = testProject.createIn(projectPath)) {
       var indexFile = "index." + language;
@@ -116,17 +119,16 @@ class PRAnalysisTest {
   }
 
   @Test
-  void should_analyse_cloudformation_pull_requests() {
-    var testProject = new TestProject("cloudformation");
-    var projectKey = testProject.getProjectKey();
+  void should_analyse_yaml_pull_requests() {
+    var cloudformation = TestProject.YAML;
+    var projectKey = cloudformation.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
     OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      "pr-analysis-cloudformation-profile", "cloudformation",
-      "pr-analysis-js-profile", "js"
+      TestProject.JS.getProfileName(), TestProject.JS.getLanguage()
     ));
 
-    try (var gitExecutor = testProject.createIn(projectPath)) {
+    try (var gitExecutor = cloudformation.createIn(projectPath)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
@@ -143,9 +145,7 @@ class PRAnalysisTest {
         .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
         .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
-        .hasSize(1)
-        .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
-        .contains(tuple(projectKey + ":file1.yaml", "cloudformation:S6295"));
+        .isEmpty();
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
@@ -171,21 +171,76 @@ class PRAnalysisTest {
     }
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"cpd-js", "cpd-ts"})
+  void should_generate_cpds(String name) {
+    var testProject = TestProject.fromName(name);
+    var language = testProject.getLanguage();
+    var projectKey = testProject.getProjectKey();
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+
+    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProject.getProfileName(), language));
+
+    try (var gitExecutor = testProject.createIn(projectPath)) {
+      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
+      scanWith(getMasterScannerIn(projectPath, projectKey));
+
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file1." + language, Main.BRANCH, null))
+        .has("duplicated_lines", 30.0d)
+        .has("duplicated_blocks", 1.0d)
+        .has("duplicated_files", 1.0d)
+        .has("duplicated_lines_density", 93.8d);
+
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file2." + language, Main.BRANCH, null))
+        .has("duplicated_lines", 30.0d)
+        .has("duplicated_blocks", 1.0d)
+        .has("duplicated_files", 1.0d)
+        .has("duplicated_lines_density", 88.2d);
+
+      MeasuresAssert.assertThat(getMeasures(projectKey, Main.BRANCH, null))
+        .has("duplicated_lines", 60.0d)
+        .has("duplicated_blocks", 2.0d)
+        .has("duplicated_files", 2.0d)
+        .has("duplicated_lines_density", 90.9d);
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+        .logsTimes(2, "DEBUG: Processing cache analysis of file");
+
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file3." + language, null, PR.BRANCH))
+        .has("duplicated_lines", 31.0d)
+        .has("duplicated_blocks", 2.0d)
+        .has("duplicated_files", 1.0d)
+        .has("duplicated_lines_density", 96.9d);
+
+      MeasuresAssert.assertThat(getMeasures(projectKey, null, PR.BRANCH))
+        .has("duplicated_lines", 92.0d)
+        .has("duplicated_blocks", 5.0d)
+        .has("duplicated_files", 3.0d)
+        .has("duplicated_lines_density", 93.9d);
+    }
+  }
+
+  private static Measures getMeasures(String componentKey, String branch, String pullRequest) {
+    return new Measures(orchestrator, componentKey, branch, pullRequest);
+  }
+
   @BeforeAll
   public static void startOrchestrator() {
-    orchestrator = Orchestrator.builderEnv()
+    var builder = Orchestrator.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .setEdition(Edition.DEVELOPER).activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
-      .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
-      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-js.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-ts.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/pr-analysis-cloudformation.xml"))
-      .build();
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"));
+
+    for (var projectTestCase : TestProject.values()) {
+      builder.restoreProfileAtStartup(FileLocation.ofClasspath(projectTestCase.getProfileFile()));
+    }
+
+    orchestrator = builder.build();
     // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
     synchronized (OrchestratorStarter.class) {
       orchestrator.start();
@@ -216,7 +271,8 @@ class PRAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(projectDir.toFile())
       .setProperty("sonar.scm.provider", "git")
-      .setProperty("sonar.scm.disabled", "false");
+      .setProperty("sonar.scm.disabled", "false")
+      .setProperty("sonar.internal.analysis.failFast", "true");
   }
 
   private static BuildResult scanWith(SonarScanner scanner) {
@@ -225,23 +281,50 @@ class PRAnalysisTest {
     return result;
   }
 
-  static class TestProject {
+  enum TestProject {
 
-    private final File mainProjectDir;
-    private final File branchProjectDir;
-    private final String projectKey;
+    JS("js", "js"),
+    TS("ts", "ts"),
+    YAML("yaml", "js"),
+    CPD_JS("cpd-js", "js"),
+    CPD_TS("cpd-ts", "ts");
 
-    TestProject(String language) {
-      projectKey = "pr-analysis-" + language;
-      mainProjectDir = TestUtils.projectDir(projectKey + "-main");
-      branchProjectDir = TestUtils.projectDir(projectKey + "-branch");
+    private final String name;
+    private final String language;
+
+    TestProject(String name, String language) {
+      this.name = name;
+      this.language = language;
+    }
+
+    static TestProject fromName(String name) {
+      for (var value : values()) {
+        if (value.name.equals(name)) {
+          return value;
+        }
+      }
+      throw new NoSuchElementException();
+    }
+
+    String getLanguage() {
+      return language;
     }
 
     String getProjectKey() {
-      return projectKey;
+      return "pr-analysis-" + name;
+    }
+
+    String getProfileName() {
+      return getProjectKey() + "-profile";
+    }
+
+    String getProfileFile() {
+      return "/" + getProjectKey() + ".xml";
     }
 
     GitExecutor createIn(Path projectDir) {
+      var mainProjectDir = TestUtils.projectDir(getProjectKey() + "-main");
+      var branchProjectDir = TestUtils.projectDir(getProjectKey() + "-branch");
       var executor = new GitExecutor(projectDir);
 
       TestUtils.copyFiles(projectDir, mainProjectDir.toPath());

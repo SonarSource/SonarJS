@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,11 +24,13 @@ import Variable = ESLintScope.Variable;
 import Scope = ESLintScope.Scope;
 import * as estree from 'estree';
 import {
+  findFirstMatchingLocalAncestor,
   getFullyQualifiedName,
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
 } from './helpers';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {
@@ -80,6 +82,13 @@ export const rule: Rule.RuleModule = {
       return scope !== null && searchUpperFunctionScope(context.getScope()) === scope;
     }
 
+    function isInsideConditional(node: estree.Node): boolean {
+      return (
+        findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'IfStatement') !==
+        undefined
+      );
+    }
+
     let reactComponentScope: Scope | null; // Scope of the React component render function.
     const setters: Variable[] = []; // Setter variables returned by the React useState() function.
 
@@ -117,7 +126,11 @@ export const rule: Rule.RuleModule = {
 
       // Selector matching function calls like: setCount(1)
       'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
-        if (!isInsideFunctionScope(reactComponentScope) || setters.length === 0) {
+        if (
+          !isInsideFunctionScope(reactComponentScope) ||
+          setters.length === 0 ||
+          isInsideConditional(node)
+        ) {
           return;
         }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 
 public class TestUtils {
+
   public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
@@ -57,4 +58,5 @@ public class TestUtils {
     }
     return new CheckFactory(builder.build());
   }
+
 }

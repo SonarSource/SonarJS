@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast';
+import Variable = Scope.Variable;
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.getSourceCode().ast;
@@ -61,7 +61,15 @@ function isRequire(node: Node) {
   );
 }
 
-export function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
+/**
+ * Returns 'module' if `node` is a `require('module')` CallExpression
+ *
+ * For usage inside rules, prefer getFullyQualifiedName()
+ *
+ * @param node
+ * @returns the module name or undefined
+ */
+function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (isRequire(node)) {
     const moduleName = (node as estree.CallExpression).arguments[0];
     if (moduleName.type === 'Literal') {
@@ -74,15 +82,17 @@ export function getModuleNameFromRequire(node: Node): estree.Literal | undefined
 /**
  * Returns the fully qualified name of ESLint node
  *
+ * This function filters out the `node:` prefix
+ *
  * A fully qualified name here denotes a value that is accessed through an imported
  * symbol, e.g., `foo.bar.baz` where `foo` was imported either from a require call
  * or an import statement:
  *
  * ```
  * const foo = require('lib');
- * foo.bar.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo.bar.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux' (not 'foo.bar.baz.qux')
  * const foo2 = require('lib').bar;
- * foo2.baz.qux; // matches the fully qualified name ['lib', 'bar', 'baz', 'qux']
+ * foo2.baz.qux; // matches the fully qualified name 'lib.bar.baz.qux'
  * ```
  *
  * Returns null when an FQN could not be found.
@@ -98,6 +108,21 @@ export function getFullyQualifiedName(
   node: estree.Node,
   fqn: string[] = [],
   scope?: Scope.Scope,
+): string | null {
+  return removeNodePrefixIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
+}
+
+/**
+ * Just like getFullyQualifiedName(), but does not filter out the `node:` prefix.
+ *
+ * To be used for rules that need to work with the `node:` prefix.
+ */
+export function getFullyQualifiedNameRaw(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  fqn: string[],
+  scope?: Scope.Scope,
+  visitedVars: Variable[] = [],
 ): string | null {
   let nodeToCheck = reduceToIdentifier(node, fqn);
 
@@ -125,7 +150,7 @@ export function getFullyQualifiedName(
   // ESLint marks built-in global variables with an undocumented hidden `writeable` property that should equal `false`.
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/linter/linter.js#L207
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
-  if ((variable as any).writeable === false) {
+  if ((variable as any).writeable === false || visitedVars.includes(variable)) {
     fqn.unshift(nodeToCheck.name);
     return fqn.join('.');
   }
@@ -135,7 +160,29 @@ export function getFullyQualifiedName(
   if (!definition) {
     return null;
   }
+
   // imports
+  const fqnFromImport = checkFqnFromImport(variable, definition, context, fqn, visitedVars);
+  if (fqnFromImport !== null) {
+    return fqnFromImport;
+  }
+
+  // requires
+  const fqnFromRequire = checkFqnFromRequire(variable, definition, context, fqn, visitedVars);
+  if (fqnFromRequire !== null) {
+    return fqnFromRequire;
+  }
+
+  return null;
+}
+
+function checkFqnFromImport(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[],
+) {
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
     const importDeclaration = definition.parent;
@@ -150,8 +197,42 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     }
+    // import s3 = require('aws-cdk-lib/aws-s3');
+    if ((importDeclaration as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
+      const importedModule = (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration)
+        .moduleReference;
+      if (
+        importedModule.type === 'TSExternalModuleReference' &&
+        importedModule.expression.type === 'Literal' &&
+        typeof importedModule.expression.value === 'string'
+      ) {
+        const importedQualifiers = importedModule.expression.value.split('/');
+        fqn.unshift(...importedQualifiers);
+        return fqn.join('.');
+      }
+      //import s3 = cdk.aws_s3;
+      if (importedModule.type === 'TSQualifiedName') {
+        visitedVars.push(variable);
+        return getFullyQualifiedNameRaw(
+          context,
+          importedModule as unknown as estree.Node,
+          fqn,
+          variable.scope,
+          visitedVars,
+        );
+      }
+    }
   }
+  return null;
+}
 
+function checkFqnFromRequire(
+  variable: Scope.Variable,
+  definition: Scope.Definition,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Variable[],
+) {
   const value = getUniqueWriteReference(variable);
   // requires
   if (definition.type === 'Variable' && value) {
@@ -171,10 +252,32 @@ export function getFullyQualifiedName(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     } else {
-      return getFullyQualifiedName(context, nodeToCheck, fqn, variable.scope);
+      visitedVars.push(variable);
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope, visitedVars);
     }
   }
   return null;
+}
+
+/**
+ * Removes `node:` prefix if such exists
+ *
+ * Node.js builtin modules can be referenced with a `node:` prefix (eg.: node:fs/promises)
+ *
+ * https://nodejs.org/api/esm.html#node-imports
+ *
+ * @param fqn Fully Qualified Name (ex.: `node:https.request`)
+ * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
+ */
+function removeNodePrefixIfExists(fqn: string | null) {
+  if (fqn === null) {
+    return null;
+  }
+  const NODE_NAMESPACE = 'node:';
+  if (fqn.startsWith(NODE_NAMESPACE)) {
+    return fqn.substring(NODE_NAMESPACE.length);
+  }
+  return fqn;
 }
 
 /**
@@ -221,6 +324,10 @@ export function reduceTo<T extends estree.Node['type']>(
       // we should migrate to use only TSESTree types everywhere to avoid casting
       nodeToCheck = (nodeToCheck as unknown as TSESTree.TSNonNullExpression)
         .expression as estree.Expression;
+    } else if ((nodeToCheck as TSESTree.Node).type === 'TSQualifiedName') {
+      const qualified = nodeToCheck as unknown as TSESTree.TSQualifiedName;
+      fqn.unshift(qualified.right.name);
+      nodeToCheck = qualified.left as estree.Node;
     } else {
       break;
     }

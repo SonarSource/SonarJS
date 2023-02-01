@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import org.sonarsource.nodejs.BundlePathResolver;
+import org.sonar.plugins.javascript.nodejs.BundlePathResolver;
 
 interface Bundle extends BundlePathResolver {
 

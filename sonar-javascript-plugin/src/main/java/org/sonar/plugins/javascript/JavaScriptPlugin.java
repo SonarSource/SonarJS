@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
-import org.sonar.plugins.javascript.eslint.SonarLintProjectChecker;
+import org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker;
 import org.sonar.plugins.javascript.eslint.TypeScriptChecks;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
@@ -54,8 +54,8 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonarsource.nodejs.NodeCommandBuilderImpl;
-import org.sonarsource.nodejs.ProcessWrapperImpl;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -291,7 +291,7 @@ public class JavaScriptPlugin implements Plugin {
   static class SonarLintPluginAPIManager {
     public void addSonarlintJavaScriptProjectChecker(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtension(SonarLintProjectChecker.class);
+        context.addExtension(SonarLintJavaScriptProjectChecker.class);
       } else {
         LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
       }

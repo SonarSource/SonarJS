@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2022 SonarSource SA
+ * Copyright (C) 2012-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -67,7 +67,6 @@ class JavaScriptRulingTest {
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
-    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
     // required to load YAML files
     .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .build();
@@ -130,10 +129,7 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-kubernetes-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
       "S124",
@@ -173,9 +169,6 @@ class JavaScriptRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "terraform", "empty-profile");
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "cloudformation", "empty-profile");
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "kubernetes", "empty-profile");
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 

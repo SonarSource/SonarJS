@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,6 +43,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
@@ -96,6 +97,21 @@ public class AnalysisProcessor {
       saveHighlightedSymbols(response.highlightedSymbols);
       saveCpd(response.cpdTokens);
       monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
+    }
+  }
+
+  void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
+    this.context = context;
+    contextUtils = new ContextUtils(context);
+    this.file = file;
+
+    if (YamlSensor.LANGUAGE.equals(file.language())) {
+      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
+      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
+      // from Cloudformation configurations, we can only save issues for these files.
+      LOG.debug("Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files");
+    } else {
+      saveCpd(cacheAnalysis.getCpdTokens());
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-class JsonSerialization<P> extends AbstractSerialization {
+class JsonSerialization<P> extends CacheSerialization {
 
   private static final Logger LOG = Loggers.get(JsonSerialization.class);
 
@@ -51,7 +51,7 @@ class JsonSerialization<P> extends AbstractSerialization {
   }
 
   void writeToCache(P payload) {
-    write(gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
+    writeToCache(gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
     LOG.debug("Cache entry created for key '{}'", getCacheKey());
   }
 

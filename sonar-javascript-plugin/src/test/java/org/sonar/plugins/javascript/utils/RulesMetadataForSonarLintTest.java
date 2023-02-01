@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,12 +23,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
+import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
+import org.sonar.plugins.javascript.css.CssProfileDefinition;
+import org.sonar.plugins.javascript.css.CssRules;
+import org.sonar.plugins.javascript.css.CssRulesDefinition;
+import org.sonar.plugins.javascript.css.rules.AtRuleNoUnknown;
+import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +48,11 @@ class RulesMetadataForSonarLintTest {
   @Test
   void test() throws Exception {
     Path path = tempDir.resolve("sonarlint.json");
-    new RulesMetadataForSonarLint("repo", asList(StringLiteralsQuotesCheck.class)).save(path);
+    var metadata = new RulesMetadataForSonarLint();
+    metadata.addRules("repo", List.of(StringLiteralsQuotesCheck.class), JavaScriptRulesDefinition.METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
+    metadata.addRules(CssRulesDefinition.REPOSITORY_KEY, List.of(AtRuleNoUnknown.class),
+      CssRulesDefinition.RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY, CssProfileDefinition.PROFILE_PATH);
+    metadata.save(path);
     assertThat(path).hasContent("[\n" +
       "  {\n" +
       "    \"ruleKey\": \"repo:S1441\",\n" +
@@ -75,6 +86,61 @@ class RulesMetadataForSonarLintTest {
       "    \"scope\": \"MAIN\",\n" +
       "    \"eslintKey\": \"quotes\",\n" +
       "    \"activatedByDefault\": false\n" +
+      "  },\n" +
+      "  {\n" +
+      "    \"ruleKey\": \"css:S4662\",\n" +
+      "    \"type\": \"BUG\",\n" +
+      "    \"name\": \"\\\"at-rules\\\" should be valid\",\n" +
+      "    \"htmlDescription\": \"\\u003cp\\u003eThe W3C specifications define the valid \\u003ccode\\u003eat-rules\\u003c/code\\u003e. Only the official and browser-specific \\u003ccode\\u003eat-rules\\u003c/code\\u003e should be used to get\\nthe expected impact in the final rendering.\\u003c/p\\u003e\\n\\u003ch2\\u003eNoncompliant Code Example\\u003c/h2\\u003e\\n\\u003cpre\\u003e\\n@encoding \\\"utf-8\\\";\\n\\u003c/pre\\u003e\\n\\u003ch2\\u003eCompliant Solution\\u003c/h2\\u003e\\n\\u003cpre\\u003e\\n@charset \\\"utf-8\\\";\\n\\u003c/pre\\u003e\",\n" +
+      "    \"severity\": \"MAJOR\",\n" +
+      "    \"status\": \"READY\",\n" +
+      "    \"tags\": [],\n" +
+      "    \"params\": [\n" +
+      "      {\n" +
+      "        \"key\": \"ignoreAtRules\",\n" +
+      "        \"name\": \"ignoreAtRules\",\n" +
+      "        \"description\": \"Comma-separated list of \\\"at-rules\\\" to consider as valid.\",\n" +
+      "        \"defaultValue\": \"value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,/^@.*/\",\n" +
+      "        \"type\": {\n" +
+      "          \"type\": \"STRING\",\n" +
+      "          \"values\": [],\n" +
+      "          \"multiple\": false,\n" +
+      "          \"key\": \"STRING\"\n" +
+      "        }\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"defaultParams\": [\n" +
+      "      true,\n" +
+      "      {\n" +
+      "        \"ignoreAtRules\": [\n" +
+      "          \"value\",\n" +
+      "          \"at-root\",\n" +
+      "          \"content\",\n" +
+      "          \"debug\",\n" +
+      "          \"each\",\n" +
+      "          \"else\",\n" +
+      "          \"error\",\n" +
+      "          \"for\",\n" +
+      "          \"function\",\n" +
+      "          \"if\",\n" +
+      "          \"include\",\n" +
+      "          \"mixin\",\n" +
+      "          \"return\",\n" +
+      "          \"warn\",\n" +
+      "          \"while\",\n" +
+      "          \"extend\",\n" +
+      "          \"use\",\n" +
+      "          \"forward\",\n" +
+      "          \"tailwind\",\n" +
+      "          \"apply\",\n" +
+      "          \"layer\",\n" +
+      "          \"/^@.*/\"\n" +
+      "        ]\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"scope\": \"MAIN\",\n" +
+      "    \"activatedByDefault\": true,\n" +
+      "    \"stylelintKey\": \"at-rule-no-unknown\"\n" +
       "  }\n" +
       "]");
   }
