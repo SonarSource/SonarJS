@@ -43,7 +43,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
-    type: t3.2xlarge
+    type: c6id.2xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
