@@ -5,10 +5,6 @@
 'sizzle:build/release.js':[
 4,
 ],
-'sizzle:speed/data/selector.html':[
-3282,
-3284,
-],
 'sizzle:speed/speed.js':[
 14,
 25,
@@ -127,14 +123,5 @@
 3,
 12,
 18,
-],
-'sizzle:test/data/mixed_sort.html':[
-5,
-11,
-],
-'sizzle:test/data/noConflict.html':[
-7,
-11,
-16,
 ],
 }

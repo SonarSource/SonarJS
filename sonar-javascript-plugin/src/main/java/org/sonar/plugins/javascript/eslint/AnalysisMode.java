@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.HashSet;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -27,8 +28,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptyList;
-
-import java.util.HashSet;
 
 public enum AnalysisMode {
   DEFAULT, SKIP_UNCHANGED;
@@ -75,6 +74,7 @@ public enum AnalysisMode {
   static List<EslintRule> getHtmlFileRules(List<EslintRule> rules) {
     var blackListRuleKeys = new HashSet<String>();
     blackListRuleKeys.add("no-reference-error");
+    blackListRuleKeys.add("no-var");
     return EslintRule.findAllBut(rules, blackListRuleKeys);
   }
 
