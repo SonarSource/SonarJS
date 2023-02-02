@@ -41,50 +41,6 @@ export function sanitizeTypeScriptESLintRule(rule: Rule.RuleModule): Rule.RuleMo
   return {
     ...(!!rule.meta && { meta: rule.meta }),
     create(originalContext: Rule.RuleContext) {
-      const interceptingContext: Rule.RuleContext = {
-        id: originalContext.id,
-        options: originalContext.options,
-        settings: originalContext.settings,
-        parserPath: originalContext.parserPath,
-        parserOptions: originalContext.parserOptions,
-        parserServices: originalContext.parserServices,
-
-        getCwd(): string {
-          return originalContext.getCwd();
-        },
-
-        getPhysicalFilename(): string {
-          return originalContext.getPhysicalFilename();
-        },
-
-        getAncestors() {
-          return originalContext.getAncestors();
-        },
-
-        getDeclaredVariables(node: Rule.Node) {
-          return originalContext.getDeclaredVariables(node);
-        },
-
-        getFilename() {
-          return originalContext.getFilename();
-        },
-
-        getScope() {
-          return originalContext.getScope();
-        },
-
-        getSourceCode() {
-          return originalContext.getSourceCode();
-        },
-
-        markVariableAsUsed(name: string) {
-          return originalContext.markVariableAsUsed(name);
-        },
-
-        report(descriptor: Rule.ReportDescriptor): void {
-          return originalContext.report(descriptor);
-        },
-      };
       /**
        * Overrides the rule behaviour if it requires TypeScript's type checker
        * but type information is missing.
@@ -92,11 +48,11 @@ export function sanitizeTypeScriptESLintRule(rule: Rule.RuleModule): Rule.RuleMo
       if (
         rule.meta?.docs &&
         (rule.meta.docs as any).requiresTypeChecking === true &&
-        interceptingContext.parserServices.hasFullTypeInformation !== true
+        originalContext.parserServices.hasFullTypeInformation !== true
       ) {
         return {};
       }
-      return rule.create(interceptingContext);
+      return rule.create(originalContext);
     },
   };
 }
