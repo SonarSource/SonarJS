@@ -25,10 +25,7 @@ describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {
     const filePath = path.join(__dirname, '..', 'fixtures', 'simple.html');
     const fileContent = await readFile(filePath);
-    const embeddedJss = parseHTML(fileContent);
-    expect(embeddedJss).toBeDefined();
-    expect(embeddedJss).toHaveLength(1);
-    const [embeddedJs] = embeddedJss;
+    const [embeddedJs]= parseHTML(fileContent);
     expect(embeddedJs).toEqual(
       expect.objectContaining({
         code: 'f(x)',
