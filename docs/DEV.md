@@ -94,7 +94,7 @@ This script:
       ```
 4. Implement the rule logic in `no-invalid-something.ts`
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`
+   * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/2831eb9a53da914d58b8e063a017c68e71eab839/eslint-bridge/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
    * If possible implement quick fixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
 
