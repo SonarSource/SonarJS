@@ -40,7 +40,7 @@ import { Rule } from 'eslint';
 export function sanitizeTypeScriptESLintRule(rule: Rule.RuleModule): Rule.RuleModule {
   return {
     ...(!!rule.meta && { meta: rule.meta }),
-    create(originalContext: Rule.RuleContext) {
+    create(context: Rule.RuleContext) {
       /**
        * Overrides the rule behaviour if it requires TypeScript's type checker
        * but type information is missing.
@@ -48,11 +48,11 @@ export function sanitizeTypeScriptESLintRule(rule: Rule.RuleModule): Rule.RuleMo
       if (
         rule.meta?.docs &&
         (rule.meta.docs as any).requiresTypeChecking === true &&
-        originalContext.parserServices.hasFullTypeInformation !== true
+        context.parserServices.hasFullTypeInformation !== true
       ) {
         return {};
       }
-      return rule.create(originalContext);
+      return rule.create(context);
     },
   };
 }
