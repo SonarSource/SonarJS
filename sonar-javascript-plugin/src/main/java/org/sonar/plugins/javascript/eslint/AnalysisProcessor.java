@@ -233,48 +233,44 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(EslintBridgeServer.Issue issue) {
-    try {
-      NewIssue newIssue = context.newIssue();
-      NewIssueLocation location = newIssue.newLocation()
-        .message(issue.message)
-        .on(file);
+    NewIssue newIssue = context.newIssue();
+    NewIssueLocation location = newIssue.newLocation()
+      .message(issue.message)
+      .on(file);
 
-      if (issue.endLine != null) {
-        location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
-      } else {
-        if (issue.line != 0) {
-          location.at(file.selectLine(issue.line));
-        }
+    if (issue.endLine != null) {
+      location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
+    } else {
+      if (issue.line != 0) {
+        location.at(file.selectLine(issue.line));
       }
+    }
 
-      issue.secondaryLocations.forEach(secondary -> {
-        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-        if (newIssueLocation != null) {
-          newIssue.addLocation(newIssueLocation);
-        }
-      });
-
-      if (issue.cost != null) {
-        newIssue.gap(issue.cost);
+    issue.secondaryLocations.forEach(secondary -> {
+      NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+      if (newIssueLocation != null) {
+        newIssue.addLocation(newIssueLocation);
       }
+    });
 
-      if (issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
-        if (isSqQuickFixCompatible()) {
-          newIssue.setQuickFixAvailable(true);
-        }
-        if (isQuickFixCompatible()) {
-          addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
-        }
-      }
+    if (issue.cost != null) {
+      newIssue.gap(issue.cost);
+    }
 
-      RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
-      if (ruleKey != null) {
-        newIssue.at(location)
-          .forRule(ruleKey)
-          .save();
+    if (issue.quickFixes != null && !issue.quickFixes.isEmpty()) {
+      if (isSqQuickFixCompatible()) {
+        newIssue.setQuickFixAvailable(true);
       }
-    } catch (Exception e) {
-      LOG.warn(issue.ruleId + issue.message + file.uri() + issue.line, e);
+      if (isQuickFixCompatible()) {
+        addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
+      }
+    }
+
+    RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
+    if (ruleKey != null) {
+      newIssue.at(location)
+        .forRule(ruleKey)
+        .save();
     }
   }
 
