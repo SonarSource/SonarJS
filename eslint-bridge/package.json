@@ -12,7 +12,6 @@
     "compile": "tsc -b src tests profiling",
     "jar": "npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes && bash tools/check-distribution-filepath-length.sh",
     "new-rule": "ts-node tools/newRule.ts",
-    "td-plugin": "cd node_modules; ln -s ../typedoc/plugin my-plugin; cd ..",
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js"
   },
   "repository": {
@@ -45,7 +44,7 @@
     "prettier": "2.7.1",
     "ts-jest": "28.0.7",
     "ts-node": "10.9.1",
-    "typedoc": "0.23.18"
+    "typedoc": "0.23.23"
   },
   "dependencies": {
     "@babel/core": "7.19.0",
