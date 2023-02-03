@@ -20,7 +20,7 @@
 import { runner, JsTsAnalysisInput, analyzeEmbedded } from 'services/analysis';
 
 /**
- * Handles TypeScript analysis requests
+ * Handles HTML analysis requests
  */
 export default runner(input =>
   Promise.resolve(analyzeEmbedded(input as JsTsAnalysisInput, 'html')),

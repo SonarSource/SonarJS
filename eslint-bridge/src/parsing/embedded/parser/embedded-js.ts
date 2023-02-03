@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /**
- * An extracted embedded JavaScript code snippet from a YAML file
+ * An extracted embedded JavaScript code snippet
  *
  * @param code JS code
  * @param line Line where JS code starts
  * @param column Column where JS code starts
  * @param offset Offset where JS code starts
- * @param lineStarts Offset at each line start for the whole file (not only embedded JS)
- * @param text Whole YAML file content
- * @param format Format of the YAML string that embeds the JS code
- * @param extras Additionnal data, filled by ExtrasPicker
+ * @param lineStarts Offset at each line start for the whole file
+ * @param text Whole file content
+ * @param format Format of the string that embeds the JS code
+ * @param extras Additional data, filled by ExtrasPicker
  */
 export type EmbeddedJS = {
   code: string;

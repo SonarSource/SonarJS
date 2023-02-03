@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { runner, analyzeEmbedded, YamlAnalysisInput } from 'services/analysis';
+import { runner, analyzeEmbedded, EmbeddedAnalysisInput } from 'services/analysis';
 
 /**
  * Handles YAML analysis requests
  */
 export default runner(input =>
-  Promise.resolve(analyzeEmbedded(input as YamlAnalysisInput, 'yaml')),
+  Promise.resolve(analyzeEmbedded(input as EmbeddedAnalysisInput, 'yaml')),
 );

@@ -38,6 +38,15 @@ class EslintRule {
     this.configurations = configurations;
   }
 
+  @Override
+  public String toString() {
+    return key;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
   static boolean containsRuleWithKey(List<EslintRule> rules, String eslintKey) {
     return rules.stream().anyMatch(ruleMatcher(eslintKey));
   }
@@ -57,14 +66,5 @@ class EslintRule {
 
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {
     return rule -> rule.key.equals(eslintKey);
-  }
-
-  @Override
-  public String toString() {
-    return key;
-  }
-
-  public String getKey() {
-    return key;
   }
 }

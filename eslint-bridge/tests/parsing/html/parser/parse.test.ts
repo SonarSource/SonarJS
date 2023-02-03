@@ -23,28 +23,37 @@ import { readFile } from 'helpers';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, '..', 'fixtures', 'simple.html');
+    const filePath = path.join(__dirname, 'fixtures', 'multiple.html');
     const fileContent = await readFile(filePath);
-    const embeddedJss = parseHTML(fileContent);
-    expect(embeddedJss).toBeDefined();
-    expect(embeddedJss).toHaveLength(1);
-    const [embeddedJs] = embeddedJss;
-    expect(embeddedJs).toEqual(
+    const embeddedJSs = parseHTML(fileContent);
+    expect(embeddedJSs).toHaveLength(2);
+    const [embeddedJS1, embeddedJS2] = embeddedJSs;
+    expect(embeddedJS1).toEqual(
       expect.objectContaining({
         code: 'f(x)',
         line: 4,
         column: 9,
         offset: 38,
-        lineStarts: [0, 16, 23, 30, 52, 53, 68, 69, 77, 85],
+        lineStarts: [0, 16, 23, 30, 52, 53, 69, 70, 92, 100, 108],
+        text: fileContent,
+      }),
+    );
+    expect(embeddedJS2).toEqual(
+      expect.objectContaining({
+        code: 'g(x)',
+        line: 8,
+        column: 9,
+        offset: 78,
+        lineStarts: [0, 16, 23, 30, 52, 53, 69, 70, 92, 100, 108],
         text: fileContent,
       }),
     );
   });
 
   it('should ignore script tags with the "src" attribute', async () => {
-    const filePath = path.join(__dirname, '..', 'fixtures', 'src.html');
+    const filePath = path.join(__dirname, 'fixtures', 'src.html');
     const fileContent = await readFile(filePath);
-    const embeddedJss = parseHTML(fileContent);
-    expect(embeddedJss).toHaveLength(0);
+    const embeddedJSs = parseHTML(fileContent);
+    expect(embeddedJSs).toHaveLength(0);
   });
 });

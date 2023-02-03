@@ -21,40 +21,34 @@ import { SourceCode } from 'eslint';
 import { Position } from 'estree';
 import { getLinter, Issue } from 'linting/eslint';
 import { buildSourceCodes, Language } from 'parsing/embedded';
-import { YamlAnalysisInput, YamlAnalysisOutput } from './analysis';
+import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
 import { debug } from 'helpers';
 
 /**
- * An empty YAML analysis output
- */
-export const EMPTY_YAML_ANALYSIS_OUTPUT: YamlAnalysisOutput = {
-  issues: [],
-};
-
-/**
- * Analyzes a YAML analysis input
+ * Analyzes a file containing JS snippets
  *
- * Analyzing a YAML analysis input is part of analyzing inline JavaScript code
- * within various file formats, YAML here. The function first starts by parsing
- * the YAML fle to validate its syntax and to get in return an abstract syntax
+ * Analyzing embedded JS is part of analyzing inline JavaScript code
+ * within various file formats: YAML, HTML, etc. The function first starts by parsing
+ * the whole file to validate its syntax and to get in return an abstract syntax
  * tree. This abstract syntax tree is then used to extract embedded JavaScript
- * code. As YAML files might embed several JavaScript snippets, the function
+ * code. As files might embed several JavaScript snippets, the function
  * builds an ESLint SourceCode instance for each snippet using the same utility
  * as for building source code for regular JavaScript analysis inputs. However,
- * since a YAML file can potentially produce multiple ESLint SourceCode instances,
+ * since a file can potentially produce multiple ESLint SourceCode instances,
  * the function stops to the first JavaScript parsing error and returns it without
  * considering any other. If all abstract syntax trees are valid, the function
  * then proceeds with linting each of them, aggregates, and returns the results.
  *
  * The analysis requires that global linter wrapper is initialized.
  *
- * @param input the YAML analysis input
- * @returns the YAML analysis output
+ * @param input the analysis input
+ * @param language the language of the file containing the JS code
+ * @returns the analysis output
  */
 export function analyzeEmbedded(
-  input: YamlAnalysisInput,
-  language: Language = 'yaml',
-): YamlAnalysisOutput {
+  input: EmbeddedAnalysisInput,
+  language: Language,
+): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
   const extendedSourceCodes = buildSourceCodes(input, language);
@@ -66,7 +60,7 @@ export function analyzeEmbedded(
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
-    const filteredIssues = removeYamlIssues(extendedSourceCode, issues);
+    const filteredIssues = removeNonJsIssues(extendedSourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
     aggregatedUcfgPaths.push(...ucfgPaths);
   }
@@ -77,10 +71,10 @@ export function analyzeEmbedded(
    * Filters out issues outside of JS code.
    *
    * This is necessary because we patch the SourceCode object
-   * to include all the YAML files in its properties outside its AST.
+   * to include the whole file in its properties outside its AST.
    * So rules that operate on SourceCode.text get flagged.
    */
-  function removeYamlIssues(sourceCode: SourceCode, issues: Issue[]) {
+  function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
     const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
     return issues.filter(issue => {
       const issueStart = { line: issue.line, column: issue.column };

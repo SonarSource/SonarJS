@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { EmbeddedJS, parseAwsFromYaml, parseHTML } from 'parsing/embedded';
 import { patchParsingError, patchSourceCode } from './patch';
@@ -30,7 +30,7 @@ export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 export type Language = 'html' | 'yaml';
 
 /**
- * Builds ESLint SourceCode instances for every embedded JavaScript snippet in the YAML file.
+ * Builds ESLint SourceCode instances for every embedded JavaScript.
  *
  * The filepath is augmented with the AWS function name, returned as the syntheticFilePath property
  *
@@ -38,16 +38,14 @@ export type Language = 'html' | 'yaml';
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function buildSourceCodes(
-  input: YamlAnalysisInput,
-  language: Language = 'yaml',
+  input: EmbeddedAnalysisInput,
+  language: Language,
 ): ExtendedSourceCode[] {
   let embeddedJSs: EmbeddedJS[];
   if (language === 'html') {
     embeddedJSs = parseHTML(input.fileContent);
-  } else if (language === 'yaml') {
-    embeddedJSs = parseAwsFromYaml(input.fileContent);
   } else {
-    throw new Error(`Unknown language: ${language}`);
+    embeddedJSs = parseAwsFromYaml(input.fileContent);
   }
 
   const extendedSourceCodes: ExtendedSourceCode[] = [];

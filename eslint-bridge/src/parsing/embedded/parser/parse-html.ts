@@ -20,13 +20,17 @@
 import * as htmlparser from 'htmlparser2';
 import { EmbeddedJS } from 'parsing/embedded';
 
-export function parseHTML(code: string) {
+/**
+ * Parses HTML file and extracts JS code
+ * We look for script tags without src attribute, meaning the code is
+ * inline between open and close tags.
+ */
+export function parseHTML(code: string): EmbeddedJS[] {
   if (!code) {
     return [];
   }
   const lineStarts = computeLineStarts(code);
   const embeddedJSs: EmbeddedJS[] = [];
-  const javaScriptTagNames = ['script'];
   let jsSnippetStartIndex = 0;
   let jsSnippetEndIndex = 0;
   let inScript = false;
@@ -34,10 +38,11 @@ export function parseHTML(code: string) {
   const parser = new htmlparser.Parser({
     onopentag(name: string, attrs: { src: string }) {
       // Test if current tag is a valid <script> tag.
-      if (!javaScriptTagNames.includes(name)) {
+      if (name !== 'script') {
         return;
       }
 
+      //ignore script tags which point to another file
       if (attrs.src) {
         return;
       }
@@ -48,7 +53,7 @@ export function parseHTML(code: string) {
     },
 
     onclosetag(name: string) {
-      if (!javaScriptTagNames.includes(name) || !inScript) {
+      if (name !== 'script' || !inScript) {
         return;
       }
 

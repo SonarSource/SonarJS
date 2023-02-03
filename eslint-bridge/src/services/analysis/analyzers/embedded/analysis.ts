@@ -25,7 +25,7 @@ import { AnalysisInput, AnalysisOutput } from 'services/analysis';
  *
  * (currently empty but might change later on)
  */
-export interface YamlAnalysisInput extends AnalysisInput {}
+export interface EmbeddedAnalysisInput extends AnalysisInput {}
 
 /**
  * A YAML analysis output
@@ -37,7 +37,7 @@ export interface YamlAnalysisInput extends AnalysisInput {}
  *
  * @param issues the found issues
  */
-export interface YamlAnalysisOutput extends AnalysisOutput {
+export interface EmbeddedAnalysisOutput extends AnalysisOutput {
   issues: Issue[];
   ucfgPaths?: string[];
 }
