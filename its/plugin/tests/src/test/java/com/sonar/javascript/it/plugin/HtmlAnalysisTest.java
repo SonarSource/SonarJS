@@ -20,7 +20,6 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

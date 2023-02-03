@@ -4,6 +4,9 @@
     if (foo()) bar(); else bar(); /* Noncompliant (S3923) */
   }
 
-  ace.foo();
+  var a = 12; // should be ignored
+  a;
+
+  ace.foo(); // should be ignored
 </script>
 </html>
