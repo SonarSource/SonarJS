@@ -53,6 +53,33 @@ describe('analyzeHTML', () => {
     );
   });
 
+  it('should not break when using a rule with a quickfix', async () => {
+    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const result = analyzeEmbedded(
+      await jsTsInput({ filePath: join(fixturesPath, 'quickfix.html') }),
+      'html',
+    );
+
+    const {
+      issues: [
+        {
+          quickFixes: [quickFix],
+        },
+      ],
+    } = result;
+    expect(quickFix.edits).toEqual([
+      {
+        text: ';',
+        loc: {
+          line: 10,
+          column: 42,
+          endLine: 10,
+          endColumn: 44,
+        },
+      },
+    ]);
+  });
+
   it('should not break when using "enforce-trailing-comma" rule', async () => {
     initializeLinter([
       {
