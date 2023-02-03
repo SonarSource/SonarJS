@@ -15,6 +15,7 @@ jobs:
     - name: Publish typedoc site
       uses: JamesIves/github-pages-deploy-action@v4
       with:
+        branch: gh_pages
         folder: eslint-bridge/typedoc/site/
         target-folder: typedoc/
         commit-message: "Update ESlint-bridge helper functions site"
