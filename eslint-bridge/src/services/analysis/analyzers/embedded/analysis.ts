@@ -21,7 +21,7 @@ import { Issue } from 'linting/eslint';
 import { AnalysisInput, AnalysisOutput } from 'services/analysis';
 
 /**
- * A YAML analysis input
+ * An analysis input of embedded code
  *
  * (currently empty but might change later on)
  */

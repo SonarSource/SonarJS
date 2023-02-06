@@ -29,13 +29,13 @@ import { APIError } from 'errors';
  * Patching an ESLint SourceCode instance denoting an embedded JavaScript snippet implies
  * fixing all location-related data structures in the abstract syntax tree as well as the
  * behavior of the instance methods because they are relative to the beginning of the code
- * snippet that was parsed, not relative to the whole YAML file content. By doing so,
+ * snippet that was parsed, not relative to the whole file content. By doing so,
  * location-related information within reported issues and quick fixes will be relative to
- * the YAML file (YAML referential).
+ * the whole file (whole file referential).
  */
 export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: EmbeddedJS) {
   /**
-   * 1. Recomputes the lines from the original YAML file content, as the lines in the original
+   * 1. Recomputes the lines from the original whole file content, as the lines in the original
    *    SourceCode include only those from the embedded JavaScript code snippet and these
    *    lines are used internally by the SourceCode for various purposes.
    */
@@ -43,7 +43,7 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
 
   /**
    * 2. Overrides the values `lineStartIndices`, `text` and `lines` of the original SourceCode
-   *    instance from the JavaScript referential to the YAML one. To achieve that, we must use
+   *    instance from the JavaScript referential to the whole one. To achieve that, we must use
    *    `Object.create()` because these particular SourceCode's properties are frozen.
    */
   const patchedSourceCode = Object.create(originalSourceCode, {
