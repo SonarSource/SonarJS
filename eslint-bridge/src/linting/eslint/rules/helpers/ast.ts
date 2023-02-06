@@ -564,6 +564,12 @@ export function isDotNotation(
   return node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
 }
 
+export function isIndexNotation(
+  node: estree.Node,
+): node is estree.MemberExpression & { property: StringLiteral } {
+  return node.type === 'MemberExpression' && node.computed && isStringLiteral(node.property);
+}
+
 export function isObjectDestructuring(
   node: estree.Node,
 ): node is

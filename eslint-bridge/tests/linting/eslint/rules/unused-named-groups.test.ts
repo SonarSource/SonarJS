@@ -194,6 +194,15 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       }
       `,
     },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/;
+        const matched = 'str'.matchAll(pattern);
+        if (matched) {
+          matched.groups['foo'];
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -551,6 +560,16 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       }
       `,
       errors: 2,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
+        const matched = 'str'.match(pattern);
+        if (matched) {
+          matched.groups['bar'];
+        }
+      `,
+      errors: 1,
     },
   ],
 });
