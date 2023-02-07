@@ -1,0 +1,7 @@
+{
+  "baseUrl": ".",
+  "paths": {
+    "current": ["subfolder"]
+  },
+  "files": ["file.ts"]
+}
