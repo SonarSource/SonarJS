@@ -21,7 +21,7 @@ import * as estree from 'estree';
 import { join } from 'path';
 import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/embedded';
 import { APIError } from 'errors';
-import { embeddedInput } from '../../../tools';
+import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');

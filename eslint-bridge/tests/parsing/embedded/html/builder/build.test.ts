@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { buildSourceCodes } from 'parsing/embedded';
-import { embeddedInput } from '../../../tools';
+import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');
