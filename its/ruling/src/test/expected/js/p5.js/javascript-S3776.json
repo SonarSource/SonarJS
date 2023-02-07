@@ -164,6 +164,9 @@
 'p5.js:tasks/release/release-bower.js':[
 10,
 ],
+'p5.js:test/test-reference.html':[
+98,
+],
 'p5.js:utils/sample-linter.js':[
 134,
 ],

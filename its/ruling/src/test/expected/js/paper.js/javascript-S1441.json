@@ -1,4 +1,46 @@
 {
+'paper.js:examples/JSON/Line Testing.html':[
+14,
+15,
+22,
+23,
+30,
+31,
+],
+'paper.js:examples/JSON/Rect and Attribute Testing.html':[
+15,
+16,
+17,
+19,
+27,
+28,
+29,
+],
+'paper.js:examples/Paperjs.org/SatieLikedToDraw.html':[
+99,
+100,
+113,
+],
+'paper.js:examples/SVG Export/Line Testing.html':[
+16,
+17,
+24,
+25,
+32,
+33,
+],
+'paper.js:examples/SVG Export/Rect and Attribute Testing.html':[
+17,
+18,
+19,
+21,
+29,
+30,
+31,
+],
+'paper.js:examples/Worker/Main.html':[
+10,
+],
 'paper.js:src/core/PaperScript.js':[
 420,
 424,

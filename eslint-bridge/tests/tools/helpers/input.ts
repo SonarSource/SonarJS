@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FileType, readFile } from 'helpers';
-import { JsTsAnalysisInput, YamlAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
 
 export async function jsTsInput({
   filePath = '',
@@ -45,10 +45,10 @@ export async function jsTsInput({
       };
 }
 
-export async function yamlInput({
+export async function embeddedInput({
   filePath = '',
   fileContent = undefined,
   linterId = 'default',
-}): Promise<YamlAnalysisInput> {
+}): Promise<EmbeddedAnalysisInput> {
   return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
 }

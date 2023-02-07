@@ -1,4 +1,9 @@
 {
+'prototype:ext/update_helper/prototype_update_helper.html':[
+39,
+272,
+272,
+],
 'prototype:src/prototype/ajax/periodical_updater.js':[
 213,
 ],
@@ -61,5 +66,15 @@
 160,
 162,
 163,
+],
+'prototype:test/browser.html':[
+99,
+],
+'prototype:test/functional/event.html':[
+130,
+224,
+231,
+231,
+329,
 ],
 }

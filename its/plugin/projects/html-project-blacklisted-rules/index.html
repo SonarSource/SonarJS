@@ -1,0 +1,12 @@
+<html>  <!-- Noncompliant (DoctypePresenceCheck) -->
+<script>
+  function handler(event, context) {
+    if (foo()) bar(); else bar(); /* Noncompliant (S3923) */
+  }
+
+  var a = 12; // should be ignored
+  a;
+
+  ace.foo(); // should be ignored
+</script>
+</html>

@@ -30,4 +30,7 @@
 'prototype:src/prototype/prototype.js':[
 161,
 ],
+'prototype:test/functional/event.html':[
+80,
+],
 }

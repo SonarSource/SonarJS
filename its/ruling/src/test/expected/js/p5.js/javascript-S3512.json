@@ -83,6 +83,9 @@
 'p5.js:tasks/release/release-github.js':[
 32,
 ],
+'p5.js:test/test-reference.html':[
+192,
+],
 'p5.js:utils/sample-linter.js':[
 85,
 ],

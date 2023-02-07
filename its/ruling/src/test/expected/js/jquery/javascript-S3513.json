@@ -44,4 +44,14 @@
 338,
 415,
 ],
+'jquery:test/localfile.html':[
+58,
+61,
+68,
+71,
+],
+'jquery:test/networkerror.html':[
+24,
+30,
+],
 }

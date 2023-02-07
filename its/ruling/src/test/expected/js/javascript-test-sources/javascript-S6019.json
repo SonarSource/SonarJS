@@ -1,0 +1,16 @@
+{
+'javascript-test-sources:src/ace/src/mode/abap_highlight_rules.js':[
+78,
+],
+'javascript-test-sources:src/ace/src/mode/eiffel_highlight_rules.js':[
+30,
+],
+'javascript-test-sources:src/ace/src/mode/folding/csharp.js':[
+10,
+13,
+],
+'javascript-test-sources:src/ace/src/mode/folding/cstyle.js':[
+10,
+13,
+],
+}

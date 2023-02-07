@@ -266,4 +266,16 @@
 'jquery:src/wrapper.js':[
 13,
 ],
+'jquery:test/data/ajax/unreleasedXHR.html':[
+11,
+],
+'jquery:test/data/event/interactiveReady.html':[
+13,
+],
+'jquery:test/data/event/promiseReady.html':[
+10,
+],
+'jquery:test/data/event/syncReady.html':[
+13,
+],
 }

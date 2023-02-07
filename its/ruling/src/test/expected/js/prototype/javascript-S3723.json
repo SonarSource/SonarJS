@@ -1,4 +1,9 @@
 {
+'prototype:ext/update_helper/prototype_update_helper.html':[
+30,
+79,
+334,
+],
 'prototype:ext/update_helper/prototype_update_helper.js':[
 27,
 36,
@@ -194,5 +199,15 @@
 86,
 120,
 161,
+],
+'prototype:test/browser.html':[
+151,
+214,
+],
+'prototype:test/console.html':[
+49,
+],
+'prototype:test/functional/event.html':[
+52,
 ],
 }

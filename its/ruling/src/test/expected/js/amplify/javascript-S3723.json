@@ -19,4 +19,7 @@
 'amplify:test-server.js':[
 20,
 ],
+'amplify:test/index.html':[
+16,
+],
 }

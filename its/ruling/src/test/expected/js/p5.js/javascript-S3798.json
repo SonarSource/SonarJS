@@ -119,6 +119,13 @@
 'p5.js:tasks/test/mocha-chrome.js':[
 92,
 ],
+'p5.js:test/test-reference.html':[
+36,
+41,
+42,
+53,
+97,
+],
 'p5.js:utils/sample-linter.js':[
 31,
 196,

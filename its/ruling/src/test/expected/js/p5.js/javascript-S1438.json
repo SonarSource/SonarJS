@@ -9,4 +9,9 @@
 'p5.js:karma.conf.js':[
 85,
 ],
+'p5.js:test/test-reference.html':[
+65,
+87,
+157,
+],
 }

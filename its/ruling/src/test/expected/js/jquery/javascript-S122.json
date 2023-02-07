@@ -1,0 +1,14 @@
+{
+'jquery:test/data/core/onready.html':[
+8,
+],
+'jquery:test/data/event/triggerunload.html':[
+9,
+],
+'jquery:test/data/test.include.html':[
+3,
+],
+'jquery:test/delegatetest.html':[
+177,
+],
+}

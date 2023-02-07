@@ -5,4 +5,7 @@
 'jquery:src/selector.js':[
 719,
 ],
+'jquery:test/data/ajax/unreleasedXHR.html':[
+12,
+],
 }

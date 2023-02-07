@@ -12,4 +12,7 @@
 'prototype:src/prototype/lang/range.js':[
 82,
 ],
+'prototype:test/browser.html':[
+147,
+],
 }

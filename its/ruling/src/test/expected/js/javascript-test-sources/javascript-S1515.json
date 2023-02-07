@@ -1,4 +1,12 @@
 {
+'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
+3617,
+],
+'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+13448,
+13454,
+13462,
+],
 'javascript-test-sources:src/ecmascript6/ecmascript6-today/1-let.js':[
 16,
 ],

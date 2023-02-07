@@ -279,4 +279,7 @@
 'p5.js:tasks/build/combineModules.js':[
 19,
 ],
+'p5.js:test/test-reference.html':[
+153,
+],
 }

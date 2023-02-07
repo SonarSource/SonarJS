@@ -583,7 +583,7 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void should_save_cached_cpd() {
+  void should_save_cached_cpd() throws IOException {
     var path = "dir/file.js";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path).setStatus(InputFile.Status.SAME);

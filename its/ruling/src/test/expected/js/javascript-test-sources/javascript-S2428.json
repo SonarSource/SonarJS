@@ -1,4 +1,17 @@
 {
+'javascript-test-sources:src/ace/doc/site/js/main.js':[
+67,
+149,
+],
+'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+7849,
+],
+'javascript-test-sources:src/ace/src/keyboard/vim_test.js':[
+5375,
+],
+'javascript-test-sources:src/ace/src/test/user.js':[
+8,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/general.js':[
 59,
 ],

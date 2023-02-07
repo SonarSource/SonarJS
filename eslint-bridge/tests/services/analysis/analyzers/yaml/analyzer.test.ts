@@ -19,12 +19,12 @@
  */
 import { join } from 'path';
 import { setContext } from 'helpers';
-import { analyzeYAML } from 'services/analysis';
+import { analyzeEmbedded } from 'services/analysis';
 import { initializeLinter, getLinter } from 'linting/eslint';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
-import { composeSyntheticFilePath } from 'parsing/yaml';
-import { yamlInput } from '../../../../tools';
+import { composeSyntheticFilePath } from 'parsing/embedded';
+import { embeddedInput } from '../../../../tools';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -40,7 +40,7 @@ describe('analyzeYAML', () => {
 
   it('should fail on uninitialized linter', async () => {
     const input = {} as any;
-    expect(() => analyzeYAML(input)).toThrow(
+    expect(() => analyzeEmbedded(input, 'yaml')).toThrow(
       APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
@@ -51,7 +51,7 @@ describe('analyzeYAML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'file.yaml') }));
+    } = analyzeEmbedded(await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }), 'yaml');
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -67,15 +67,18 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const analysisInput = await yamlInput({ filePath: join(fixturesPath, 'malformed.yaml') });
-    expect(() => analyzeYAML(analysisInput)).toThrow(
+    const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
+    expect(() => analyzeEmbedded(analysisInput, 'yaml')).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'quickfix.yaml') }));
+    const result = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
+      'yaml',
+    );
     const {
       issues: [
         {
@@ -104,8 +107,9 @@ describe('analyzeYAML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyzeYAML(
-      await yamlInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.yaml') }),
+    const { issues } = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.yaml') }),
+      'yaml',
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -128,7 +132,10 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'secondary.yaml') }));
+    const result = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
+      'yaml',
+    );
     const {
       issues: [
         {
@@ -148,7 +155,10 @@ describe('analyzeYAML', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeYAML(await yamlInput({ filePath: join(fixturesPath, 'regex.yaml') }));
+    const result = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'regex.yaml') }),
+      'yaml',
+    );
     const {
       issues: [issue],
     } = result;
@@ -167,8 +177,9 @@ describe('analyzeYAML', () => {
       { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
-    const { issues } = analyzeYAML(
-      await yamlInput({ filePath: join(fixturesPath, 'outside.yaml') }),
+    const { issues } = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'outside.yaml') }),
+      'yaml',
     );
     expect(issues).toHaveLength(0);
   });
@@ -193,6 +204,6 @@ describe('analyzeYAML', () => {
     };
     initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
     getLinter().linter.defineRule(rule.key, rule.module);
-    analyzeYAML(await yamlInput({ filePath }));
+    analyzeEmbedded(await embeddedInput({ filePath }), 'yaml');
   });
 });

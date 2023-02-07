@@ -65,6 +65,9 @@
 'p5.js:tasks/build/combineModules.js':[
 34,
 ],
+'p5.js:test/test-reference.html':[
+54,
+],
 'p5.js:utils/sample-linter.js':[
 44,
 102,

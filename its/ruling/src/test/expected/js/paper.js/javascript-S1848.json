@@ -1,4 +1,35 @@
 {
+'paper.js:examples/JSON/Compound Path.html':[
+13,
+],
+'paper.js:examples/Paperjs.org/DivisionRaster.html':[
+60,
+],
+'paper.js:examples/Paperjs.org/InteractiveTiger.html':[
+42,
+],
+'paper.js:examples/Rasters/Smoothing.html':[
+18,
+27,
+36,
+],
+'paper.js:examples/SVG Export/Compound Path.html':[
+15,
+],
+'paper.js:examples/SVG Import/Inkscape Pivot.html':[
+24,
+],
+'paper.js:examples/Scripts/CompoundPath.html':[
+13,
+],
+'paper.js:examples/Scripts/PathTangents.html':[
+48,
+54,
+60,
+],
+'paper.js:examples/Tools/WormFarm.html':[
+75,
+],
 'paper.js:src/path/Segment.js':[
 144,
 145,

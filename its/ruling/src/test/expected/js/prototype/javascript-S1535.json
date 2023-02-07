@@ -13,4 +13,7 @@
 'prototype:src/prototype/lang/hash.js':[
 98,
 ],
+'prototype:test/browser.html':[
+169,
+],
 }

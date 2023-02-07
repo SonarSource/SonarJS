@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.HashSet;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -68,6 +69,13 @@ public enum AnalysisMode {
   static List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {
     var rule = EslintRule.findFirstRuleWithKey(rules, EslintRule.UCFG_ESLINT_KEY);
     return rule == null ? emptyList() : List.of(rule);
+  }
+
+  static List<EslintRule> getHtmlFileRules(List<EslintRule> rules) {
+    var blackListRuleKeys = new HashSet<String>();
+    blackListRuleKeys.add("no-reference-error");
+    blackListRuleKeys.add("no-var");
+    return EslintRule.findAllBut(rules, blackListRuleKeys);
   }
 
   String getLinterIdFor(InputFile file) {

@@ -5,4 +5,7 @@
 'jquery:src/ajax.js':[
 137,
 ],
+'jquery:test/delegatetest.html':[
+168,
+],
 }

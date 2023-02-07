@@ -108,4 +108,15 @@
 'prototype:src/prototype/lang/function.js':[
 120,
 ],
+'prototype:test/functional/event.html':[
+59,
+308,
+309,
+312,
+312,
+321,
+321,
+330,
+330,
+],
 }

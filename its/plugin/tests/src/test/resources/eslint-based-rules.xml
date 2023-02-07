@@ -13,5 +13,10 @@
       <key>S3403</key> <!-- different-types-comparison -->
       <priority>INFO</priority>
     </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3834</key> <!-- no-new-symbol -->
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>

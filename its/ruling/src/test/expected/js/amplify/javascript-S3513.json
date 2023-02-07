@@ -2,4 +2,7 @@
 'amplify:src/core.js':[
 12,
 ],
+'amplify:test/request/test.html':[
+20,
+],
 }

@@ -45,6 +45,19 @@ public class TestUtils {
     return testInputFile;
   }
 
+  public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath, String language) {
+    DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
+      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
+      .setType(Type.MAIN)
+      .setLanguage(language)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(content)
+      .build();
+
+    sensorContext.fileSystem().add(testInputFile);
+    return testInputFile;
+  }
+
   public static RulesDefinition.Repository buildRepository(String repositoryKey, RulesDefinition rulesDefinition) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);

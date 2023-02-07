@@ -62,6 +62,8 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/html-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/html-blacklist-profile.xml"))
     .build();
 
   private static volatile boolean started;

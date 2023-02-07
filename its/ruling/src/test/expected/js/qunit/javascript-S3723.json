@@ -226,4 +226,12 @@
 804,
 820,
 ],
+'qunit:test/amd.html':[
+16,
+17,
+],
+'qunit:test/preconfigured.html':[
+11,
+12,
+],
 }

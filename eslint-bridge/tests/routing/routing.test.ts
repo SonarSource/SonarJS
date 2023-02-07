@@ -161,6 +161,29 @@ describe('router', () => {
     });
   });
 
+  it('should route /analyze-html requests', async () => {
+    initializeLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    const filePath = path.join(__dirname, 'fixtures', 'file.html');
+    const data = { filePath };
+    const response = (await request(server, '/analyze-html', 'POST', data)) as string;
+    const {
+      issues: [issue],
+    } = JSON.parse(response);
+    expect(issue).toEqual({
+      ruleId: 'no-all-duplicated-branches',
+      line: 10,
+      column: 2,
+      endLine: 10,
+      endColumn: 31,
+      message:
+        "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+      quickFixes: [],
+      secondaryLocations: [],
+    });
+  });
+
   it('should route /create-program requests', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
     const data = { tsConfig };

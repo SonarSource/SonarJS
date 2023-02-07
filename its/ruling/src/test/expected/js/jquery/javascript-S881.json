@@ -111,4 +111,14 @@
 77,
 82,
 ],
+'jquery:test/data/ajax/unreleasedXHR.html':[
+17,
+],
+'jquery:test/delegatetest.html':[
+156,
+],
+'jquery:test/hovertest.html':[
+103,
+107,
+],
 }

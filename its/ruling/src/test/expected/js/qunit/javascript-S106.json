@@ -14,4 +14,10 @@
 'qunit:src/cli/utils.js':[
 86,
 ],
+'qunit:test/headless.html':[
+14,
+],
+'qunit:test/reporter-html/no-qunit-element.html':[
+10,
+],
 }

@@ -1,4 +1,11 @@
 {
+'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+5101,
+11691,
+],
+'javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js':[
+461,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/three.js':[
 92,
 ],

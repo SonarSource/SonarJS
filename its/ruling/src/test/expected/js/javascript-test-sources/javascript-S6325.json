@@ -1,4 +1,10 @@
 {
+'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
+5430,
+],
+'javascript-test-sources:src/ace/src/keyboard/vim.js':[
+1297,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/context.js':[
 21,
 22,

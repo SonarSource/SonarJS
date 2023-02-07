@@ -63,4 +63,7 @@
 843,
 850,
 ],
+'jshint:tests/helpers/browser/index.html':[
+27,
+],
 }

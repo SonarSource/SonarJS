@@ -2,6 +2,9 @@
 'knockout:build/knockout-raw.js':[
 3,
 ],
+'knockout:spec/runner.html':[
+93,
+],
 'knockout:src/binding/bindingAttributeSyntax.js':[
 340,
 357,
