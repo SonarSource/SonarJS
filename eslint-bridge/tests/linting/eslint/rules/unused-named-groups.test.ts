@@ -203,6 +203,15 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         }
       `,
     },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/;
+        const matched = pattern.exec('str');
+        if (matched) {
+          matched.indices.groups['foo'];
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -567,6 +576,16 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         const matched = 'str'.match(pattern);
         if (matched) {
           matched.groups['bar'];
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
+        const matched = pattern.exec('str');
+        if (matched) {
+          matched.indices.groups['bar'];
         }
       `,
       errors: 1,
