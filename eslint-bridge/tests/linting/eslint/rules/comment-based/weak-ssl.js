@@ -47,10 +47,10 @@ function f(unknownValue) {
 //missing props
   new agw.CfnDomainName(this, 'Example');  // NonCompliant {{Change this code to enforce TLS 1.2 or above.}}
   new agw.DomainName(this, 'Example');
-  new es.CfnDomain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.}}
-  new es.Domain(this, 'ExplicitlyNonCompliant'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.}}
-  new oss.CfnDomain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.}}
-  new oss.Domain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.}}
+  new es.CfnDomain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above.}}
+  new es.Domain(this, 'ExplicitlyNonCompliant'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above.}}
+  new oss.CfnDomain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above.}}
+  new oss.Domain(this, 'Example'); // NonCompliant {{Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above.}}
 
   new agw.CfnDomainName(this, 'Example', undefined);  // NonCompliant
   new agw.DomainName(this, 'Example', undefined);
