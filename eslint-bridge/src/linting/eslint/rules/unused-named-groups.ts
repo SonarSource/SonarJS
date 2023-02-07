@@ -29,6 +29,7 @@ import {
   getValueOfExpression,
   getVariableFromName,
   isDotNotation,
+  isIndexNotation,
   isMethodCall,
   isObjectDestructuring,
   isRequiredParserServices,
@@ -166,13 +167,14 @@ function checkNonExistingGroupReference(
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
     const groupNodes = extractGroupNodes(memberExpr, intellisense);
     for (const groupNode of groupNodes) {
-      const group = regex.groups.find(grp => grp.name === groupNode.name);
+      const groupName = groupNode.type === 'Identifier' ? groupNode.name : groupNode.value;
+      const group = regex.groups.find(grp => grp.name === groupName);
       if (group) {
         group.used = true;
       } else {
         intellisense.context.report({
           message: toEncodedMessage(
-            `There is no group named '${groupNode.name}' in the regular expression.`,
+            `There is no group named '${groupName}' in the regular expression.`,
             regex.groups.map(grp => ({
               loc: getRegexpLocation(regex.node, grp.node, intellisense.context),
             })),
@@ -185,10 +187,7 @@ function checkNonExistingGroupReference(
   }
 }
 
-function extractGroupNodes(
-  memberExpr: estree.MemberExpression,
-  intellisense: RegexIntelliSense,
-): estree.Identifier[] {
+function extractGroupNodes(memberExpr: estree.MemberExpression, intellisense: RegexIntelliSense) {
   if (isDotNotation(memberExpr)) {
     const { property } = memberExpr;
     const ancestors = intellisense.context.getAncestors();
@@ -199,10 +198,10 @@ function extractGroupNodes(
     if (parent) {
       switch (property.name) {
         case 'groups':
-          /* matcher.groups.<name> */
+          /* matcher.groups.<name> or matcher.groups['name'] */
           return extractNamedOrDestructuredGroupNodes(parent);
         case 'indices':
-          /* matcher.indices.groups.<name> */
+          /* matcher.indices.groups.<name> or matcher.indices.groups['name'] */
           if (isDotNotation(parent) && parent.property.name === 'groups') {
             parent = ancestors.pop();
             if (parent) {
@@ -215,9 +214,9 @@ function extractGroupNodes(
   return [];
 }
 
-function extractNamedOrDestructuredGroupNodes(node: estree.Node): estree.Identifier[] {
-  if (isDotNotation(node)) {
-    /* matcher.groups.<name> */
+function extractNamedOrDestructuredGroupNodes(node: estree.Node) {
+  if (isDotNotation(node) || isIndexNotation(node)) {
+    /* matcher.groups.<name> or matcher.groups['name'] */
     return [node.property];
   } else if (isObjectDestructuring(node)) {
     /* { <name1>,..<nameN> } = matcher.groups */
