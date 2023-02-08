@@ -75,7 +75,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
         enforceTLS12: 'Change this code to enforce TLS 1.2 or above.',
         AWSApiGateway: 'Change this code to enforce TLS 1.2 or above.',
         AWSOpenElasticSearch:
-          'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above. Change this code to enforce TLS 1.2 or above.',
+          'Omitting "tlsSecurityPolicy" enables a deprecated version of TLS. Set it to enforce TLS 1.2 or above.',
       },
     },
   },
