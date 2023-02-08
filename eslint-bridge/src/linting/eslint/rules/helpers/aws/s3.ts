@@ -69,9 +69,9 @@ export function isS3BucketConstructor(context: Rule.RuleContext, node: estree.Ne
 }
 
 /**
- * Detects S3 BucketDeployment's constructor invocation from 'aws-cdk-lib/aws-s3':
+ * Detects S3 BucketDeployment's constructor invocation from 'aws-cdk-lib/aws-s3-deployment':
  *
- * const s3 = require('aws-cdk-lib/aws-s3');
+ * const s3 = require('aws-cdk-lib/aws-s3-deployment');
  * new s3.BucketDeployment();
  */
 export function isS3BucketDeploymentConstructor(
@@ -79,7 +79,8 @@ export function isS3BucketDeploymentConstructor(
   node: estree.NewExpression,
 ) {
   return (
-    normalizeFQN(getFullyQualifiedName(context, node)) === 'aws_cdk_lib.aws_s3.BucketDeployment'
+    normalizeFQN(getFullyQualifiedName(context, node)) ===
+    'aws_cdk_lib.aws_s3_deployment.BucketDeployment'
   );
 }
 
