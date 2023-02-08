@@ -24,7 +24,6 @@ import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
 import { APIError } from 'errors';
 import { jsTsInput } from '../../../../tools';
-import * as console from "console";
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -304,7 +303,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should fail with types using TypeScript program', async () => {
+  it('should fail with types using wrong TypeScript program', async () => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -312,16 +311,15 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'module', 'file.ts');
 
-    const tsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig.json');
-    const { programId, ...rest } = await createProgram(tsConfig);
+    const tsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_no_paths.json');
+    const { programId } = await createProgram(tsConfig);
     const language = 'ts';
 
-    console.log(rest);
     const {
       issues: [issue],
     } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
-      expect.objectContaining({
+      expect.not.objectContaining({
         ruleId: 'strings-comparison',
       }),
     );

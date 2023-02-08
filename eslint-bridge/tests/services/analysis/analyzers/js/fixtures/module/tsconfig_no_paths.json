@@ -19,9 +19,6 @@
       "../../../../../../../node_modules/@types",
       "../../../../../../../typings"
     ],
-    "baseUrl": "./",
-    "paths": {
-      "string42": ["subfolder"]
-    }
+    "baseUrl": "./"
   }
 }
