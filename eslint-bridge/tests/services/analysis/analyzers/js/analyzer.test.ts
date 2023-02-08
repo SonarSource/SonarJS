@@ -351,7 +351,7 @@ describe('analyzeJSTS', () => {
       'string42',
       'export.ts',
     );
-    const classicDependencyPath = path.join(__dirname, 'fixtures', 'string42.ts');
+    const classicDependencyPath = path.join(__dirname, 'fixtures', 'module', 'string42.ts');
 
     const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
     const nodeProgram = await createProgram(nodeTsConfig);
