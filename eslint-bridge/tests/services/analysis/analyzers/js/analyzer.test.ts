@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import {setContext, toUnixPath} from 'helpers';
+import { setContext, toUnixPath } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
 import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
@@ -335,8 +335,22 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'module', 'file.ts');
 
-    const nodeDependencyPath = path.join(__dirname, 'fixtures', 'module', 'node_modules', 'string42', 'index.ts');
-    const nodenextDependencyPath = path.join(__dirname, 'fixtures', 'module', 'node_modules', 'string42', 'export.ts');
+    const nodeDependencyPath = path.join(
+      __dirname,
+      'fixtures',
+      'module',
+      'node_modules',
+      'string42',
+      'index.ts',
+    );
+    const nodenextDependencyPath = path.join(
+      __dirname,
+      'fixtures',
+      'module',
+      'node_modules',
+      'string42',
+      'export.ts',
+    );
     const classicDependencyPath = path.join(__dirname, 'fixtures', 'string42.ts');
 
     const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
@@ -346,13 +360,15 @@ describe('analyzeJSTS', () => {
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodeIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: nodeProgram.programId }), language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodeProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
     expect(nodeIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
       }),
     );
-
 
     const nodenextTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_nodenext.json');
     const nodenextProgram = await createProgram(nodenextTsConfig);
@@ -361,7 +377,10 @@ describe('analyzeJSTS', () => {
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodenextIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: nodenextProgram.programId }), language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodenextProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
     expect(nodenextIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -375,7 +394,10 @@ describe('analyzeJSTS', () => {
     expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [classicIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: classicProgram.programId }), language) as JsTsAnalysisOutput;
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: classicProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
     expect(classicIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
