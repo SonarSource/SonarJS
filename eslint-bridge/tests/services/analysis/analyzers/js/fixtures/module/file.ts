@@ -1,5 +1,6 @@
-import a from 'current/subfolder';
+import string42 from 'string42';
 
-if ("123" < a ) {
-  console.log("bigger");
+
+if ("123" < string42 ) {
+  console.log("less than 42");
 }
