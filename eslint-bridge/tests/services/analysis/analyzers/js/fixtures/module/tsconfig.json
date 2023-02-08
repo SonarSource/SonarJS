@@ -1,27 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "lib": ["es2018"],
-    "declaration": true,
     "outDir": "./lib",
-    "strict": true,
-    "sourceMap": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "allowSyntheticDefaultImports": true,
-    "composite": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "useUnknownInCatchVariables": false,
-    "forceConsistentCasingInFileNames": true,
-    "typeRoots": [
-      "../../../../../../../node_modules/@types",
-      "../../../../../../../typings"
-    ],
+    "lib": ["ESNext"],
     "baseUrl": "./",
     "paths": {
       "string42": ["subfolder"]
     }
-  }
+  },
+  "include": ["file.ts"]
 }
