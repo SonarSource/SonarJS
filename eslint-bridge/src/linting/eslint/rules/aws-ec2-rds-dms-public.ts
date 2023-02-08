@@ -118,7 +118,7 @@ function checkDatabaseInstance(expr: estree.NewExpression, ctx: Rule.RuleContext
     return;
   }
 
-  if (publiclyAccessible.isTrue) {
+  if (publiclyAccessible.isTrue && subnetType.isFound && isPublicSubnet(subnetType.node, ctx)) {
     ctx.report({
       messageId: 'publicNetwork',
       node: publiclyAccessible.node,

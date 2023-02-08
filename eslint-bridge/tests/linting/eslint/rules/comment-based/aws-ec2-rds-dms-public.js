@@ -277,7 +277,7 @@ export class DatabaseInstanceStack extends cdk.Stack {
     new rds.DatabaseInstance(this, "public_default_subnet", {
       engine: rds.DatabaseInstanceEngine.POSTGRES,
       vpc: vpc, // False-Positive
-      publiclyAccessible: true, // Noncompliant
+      publiclyAccessible: true, // Compliant
       securityGroups: [sg]
     })
 
