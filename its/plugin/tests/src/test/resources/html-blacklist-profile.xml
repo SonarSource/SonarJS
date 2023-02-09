@@ -10,11 +10,6 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
-      <key>S3827</key> <!-- no-reference-error -->
-      <priority>INFO</priority>
-    </rule>
-    <rule>
-      <repositoryKey>javascript</repositoryKey>
       <key>S3504</key> <!-- no-var -->
       <priority>INFO</priority>
     </rule>
