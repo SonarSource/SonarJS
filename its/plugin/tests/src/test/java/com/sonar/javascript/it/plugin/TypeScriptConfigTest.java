@@ -84,6 +84,18 @@ class TypeScriptConfigTest {
   }
 
   @Test
+  void extend_base_from_folder() {
+    var project = "extend-base-from-folder";
+    var scanner = getSonarScanner(project);
+
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+      .logsOnce("Found 1 tsconfig.json file(s)");
+    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(4, project + ":src/main.ts")
+    );
+  }
+
+  @Test
   void monorepo() {
     var project = "monorepo";
     var scanner = getSonarScanner(project);
