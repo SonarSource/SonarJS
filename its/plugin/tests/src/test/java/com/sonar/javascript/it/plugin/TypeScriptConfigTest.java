@@ -21,12 +21,12 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.javascript.it.plugin.assertj.BuildResultAssert;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -36,22 +36,14 @@ class TypeScriptConfigTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
   private static final String PROFILE = "typescript-config-profile";
   private static final String PROJECT_ROOT = "typescript-config";
+  private static final String LANGUAGE = "ts";
 
   @Test
   void multiple_targets() {
     var project = "multiple-targets";
-    var projectRoot = TestUtils.projectDir(PROJECT_ROOT).toPath();
-    var projectDir = projectRoot.resolve(project).toFile();
+    var scanner = getSonarScanner(project);
 
-    orchestrator.getServer().provisionProject(project, project);
-    orchestrator.getServer().associateProjectToQualityProfile(project, "ts", PROFILE);
-
-    var defaultBuild = getSonarScanner()
-      .setProjectKey(project)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(projectDir);
-    BuildResultAssert.assertThat(orchestrator.executeBuild(defaultBuild))
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
       .logsOnce("Found 1 tsconfig.json file(s)")
       .logsOnce("INFO: Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)");
 
@@ -60,7 +52,7 @@ class TypeScriptConfigTest {
     );
     // Missing issues for main.test.ts
 
-    var configuredBuild = defaultBuild.setProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,tsconfig.test.json");
+    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,tsconfig.test.json");
     BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
       .logsOnce("Found 2 TSConfig file(s)")
         .doesNotLog("INFO: Skipped");
@@ -69,5 +61,38 @@ class TypeScriptConfigTest {
       tuple(4, project + ":src/main.ts"),
       tuple(4, project + ":src/main.test.ts")
     );
+  }
+
+  @Test
+  void extend_main_from_folder() {
+    var project = "extend-main-from-folder";
+    var scanner = getSonarScanner(project);
+
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+      .logsOnce("Found 2 tsconfig.json file(s)");
+
+    assertThat(getIssues(project)).isEmpty();
+    // Missing issues for main.ts
+
+    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "src/tsconfig.json");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
+      .logsOnce("Found 1 TSConfig file(s)");
+
+    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(4, project + ":src/main.ts")
+    );
+  }
+
+  private static SonarScanner getSonarScanner(String project) {
+    var projectDir = TestUtils.projectDir(PROJECT_ROOT).toPath().resolve(project).toFile();
+
+    orchestrator.getServer().provisionProject(project, project);
+    orchestrator.getServer().associateProjectToQualityProfile(project, LANGUAGE, PROFILE);
+
+    return OrchestratorStarter.getSonarScanner()
+      .setProjectKey(project)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(projectDir);
   }
 }

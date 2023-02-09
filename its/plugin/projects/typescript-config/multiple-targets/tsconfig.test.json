@@ -2,8 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "CommonJS",
-    "baseUrl": "./src",
-    "esModuleInterop": true
+    "baseUrl": "./src"
   },
   "include": ["**/*.test.ts"]
 }
