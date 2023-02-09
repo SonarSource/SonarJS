@@ -96,6 +96,18 @@ class TypeScriptConfigTest {
     );
   }
 
+  @Test
+  void shared_base() {
+    var project = "shared-base";
+    var scanner = getSonarScanner(project);
+
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+      .logsOnce("Found 1 tsconfig.json file(s)");
+    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(4, project + ":src/main.ts")
+    );
+  }
+
   private static SonarScanner getSonarScanner(String project) {
     var projectDir = TestUtils.projectDir(PROJECT_ROOT).toPath().resolve(project).toFile();
 
