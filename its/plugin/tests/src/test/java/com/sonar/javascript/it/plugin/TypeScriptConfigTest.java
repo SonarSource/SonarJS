@@ -83,6 +83,19 @@ class TypeScriptConfigTest {
     );
   }
 
+  @Test
+  void monorepo() {
+    var project = "monorepo";
+    var scanner = getSonarScanner(project);
+
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+      .logsOnce("Found 2 tsconfig.json file(s)");
+    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(4, project + ":project-1/main.ts"),
+      tuple(4, project + ":project-2/main.ts")
+    );
+  }
+
   private static SonarScanner getSonarScanner(String project) {
     var projectDir = TestUtils.projectDir(PROJECT_ROOT).toPath().resolve(project).toFile();
 
