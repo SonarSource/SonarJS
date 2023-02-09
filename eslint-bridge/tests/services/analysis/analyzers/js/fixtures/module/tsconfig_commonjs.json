@@ -2,7 +2,6 @@
   "compilerOptions": {
     "outDir": "./lib",
     "lib": ["ESNext"],
-    "baseUrl": "./",
     "module": "commonjs"
   },
   "include": ["file.ts"]
