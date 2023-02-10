@@ -172,13 +172,6 @@ plugin_qa_win_task:
     - mvn clean package -f its/plugin/plugins/pom.xml
     - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
-  always:
-    surefire_report_artifacts:
-      path: "its/plugin/tests/target/site/**/*"
-      type: text/html
-    surefire_artifacts:
-      path: "its/plugin/tests/target/surefire-reports/**/*"
-      type: text/xml
 
 ruling_task:
   depends_on:
