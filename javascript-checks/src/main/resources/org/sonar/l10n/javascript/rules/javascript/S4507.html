@@ -1,11 +1,6 @@
-<p>Delivering code in production with debug features activated is security-sensitive. It has led in the past to the following vulnerabilities:</p>
-<ul>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1999007">CVE-2018-1999007</a> </li>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5306">CVE-2015-5306</a> </li>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2006">CVE-2013-2006</a> </li>
-</ul>
-<p>An application’s debug features enable developers to find bugs more easily and thus facilitate also the work of attackers. It often gives access to
-detailed information on both the system running the application and users.</p>
+<p>Development tools and frameworks usually have options to make debugging easier for developers. Although these features are useful during
+development, they should never be enabled for applications deployed in production. Debug instructions or error messages can leak detailed information
+about the system, like the application’s path or file names.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
@@ -13,7 +8,7 @@ detailed information on both the system running the application and users.</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Do not enable debug features on production servers or applications distributed to end users.</p>
+<p>Do not enable debugging features on production servers or applications distributed to end users.</p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/errorhandler">errorhandler Express.js middleware</a> should not be used in production:</p>
 <pre>

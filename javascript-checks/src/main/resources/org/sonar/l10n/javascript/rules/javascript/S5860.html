@@ -9,7 +9,7 @@
 <pre>
 const date = "01/02";
 
-const datePattern = /(?&lt;month&gt;[0-9]{2})\/(?&lt;year&gt;[0-9]{2})/;
+const datePattern = /(?&lt;month&gt;\d{2})\/(?&lt;year&gt;\d{2})/;
 const dateMatched = date.match(datePattern);
 
 if (dateMatched !== null) {
@@ -21,7 +21,7 @@ if (dateMatched !== null) {
 
 const score = "14:1";
 
-const scorePattern = /(?&lt;player1&gt;[0-9]+):(?&lt;player2&gt;[0-9]+)/; // Noncompliant - named groups are never used
+const scorePattern = /(?&lt;player1&gt;\d+):(?&lt;player2&gt;\d+)/; // Noncompliant - named groups are never used
 const scoreMatched = score.match(scorePattern);
 
 if (scoreMatched !== null) {
@@ -32,7 +32,7 @@ if (scoreMatched !== null) {
 <pre>
 const date = "01/02";
 
-const datePattern = /(?&lt;month&gt;[0-9]{2})\/(?&lt;year&gt;[0-9]{2})/;
+const datePattern = /(?&lt;month&gt;\d{2})\/(?&lt;year&gt;\d{2})/;
 const dateMatched = date.match(datePattern);
 
 if (dateMatched !== null) {
@@ -43,7 +43,7 @@ if (dateMatched !== null) {
 
 const score = "14:1";
 
-const scorePattern = /(?&lt;player1&gt;[0-9]+):(?&lt;player2&gt;[0-9]+)/;
+const scorePattern = /(?&lt;player1&gt;\d+):(?&lt;player2&gt;\d+)/;
 const scoreMatched = score.match(scorePattern);
 
 if (scoreMatched !== null) {
