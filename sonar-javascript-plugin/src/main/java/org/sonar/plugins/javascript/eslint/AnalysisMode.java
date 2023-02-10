@@ -71,9 +71,15 @@ public enum AnalysisMode {
     return rule == null ? emptyList() : List.of(rule);
   }
 
+  /**
+   * Disable rules that are too noisy in HTML files
+   * Only add rules part of the "Sonar Way" profile
+   *
+   * @param rules
+   * @return
+   */
   static List<EslintRule> getHtmlFileRules(List<EslintRule> rules) {
     var blackListRuleKeys = new HashSet<String>();
-    blackListRuleKeys.add("no-reference-error");
     blackListRuleKeys.add("no-var");
     return EslintRule.findAllBut(rules, blackListRuleKeys);
   }
