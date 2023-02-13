@@ -31,7 +31,7 @@ public class LabelledStatementCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-labels";
+    return "no-class-assign";
   }
 
 }

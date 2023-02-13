@@ -31,6 +31,7 @@ public class IgnoredReturnCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-ignored-return";
+    //return "comma-dangle";
+    return "no-unexpected-multiline";
   }
 }

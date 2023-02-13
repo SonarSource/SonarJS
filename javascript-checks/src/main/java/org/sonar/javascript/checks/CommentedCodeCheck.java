@@ -27,13 +27,12 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "CommentedCode")
 @Rule(key = "S125")
 public class CommentedCodeCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-commented-code";
+    return "no-useless-escape";
   }
 
 }

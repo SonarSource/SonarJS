@@ -31,20 +31,9 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S905")
 public class UselessExpressionStatementCheck implements EslintBasedCheck {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
 
   @Override
   public String eslintKey() {
-    return "no-unused-expressions";
-  }
-
-  private static class Config {
-    boolean allowShortCircuit = true;
-    boolean allowTaggedTemplates = true;
-    boolean allowTernary = true;
-    boolean enforceForJSX = true;
+    return "no-const-assign";
   }
 }

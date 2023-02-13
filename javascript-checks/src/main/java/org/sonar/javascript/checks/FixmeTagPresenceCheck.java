@@ -31,7 +31,7 @@ public class FixmeTagPresenceCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "fixme-tag";
+    return "no-case-declarations";
   }
 
 }

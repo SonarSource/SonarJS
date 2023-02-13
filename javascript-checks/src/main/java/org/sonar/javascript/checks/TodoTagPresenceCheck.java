@@ -31,7 +31,7 @@ public class TodoTagPresenceCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "todo-tag";
+    return "no-global-assign";
   }
 
 }

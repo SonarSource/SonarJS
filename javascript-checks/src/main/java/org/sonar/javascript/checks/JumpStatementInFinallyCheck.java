@@ -31,6 +31,6 @@ public class JumpStatementInFinallyCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-unsafe-finally";
+    return "no-nonoctal-decimal-escape";
   }
 }

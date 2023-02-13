@@ -33,15 +33,6 @@ public class EmptyFunctionCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-empty-function";
-  }
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-    String[] allow = {"private-constructors"};
+    return "no-extra-boolean-cast";
   }
 }

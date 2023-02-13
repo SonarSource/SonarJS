@@ -31,6 +31,6 @@ public class BooleanEqualityComparisonCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-redundant-boolean";
+    return "no-inner-declarations";
   }
 }

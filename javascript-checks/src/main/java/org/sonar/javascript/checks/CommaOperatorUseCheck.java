@@ -31,7 +31,7 @@ public class CommaOperatorUseCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-sequences";
+    return "no-ex-assign";
   }
 
 }

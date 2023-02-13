@@ -30,21 +30,12 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "EmptyBlock")
 @Rule(key = "S108")
 public class EmptyBlockCheck implements EslintBasedCheck {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
 
   @Override
   public String eslintKey() {
-    return "no-empty";
-  }
-
-  private static class Config {
-    boolean allowEmptyCatch = true;
+    return "no-unused-labels";
   }
 }

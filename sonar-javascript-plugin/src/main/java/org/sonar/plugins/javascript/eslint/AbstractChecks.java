@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import org.apache.commons.compress.utils.Sets;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
@@ -134,8 +136,12 @@ public class AbstractChecks {
   }
 
   List<EslintRule> eslintRules() {
+    Set<String> ruleKeys = Sets.newHashSet("no-shadow-restricted-names", "no-unexpected-multiline", "no-useless-backreference", "no-unused-labels", "no-useless-escape", "require-yield", "no-ex-assign", "no-async-promise-executor", "no-const-assign", "no-func-assign", "no-class-assign", "no-compare-neg-zero", "no-inner-declarations", "no-irregular-whitespace", "no-prototype-builtins", "no-case-declarations", "no-global-assign", "no-nonoctal-decimal-escape", "no-extra-boolean-cast");
+
     return eslintBasedChecks()
       .map(check -> new EslintRule(check.eslintKey(), check.configurations(), check.targets()))
+      .filter(rule -> ruleKeys.contains(rule.getKey()))
+      //.filter(rule -> rule.getKey().equals("no-unexpected-multiline"))
       .collect(Collectors.toList());
   }
 }

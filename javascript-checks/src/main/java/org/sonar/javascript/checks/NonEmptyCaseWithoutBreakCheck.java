@@ -27,13 +27,12 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "NonEmptyCaseWithoutBreak")
 @Rule(key = "S128")
 public class NonEmptyCaseWithoutBreakCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "sonar-no-fallthrough";
+    return "require-yield";
   }
 
 }

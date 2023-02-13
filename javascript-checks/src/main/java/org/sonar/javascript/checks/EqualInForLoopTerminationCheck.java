@@ -32,7 +32,7 @@ public class EqualInForLoopTerminationCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-equals-in-for-termination";
+    return "no-async-promise-executor";
   }
 
 }

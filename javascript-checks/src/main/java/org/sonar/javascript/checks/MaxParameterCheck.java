@@ -30,7 +30,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "ExcessiveParameterList")
 @Rule(key = "S107")
 public class MaxParameterCheck implements EslintBasedCheck {
 
@@ -49,6 +48,6 @@ public class MaxParameterCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "sonar-max-params";
+    return "no-shadow-restricted-names";
   }
 }

@@ -31,6 +31,6 @@ public class UnusedImportCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "unused-import";
+    return "no-prototype-builtins";
   }
 }

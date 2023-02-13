@@ -48,7 +48,7 @@ public class ClassNameCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "class-name";
+    return "no-useless-backreference";
   }
 
 }
