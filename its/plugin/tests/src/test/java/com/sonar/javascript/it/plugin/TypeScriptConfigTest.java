@@ -22,8 +22,12 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.javascript.it.plugin.assertj.BuildResultAssert;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.util.Arrays;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
@@ -83,41 +87,15 @@ class TypeScriptConfigTest {
     );
   }
 
-  @Test
-  void extend_base_from_folder() {
-    var project = "extend-base-from-folder";
-    var scanner = getSonarScanner(project);
+  @ParameterizedTest
+  @EnumSource(Project.class)
+  void should_analyze_with_zero_config(Project project) {
+    var scanner = getSonarScanner(project.getName());
+    var buildResult = orchestrator.executeBuild(scanner);
 
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 1 tsconfig.json file(s)");
-    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, project + ":src/main.ts")
-    );
-  }
-
-  @Test
-  void monorepo() {
-    var project = "monorepo";
-    var scanner = getSonarScanner(project);
-
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 2 tsconfig.json file(s)");
-    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, project + ":project-1/main.ts"),
-      tuple(4, project + ":project-2/main.ts")
-    );
-  }
-
-  @Test
-  void shared_base() {
-    var project = "shared-base";
-    var scanner = getSonarScanner(project);
-
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 1 tsconfig.json file(s)");
-    assertThat(getIssues(project)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, project + ":src/main.ts")
-    );
+    BuildResultAssert.assertThat(buildResult).logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
+    assertThat(getIssues(project.getName())).extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(project.getIssues());
   }
 
   private static SonarScanner getSonarScanner(String project) {
@@ -132,4 +110,36 @@ class TypeScriptConfigTest {
       .setSourceDirs(".")
       .setProjectDir(projectDir);
   }
+
+  private enum Project {
+    EXTEND_BASE_FROM_FOLDER("extend-base-from-folder", 1, "src/main.ts"),
+    SHARED_BASE("shared-base", 1, "src/main.ts"),
+    MONOREPO("monorepo", 2, "project-1/main.ts", "project-2/main.ts"),
+    SOLUTION_TSCONFIG("solution-tsconfig", 3, "library/index.ts");
+
+    private static final int ISSUE_LINE = 4;
+
+    private final String name;
+    private final int expectedFound;
+    private final String[] filesWithIssue;
+
+    Project(String name, int expectedFound, String... filesWithIssue) {
+      this.name = name;
+      this.expectedFound = expectedFound;
+      this.filesWithIssue = filesWithIssue;
+    }
+
+    String getName() {
+      return name;
+    }
+
+    int getExpectedFound() {
+      return expectedFound;
+    }
+
+    Tuple[] getIssues() {
+      return Arrays.stream(filesWithIssue).map(file -> tuple(ISSUE_LINE, name + ":" + file)).toArray(Tuple[]::new);
+    }
+  }
+
 }
