@@ -117,6 +117,35 @@ describe('analyzeJSTS', () => {
     );
   });
 
+  it('should analyze Vue.js code with type checks', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
+    const { programId } = await createProgram(tsConfigs[0]);
+    const language = 'ts';
+
+    const {
+      issues: [issue1],
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
+    expect(issue1).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+    const {
+      issues: [issue2],
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
+    expect(issue2).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+  });
+
   it('should analyze main files', async () => {
     const rules = [
       { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },

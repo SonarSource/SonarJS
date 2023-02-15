@@ -29,7 +29,7 @@
  */
 
 import path from 'path';
-import ts from 'typescript';
+import ts, { ScriptKind } from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
 
 /**
@@ -112,6 +112,14 @@ export function createProgramOptions(
       noEmit: true,
     },
     tsConfig,
+    undefined,
+    [
+      {
+        extension: 'vue',
+        isMixedContent: true,
+        scriptKind: ScriptKind.TS,
+      },
+    ],
     /** We can provide additional options here (property 'extraFileExtensions') to include .vue files */
   );
 
