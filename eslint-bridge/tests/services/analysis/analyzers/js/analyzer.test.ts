@@ -898,4 +898,36 @@ describe('analyzeJSTS', () => {
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
+
+  it('should find issues requiring typing in JavaScript with jsconfig.json', async () => {
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
+
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'jsconfig', 'main.js');
+
+    const analysisWithoutProgram = await jsTsInput({ filePath });
+    const { issues: issuesWithoutProgram } = analyzeJSTS(analysisWithoutProgram, 'js');
+    expect(issuesWithoutProgram).toHaveLength(0);
+
+    const jsConfig = path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json');
+    const { programId } = await createProgram(jsConfig);
+    const analysisWithProgram = await jsTsInput({ filePath, programId });
+    const {
+      issues: [issueWithProgram],
+    } = analyzeJSTS(analysisWithProgram, 'js');
+    expect(issueWithProgram).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+  });
 });
