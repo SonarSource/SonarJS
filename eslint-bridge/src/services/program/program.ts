@@ -29,7 +29,7 @@
  */
 
 import path from 'path';
-import ts, { ScriptKind } from 'typescript';
+import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
 
 /**
@@ -117,7 +117,7 @@ export function createProgramOptions(
       {
         extension: 'vue',
         isMixedContent: true,
-        scriptKind: ScriptKind.TS,
+        scriptKind: ts.ScriptKind.Deferred,
       },
     ],
     /** We can provide additional options here (property 'extraFileExtensions') to include .vue files */
@@ -160,6 +160,7 @@ export async function createProgram(tsConfig: string): Promise<{
   const programOptions = createProgramOptions(tsConfig);
 
   const program = ts.createProgram(programOptions);
+
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
 
