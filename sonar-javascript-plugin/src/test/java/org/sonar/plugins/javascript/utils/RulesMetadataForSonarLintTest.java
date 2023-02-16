@@ -32,12 +32,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
 import org.sonar.plugins.javascript.css.rules.AtRuleNoUnknown;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RulesMetadataForSonarLintTest {
@@ -156,6 +154,8 @@ class RulesMetadataForSonarLintTest {
       .map(element -> element.getAsJsonObject().get("scope").getAsString())
       .collect(Collectors.toSet());
     assertThat(scopes).isEqualTo(Set.of("ALL", "MAIN", "TEST"));
+
+    assertThat(jsonArray).extracting(j -> j.getAsJsonObject().get("defaultParams")).doesNotContainNull();
   }
 
 }
