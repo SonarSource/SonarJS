@@ -49,7 +49,6 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.css.CssProfileDefinition;
 import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.css.CssRulesDefinition;
@@ -175,7 +174,7 @@ public class RulesMetadataForSonarLint {
     private RuleStatus status = RuleStatus.defaultStatus();
     private Set<String> tags;
     private List<RulesDefinition.Param> params;
-    private List<Object> defaultParams;
+    private List<Object> defaultParams = Collections.emptyList();
     private RuleScope scope;
     private String eslintKey;
     private boolean activatedByDefault;
