@@ -72,14 +72,14 @@ public class HtmlSensor extends AbstractEslintSensor {
     analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var success = false;
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       eslintBridgeServer.initLinter(AnalysisMode.getHtmlFileRules(checks.eslintRules()), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.toString());
+          progressReport.nextFile(inputFile.absolutePath());
           var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
           if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, cacheStrategy);
@@ -118,7 +118,7 @@ public class HtmlSensor extends AbstractEslintSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
-        file.toString(),
+        file.absolutePath(),
         file.type().toString(),
         fileContent,
         contextUtils.ignoreHeaderComments(),
