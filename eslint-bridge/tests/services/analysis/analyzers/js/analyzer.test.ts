@@ -927,6 +927,7 @@ describe('analyzeJSTS', () => {
     expect(issueWithProgram).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
+        line: 4,
       }),
     );
   });

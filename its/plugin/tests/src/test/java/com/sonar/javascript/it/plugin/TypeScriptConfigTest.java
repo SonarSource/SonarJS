@@ -87,6 +87,16 @@ class TypeScriptConfigTest {
     );
   }
 
+  @Test
+  void should_analyze_javascript_with_jsconfig() {
+    var project = "jsconfig";
+    var scanner = getSonarScanner(project);
+    var buildResult = orchestrator.executeBuild(scanner);
+
+    BuildResultAssert.assertThat(buildResult).logsOnce("INFO: 2/2 source files have been analyzed");
+    assertThat(getIssues(project)).isEmpty(); // False negative
+  }
+
   @ParameterizedTest
   @EnumSource(Project.class)
   void should_analyze_with_zero_config(Project project) {

@@ -1,7 +1,7 @@
 import { CONSTANT } from "constant.js";
 function foo() {
-  const v = "10";
-  return CONSTANT < v;
+  const value = "10";
+  return value < CONSTANT; // Noncompliant: S3003
 }
 
 console.log(foo() ? "SUCCESS" : "FAILURE");
