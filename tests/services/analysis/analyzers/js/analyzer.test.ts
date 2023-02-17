@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext } from 'helpers';
+import { setContext, toUnixPath } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
 import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
 import { createProgram } from 'services/program';
@@ -113,6 +113,26 @@ describe('analyzeJSTS', () => {
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-dupe-keys',
+      }),
+    );
+  });
+
+  it('should analyze Vue.js code with type checks', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
+    const language = 'ts';
+
+    const {
+      issues: [issue1],
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
+    expect(issue1).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
       }),
     );
   });
@@ -277,6 +297,130 @@ describe('analyzeJSTS', () => {
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-array-delete',
+      }),
+    );
+  });
+
+  it('should succeed with types using tsconfig with path aliases', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
+
+    const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig.json');
+    const { programId } = await createProgram(tsConfig);
+    const language = 'ts';
+
+    const {
+      issues: [issue],
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+  });
+
+  it('should fail with types using tsconfig without paths aliases', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
+
+    const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig_no_paths.json');
+    const { programId } = await createProgram(tsConfig);
+    const language = 'ts';
+
+    const {
+      issues: [issue],
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
+    expect(issue).toEqual(
+      expect.not.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+  });
+
+  it('different tsconfig module resolution affects files included in program', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const language = 'ts';
+
+    const filePath = path.join(__dirname, 'fixtures', 'module', 'file.ts');
+
+    const nodeDependencyPath = path.join(
+      __dirname,
+      'fixtures',
+      'module',
+      'node_modules',
+      'string42',
+      'index.ts',
+    );
+    const nodenextDependencyPath = path.join(
+      __dirname,
+      'fixtures',
+      'module',
+      'node_modules',
+      'string42',
+      'export.ts',
+    );
+    const classicDependencyPath = path.join(__dirname, 'fixtures', 'module', 'string42.ts');
+
+    const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
+    const nodeProgram = await createProgram(nodeTsConfig);
+    expect(nodeProgram.files).toContain(toUnixPath(nodeDependencyPath));
+    expect(nodeProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
+    expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
+    const {
+      issues: [nodeIssue],
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodeProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(nodeIssue).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+
+    const nodenextTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_nodenext.json');
+    const nodenextProgram = await createProgram(nodenextTsConfig);
+    expect(nodenextProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
+    expect(nodenextProgram.files).toContain(toUnixPath(nodenextDependencyPath));
+    expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
+    const {
+      issues: [nodenextIssue],
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodenextProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(nodenextIssue).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+
+    const classicTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_esnext.json');
+    const classicProgram = await createProgram(classicTsConfig);
+    expect(classicProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
+    expect(classicProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
+    expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
+    const {
+      issues: [classicIssue],
+    } = analyzeJSTS(
+      await jsTsInput({ filePath, programId: classicProgram.programId }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(classicIssue).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
       }),
     );
   });
@@ -743,6 +887,39 @@ describe('analyzeJSTS', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => analyzeJSTS(analysisInput, language)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
+    );
+  });
+
+  it('should find issues requiring typing in JavaScript with jsconfig.json', async () => {
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
+
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'jsconfig', 'main.js');
+
+    const analysisWithoutProgram = await jsTsInput({ filePath });
+    const { issues: issuesWithoutProgram } = analyzeJSTS(analysisWithoutProgram, 'js');
+    expect(issuesWithoutProgram).toHaveLength(0);
+
+    const jsConfig = path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json');
+    const { programId } = await createProgram(jsConfig);
+    const analysisWithProgram = await jsTsInput({ filePath, programId });
+    const {
+      issues: [issueWithProgram],
+    } = analyzeJSTS(analysisWithProgram, 'js');
+    expect(issueWithProgram).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+        line: 4,
+      }),
     );
   });
 });
