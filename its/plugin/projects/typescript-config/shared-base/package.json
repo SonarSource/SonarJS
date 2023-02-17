@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": "npx tsc && npx tsc-alias",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "tsc-alias": "1.8.2",
+    "typescript": "4.9.5"
+  }
+}
