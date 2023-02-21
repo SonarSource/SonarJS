@@ -29,6 +29,9 @@ const tests = {
     {
       code: `undefined = 1;`,
     },
+    {
+      code: `const a = { foo: "bar" };`,
+    },
   ],
   invalid: [
     {
@@ -45,6 +48,14 @@ const tests = {
     },
     {
       code: `a = undefined;`,
+      errors: 1,
+    },
+    {
+      code: `const a = { foo: undefined };`,
+      errors: 1,
+    },
+    {
+      code: `const a = { foo: "foo", bar: { baz: undefined } };`,
       errors: 1,
     },
   ],

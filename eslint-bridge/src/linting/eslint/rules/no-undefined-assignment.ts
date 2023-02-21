@@ -49,6 +49,10 @@ export const rule: Rule.RuleModule = {
         const { right } = node as estree.AssignmentExpression;
         raiseOnUndefined(right);
       },
+      Property: (node: estree.Node) => {
+        const { value } = node as estree.Property;
+        raiseOnUndefined(value);
+      },
     };
   },
 };
