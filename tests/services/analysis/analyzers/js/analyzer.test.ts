@@ -903,11 +903,23 @@ describe('analyzeJSTS', () => {
     ] as RuleConfig[];
     initializeLinter(rules);
 
-    const filePath = path.join(__dirname, 'fixtures', 'jsconfig', 'main.js');
+    const filePath = path.join(__dirname, 'fixtures', 'jsconfig', 'src', 'main.js');
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json')];
 
     const analysisWithoutProgram = await jsTsInput({ filePath });
     const { issues: issuesWithoutProgram } = analyzeJSTS(analysisWithoutProgram, 'js');
     expect(issuesWithoutProgram).toHaveLength(0);
+
+    const analysisWithProject = await jsTsInput({ filePath, tsConfigs });
+    const {
+      issues: [issuesWithProject],
+    } = analyzeJSTS(analysisWithProject, 'js');
+    expect(issuesWithProject).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+        line: 4,
+      }),
+    );
 
     const jsConfig = path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json');
     const { programId } = await createProgram(jsConfig);

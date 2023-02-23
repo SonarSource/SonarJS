@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./src/"
   },
   "files": [
-    "main.js",
-    "constant.js"
+    "src/main.js",
+    "src/constant.js"
   ]
 }

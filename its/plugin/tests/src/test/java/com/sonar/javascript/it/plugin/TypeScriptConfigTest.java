@@ -38,9 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 class TypeScriptConfigTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
-  private static final String PROFILE = "typescript-config-profile";
   private static final String PROJECT_ROOT = "typescript-config";
-  private static final String LANGUAGE = "ts";
 
   @Test
   void multiple_targets() {
@@ -120,7 +118,8 @@ class TypeScriptConfigTest {
     var projectDir = TestUtils.projectDir(PROJECT_ROOT).toPath().resolve(name).toFile();
 
     orchestrator.getServer().provisionProject(key, key);
-    orchestrator.getServer().associateProjectToQualityProfile(key, LANGUAGE, PROFILE);
+    orchestrator.getServer().associateProjectToQualityProfile(key, "ts", "typescript-config-ts-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(key, "js", "typescript-config-js-profile");
 
     return OrchestratorStarter.getSonarScanner()
       .setProjectKey(key)
