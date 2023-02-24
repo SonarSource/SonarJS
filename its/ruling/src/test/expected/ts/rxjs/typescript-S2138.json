@@ -2,6 +2,10 @@
 'rxjs:src/observable/FromEventObservable.ts':[
 108,
 ],
+'rxjs:src/observable/IteratorObservable.ts':[
+99,
+116,
+],
 'rxjs:src/scheduler/AnimationFrameAction.ts':[
 43,
 ],
