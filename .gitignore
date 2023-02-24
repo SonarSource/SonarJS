@@ -1,6 +1,13 @@
 # Maven
 target/
 
+lib/
+node_modules/
+coverage/
+test-report.xml
+
+sonarjs-*
+
 # IntelliJ IDEA
 *.iws
 *.iml
