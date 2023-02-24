@@ -58,7 +58,7 @@ import static org.awaitility.Awaitility.await;
  * Java plugin).
  * One optimization for SonarLint is, that we don't compute metrics when running under SonarLint.
  */
-class EslintBridgeIntegrationTest {
+class SonarJsIntegrationTest {
 
   @TempDir
   Path temp;
@@ -69,7 +69,7 @@ class EslintBridgeIntegrationTest {
   @Test
   void test() throws Exception {
 
-    String filename = "eslint-bridge-1.0.0.tgz";
+    String filename = "sonarjs-1.0.0.tgz";
     EslintBridge eslintBridge = new EslintBridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
       Path fileToExtract = fileSystem.getPath(filename);
