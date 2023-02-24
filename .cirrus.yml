@@ -95,6 +95,7 @@ build_task:
   build_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm run build-plugin
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 

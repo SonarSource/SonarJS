@@ -29,9 +29,10 @@
   </licenses>
 
   <modules>
-    <module>javascript-checks</module>
-    <module>sonar-javascript-plugin</module>
-    <module>eslint-bridge</module>
+    <module>sonar-plugin</module>
+    <!--
+      its module is added via profile below
+    -->
   </modules>
 
   <scm>
@@ -46,7 +47,7 @@
 
   <properties>
     <!--  this is necessary because of drop of modules  -->
-    <sonar.testExecutionReportPaths>eslint-bridge/test-report.xml</sonar.testExecutionReportPaths>
+    <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
 
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
@@ -76,6 +77,13 @@
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
+
+    <!-- sonar analysis -->
+    <sonar.sources>src</sonar.sources>
+    <sonar.tests>tests</sonar.tests>
+    <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+    <sonar.typescript.tsconfigPath>${project.basedir}/tests/tsconfig.json</sonar.typescript.tsconfigPath>
+    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
   </properties>
 
   <dependencyManagement>
@@ -207,13 +215,31 @@
   </dependencyManagement>
 
   <build>
-
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
+        <configuration>
+          <includes>
+            <include>src/**/*.ts</include>
+            <include>src/**/*.tsx</include>
+            <include>tests/**/*.ts</include>
+          </includes>
+          <excludes>
+            <exclude>tests/**/fixtures/**/*</exclude>
+            <exclude>tests/linting/**/comment-based/**/*</exclude>
+            <exclude>**/src/test/resources/**/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.0.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

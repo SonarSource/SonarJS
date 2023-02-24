@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript</artifactId>
+    <version>10.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>sonar-plugin</artifactId>
+  <packaging>pom</packaging>
+
+  <name>SonarQube JavaScript :: Plugin</name>
+
+  <properties>
+    <sonar.sources>src/main</sonar.sources>
+    <sonar.tests>src/test</sonar.tests>
+    <sonar.javascript.lcov.reportPaths/>
+    <sonar.typescript.tsconfigPath/>
+    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
+  </properties>
+
+
+  <modules>
+    <module>javascript-checks</module>
+    <module>sonar-javascript-plugin</module>
+  </modules>
+
+</project>
