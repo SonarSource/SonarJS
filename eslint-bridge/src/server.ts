@@ -99,6 +99,9 @@ export function start(
       });
     });
 
+    var a = 12;
+    console.log(a);
+
     server.on('close', () => {
       debug('eslint-bridge server closed');
       orphanTimeout.stop();
