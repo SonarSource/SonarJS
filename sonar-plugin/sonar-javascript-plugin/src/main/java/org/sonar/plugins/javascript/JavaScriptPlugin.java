@@ -87,7 +87,7 @@ public class JavaScriptPlugin implements Plugin {
   };
 
   public static final String GLOBALS = "sonar.javascript.globals";
-  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
+  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
 
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
