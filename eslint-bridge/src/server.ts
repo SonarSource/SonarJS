@@ -70,6 +70,12 @@ export function start(
   return new Promise(resolve => {
     debug(`starting eslint-bridge server at port ${port}`);
 
+
+
+    var a = 12;
+
+    console.log(`hello ${a}`);
+
     const app = express();
     const server = http.createServer(app);
 
