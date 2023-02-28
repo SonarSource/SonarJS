@@ -1,4 +1,4 @@
-name: 'Typedoc: site for helper function for ESlint-bridge'
+name: 'Typedoc: site for helper function for the ESLint bridge'
 on:
   push:
     branches:
@@ -13,7 +13,6 @@ jobs:
     - name: Checkout 🛎️
       uses: actions/checkout@v3
     - name: Build typedoc site
-      working-directory: eslint-bridge
       run: |
         npm ci
         npm run td
@@ -21,6 +20,6 @@ jobs:
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh_pages
-        folder: ./eslint-bridge/typedoc/site
+        folder: ./typedoc/site
         target-folder: ./typedoc
-        commit-message: "Update ESlint-bridge helper functions site"
+        commit-message: "Update the ESLint bridge helper functions site"
