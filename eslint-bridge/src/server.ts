@@ -101,6 +101,7 @@ export function start(
 
     var a = 12;
     console.log(a);
+    console.log('hello Anna and Jerome')
 
     server.on('close', () => {
       debug('eslint-bridge server closed');
