@@ -35,14 +35,10 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static java.util.Collections.singletonList;
 
 @ScannerSide
 @SonarLintSide
@@ -135,17 +131,10 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       try {
         LOG.debug("Analyzing file: " + file.uri());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var tsConfigs = tsConfigFile == null ? Collections.<String>emptyList() : singletonList(tsConfigFile.filename);
+        var tsConfigs = tsConfigFile == null ? Collections.<String>emptyList() : List.of(tsConfigFile.filename);
         var request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
           contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
-        EslintBridgeServer.AnalysisResponse response;
-        if (TypeScriptLanguage.KEY.equals(file.language())) {
-          response = eslintBridgeServer.analyzeTypeScript(request);
-        } else if (JavaScriptLanguage.KEY.equals(file.language())) {
-          response = eslintBridgeServer.analyzeJavaScript(request);
-        } else {
-          throw new UnsupportedOperationException();
-        }
+        var response = eslintBridgeServer.analyzeTypeScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
       } catch (IOException e) {
