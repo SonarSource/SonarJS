@@ -27,6 +27,15 @@ import {
 } from 'services/program';
 import { toUnixPath } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
+import { writeTSConfigFile } from 'services/program';
+import fs from 'fs/promises';
+
+const defaultParseConfigHost: ts.ParseConfigHost = {
+  useCaseSensitiveFileNames: true,
+  readDirectory: ts.sys.readDirectory,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+};
 
 describe('program', () => {
   it('should create a program', async () => {
@@ -176,5 +185,67 @@ describe('program', () => {
 
     deleteProgram(programId);
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
+  });
+
+  it('should return files', () => {
+    const readFile = _path => `{ "files": ["/foo/file.ts"] }`;
+    const result = createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    expect(result).toMatchObject({
+      rootNames: ['/foo/file.ts'],
+      projectReferences: undefined,
+    });
+  });
+
+  it('should report errors', () => {
+    const readFile = _path => `{ "files": [] }`;
+    expect(() =>
+      createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile }),
+    ).toThrow(`The 'files' list in config file 'tsconfig.json' is empty.`);
+  });
+
+  it('should return projectReferences', () => {
+    const readFile = _path => `{ "files": [], "references": [{ "path": "foo" }] }`;
+    const result = createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    const cwd = process.cwd().split(path.sep).join(path.posix.sep);
+    expect(result).toMatchObject({
+      rootNames: [],
+      projectReferences: [expect.objectContaining({ path: `${cwd}/foo` })],
+    });
+  });
+
+  it('jsonParse does not resolve imports, createProgram does', async () => {
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures'));
+    const tsConfig = toUnixPath(path.join(fixtures, 'paths', 'tsconfig.json'));
+    const mainFile = toUnixPath(path.join(fixtures, 'paths', 'file.ts'));
+    const dependencyPath = toUnixPath(path.join(fixtures, 'paths', 'subfolder', 'index.ts'));
+    let { rootNames: files } = createProgramOptions(tsConfig);
+    expect(files).toContain(mainFile);
+    expect(files).not.toContain(dependencyPath);
+
+    files = (await createProgram(tsConfig)).files;
+    expect(files).toContain(mainFile);
+    expect(files).toContain(dependencyPath);
+  });
+
+  it('should return Vue files', () => {
+    const fixtures = path.join(__dirname, 'fixtures', 'vue');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+    const result = createProgramOptions(tsConfig);
+    expect(result).toEqual(
+      expect.objectContaining({
+        rootNames: expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.vue'))]),
+      }),
+    );
+  });
+
+  it('should write tsconfig file', async () => {
+    const { filename } = await writeTSConfigFile({
+      compilerOptions: { allowJs: true, noImplicitAny: true },
+      include: ['/path/to/project/**/*'],
+    });
+    const content = await fs.readFile(filename, { encoding: 'utf-8' });
+    expect(content).toBe(
+      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
+    );
   });
 });

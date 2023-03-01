@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { writeTSConfigFile } from 'services/tsconfig';
+import { writeTSConfigFile } from 'services/program';
 
 /**
  * Handles TSConfig file creation requests
