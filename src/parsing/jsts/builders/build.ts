@@ -35,7 +35,7 @@ import { Language } from 'parsing/jsts';
  * @returns the parsed source code
  */
 export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
-  const isVueFile = input.filePath.endsWith('.vue');
+  const isVueFile = input.filePath.toLowerCase().endsWith('.vue');
 
   if (language === 'ts') {
     return buildTs(input, isVueFile);

@@ -31,6 +31,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import { parsers } from "parsing/jsts";
 
 /**
  * A cache of created TypeScript's Program instances
@@ -150,6 +151,27 @@ export async function createProgram(tsConfig: string): Promise<{
   missingTsConfig: boolean;
 }> {
   const programOptions = createProgramOptions(tsConfig);
+
+  programOptions.host = ts.createCompilerHost(programOptions.options, true);
+
+  // Patch readFile to be able to read only JS/TS from vue files
+  const emptySourceCode = parsers.javascript.parse('', { requireConfigFile: false });
+  programOptions.host.readFile = fileName => {
+    const contents = ts.sys.readFile(fileName);
+    if (contents && fileName.endsWith('.vue')) {
+      const codes: string[] = [];
+      parsers.vuejs.parse(contents, {
+        parser: {
+          parseForESLint: (code: string) => {
+            codes.push(code);
+            return emptySourceCode;
+          },
+        },
+      });
+      return codes.join('');
+    }
+    return contents;
+  };
 
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
