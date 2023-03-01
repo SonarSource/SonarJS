@@ -11,4 +11,7 @@
 'knockout:src/components/loaderRegistry.js':[
 1,
 ],
+'knockout:src/utils.js':[
+2,
+],
 }

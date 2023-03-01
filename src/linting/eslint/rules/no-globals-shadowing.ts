@@ -21,8 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { globalsByLibraries } from './helpers';
 
-const illegalNames = ['eval', 'arguments', 'undefined', 'NaN', 'Infinity'];
+const illegalNames = ['arguments', 'undefined'];
 
 const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
   messageId: 'forbidDeclaration',
@@ -72,6 +73,10 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+function isBuiltIn(name: string) {
+  return globalsByLibraries.builtin.includes(name);
+}
+
 function reportBadUsageOnFunction(
   func: estree.Function,
   id: estree.Node | null | undefined,
@@ -91,7 +96,7 @@ function reportBadUsage(
   if (node) {
     switch (node.type) {
       case 'Identifier': {
-        if (illegalNames.includes(node.name)) {
+        if (illegalNames.includes(node.name) || isBuiltIn(node.name)) {
           context.report({
             node: node,
             ...buildMessageAndData(node.name),

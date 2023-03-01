@@ -193,6 +193,33 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
     `,
       errors: 1,
     },
+    {
+      code: "String = 'hello world';",
+      errors: 1,
+    },
+    {
+      code: 'String++;',
+      errors: 1,
+    },
+    {
+      code: '({Object = 0, String = 0} = {});',
+      errors: 2,
+    },
+    {
+      code: 'Array = 1;',
+      errors: 1,
+    },
+    {
+      code: 'Number = 1;',
+      errors: 1,
+    },
+    {
+      code: `
+        (function( global, undefined ) {
+        })(this);
+        `,
+      errors: 1,
+    },
   ],
 });
 
