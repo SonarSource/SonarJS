@@ -113,7 +113,14 @@ export function createProgramOptions(
       noEmit: true,
     },
     tsConfig,
-    /** We can provide additional options here (property 'extraFileExtensions') to include .vue files */
+    undefined,
+    [
+      {
+        extension: 'vue',
+        isMixedContent: true,
+        scriptKind: ts.ScriptKind.Deferred,
+      },
+    ],
   );
 
   if (parsedConfigFile.errors.length > 0) {
