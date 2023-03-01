@@ -31,7 +31,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
-import { parsers } from "parsing/jsts";
+import { parsers } from 'parsing/jsts';
 
 /**
  * A cache of created TypeScript's Program instances
