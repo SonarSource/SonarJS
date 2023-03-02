@@ -21,11 +21,9 @@ package org.sonar.plugins.javascript.eslint.cache;
 
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FileMetadataTest {
 

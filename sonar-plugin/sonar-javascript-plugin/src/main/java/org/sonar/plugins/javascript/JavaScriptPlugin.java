@@ -26,11 +26,11 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.css.CssRulesDefinition;
-import org.sonar.plugins.javascript.css.StylelintReportSensor;
-import org.sonar.plugins.javascript.css.metrics.CssMetricSensor;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssProfileDefinition;
+import org.sonar.css.CssRulesDefinition;
+import org.sonar.css.StylelintReportSensor;
+import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.AnalysisWithProgram;
@@ -52,12 +52,12 @@ import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
-import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -107,9 +107,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
-
-  public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
-  public static final String STYLELINT_REPORT_PATHS_DEFAULT_VALUE = "";
 
   @Override
   public void define(Context context) {
@@ -277,8 +274,8 @@ public class JavaScriptPlugin implements Plugin {
       );
 
       context.addExtension(
-        PropertyDefinition.builder(STYLELINT_REPORT_PATHS)
-          .defaultValue(STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
+        PropertyDefinition.builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)
+          .defaultValue(StylelintReportSensor.STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
           .name("Stylelint Report Files")
           .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
           .onQualifiers(Qualifiers.PROJECT)

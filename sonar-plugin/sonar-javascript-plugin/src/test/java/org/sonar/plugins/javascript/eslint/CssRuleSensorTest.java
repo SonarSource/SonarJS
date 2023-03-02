@@ -27,7 +27,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +40,10 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
@@ -49,12 +51,12 @@ import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonar.plugins.javascript.css.TestActiveRules;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -92,7 +94,7 @@ class CssRuleSensorTest {
 
   private SensorContextTester context;
 
-  private static final CheckFactory CHECK_FACTORY = new CheckFactory(new TestActiveRules("S4647", "S4656", "S4658"));
+  private static final CheckFactory CHECK_FACTORY = new CheckFactory(activeRules("S4647", "S4656", "S4658"));
 
   private CssRuleSensor sensor;
 
@@ -112,6 +114,15 @@ class CssRuleSensorTest {
 
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(8, 9));
     sensor = new CssRuleSensor(sonarRuntime, eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
+  }
+
+  static ActiveRules activeRules(String... rules) {
+    var activeRulesBuilder = new ActiveRulesBuilder();
+    for (String rule : rules) {
+      var activeRule = new NewActiveRule.Builder().setRuleKey(RuleKey.of("css", rule)).build();
+      activeRulesBuilder.addRule(activeRule);
+    }
+    return activeRulesBuilder.build();
   }
 
   @Test

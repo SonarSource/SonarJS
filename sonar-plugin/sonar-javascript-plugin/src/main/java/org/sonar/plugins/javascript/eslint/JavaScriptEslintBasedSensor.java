@@ -38,9 +38,9 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
