@@ -1,5 +1,5 @@
 {
-  "rules-metadata-path": "../sonar-javascript-plugin/src/main/resources/org/sonar/l10n/css/rules/css",
+  "rules-metadata-path": "../sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css",
   "languages": [
     "CSS"
   ],
