@@ -222,7 +222,7 @@ class TypeScriptSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -655,12 +655,16 @@ class TypeScriptSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      processAnalysis,
-      analysisWithProgram());
+      analysisWithProgram(),
+      analysisWithWatchProgram());
   }
 
   private AnalysisWithProgram analysisWithProgram() {
     return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis, analysisWarnings);
+  }
+
+  private AnalysisWithWatchProgram analysisWithWatchProgram() {
+    return new AnalysisWithWatchProgram(eslintBridgeServerMock, monitoring, processAnalysis);
   }
 
   private AnalysisResponse createResponse() {

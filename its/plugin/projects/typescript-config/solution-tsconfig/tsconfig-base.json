@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "composite": true,
+    "module": "CommonJS",
+
+    "baseUrl": "./"
+  },
+}
