@@ -69,7 +69,6 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 
 2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
 ```sh
-cd eslint-bridge
 npm run new-rule S1234 <ESLint-style rulekey>
 // e.g.
 npm run new-rule S1234 no-invalid-something [eslint]
@@ -95,16 +94,16 @@ This script:
 4. Implement the rule logic in `no-invalid-something.ts`
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
-   * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/2831eb9a53da914d58b8e063a017c68e71eab839/eslint-bridge/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
-   * If possible implement quick fixes for the rule (then add its rule key in `eslint-bridge/src/linting/eslint/linter/quickfixes/rules.ts`).
+   * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
+   * If possible implement quick fixes for the rule (then add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`).
 
 ## Testing a rule
 
-`eslint-bridge` supports 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests. Prefer comment-based tests as they are more readable!
+We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests. Prefer comment-based tests as they are more readable!
 
 ### Comment-based testing
 
-These tests are located in `eslint-bridge/tests/linting/eslint/rules/comment-based/` and they **MUST** be named after the rule they are testing (i.e. `semi.[(js|ts)x?]` to test ESLint `semi` rule). If options are to be passed to the tested rule, add a JSON file to the same directory following the same naming convention but with a `.json` extension (i.e. `semi.json`). The file must contain the array of options. 
+These tests are located in `tests/linting/eslint/rules/comment-based/` and they **MUST** be named after the rule they are testing (i.e. `semi.[(js|ts)x?]` to test ESLint `semi` rule). If options are to be passed to the tested rule, add a JSON file to the same directory following the same naming convention but with a `.json` extension (i.e. `semi.json`). The file must contain the array of options.
 
 The contents of the test code have the following structure:
 
@@ -154,7 +153,7 @@ another.faulty.code();
 
 #### Secondary locations
 
-Secondary locations are part of [Sonar issues](https://docs.sonarqube.org/latest/user-guide/issues/). They provide additional context to the raised issue. In order to use them, you must call the [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/66c14e5d1a68232940d540a19fb89872d41c206d/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44) function when reporting the issue message like this:
+Secondary locations are part of [Sonar issues](https://docs.sonarqube.org/latest/user-guide/issues/). They provide additional context to the raised issue. In order to use them, you must call the [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) function when reporting the issue message like this:
 
 ```javascript
 context.report({
@@ -167,17 +166,17 @@ In order to indicate secondary locations, you must use either `// ^^^^^<` or `//
 
 As stated before, the message is optional.
 
-**/!\** If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/66c14e5d1a68232940d540a19fb89872d41c206d/eslint-bridge/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
+**/!\** If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
 
 #### Quick fixes
 
 Quick fixes refer to both ESLint [Suggestions](https://eslint.org/docs/latest/developer-guide/working-with-rules#providing-suggestions) and [Fixes](https://eslint.org/docs/latest/developer-guide/working-with-rules#applying-fixes). In our comment-based framework both use the same syntax, with the difference that a quick fix ID followed by an exclamation mark (`!`) will be internally treated as a `fix` with ESLint instead of as a suggestion. Please note that rules providing fixes **MUST** be tested always with fixes, otherwise the test will fail with the following error: `The rule fixed the code. Please add 'output' property.`. On the other side, it is optional to check against rule suggestions, meaning that even if a rule provides them, the tests can choose not to test their contents.
 
-The `fix@` comment referring to a quick fix provides the suggestion description and is optional. Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark (i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).  
+The `fix@` comment referring to a quick fix provides the suggestion description and is optional. Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark (i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).
 
 Each quick fix can have multiple editions associated to it. There are three different kind of operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used for each operation:
 
-- `add@qf {{code to add}}` Add the string between the double brackets to a new line in the code. 
+- `add@qf {{code to add}}` Add the string between the double brackets to a new line in the code.
 - `del@qf` Remove the line
 - `edit@qf1 [[sc=1;ec=5]] {{text to replace the range }}` Edit the line from start column `sc` to end column `ec` (both 0-based) with the provided string between the double brackets. Alternatively, one can conveniently use only `sc` or `ec`. also optional, meaning this syntax can be used too:
   - `edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
@@ -197,15 +196,15 @@ if (condition) {
  doSomething()
 }
 ```
-Let's go through the syntax used in this example: 
-- The test provides a fix (note the `!` after the ID `qf`). 
-- The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue for which we provide a quick fix. 
-- The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by `if (condition) {`. 
+Let's go through the syntax used in this example:
+- The test provides a fix (note the `!` after the ID `qf`).
+- The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue for which we provide a quick fix.
+- The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by `if (condition) {`.
 - Lastly, the line `// add@qf@+1 {{ doSomething()}}` will add a new line just after the issue line (`@+1`) with the contents `&nbsp;doSomething()`
 
 
 
-Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below). 
+Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below).
 
 Quick fixes IDs can be any `string`, they don't have to follow the `qfN` convention. The order of the list is important, as they will be assigned to the message in the matching position. If one provides 3 messages and 2 quick fixes which are not to be matched against first and second message, there are two options:
 

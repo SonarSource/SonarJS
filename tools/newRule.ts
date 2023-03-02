@@ -20,16 +20,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const rootFolder = path.join(__dirname, '../../');
-const templatesFolder = path.join(rootFolder, 'eslint-bridge/tools/resources/');
+const rootFolder = path.join(__dirname, '../');
+const templatesFolder = path.join(rootFolder, 'tools/resources/');
 const ruleTemplatePath = path.join(templatesFolder, 'rule.template_ts');
 const javaRuleTemplatePath = path.join(templatesFolder, 'rule.template_java');
 const checkListPath = path.join(
   rootFolder,
-  'javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java',
+  'sonar-plugin/javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java',
 );
 
-const mainPath = path.join(rootFolder, 'eslint-bridge/src/linting/eslint/rules/index.ts');
+const mainPath = path.join(rootFolder, 'src/linting/eslint/rules/index.ts');
 
 run();
 
@@ -76,13 +76,13 @@ function run() {
 
     inflateTemplate(
       ruleTemplatePath,
-      path.join(rootFolder, `eslint-bridge/src/linting/eslint/rules/${ruleNameDash}.ts`),
+      path.join(rootFolder, `src/linting/eslint/rules/${ruleNameDash}.ts`),
       ruleMetadata,
     );
 
     const testPath = path.join(
       rootFolder,
-      `eslint-bridge/tests/linting/eslint/rules/comment-based`,
+      `tests/linting/eslint/rules/comment-based`,
     );
     try {
       fs.mkdirSync(testPath);
@@ -102,7 +102,7 @@ function run() {
       javaRuleTemplatePath,
       path.join(
         rootFolder,
-        `javascript-checks/src/main/java/org/sonar/javascript/checks/${javaRuleClassName}.java`,
+        `sonar-plugin/javascript-checks/src/main/java/org/sonar/javascript/checks/${javaRuleClassName}.java`,
       ),
       ruleMetadata,
     );

@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,37 +40,21 @@ import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.sonar.plugins.javascript.eslint.TypeScriptSensor.PROGRESS_REPORT_PERIOD;
-import static org.sonar.plugins.javascript.eslint.TypeScriptSensor.PROGRESS_REPORT_TITLE;
-
 @ScannerSide
 @SonarLintSide
-public class AnalysisWithProgram {
+public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = Loggers.get(AnalysisWithProgram.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
-  private final EslintBridgeServer eslintBridgeServer;
-  private final Monitoring monitoring;
-  private final AnalysisProcessor processAnalysis;
   private final AnalysisWarningsWrapper analysisWarnings;
-  private SensorContext context;
-  private ContextUtils contextUtils;
-  private AbstractChecks checks;
-  private ProgressReport progressReport;
-  private AnalysisMode analysisMode;
 
-  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor processAnalysis, AnalysisWarningsWrapper analysisWarnings) {
-    this.eslintBridgeServer = eslintBridgeServer;
-    this.monitoring = monitoring;
-    this.processAnalysis = processAnalysis;
+  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor analysisProcessor, AnalysisWarningsWrapper analysisWarnings) {
+    super(eslintBridgeServer, monitoring, analysisProcessor);
     this.analysisWarnings = analysisWarnings;
   }
 
-  void analyzeFiles(SensorContext context, AbstractChecks checks, List<InputFile> inputFiles) throws IOException {
-    this.context = context;
-    this.contextUtils = new ContextUtils(context);
-    this.checks = checks;
-    this.analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+  @Override
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var tsConfigs = new TsConfigProvider().tsconfigs(context);
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
@@ -164,7 +147,7 @@ public class AnalysisWithProgram {
         EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
           file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
         EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
-        processAnalysis.processResponse(context, checks, file, response);
+        analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file, e);
@@ -173,7 +156,7 @@ public class AnalysisWithProgram {
     } else {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-      processAnalysis.processCacheAnalysis(context, file, cacheAnalysis);
+      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
 
