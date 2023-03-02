@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src/"
+    "outDir": "dist",
+    "baseUrl": "./src/",
+    "noEmit": false
   },
   "files": [
     "src/main.js",
