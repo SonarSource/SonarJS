@@ -49,9 +49,9 @@ export const rule: Rule.RuleModule = {
             const { end } = sourceCode.getLastToken(call)!.loc;
             if (end.line !== start.line) {
               //If arguments span multiple lines, we only report the first one
-              reportIssue(start, calleeLastLine, context);
+              reportIssue('moveArguments', start, calleeLastLine, context);
             } else {
-              reportIssue({ start, end }, calleeLastLine, context);
+              reportIssue('moveArguments', { start, end }, calleeLastLine, context);
             }
           }
         }
@@ -67,7 +67,7 @@ export const rule: Rule.RuleModule = {
               column: quasi.loc.start.column + 1,
             },
           };
-          reportIssue(loc, tokenBefore.loc.start.line, context, 'moveTemplateLiteral');
+          reportIssue('moveTemplateLiteral', loc, tokenBefore.loc.start.line, context);
         }
       },
     };
@@ -83,10 +83,10 @@ function isNotClosingParen(token: AST.Token) {
 }
 
 function reportIssue(
+  messageId: string,
   loc: { start: Position; end: Position } | Position,
   line: number,
   context: Rule.RuleContext,
-  messageId = 'moveArguments',
 ) {
   context.report({
     messageId,
