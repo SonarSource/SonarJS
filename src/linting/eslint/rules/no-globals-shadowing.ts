@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { globalsByLibraries } from './helpers';
 
-const illegalNames = ['arguments', 'undefined'];
+const illegalNames = ['arguments'];
 
 const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
   messageId: 'forbidDeclaration',
@@ -53,20 +53,31 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
-          reportBadUsage(decl.id, getDeclarationIssue('variable'), context);
+          reportBadUsage(decl.id, getDeclarationIssue('variable'), context, decl.init != null);
         });
       },
       UpdateExpression(node: estree.Node) {
-        reportBadUsage((node as estree.UpdateExpression).argument, getModificationIssue, context);
+        reportBadUsage(
+          (node as estree.UpdateExpression).argument,
+          getModificationIssue,
+          context,
+          true,
+        );
       },
       AssignmentExpression(node: estree.Node) {
-        reportBadUsage((node as estree.AssignmentExpression).left, getModificationIssue, context);
+        reportBadUsage(
+          (node as estree.AssignmentExpression).left,
+          getModificationIssue,
+          context,
+          true,
+        );
       },
       CatchClause(node: estree.Node) {
         reportBadUsage(
           (node as estree.CatchClause).param,
           getDeclarationIssue('variable'),
           context,
+          true,
         );
       },
     };
@@ -82,9 +93,9 @@ function reportBadUsageOnFunction(
   id: estree.Node | null | undefined,
   context: Rule.RuleContext,
 ) {
-  reportBadUsage(id, getDeclarationIssue('function'), context);
+  reportBadUsage(id, getDeclarationIssue('function'), context, true);
   func.params.forEach(p => {
-    reportBadUsage(p, getDeclarationIssue('parameter'), context);
+    reportBadUsage(p, getDeclarationIssue('parameter'), context, false);
   });
 }
 
@@ -92,11 +103,16 @@ function reportBadUsage(
   node: estree.Node | null | undefined,
   buildMessageAndData: (name: string) => { messageId: string; data: any },
   context: Rule.RuleContext,
+  isWrite: boolean,
 ) {
   if (node) {
     switch (node.type) {
       case 'Identifier': {
-        if (illegalNames.includes(node.name) || isBuiltIn(node.name)) {
+        if (
+          illegalNames.includes(node.name) ||
+          isBuiltIn(node.name) ||
+          (isWrite && node.name === 'undefined')
+        ) {
           context.report({
             node: node,
             ...buildMessageAndData(node.name),
@@ -105,24 +121,24 @@ function reportBadUsage(
         break;
       }
       case 'RestElement':
-        reportBadUsage(node.argument, buildMessageAndData, context);
+        reportBadUsage(node.argument, buildMessageAndData, context, true);
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
           if (prop.type === 'Property') {
-            reportBadUsage(prop.value, buildMessageAndData, context);
+            reportBadUsage(prop.value, buildMessageAndData, context, true);
           } else {
-            reportBadUsage(prop.argument, buildMessageAndData, context);
+            reportBadUsage(prop.argument, buildMessageAndData, context, true);
           }
         });
         break;
       case 'ArrayPattern':
         node.elements.forEach(elem => {
-          reportBadUsage(elem, buildMessageAndData, context);
+          reportBadUsage(elem, buildMessageAndData, context, true);
         });
         break;
       case 'AssignmentPattern':
-        reportBadUsage(node.left, buildMessageAndData, context);
+        reportBadUsage(node.left, buildMessageAndData, context, true);
         break;
     }
   }

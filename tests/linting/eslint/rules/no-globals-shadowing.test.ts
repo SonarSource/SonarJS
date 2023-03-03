@@ -58,6 +58,12 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
             }
             `,
     },
+    {
+      code: `
+        (function( global, undefined ) {
+        })(this);
+        `,
+    },
   ],
   invalid: [
     {
@@ -185,6 +191,15 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
         function foo() { var undefined; }
         
         function foo(undefined) { var x = undefined; }`,
+      errors: 2,
+    },
+    {
+      code: `
+        function foo() { var NaN; } 
+        function foo() { var Infinity; }
+        function foo() { var undefined = 42; }
+        
+        function foo(undefined = 42) { var x = undefined; }`,
       errors: 4,
     },
     {
@@ -215,10 +230,18 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
     },
     {
       code: `
-        (function( global, undefined ) {
+        (function( global, undefined = 42) {
         })(this);
         `,
-      errors: 1,
+      errors: [
+        {
+          message: `Do not use "undefined" to declare a parameter - use another name.`,
+          line: 2,
+          endLine: 2,
+          column: 28,
+          endColumn: 37,
+        },
+      ],
     },
   ],
 });
