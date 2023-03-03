@@ -78,6 +78,16 @@ class JavaScriptPluginTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
   }
 
+  @Test
+  void globalsDefaultValue() {
+    var globals = properties().stream().filter(property -> JavaScriptPlugin.GLOBALS.equals(property.key())).findFirst();
+    assertThat(globals).isPresent();
+
+    var defaultValue = globals.get().defaultValue().split(",");
+    assertThat(defaultValue).containsExactly("angular", "goog", "google", "OpenLayers", "d3", "dojo", "dojox", "dijit", "Backbone",
+      "moment", "casper", "_", "sap");
+  }
+
   private List<PropertyDefinition> properties() {
     List<PropertyDefinition> propertiesList = new ArrayList<>();
     List extensions = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)).getExtensions();
