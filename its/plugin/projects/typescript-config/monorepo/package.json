@@ -1,6 +1,0 @@
-{
-  "scripts": {
-    "build": "(cd project-1 && npm run build) && (cd project-2 && npm run build)",
-    "start": "(cd project-1 && node dist/main.js) && (cd project-2 && node dist/main.js)"
-  }
-}
