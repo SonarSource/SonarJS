@@ -45,7 +45,7 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   static final String SCANNER_VERSION = "4.7.0.2747";
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
-    new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
+    new File("../../../sonar-plugin/sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)

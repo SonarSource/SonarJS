@@ -89,7 +89,7 @@
                       <overWrite>true</overWrite>
                     </artifactItem>
                   </artifactItems>
-                  <outputDirectory>../../sonar-javascript-plugin/target</outputDirectory>
+                  <outputDirectory>../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
                 </configuration>

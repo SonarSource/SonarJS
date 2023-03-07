@@ -28,15 +28,13 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

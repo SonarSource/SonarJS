@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.css.CssProfileDefinition;
+import org.sonar.css.CssRulesDefinition;
+import org.sonar.css.rules.AtRuleNoUnknown;
 import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
-import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.css.CssRulesDefinition;
-import org.sonar.plugins.javascript.css.rules.AtRuleNoUnknown;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;

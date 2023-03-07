@@ -45,14 +45,14 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssProfileDefinition;
+import org.sonar.css.CssRules;
+import org.sonar.css.CssRulesDefinition;
+import org.sonar.css.rules.CssRule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.css.CssProfileDefinition;
-import org.sonar.plugins.javascript.css.CssRules;
-import org.sonar.plugins.javascript.css.CssRulesDefinition;
-import org.sonar.plugins.javascript.css.rules.CssRule;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
