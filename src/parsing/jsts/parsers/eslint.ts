@@ -61,6 +61,12 @@ export const parsers: { javascript: ESLintParser; typescript: ESLintParser; vuej
   };
 
 /**
+ * Empty AST to be sent to Vue parser, as we just use it to provide us with the JS/TS code,
+ * no need for it to make further actions with the AST result.
+ */
+export const emptySourceCode = parsers.javascript.parse('', { requireConfigFile: false });
+
+/**
  * Clears TypeScript ESLint parser's caches
  *
  * While analyzing multiple files that used TypeScript ESLint parser to

@@ -31,13 +31,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
-import { parsers } from 'parsing/jsts';
-
-/**
- * Empty AST to be sent to Vue parser, as we just use it to provide us with the JS/TS code,
- * no need for it to make further actions with the AST result.
- */
-const emptySourceCode = parsers.javascript.parse('', { requireConfigFile: false });
+import { emptySourceCode, parsers } from 'parsing/jsts';
 
 /**
  * A cache of created TypeScript's Program instances
