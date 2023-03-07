@@ -29,6 +29,11 @@
       <artifactId>javascript-checks</artifactId>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>css</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
     </dependency>
@@ -52,10 +57,7 @@
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>

@@ -47,7 +47,7 @@ class CssRulingTest {
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
-    .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
+    .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-plugin/sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .build();
 

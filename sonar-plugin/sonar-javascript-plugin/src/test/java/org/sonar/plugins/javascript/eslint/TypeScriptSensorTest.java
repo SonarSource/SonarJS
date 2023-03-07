@@ -74,9 +74,9 @@ import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;

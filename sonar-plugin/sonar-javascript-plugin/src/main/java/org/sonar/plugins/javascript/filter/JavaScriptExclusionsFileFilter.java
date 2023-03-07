@@ -25,9 +25,9 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.config.Configuration;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.css.CssLanguage;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   private final List<Assessor> assessors;
