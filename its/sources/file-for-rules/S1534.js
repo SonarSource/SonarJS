@@ -12,3 +12,8 @@ class App extends React.Component {
     return <Welcome key="John" key="John" />;
   }
 }
+
+class C {
+  f() { return 42; }
+  f() { return true; }
+}

@@ -21,21 +21,31 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/core';
+import { rules as typescriptRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { mergeRules } from './decorators/helpers';
 
 const noDupeKeysRule = eslintRules['no-dupe-keys'];
+const noDupeClassMembersRule = typescriptRules['no-dupe-class-members'];
 const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
 export const rule: Rule.RuleModule = {
-  // meta of no-dupe-keys and jsx-no-duplicate-props is required for issue messages
+  /**
+   * The metadata from `no-dupe-class-members` and `jsx-no-duplicate-props` are required for issue messages.
+   * However, we don't include those from `no-dupe-keys` because of a duplicate message id, and we use instead
+   * the message id from `no-dupe-class-members`, which is a bit more generic.
+   */
   meta: {
-    messages: { ...noDupeKeysRule.meta!.messages, ...jsxNoDuplicatePropsRule.meta!.messages },
+    messages: {
+      ...noDupeClassMembersRule.meta!.messages,
+      ...jsxNoDuplicatePropsRule.meta!.messages,
+    },
   },
   create(context: Rule.RuleContext) {
     const noDupeKeysListener: Rule.RuleListener = noDupeKeysRule.create(context);
+    const noDupeClassMembersListener: Rule.RuleListener = noDupeClassMembersRule.create(context);
     const jsxNoDuplicatePropsListener: Rule.RuleListener = jsxNoDuplicatePropsRule.create(context);
 
-    return mergeRules(noDupeKeysListener, jsxNoDuplicatePropsListener);
+    return mergeRules(noDupeKeysListener, noDupeClassMembersListener, jsxNoDuplicatePropsListener);
   },
 };
