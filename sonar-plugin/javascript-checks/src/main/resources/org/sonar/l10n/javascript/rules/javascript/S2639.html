@@ -1,0 +1,11 @@
+<p>Empty character classes in regular expressions don’t match anything.</p>
+<p>This is likely a sign that the regular expression does not work as intended.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+/^foo[]/.test("foobar"); // false
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+/^foo/.test("foobar"); // true
+</pre>
+

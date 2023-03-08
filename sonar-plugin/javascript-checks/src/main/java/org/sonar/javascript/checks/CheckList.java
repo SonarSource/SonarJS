@@ -141,6 +141,7 @@ public final class CheckList {
       DuplicatesInCharacterClassCheck.class,
       ElseIfWithoutElseCheck.class,
       EmptyBlockCheck.class,
+      EmptyCharacterClassesCheck.class,
       EmptyDestructuringPatternCheck.class,
       EmptyFunctionCheck.class,
       EmptyStatementCheck.class,
