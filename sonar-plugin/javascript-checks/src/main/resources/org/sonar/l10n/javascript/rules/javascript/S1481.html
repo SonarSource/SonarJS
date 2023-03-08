@@ -48,8 +48,8 @@ function numberOfMinutes(hours) {
   return hours * 60;
 }
 </pre>
-<p>When an array destructuring is used and some element of the array is never referenced, one might simply remove it from the destructuring.</p>
 <h4>Noncompliant code example</h4>
+<p>When an array destructuring is used and some element of the array is never referenced, one might simply remove it from the destructuring.</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 const [_, params] = url.split(path);
 </pre>
