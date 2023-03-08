@@ -31,6 +31,34 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import { parsers } from 'parsing/jsts';
+
+/**
+ * Empty AST to be sent to Vue parser, as we just use it to provide us with the JS/TS code,
+ * no need for it to make further actions with the AST result.
+ */
+const emptySourceCode = {
+  ast: {
+    type: 'Program',
+    start: 0,
+    end: 0,
+    loc: {
+      start: {
+        line: 1,
+        column: 0,
+      },
+      end: {
+        line: 1,
+        column: 0,
+      },
+    },
+    range: [0, 0],
+    comments: [],
+    tokens: [],
+    sourceType: 'module',
+    body: [],
+  },
+};
 
 /**
  * A cache of created TypeScript's Program instances
@@ -157,6 +185,27 @@ export async function createProgram(tsConfig: string): Promise<{
   missingTsConfig: boolean;
 }> {
   const programOptions = createProgramOptions(tsConfig);
+
+  programOptions.host = ts.createCompilerHost(programOptions.options);
+
+  const originalReadFile = programOptions.host.readFile;
+  // Patch readFile to be able to read only JS/TS from vue files
+  programOptions.host.readFile = fileName => {
+    const contents = originalReadFile(fileName);
+    if (contents && fileName.endsWith('.vue')) {
+      const codes: string[] = [];
+      parsers.vuejs.parse(contents, {
+        parser: {
+          parseForESLint: (code: string) => {
+            codes.push(code);
+            return emptySourceCode;
+          },
+        },
+      });
+      return codes.join('');
+    }
+    return contents;
+  };
 
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
