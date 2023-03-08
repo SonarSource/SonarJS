@@ -1,0 +1,61 @@
+<h2>Why is this an issue?</h2>
+<p>A boolean cast via double negation (<code>!!</code>) or a <code>Boolean</code> call is redundant when used as a condition. The condition can be
+written without the extra cast and behave exactly the same. The reason is that JavaScript uses type coercion and automatically converts values to
+booleans in a specific situation known as a Boolean context. The condition of an <code>if</code> statement is a typical example of a Boolean context.
+For example, these <code>if</code> statements are equivalent:</p>
+<pre>
+if (!!foo) {
+    // ...
+}
+
+if (Boolean(foo)) {
+    // ...
+}
+
+if (foo) {
+    // ...
+}
+</pre>
+<h3>What is the potential impact?</h3>
+<p>A redundant boolean cast affects the code readability. Not only the condition becomes more verbose but it also misleads the reader who might
+question the intent behind the extra cast. The more concise the condition, the more readable the code.</p>
+<h2>How to fix it</h2>
+<p>The fix for this issue is straightforward. One just needs to remove the extra boolean cast.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+if (!!foo) {
+    // ...
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+if (foo) {
+    // ...
+}
+</pre>
+<h4>Noncompliant code example</h4>
+<pre>
+while (Boolean(foo)) {
+    // ...
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+while (foo) {
+    // ...
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean#boolean_coercion">MDN Boolean coercion</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion">MDN Type coercion</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">MDN Truthy</a> </li>
+</ul>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li> <a href="https://blog.alexdevero.com/truthy-falsy-values-in-javascript/">Alex Devero, How Truthy and Falsy Values in JavaScript Work</a> </li>
+</ul>
+
