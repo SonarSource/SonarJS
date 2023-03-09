@@ -1,8 +1,13 @@
+<p>In JavaScript, every value can be coerced into a boolean value: either <code>true</code> or <code>false</code>.</p>
+<p>Values that are coerced into <code>true</code> are said to be <em>truthy</em>, and those coerced into <code>false</code> are said to be
+<em>falsy</em>.</p>
+<p>A value’s truthiness matters, and depending on the context, it can be necessary or redundant to cast a value to boolean explicitly.</p>
 <h2>Why is this an issue?</h2>
-<p>A boolean cast via double negation (<code>!!</code>) or a <code>Boolean</code> call is redundant when used as a condition. The condition can be
-written without the extra cast and behave exactly the same. The reason is that JavaScript uses type coercion and automatically converts values to
-booleans in a specific situation known as a Boolean context. The condition of an <code>if</code> statement is a typical example of a Boolean context.
-For example, these <code>if</code> statements are equivalent:</p>
+<p>A boolean cast via double negation (<code>!!</code>) or a <code>Boolean</code> call is redundant when used as a condition, though. The condition
+can be written without the extra cast and behave exactly the same.</p>
+<p>The reason is that JavaScript uses type coercion and automatically converts values to booleans in a specific situation known as a boolean context.
+The boolean context can be any conditional expression or statement.</p>
+<p>For example, these <code>if</code> statements are equivalent:</p>
 <pre>
 if (!!foo) {
     // ...
@@ -17,8 +22,9 @@ if (foo) {
 }
 </pre>
 <h3>What is the potential impact?</h3>
-<p>A redundant boolean cast affects the code readability. Not only the condition becomes more verbose but it also misleads the reader who might
-question the intent behind the extra cast. The more concise the condition, the more readable the code.</p>
+<p>A redundant boolean cast affects code readability. Not only the condition becomes more verbose but it also misleads the reader who might question
+the intent behind the extra cast.</p>
+<p>The more concise the condition, the more readable the code.</p>
 <h2>How to fix it</h2>
 <p>The fix for this issue is straightforward. One just needs to remove the extra boolean cast.</p>
 <h3>Code examples</h3>
@@ -53,6 +59,7 @@ while (foo) {
   </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion">MDN Type coercion</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">MDN Truthy</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">MDN Falsy</a> </li>
 </ul>
 <h3>Articles &amp; blog posts</h3>
 <ul>
