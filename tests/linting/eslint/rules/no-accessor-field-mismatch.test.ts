@@ -44,6 +44,22 @@ function invalid(code: string) {
   };
 }
 
+function missingReturn(...codes: string[]) {
+  return codes.map(code => ({
+    code,
+    errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
+  }));
+}
+
+function missingAlwaysReturn(...codes: string[]) {
+  return codes.map(code => ({
+    code,
+    errors: [
+      '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
+    ],
+  }));
+}
+
 ruleTester.run('Getters and setters should access the expected fields', rule, {
   valid: [
     {
@@ -218,14 +234,36 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       }`,
       errors: [
         {
-          message: `{"message":"Refactor this setter so that it actually refers to the property '_y'.","secondaryLocations":[{"message":"Property which should be referred.","column":8,"line":4,"endColumn":29,"endLine":4}]}`,
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the property '_y'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 4,
+                endColumn: 29,
+                endLine: 4,
+              },
+            ],
+          }),
           line: 6,
           column: 16,
           endLine: 6,
           endColumn: 20,
         },
         {
-          message: `{"message":"Refactor this getter so that it actually refers to the property 'x'.","secondaryLocations":[{"message":"Property which should be referred.","column":8,"line":3,"endColumn":26,"endLine":3}]}`,
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the property 'x'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 3,
+                endColumn: 26,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 8,
           column: 20,
           endLine: 8,
@@ -238,26 +276,37 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       class NOK {
         static _filter: string = '';
         private _filter: string = '';
-      
+
         private _x: number = 2;
         static _x: number = 1;
-      
+
         private _y: number = 2; // Secondary
         static _y: number = 1;
-      
+
         public get filter(): string {
           return this._filter; // OK
         }
-      
+
         public get x(): number {
           return Issue476._x;
         }
-      
+
         public get y(): number { return this._x; }  // Noncompliant
       }`,
       errors: [
         {
-          message: `{"message":"Refactor this getter so that it actually refers to the property '_y'.","secondaryLocations":[{"message":"Property which should be referred.","column":8,"line":9,"endColumn":31,"endLine":9}]}`,
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the property '_y'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 9,
+                endColumn: 31,
+                endLine: 9,
+              },
+            ],
+          }),
           line: 20,
           column: 20,
           endLine: 20,
@@ -265,6 +314,60 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         },
       ],
     },
+    {
+      code: `const foo = {
+        get bar() {
+        }
+      };`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Refactor this getter to return a value.',
+            secondaryLocations: [],
+          }),
+          line: 2,
+          column: 9,
+          endLine: 2,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `class foo {
+        get bar(): string {}
+      }`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Refactor this getter to return a value.',
+            secondaryLocations: [],
+          }),
+          line: 2,
+          column: 9,
+          endLine: 2,
+          endColumn: 16,
+        },
+      ],
+    },
+    ...missingReturn(
+      'var foo = { get\n bar () {} };',
+      'var foo = { get bar() { return; } };',
+      'class foo { get bar(){} }',
+      'var foo = class {\n  static get\nbar(){} }',
+      "Object.defineProperty(foo, 'bar', { get: function(){}});",
+      "Object.defineProperty(foo, 'bar', { get: function getfoo (){}});",
+      "Object.defineProperty(foo, 'bar', { get(){} });",
+      "Object.defineProperty(foo, 'bar', { get: () => {}});",
+      "Reflect.defineProperty(foo, 'bar', { get: function (){}});",
+      'Object.create(foo, { bar: { get: function() {} } })',
+      'Object.create(foo, { bar: { get() {} } })',
+      'Object.create(foo, { bar: { get: () => {} } })',
+    ),
+    ...missingAlwaysReturn(
+      'var foo = { get bar(){if(baz) {return true;}} };',
+      'class foo { get bar(){ if (baz) { return true; }}}',
+      'Object.defineProperty(foo, "bar", { get: function (){if(bar) {return true;}}});',
+    ),
     invalid(`
     class NOK {
       private x: string;

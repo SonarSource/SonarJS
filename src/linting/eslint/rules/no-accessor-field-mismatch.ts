@@ -24,7 +24,12 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { toEncodedMessage } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { eslintRules } from 'linting/eslint/rules/core';
+import { interceptReport, mergeRules } from './decorators/helpers';
 
+// The 'definition' property says how the accessor is defined: that's to say if it's part of a class definition,
+// an object literal or a property descriptor passed to one of the Object.defineProperty() variants.
+// The 'refResolver' property is used to extract the reference name used by the accessor.
 interface AccessorInfo {
   type: 'getter' | 'setter';
   name: string;
@@ -35,6 +40,7 @@ interface Field {
   node: TSESTree.Node;
 }
 
+// The rule is the merger of a decorated ESLint 'getter-return' with the SonarJS 'no-accessor-field-mismatch'.
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -44,13 +50,49 @@ export const rule: Rule.RuleModule = {
       },
     ],
   },
+  create(context: Rule.RuleContext): Rule.RuleListener {
+    const getterReturnListener = getterReturnDecorator.create(context);
+    const noAccessorFieldMismatchListener = noAccessorFieldMismatchRule.create(context);
+    return mergeRules(getterReturnListener, noAccessorFieldMismatchListener);
+  },
+};
 
+// The decorator adds secondary location to ESLint 'getter-return'
+// as found in issues raised by SonarJS 'no-accessor-field-mismatch'.
+function decorateGetterReturn(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, descriptor) => {
+    const props: { messageId?: string; node?: estree.Node } & Rule.ReportDescriptor = descriptor;
+    const { messageId } = props;
+
+    // Otherwise convert the message to the Sonar format.
+    if (messageId === 'expected') {
+      reportWithoutSecondaryLocation(context, descriptor, 'Refactor this getter to return a value.');
+    } else if (messageId === 'expectedAlways') {
+      reportWithoutSecondaryLocation(context, descriptor, 'Refactor this getter to always return a value.');
+    }
+  });
+}
+
+function reportWithoutSecondaryLocation(
+  context: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+  message: string,
+) {
+  context.report({ ...descriptor, messageId: undefined, message: toEncodedMessage(message) });
+}
+
+const getterReturnDecorator = decorateGetterReturn(eslintRules['getter-return']);
+
+const noAccessorFieldMismatchRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    // Stack of nested object or class fields
     const currentFieldsStack = [new Map<string, Field>()];
 
     function checkAccessor(accessor: TSESTree.Property | TSESTree.MethodDefinition) {
       const accessorIsPublic =
-        accessor.type !== 'MethodDefinition' || accessor.accessibility === 'public';
+        accessor.type !== 'MethodDefinition' ||
+        accessor.accessibility == null ||
+        accessor.accessibility === 'public';
       const accessorInfo = getAccessorInfo(accessor);
       const statements = getFunctionBody(accessor.value);
       if (!accessorInfo || !accessorIsPublic || !statements || statements.length > 1) {
