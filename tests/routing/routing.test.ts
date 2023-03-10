@@ -233,12 +233,24 @@ describe('router', () => {
   });
 
   it('should route /tsconfig-files requests', async () => {
-    const tsconfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const data = { tsconfig };
-    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
-    expect(JSON.parse(response)).toEqual({
-      files: [toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'))],
+    const file = toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'));
+
+    const tsconfig1 = path.join(__dirname, 'fixtures', 'tsconfig.json');
+    const response1 = (await request(server, '/tsconfig-files', 'POST', {
+      tsconfig: tsconfig1,
+    })) as string;
+    expect(JSON.parse(response1)).toEqual({
+      files: [file],
       projectReferences: [],
+    });
+
+    const tsconfig2 = path.join(__dirname, 'fixtures', 'tsconfig-references.json');
+    const response2 = (await request(server, '/tsconfig-files', 'POST', {
+      tsconfig: tsconfig2,
+    })) as string;
+    expect(JSON.parse(response2)).toEqual({
+      files: [file],
+      projectReferences: [toUnixPath(tsconfig1)],
     });
   });
 

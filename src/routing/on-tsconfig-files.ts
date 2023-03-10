@@ -38,7 +38,9 @@ export default function (
     const options = createProgramOptions(tsconfig);
     response.json({
       files: options.rootNames,
-      projectReferences: options.projectReferences?.map(ref => ref.path) || [],
+      projectReferences: options.projectReferences
+        ? options.projectReferences.map(ref => ref.path)
+        : [],
     });
   } catch (error) {
     next(error);
