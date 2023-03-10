@@ -4,6 +4,7 @@
 /[foo]/;
 /[\[\]]/;
 /[   ]/;
+/[^]/;
 /foo[]/;                    // Noncompliant {{Rework this empty character class that doesn't match anything.}}
 //  ^^
 /foo[]bar/;                 // Noncompliant
