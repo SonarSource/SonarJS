@@ -56,4 +56,11 @@ describe('parseHtml', () => {
     const embeddedJSs = parseHTML(fileContent);
     expect(embeddedJSs).toHaveLength(0);
   });
+
+  it('should ignore non js script tags', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'non-js.html');
+    const fileContent = await readFile(filePath);
+    const embeddedJSs = parseHTML(fileContent);
+    expect(embeddedJSs).toHaveLength(0);
+  });
 });

@@ -1,0 +1,27 @@
+<div class="row-fluid" ng-cloak>
+  <div class="span12">
+    <div id="kendo-objectives-grid_{{$id}}"
+         kendo-grid="vm.grid"
+         k-options="vm.gridOptions"
+         k-rebind="vm.gridOptions"
+         class="k-grid-condensed kendo-objectives-grid" ng-cloak></div>
+  </div>
+</div>
+<script type="text/ng-template" id="objectivesToolbarTemplate.html">
+  <div>
+    <div class="btn-group">
+      <button ng-csv="vm.exportAsCsv()" csv-header="vm.getExportHeaders()" charset="utf-8" add-bom="true" filename="{{::vm.csvFilename}}" class="btn">CSV</button>
+      <button ng-csv="vm.exportAsCsv()" csv-header="vm.getExportHeaders()" charset="utf-8" add-bom="true" filename="{{::vm.csvFilename}}" class="btn">Excel</button>
+      <button ng-class="::{'disabled': !vm.canCopyClipboard}" class="btn" ng-click="vm.copyToClipboard()">Copy</button>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="userTemplate.html">
+  <div>
+    <a ng-href="/app\\#/profile/{{::dataItem.User.Id}}" ng-bind="::dataItem.User.FullName" />
+  </div>
+  <span ng-if="::!dataItem.User.Active">
+        <br />
+        <span class="label label-important">[[[Deactivated]]]</span>
+    </span>
+</script>
