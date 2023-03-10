@@ -31,6 +31,9 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import tmp from 'tmp';
+import { promisify } from 'util';
+import fs from 'fs/promises';
 import { parsers } from 'parsing/jsts';
 
 /**
@@ -95,12 +98,23 @@ export function getProgramById(programId: string): ts.Program {
   return program;
 }
 
+/**
+ * Gets the files resolved by a TSConfig
+ *
+ * The resolving of the files for a given TSConfig file is done
+ * by invoking TypeScript compiler.
+ *
+ * @param tsConfig TSConfig to parse
+ * @param configHost parsing configuration
+ * @returns the resolved TSConfig files
+ */
 export function createProgramOptions(
   tsConfig: string,
+  configHost?: ts.ParseConfigHost,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = {
+  const parseConfigHost: ts.ParseConfigHost = configHost || {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -278,4 +292,24 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
+}
+
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+tmp.setGracefulCleanup();
+
+/**
+ * Create the TSConfig file and returns its path.
+ *
+ * The file is written in a temporary location in the file system
+ * and is marked to be removed after Node.js process terminates.
+ *
+ * @param tsConfig TSConfig to write
+ * @returns the resolved TSConfig file path
+ */
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+  const filename = await promisify(tmp.file)();
+  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+  return { filename };
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { getFilesForTsConfig } from 'services/tsconfig';
+import { createProgramOptions } from 'services/program';
 
 /**
  * Handles TSConfig files resolving requests
@@ -35,7 +35,13 @@ export default function (
 ) {
   try {
     const tsconfig = request.body.tsconfig;
-    response.json(getFilesForTsConfig(tsconfig));
+    const options = createProgramOptions(tsconfig);
+    response.json({
+      files: options.rootNames,
+      projectReferences: options.projectReferences
+        ? options.projectReferences.map(ref => ref.path)
+        : [],
+    });
   } catch (error) {
     next(error);
   }
