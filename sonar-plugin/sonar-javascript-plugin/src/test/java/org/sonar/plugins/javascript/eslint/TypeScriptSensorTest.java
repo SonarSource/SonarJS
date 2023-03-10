@@ -74,9 +74,9 @@ import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
@@ -222,7 +222,7 @@ class TypeScriptSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -655,12 +655,16 @@ class TypeScriptSensorTest {
       analysisWarnings,
       tempFolder,
       monitoring,
-      processAnalysis,
-      analysisWithProgram());
+      analysisWithProgram(),
+      analysisWithWatchProgram());
   }
 
   private AnalysisWithProgram analysisWithProgram() {
     return new AnalysisWithProgram(eslintBridgeServerMock, monitoring, processAnalysis, analysisWarnings);
+  }
+
+  private AnalysisWithWatchProgram analysisWithWatchProgram() {
+    return new AnalysisWithWatchProgram(eslintBridgeServerMock, monitoring, processAnalysis);
   }
 
   private AnalysisResponse createResponse() {

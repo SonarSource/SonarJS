@@ -45,7 +45,8 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("prettier-vscode", ""),
       tsProject("rxjs", "spec"),
       tsProject("searchkit", ""), // todo
-      tsProject("TypeScript", "src/harness/unittests")
+      tsProject("TypeScript", "src/harness/unittests"),
+      tsProject("vuetify", "")
       );
   }
 

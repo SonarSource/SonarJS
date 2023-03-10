@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "npx tsc",
+    "test": "npx tsc --project tsconfig.test.json && npx tsc-alias --project tsconfig.test.json && node dist/main.test.js",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "tsc-alias": "1.8.2",
+    "typescript": "4.9.5"
+  }
+}

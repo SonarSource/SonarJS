@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": "./src/",
+    "noEmit": false
+  },
+  "files": [
+    "src/main.js",
+    "src/constant.js"
+  ]
+}

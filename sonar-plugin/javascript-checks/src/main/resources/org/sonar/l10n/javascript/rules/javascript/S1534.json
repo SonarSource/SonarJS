@@ -1,5 +1,5 @@
 {
-  "title": "Property names should not be duplicated within a class or object literal",
+  "title": "Member names should not be duplicated within a class or object literal",
   "type": "BUG",
   "status": "ready",
   "remediation": {

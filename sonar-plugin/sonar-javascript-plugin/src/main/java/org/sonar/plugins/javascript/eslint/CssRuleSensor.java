@@ -42,9 +42,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
+import org.sonar.css.StylelintRule;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.css.CssLanguage;
-import org.sonar.plugins.javascript.css.CssRules;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class CssRuleSensor extends AbstractEslintSensor {

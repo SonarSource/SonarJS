@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": "npx tsc -b && npx tsc-alias -p tsconfig-base.json",
+    "start": "node dist/endpoint/main.js"
+  },
+  "devDependencies": {
+    "tsc-alias": "1.8.2",
+    "typescript": "4.9.5"
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "rules-metadata-path": "javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript",
+  "rules-metadata-path": "sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript",
   "languages": [
     "JS"
   ],

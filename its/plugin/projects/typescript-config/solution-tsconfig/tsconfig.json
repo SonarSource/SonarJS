@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "library"
+    },
+    {
+      "path": "endpoint"
+    }
+  ]
+}

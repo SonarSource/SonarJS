@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 35;
+  private static final int BASE_EXTENSIONS = 36;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
@@ -76,6 +76,16 @@ class JavaScriptPluginTest {
 
     sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, sonarLintPluginAPIVersion);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
+  }
+
+  @Test
+  void globalsDefaultValue() {
+    var globals = properties().stream().filter(property -> JavaScriptPlugin.GLOBALS.equals(property.key())).findFirst();
+    assertThat(globals).isPresent();
+
+    var defaultValue = globals.get().defaultValue().split(",");
+    assertThat(defaultValue).containsExactly("angular", "goog", "google", "OpenLayers", "d3", "dojo", "dojox", "dijit", "Backbone",
+      "moment", "casper", "_", "sap");
   }
 
   private List<PropertyDefinition> properties() {
