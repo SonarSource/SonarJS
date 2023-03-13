@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "postinstall": "(cd project-1 && npm install) && (cd project-2 && npm install)",
+    "clean": "rimraf project-1/dist project-2/dist",
+    "build": "(cd project-1 && npm run build) && (cd project-2 && npm run build)",
+    "start": "(cd project-1 && node dist/main.js) && (cd project-2 && node dist/main.js)"
+  },
+  "devDependencies": {
+    "rimraf": "4.3.0"
+  }
+}
