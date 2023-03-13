@@ -1,118 +1,12 @@
 {
-'paper.js:examples/Animated/CandyCrash.html':[
-67,
-141,
-],
-'paper.js:examples/Games/Paperoids.html':[
-318,
-324,
-],
-'paper.js:examples/JSON/Circle Testing.html':[
-15,
-16,
-17,
-18,
-21,
-],
-'paper.js:examples/JSON/Random Path Testing.html':[
-18,
-19,
-20,
-24,
-],
-'paper.js:examples/JSON/Rotated Primitives.html':[
-36,
-],
-'paper.js:examples/JSON/Text Testing.html':[
-13,
-],
 'paper.js:examples/Node.js/SvgExport.js':[
 28,
 29,
-],
-'paper.js:examples/Paperjs.org/DivisionRaster.html':[
-39,
-],
-'paper.js:examples/Paperjs.org/FutureSplash.html':[
-105,
-],
-'paper.js:examples/Paperjs.org/NyanRainbow.html':[
-162,
-],
-'paper.js:examples/Paperjs.org/Tadpoles.html':[
-82,
-],
-'paper.js:examples/Rasters/PhyllotaxisRaster.html':[
-20,
-],
-'paper.js:examples/SVG Export/Circle Testing.html':[
-17,
-18,
-19,
-20,
-23,
-],
-'paper.js:examples/SVG Export/Gradients.html':[
-29,
-30,
-],
-'paper.js:examples/SVG Export/Random Path Testing.html':[
-20,
-21,
-22,
-26,
-],
-'paper.js:examples/SVG Export/Rotated Primitives.html':[
-45,
-],
-'paper.js:examples/SVG Export/Shapes.html':[
-33,
-],
-'paper.js:examples/SVG Export/Text Testing.html':[
-15,
-],
-'paper.js:examples/SVG Export/Tiger.html':[
-15,
-],
-'paper.js:examples/Scripts/BlendModes.html':[
-51,
 ],
 'paper.js:examples/Scripts/BooleanOperations.html':[
 356,
 356,
 393,
-],
-'paper.js:examples/Scripts/CurveTimeParameterization.html':[
-32,
-40,
-44,
-45,
-],
-'paper.js:examples/Scripts/PathStructure.html':[
-57,
-],
-'paper.js:examples/Scripts/StrokeBounds.html':[
-30,
-35,
-40,
-45,
-50,
-55,
-60,
-65,
-71,
-78,
-82,
-],
-'paper.js:examples/Tools/PathEditing.html':[
-50,
-],
-'paper.js:examples/Tools/SquareRounded.html':[
-61,
-],
-'paper.js:examples/Tools/Vektor.html':[
-81,
-81,
 ],
 'paper.js:src/canvas/BlendMode.js':[
 34,

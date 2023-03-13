@@ -1,27 +1,4 @@
 {
-'paper.js:examples/JSON/Raster.html':[
-9,
-],
-'paper.js:examples/JSON/Text Testing.html':[
-17,
-],
-'paper.js:examples/SVG Export/Text Testing.html':[
-19,
-],
-'paper.js:examples/SVG Import/Butterfly.html':[
-12,
-],
-'paper.js:examples/SVG Import/Inkscape.html':[
-12,
-],
-'paper.js:examples/SVG Import/Tiger.html':[
-12,
-],
-'paper.js:examples/Scripts/BlendModes.html':[
-30,
-62,
-67,
-],
 'paper.js:examples/Scripts/BooleanOperations.html':[
 125,
 222,
@@ -29,9 +6,6 @@
 238,
 253,
 272,
-],
-'paper.js:examples/Scripts/CurveTimeParameterization.html':[
-54,
 ],
 'paper.js:src/basic/Line.js':[
 176,
