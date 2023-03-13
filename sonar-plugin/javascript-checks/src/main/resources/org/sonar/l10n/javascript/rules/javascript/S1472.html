@@ -38,4 +38,16 @@ var fn = function () {
   //...
 })();
 </pre>
+<p>Similarly, tagged templates allow for advanced forms of string interpolation by evaluating the tag as a function to call, passing the template
+literal elements as arguments. Therefore the rule also verifies that template literals don’t start on a separate line.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const foo = function() { /* ... */ }
+`bar` // Noncompliant
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function foo() { /* ... */ }
+const s = foo`bar`;
+</pre>
 
