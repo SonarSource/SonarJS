@@ -28,6 +28,7 @@ import { EmbeddedJS } from 'parsing/embedded';
 
 const validMimeTypes = [
   'module',
+  'text/javascript',
   'application/javascript',
   'application/ecmascript',
   'application/x-ecmascript',
