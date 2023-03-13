@@ -95,22 +95,11 @@ This script:
    * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
    * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
-   * If possible implement quick fixes for the rule (then add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`).
 
-### Enabling a rule
-
-Instead of writing a rule from scratch, we might sometimes prefer to enable a rule from an ESLint plugin. In that case, the aforementioned procedure for implementing a new rule is limited to the following steps only:
-
-1. Generate and update the rule metadata
-2. Create a Java check class for the rule
-3. Update the check list to include the new rule
-
-In case the rule provides a quick fix that we want to benefit from, we need to:
-
-- Enable the quick fix in `quickfixes/rules.ts` by adding the rule name.
-- Add a message for the quick fix in `quickfixes/messages.ts` if it's an ESLint fix, not a suggestion.
-
-A unit test in `wrapper.test.ts` asserts that a third-party quick fix is properly enabled. The test checks that there is a test file in `fixtures/wrapper/quickfixes`, named with the rule name, which triggers an issue with the expected fix.
+5. If possible, implement quick fixes for the rule:
+   * Add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`
+   * If it's an ESLint fix (and not a suggestion), add a message for the quick fix in `src/linting/eslint/linter/quickfixes/rules.ts`
+   * If it's an ESLint fix (and not a suggestion), add code that should provide a quickfix in `tests/linting/eslint/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
 
 ## Testing a rule
 
@@ -271,6 +260,7 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 * Quality rule implemented with quickfix: [PR](https://github.com/SonarSource/SonarJS/pull/3141)
 * Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
 * Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
+* Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
 
 ## Misc
 * Use issue number for a branch name, e.g. `issue-1234`
