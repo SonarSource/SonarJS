@@ -118,9 +118,13 @@ class TypeCheckerConfigTest {
     var project = "jsconfig";
     var key = createName(project);
     var scanner = getSonarScanner(project);
-    var buildResult = orchestrator.executeBuild(scanner);
 
+    var buildResult = orchestrator.executeBuild(scanner);
     BuildResultAssert.assertThat(buildResult).logsOnce("INFO: 2/2 source files have been analyzed");
+    assertThat(getIssues(key)).isEmpty(); // False negative
+
+    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "src/jsconfig.json");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild)).logsOnce("INFO: 2/2 source files have been analyzed");
     assertThat(getIssues(key)).isEmpty(); // False negative
   }
 
