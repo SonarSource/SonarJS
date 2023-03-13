@@ -21,6 +21,32 @@ import * as htmlparser from 'htmlparser2';
 import { EmbeddedJS } from 'parsing/embedded';
 
 /**
+ * References:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#textjavascript
+ */
+
+const validMimeTypes = [
+  'module',
+  'text/javascript',
+  'application/javascript',
+  'application/ecmascript',
+  'application/x-ecmascript',
+  'application/x-javascript',
+  'text/ecmascript',
+  'text/javascript1.0',
+  'text/javascript1.1',
+  'text/javascript1.2',
+  'text/javascript1.3',
+  'text/javascript1.4',
+  'text/javascript1.5',
+  'text/jscript',
+  'text/livescript',
+  'text/x-ecmascript',
+  'text/x-javascript',
+];
+
+/**
  * Parses HTML file and extracts JS code
  * We look for script tags without src attribute, meaning the code is
  * inline between open and close tags.
@@ -36,14 +62,15 @@ export function parseHTML(code: string): EmbeddedJS[] {
   let inScript = false;
 
   const parser = new htmlparser.Parser({
-    onopentag(name: string, attrs: { src: string }) {
+    onopentag(name: string, attrs: { src: string; type?: string }) {
       // Test if current tag is a valid <script> tag.
       if (name !== 'script') {
         return;
       }
 
       //ignore script tags which point to another file
-      if (attrs.src) {
+      // or tags containing a non-js type
+      if (attrs.src || (attrs.type && !validMimeTypes.includes(attrs.type))) {
         return;
       }
 
