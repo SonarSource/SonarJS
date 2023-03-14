@@ -369,6 +369,33 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       ],
     },
     {
+      code: `class foo {
+        #bar = 0;
+        get bar() {
+        }
+      }`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the property 'bar'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 2,
+                endColumn: 17,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 3,
+          column: 13,
+          endLine: 3,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
       code: `const foo = {
         get bar() {
         }

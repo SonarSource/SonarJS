@@ -250,7 +250,7 @@ function getAccessorInfo(
 function getName(key: TSESTree.Node) {
   if (key.type === 'Literal') {
     return String(key.value);
-  } else if (key.type === 'Identifier') {
+  } else if (key.type === 'Identifier' || key.type === 'PrivateIdentifier') {
     return key.name;
   }
   return null;
