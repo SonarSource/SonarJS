@@ -19,17 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ConsoleLoggingCheckTest {
 
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new ConsoleLoggingCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"allow\":[\"assert\",\"clear\",\"count\",\"group\",\"groupCollapsed\",\"groupEnd\",\"info\",\"table\",\"time\",\"timeEnd\",\"trace\"]}]");
+    assertThat(configAsString)
+      .isEqualTo(
+        "[{\"allow\":[\"assert\",\"clear\",\"count\",\"group\",\"groupCollapsed\",\"groupEnd\",\"info\",\"table\",\"time\",\"timeEnd\",\"trace\"]}]"
+      );
   }
-
 }

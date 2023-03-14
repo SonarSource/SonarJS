@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 
 class ReversePathTree {
+
   private Node root = new Node();
 
   void index(InputFile inputFile, String[] path) {
@@ -54,6 +55,7 @@ class ReversePathTree {
   }
 
   static class Node {
+
     final Map<String, Node> children = new LinkedHashMap<>();
     InputFile file = null;
   }

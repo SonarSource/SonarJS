@@ -38,9 +38,12 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public interface ProcessWrapper {
-
-  Process startProcess(List<String> commandLine, Map<String, String> env, Consumer<String> outputConsumer,
-                       Consumer<String> errorConsumer) throws IOException;
+  Process startProcess(
+    List<String> commandLine,
+    Map<String, String> env,
+    Consumer<String> outputConsumer,
+    Consumer<String> errorConsumer
+  ) throws IOException;
 
   boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException;
 

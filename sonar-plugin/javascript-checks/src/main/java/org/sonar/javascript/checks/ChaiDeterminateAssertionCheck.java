@@ -33,5 +33,4 @@ public class ChaiDeterminateAssertionCheck extends TestFileCheck {
   public String eslintKey() {
     return "chai-determinate-assertion";
   }
-
 }

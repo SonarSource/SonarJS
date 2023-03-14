@@ -45,6 +45,7 @@ public class VariableShadowingCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     String hoist = "all";
   }
 }

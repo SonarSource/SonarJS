@@ -33,5 +33,4 @@ public class ReassignedParameterCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-parameter-reassignment";
   }
-
 }

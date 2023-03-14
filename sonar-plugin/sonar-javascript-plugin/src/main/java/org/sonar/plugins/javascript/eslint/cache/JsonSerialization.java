@@ -54,5 +54,4 @@ class JsonSerialization<P> extends CacheSerialization {
     writeToCache(gson.toJson(payload).getBytes(StandardCharsets.UTF_8));
     LOG.debug("Cache entry created for key '{}'", getCacheKey());
   }
-
 }

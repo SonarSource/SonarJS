@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.TestUtils.checkFactory;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,23 +35,25 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.TestUtils.checkFactory;
-
 class TypeScriptChecksTest {
 
   @Test
   void test() {
-    TypeScriptChecks checks = new TypeScriptChecks(checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923"));
+    TypeScriptChecks checks = new TypeScriptChecks(
+      checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923")
+    );
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("typescript", "S3923"));
+    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches"))
+      .isEqualTo(RuleKey.of("typescript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
   }
 
   @Test
   void should_add_custom_checks() {
-    TypeScriptChecks checks = new TypeScriptChecks(checkFactory("repo", "customcheck"),
-      new CustomRuleRepository[]{new TsRepository(), new JsRepository()});
+    TypeScriptChecks checks = new TypeScriptChecks(
+      checkFactory("repo", "customcheck"),
+      new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
+    );
     assertThat(checks.eslintBasedChecks()).hasSize(1);
     assertThat(checks.ruleKeyByEslintKey("key")).isEqualTo(RuleKey.parse("repo:customcheck"));
   }

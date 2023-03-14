@@ -39,16 +39,17 @@ public class NestedControlFlowDepthCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximumNestingLevel",
     description = "Maximum allowed \"if/for/while/switch/try\" statements nesting depth",
-    defaultValue = "" + DEFAULT_MAXIMUM_NESTING_LEVEL)
+    defaultValue = "" + DEFAULT_MAXIMUM_NESTING_LEVEL
+  )
   public int maximumNestingLevel = DEFAULT_MAXIMUM_NESTING_LEVEL;
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(maximumNestingLevel);
   }
+
   @Override
   public String eslintKey() {
     return "nested-control-flow";
   }
-
 }

@@ -46,6 +46,19 @@ public class ConsoleLoggingCheck implements EslintBasedCheck {
   }
 
   private static class Config {
-    List<String> allow = Arrays.asList("assert", "clear", "count", "group", "groupCollapsed", "groupEnd", "info", "table", "time", "timeEnd", "trace");
+
+    List<String> allow = Arrays.asList(
+      "assert",
+      "clear",
+      "count",
+      "group",
+      "groupCollapsed",
+      "groupEnd",
+      "info",
+      "table",
+      "time",
+      "timeEnd",
+      "trace"
+    );
   }
 }

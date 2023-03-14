@@ -19,22 +19,24 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
-
 @Rule(key = "S4662")
 public class AtRuleNoUnknown implements CssRule {
 
-  private static final String DEFAULT_IGNORED_AT_RULES = "value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,/^@.*/";
+  private static final String DEFAULT_IGNORED_AT_RULES =
+    "value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,/^@.*/";
 
   @RuleProperty(
     key = "ignoreAtRules",
     description = "Comma-separated list of \"at-rules\" to consider as valid.",
-    defaultValue = "" + DEFAULT_IGNORED_AT_RULES)
+    defaultValue = "" + DEFAULT_IGNORED_AT_RULES
+  )
   String ignoredAtRules = DEFAULT_IGNORED_AT_RULES;
 
   @Override
@@ -48,6 +50,7 @@ public class AtRuleNoUnknown implements CssRule {
   }
 
   private static class StylelintIgnoreOption {
+
     // Used by GSON serialization
     private final List<String> ignoreAtRules;
 

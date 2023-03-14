@@ -35,5 +35,4 @@ public class FunctionDefinitionInsideLoopCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "function-inside-loop";
   }
-
 }

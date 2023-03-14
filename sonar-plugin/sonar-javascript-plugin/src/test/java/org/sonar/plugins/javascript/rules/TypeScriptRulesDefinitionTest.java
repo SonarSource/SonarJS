@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,16 +42,19 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class TypeScriptRulesDefinitionTest {
 
   private static final Gson gson = new Gson();
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+    Version.create(9, 3)
+  );
 
   @Test
   void test() {
-    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime));
+    Repository repository = TestUtils.buildRepository(
+      "typescript",
+      new TypeScriptRulesDefinition(sonarRuntime)
+    );
 
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("ts");
@@ -61,7 +66,10 @@ class TypeScriptRulesDefinitionTest {
 
   @Test
   void sonarlint() {
-    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime));
+    Repository repository = TestUtils.buildRepository(
+      "typescript",
+      new TypeScriptRulesDefinition(sonarRuntime)
+    );
     assertThat(repository.rule("S3923").activatedByDefault()).isTrue();
   }
 
@@ -69,39 +77,48 @@ class TypeScriptRulesDefinitionTest {
   void compatibleLanguagesInJson() {
     List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
-    CheckList.getAllChecks().forEach(c -> {
-      boolean isTypeScriptCheck = typeScriptChecks.contains(c);
-      boolean isJavaScriptCheck = javaScriptChecks.contains(c);
-      Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
-      String key = ((org.sonar.check.Rule) ruleAnnotation).key();
+    CheckList
+      .getAllChecks()
+      .forEach(c -> {
+        boolean isTypeScriptCheck = typeScriptChecks.contains(c);
+        boolean isJavaScriptCheck = javaScriptChecks.contains(c);
+        Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
+        String key = ((org.sonar.check.Rule) ruleAnnotation).key();
 
-      RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
-      List<String> expected = new ArrayList<>();
-      if (isTypeScriptCheck) {
-        expected.add("TYPESCRIPT");
-      }
-      if (isJavaScriptCheck) {
-        expected.add("JAVASCRIPT");
-      }
+        RuleJson ruleJson = getRuleJson(key);
+        assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
+        List<String> expected = new ArrayList<>();
+        if (isTypeScriptCheck) {
+          expected.add("TYPESCRIPT");
+        }
+        if (isJavaScriptCheck) {
+          expected.add("JAVASCRIPT");
+        }
 
-      assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
-    });
+        assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
+      });
   }
 
   @Test
   void sqKeyInJson() {
-    CheckList.getAllChecks().forEach(c -> {
-      Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
-      String key = ((org.sonar.check.Rule) ruleAnnotation).key();
-      RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.sqKey).isEqualTo(key);
-    });
+    CheckList
+      .getAllChecks()
+      .forEach(c -> {
+        Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
+        String key = ((org.sonar.check.Rule) ruleAnnotation).key();
+        RuleJson ruleJson = getRuleJson(key);
+        assertThat(ruleJson.sqKey).isEqualTo(key);
+      });
   }
 
   private static RuleJson getRuleJson(String key) {
-    File file = new File(new File("../javascript-checks/src/main/resources", JavaScriptRulesDefinition.METADATA_LOCATION),
-      key + ".json");
+    File file = new File(
+      new File(
+        "../javascript-checks/src/main/resources",
+        JavaScriptRulesDefinition.METADATA_LOCATION
+      ),
+      key + ".json"
+    );
     try {
       return gson.fromJson(new FileReader(file), RuleJson.class);
     } catch (FileNotFoundException e) {
@@ -110,6 +127,7 @@ class TypeScriptRulesDefinitionTest {
   }
 
   private static class RuleJson {
+
     List<String> compatibleLanguages;
     String sqKey;
   }
@@ -117,7 +135,10 @@ class TypeScriptRulesDefinitionTest {
   private void assertRuleProperties(Repository repository) {
     Rule rule = repository.rule("S3923");
     assertThat(rule).isNotNull();
-    assertThat(rule.name()).isEqualTo("All branches in a conditional structure should not have exactly the same implementation");
+    assertThat(rule.name())
+      .isEqualTo(
+        "All branches in a conditional structure should not have exactly the same implementation"
+      );
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
     assertThat(rule.type()).isEqualTo(RuleType.BUG);
     assertThat(repository.rule("S124").template()).isTrue();
@@ -131,5 +152,4 @@ class TypeScriptRulesDefinitionTest {
       }
     }
   }
-
 }

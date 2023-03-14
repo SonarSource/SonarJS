@@ -46,7 +46,11 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
   private static final Logger LOG = Loggers.get(AnalysisWithWatchProgram.class);
 
-  public AnalysisWithWatchProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor analysisProcessor) {
+  public AnalysisWithWatchProgram(
+    EslintBridgeServer eslintBridgeServer,
+    Monitoring monitoring,
+    AnalysisProcessor analysisProcessor
+  ) {
     super(eslintBridgeServer, monitoring, analysisProcessor);
   }
 
@@ -61,7 +65,10 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
-    Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
+    Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(
+      loadTsConfigs(tsConfigs),
+      inputFiles
+    );
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       if (tsConfigs.isEmpty()) {
@@ -73,7 +80,10 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           List<InputFile> files = entry.getValue();
           if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
             LOG.info("Skipping {} files with no tsconfig.json", files.size());
-            LOG.debug("Skipped files: " + files.stream().map(InputFile::toString).collect(Collectors.joining("\n")));
+            LOG.debug(
+              "Skipped files: " +
+              files.stream().map(InputFile::toString).collect(Collectors.joining("\n"))
+            );
             continue;
           }
           LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
@@ -110,10 +120,13 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     return tsConfigFiles;
   }
 
-  private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files) throws IOException {
+  private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files)
+    throws IOException {
     for (InputFile inputFile : files) {
       if (context.isCancelled()) {
-        throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
+        );
       }
       if (eslintBridgeServer.isAlive()) {
         monitoring.startFile(inputFile);
@@ -131,12 +144,24 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       try {
         LOG.debug("Analyzing file: " + file.uri());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var tsConfigs = tsConfigFile == null ? Collections.<String>emptyList() : List.of(tsConfigFile.filename);
-        var request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(), file.type().toString(), fileContent,
-          contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
+        var tsConfigs = tsConfigFile == null
+          ? Collections.<String>emptyList()
+          : List.of(tsConfigFile.filename);
+        var request = new EslintBridgeServer.JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          fileContent,
+          contextUtils.ignoreHeaderComments(),
+          tsConfigs,
+          null,
+          analysisMode.getLinterIdFor(file)
+        );
         var response = eslintBridgeServer.analyzeTypeScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
@@ -147,5 +172,4 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
-
 }

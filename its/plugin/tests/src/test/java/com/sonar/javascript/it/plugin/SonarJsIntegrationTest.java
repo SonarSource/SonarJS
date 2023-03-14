@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -47,10 +51,6 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-
 /**
  * This test extracts eslint-bridge archive into tmp directory and starts eslint-bridge using node, then tries to analyze
  * small JS snippet.
@@ -68,7 +68,6 @@ class SonarJsIntegrationTest {
 
   @Test
   void test() throws Exception {
-
     String filename = "sonarjs-1.0.0.tgz";
     EslintBridge eslintBridge = new EslintBridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
@@ -85,17 +84,16 @@ class SonarJsIntegrationTest {
 
   private void assertAnalyzeJs(EslintBridge eslintBridge) throws IOException, InterruptedException {
     AnalysisRequest r = new AnalysisRequest();
-    r.fileContent = "function foo() { \n"
-      + "  var a; \n"
-      + "  var c; // NOSONAR\n"
-      + "  var b = 42; \n"
-      + "} \n";
+    r.fileContent =
+      "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
     String response = eslintBridge.request(gson.toJson(r), "analyze-js");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
     JsonArray issues = jsonObject.getAsJsonArray("issues");
     assertThat(issues).hasSize(3);
-    assertThat(issues).extracting(i -> i.getAsJsonObject().get("line").getAsInt()).containsExactlyInAnyOrder(2, 3, 4);
+    assertThat(issues)
+      .extracting(i -> i.getAsJsonObject().get("line").getAsInt())
+      .containsExactlyInAnyOrder(2, 3, 4);
     // this assert makes sure that we don't compute metrics except nosonar lines
     JsonObject metrics = jsonObject.getAsJsonObject("metrics");
     assertThat(metrics.entrySet()).hasSize(1);
@@ -104,21 +102,25 @@ class SonarJsIntegrationTest {
 
   private void assertStatus(EslintBridge eslintBridge) {
     String[] response = new String[1];
-    await().atMost(30, SECONDS).until(() -> {
-      try {
-        response[0] = eslintBridge.status();
-        return response[0].equals("OK!");
-      } catch (IOException e) {
-        Thread.sleep(100);
-        return false;
-      }
-    });
+    await()
+      .atMost(30, SECONDS)
+      .until(() -> {
+        try {
+          response[0] = eslintBridge.status();
+          return response[0].equals("OK!");
+        } catch (IOException e) {
+          Thread.sleep(100);
+          return false;
+        }
+      });
     assertThat(response[0]).isEqualTo("OK!");
   }
 
   static void extractArchive(Path tgz, Path targetPath) throws IOException {
-    try (InputStream stream = new GZIPInputStream(Files.newInputStream(tgz));
-         ArchiveInputStream archive = new TarArchiveInputStream(stream)) {
+    try (
+      InputStream stream = new GZIPInputStream(Files.newInputStream(tgz));
+      ArchiveInputStream archive = new TarArchiveInputStream(stream)
+    ) {
       ArchiveEntry entry;
       while ((entry = archive.getNextEntry()) != null) {
         if (!archive.canReadEntryData(entry)) {
@@ -141,13 +143,15 @@ class SonarJsIntegrationTest {
   private static Path entryPath(Path targetPath, ArchiveEntry entry) {
     Path entryPath = targetPath.resolve(entry.getName()).normalize();
     if (!entryPath.startsWith(targetPath)) {
-      throw new IllegalStateException("Archive entry " + entry.getName() + " is not within " + targetPath);
+      throw new IllegalStateException(
+        "Archive entry " + entry.getName() + " is not within " + targetPath
+      );
     }
     return entryPath;
   }
 
-
   class EslintBridge {
+
     int port;
     final HttpClient client;
     private Process process;
@@ -158,15 +162,23 @@ class SonarJsIntegrationTest {
 
     void start(Path dest) throws IOException {
       port = findOpenPort();
-      String[] cmd = {"node", dest.resolve("package/bin/server").toString(), String.valueOf(port), "127.0.0.1",
-        temp.toString(), "true", "true"};
+      String[] cmd = {
+        "node",
+        dest.resolve("package/bin/server").toString(),
+        String.valueOf(port),
+        "127.0.0.1",
+        temp.toString(),
+        "true",
+        "true",
+      };
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.inheritIO();
       process = pb.start();
     }
 
     String request(String json, String endpoint) throws IOException, InterruptedException {
-      var request = HttpRequest.newBuilder(url(endpoint))
+      var request = HttpRequest
+        .newBuilder(url(endpoint))
         .header("Content-Type", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
@@ -200,12 +212,14 @@ class SonarJsIntegrationTest {
   }
 
   static class AnalysisRequest {
+
     String filePath;
     String fileContent;
     String fileType = "MAIN";
   }
 
   static class InitLinter {
+
     List<Rule> rules = new ArrayList<>();
     List<String> environments = new ArrayList<>();
     List<String> globals = new ArrayList<>();
@@ -220,6 +234,7 @@ class SonarJsIntegrationTest {
   }
 
   static class Rule {
+
     String key;
     List<Object> configurations = Collections.emptyList();
     String fileTypeTarget = "MAIN";

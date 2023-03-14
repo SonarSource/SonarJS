@@ -27,7 +27,12 @@ import org.assertj.core.data.Offset;
 
 public class MeasuresAssert extends AbstractAssert<MeasuresAssert, Measures> {
 
-  public static final List<String> METRIC_KEYS = List.of("duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
+  public static final List<String> METRIC_KEYS = List.of(
+    "duplicated_lines",
+    "duplicated_blocks",
+    "duplicated_files",
+    "duplicated_lines_density"
+  );
 
   private final Offset<Double> offset = Offset.offset(0.01d);
   private final Map<String, Double> measures;
@@ -42,8 +47,10 @@ public class MeasuresAssert extends AbstractAssert<MeasuresAssert, Measures> {
   }
 
   public MeasuresAssert has(String metricKey, double value) {
-    Assertions.assertThat(measures.get(metricKey)).as("measure %s", metricKey, value).isEqualTo(value, offset);
+    Assertions
+      .assertThat(measures.get(metricKey))
+      .as("measure %s", metricKey, value)
+      .isEqualTo(value, offset);
     return this;
   }
-
 }

@@ -33,5 +33,4 @@ public class NoHookSetterInBodyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-hook-setter-in-body";
   }
-
 }

@@ -33,5 +33,4 @@ public class ForLoopConditionAndUpdateCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "misplaced-loop-counter";
   }
-
 }

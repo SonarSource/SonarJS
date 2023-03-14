@@ -33,5 +33,4 @@ public class SonarNoInvalidRegexCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-invalid-regexp";
   }
-
 }

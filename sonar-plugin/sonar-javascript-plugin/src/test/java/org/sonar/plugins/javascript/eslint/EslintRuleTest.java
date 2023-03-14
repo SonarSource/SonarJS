@@ -19,15 +19,15 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.eslint.EslintRule.containsRuleWithKey;
 import static org.sonar.plugins.javascript.eslint.EslintRule.findFirstRuleWithKey;
+
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class EslintRuleTest {
 
@@ -51,7 +51,9 @@ class EslintRuleTest {
   }
 
   private static List<EslintRule> rules(String... keys) {
-    return Arrays.stream(keys).map(key -> new EslintRule(key, emptyList(), emptyList())).collect(toList());
+    return Arrays
+      .stream(keys)
+      .map(key -> new EslintRule(key, emptyList(), emptyList()))
+      .collect(toList());
   }
-
 }

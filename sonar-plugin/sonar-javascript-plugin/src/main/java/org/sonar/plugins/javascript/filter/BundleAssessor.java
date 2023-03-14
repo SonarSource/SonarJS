@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import static java.util.regex.Pattern.DOTALL;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
@@ -27,8 +29,6 @@ import org.apache.commons.io.input.BoundedReader;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import static java.util.regex.Pattern.DOTALL;
 
 public class BundleAssessor implements Assessor {
 
@@ -40,15 +40,28 @@ public class BundleAssessor implements Assessor {
 
   @Override
   public boolean test(InputFile inputFile) {
-    try (var reader = new BoundedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()), READ_CHARACTERS_LIMIT)) {
+    try (
+      var reader = new BoundedReader(
+        new InputStreamReader(inputFile.inputStream(), inputFile.charset()),
+        READ_CHARACTERS_LIMIT
+      )
+    ) {
       var content = IOUtils.toString(reader);
       var matcher = COMMENT_OPERATOR_FUNCTION.matcher(content);
       if (matcher.find()) {
-        LOG.debug("File {} was excluded because it looks like a bundle. (Disable detection with " + PROPERTY + "=false)", inputFile);
+        LOG.debug(
+          "File {} was excluded because it looks like a bundle. (Disable detection with " +
+          PROPERTY +
+          "=false)",
+          inputFile
+        );
         if (!isInfoLogged) {
-          LOG.info("Some of the project files were automatically excluded because they looked like generated code. " +
+          LOG.info(
+            "Some of the project files were automatically excluded because they looked like generated code. " +
             "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
-            BundleAssessor.PROPERTY + "=false");
+            BundleAssessor.PROPERTY +
+            "=false"
+          );
           isInfoLogged = true;
         }
         return true;
@@ -63,6 +76,9 @@ public class BundleAssessor implements Assessor {
     var COMMENT = "/\\*.*\\*/";
     var OPERATOR = "[!;+(]";
     var OPTIONAL_FUNCTION_NAME = "(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?";
-    return Pattern.compile(COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(", DOTALL);
+    return Pattern.compile(
+      COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(",
+      DOTALL
+    );
   }
 }

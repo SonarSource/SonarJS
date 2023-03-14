@@ -65,5 +65,4 @@ class UCFGFilesSerialization extends CacheSerialization {
     json.copyFromPrevious();
     sequence.copyFromPrevious();
   }
-
 }

@@ -19,12 +19,12 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
 
 @Rule(key = "S4670")
 public class SelectorTypeNoUnknown implements CssRule {
@@ -37,15 +37,17 @@ public class SelectorTypeNoUnknown implements CssRule {
   @RuleProperty(
     key = "ignoreTypes",
     description = "Comma-separated list of regular expressions for selector types to consider as valid.",
-    defaultValue = "" + DEFAULT_IGNORED_TYPES)
+    defaultValue = "" + DEFAULT_IGNORED_TYPES
+  )
   String ignoreTypes = DEFAULT_IGNORED_TYPES;
 
   @RuleProperty(
     key = "ignore",
     description = "Comma-separated list of ignored elements. The possible values are:\n" +
-      "\"custom-elements\": Allow custom elements (e.g \"x-foo\").\n" +
-      "\"default-namespace\": Allow unknown type selectors if they belong to the default namespace.",
-    defaultValue = "" + DEFAULT_IGNORE)
+    "\"custom-elements\": Allow custom elements (e.g \"x-foo\").\n" +
+    "\"default-namespace\": Allow unknown type selectors if they belong to the default namespace.",
+    defaultValue = "" + DEFAULT_IGNORE
+  )
   String ignore = DEFAULT_IGNORE;
 
   @Override
@@ -55,10 +57,14 @@ public class SelectorTypeNoUnknown implements CssRule {
 
   @Override
   public List<Object> stylelintOptions() {
-    return Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoreTypes), splitAndTrim(ignore)));
+    return Arrays.asList(
+      true,
+      new StylelintIgnoreOption(splitAndTrim(ignoreTypes), splitAndTrim(ignore))
+    );
   }
 
   private static class StylelintIgnoreOption {
+
     // Used by GSON serialization
     private final List<String> ignoreTypes;
     private final List<String> ignore;

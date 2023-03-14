@@ -33,5 +33,4 @@ public class ConditionalIndentationCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "conditional-indentation";
   }
-
 }

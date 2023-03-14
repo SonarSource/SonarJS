@@ -19,6 +19,15 @@
  */
 package org.sonar.plugins.javascript.nodejs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -43,15 +52,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 class NodeCommandTest {
 
   private static final String PATH_TO_SCRIPT = "files/script.js";
@@ -71,12 +71,14 @@ class NodeCommandTest {
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenReturn(mock(Process.class));
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any()))
+      .thenReturn(mock(Process.class));
   }
 
   @Test
   void test() throws Exception {
-    NodeCommand nodeCommand = NodeCommand.builder()
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
       .script(resourceScript(PATH_TO_SCRIPT))
       .pathResolver(getPathResolver())
       .build();
@@ -89,7 +91,8 @@ class NodeCommandTest {
   void test_output_error_consumer() throws Exception {
     StringBuilder output = new StringBuilder();
     StringBuilder error = new StringBuilder();
-    NodeCommand nodeCommand = NodeCommand.builder()
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
       .script(resourceScript("files/error.js"))
       .outputConsumer(output::append)
       .errorConsumer(error::append)
@@ -104,10 +107,13 @@ class NodeCommandTest {
 
   @Test
   void test_min_version() throws IOException {
-    assertThatThrownBy(() -> NodeCommand.builder()
-      .minNodeVersion(Version.create(99, 0))
-      .pathResolver(getPathResolver())
-      .build())
+    assertThatThrownBy(() ->
+        NodeCommand
+          .builder()
+          .minNodeVersion(Version.create(99, 0))
+          .pathResolver(getPathResolver())
+          .build()
+      )
       .isInstanceOf(NodeCommandException.class)
       .hasMessageStartingWith("Only Node.js v99.0 or later is supported, got");
   }
@@ -116,16 +122,17 @@ class NodeCommandTest {
   void test_mac_default_executable_not_found() throws IOException {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
-    assertThatThrownBy(() -> NodeCommand.builder(mockProcessWrapper)
-      .pathResolver(p -> "/file/does/not/exist")
-      .build())
+    assertThatThrownBy(() ->
+        NodeCommand.builder(mockProcessWrapper).pathResolver(p -> "/file/does/not/exist").build()
+      )
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Default Node.js executable for MacOS does not exist.");
   }
 
   @Test
   void test_min_version_positive() throws Exception {
-    NodeCommand nodeCommand = NodeCommand.builder()
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
       .minNodeVersion(Version.create(1, 0))
       .script(resourceScript(PATH_TO_SCRIPT))
       .pathResolver(getPathResolver())
@@ -140,7 +147,8 @@ class NodeCommandTest {
   void test_version_check() {
     assertThat(NodeCommandBuilderImpl.nodeVersion("v5.1.1")).isEqualTo(Version.create(5, 1, 1));
     assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0")).isEqualTo(Version.create(10, 8, 0));
-    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0+123")).isEqualTo(Version.create(10, 8, 0));
+    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0+123"))
+      .isEqualTo(Version.create(10, 8, 0));
 
     assertThatThrownBy(() -> NodeCommandBuilderImpl.nodeVersion("Invalid version"))
       .isInstanceOf(NodeCommandException.class)
@@ -151,7 +159,8 @@ class NodeCommandTest {
   void test_max_old_space_size_setting() throws IOException {
     String request = "v8.getHeapStatistics()";
     StringBuilder output = new StringBuilder();
-    NodeCommand command = NodeCommand.builder()
+    NodeCommand command = NodeCommand
+      .builder()
       .maxOldSpaceSize(2048)
       .nodeJsArgs("-p", request)
       .outputConsumer(output::append)
@@ -171,7 +180,8 @@ class NodeCommandTest {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
     Configuration configuration = mapSettings.asConfig();
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .configuration(configuration)
       .script("not-used")
       .build();
@@ -179,13 +189,24 @@ class NodeCommandTest {
 
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).contains(nodeExecutable.toString());
-    await().until(() -> logTester.logs(LoggerLevel.INFO)
-      .contains("Using Node.js executable " + nodeExecutable + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
+    await()
+      .until(() ->
+        logTester
+          .logs(LoggerLevel.INFO)
+          .contains(
+            "Using Node.js executable " +
+            nodeExecutable +
+            " from property " +
+            NODE_EXECUTABLE_PROPERTY +
+            "."
+          )
+      );
   }
 
   @Test
   void test_empty_configuration() throws Exception {
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .configuration(new MapSettings().asConfig())
       .script("not-used")
       .build();
@@ -204,7 +225,8 @@ class NodeCommandTest {
   void test_non_existing_node_file() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.nodejs.executable", "non-existing-file");
-    NodeCommandBuilder nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommandBuilder nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .configuration(settings.asConfig())
       .script("not-used");
 
@@ -212,15 +234,22 @@ class NodeCommandTest {
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Provided Node.js executable file does not exist.");
 
-    await().until(() -> logTester.logs(LoggerLevel.ERROR)
-      .contains("Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"));
+    await()
+      .until(() ->
+        logTester
+          .logs(LoggerLevel.ERROR)
+          .contains(
+            "Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"
+          )
+      );
   }
 
   @Test
   void test_exception_start() throws Exception {
     IOException cause = new IOException("Error starting process");
     when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenThrow(cause);
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     assertThatThrownBy(nodeCommand::start)
@@ -232,7 +261,8 @@ class NodeCommandTest {
   @Test
   void test_interrupted_waitFor() throws Exception {
     when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenThrow(new InterruptedException());
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     nodeCommand.start();
@@ -245,7 +275,8 @@ class NodeCommandTest {
   @Test
   void test_timeout_waitFor() throws Exception {
     when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenReturn(false);
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     nodeCommand.start();
@@ -275,7 +306,8 @@ class NodeCommandTest {
   void test_failed_get_version() throws Exception {
     when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenReturn(true);
     when(mockProcessWrapper.exitValue(any())).thenReturn(1);
-    NodeCommandBuilder commandBuilder = NodeCommand.builder(mockProcessWrapper)
+    NodeCommandBuilder commandBuilder = NodeCommand
+      .builder(mockProcessWrapper)
       .minNodeVersion(Version.create(8, 0))
       .script(resourceScript(PATH_TO_SCRIPT));
     assertThatThrownBy(commandBuilder::build)
@@ -286,7 +318,8 @@ class NodeCommandTest {
   @Test
   void test_toString() throws IOException {
     when(mockProcessWrapper.isMac()).thenReturn(false);
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .nodeJsArgs("-v")
       .script("script.js")
       .scriptArgs("arg1", "arg2")
@@ -302,7 +335,8 @@ class NodeCommandTest {
       return;
     }
     when(mockProcessWrapper.isMac()).thenReturn(true);
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommand nodeCommand = NodeCommand
+      .builder(mockProcessWrapper)
       .script("script.js")
       .pathResolver(getPathResolver())
       .build();
@@ -315,45 +349,57 @@ class NodeCommandTest {
 
   @Test
   void test_missing_node() throws Exception {
-    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenThrow(new IOException("CreateProcess error=2"));
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .script("not-used")
-      .build();
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any()))
+      .thenThrow(new IOException("CreateProcess error=2"));
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper).script("not-used").build();
 
     assertThatThrownBy(nodeCommand::start).isInstanceOf(NodeCommandException.class);
   }
 
   @Test
   void test_actual_node_version() throws Exception {
-    Consumer<String> noop = s -> {
-    };
-    NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", Version.create(12, 0), Collections.emptyList(), null,
-      Collections.emptyList(), noop, noop, Map.of());
+    Consumer<String> noop = s -> {};
+    NodeCommand nodeCommand = new NodeCommand(
+      mockProcessWrapper,
+      "node",
+      Version.create(12, 0),
+      Collections.emptyList(),
+      null,
+      Collections.emptyList(),
+      noop,
+      noop,
+      Map.of()
+    );
     assertThat(nodeCommand.getActualNodeVersion().major()).isEqualTo(12);
   }
 
   @Test
   void test_windows_default_node() throws Exception {
     when(mockProcessWrapper.isWindows()).thenReturn(true);
-    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())).then(invocation -> {
-      invocation.getArgument(2, Consumer.class).accept("C:\\Program Files\\node.exe");
-      return mock(Process.class);
-    });
+    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any()))
+      .then(invocation -> {
+        invocation.getArgument(2, Consumer.class).accept("C:\\Program Files\\node.exe");
+        return mock(Process.class);
+      });
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper).script("script.js").build();
-    assertThat(processStartArgument.getValue()).containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+    assertThat(processStartArgument.getValue())
+      .containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
     nodeCommand.start();
-    assertThat(processStartArgument.getValue()).containsExactly("C:\\Program Files\\node.exe", "script.js");
+    assertThat(processStartArgument.getValue())
+      .containsExactly("C:\\Program Files\\node.exe", "script.js");
   }
 
   @Test
   void test_windows_default_node_not_found() throws Exception {
     when(mockProcessWrapper.isWindows()).thenReturn(true);
-    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())).thenReturn(mock(Process.class));
+    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any()))
+      .thenReturn(mock(Process.class));
     NodeCommandBuilder builder = NodeCommand.builder(mockProcessWrapper).script("script.js");
     assertThatThrownBy(builder::build)
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Node.js not found in PATH. PATH value was: null");
-    assertThat(processStartArgument.getValue()).containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+    assertThat(processStartArgument.getValue())
+      .containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
   }
 
   private static String resourceScript(String script) throws URISyntaxException {
@@ -362,6 +408,6 @@ class NodeCommandTest {
 
   private static BundlePathResolver getPathResolver() {
     File file = new File("src/test/resources");
-    return (p) -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
+    return p -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
   }
 }

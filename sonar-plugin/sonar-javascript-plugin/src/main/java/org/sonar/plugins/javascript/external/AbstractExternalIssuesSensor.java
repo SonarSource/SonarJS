@@ -39,7 +39,8 @@ abstract class AbstractExternalIssuesSensor implements Sensor {
 
   static final long DEFAULT_REMEDIATION_COST = 5L;
   static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
-  static final String FILE_EXCEPTION_MESSAGE = "No issues information will be saved as the report file can't be read.";
+  static final String FILE_EXCEPTION_MESSAGE =
+    "No issues information will be saved as the report file can't be read.";
 
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
@@ -58,13 +59,19 @@ abstract class AbstractExternalIssuesSensor implements Sensor {
     FilePredicates predicates = context.fileSystem().predicates();
     InputFile inputFile = context.fileSystem().inputFile(predicates.hasPath(fileName));
     if (inputFile == null) {
-      LOG.warn("No input file found for {}. No {} issues will be imported on this file.", fileName, linterName());
+      LOG.warn(
+        "No input file found for {}. No {} issues will be imported on this file.",
+        fileName,
+        linterName()
+      );
       return null;
     }
     return inputFile;
   }
 
   abstract String linterName();
+
   abstract String reportsPropertyName();
+
   abstract void importReport(File report, SensorContext context);
 }

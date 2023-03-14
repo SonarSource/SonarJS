@@ -35,6 +35,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 public class TrailingCommentCheck implements EslintBasedCheck {
 
   private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^\\s*[^\\s]+$";
+
   @RuleProperty(
     key = "pattern",
     description = "Pattern (JavaScript syntax) for text of trailing comments that are allowed.",
@@ -53,6 +54,7 @@ public class TrailingCommentCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     String ignorePattern;
 
     Config(String ignorePattern) {

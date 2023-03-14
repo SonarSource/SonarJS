@@ -29,7 +29,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1656")
 public class SelfAssignmentCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "no-self-assign";

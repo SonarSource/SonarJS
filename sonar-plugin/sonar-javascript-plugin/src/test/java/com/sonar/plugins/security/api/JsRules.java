@@ -43,5 +43,4 @@ public class JsRules {
     JS_RULES.clear();
     TS_RULES.clear();
   }
-
 }

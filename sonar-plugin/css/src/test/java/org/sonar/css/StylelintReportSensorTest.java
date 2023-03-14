@@ -19,6 +19,9 @@
  */
 package org.sonar.css;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.css.StylelintReportSensor.STYLELINT_REPORT_PATHS;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
@@ -46,9 +49,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.css.StylelintReportSensor.STYLELINT_REPORT_PATHS;
-
 class StylelintReportSensorTest {
 
   @TempDir
@@ -57,14 +57,19 @@ class StylelintReportSensorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private static final File BASE_DIR = new File("src/test/resources/stylelint-report/").getAbsoluteFile();
+  private static final File BASE_DIR = new File("src/test/resources/stylelint-report/")
+    .getAbsoluteFile();
   private static final String CONTENT = ".foo {\n}";
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
   private static final CheckFactory EMPTY_CHECK_FACTORY = new CheckFactory(new TestActiveRules());
-  private static final CheckFactory CHECK_FACTORY_WITH_RULE = new CheckFactory(new TestActiveRules("S4647"));
+  private static final CheckFactory CHECK_FACTORY_WITH_RULE = new CheckFactory(
+    new TestActiveRules("S4647")
+  );
 
-  private StylelintReportSensor stylelintReportSensor = new StylelintReportSensor(EMPTY_CHECK_FACTORY);
+  private StylelintReportSensor stylelintReportSensor = new StylelintReportSensor(
+    EMPTY_CHECK_FACTORY
+  );
   private DefaultInputFile inputFile = createInputFile(context, CONTENT, "file.css");
 
   @BeforeEach
@@ -89,7 +94,8 @@ class StylelintReportSensorTest {
 
     assertThat(first.remediationEffort()).isEqualTo(5);
     assertThat(first.severity()).isEqualTo(Severity.MAJOR);
-    assertThat(first.primaryLocation().message()).isEqualTo("external issue message (color-no-invalid-hex)");
+    assertThat(first.primaryLocation().message())
+      .isEqualTo("external issue message (color-no-invalid-hex)");
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
   }
 
@@ -113,7 +119,8 @@ class StylelintReportSensorTest {
 
   @Test
   void should_support_absolute_file_paths_in_report() throws Exception {
-    String report = "[\n" +
+    String report =
+      "[\n" +
       "  {\n" +
       "    \"source\": \"%s\",\n" +
       "    \"warnings\": [\n" +
@@ -146,10 +153,13 @@ class StylelintReportSensorTest {
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(1);
-    assertThat(externalIssues.iterator().next().primaryLocation().message()).isEqualTo("external issue message (comment-no-empty)");
+    assertThat(externalIssues.iterator().next().primaryLocation().message())
+      .isEqualTo("external issue message (comment-no-empty)");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("Stylelint issue for rule 'color-no-invalid-hex' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ css:S4647)");
+      .contains(
+        "Stylelint issue for rule 'color-no-invalid-hex' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ css:S4647)"
+      );
   }
 
   @Test
@@ -159,7 +169,8 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Import of external issues requires SonarQube 7.2 or greater.");
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("Import of external issues requires SonarQube 7.2 or greater.");
   }
 
   @Test
@@ -176,7 +187,8 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("No issues information will be saved as the report file can't be read.");
   }
 
   @Test
@@ -185,7 +197,10 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("No input file found for not-exist.css. No stylelint issues will be imported on this file.");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains(
+        "No input file found for not-exist.css. No stylelint issues will be imported on this file."
+      );
   }
 
   @Test
@@ -215,10 +230,18 @@ class StylelintReportSensorTest {
   }
 
   private SonarRuntime getRuntime(int major, int minor) {
-    return SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
+    return SonarRuntimeImpl.forSonarQube(
+      Version.create(major, minor),
+      SonarQubeSide.SERVER,
+      SonarEdition.COMMUNITY
+    );
   }
 
-  private static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
+  private static DefaultInputFile createInputFile(
+    SensorContextTester sensorContext,
+    String content,
+    String relativePath
+  ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
       .setType(Type.MAIN)

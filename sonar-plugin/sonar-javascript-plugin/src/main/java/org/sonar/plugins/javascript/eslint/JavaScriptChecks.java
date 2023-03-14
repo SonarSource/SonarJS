@@ -26,7 +26,6 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-
 /**
  * Wrapper around Checks Object to ease the manipulation of the different JavaScript rule repositories.
  */
@@ -38,10 +37,16 @@ public class JavaScriptChecks extends AbstractChecks {
     this(checkFactory, null);
   }
 
-  public JavaScriptChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
+  public JavaScriptChecks(
+    CheckFactory checkFactory,
+    @Nullable CustomRuleRepository[] customRuleRepositories
+  ) {
     super(checkFactory, customRuleRepositories);
-    addChecks(CustomRuleRepository.Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
+    addChecks(
+      CustomRuleRepository.Language.JAVASCRIPT,
+      CheckList.JS_REPOSITORY_KEY,
+      CheckList.getJavaScriptChecks()
+    );
     initParsingErrorRuleKey();
   }
-
 }

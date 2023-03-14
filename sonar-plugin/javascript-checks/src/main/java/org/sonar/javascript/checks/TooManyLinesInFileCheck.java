@@ -37,7 +37,8 @@ public class TooManyLinesInFileCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximum",
     description = "Maximum authorized lines in a file.",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public int maximum = DEFAULT;
 
   @Override
@@ -49,6 +50,4 @@ public class TooManyLinesInFileCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-max-lines";
   }
-
 }
-

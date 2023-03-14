@@ -19,17 +19,20 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class TypeScriptLanguageTest {
 
   @Test
   void should_have_correct_file_extensions() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
+    settings.setProperty(
+      TypeScriptLanguage.FILE_SUFFIXES_KEY,
+      TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE
+    );
     TypeScriptLanguage typeScriptLanguage = new TypeScriptLanguage(settings.asConfig());
     assertThat(typeScriptLanguage.getFileSuffixes()).containsExactly(".ts", ".tsx", ".cts", ".mts");
   }

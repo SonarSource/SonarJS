@@ -19,24 +19,22 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class AverageLineLengthCalculatorTest {
 
-  private final static String DIR = "src/test/resources/minify/";
-
+  private static final String DIR = "src/test/resources/minify/";
 
   @Test
   void noHeaderComment1() {
     check("average1.js", 10);
   }
-
 
   @Test
   void noHeaderComment2() {
@@ -81,5 +79,4 @@ class AverageLineLengthCalculatorTest {
     AverageLineLengthCalculator calc = new AverageLineLengthCalculator(file);
     assertThat(calc.getAverageLineLength()).isEqualTo(expectedAverage);
   }
-
 }

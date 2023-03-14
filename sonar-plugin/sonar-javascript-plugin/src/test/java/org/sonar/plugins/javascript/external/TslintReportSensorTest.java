@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.external;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.TestUtils.createInputFile;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -46,9 +49,6 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.TestUtils.createInputFile;
-
 class TslintReportSensorTest {
 
   private static final String TSLINT_REPORT_FILE_NAME = "tslint-report.json";
@@ -59,7 +59,8 @@ class TslintReportSensorTest {
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private static final File BASE_DIR = new File("src/test/resources/externalIssues/").getAbsoluteFile();
+  private static final File BASE_DIR = new File("src/test/resources/externalIssues/")
+    .getAbsoluteFile();
   private static final String CONTENT = "foo('aaaaaaa')\nif (cond) \n{ }";
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
@@ -67,7 +68,11 @@ class TslintReportSensorTest {
   private TslintReportSensor tslintReportSensor = new TslintReportSensor();
   private DefaultInputFile inputFile = createInputFile(context, CONTENT, "myFile.ts");
 
-  private static final SonarRuntime RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
+  private static final SonarRuntime RUNTIME = SonarRuntimeImpl.forSonarQube(
+    Version.create(7, 9),
+    SonarQubeSide.SERVER,
+    SonarEdition.COMMUNITY
+  );
 
   @BeforeEach
   public void setUp() {
@@ -95,14 +100,17 @@ class TslintReportSensorTest {
     assertThat(first.primaryLocation().message()).isEqualTo("Missing semicolon");
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactlyInAnyOrder(
-      "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
-      "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }");
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .containsExactlyInAnyOrder(
+        "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
+        "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }"
+      );
   }
 
   @Test
   void should_support_absolute_ts_file_paths_in_report() throws Exception {
-    String report = "[ " +
+    String report =
+      "[ " +
       " {\n" +
       "    \"endPosition\": {\n" +
       "      \"character\": 1,\n" +
@@ -122,7 +130,12 @@ class TslintReportSensorTest {
       "]";
 
     File reportFile = tmpDir.resolve("report").toFile();
-    try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(reportFile), StandardCharsets.UTF_8)) {
+    try (
+      OutputStreamWriter writer = new OutputStreamWriter(
+        new FileOutputStream(reportFile),
+        StandardCharsets.UTF_8
+      )
+    ) {
       writer.write(String.format(report, inputFile.absolutePath()));
     }
     setTslintReport(reportFile.getAbsolutePath());
@@ -145,7 +158,8 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("No issues information will be saved as the report file can't be read.");
   }
 
   @Test
@@ -154,7 +168,10 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("No input file found for not-exist.ts. No TSLint issues will be imported on this file.");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains(
+        "No input file found for not-exist.ts. No TSLint issues will be imported on this file."
+      );
   }
 
   @Test

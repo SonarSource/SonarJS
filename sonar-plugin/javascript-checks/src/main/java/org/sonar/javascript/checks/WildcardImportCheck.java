@@ -33,5 +33,4 @@ public class WildcardImportCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-wildcard-import";
   }
-
 }

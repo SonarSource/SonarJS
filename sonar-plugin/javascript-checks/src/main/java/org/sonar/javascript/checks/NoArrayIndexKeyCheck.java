@@ -33,5 +33,4 @@ public class NoArrayIndexKeyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-array-index-key";
   }
-
 }

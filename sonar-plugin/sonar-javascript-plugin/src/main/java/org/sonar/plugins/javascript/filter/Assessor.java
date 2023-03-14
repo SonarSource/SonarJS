@@ -22,5 +22,4 @@ package org.sonar.plugins.javascript.filter;
 import java.util.function.Predicate;
 import org.sonar.api.batch.fs.InputFile;
 
-public interface Assessor extends Predicate<InputFile> {
-}
+public interface Assessor extends Predicate<InputFile> {}

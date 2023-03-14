@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5743")
 public class DnsPrefetchingCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "dns-prefetching";

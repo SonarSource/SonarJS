@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class FileHeaderCheckTest {
 
@@ -35,6 +35,9 @@ class FileHeaderCheckTest {
     check.headerFormat = "// header format 20\\d\\d";
     check.isRegularExpression = true;
     configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"headerFormat\":\"// header format 20\\\\d\\\\d\",\"isRegularExpression\":true}]");
+    assertThat(configAsString)
+      .isEqualTo(
+        "[{\"headerFormat\":\"// header format 20\\\\d\\\\d\",\"isRegularExpression\":true}]"
+      );
   }
 }

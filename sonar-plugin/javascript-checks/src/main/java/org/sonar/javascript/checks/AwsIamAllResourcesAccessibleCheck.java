@@ -33,5 +33,4 @@ public class AwsIamAllResourcesAccessibleCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-iam-all-resources-accessible";
   }
-
 }

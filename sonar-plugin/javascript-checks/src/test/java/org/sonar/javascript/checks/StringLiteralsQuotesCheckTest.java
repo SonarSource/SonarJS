@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class StringLiteralsQuotesCheckTest {
 
@@ -32,11 +32,13 @@ class StringLiteralsQuotesCheckTest {
 
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[\"single\",{\"avoidEscape\":true,\"allowTemplateLiterals\":true}]");
+    assertThat(defaultConfigAsString)
+      .isEqualTo("[\"single\",{\"avoidEscape\":true,\"allowTemplateLiterals\":true}]");
 
     // custom configuration
     check.singleQuotes = false;
     String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[\"double\",{\"avoidEscape\":true,\"allowTemplateLiterals\":true}]");
+    assertThat(customConfigAsString)
+      .isEqualTo("[\"double\",{\"avoidEscape\":true,\"allowTemplateLiterals\":true}]");
   }
 }

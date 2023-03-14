@@ -33,5 +33,4 @@ public class AwsEc2UnencryptedEbsVolumeCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-ec2-unencrypted-ebs-volume";
   }
-
 }

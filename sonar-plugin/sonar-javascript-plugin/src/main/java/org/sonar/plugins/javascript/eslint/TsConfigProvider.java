@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -48,10 +52,6 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonarsource.analyzer.commons.FileProvider;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-
 class TsConfigProvider {
 
   private static final Logger LOG = Loggers.get(TsConfigProvider.class);
@@ -74,10 +74,12 @@ class TsConfigProvider {
    * 3. Creating a tmp tsconfig.json listing all files
    */
   TsConfigProvider(TempFolder folder) {
-    providers = Arrays.asList(
-      new PropertyTsConfigProvider(),
-      new LookupTsConfigProvider(),
-      new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate));
+    providers =
+      Arrays.asList(
+        new PropertyTsConfigProvider(),
+        new LookupTsConfigProvider(),
+        new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate)
+      );
   }
 
   /**
@@ -103,14 +105,25 @@ class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      if (!context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS) && !context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS)) {
+      if (
+        !context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS) &&
+        !context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS)
+      ) {
         return emptyList();
       }
 
-      String property = context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS) ? JavaScriptPlugin.TSCONFIG_PATHS : JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
-      Set<String> patterns = new HashSet<>(Arrays.asList(context.config().getStringArray(property)));
+      String property = context.config().hasKey(JavaScriptPlugin.TSCONFIG_PATHS)
+        ? JavaScriptPlugin.TSCONFIG_PATHS
+        : JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
+      Set<String> patterns = new HashSet<>(
+        Arrays.asList(context.config().getStringArray(property))
+      );
 
-      LOG.info("Resolving TSConfig files using '{}' from property {}", String.join(",", patterns), property);
+      LOG.info(
+        "Resolving TSConfig files using '{}' from property {}",
+        String.join(",", patterns),
+        property
+      );
 
       File baseDir = context.fileSystem().baseDir();
 
@@ -182,6 +195,7 @@ class TsConfigProvider {
   abstract static class GeneratedTsConfigFileProvider implements Provider {
 
     static class TsConfig {
+
       List<String> files;
       Map<String, Object> compilerOptions = new LinkedHashMap<>();
       List<String> include;
@@ -216,8 +230,11 @@ class TsConfigProvider {
     public final List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() != product) {
         // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
-        LOG.warn("Generating temporary tsconfig is not supported by {} in {} context.", getClass().getSimpleName(),
-          context.runtime().getProduct());
+        LOG.warn(
+          "Generating temporary tsconfig is not supported by {} in {} context.",
+          getClass().getSimpleName(),
+          context.runtime().getProduct()
+        );
         return emptyList();
       }
       return getDefaultTsConfigs(context);
@@ -227,6 +244,7 @@ class TsConfigProvider {
   }
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
+
     private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
 
@@ -238,7 +256,9 @@ class TsConfigProvider {
 
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) throws IOException {
-      var inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
+      var inputFiles = context
+        .fileSystem()
+        .inputFiles(filePredicateProvider.apply(context.fileSystem()));
       var tsConfig = new TsConfig(inputFiles, null);
       var tsconfigFile = writeToJsonFile(tsConfig);
       LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
@@ -254,17 +274,24 @@ class TsConfigProvider {
   }
 
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
+
     private static String getProjectRoot(SensorContext context) {
       var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
-      return "/".equals(File.separator) ? projectBaseDir : projectBaseDir.replace(File.separator, "/");
+      return "/".equals(File.separator)
+        ? projectBaseDir
+        : projectBaseDir.replace(File.separator, "/");
     }
 
-    private static final Map<String, List<String>> defaultWildcardTsConfig = new ConcurrentHashMap<>();
+    private static final Map<String, List<String>> defaultWildcardTsConfig =
+      new ConcurrentHashMap<>();
 
     final TsConfigFileCreator tsConfigFileCreator;
     private final boolean deactivated;
 
-    WildcardTsConfigProvider(@Nullable JavaScriptProjectChecker checker, TsConfigFileCreator tsConfigFileCreator) {
+    WildcardTsConfigProvider(
+      @Nullable JavaScriptProjectChecker checker,
+      TsConfigFileCreator tsConfigFileCreator
+    ) {
       super(SonarProduct.SONARLINT);
       this.tsConfigFileCreator = tsConfigFileCreator;
       deactivated = checker == null || checker.isBeyondLimit();
@@ -275,7 +302,10 @@ class TsConfigProvider {
       if (deactivated) {
         return emptyList();
       } else {
-        return defaultWildcardTsConfig.computeIfAbsent(getProjectRoot(context), this::writeTsConfigFileFor);
+        return defaultWildcardTsConfig.computeIfAbsent(
+          getProjectRoot(context),
+          this::writeTsConfigFileFor
+        );
       }
     }
 
@@ -286,5 +316,4 @@ class TsConfigProvider {
       return file;
     }
   }
-
 }

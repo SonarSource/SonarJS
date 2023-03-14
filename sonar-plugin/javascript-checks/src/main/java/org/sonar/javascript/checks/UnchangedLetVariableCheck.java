@@ -31,7 +31,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S3353")
 public class UnchangedLetVariableCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "prefer-const";
@@ -43,6 +42,7 @@ public class UnchangedLetVariableCheck implements EslintBasedCheck {
   }
 
   static class Configuration {
+
     String destructuring = "all";
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -38,7 +37,8 @@ public class RegexComplexityCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maxComplexity",
     description = "The maximum authorized complexity.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
   int threshold = DEFAULT_THRESHOLD;
 
   @Override

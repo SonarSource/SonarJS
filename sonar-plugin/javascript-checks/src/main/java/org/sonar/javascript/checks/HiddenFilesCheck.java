@@ -34,4 +34,3 @@ public class HiddenFilesCheck implements EslintBasedCheck {
     return "hidden-files";
   }
 }
-

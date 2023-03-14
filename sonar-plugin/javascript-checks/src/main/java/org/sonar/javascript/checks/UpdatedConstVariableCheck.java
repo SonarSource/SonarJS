@@ -32,4 +32,3 @@ public class UpdatedConstVariableCheck implements EslintBasedCheck {
     return "updated-const-var";
   }
 }
-

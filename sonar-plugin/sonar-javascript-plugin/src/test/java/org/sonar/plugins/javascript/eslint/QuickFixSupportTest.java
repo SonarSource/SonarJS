@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,14 +49,11 @@ import org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSonarLintIssue;
 import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.sonarapi.SonarLintRuntimeImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-
 class QuickFixSupportTest {
 
   @TempDir
   Path baseDir;
+
   SonarLintInputFile inputFile;
   SensorStorage sensorStorage;
   JavaScriptChecks checks;
@@ -61,12 +62,19 @@ class QuickFixSupportTest {
 
   @BeforeEach
   void setUp() {
-    inputFile = new SonarLintInputFile(mock(ClientInputFile.class), (i) -> null);
+    inputFile = new SonarLintInputFile(mock(ClientInputFile.class), i -> null);
     inputFile.setType(InputFile.Type.MAIN);
-    var activeRule = new NewActiveRule.Builder().setRuleKey(RuleKey.of("javascript", "S1116")).build();
+    var activeRule = new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("javascript", "S1116"))
+      .build();
     activeRules = new ActiveRulesBuilder().addRule(activeRule).build();
     checks = new JavaScriptChecks(new CheckFactory(activeRules));
-    analysisProcessor = new AnalysisProcessor(mock(NoSonarFilter.class), mock(FileLinesContextFactory.class), mock(Monitoring.class));
+    analysisProcessor =
+      new AnalysisProcessor(
+        mock(NoSonarFilter.class),
+        mock(FileLinesContextFactory.class),
+        mock(Monitoring.class)
+      );
   }
 
   DefaultSensorContext createContext(Version version) {
@@ -74,8 +82,16 @@ class QuickFixSupportTest {
     var fs = new DefaultFileSystem(baseDir);
     var runtime = new SonarLintRuntimeImpl(Version.create(8, 9), version, 1L);
     sensorStorage = mock(SensorStorage.class);
-    return new DefaultSensorContext(mock(SonarLintInputProject.class), settings, settings.asConfig(),
-      fs, activeRules, sensorStorage, runtime, mock(ProgressMonitor.class));
+    return new DefaultSensorContext(
+      mock(SonarLintInputProject.class),
+      settings,
+      settings.asConfig(),
+      fs,
+      activeRules,
+      sensorStorage,
+      runtime,
+      mock(ProgressMonitor.class)
+    );
   }
 
   @Test
@@ -96,7 +112,12 @@ class QuickFixSupportTest {
     assertThat(qf.message()).isEqualTo("QuickFix message");
     var textEdit = qf.inputFileEdits().get(0).textEdits().get(0);
     assertThat(textEdit.range())
-      .extracting(r -> r.getStartLine(), r -> r.getStartLineOffset(), r -> r.getEndLine(), r -> r.getEndLineOffset())
+      .extracting(
+        r -> r.getStartLine(),
+        r -> r.getStartLineOffset(),
+        r -> r.getEndLine(),
+        r -> r.getEndLineOffset()
+      )
       .containsExactly(1, 2, 3, 4);
   }
 
@@ -121,7 +142,6 @@ class QuickFixSupportTest {
     issue.quickFixes = List.of(quickFix);
     return issue;
   }
-
 
   @Test
   void test_old_version() {
@@ -150,6 +170,4 @@ class QuickFixSupportTest {
 
     assertThat(issueCaptor.getValue().quickFixes()).isEmpty();
   }
-
-
 }

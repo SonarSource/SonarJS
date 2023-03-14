@@ -35,5 +35,4 @@ public class UnusedFunctionArgumentCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-unused-function-argument";
   }
-
 }

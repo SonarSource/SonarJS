@@ -19,11 +19,10 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.InputFile;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 
 class EslintBasedCheckTest {
 
@@ -35,5 +34,4 @@ class EslintBasedCheckTest {
     assertThat(check.configurations()).isEmpty();
     assertThat(check.targets()).containsExactly(InputFile.Type.MAIN);
   }
-
 }

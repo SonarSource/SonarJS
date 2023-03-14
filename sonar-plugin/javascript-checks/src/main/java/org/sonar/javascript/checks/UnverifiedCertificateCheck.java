@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S4830")
 public class UnverifiedCertificateCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "unverified-certificate";

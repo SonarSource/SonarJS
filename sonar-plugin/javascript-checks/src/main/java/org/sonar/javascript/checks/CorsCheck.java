@@ -34,4 +34,3 @@ public class CorsCheck implements EslintBasedCheck {
     return "cors";
   }
 }
-

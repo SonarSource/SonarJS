@@ -19,13 +19,12 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
-
 
 @Rule(key = "S4654")
 public class PropertyNoUnknown implements CssRule {
@@ -36,13 +35,15 @@ public class PropertyNoUnknown implements CssRule {
   @RuleProperty(
     key = "ignoreTypes",
     description = "Comma-separated list of strings and/or regular expressions for properties to consider as valid.",
-    defaultValue = "" + DEFAULT_IGNORED_PROPERTIES)
+    defaultValue = "" + DEFAULT_IGNORED_PROPERTIES
+  )
   String ignoreProperties = DEFAULT_IGNORED_PROPERTIES;
 
   @RuleProperty(
     key = "ignoreSelectors",
     description = "Comma-separated list of strings and/or regular expressions for selectors to consider as valid.",
-    defaultValue = "" + DEFAULT_IGNORED_SELECTORS)
+    defaultValue = "" + DEFAULT_IGNORED_SELECTORS
+  )
   String ignoreSelectors = DEFAULT_IGNORED_SELECTORS;
 
   @Override
@@ -52,10 +53,14 @@ public class PropertyNoUnknown implements CssRule {
 
   @Override
   public List<Object> stylelintOptions() {
-    return Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoreProperties), splitAndTrim(ignoreSelectors)));
+    return Arrays.asList(
+      true,
+      new StylelintIgnoreOption(splitAndTrim(ignoreProperties), splitAndTrim(ignoreSelectors))
+    );
   }
 
   private static class StylelintIgnoreOption {
+
     // Used by GSON serialization
     private final List<String> ignoreProperties;
     private final List<String> ignoreSelectors;

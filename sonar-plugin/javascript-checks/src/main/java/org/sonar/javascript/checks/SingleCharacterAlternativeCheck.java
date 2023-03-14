@@ -34,4 +34,3 @@ public class SingleCharacterAlternativeCheck implements EslintBasedCheck {
     return "single-character-alternation";
   }
 }
-

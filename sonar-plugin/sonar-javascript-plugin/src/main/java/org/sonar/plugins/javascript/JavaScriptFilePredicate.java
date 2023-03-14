@@ -45,49 +45,81 @@ public class JavaScriptFilePredicate {
   private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
   private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
   private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
-  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("("+
-    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
+  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile(
+    "(" +
+    String.join(
+      "|",
+      DIRECTIVE_IN_COMMENT,
+      DIRECTIVE_IN_SINGLE_QUOTE,
+      DIRECTIVE_IN_DOUBLE_QUOTE,
+      CODEFRESH_VARIABLES
+    ) +
+    ")"
+  );
 
-  private JavaScriptFilePredicate() {
-  }
+  private JavaScriptFilePredicate() {}
 
   public static FilePredicate getYamlPredicate(FileSystem fs) {
-    return fs.predicates().and(fs.predicates().hasLanguage(YamlSensor.LANGUAGE), inputFile -> {
-      try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-        while (scanner.hasNextLine()) {
-          String line = scanner.nextLine();
-          if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
-            return false;
+    return fs
+      .predicates()
+      .and(
+        fs.predicates().hasLanguage(YamlSensor.LANGUAGE),
+        inputFile -> {
+          try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+            while (scanner.hasNextLine()) {
+              String line = scanner.nextLine();
+              if (
+                line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()
+              ) {
+                return false;
+              }
+            }
+            return true;
+          } catch (IOException e) {
+            throw new IllegalStateException(
+              String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
+              e
+            );
           }
         }
-        return true;
-      } catch (IOException e) {
-        throw new IllegalStateException(String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()), e);
-      }
-    });
+      );
   }
 
   public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
-    return fs.predicates().and(
-      fs.predicates().or(
-        fs.predicates().and(
-          fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
-          fs.predicates().not(fs.predicates().hasExtension("vue"))
-        ),
-        fs.predicates().and(
-          fs.predicates().hasExtension("vue"),
-          fs.predicates().not(hasScriptTagWithLangTS))));
+    return fs
+      .predicates()
+      .and(
+        fs
+          .predicates()
+          .or(
+            fs
+              .predicates()
+              .and(
+                fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
+                fs.predicates().not(fs.predicates().hasExtension("vue"))
+              ),
+            fs
+              .predicates()
+              .and(fs.predicates().hasExtension("vue"), fs.predicates().not(hasScriptTagWithLangTS))
+          )
+      );
   }
 
   public static FilePredicate getTypeScriptPredicate(FileSystem fs) {
-    return fs.predicates().and(
-      fs.predicates().or(
-        fs.predicates().and(
-          fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
-          fs.predicates().not(fs.predicates().hasExtension("vue"))
-        ),
-        fs.predicates().and(
-          fs.predicates().hasExtension("vue"),
-          hasScriptTagWithLangTS)));
+    return fs
+      .predicates()
+      .and(
+        fs
+          .predicates()
+          .or(
+            fs
+              .predicates()
+              .and(
+                fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
+                fs.predicates().not(fs.predicates().hasExtension("vue"))
+              ),
+            fs.predicates().and(fs.predicates().hasExtension("vue"), hasScriptTagWithLangTS)
+          )
+      );
   }
 }

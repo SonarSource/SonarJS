@@ -56,16 +56,26 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   // This constructor is required to avoid an error in SonarCloud because there's no implementation available for the interface
   // JavaScriptProjectChecker. The implementation for that interface is available only in SonarLint. Unlike SonarCloud,
   // SonarQube is simply passing null and doesn't throw any error.
-  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
-                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     AnalysisProcessor processAnalysis) {
+  public JavaScriptEslintBasedSensor(
+    JavaScriptChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    TempFolder folder,
+    Monitoring monitoring,
+    AnalysisProcessor processAnalysis
+  ) {
     this(checks, eslintBridgeServer, analysisWarnings, folder, monitoring, processAnalysis, null);
   }
 
-  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, EslintBridgeServer eslintBridgeServer,
-                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring,
-                                     AnalysisProcessor processAnalysis,
-                                     @Nullable JavaScriptProjectChecker javaScriptProjectChecker) {
+  public JavaScriptEslintBasedSensor(
+    JavaScriptChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    TempFolder folder,
+    Monitoring monitoring,
+    AnalysisProcessor processAnalysis,
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker
+  ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
@@ -81,9 +91,15 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private TsConfigProvider.Provider getTsConfigProvider() {
     if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
       JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-      return new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, this::createTsConfigFile);
+      return new TsConfigProvider.WildcardTsConfigProvider(
+        javaScriptProjectChecker,
+        this::createTsConfigFile
+      );
     } else {
-      return new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate);
+      return new DefaultTsConfigProvider(
+        tempFolder,
+        JavaScriptFilePredicate::getJavaScriptPredicate
+      );
     }
   }
 
@@ -91,9 +107,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     return eslintBridgeServer.createTsConfigFile(content).filename;
   }
 
-  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
+  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles)
+    throws IOException {
     analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
+    ProgressReport progressReport = new ProgressReport(
+      "Analysis progress",
+      TimeUnit.SECONDS.toMillis(10)
+    );
     boolean success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
@@ -101,7 +121,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       for (InputFile inputFile : inputFiles) {
         monitoring.startFile(inputFile);
         if (context.isCancelled()) {
-          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
@@ -126,11 +148,21 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
         String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(file.absolutePath(), file.type().toString(),
-          fileContent, contextUtils.ignoreHeaderComments(), tsConfigs, null, analysisMode.getLinterIdFor(file));
+        JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          fileContent,
+          contextUtils.ignoreHeaderComments(),
+          tsConfigs,
+          null,
+          analysisMode.getLinterIdFor(file)
+        );
         AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
         processAnalysis.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
@@ -146,15 +178,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
-    return StreamSupport.stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
+    return StreamSupport
+      .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
       .collect(Collectors.toList());
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript analysis");
+    descriptor.onlyOnLanguage(JavaScriptLanguage.KEY).name("JavaScript analysis");
   }
-
 }

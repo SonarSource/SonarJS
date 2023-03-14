@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Collections.emptyList;
+import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
@@ -52,15 +55,12 @@ import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
-import static java.util.Collections.emptyList;
-import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
-
 public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private enum Status {
     NOT_STARTED,
     FAILED,
-    STARTED
+    STARTED,
   }
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
@@ -92,22 +92,39 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private ScheduledFuture<?> heartbeatFuture;
 
   // Used by pico container for dependency injection
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
-                                NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
-    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning, tempFolder, monitoring);
+  public EslintBridgeServerImpl(
+    NodeCommandBuilder nodeCommandBuilder,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning,
+    TempFolder tempFolder,
+    Monitoring monitoring
+  ) {
+    this(
+      nodeCommandBuilder,
+      DEFAULT_TIMEOUT_SECONDS,
+      bundle,
+      rulesBundles,
+      deprecationWarning,
+      tempFolder,
+      monitoring
+    );
   }
 
-  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
-                         int timeoutSeconds,
-                         Bundle bundle,
-                         RulesBundles rulesBundles,
-                         NodeDeprecationWarning deprecationWarning, TempFolder tempFolder, Monitoring monitoring) {
+  EslintBridgeServerImpl(
+    NodeCommandBuilder nodeCommandBuilder,
+    int timeoutSeconds,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning,
+    TempFolder tempFolder,
+    Monitoring monitoring
+  ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
-    this.client = HttpClient.newBuilder()
-      .connectTimeout(Duration.ofSeconds(timeoutSeconds))
-      .build();
+    this.client =
+      HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeoutSeconds)).build();
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
@@ -135,10 +152,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     File scriptFile = new File(bundle.startServerScript());
     if (!scriptFile.exists()) {
-      throw new NodeCommandException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
+      throw new NodeCommandException(
+        "Node.js script to start eslint-bridge server doesn't exist: " +
+        scriptFile.getAbsolutePath()
+      );
     }
 
-    String bundles = deployedBundles.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
+    String bundles = deployedBundles
+      .stream()
+      .map(Path::toString)
+      .collect(Collectors.joining(File.pathSeparator));
     initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
 
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
@@ -151,7 +174,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       status = Status.STARTED;
       if (heartbeatFuture == null) {
         LOG.trace("Starting heartbeat service");
-        heartbeatFuture = heartbeatService.scheduleAtFixedRate(this::heartbeat, HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        heartbeatFuture =
+          heartbeatService.scheduleAtFixedRate(
+            this::heartbeat,
+            HEARTBEAT_INTERVAL_SECONDS,
+            HEARTBEAT_INTERVAL_SECONDS,
+            TimeUnit.SECONDS
+          );
       }
     }
     PROFILER.stopDebug();
@@ -175,14 +204,23 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return true;
   }
 
-  private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
-    boolean allowTsParserJsFiles = context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
+  private void initNodeCommand(
+    SensorContext context,
+    File scriptFile,
+    File workDir,
+    String bundles
+  ) throws IOException {
+    boolean allowTsParserJsFiles = context
+      .config()
+      .getBoolean(ALLOW_TS_PARSER_JS_FILES)
+      .orElse(true);
     boolean isSonarLint = context.runtime().getProduct() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
-    var outputConsumer = monitoring.isMonitoringEnabled() ?
-      new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring)) : new LogOutputConsumer();
+    var outputConsumer = monitoring.isMonitoringEnabled()
+      ? new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring))
+      : new LogOutputConsumer();
     // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
 
     nodeCommandBuilder
@@ -191,10 +229,18 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles)
+      .scriptArgs(
+        String.valueOf(port),
+        hostAddress,
+        workDir.getAbsolutePath(),
+        String.valueOf(allowTsParserJsFiles),
+        String.valueOf(isSonarLint),
+        bundles
+      )
       .env(getEnv());
 
-    context.config()
+    context
+      .config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
@@ -231,7 +277,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(context, deployedBundles);
-
     } catch (NodeCommandException e) {
       status = Status.FAILED;
       throw e;
@@ -239,16 +284,36 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException {
+  public void initLinter(
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals,
+    AnalysisMode analysisMode
+  ) throws IOException {
     initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
 
     if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
-      initLinter(AnalysisMode.UNCHANGED_LINTER_ID, AnalysisMode.getUnchangedFileRules(rules), environments, globals);
+      initLinter(
+        AnalysisMode.UNCHANGED_LINTER_ID,
+        AnalysisMode.getUnchangedFileRules(rules),
+        environments,
+        globals
+      );
     }
   }
 
-  private void initLinter(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) throws IOException {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(linterId, rules, environments, globals);
+  private void initLinter(
+    String linterId,
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals
+  ) throws IOException {
+    InitLinterRequest initLinterRequest = new InitLinterRequest(
+      linterId,
+      rules,
+      environments,
+      globals
+    );
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
@@ -292,7 +357,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private String request(String json, String endpoint) throws IOException {
-    var request = HttpRequest.newBuilder()
+    var request = HttpRequest
+      .newBuilder()
       .uri(url(endpoint))
       .timeout(Duration.ofSeconds(timeoutSeconds))
       .header("Content-Type", "application/json")
@@ -305,7 +371,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
-      String msg = "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
+      String msg =
+        "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
         " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
       LOG.error(msg);
       throw new IllegalStateException("eslint-bridge is unresponsive", e);
@@ -322,7 +389,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     try {
       return GSON.fromJson(result, AnalysisResponse.class);
     } catch (JsonSyntaxException e) {
-      String msg = "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
+      String msg =
+        "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
       LOG.error(msg, e);
       throw new IllegalStateException("Failed to parse response", e);
     }
@@ -364,7 +432,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
     } catch (JsonSyntaxException e) {
-      LOG.error("Failed to parse response when requesting files for tsconfig: " + tsconfigAbsolutePath + ": \n-----\n" + result + "\n-----\n");
+      LOG.error(
+        "Failed to parse response when requesting files for tsconfig: " +
+        tsconfigAbsolutePath +
+        ": \n-----\n" +
+        result +
+        "\n-----\n"
+      );
     }
     return new TsConfigResponse(emptyList(), emptyList(), result, null);
   }
@@ -375,7 +449,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (tsConfigResponse.error != null) {
       LOG.error(tsConfigResponse.error);
     }
-    return new TsConfigFile(filename, emptyListIfNull(tsConfigResponse.files), emptyListIfNull(tsConfigResponse.projectReferences));
+    return new TsConfigFile(
+      filename,
+      emptyListIfNull(tsConfigResponse.files),
+      emptyListIfNull(tsConfigResponse.projectReferences)
+    );
   }
 
   @Override
@@ -451,6 +529,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   static class TsConfigRequest {
+
     final String tsconfig;
 
     TsConfigRequest(String tsconfig) {
@@ -465,7 +544,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     List<String> environments;
     List<String> globals;
 
-    InitLinterRequest(String linterId, List<EslintRule> rules, List<String> environments, List<String> globals) {
+    InitLinterRequest(
+      String linterId,
+      List<EslintRule> rules,
+      List<String> environments,
+      List<String> globals
+    ) {
       this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
@@ -476,8 +560,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   static class MonitoringOutputConsumer implements Consumer<String> {
 
     // number of spaces after "Rule" depends on the rule keys lengths
-    private static final Pattern HEADER = Pattern.compile("Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*");
-    private static final Pattern RULE_LINE = Pattern.compile("(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%");
+    private static final Pattern HEADER = Pattern.compile(
+      "Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*"
+    );
+    private static final Pattern RULE_LINE = Pattern.compile(
+      "(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%"
+    );
     private final Monitoring monitoring;
 
     boolean headerDetected;

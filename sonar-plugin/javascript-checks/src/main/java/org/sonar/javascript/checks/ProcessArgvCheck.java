@@ -34,4 +34,3 @@ public class ProcessArgvCheck implements EslintBasedCheck {
     return "process-argv";
   }
 }
-

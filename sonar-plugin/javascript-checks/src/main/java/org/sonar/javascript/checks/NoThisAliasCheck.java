@@ -40,6 +40,7 @@ public class NoThisAliasCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean allowDestructuring = true;
   }
 }

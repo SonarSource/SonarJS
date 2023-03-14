@@ -33,5 +33,4 @@ public class MisorderedParameterListCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "arguments-order";
   }
-
 }

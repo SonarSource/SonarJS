@@ -19,6 +19,11 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
@@ -26,11 +31,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.client.issues.SearchRequest;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class NoSonarTest {
@@ -58,8 +58,10 @@ class NoSonarTest {
   @Test
   void test() {
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
+    request
+      .setComponentKeys(singletonList("nosonar-project"))
+      .setSeverities(singletonList("INFO"))
+      .setRules(singletonList("javascript:S1116"));
     assertThat(newWsClient(orchestrator).issues().search(request).getIssuesList()).hasSize(1);
   }
-
 }

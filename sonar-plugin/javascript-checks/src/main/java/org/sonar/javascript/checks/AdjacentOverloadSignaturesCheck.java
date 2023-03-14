@@ -32,4 +32,3 @@ public class AdjacentOverloadSignaturesCheck implements EslintBasedCheck {
     return "adjacent-overload-signatures";
   }
 }
-

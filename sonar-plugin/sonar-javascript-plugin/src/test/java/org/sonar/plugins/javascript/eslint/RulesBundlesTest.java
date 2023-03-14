@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -27,9 +30,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.api.RulesBundle;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RulesBundlesTest {
 
@@ -42,7 +42,7 @@ class RulesBundlesTest {
   @Test
   void test() throws Exception {
     TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
-    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
     List<Path> paths = rulesBundles.deploy(tempDir);
     assertThat(paths).hasSize(1);
     assertThat(paths.get(0)).exists();
@@ -51,7 +51,7 @@ class RulesBundlesTest {
 
   @Test
   void test_not_exists() {
-    RulesBundle[] missingBundle = {new TestRulesBundle("missing.tgz")};
+    RulesBundle[] missingBundle = { new TestRulesBundle("missing.tgz") };
     assertThatThrownBy(() -> new RulesBundles(missingBundle))
       .isInstanceOf(IllegalStateException.class);
   }
@@ -66,10 +66,11 @@ class RulesBundlesTest {
   void test_deploy_should_log_deployment_in_debug() {
     String filename = "/test-bundle.tgz";
     TestRulesBundle rulesBundle = new TestRulesBundle(filename);
-    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
     rulesBundles.deploy(tempDir);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("Deploying custom rules bundle");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
   }
 
@@ -78,10 +79,10 @@ class RulesBundlesTest {
     TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
     TestUcfgRulesBundle ucfgRulesBundle = new TestUcfgRulesBundle("/test-bundle.tgz");
 
-    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
     assertThat(rulesBundles.getUcfgRulesBundle()).isEmpty();
 
-    rulesBundles = new RulesBundles(new TestUcfgRulesBundle[]{ucfgRulesBundle});
+    rulesBundles = new RulesBundles(new TestUcfgRulesBundle[] { ucfgRulesBundle });
     assertThat(rulesBundles.getUcfgRulesBundle()).contains(ucfgRulesBundle);
   }
 

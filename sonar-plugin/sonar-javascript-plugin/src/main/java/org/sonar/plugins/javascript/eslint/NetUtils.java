@@ -24,13 +24,11 @@ import java.net.ServerSocket;
 
 public class NetUtils {
 
-  private NetUtils() {
-  }
+  private NetUtils() {}
 
   public static int findOpenPort() throws IOException {
     try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
     }
   }
-
 }

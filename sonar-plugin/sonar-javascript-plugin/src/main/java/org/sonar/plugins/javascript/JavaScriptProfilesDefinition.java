@@ -54,6 +54,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private static final Map<String, String> REPO_BY_LANGUAGE = new HashMap<>();
+
   static {
     REPO_BY_LANGUAGE.put(JavaScriptLanguage.KEY, CheckList.JS_REPOSITORY_KEY);
     REPO_BY_LANGUAGE.put(TypeScriptLanguage.KEY, CheckList.TS_REPOSITORY_KEY);
@@ -68,13 +69,23 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
 
-  private static void createProfile(String profileName, String language, Set<String> keys, Context context) {
-    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(profileName, language);
+  private static void createProfile(
+    String profileName,
+    String language,
+    Set<String> keys,
+    Context context
+  ) {
+    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(
+      profileName,
+      language
+    );
     String jsonProfilePath = PROFILES.get(profileName);
     String repositoryKey = REPO_BY_LANGUAGE.get(language);
-    Set<String> activeKeysForBothLanguages = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(jsonProfilePath);
+    Set<String> activeKeysForBothLanguages =
+      BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(jsonProfilePath);
 
-    keys.stream()
+    keys
+      .stream()
       .filter(activeKeysForBothLanguages::contains)
       // deprecated for Typescript: https://github.com/SonarSource/SonarJS/issues/3580
       .filter(key -> !TypeScriptLanguage.KEY.equals(language) || !"S2814".equals(key))
@@ -93,13 +104,21 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * edition
    */
   private static void addSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
-    Set<RuleKey> ruleKeys = getSecurityRuleKeys(SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, language);
+    Set<RuleKey> ruleKeys = getSecurityRuleKeys(
+      SECURITY_RULES_CLASS_NAME,
+      SECURITY_RULE_KEYS_METHOD_NAME,
+      language
+    );
     LOG.debug("Adding security ruleKeys {}", ruleKeys);
     ruleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
   }
 
   // Visible for testing
-  static Set<RuleKey> getSecurityRuleKeys(String className, String ruleKeysMethodName, String language) {
+  static Set<RuleKey> getSecurityRuleKeys(
+    String className,
+    String ruleKeysMethodName,
+    String language
+  ) {
     try {
       Class<?> rulesClass = Class.forName(className);
       Method getRuleKeysMethod = rulesClass.getMethod(ruleKeysMethodName, String.class);
@@ -107,7 +126,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     } catch (ClassNotFoundException e) {
       LOG.debug(className + " is not found, " + securityRuleMessage(e));
     } catch (NoSuchMethodException e) {
-      LOG.debug("Method not found on " + className +", " + securityRuleMessage(e));
+      LOG.debug("Method not found on " + className + ", " + securityRuleMessage(e));
     } catch (IllegalAccessException | InvocationTargetException e) {
       LOG.debug(e.getClass().getSimpleName() + ": " + securityRuleMessage(e));
     }
@@ -116,9 +135,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
-    return checks.stream()
-      .map(c -> c.getAnnotation(Rule.class).key())
-      .collect(Collectors.toSet());
+    return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
   }
 
   private static String securityRuleMessage(Exception e) {

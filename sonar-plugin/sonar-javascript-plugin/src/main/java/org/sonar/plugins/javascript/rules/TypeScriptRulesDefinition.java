@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import static org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition.METADATA_LOCATION;
+
 import java.util.Collections;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.rule.RuleStatus;
@@ -27,8 +29,6 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
-
-import static org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition.METADATA_LOCATION;
 
 public class TypeScriptRulesDefinition implements RulesDefinition {
 
@@ -44,8 +44,15 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.TS_REPOSITORY_KEY, TypeScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, sonarRuntime);
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(CheckList.getTypeScriptChecks()));
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
+      METADATA_LOCATION,
+      JavaScriptProfilesDefinition.SONAR_WAY_JSON,
+      sonarRuntime
+    );
+    ruleMetadataLoader.addRulesByAnnotatedClass(
+      repository,
+      Collections.unmodifiableList(CheckList.getTypeScriptChecks())
+    );
 
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);

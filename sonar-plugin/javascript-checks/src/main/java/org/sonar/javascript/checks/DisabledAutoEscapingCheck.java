@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5247")
 public class DisabledAutoEscapingCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "disabled-auto-escaping";

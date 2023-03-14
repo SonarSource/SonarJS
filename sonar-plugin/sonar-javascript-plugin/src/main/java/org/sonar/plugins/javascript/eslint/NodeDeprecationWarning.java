@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Map.entry;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static java.util.Map.entry;
 
 /**
  * Currently supported versions ('supported' means that we execute the analysis):
@@ -50,7 +50,7 @@ public class NodeDeprecationWarning {
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
   /**
    * This version should be kept in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion.
-   * 
+   *
    * The minor version is a requirement from the ESLint version that eslint-bridge uses.
    * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
    */
@@ -66,18 +66,24 @@ public class NodeDeprecationWarning {
 
   void logNodeDeprecation(int actualNodeVersion) {
     if (actualNodeVersion < MIN_RECOMMENDED_NODE_VERSION) {
-      String msg = String.format("Using Node.js version %d to execute analysis is deprecated and will stop being supported no earlier than %s." +
-          " Please upgrade to a newer LTS version of Node.js %s",
+      String msg = String.format(
+        "Using Node.js version %d to execute analysis is deprecated and will stop being supported no earlier than %s." +
+        " Please upgrade to a newer LTS version of Node.js %s",
         actualNodeVersion,
         REMOVAL_DATE.get(actualNodeVersion),
-        RECOMMENDED_NODE_VERSIONS);
+        RECOMMENDED_NODE_VERSIONS
+      );
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
     }
 
     if (!ALL_RECOMMENDED_NODE_VERSIONS.contains(actualNodeVersion)) {
-      String msg = String.format("Node.js version %d is not recommended, you might experience issues. Please use " +
-        "a recommended version of Node.js %s", actualNodeVersion, RECOMMENDED_NODE_VERSIONS);
+      String msg = String.format(
+        "Node.js version %d is not recommended, you might experience issues. Please use " +
+        "a recommended version of Node.js %s",
+        actualNodeVersion,
+        RECOMMENDED_NODE_VERSIONS
+      );
       LOG.warn(msg, actualNodeVersion);
       analysisWarnings.addUnique(msg);
     }

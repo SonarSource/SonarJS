@@ -23,11 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 public interface CssRule {
-
   String stylelintKey();
 
   default List<Object> stylelintOptions() {
     return Collections.emptyList();
   }
-
 }

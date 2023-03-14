@@ -19,14 +19,14 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class MinifiedFilesTest {
@@ -37,7 +37,8 @@ class MinifiedFilesTest {
 
   @BeforeAll
   public static void prepare() {
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("minified_files"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
@@ -52,7 +53,6 @@ class MinifiedFilesTest {
     assertThat(getMeasureAsInt(PROJECT_KEY, "functions")).isEqualTo(2);
     assertThat(getMeasureAsInt(PROJECT_KEY, "statements")).isEqualTo(1);
   }
-
   /* Helper methods */
 
 }

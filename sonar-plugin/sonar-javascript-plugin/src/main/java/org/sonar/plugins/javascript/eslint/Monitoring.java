@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.FILE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.PROGRAM;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.RULE;
+import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.SENSOR;
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedWriter;
@@ -42,12 +48,6 @@ import org.sonar.api.utils.ManifestUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.FILE;
-import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.PROGRAM;
-import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.RULE;
-import static org.sonar.plugins.javascript.eslint.Monitoring.MetricType.SENSOR;
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
 @ScannerSide
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
@@ -157,12 +157,23 @@ public class Monitoring implements Startable {
   }
 
   private Path monitoringPath() {
-    return configuration.get(MONITORING_PATH).map(Paths::get)
-      .orElseThrow(() -> new IllegalStateException("Monitoring path " + MONITORING_PATH + " not configured"));
+    return configuration
+      .get(MONITORING_PATH)
+      .map(Paths::get)
+      .orElseThrow(() ->
+        new IllegalStateException("Monitoring path " + MONITORING_PATH + " not configured")
+      );
   }
 
   public void ruleStatistics(String ruleKey, double timeMs, double relative) {
-    var ruleMetric = new RuleMetric(ruleKey, timeMs, relative, sensorMetric.projectKey, executionId, canSkipUnchangedFiles);
+    var ruleMetric = new RuleMetric(
+      ruleKey,
+      timeMs,
+      relative,
+      sensorMetric.projectKey,
+      executionId,
+      canSkipUnchangedFiles
+    );
     metrics.add(ruleMetric);
   }
 
@@ -170,7 +181,8 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    programMetric = new ProgramMetric(tsConfig, executionId, sensorMetric.projectKey, canSkipUnchangedFiles);
+    programMetric =
+      new ProgramMetric(tsConfig, executionId, sensorMetric.projectKey, canSkipUnchangedFiles);
   }
 
   public void stopProgram() {
@@ -186,9 +198,11 @@ public class Monitoring implements Startable {
   }
 
   enum MetricType {
-    SENSOR, FILE, RULE, PROGRAM
+    SENSOR,
+    FILE,
+    RULE,
+    PROGRAM,
   }
-
 
   static class Metric implements Serializable {
 
@@ -207,14 +221,19 @@ public class Monitoring implements Startable {
     Metric(MetricType metricType, String executionId, boolean canSkipUnchangedFiles) {
       this.executionId = executionId;
       pluginVersion = PluginInfo.getVersion();
-      pluginBuild = ManifestUtils.getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build").get(0);
+      pluginBuild =
+        ManifestUtils
+          .getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build")
+          .get(0);
       this.metricType = metricType;
-      this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+      this.timestamp =
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
       this.canSkipUnchangedFiles = canSkipUnchangedFiles;
     }
   }
 
   static class SensorMetric extends Metric {
+
     int fileCount;
     long duration;
 
@@ -224,6 +243,7 @@ public class Monitoring implements Startable {
   }
 
   static class FileMetric extends Metric {
+
     // order of file in the project in which it was analyzed. 1 - first file, ....
     int ordinal;
     int ncloc;
@@ -257,7 +277,14 @@ public class Monitoring implements Startable {
     double timeMs;
     double timeRelative;
 
-    RuleMetric(String ruleKey, double timeMs, double timeRelative, String projectKey, String executionId, boolean canSkipUnchangedFiles) {
+    RuleMetric(
+      String ruleKey,
+      double timeMs,
+      double timeRelative,
+      String projectKey,
+      String executionId,
+      boolean canSkipUnchangedFiles
+    ) {
       super(RULE, executionId, canSkipUnchangedFiles);
       this.ruleKey = ruleKey;
       this.timeMs = timeMs;
@@ -271,11 +298,15 @@ public class Monitoring implements Startable {
     String tsConfig;
     long duration;
 
-    ProgramMetric(String tsConfig, String executionId, String projectKey, boolean canSkipUnchangedFiles) {
+    ProgramMetric(
+      String tsConfig,
+      String executionId,
+      String projectKey,
+      boolean canSkipUnchangedFiles
+    ) {
       super(PROGRAM, executionId, canSkipUnchangedFiles);
       this.tsConfig = tsConfig;
       this.projectKey = projectKey;
     }
   }
-
 }

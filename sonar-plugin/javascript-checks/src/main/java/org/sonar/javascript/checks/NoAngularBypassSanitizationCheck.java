@@ -33,5 +33,4 @@ public class NoAngularBypassSanitizationCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-angular-bypass-sanitization";
   }
-
 }

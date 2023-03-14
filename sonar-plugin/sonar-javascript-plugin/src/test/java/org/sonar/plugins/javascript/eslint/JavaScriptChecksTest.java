@@ -19,21 +19,23 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class JavaScriptChecksTest {
 
   @Test
   void should_detect_unknown_rule_key() throws Exception {
-    JavaScriptChecks checks = new JavaScriptChecks(TestUtils.checkFactory(CheckList.JS_REPOSITORY_KEY, "S3923"));
+    JavaScriptChecks checks = new JavaScriptChecks(
+      TestUtils.checkFactory(CheckList.JS_REPOSITORY_KEY, "S3923")
+    );
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
+    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches"))
+      .isEqualTo(RuleKey.of("javascript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
   }
-
 }

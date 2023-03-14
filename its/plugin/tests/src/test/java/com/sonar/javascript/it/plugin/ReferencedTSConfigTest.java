@@ -19,16 +19,15 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.io.File;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class ReferencedTSConfigTest {
@@ -47,10 +46,13 @@ class ReferencedTSConfigTest {
       .setProjectDir(PROJECT_DIR);
 
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "ts", "eslint-based-rules-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(PROJECT, "ts", "eslint-based-rules-profile");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
 
-    assertThat(buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file"))).hasSize(2);
+    assertThat(buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file")))
+      .hasSize(2);
   }
 }

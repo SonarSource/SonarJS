@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -41,6 +40,7 @@ public class AngleBracketTypeAssertionCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     String assertionStyle = "as";
     String objectLiteralTypeAssertions = "allow";
   }

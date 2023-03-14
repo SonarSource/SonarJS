@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class JsxNoBindCheckTest {
 
@@ -31,5 +31,4 @@ class JsxNoBindCheckTest {
     var configAsString = new Gson().toJson(new JsxNoBindCheck().configurations());
     assertThat(configAsString).isEqualTo("[{\"ignoreRefs\":true,\"ignoreDOMComponents\":true}]");
   }
-
 }

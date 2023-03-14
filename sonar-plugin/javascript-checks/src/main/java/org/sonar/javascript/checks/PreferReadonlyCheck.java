@@ -31,5 +31,4 @@ public class PreferReadonlyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "prefer-readonly";
   }
-
 }

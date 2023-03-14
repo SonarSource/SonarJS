@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class EqEqEqCheckTest {
 
@@ -30,5 +30,4 @@ class EqEqEqCheckTest {
   void test() {
     assertThat(new Gson().toJson(new EqEqEqCheck().configurations())).isEqualTo("[\"smart\"]");
   }
-
 }

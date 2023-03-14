@@ -19,6 +19,13 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.javascript.it.plugin.assertj.BuildResultAssert;
 import com.sonar.javascript.it.plugin.assertj.Measures;
 import com.sonar.javascript.it.plugin.assertj.MeasuresAssert;
@@ -45,13 +52,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-
 class PRAnalysisTest {
 
   private static Orchestrator orchestrator;
@@ -60,13 +60,17 @@ class PRAnalysisTest {
   private Path gitBaseDir;
 
   @ParameterizedTest
-  @ValueSource(strings = {"js", "ts"})
+  @ValueSource(strings = { "js", "ts" })
   void should_analyse_js_ts_pull_requests(String language) {
     var testProject = TestProject.fromName(language);
     var projectKey = testProject.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProject.getProfileName(), testProject.getLanguage()));
+    OrchestratorStarter.setProfiles(
+      orchestrator,
+      projectKey,
+      Map.of(testProject.getProfileName(), testProject.getLanguage())
+    );
 
     try (var gitExecutor = testProject.createIn(projectPath)) {
       var indexFile = "index." + language;
@@ -74,20 +78,26 @@ class PRAnalysisTest {
 
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       var buildResult = scanWith(getMasterScannerIn(projectPath, projectKey));
-      BuildResultAssert.assertThat(buildResult)
+      BuildResultAssert
+        .assertThat(buildResult)
         .withProjectKey(projectKey)
-        .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
+        .logsAtLeastOnce(
+          "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
+        )
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
-          .withReason("current analysis requires all files to be analyzed")
-          .forFiles(indexFile, helloFile)
-          .withCachedFilesCounts(1, 1)
-          .isUsed()
+        .withReason("current analysis requires all files to be analyzed")
+        .forFiles(indexFile, helloFile)
+        .withCachedFilesCounts(1, 1)
+        .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
         .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
-        .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
+        .logsOnce(
+          "INFO: Hit the cache for 0 out of 2",
+          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
+        )
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
         .hasSize(1)
@@ -95,21 +105,30 @@ class PRAnalysisTest {
         .contains(projectKey + ":" + indexFile);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+      BuildResultAssert
+        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
-        .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
+        .logsAtLeastOnce(
+          "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+        )
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
-        .cacheFileStrategy("READ_AND_WRITE").forFiles(indexFile).withCachedFilesCounts(1).isUsed()
+        .cacheFileStrategy("READ_AND_WRITE")
+        .forFiles(indexFile)
+        .withCachedFilesCounts(1)
+        .isUsed()
         .doesNotLog(format("%s\" with linterId \"unchanged\"", indexFile))
         .cacheFileStrategy("WRITE_ONLY")
-          .withReason("the current file is changed")
-          .forFiles(helloFile)
-          .withCachedFilesCounts(1)
-          .isUsed()
+        .withReason("the current file is changed")
+        .forFiles(helloFile)
+        .withCachedFilesCounts(1)
+        .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
-        .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
+        .logsOnce(
+          "INFO: Hit the cache for 1 out of 2",
+          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"
+        )
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
@@ -124,46 +143,70 @@ class PRAnalysisTest {
     var projectKey = cloudformation.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(
-      TestProject.JS.getProfileName(), TestProject.JS.getLanguage()
-    ));
+    OrchestratorStarter.setProfiles(
+      orchestrator,
+      projectKey,
+      Map.of(TestProject.JS.getProfileName(), TestProject.JS.getLanguage())
+    );
 
     try (var gitExecutor = cloudformation.createIn(projectPath)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+      BuildResultAssert
+        .assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
-        .logsAtLeastOnce("DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)")
+        .logsAtLeastOnce(
+          "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
+        )
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
-          .withReason("current analysis requires all files to be analyzed")
-          .forFiles("file1.yaml", "file2.yaml")
-          .withCachedFilesCounts(1, 1)
-          .isUsed()
+        .withReason("current analysis requires all files to be analyzed")
+        .forFiles("file1.yaml", "file2.yaml")
+        .withCachedFilesCounts(1, 1)
+        .isUsed()
         .logsOnce("file1.yaml\" with linterId \"default\"")
         .logsOnce("file2.yaml\" with linterId \"default\"")
-        .logsOnce("INFO: Hit the cache for 0 out of 2", "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]")
-        .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
-      assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
-        .isEmpty();
+        .logsOnce(
+          "INFO: Hit the cache for 0 out of 2",
+          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
+        )
+        .generatesUcfgFilesForAll(
+          projectPath,
+          "file2_SomeLambdaFunction_yaml",
+          "file1_SomeLambdaFunction_yaml"
+        );
+      assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null)).isEmpty();
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+      BuildResultAssert
+        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
-        .logsAtLeastOnce("DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed")
+        .logsAtLeastOnce(
+          "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+        )
         .logsOnce("DEBUG: Initializing linter \"default\"")
         .logsOnce("DEBUG: Initializing linter \"unchanged\"")
-        .cacheFileStrategy("READ_AND_WRITE").forFiles("file1.yaml").withCachedFilesCounts(1).isUsed()
+        .cacheFileStrategy("READ_AND_WRITE")
+        .forFiles("file1.yaml")
+        .withCachedFilesCounts(1)
+        .isUsed()
         .doesNotLog("file1.yaml\" with linterId \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
-          .withReason("the current file is changed")
-          .forFiles("file2.yaml")
-          .withCachedFilesCounts(1)
-          .isUsed()
+        .withReason("the current file is changed")
+        .forFiles("file2.yaml")
+        .withCachedFilesCounts(1)
+        .isUsed()
         .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
-        .logsOnce("INFO: Hit the cache for 1 out of 2", "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]")
-        .generatesUcfgFilesForAll(projectPath, "file2_SomeLambdaFunction_yaml", "file1_SomeLambdaFunction_yaml");
+        .logsOnce(
+          "INFO: Hit the cache for 1 out of 2",
+          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"
+        )
+        .generatesUcfgFilesForAll(
+          projectPath,
+          "file2_SomeLambdaFunction_yaml",
+          "file1_SomeLambdaFunction_yaml"
+        );
       assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
@@ -172,48 +215,58 @@ class PRAnalysisTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"cpd-js", "cpd-ts"})
+  @ValueSource(strings = { "cpd-js", "cpd-ts" })
   void should_generate_cpds(String name) {
     var testProject = TestProject.fromName(name);
     var language = testProject.getLanguage();
     var projectKey = testProject.getProjectKey();
     var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
 
-    OrchestratorStarter.setProfiles(orchestrator, projectKey, Map.of(testProject.getProfileName(), language));
+    OrchestratorStarter.setProfiles(
+      orchestrator,
+      projectKey,
+      Map.of(testProject.getProfileName(), language)
+    );
 
     try (var gitExecutor = testProject.createIn(projectPath)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       scanWith(getMasterScannerIn(projectPath, projectKey));
 
-      MeasuresAssert.assertThat(getMeasures(projectKey + ":file1." + language, Main.BRANCH, null))
+      MeasuresAssert
+        .assertThat(getMeasures(projectKey + ":file1." + language, Main.BRANCH, null))
         .has("duplicated_lines", 30.0d)
         .has("duplicated_blocks", 1.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 93.8d);
 
-      MeasuresAssert.assertThat(getMeasures(projectKey + ":file2." + language, Main.BRANCH, null))
+      MeasuresAssert
+        .assertThat(getMeasures(projectKey + ":file2." + language, Main.BRANCH, null))
         .has("duplicated_lines", 30.0d)
         .has("duplicated_blocks", 1.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 88.2d);
 
-      MeasuresAssert.assertThat(getMeasures(projectKey, Main.BRANCH, null))
+      MeasuresAssert
+        .assertThat(getMeasures(projectKey, Main.BRANCH, null))
         .has("duplicated_lines", 60.0d)
         .has("duplicated_blocks", 2.0d)
         .has("duplicated_files", 2.0d)
         .has("duplicated_lines_density", 90.9d);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+      BuildResultAssert
+        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .logsTimes(2, "DEBUG: Processing cache analysis of file");
 
-      MeasuresAssert.assertThat(getMeasures(projectKey + ":file3." + language, null, PR.BRANCH))
+      MeasuresAssert
+        .assertThat(getMeasures(projectKey + ":file3." + language, null, PR.BRANCH))
         .has("duplicated_lines", 31.0d)
         .has("duplicated_blocks", 2.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 96.9d);
 
-      MeasuresAssert.assertThat(getMeasures(projectKey, null, PR.BRANCH))
+      MeasuresAssert
+        .assertThat(getMeasures(projectKey, null, PR.BRANCH))
         .has("duplicated_lines", 92.0d)
         .has("duplicated_blocks", 5.0d)
         .has("duplicated_files", 3.0d)
@@ -227,14 +280,20 @@ class PRAnalysisTest {
 
   @BeforeAll
   public static void startOrchestrator() {
-    var builder = Orchestrator.builderEnv()
+    var builder = Orchestrator
+      .builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-      .setEdition(Edition.DEVELOPER).activateLicense()
+      .setEdition(Edition.DEVELOPER)
+      .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV"))
-      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"));
+      .addPlugin(
+        MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
+      )
+      .addPlugin(
+        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
+      );
 
     for (var projectTestCase : TestProject.values()) {
       builder.restoreProfileAtStartup(FileLocation.ofClasspath(projectTestCase.getProfileFile()));
@@ -282,7 +341,6 @@ class PRAnalysisTest {
   }
 
   enum TestProject {
-
     JS("js", "js"),
     TS("ts", "ts"),
     YAML("yaml", "js"),
@@ -339,7 +397,6 @@ class PRAnalysisTest {
 
       return executor;
     }
-
   }
 
   static class GitExecutor implements AutoCloseable {
@@ -348,10 +405,12 @@ class PRAnalysisTest {
 
     GitExecutor(Path root) {
       try {
-        git = Git.init()
-          .setDirectory(Files.createDirectories(root).toFile())
-          .setInitialBranch(Main.BRANCH)
-          .call();
+        git =
+          Git
+            .init()
+            .setDirectory(Files.createDirectories(root).toFile())
+            .setInitialBranch(Main.BRANCH)
+            .call();
       } catch (IOException | GitAPIException e) {
         throw new RuntimeException(e);
       }
@@ -368,15 +427,16 @@ class PRAnalysisTest {
     public void close() {
       git.close();
     }
-
   }
 
   static class Main {
+
     static final String BRANCH = "main";
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }
 
   static class PR {
+
     static final String BRANCH = "pr";
     static final int ANALYZER_REPORTED_ISSUES = 1;
   }

@@ -46,7 +46,10 @@ public class PathWalker implements Iterator<Path> {
 
   public static Stream<Path> stream(Path root, int maxDepth) {
     var pathWalker = new PathWalker(root, maxDepth);
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(pathWalker, Spliterator.ORDERED), false);
+    return StreamSupport.stream(
+      Spliterators.spliteratorUnknownSize(pathWalker, Spliterator.ORDERED),
+      false
+    );
   }
 
   private static long depth(Path path) {
@@ -66,7 +69,8 @@ public class PathWalker implements Iterator<Path> {
 
     var path = paths.removeFirst();
     if (Files.isDirectory(path)) {
-      Stream.ofNullable(path.toFile().listFiles())
+      Stream
+        .ofNullable(path.toFile().listFiles())
         .flatMap(Arrays::stream)
         .map(File::toPath)
         .forEach(this::addPath);
@@ -84,5 +88,4 @@ public class PathWalker implements Iterator<Path> {
     var pathDepth = depth(path);
     return pathDepth - rootDepth > maxDepth;
   }
-
 }

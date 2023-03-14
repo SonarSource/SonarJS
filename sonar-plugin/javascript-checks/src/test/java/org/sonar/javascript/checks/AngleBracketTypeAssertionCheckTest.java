@@ -19,16 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class AngleBracketTypeAssertionCheckTest {
 
   @Test
   void configurations() {
-    String configAsString = new Gson().toJson(new AngleBracketTypeAssertionCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"assertionStyle\":\"as\",\"objectLiteralTypeAssertions\":\"allow\"}]");
+    String configAsString = new Gson()
+      .toJson(new AngleBracketTypeAssertionCheck().configurations());
+    assertThat(configAsString)
+      .isEqualTo("[{\"assertionStyle\":\"as\",\"objectLiteralTypeAssertions\":\"allow\"}]");
   }
 }

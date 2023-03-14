@@ -47,7 +47,7 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("searchkit", ""), // todo
       tsProject("TypeScript", "src/harness/unittests"),
       tsProject("vuetify", "")
-      );
+    );
   }
 
   private static Arguments tsProject(String project, String testDir) {
@@ -55,15 +55,21 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
   }
 
   private static Arguments tsProject(String project, String exclusions, String testDir) {
-    return Arguments.of(project, "ts", "../typescript-test-sources/src/" + project, exclusions, testDir);
+    return Arguments.of(
+      project,
+      "ts",
+      "../typescript-test-sources/src/" + project,
+      exclusions,
+      testDir
+    );
   }
 
   @ParameterizedTest
   @MethodSource
   @Execution(ExecutionMode.CONCURRENT)
   @Override
-  void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
+  void ruling(String project, String language, String sourceDir, String exclusions, String testDir)
+    throws Exception {
     runRulingTest(project, language, sourceDir, exclusions, testDir);
   }
-
 }

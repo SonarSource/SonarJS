@@ -33,5 +33,4 @@ public class ArgumentsUsageCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "arguments-usage";
   }
-
 }

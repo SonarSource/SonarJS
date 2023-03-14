@@ -33,5 +33,4 @@ public class FixmeTagPresenceCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "fixme-tag";
   }
-
 }

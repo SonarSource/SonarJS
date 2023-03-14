@@ -19,6 +19,15 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static com.sonar.javascript.it.plugin.ProfileGenerator.generateProfile;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -36,15 +45,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static com.sonar.javascript.it.plugin.ProfileGenerator.generateProfile;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-
 @ExtendWith(OrchestratorStarter.class)
 class EslintBasedRulesTest {
 
@@ -54,8 +54,14 @@ class EslintBasedRulesTest {
 
   @BeforeAll
   static void setup() {
-    jsProfile = generateProfile(orchestrator, "js", "javascript", new ProfileGenerator.RulesConfiguration(),
-      emptySet());
+    jsProfile =
+      generateProfile(
+        orchestrator,
+        "js",
+        "javascript",
+        new ProfileGenerator.RulesConfiguration(),
+        emptySet()
+      );
   }
 
   @Test
@@ -138,7 +144,8 @@ class EslintBasedRulesTest {
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
     List<Issue> issuesList = getIssueList(projectKey, "javascript:S3923");
-    assertThat(issuesList).hasSize(1)
+    assertThat(issuesList)
+      .hasSize(1)
       .extracting(Issue::getComponent)
       .containsExactly("file-filter-project:main.js");
   }
@@ -165,7 +172,8 @@ class EslintBasedRulesTest {
     Files.copy(ping, fakeNodePath, StandardCopyOption.REPLACE_EXISTING);
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(buildResult.getLogs()).contains("Looking for Node.js in the PATH using where.exe (Windows)");
+    assertThat(buildResult.getLogs())
+      .contains("Looking for Node.js in the PATH using where.exe (Windows)");
 
     // compare that the node which we used is not "ping.exe"
     String log = buildResult.getLogsLines(s -> s.contains("Found node.exe at")).get(0);
@@ -185,7 +193,10 @@ class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty("sonar.javascript.monitoring.path", projectDir.toPath().resolve(".scannerwork").toString())
+      .setProperty(
+        "sonar.javascript.monitoring.path",
+        projectDir.toPath().resolve(".scannerwork").toString()
+      )
       .setProjectDir(projectDir);
 
     BuildResult buildResult = orchestrator.executeBuild(build);
@@ -227,14 +238,21 @@ class EslintBasedRulesTest {
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
-    assertThat(buildResult.getLogsLines(l -> l.contains("Failed to parse") && l.contains("with TypeScript parser"))).isEmpty();
+    assertThat(
+      buildResult.getLogsLines(l ->
+        l.contains("Failed to parse") && l.contains("with TypeScript parser")
+      )
+    )
+      .isEmpty();
 
     var issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getRule, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple("javascript:S3403", projectKey + ":file.js"), // rule requires type information
-      tuple("javascript:S3923", projectKey + ":file.js"), // rule does not require type information
-      tuple("typescript:S3923", projectKey + ":file.ts")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getRule, Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple("javascript:S3403", projectKey + ":file.js"), // rule requires type information
+        tuple("javascript:S3923", projectKey + ":file.js"), // rule does not require type information
+        tuple("typescript:S3923", projectKey + ":file.ts")
+      );
   }
 
   @NotNull

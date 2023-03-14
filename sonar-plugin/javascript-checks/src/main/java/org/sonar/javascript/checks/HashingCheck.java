@@ -34,4 +34,3 @@ public class HashingCheck implements EslintBasedCheck {
     return "hashing";
   }
 }
-

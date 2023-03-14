@@ -31,5 +31,4 @@ public class PreferTypeGuardCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "prefer-type-guard";
   }
-
 }

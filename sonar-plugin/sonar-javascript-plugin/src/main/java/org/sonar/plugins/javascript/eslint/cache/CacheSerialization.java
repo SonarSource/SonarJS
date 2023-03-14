@@ -66,5 +66,4 @@ class CacheSerialization {
   void writeToCache(InputStream sequence) {
     context.nextCache().write(cacheKey.toString(), sequence);
   }
-
 }

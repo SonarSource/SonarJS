@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S3579")
 public class AssociativeArraysCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "no-associative-arrays";

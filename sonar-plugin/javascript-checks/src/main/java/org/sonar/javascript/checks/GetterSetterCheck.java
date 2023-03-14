@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -38,7 +37,8 @@ public class GetterSetterCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "getWithoutSet",
     description = "Reports on getters without setters.",
-    defaultValue = "" + DEFAULT_GET_WITHOUT_SET)
+    defaultValue = "" + DEFAULT_GET_WITHOUT_SET
+  )
   boolean getWithoutSet = DEFAULT_GET_WITHOUT_SET;
 
   @Override

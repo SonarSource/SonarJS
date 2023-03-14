@@ -25,7 +25,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide
 public interface RulesBundle {
-
   /**
    *
    * @return Path of the tgz bundle inside the plugin jar, should start with /
@@ -39,5 +38,4 @@ public interface RulesBundle {
   default String bundleVersion() {
     return null;
   }
-
 }

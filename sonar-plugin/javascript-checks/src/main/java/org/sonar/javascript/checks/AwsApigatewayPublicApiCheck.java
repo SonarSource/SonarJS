@@ -33,5 +33,4 @@ public class AwsApigatewayPublicApiCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-apigateway-public-api";
   }
-
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -32,8 +34,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class CheckListTest {
 
   /**
@@ -41,7 +41,8 @@ class CheckListTest {
    */
   @Test
   void count() throws Exception {
-    long count = Files.list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
+    long count = Files
+      .list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
       .filter(p -> p.toString().endsWith("Check.java") && !p.toString().startsWith("Abstract"))
       .count();
     assertThat(CheckList.getAllChecks().size()).isEqualTo(count);
@@ -64,10 +65,14 @@ class CheckListTest {
     }
 
     List<String> keys = new ArrayList<>();
-    List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", Collections.unmodifiableList(checks));
+    List<Rule> rules = new AnnotationRuleParser()
+      .parse("repositoryKey", Collections.unmodifiableList(checks));
     for (Rule rule : rules) {
       keys.add(rule.getKey());
-      assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
+      assertThat(
+        getClass()
+          .getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html")
+      )
         .overridingErrorMessage("No description for " + rule.getKey())
         .isNotNull();
 
@@ -96,7 +101,9 @@ class CheckListTest {
       if (isEslintBasedCheck(cls)) {
         EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
         keys.add(eslintBasedCheck.eslintKey());
-        assertThat(eslintBasedCheck.eslintKey()).as("Invalid key for " + eslintBasedCheck.getClass()).matches("[a-z\\d\\-]+");
+        assertThat(eslintBasedCheck.eslintKey())
+          .as("Invalid key for " + eslintBasedCheck.getClass())
+          .matches("[a-z\\d\\-]+");
       }
     }
 
@@ -125,7 +132,9 @@ class CheckListTest {
   @Test
   void testEveryCheckBelongsToLanguage() {
     Set<Class<? extends JavaScriptCheck>> allChecks = new HashSet<>(CheckList.getAllChecks());
-    Set<Class<? extends JavaScriptCheck>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
+    Set<Class<? extends JavaScriptCheck>> tsAndJsChecks = new HashSet<>(
+      CheckList.getTypeScriptChecks()
+    );
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
 
     assertThat(allChecks).isEqualTo(tsAndJsChecks);
@@ -139,5 +148,4 @@ class CheckListTest {
       return false;
     }
   }
-
 }

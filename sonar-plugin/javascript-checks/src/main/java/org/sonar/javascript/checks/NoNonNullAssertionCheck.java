@@ -31,5 +31,4 @@ public class NoNonNullAssertionCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-non-null-assertion";
   }
-
 }

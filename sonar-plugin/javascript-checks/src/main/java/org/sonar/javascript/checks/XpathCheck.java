@@ -34,4 +34,3 @@ public class XpathCheck implements EslintBasedCheck {
     return "xpath";
   }
 }
-

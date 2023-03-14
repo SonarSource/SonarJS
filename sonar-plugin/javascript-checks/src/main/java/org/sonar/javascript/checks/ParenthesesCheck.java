@@ -35,5 +35,4 @@ public class ParenthesesCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-redundant-parentheses";
   }
-
 }

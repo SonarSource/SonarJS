@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -32,15 +34,18 @@ import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class JavaScriptRulesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+    Version.create(9, 3)
+  );
 
   @Test
   void test() {
-    Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime));
+    Repository repository = TestUtils.buildRepository(
+      "javascript",
+      new JavaScriptRulesDefinition(sonarRuntime)
+    );
 
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("js");
@@ -54,7 +59,10 @@ class JavaScriptRulesDefinitionTest {
 
   @Test
   void sonarlint() {
-    Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime));
+    Repository repository = TestUtils.buildRepository(
+      "javascript",
+      new JavaScriptRulesDefinition(sonarRuntime)
+    );
     assertThat(repository.rule("S909").activatedByDefault()).isFalse();
     assertThat(repository.rule("S930").activatedByDefault()).isTrue();
   }
@@ -62,7 +70,8 @@ class JavaScriptRulesDefinitionTest {
   private void assertSecurityStandards(Repository repository) {
     Rule rule = repository.rule("S5736");
     assertThat(rule).isNotNull();
-    assertThat(rule.securityStandards()).containsExactly("cwe:200", "owaspTop10-2021:a1", "owaspTop10:a3");
+    assertThat(rule.securityStandards())
+      .containsExactly("cwe:200", "owaspTop10-2021:a1", "owaspTop10:a3");
   }
 
   private void assertParameterProperties(Repository repository) {
@@ -90,5 +99,4 @@ class JavaScriptRulesDefinitionTest {
       }
     }
   }
-
 }

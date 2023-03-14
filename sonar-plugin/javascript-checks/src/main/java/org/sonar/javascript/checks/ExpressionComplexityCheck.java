@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -35,7 +34,10 @@ public class ExpressionComplexityCheck implements EslintBasedCheck {
 
   private static final int DEFAULT = 3;
 
-  @RuleProperty(description = "Maximum number of allowed conditional operators in an expression", defaultValue = "" + DEFAULT)
+  @RuleProperty(
+    description = "Maximum number of allowed conditional operators in an expression",
+    defaultValue = "" + DEFAULT
+  )
   public int max = DEFAULT;
 
   @Override

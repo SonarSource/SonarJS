@@ -34,4 +34,3 @@ public class PseudoRandomCheck implements EslintBasedCheck {
     return "pseudo-random";
   }
 }
-

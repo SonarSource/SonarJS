@@ -37,7 +37,8 @@ public class CognitiveComplexityFunctionCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "threshold",
     description = "The maximum authorized complexity.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
   int threshold = DEFAULT_THRESHOLD;
 
   @Override

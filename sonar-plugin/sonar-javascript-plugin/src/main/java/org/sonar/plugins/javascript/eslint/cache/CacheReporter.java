@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,17 +32,17 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
-
 class CacheReporter {
 
   private static final Logger LOG = Loggers.get(CacheReporter.class);
 
   private final Map<Optional<CacheStrategies.MissReason>, AtomicInteger> counters = new HashMap<>();
 
-  private static String getStrategyMessage(CacheStrategy strategy, @Nullable InputFile inputFile, @Nullable CacheStrategies.MissReason missReason) {
+  private static String getStrategyMessage(
+    CacheStrategy strategy,
+    @Nullable InputFile inputFile,
+    @Nullable CacheStrategies.MissReason missReason
+  ) {
     var logBuilder = new StringBuilder("Cache strategy set to '");
     logBuilder.append(strategy.getName()).append("'");
     if (inputFile != null) {
@@ -54,7 +58,11 @@ class CacheReporter {
     return format("%s [%d/%d]", reason.name(), count, total);
   }
 
-  void logAndIncrement(CacheStrategy strategy, InputFile inputFile, @Nullable CacheStrategies.MissReason missReason) {
+  void logAndIncrement(
+    CacheStrategy strategy,
+    InputFile inputFile,
+    @Nullable CacheStrategies.MissReason missReason
+  ) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(getStrategyMessage(strategy, inputFile, missReason));
     }
@@ -75,7 +83,9 @@ class CacheReporter {
   }
 
   private String getMissMessages(int total) {
-    String message = counters.entrySet().stream()
+    String message = counters
+      .entrySet()
+      .stream()
       .filter(entry -> entry.getKey().isPresent())
       .map(entry -> getMissMessage(total, entry.getKey().get(), entry.getValue().intValue()))
       .sorted()
@@ -98,5 +108,4 @@ class CacheReporter {
   private AtomicInteger getCounter(@Nullable CacheStrategies.MissReason reason) {
     return counters.computeIfAbsent(ofNullable(reason), key -> new AtomicInteger(0));
   }
-
 }

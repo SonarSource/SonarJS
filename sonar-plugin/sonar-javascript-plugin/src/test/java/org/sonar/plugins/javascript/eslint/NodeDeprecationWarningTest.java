@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.MIN_RECOMMENDED_NODE_VERSION;
+import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION;
+import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.REMOVAL_DATE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -27,17 +32,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.MIN_RECOMMENDED_NODE_VERSION;
-import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION;
-import static org.sonar.plugins.javascript.eslint.NodeDeprecationWarning.REMOVAL_DATE;
-
 class NodeDeprecationWarningTest {
 
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   static class TestAnalysisWarnings extends AnalysisWarningsWrapper {
+
     List<String> warnings = new ArrayList<>();
 
     @Override
@@ -52,8 +53,10 @@ class NodeDeprecationWarningTest {
   @Test
   void test_14() {
     deprecationWarning.logNodeDeprecation(14);
-    assertWarnings("Using Node.js version 14 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. " +
-        "Please upgrade to a newer LTS version of Node.js [16, 18]");
+    assertWarnings(
+      "Using Node.js version 14 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. " +
+      "Please upgrade to a newer LTS version of Node.js [16, 18]"
+    );
   }
 
   @Test
@@ -66,7 +69,8 @@ class NodeDeprecationWarningTest {
   @Test
   void test_15() {
     deprecationWarning.logNodeDeprecation(15);
-    assertWarnings("Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16, 18]",
+    assertWarnings(
+      "Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16, 18]",
       "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18]"
     );
   }
@@ -74,12 +78,15 @@ class NodeDeprecationWarningTest {
   @Test
   void test_17() {
     deprecationWarning.logNodeDeprecation(17);
-    assertWarnings("Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18]");
+    assertWarnings(
+      "Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18]"
+    );
   }
 
   @Test
   void test_all_removal_dates_defined() {
-    var allRemovalDates = IntStream.range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION)
+    var allRemovalDates = IntStream
+      .range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION)
       .allMatch(REMOVAL_DATE::containsKey);
     assertThat(allRemovalDates).isTrue();
   }
@@ -88,5 +95,4 @@ class NodeDeprecationWarningTest {
     assertThat(analysisWarnings.warnings).containsExactly(messages);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(messages);
   }
-
 }

@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
@@ -26,15 +30,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(OrchestratorStarter.class)
 class VueAnalysisTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
-
 
   @Test
   void sonarqube() {
@@ -58,7 +57,8 @@ class VueAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
-    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "cognitive_complexity"))
+      .isEqualTo(2);
   }
 
   @Test
@@ -98,7 +98,8 @@ class VueAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "comment_lines")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "complexity")).isEqualTo(1);
-    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "cognitive_complexity"))
+      .isEqualTo(2);
 
     // assert both .vue and .ts files are analyzed
 

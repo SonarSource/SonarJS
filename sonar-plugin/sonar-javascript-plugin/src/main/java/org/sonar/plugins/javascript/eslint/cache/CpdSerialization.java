@@ -33,7 +33,8 @@ class CpdSerialization extends CacheSerialization {
   CpdSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
     cpdDataSerialization = new CacheSerialization(context, cacheKey.withPrefix(DATA_PREFIX));
-    cpdStringTableSerialization = new CacheSerialization(context, cacheKey.withPrefix(STRING_TABLE_PREFIX));
+    cpdStringTableSerialization =
+      new CacheSerialization(context, cacheKey.withPrefix(STRING_TABLE_PREFIX));
   }
 
   @Override
@@ -58,5 +59,4 @@ class CpdSerialization extends CacheSerialization {
     cpdDataSerialization.writeToCache(serializationResult.getData());
     cpdStringTableSerialization.writeToCache(serializationResult.getStringTable());
   }
-
 }

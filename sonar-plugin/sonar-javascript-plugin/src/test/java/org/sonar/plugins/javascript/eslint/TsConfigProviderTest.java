@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -41,11 +46,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class TsConfigProviderTest {
 
@@ -82,7 +82,11 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file2.ts");
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
-    assertThat(tsconfigs).containsExactlyInAnyOrder(tsconfig1.toAbsolutePath().toString(), tsconfig2.toAbsolutePath().toString());
+    assertThat(tsconfigs)
+      .containsExactlyInAnyOrder(
+        tsconfig1.toAbsolutePath().toString(),
+        tsconfig2.toAbsolutePath().toString()
+      );
   }
 
   @Test
@@ -90,13 +94,19 @@ class TsConfigProviderTest {
     Path baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "custom.tsconfig.json"));
+    ctx.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "custom.tsconfig.json")
+    );
     createInputFile(ctx, "file.ts");
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'custom.tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS);
+    assertThat(logger.logs(LoggerLevel.INFO))
+      .contains(
+        "Resolving TSConfig files using 'custom.tsconfig.json' from property " +
+        JavaScriptPlugin.TSCONFIG_PATHS
+      );
   }
 
   @Test
@@ -121,15 +131,26 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve("extended.tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"));
+    ctx.setSettings(
+      new MapSettings()
+        .setProperty(
+          JavaScriptPlugin.TSCONFIG_PATHS,
+          "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"
+        )
+    );
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
-    assertThat(tsconfigs).containsExactlyInAnyOrder(
-      baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
-      baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
-      baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
-    );
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS);
+    assertThat(tsconfigs)
+      .containsExactlyInAnyOrder(
+        baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
+        baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
+        baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
+      );
+    assertThat(logger.logs(LoggerLevel.INFO))
+      .contains(
+        "Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " +
+        JavaScriptPlugin.TSCONFIG_PATHS
+      );
   }
 
   @Test
@@ -143,13 +164,20 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve(Paths.get("dir", "tsconfig.ignored.json")));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json"));
+    ctx.setSettings(
+      new MapSettings()
+        .setProperty(
+          JavaScriptPlugin.TSCONFIG_PATHS,
+          "**/tsconfig.settings.json,**/tsconfig.custom.json"
+        )
+    );
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
-    assertThat(tsconfigs).containsExactlyInAnyOrder(
-      baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
-      baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
-    );
+    assertThat(tsconfigs)
+      .containsExactlyInAnyOrder(
+        baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
+        baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
+      );
   }
 
   @Test
@@ -158,11 +186,17 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve("tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
+    ctx.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS, "tsconfig.json")
+    );
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Resolving TSConfig files using 'tsconfig.json' from property " + JavaScriptPlugin.TSCONFIG_PATHS_ALIAS);
+    assertThat(logger.logs(LoggerLevel.INFO))
+      .contains(
+        "Resolving TSConfig files using 'tsconfig.json' from property " +
+        JavaScriptPlugin.TSCONFIG_PATHS_ALIAS
+      );
   }
 
   @Test
@@ -173,8 +207,14 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
-    String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
-    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}");
+    String tsconfig = new String(
+      Files.readAllBytes(Paths.get(tsconfigs.get(0))),
+      StandardCharsets.UTF_8
+    );
+    assertThat(tsconfig)
+      .isEqualTo(
+        "{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}"
+      );
   }
 
   @Test
@@ -187,18 +227,31 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    var provider = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
+    var provider = new TsConfigProvider.WildcardTsConfigProvider(
+      checker,
+      TsConfigProviderTest::createTsConfigFile
+    );
     var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
-      .contains(String.format("{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}", baseDir.toFile().getAbsolutePath().replace(File.separator, "/")));
+      .contains(
+        String.format(
+          "{\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true},\"include\":[\"%s/**/*\"]}",
+          baseDir.toFile().getAbsolutePath().replace(File.separator, "/")
+        )
+      );
 
     when(checker.isBeyondLimit()).thenReturn(true);
-    provider = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
+    provider =
+      new TsConfigProvider.WildcardTsConfigProvider(
+        checker,
+        TsConfigProviderTest::createTsConfigFile
+      );
     assertThat(provider.tsconfigs(ctx)).isEmpty();
 
-    provider = new TsConfigProvider.WildcardTsConfigProvider(null, TsConfigProviderTest::createTsConfigFile);
+    provider =
+      new TsConfigProvider.WildcardTsConfigProvider(null, TsConfigProviderTest::createTsConfigFile);
     assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
@@ -213,7 +266,12 @@ class TsConfigProviderTest {
     var checker = mock(JavaScriptProjectChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
-    tsconfigs = new TsConfigProvider.WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile).tsconfigs(ctx);
+    tsconfigs =
+      new TsConfigProvider.WildcardTsConfigProvider(
+        checker,
+        TsConfigProviderTest::createTsConfigFile
+      )
+        .tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
 
     file = Path.of(tsconfigs.get(0));
@@ -232,7 +290,10 @@ class TsConfigProviderTest {
     var fileWriter = mock(TsConfigProvider.TsConfigFileCreator.class);
     when(fileWriter.createTsConfigFile(anyString())).thenThrow(IOException.class);
 
-    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(checker, fileWriter);
+    var wildcardTsConfigProvider = new TsConfigProvider.WildcardTsConfigProvider(
+      checker,
+      fileWriter
+    );
     assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
   }
 
@@ -249,5 +310,4 @@ class TsConfigProviderTest {
     Files.writeString(tempFile, content, StandardCharsets.UTF_8);
     return tempFile.toAbsolutePath().toString();
   }
-
 }

@@ -42,6 +42,7 @@ public class UselessExpressionStatementCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean allowShortCircuit = true;
     boolean allowTaggedTemplates = true;
     boolean allowTernary = true;

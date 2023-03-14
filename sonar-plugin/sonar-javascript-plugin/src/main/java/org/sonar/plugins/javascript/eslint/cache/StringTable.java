@@ -45,10 +45,13 @@ class StringTable {
   }
 
   int getIndex(@Nullable String string) {
-    return table.computeIfAbsent(string, s -> {
-      byIndex.add(s);
-      return byIndex.size() - 1;
-    });
+    return table.computeIfAbsent(
+      string,
+      s -> {
+        byIndex.add(s);
+        return byIndex.size() - 1;
+      }
+    );
   }
 
   String getString(int index) {
@@ -58,5 +61,4 @@ class StringTable {
   List<String> getStringList() {
     return Collections.unmodifiableList(byIndex);
   }
-
 }

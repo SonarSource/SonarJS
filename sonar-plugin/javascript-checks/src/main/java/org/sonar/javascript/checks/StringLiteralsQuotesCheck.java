@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -40,7 +39,8 @@ public class StringLiteralsQuotesCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "singleQuotes",
     description = "Set to true to require single quotes, false for double quotes.",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public boolean singleQuotes = DEFAULT;
 
   @Override
@@ -54,6 +54,7 @@ public class StringLiteralsQuotesCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean avoidEscape = true;
     boolean allowTemplateLiterals = true;
   }

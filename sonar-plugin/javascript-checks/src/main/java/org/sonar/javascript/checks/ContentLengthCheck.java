@@ -33,17 +33,21 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 public class ContentLengthCheck implements EslintBasedCheck {
 
   private static final int DEFAULT_FILE_UPLOAD_SIZE_LIMIT = 8_000_000;
+
   @RuleProperty(
     key = "fileUploadSizeLimit",
     description = "The maximum size of HTTP requests handling file uploads (in bytes)",
-    defaultValue = "" + DEFAULT_FILE_UPLOAD_SIZE_LIMIT)
+    defaultValue = "" + DEFAULT_FILE_UPLOAD_SIZE_LIMIT
+  )
   long fileUploadSizeLimit = DEFAULT_FILE_UPLOAD_SIZE_LIMIT;
 
   private static final int DEFAULT_STANDARD_SIZE_LIMIT = 2_000_000;
+
   @RuleProperty(
     key = "standardSizeLimit",
     description = "The maximum size of regular HTTP requests (in bytes)",
-    defaultValue = "" + DEFAULT_STANDARD_SIZE_LIMIT)
+    defaultValue = "" + DEFAULT_STANDARD_SIZE_LIMIT
+  )
   long standardSizeLimit = DEFAULT_STANDARD_SIZE_LIMIT;
 
   @Override
@@ -56,4 +60,3 @@ public class ContentLengthCheck implements EslintBasedCheck {
     return "content-length";
   }
 }
-

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.external;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,8 +37,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
-
-import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
 
 public class TslintReportSensor extends AbstractExternalIssuesSensor {
 
@@ -55,7 +55,12 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
   @Override
   void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
-    try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(report), StandardCharsets.UTF_8)) {
+    try (
+      InputStreamReader inputStreamReader = new InputStreamReader(
+        new FileInputStream(report),
+        StandardCharsets.UTF_8
+      )
+    ) {
       TslintError[] tslintErrors = gson.fromJson(inputStreamReader, TslintError[].class);
       for (TslintError tslintError : tslintErrors) {
         saveTslintError(context, tslintError);
@@ -77,12 +82,20 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
     TextPointer start = location.start();
     RuleType ruleType = TslintRulesDefinition.ruleType(tslintKey);
 
-    LOG.debug("Saving external TSLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {} }",
-      tslintError.name, tslintKey, tslintError.failure, start.line(), start.lineOffset(), ruleType);
+    LOG.debug(
+      "Saving external TSLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {} }",
+      tslintError.name,
+      tslintKey,
+      tslintError.failure,
+      start.line(),
+      start.lineOffset(),
+      ruleType
+    );
 
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
-    NewIssueLocation primaryLocation = newExternalIssue.newLocation()
+    NewIssueLocation primaryLocation = newExternalIssue
+      .newLocation()
       .message(tslintError.failure)
       .on(inputFile)
       .at(location);
@@ -106,11 +119,13 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
         tslintError.startPosition.getOneBasedLine(),
         tslintError.startPosition.character,
         tslintError.endPosition.getOneBasedLine(),
-        tslintError.endPosition.character);
+        tslintError.endPosition.character
+      );
     }
   }
 
   private static class TslintError {
+
     TslintPosition startPosition;
     TslintPosition endPosition;
     String failure;
@@ -119,6 +134,7 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
   }
 
   private static class TslintPosition {
+
     int character;
     int line;
 

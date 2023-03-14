@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key="S3699")
+@Rule(key = "S3699")
 public class UseOfEmptyReturnValueCheck implements EslintBasedCheck {
 
   @Override

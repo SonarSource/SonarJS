@@ -19,12 +19,12 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
 
 @Rule(key = "S4660")
 public class SelectorPseudoElementNoUnknown implements CssRule {
@@ -39,15 +39,20 @@ public class SelectorPseudoElementNoUnknown implements CssRule {
   @RuleProperty(
     key = "ignorePseudoElements",
     description = "Comma-separated list of regular expressions or strings to ignore (e.g. /^custom-/).",
-    defaultValue = "" + DEFAULT_IGNORE_PSEUDO_ELEMENTS)
+    defaultValue = "" + DEFAULT_IGNORE_PSEUDO_ELEMENTS
+  )
   String ignorePseudoElements = DEFAULT_IGNORE_PSEUDO_ELEMENTS;
 
   @Override
   public List<Object> stylelintOptions() {
-    return Arrays.asList(true, new StylelintIgnorePseudoElementsOption(splitAndTrim(ignorePseudoElements)));
+    return Arrays.asList(
+      true,
+      new StylelintIgnorePseudoElementsOption(splitAndTrim(ignorePseudoElements))
+    );
   }
 
   private static class StylelintIgnorePseudoElementsOption {
+
     // Used by GSON serialization
     private final List<String> ignorePseudoElements;
 
@@ -55,5 +60,4 @@ public class SelectorPseudoElementNoUnknown implements CssRule {
       this.ignorePseudoElements = ignorePseudoElements;
     }
   }
-
 }

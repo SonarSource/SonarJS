@@ -80,10 +80,7 @@ function run() {
       ruleMetadata,
     );
 
-    const testPath = path.join(
-      rootFolder,
-      `tests/linting/eslint/rules/comment-based`,
-    );
+    const testPath = path.join(rootFolder, `tests/linting/eslint/rules/comment-based`);
     try {
       fs.mkdirSync(testPath);
     } catch {

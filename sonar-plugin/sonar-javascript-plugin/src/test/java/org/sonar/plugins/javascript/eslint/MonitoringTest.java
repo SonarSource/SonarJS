@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -39,9 +42,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MonitoringTest {
 
@@ -118,7 +118,8 @@ class MonitoringTest {
       assertThat(fileMetric.parseTime).isEqualTo(3);
       assertThat(fileMetric.ncloc).isEqualTo(4);
       assertThat(fileMetric.ordinal).isZero();
-      assertThat(fileMetric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
+      assertThat(fileMetric.timestamp)
+        .startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
       assertThat(fileMetric.executionId).isNotEmpty();
       assertThat(fileMetric.canSkipUnchangedFiles).isFalse();
     }
@@ -144,10 +145,12 @@ class MonitoringTest {
     monitoring.stopProgram();
     monitoring.startProgram("tsconfig2.json");
     monitoring.stopProgram();
-    assertThat(monitoring.metrics()).extracting(m -> ((Monitoring.ProgramMetric) m).tsConfig)
+    assertThat(monitoring.metrics())
+      .extracting(m -> ((Monitoring.ProgramMetric) m).tsConfig)
       .containsExactly("tsconfig.json", "tsconfig2.json");
     var metric = monitoring.metrics().get(0);
-    assertThat(metric.timestamp).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
+    assertThat(metric.timestamp)
+      .startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH")));
     assertThat(metric.executionId).isNotEmpty();
     assertThat(metric.canSkipUnchangedFiles).isFalse();
   }
@@ -166,7 +169,12 @@ class MonitoringTest {
   void test_can_not_skip_unchanged_files() {
     SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
     sensorContextTester.setRuntime(
-      SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 3),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
     sensorContextTester.setCanSkipUnchangedFiles(true);
     monitoring.startSensor(sensorContextTester, new TestSensor());
     monitoring.stopSensor();
@@ -177,14 +185,10 @@ class MonitoringTest {
   static class TestSensor implements Sensor {
 
     @Override
-    public void describe(SensorDescriptor descriptor) {
-
-    }
+    public void describe(SensorDescriptor descriptor) {}
 
     @Override
-    public void execute(SensorContext context) {
-
-    }
+    public void execute(SensorContext context) {}
   }
 
   static void sleep() {
@@ -194,5 +198,4 @@ class MonitoringTest {
       Thread.currentThread().interrupt();
     }
   }
-
 }
