@@ -218,8 +218,47 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           ...theRest
         };`,
     },
+    'Object.defineProperty()',
+    'Object.defineProperty(o)',
+    'Object.defineProperty(o, "b")',
+    'Object.defineProperty(o, "b", props)',
+    'Object.defineProperty(o, "b", { get() { return a; } })',
+    'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _b; } })',
+    'Reflect.defineProperty()',
+    'Reflect.defineProperty(o)',
+    'Reflect.defineProperty(o, "b")',
+    'Reflect.defineProperty(o, "b", props)',
+    'Reflect.defineProperty(o, "b", { get() { return a; } })',
+    'Object.defineProperties()',
+    'Object.defineProperties(o)',
+    'Object.defineProperties(o, props)',
+    'Object.defineProperties(o, { b: { get() { return a; } } })',
+    'Object.create()',
+    'Object.create(o)',
+    'Object.create(o, props)',
+    'Object.create(o, { b: { get() { return a; } } })',
   ],
   invalid: [
+    {
+      code: `
+      class A {
+        _x: number = 0;
+        _y: number = 0;
+  
+        getY() {
+          // Noncompliant: field 'y' is not used in the return value
+        }
+      }
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+      let a = 0;
+      Object.defineProperty(obj, 'a', { get() {} });
+      `,
+      errors: 1,
+    },
     {
       code: `
       class NOK_CheckLocation {
@@ -430,6 +469,283 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         },
       ],
     },
+    {
+      code: `
+        let b = 42;
+        let c = 38;
+        Object.defineProperty(o, "b", {
+          get() {
+            return c;
+          },
+          set(newValue) {
+            c = newValue;
+          },
+          enumerable: true,
+          configurable: true,
+        });
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the variable 'b'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 2,
+                endColumn: 18,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 5,
+          column: 11,
+          endLine: 5,
+          endColumn: 14,
+        },
+        {
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the variable 'b'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 2,
+                endColumn: 18,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 8,
+          column: 11,
+          endLine: 8,
+          endColumn: 14,
+        },
+      ],
+    },
+    {
+      code: `
+        let b = 42;
+        let c = 38;
+        Reflect.defineProperty(o, "b", {
+          get() {
+            return c;
+          },
+          set(newValue) {
+            c = newValue;
+          },
+          enumerable: true,
+          configurable: true,
+        });
+      `,
+      errors: 2,
+    },
+    {
+      code: `
+        let b = 42;
+        let c = 38;
+        Reflect.defineProperty(o, "b", {
+          get() {
+            return b;
+          },
+          set(newValue) {
+          },
+          enumerable: true,
+          configurable: true,
+        });
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the variable 'b'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 2,
+                endColumn: 18,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 8,
+          column: 11,
+          endLine: 8,
+          endColumn: 14,
+        },
+      ],
+    },
+    {
+      code: `
+        let b = 42;
+        let c = 38;
+        let d = 46;
+        Object.defineProperties(foo, {
+          b: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+              c = newValue;
+            },
+            enumerable: true,
+            configurable: true,
+           },
+          c: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+            },
+            enumerable: true,
+            configurable: true,
+           },
+          ['d']: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+              c = newValue;
+            },
+            enumerable: true,
+            configurable: true,
+           }
+         }
+       );
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the variable 'b'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 2,
+                endColumn: 18,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 7,
+          column: 13,
+          endLine: 7,
+          endColumn: 16,
+        },
+        {
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the variable 'b'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 2,
+                endColumn: 18,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 10,
+          column: 13,
+          endLine: 10,
+          endColumn: 16,
+        },
+        {
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the variable 'c'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 3,
+                endColumn: 18,
+                endLine: 3,
+              },
+            ],
+          }),
+          line: 20,
+          column: 13,
+          endLine: 20,
+          endColumn: 16,
+        },
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the variable 'd'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 4,
+                endColumn: 18,
+                endLine: 4,
+              },
+            ],
+          }),
+          line: 26,
+          column: 13,
+          endLine: 26,
+          endColumn: 16,
+        },
+        {
+          message: JSON.stringify({
+            message: "Refactor this setter so that it actually refers to the variable 'd'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 12,
+                line: 4,
+                endColumn: 18,
+                endLine: 4,
+              },
+            ],
+          }),
+          line: 29,
+          column: 13,
+          endLine: 29,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `
+        let b = 42;
+        let c = 38;
+        let d = 46;
+        Object.create(foo, {
+          b: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+              c = newValue;
+            },
+            enumerable: true,
+            configurable: true,
+           },
+          c: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+            },
+            enumerable: true,
+            configurable: true,
+           },
+          ['d']: {
+            get() {
+              return c;
+            },
+            set(newValue) {
+              c = newValue;
+            },
+            enumerable: true,
+            configurable: true,
+           }
+         }
+       );
+      `,
+      errors: 5,
+    },
     ...missingReturn(
       'var foo = { get bar() { return; } };',
       'class foo { get bar(){} }',
@@ -518,5 +834,9 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         return this.x;
       },
     }`),
+    {
+      code: 'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _c; } })',
+      errors: 1,
+    },
   ],
 });
