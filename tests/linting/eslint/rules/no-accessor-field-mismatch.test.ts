@@ -408,6 +408,59 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       ],
     },
     {
+      code: `
+      let bar = 0;
+      Object.defineProperty(obj, 'bar', { get() {} });
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the variable 'bar'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 10,
+                line: 2,
+                endColumn: 17,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 3,
+          column: 43,
+          endLine: 3,
+          endColumn: 46,
+        },
+      ],
+    },
+    {
+      code: `
+      function foo(bar) {
+        Object.defineProperties(obj, { bar: { get() {} } });
+      }
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the variable 'bar'.",
+            secondaryLocations: [
+              {
+                message: 'Variable which should be referred.',
+                column: 6,
+                line: 2,
+                endColumn: 7,
+                endLine: 4,
+              },
+            ],
+          }),
+          line: 3,
+          column: 47,
+          endLine: 3,
+          endColumn: 50,
+        },
+      ],
+    },
+    {
       code: `class foo {
         #bar = 0;
         get bar() {

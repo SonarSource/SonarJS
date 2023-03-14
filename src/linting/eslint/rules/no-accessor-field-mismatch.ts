@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
+  getVariableFromName,
   isMethodInvocation,
   isStringLiteral,
   toEncodedMessage,
@@ -105,18 +106,6 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
     // Stack of nested object or class fields
     const currentFieldsStack = [new Map<string, Field>()];
 
-    // The fields from the current node accessible variables
-    function getVariableFieldMap() {
-      const fieldMap = new Map<string, Field>();
-      const variables = context.getScope().variables;
-      for (const variable of variables) {
-        if (variable.defs.length > 0) {
-          fieldMap.set(variable.name, { name: variable.name, node: variable.defs[0].node });
-        }
-      }
-      return fieldMap;
-    }
-
     // Selector of a single property descriptor used in Object.defineProperty() or Reflect.defineProperty()
     const singleDescriptorAccessorSelector = [
       'CallExpression[arguments.1.type=Literal]',
@@ -149,7 +138,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as TSESTree.Property;
         const accessorInfo = getSingleDescriptorAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = getVariableFieldMap();
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },
@@ -159,7 +148,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as TSESTree.Property;
         const accessorInfo = getMultiDescriptorsAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = getVariableFieldMap();
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },
@@ -205,11 +194,11 @@ function reportWithFieldLocation(context: Rule.RuleContext, node: TSESTree.Node 
   if (!node || !isAccessorNode(node)) {
     return false;
   }
-  const info = getObjectOrClassAccessorInfo(node);
+  const info = getNodeAccessorInfo(node);
   if (!info) {
     return false;
   }
-  const fieldMap = getObjectOrClassFieldMap(node.parent);
+  const fieldMap = getNodeFieldMap(context, node.parent, info);
   const accessor = getAccessor(node, fieldMap, info);
   if (!accessor) {
     return false;
@@ -280,6 +269,18 @@ function getAccessor(
     matchingFields,
     node: accessor,
   };
+}
+
+function getNodeAccessorInfo(accessorNode: AccessorNode) {
+  if (accessorNode.type === 'MethodDefinition') {
+    return getObjectOrClassAccessorInfo(accessorNode);
+  } else {
+    return (
+      getMultiDescriptorsAccessorInfo(accessorNode) ??
+      getSingleDescriptorAccessorInfo(accessorNode) ??
+      getObjectOrClassAccessorInfo(accessorNode)
+    );
+  }
 }
 
 function getSingleDescriptorAccessorInfo(accessorNode: TSESTree.Property) {
@@ -371,14 +372,32 @@ function getName(key: TSESTree.Node) {
   return null;
 }
 
-function getObjectOrClassFieldMap(node: TSESTree.Node | undefined | null) {
-  if (node?.type === 'ObjectExpression') {
+function getNodeFieldMap(
+  context: Rule.RuleContext,
+  node: TSESTree.Node | undefined | null,
+  info: AccessorInfo,
+) {
+  if (info.definition === 'descriptor') {
+    return getSingleVariableFieldMap(context, info.name);
+  } else if (node?.type === 'ObjectExpression') {
     return getObjectExpressionFieldMap(node);
   } else if (node?.type === 'ClassBody') {
     return getClassBodyFieldMap(node);
   } else {
     return null;
   }
+}
+
+function getSingleVariableFieldMap(context: Rule.RuleContext, name: string) {
+  const fieldMap = new Map<string, Field>();
+  for (const candidate of [name, `_${name}`, `${name}_`]) {
+    const variable = getVariableFromName(context, candidate);
+    if (variable != null && variable.defs.length > 0) {
+      fieldMap.set(candidate, { name: candidate, node: variable.defs[0].node });
+      break;
+    }
+  }
+  return fieldMap;
 }
 
 function getObjectExpressionFieldMap(node: TSESTree.ObjectExpression) {
