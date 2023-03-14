@@ -5,18 +5,20 @@
   "scripts": {
     "build": "npm ci && npm run check-format && npm run clear && npm run compile",
     "clear": "tsc -b src tests --clean",
-    "check-format": "prettier --list-different \"{src,tests}/**/!(*.lint).ts\"",
+    "check-format": "prettier --list-different .",
     "test": "jest",
     "test-with-coverage": "jest --coverage",
     "ctest": "jest tests/tools/testers/comment-based/launcher.test.ts --verbose=false",
-    "format": "prettier --write \"{src,tests,tools,profiling}/**/!(*.lint).ts\"",
+    "format": "prettier --write .",
     "compile": "tsc -b src tests profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
     "mvn-copy": "cd sonar-plugin && mkdirp sonar-javascript-plugin/target/classes && cp ../sonarjs-1.0.0.tgz sonar-javascript-plugin/target/classes",
     "build-plugin": "npm run build && npm run test-with-coverage && npm pack && npm run check-distribution && npm run mvn-copy",
     "build-full": "mvn clean && npm run build-plugin && mvn install",
     "new-rule": "ts-node tools/newRule.ts",
-    "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js"
+    "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
+    "prepare": "husky install",
+    "precommit": "pretty-quick --staged"
   },
   "repository": {
     "type": "git",
@@ -42,10 +44,13 @@
     "@types/lodash.clone": "4.5.7",
     "@types/node": "16.11.9",
     "@types/tmp": "0.2.3",
+    "husky": "8.0.3",
     "jest": "28.1.3",
     "jest-sonar-reporter": "2.0.0",
     "mkdirp": "1.0.4",
     "prettier": "2.7.1",
+    "prettier-plugin-java": "2.1.0",
+    "pretty-quick": "3.1.3",
     "ts-jest": "28.0.7",
     "ts-node": "10.9.1",
     "typedoc": "0.23.23"
