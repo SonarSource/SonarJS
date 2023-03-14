@@ -9,39 +9,77 @@ getters and setters, which can result in the wrong field being accessed by a get
 <h2>Noncompliant Code Example</h2>
 <pre>
 class A {
-  private _x: number = 0;
-  private y: number = 0;
+  #x: number = 0;
+  #y: number = 0;
 
-  public get x() {  // Noncompliant: field 'x' is not used in the return value
-    return this.y;
+  get x() { // Noncompliant: field 'x' is not used in the return value
+    return this.#y;
   }
 
-  public setX(val: number) { // Noncompliant: field 'x' is not updated
-    this.y = val;
+  set x(val: number) { // Noncompliant: field 'x' is not updated
+    this.#y = val;
   }
 
-  public getY() { // Noncompliant: field 'y' is not used in the return value
-    return this.x;
+  getY() { // Noncompliant: field 'y' is not used in the return value
+  }
+
+  setY(val: number) { // Noncompliant: field 'y' is not updated
   }
 }
+
+const obj = {
+  _x: 0,
+  _y: 0,
+  get x() { // Noncompliant: field '_x' is not used in the return value
+    return this._y;
+  }
+};
+
+let x = 0;
+let y = 0;
+Object.defineProperty(o, 'x', {
+  get() { // Noncompliant: variable 'x' is not used in the return value
+    return y;
+  }
+});
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 class A {
-  private _x: number = 0;
-  private y: number = 0;
+  #x: number = 0;
+  #y: number = 0;
 
-  public get x() {
-    return this._x;
+  get x() {
+    return this.#x;
   }
 
-  public setX(val: number) {
-    this.x = val;
+  set x(val: number) {
+    this.#x = val;
   }
 
-  public getY() {
-    return this.y;
+  getY() {
+    return this.#y;
+  }
+
+  setY(val: number) {
+    this.#y = val;
   }
 }
+
+const obj = {
+  _x: 0,
+  _y: 0,
+  get x() {
+    return this._x;
+  }
+};
+
+let x = 0;
+let y = 0;
+Object.defineProperty(o, 'x', {
+  get() {
+    return x;
+  }
+});
 </pre>
 
