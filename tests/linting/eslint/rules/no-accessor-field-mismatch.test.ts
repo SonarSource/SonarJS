@@ -67,31 +67,31 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         class OK {
           private x: string;
           private _y = "hello";
-        
+
           constructor(private z: number) {
-            
+
           }
-        
+
           public getX(): string {
             return this.x;
           }
-        
+
           public get y(): string {
             return this._y;
           }
-        
+
           public set y(y: string) {
             this._y = y;
           }
-        
+
           public getY(): string {
             return this._y;
           }
-        
+
           public getZ() {
             return this.z;
           }
-        
+
           public setX(x: string) {
             this.x = x;
           }
@@ -102,46 +102,46 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         class Exceptions1 {
           private x: string;
           private y = "hello";
-        
+
           constructor(private z: number, private _v: number, private [a, b], w: number) {
-            
+
           }
-        
+
           public getW(): string { // Compliant, w does not exist
             return this.x;
           }
-        
+
           private GetY(): number { // Compliant, private method
             return this.z;
           }
-        
+
           public setW(w: string) { // Compliant, w does not exist as a field, only a parameter of the constructor
             this.x = w;
           }
-        
+
           public getY(someParam: number) { // Compliant, not a zero-parameters getter
             return 3;
           }
-        
+
           public setZ(y: string, someParam: number) { // Compliant, not a one-parameters setter
             this.z = 3;
           }
-        
+
           public setY(x: string) // Compliant, overload
           public setY(y: string) {
             this.y = y;
           }
-        
+
           public getZ() { // Compliant, does not match "return this.?;" pattern
             this.setZ("",1);
           }
-          
+
           public abstract GetZ(): string; // Compliant, abstract method with no body
-          
+
           public set v(z:number) { // Compliant, does not match "this.? =" pattern
             this.x;
           }
-        
+
           public get v() { // Compliant, not a single return statement
             if (this.z) {
               return 1;
@@ -149,7 +149,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
               return this.z;
             }
           }
-        
+
           public getV() { // Compliant
             return \`v is \${this.z}\`;
           }
@@ -160,16 +160,16 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         class Exceptions2 {
           private x: string;
           private y = "hello";
-        
+
           public GetY(): number { // Compliant, multiple statements
             const val = doSomething();
             return this.z;
           }
-          
+
           public getY(someParam: number) { // Compliant, not a zero-parameters getter
             return 3;
           }
-          
+
           public get ["i" + "2"]() { // FN - we do not handle computed properties
             return this.x;
           }
@@ -186,35 +186,35 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           getExperiments(): string {
             return this._experiments;
           },
-          
+
           get X() {
             return this._x;
           },
-          
+
           set x(newX) {
             this._x = newX;
           },
-          
+
           get z() {
             return this.z;
           },
-          
+
           setZ(x: number) {
             this.z = x;
           },
-          
+
           set w(x: number) {
             this.w_ = x;
           },
-          
+
           get myVal() {
             return this.myVal_;
           },
-          
+
           set myVal(v) {
             this.myVal_ = v;
           },
-          
+
           ...theRest
         };`,
     },
@@ -225,9 +225,9 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       class NOK_CheckLocation {
         private x: string;
         private _y = "hello";
-      
+
         public setY(y: number) {}   // Noncompliant
-      
+
         public get X(): string {   // Noncompliant
             return this._y;
         }
@@ -316,6 +316,60 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
     },
     {
       code: `const foo = {
+        _bar: 0,
+        get bar() {
+        }
+      };`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the property '_bar'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 2,
+                endColumn: 15,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 3,
+          column: 13,
+          endLine: 3,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `class foo {
+        _bar = 0;
+        get bar() {
+        }
+      }`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: "Refactor this getter so that it actually refers to the property '_bar'.",
+            secondaryLocations: [
+              {
+                message: 'Property which should be referred.',
+                column: 8,
+                line: 2,
+                endColumn: 17,
+                endLine: 2,
+              },
+            ],
+          }),
+          line: 3,
+          column: 13,
+          endLine: 3,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `const foo = {
         get bar() {
         }
       };`,
@@ -333,7 +387,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       ],
     },
     {
-      code: `class foo {
+      code: `class Foo {
         get bar(): string {}
       }`,
       errors: [
@@ -350,7 +404,6 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       ],
     },
     ...missingReturn(
-      'var foo = { get\n bar () {} };',
       'var foo = { get bar() { return; } };',
       'class foo { get bar(){} }',
       'var foo = class {\n  static get\nbar(){} }',
@@ -373,35 +426,35 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       private x: string;
       private _y = "hello";
       private z = 0;
-    
+
       constructor(private w: number, readonly ro: number) {
-        
+
       }
-    
+
       public setX(x: number) {} // Noncompliant
-    
+
       public GetX(): string { // Noncompliant
         return this._y;
       }
-    
+
       public get y(): number { // Noncompliant
         return this.z;
       }
-    
+
       public set y(y: number) {} // Noncompliant
-    
+
       public getY(): number { // Noncompliant
         return this.z;
       }
-    
+
       public SetZ(z: string) { // Noncompliant
         this.x = z;
       }
-    
+
       public setW(x: string) { // Noncompliant
         this.x = x;
       }
-    
+
       public setRO(ro: number) { // Noncompliant
         this.z = ro;
       }
@@ -413,27 +466,27 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       _y : 1,
       'z': 2,
       ["a" + 1]: 1,
-    
+
       get w() { // Noncompliant
         return this.x;
       },
-    
+
       get y() { // Noncompliant
         return this.w_;
       },
-    
+
       setX(x: number) { // Noncompliant
         this._y = x;
       },
-      
+
       get z() { // Noncompliant
         return this.x;
       },
-      
+
       setZ(x: number) { // Noncompliant
         this.y = x;
       },
-      
+
       get a1() { // FN - cannot determine computed field a1 existence
         return this.x;
       },
