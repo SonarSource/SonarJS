@@ -1,0 +1,5 @@
+.CommTextMessage__content {
+  & :deep(a) {
+    @apply break-all underline font-semibold hover:opacity-80 transition-all duration-200;
+  }
+}

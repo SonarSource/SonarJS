@@ -1,7 +1,9 @@
-<p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They include:</p>
+<p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They form the JavaScript standard built-in
+objects and are available in all environments. They include identifiers like:</p>
 <ul>
   <li> <code>eval</code> - evaluates a string as JavaScript code </li>
-  <li> <code>arguments</code> - used to access function arguments through indexed properties. </li>
+  <li> <code>arguments</code> - used to access function arguments through indexed properties. It exists only inside function declarations and function
+  expressions </li>
   <li> <code>undefined</code> - returned for values and properties that have not yet been assigned </li>
   <li> <code>NaN</code> - Not a Number; returned when math functions fail. </li>
   <li> <code>Infinity</code> - when a number exceeds the upper limit of the floating point numbers </li>
@@ -13,13 +15,12 @@ or binding some of these names will generate an error in JavaScript strict mode 
 eval = 17; // Noncompliant
 arguments++; // Noncompliant
 ++eval; // Noncompliant
-var obj = { set p(arguments) { } }; // Noncompliant
-var eval; // Noncompliant
-try { } catch (arguments) { } // Noncompliant
-function x(eval) { } // Noncompliant
-function arguments() { } // Noncompliant
-var y = function eval() { }; // Noncompliant
-var f = new Function("arguments", "return 17;"); // Noncompliant
+const obj = { set p(arguments) { } }; // Noncompliant
+let eval; // Noncompliant
+try { /* ... */ } catch (arguments) { } // Noncompliant
+function x(eval) { /* ... */ } // Noncompliant
+function arguments() { /* ... */ } // Noncompliant
+const y = function eval() { /* ... */ }; // Noncompliant
 
 function fun() {
   if (arguments.length == 0) { // Compliant
@@ -32,13 +33,12 @@ function fun() {
 result = 17;
 args++;
 ++result;
-var obj = { set p(arg) { } };
-var result;
-try { } catch (args) { }
-function x(arg) { }
-function args() { }
-var y = function fun() { };
-var f = new Function("args", "return 17;");
+const obj = { set p(arg) { } };
+let result;
+try { /* ... */ } catch (args) { }
+function x(arg) { /* ... */ }
+function args() { /* ... */ }
+const y = function fun() { /* ... */ };
 
 function fun() {
   if (arguments.length == 0) {

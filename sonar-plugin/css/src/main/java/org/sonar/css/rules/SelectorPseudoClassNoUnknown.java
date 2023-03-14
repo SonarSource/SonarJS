@@ -29,7 +29,7 @@ import static org.sonar.css.rules.RuleUtils.splitAndTrim;
 @Rule(key = "S4659")
 public class SelectorPseudoClassNoUnknown implements CssRule {
 
-  private static final String DEFAULT_IGNORED_PSEUDO_CLASSES = "local,global,export,import";
+  private static final String DEFAULT_IGNORED_PSEUDO_CLASSES = "local,global,export,import,deep";
 
   @RuleProperty(
     key = "ignorePseudoClasses",

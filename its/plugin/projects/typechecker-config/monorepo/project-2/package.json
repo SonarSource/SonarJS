@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": "tsc && tsc-alias"
+  },
+  "devDependencies": {
+    "@types/node": "18.14.6",
+    "tsc-alias": "1.8.2",
+    "typescript": "4.9.5"
+  }
+}

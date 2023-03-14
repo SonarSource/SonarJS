@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc && tsc --project tsconfig.es6.json && tsc-alias --project tsconfig.es6.json",
+    "start": "node dist/main.js && node dist/main.es6.js"
+  },
+  "devDependencies": {
+    "@types/node": "18.14.6",
+    "rimraf": "4.3.0",
+    "tsc-alias": "1.8.2",
+    "typescript": "4.9.5"
+  }
+}

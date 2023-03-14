@@ -19,51 +19,77 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1472/javascript
 
-import { Rule } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
+import { Position } from 'estree';
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       moveArguments: 'Make those call arguments start on line {{line}}.',
+      moveTemplateLiteral: 'Make this template literal start on line {{line}}.',
     },
   },
   create(context: Rule.RuleContext) {
+    const sourceCode = context.getSourceCode();
+
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         if (call.callee.type !== 'CallExpression' && call.arguments.length === 1) {
-          const sourceCode = context.getSourceCode();
           const parenthesis = sourceCode.getLastTokenBetween(
             call.callee,
             call.arguments[0],
-            token => token.type === 'Punctuator' && token.value === ')',
+            isClosingParen,
           );
           const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(call.callee))!
             .loc.end.line;
-          const { start } = sourceCode.getTokenAfter(call.callee)!.loc;
+          const { start } = sourceCode.getTokenAfter(call.callee, isNotClosingParen)!.loc;
           if (calleeLastLine !== start.line) {
             const { end } = sourceCode.getLastToken(call)!.loc;
             if (end.line !== start.line) {
               //If arguments span multiple lines, we only report the first one
-              reportIssue(start, calleeLastLine, context);
+              reportIssue('moveArguments', start, calleeLastLine, context);
             } else {
-              reportIssue({ start, end }, calleeLastLine, context);
+              reportIssue('moveArguments', { start, end }, calleeLastLine, context);
             }
           }
+        }
+      },
+      TaggedTemplateExpression(node) {
+        const { quasi } = node;
+        const tokenBefore = sourceCode.getTokenBefore(quasi);
+        if (tokenBefore && quasi.loc && tokenBefore.loc.end.line !== quasi.loc.start.line) {
+          const loc = {
+            start: quasi.loc.start,
+            end: {
+              line: quasi.loc.start.line,
+              column: quasi.loc.start.column + 1,
+            },
+          };
+          reportIssue('moveTemplateLiteral', loc, tokenBefore.loc.start.line, context);
         }
       },
     };
   },
 };
 
+function isClosingParen(token: AST.Token) {
+  return token.type === 'Punctuator' && token.value === ')';
+}
+
+function isNotClosingParen(token: AST.Token) {
+  return !isClosingParen(token);
+}
+
 function reportIssue(
-  loc: { start: estree.Position; end: estree.Position } | estree.Position,
+  messageId: string,
+  loc: { start: Position; end: Position } | Position,
   line: number,
   context: Rule.RuleContext,
 ) {
   context.report({
-    messageId: 'moveArguments',
+    messageId,
     data: {
       line: line.toString(),
     },

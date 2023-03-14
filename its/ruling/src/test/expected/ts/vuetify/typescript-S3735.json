@@ -1,0 +1,10 @@
+{
+'vuetify:packages/vuetify/src/components/transitions/expand-transition.ts':[
+38,
+63,
+],
+'vuetify:packages/vuetify/src/composables/proxiedModel.ts':[
+30,
+37,
+],
+}

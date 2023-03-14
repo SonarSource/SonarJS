@@ -31,6 +31,37 @@
 import path from 'path';
 import ts from 'typescript';
 import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import tmp from 'tmp';
+import { promisify } from 'util';
+import fs from 'fs/promises';
+import { parsers } from 'parsing/jsts';
+
+/**
+ * Empty AST to be sent to Vue parser, as we just use it to provide us with the JS/TS code,
+ * no need for it to make further actions with the AST result.
+ */
+const emptySourceCode = {
+  ast: {
+    type: 'Program',
+    start: 0,
+    end: 0,
+    loc: {
+      start: {
+        line: 1,
+        column: 0,
+      },
+      end: {
+        line: 1,
+        column: 0,
+      },
+    },
+    range: [0, 0],
+    comments: [],
+    tokens: [],
+    sourceType: 'module',
+    body: [],
+  },
+};
 
 /**
  * A cache of created TypeScript's Program instances
@@ -67,12 +98,23 @@ export function getProgramById(programId: string): ts.Program {
   return program;
 }
 
+/**
+ * Gets the files resolved by a TSConfig
+ *
+ * The resolving of the files for a given TSConfig file is done
+ * by invoking TypeScript compiler.
+ *
+ * @param tsConfig TSConfig to parse
+ * @param configHost parsing configuration
+ * @returns the resolved TSConfig files
+ */
 export function createProgramOptions(
   tsConfig: string,
+  configHost?: ts.ParseConfigHost,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = {
+  const parseConfigHost: ts.ParseConfigHost = configHost || {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -112,7 +154,14 @@ export function createProgramOptions(
       noEmit: true,
     },
     tsConfig,
-    /** We can provide additional options here (property 'extraFileExtensions') to include .vue files */
+    undefined,
+    [
+      {
+        extension: 'vue',
+        isMixedContent: true,
+        scriptKind: ts.ScriptKind.Deferred,
+      },
+    ],
   );
 
   if (parsedConfigFile.errors.length > 0) {
@@ -150,6 +199,27 @@ export async function createProgram(tsConfig: string): Promise<{
   missingTsConfig: boolean;
 }> {
   const programOptions = createProgramOptions(tsConfig);
+
+  programOptions.host = ts.createCompilerHost(programOptions.options);
+
+  const originalReadFile = programOptions.host.readFile;
+  // Patch readFile to be able to read only JS/TS from vue files
+  programOptions.host.readFile = fileName => {
+    const contents = originalReadFile(fileName);
+    if (contents && fileName.endsWith('.vue')) {
+      const codes: string[] = [];
+      parsers.vuejs.parse(contents, {
+        parser: {
+          parseForESLint: (code: string) => {
+            codes.push(code);
+            return emptySourceCode;
+          },
+        },
+      });
+      return codes.join('');
+    }
+    return contents;
+  };
 
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
@@ -222,4 +292,24 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
+}
+
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+tmp.setGracefulCleanup();
+
+/**
+ * Create the TSConfig file and returns its path.
+ *
+ * The file is written in a temporary location in the file system
+ * and is marked to be removed after Node.js process terminates.
+ *
+ * @param tsConfig TSConfig to write
+ * @returns the resolved TSConfig file path
+ */
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+  const filename = await promisify(tmp.file)();
+  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+  return { filename };
 }

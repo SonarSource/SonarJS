@@ -89,5 +89,57 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
       `,
       errors: 1,
     },
+    {
+      code: `
+      var a = b
+      (x || y).doSomething()
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      var a = (a || b)
+      (x || y).doSomething()
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      var a = (a || b)
+      (x).doSomething()
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      var a = b
+          (x || y).doSomething()
+      `,
+      errors: 1,
+    },
+    {
+      code: 'let x = function() {}\n `hello`',
+      errors: [
+        {
+          message: `Make this template literal start on line 1.`,
+          line: 2,
+          endLine: 2,
+          column: 2,
+          endColumn: 3,
+        },
+      ],
+    },
+    {
+      code: 'let x = function() {}\nx\n`hello`',
+      errors: [
+        {
+          message: `Make this template literal start on line 2.`,
+          line: 3,
+          endLine: 3,
+          column: 1,
+          endColumn: 2,
+        },
+      ],
+    },
   ],
 });
