@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "CommonJS",
+    "baseUrl": "./"
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.es6.ts"]
+}
