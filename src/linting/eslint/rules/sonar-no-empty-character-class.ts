@@ -27,7 +27,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
   context => {
     return {
       onCharacterClassEnter: (node: CharacterClass) => {
-        if (node.elements.length === 0) {
+        if (node.elements.length === 0 && !node.negate) {
           context.reportRegExpNode({
             messageId: 'issue',
             node: context.node,
