@@ -33,5 +33,4 @@ public class AwsEc2RdsDmsPublicCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-ec2-rds-dms-public";
   }
-
 }

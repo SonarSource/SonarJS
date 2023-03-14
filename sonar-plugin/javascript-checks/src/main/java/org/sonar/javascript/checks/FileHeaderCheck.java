@@ -38,13 +38,15 @@ public class FileHeaderCheck implements EslintBasedCheck {
     key = "headerFormat",
     description = "Expected copyright and license header",
     defaultValue = DEFAULT_HEADER_FORMAT,
-    type = "TEXT")
+    type = "TEXT"
+  )
   public String headerFormat = DEFAULT_HEADER_FORMAT;
 
   @RuleProperty(
     key = "isRegularExpression",
     description = "Whether the headerFormat is a regular expression",
-    defaultValue = "false")
+    defaultValue = "false"
+  )
   public boolean isRegularExpression = false;
 
   @Override
@@ -58,6 +60,7 @@ public class FileHeaderCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     String headerFormat;
     boolean isRegularExpression;
 

@@ -19,16 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class NoMagicNumbersCheckTest {
 
   @Test
   void config() {
     String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"ignore\":[0,1,-1],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true}]");
+    assertThat(configAsString)
+      .isEqualTo(
+        "[{\"ignore\":[0,1,-1],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true}]"
+      );
   }
 }

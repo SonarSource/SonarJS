@@ -33,5 +33,4 @@ public class AwsSqsUnencryptedQueueCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-sqs-unencrypted-queue";
   }
-
 }

@@ -33,5 +33,4 @@ public class NoHardcodedIpCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-hardcoded-ip";
   }
-
 }

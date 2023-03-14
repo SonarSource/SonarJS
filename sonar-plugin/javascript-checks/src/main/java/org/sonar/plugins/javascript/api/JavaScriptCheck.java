@@ -22,6 +22,4 @@ package org.sonar.plugins.javascript.api;
 /**
  * Marker interface for all JavaScript checks.
  */
-public interface JavaScriptCheck {
-
-}
+public interface JavaScriptCheck {}

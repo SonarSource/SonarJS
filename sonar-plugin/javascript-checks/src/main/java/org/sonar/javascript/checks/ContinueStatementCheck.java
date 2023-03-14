@@ -29,7 +29,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S909")
 @DeprecatedRuleKey(ruleKey = "ContinueStatement")
-
 public class ContinueStatementCheck implements EslintBasedCheck {
 
   @Override

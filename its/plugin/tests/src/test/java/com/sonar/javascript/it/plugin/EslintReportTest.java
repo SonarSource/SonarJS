@@ -19,6 +19,11 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.setEmptyProfile;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
@@ -29,11 +34,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.setEmptyProfile;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 class EslintReportTest {
@@ -47,7 +47,8 @@ class EslintReportTest {
   void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
 
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -64,7 +65,8 @@ class EslintReportTest {
   @Test
   void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
     String projectKey = PROJECT_KEY_PREFIX + "-absolute";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -89,41 +91,50 @@ class EslintReportTest {
     List<Issue> jsIssuesList = getIssues(projectKey + ":src/file.js");
     List<Issue> tsIssuesList = getIssues(projectKey + ":src/file.ts");
 
-    assertThat(jsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(1, "external_eslint_repo:no-unused-vars"),
-      tuple(2, "external_eslint_repo:use-isnan"),
-      tuple(3, "external_eslint_repo:semi"),
-      tuple(5, "external_eslint_repo:semi"),
-      tuple(7, "external_eslint_repo:no-extra-semi")
-    );
+    assertThat(jsIssuesList)
+      .extracting(Issue::getLine, Issue::getRule)
+      .containsExactlyInAnyOrder(
+        tuple(1, "external_eslint_repo:no-unused-vars"),
+        tuple(2, "external_eslint_repo:use-isnan"),
+        tuple(3, "external_eslint_repo:semi"),
+        tuple(5, "external_eslint_repo:semi"),
+        tuple(7, "external_eslint_repo:no-extra-semi")
+      );
 
-    assertThat(tsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(1, "external_eslint_repo:no-unused-vars"),
-      tuple(2, "external_eslint_repo:use-isnan"),
-      tuple(3, "external_eslint_repo:semi"),
-      tuple(5, "external_eslint_repo:semi"),
-      tuple(7, "external_eslint_repo:no-extra-semi")
-    );
+    assertThat(tsIssuesList)
+      .extracting(Issue::getLine, Issue::getRule)
+      .containsExactlyInAnyOrder(
+        tuple(1, "external_eslint_repo:no-unused-vars"),
+        tuple(2, "external_eslint_repo:use-isnan"),
+        tuple(3, "external_eslint_repo:semi"),
+        tuple(5, "external_eslint_repo:semi"),
+        tuple(7, "external_eslint_repo:no-extra-semi")
+      );
   }
 
-  private void createReportWithAbsolutePaths(File reportWithRelativePaths, File reportWithAbsolutePaths) throws IOException {
+  private void createReportWithAbsolutePaths(
+    File reportWithRelativePaths,
+    File reportWithAbsolutePaths
+  ) throws IOException {
     List<String> reportContent = Files.readAllLines(reportWithRelativePaths.toPath());
     String prefix = "\"filePath\": \"";
-    List<String> transformed = reportContent.stream().map(s -> {
-      if (s.contains(prefix)) {
-        File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
-        String absolutePath = file.getAbsolutePath();
-        if (System.getProperty("os.name").startsWith("Windows")) {
-          // try to "break" file resolution (see https://github.com/SonarSource/SonarJS/issues/1985) by low-casing drive letter
-          absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
-          absolutePath = absolutePath.replace("\\", "\\\\");
+    List<String> transformed = reportContent
+      .stream()
+      .map(s -> {
+        if (s.contains(prefix)) {
+          File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
+          String absolutePath = file.getAbsolutePath();
+          if (System.getProperty("os.name").startsWith("Windows")) {
+            // try to "break" file resolution (see https://github.com/SonarSource/SonarJS/issues/1985) by low-casing drive letter
+            absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
+            absolutePath = absolutePath.replace("\\", "\\\\");
+          }
+          return prefix + absolutePath + "\",";
+        } else {
+          return s;
         }
-        return prefix + absolutePath + "\",";
-      } else {
-        return s;
-      }
-    }).collect(Collectors.toList());
+      })
+      .collect(Collectors.toList());
     Files.write(reportWithAbsolutePaths.toPath(), transformed);
   }
-
 }

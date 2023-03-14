@@ -30,8 +30,7 @@ public class PluginInfo {
   private static String version;
   private static String ucfgPluginVersion;
 
-  private PluginInfo() {
-  }
+  private PluginInfo() {}
 
   public static synchronized String getVersion() {
     if (version == null) {
@@ -48,5 +47,4 @@ public class PluginInfo {
     LOG.debug("Security Frontend version is available: [{}]", ucfgPluginVersion);
     PluginInfo.ucfgPluginVersion = ucfgPluginVersion;
   }
-
 }

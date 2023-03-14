@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -39,9 +38,10 @@ public class VariableNameCheck implements EslintBasedCheck {
   private static final String DEFAULT_FORMAT = CAMEL_CASED + "|" + UPPER_CASED;
 
   @RuleProperty(
-      key = "format",
-      description = "Regular expression used to check the names against.",
-      defaultValue = "" + DEFAULT_FORMAT)
+    key = "format",
+    description = "Regular expression used to check the names against.",
+    defaultValue = "" + DEFAULT_FORMAT
+  )
   public String format = DEFAULT_FORMAT;
 
   @Override

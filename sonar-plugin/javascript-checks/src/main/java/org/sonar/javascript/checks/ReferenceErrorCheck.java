@@ -26,6 +26,7 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 @JavaScriptRule
 @Rule(key = "S3827")
 public class ReferenceErrorCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "no-reference-error";

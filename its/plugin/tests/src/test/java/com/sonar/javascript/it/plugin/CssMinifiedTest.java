@@ -19,19 +19,18 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(OrchestratorStarter.class)
 class CssMinifiedTest {
 
   private static final String PROJECT_KEY = "css-minified-project";
-
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -44,5 +43,4 @@ class CssMinifiedTest {
   void test() {
     assertThat(getMeasureAsDouble(PROJECT_KEY, "files")).isEqualTo(1);
   }
-
 }

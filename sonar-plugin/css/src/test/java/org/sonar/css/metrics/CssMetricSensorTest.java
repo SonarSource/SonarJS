@@ -19,6 +19,11 @@
  */
 package org.sonar.css.metrics;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,11 +45,6 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class CssMetricSensorTest {
 
@@ -71,7 +71,8 @@ class CssMetricSensorTest {
 
   @Test
   void test_descriptor_sonarlint() {
-    var sonarlintDescriptor = new org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorDescriptor();
+    var sonarlintDescriptor =
+      new org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorDescriptor();
     // should not throw as 'processesFilesIndependently' is not executed for SonarLint
     new CssMetricSensor(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)), null)
       .describe(sonarlintDescriptor);
@@ -80,7 +81,11 @@ class CssMetricSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_3() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(
+      Version.create(9, 3),
+      SonarQubeSide.SCANNER,
+      SonarEdition.COMMUNITY
+    );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
@@ -89,7 +94,11 @@ class CssMetricSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_2() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(9, 2), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(
+      Version.create(9, 2),
+      SonarQubeSide.SCANNER,
+      SonarEdition.COMMUNITY
+    );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     new CssMetricSensor(sonarRuntime, null).describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Metrics");
@@ -229,10 +238,11 @@ class CssMetricSensorTest {
 
   private void executeSensor(String content) throws IOException {
     File file = tempFolder.resolve("file.js").toFile();
-    inputFile = new TestInputFileBuilder("moduleKey", file.getName())
-      .setLanguage("css")
-      .setContents(content)
-      .build();
+    inputFile =
+      new TestInputFileBuilder("moduleKey", file.getName())
+        .setLanguage("css")
+        .setContents(content)
+        .build();
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot());
     sensorContext.fileSystem().add(inputFile);
@@ -252,10 +262,12 @@ class CssMetricSensorTest {
   }
 
   private void assertLinesOfCode(int expected) {
-    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(expected);
+    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.NCLOC).value())
+      .isEqualTo(expected);
   }
 
   private void assertLinesOfComment(int expected) {
-    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(expected);
+    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value())
+      .isEqualTo(expected);
   }
 }

@@ -31,5 +31,4 @@ public class NoRedundantOptionalCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-redundant-optional";
   }
-
 }

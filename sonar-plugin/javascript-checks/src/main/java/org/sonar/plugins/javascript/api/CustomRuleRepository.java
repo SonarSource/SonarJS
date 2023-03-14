@@ -34,9 +34,9 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 @Deprecated
 public interface CustomRuleRepository {
-
   enum Language {
-    JAVASCRIPT, TYPESCRIPT
+    JAVASCRIPT,
+    TYPESCRIPT,
   }
 
   default Set<Language> languages() {
@@ -54,5 +54,4 @@ public interface CustomRuleRepository {
    * @return
    */
   List<Class<? extends JavaScriptCheck>> checkClasses();
-
 }

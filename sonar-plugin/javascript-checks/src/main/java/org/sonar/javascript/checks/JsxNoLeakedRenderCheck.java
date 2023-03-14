@@ -33,5 +33,4 @@ public class JsxNoLeakedRenderCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-jsx-no-leaked-render";
   }
-
 }

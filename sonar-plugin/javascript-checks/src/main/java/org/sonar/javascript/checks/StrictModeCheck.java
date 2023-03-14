@@ -42,5 +42,4 @@ public class StrictModeCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "strict";
   }
-
 }

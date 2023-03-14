@@ -65,5 +65,4 @@ public class VarLengthInputStream implements Closeable {
   public void close() throws IOException {
     in.close();
   }
-
 }

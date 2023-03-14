@@ -34,4 +34,3 @@ public class SocketsCheck implements EslintBasedCheck {
     return "sockets";
   }
 }
-

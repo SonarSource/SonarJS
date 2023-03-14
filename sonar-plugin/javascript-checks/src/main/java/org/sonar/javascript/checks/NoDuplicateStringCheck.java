@@ -37,7 +37,8 @@ public class NoDuplicateStringCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "threshold",
     description = "Number of times a literal must be duplicated to trigger an issue.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
   int threshold = DEFAULT_THRESHOLD;
 
   @Override

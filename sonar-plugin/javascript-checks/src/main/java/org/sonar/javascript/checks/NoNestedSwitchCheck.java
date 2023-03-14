@@ -33,5 +33,4 @@ public class NoNestedSwitchCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-nested-switch";
   }
-
 }

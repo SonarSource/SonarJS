@@ -33,5 +33,4 @@ public class FileNameDiffersFromClassCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "file-name-differ-from-class";
   }
-
 }

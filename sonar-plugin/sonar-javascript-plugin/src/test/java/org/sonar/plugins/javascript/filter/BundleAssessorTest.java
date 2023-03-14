@@ -19,24 +19,26 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
 class BundleAssessorTest {
 
-  static final String BOOTSTRAP = "/*!\n" +
+  static final String BOOTSTRAP =
+    "/*!\n" +
     "  * Bootstrap v5.2.2 (https://getbootstrap.com/)\n" +
     "  * Copyright 2011-2022 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)\n" +
     "  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)\n" +
     "  */\n" +
     "!function(t,e){\"object\"==typeof exports&&\"undefined\"!";
 
-  private static final String PDFJS = "/**\n" +
+  private static final String PDFJS =
+    "/**\n" +
     " * @licstart The following is the entire license notice for the\n" +
     " * Javascript code in this page\n" +
     " *\n" +
@@ -61,7 +63,8 @@ class BundleAssessorTest {
     "(function webpackUniversalModuleDefinition(root, factory) {\n" +
     "\tif(typeof exports === 'object' && typeof module === ";
 
-  private static final String FONT_AWESOME = "/*!\n" +
+  private static final String FONT_AWESOME =
+    "/*!\n" +
     " * Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com\n" +
     " * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)\n" +
     " * Copyright 2022 Fonticons, Inc.\n" +
@@ -72,7 +75,8 @@ class BundleAssessorTest {
     "  (factory());\n" +
     "}(this,";
 
-  private static final String BOOTSTRAP_DATEPICKER = "/* =========================================================\n" +
+  private static final String BOOTSTRAP_DATEPICKER =
+    "/* =========================================================\n" +
     " * bootstrap-datepicker.js\n" +
     " * Repo: https://github.com/eternicode/bootstrap-datepicker/\n" +
     " * Demo: http://eternicode.github.io/bootstrap-datepicker/\n" +
@@ -96,7 +100,6 @@ class BundleAssessorTest {
     "(function($, undefined){\n" +
     "\tvar $window = $(window);";
 
-
   @Test
   void test() {
     var assessor = new BundleAssessor();
@@ -114,5 +117,4 @@ class BundleAssessorTest {
       .setContents(content)
       .build();
   }
-
 }

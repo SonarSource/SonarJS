@@ -19,20 +19,19 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(OrchestratorStarter.class)
 class CssMetricsTest {
 
   private static final String PROJECT_KEY = "css-metrics-project";
-
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -45,17 +44,17 @@ class CssMetricsTest {
   void test() {
     assertThat(getMeasureAsDouble(PROJECT_KEY, "lines")).isEqualTo(43);
     assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(32);
-    assertThat(getMeasure(PROJECT_KEY, "ncloc_language_distribution").getValue()).isEqualTo("css=22;web=10");
+    assertThat(getMeasure(PROJECT_KEY, "ncloc_language_distribution").getValue())
+      .isEqualTo("css=22;web=10");
     assertThat(getMeasureAsDouble(PROJECT_KEY, "comment_lines")).isEqualTo(4);
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file1.css", "ncloc_data").getValue())
-        .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1");
+      .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1");
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file2.less", "ncloc_data").getValue())
-        .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1;", "8=1;", "9=1");
+      .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1;", "8=1;", "9=1");
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file3.scss", "ncloc_data").getValue())
-        .contains("1=1;", "3=1;", "5=1;", "6=1;", "7=1;", "8=1");
+      .contains("1=1;", "3=1;", "5=1;", "6=1;", "7=1;", "8=1");
   }
-
 }

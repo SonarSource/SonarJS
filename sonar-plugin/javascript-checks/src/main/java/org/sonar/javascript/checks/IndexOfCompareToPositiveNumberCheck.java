@@ -33,5 +33,4 @@ public class IndexOfCompareToPositiveNumberCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "index-of-compare-to-positive-number";
   }
-
 }

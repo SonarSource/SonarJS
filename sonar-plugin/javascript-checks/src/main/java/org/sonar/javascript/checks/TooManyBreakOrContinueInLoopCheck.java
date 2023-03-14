@@ -31,7 +31,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @DeprecatedRuleKey(ruleKey = "TooManyBreakOrContinueInLoop")
 public class TooManyBreakOrContinueInLoopCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "too-many-break-or-continue-in-loop";

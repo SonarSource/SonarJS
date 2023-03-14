@@ -27,5 +27,4 @@ public class EslintRulesBundle implements RulesBundle {
   public String bundlePath() {
     return "/custom-eslint-based-rules-1.0.0.tgz";
   }
-
 }

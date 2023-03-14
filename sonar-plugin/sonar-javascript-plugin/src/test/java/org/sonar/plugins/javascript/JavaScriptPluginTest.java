@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -32,10 +36,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class JavaScriptPluginTest {
 
@@ -52,8 +52,16 @@ class JavaScriptPluginTest {
 
   @Test
   void count_extensions_lts() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + JS_ADDITIONAL_EXTENSIONS + TS_ADDITIONAL_EXTENSIONS + CSS_ADDITIONAL_EXTENSIONS);
+    Plugin.Context context = setupContext(
+      SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
+    );
+    assertThat(context.getExtensions())
+      .hasSize(
+        BASE_EXTENSIONS +
+        JS_ADDITIONAL_EXTENSIONS +
+        TS_ADDITIONAL_EXTENSIONS +
+        CSS_ADDITIONAL_EXTENSIONS
+      );
   }
 
   @Test
@@ -74,23 +82,47 @@ class JavaScriptPluginTest {
     var sonarLintPluginAPIManager = new JavaScriptPlugin.SonarLintPluginAPIManager();
     var context = mock(Plugin.Context.class);
 
-    sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, sonarLintPluginAPIVersion);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
+    sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(
+      context,
+      sonarLintPluginAPIVersion
+    );
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
   }
 
   @Test
   void globalsDefaultValue() {
-    var globals = properties().stream().filter(property -> JavaScriptPlugin.GLOBALS.equals(property.key())).findFirst();
+    var globals = properties()
+      .stream()
+      .filter(property -> JavaScriptPlugin.GLOBALS.equals(property.key()))
+      .findFirst();
     assertThat(globals).isPresent();
 
     var defaultValue = globals.get().defaultValue().split(",");
-    assertThat(defaultValue).containsExactly("angular", "goog", "google", "OpenLayers", "d3", "dojo", "dojox", "dijit", "Backbone",
-      "moment", "casper", "_", "sap");
+    assertThat(defaultValue)
+      .containsExactly(
+        "angular",
+        "goog",
+        "google",
+        "OpenLayers",
+        "d3",
+        "dojo",
+        "dojox",
+        "dijit",
+        "Backbone",
+        "moment",
+        "casper",
+        "_",
+        "sap"
+      );
   }
 
   private List<PropertyDefinition> properties() {
     List<PropertyDefinition> propertiesList = new ArrayList<>();
-    List extensions = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)).getExtensions();
+    List extensions = setupContext(
+      SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
+    )
+      .getExtensions();
 
     for (Object extension : extensions) {
       if (extension instanceof PropertyDefinition) {
@@ -106,5 +138,4 @@ class JavaScriptPluginTest {
     new JavaScriptPlugin().define(context);
     return context;
   }
-
 }

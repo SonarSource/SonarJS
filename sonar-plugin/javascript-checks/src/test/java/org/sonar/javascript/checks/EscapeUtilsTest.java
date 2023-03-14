@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 class EscapeUtilsTest {
 
@@ -42,5 +42,4 @@ class EscapeUtilsTest {
     assertThat(EscapeUtils.unescape("\\\\")).isEqualTo("\\");
     assertThat(EscapeUtils.unescape("\\|")).isEqualTo("|");
   }
-
 }

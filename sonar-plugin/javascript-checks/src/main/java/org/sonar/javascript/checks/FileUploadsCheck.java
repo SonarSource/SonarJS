@@ -34,4 +34,3 @@ public class FileUploadsCheck implements EslintBasedCheck {
     return "file-uploads";
   }
 }
-

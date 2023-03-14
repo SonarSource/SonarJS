@@ -33,5 +33,4 @@ public class AwsIamAllPrivilegesCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-iam-all-privileges";
   }
-
 }

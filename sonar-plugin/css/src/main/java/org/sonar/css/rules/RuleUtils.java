@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 
 public class RuleUtils {
 
-  private RuleUtils(){
-  }
+  private RuleUtils() {}
 
   public static List<String> splitAndTrim(String parameterValue) {
     if (parameterValue.isBlank()) {

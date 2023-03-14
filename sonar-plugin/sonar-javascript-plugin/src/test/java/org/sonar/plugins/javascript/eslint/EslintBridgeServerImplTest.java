@@ -19,6 +19,19 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.ERROR;
+import static org.sonar.api.utils.log.LoggerLevel.INFO;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,19 +70,6 @@ import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
-import static org.sonar.api.utils.log.LoggerLevel.INFO;
-import static org.sonar.api.utils.log.LoggerLevel.WARN;
-import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
-
 class EslintBridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
@@ -95,7 +95,9 @@ class EslintBridgeServerImplTest {
   private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
   private final RulesBundles emptyRulesBundles = new RulesBundles();
-  private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(new AnalysisWarningsWrapper());
+  private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(
+    new AnalysisWarningsWrapper()
+  );
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -129,15 +131,27 @@ class EslintBridgeServerImplTest {
 
   @Test
   void should_throw_if_failed_to_build_node_command() throws Exception {
-    NodeCommandBuilder nodeCommandBuilder = mock(NodeCommandBuilder.class, invocation -> {
-      if (NodeCommandBuilder.class.equals(invocation.getMethod().getReturnType())) {
-        return invocation.getMock();
-      } else {
-        throw new NodeCommandException("msg");
+    NodeCommandBuilder nodeCommandBuilder = mock(
+      NodeCommandBuilder.class,
+      invocation -> {
+        if (NodeCommandBuilder.class.equals(invocation.getMethod().getReturnType())) {
+          return invocation.getMock();
+        } else {
+          throw new NodeCommandException("msg");
+        }
       }
-    });
+    );
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer =
+      new EslintBridgeServerImpl(
+        nodeCommandBuilder,
+        TEST_TIMEOUT_SECONDS,
+        testBundle,
+        emptyRulesBundles,
+        deprecationWarning,
+        tempFolder,
+        monitoring
+      );
     eslintBridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
 
@@ -164,10 +178,19 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      null,
+      true,
+      null,
+      null,
+      DEFAULT_LINTER_ID
+    );
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -177,10 +200,20 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    List<EslintRule> rules = Collections.singletonList(new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
-    eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), AnalysisMode.DEFAULT);
+    List<EslintRule> rules = Collections.singletonList(
+      new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN))
+    );
+    eslintBridgeServer.initLinter(
+      rules,
+      Collections.emptyList(),
+      Collections.emptyList(),
+      AnalysisMode.DEFAULT
+    );
     eslintBridgeServer.stop();
-    assertThat(logTester.logs()).contains("{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
+    assertThat(logTester.logs())
+      .contains(
+        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}"
+      );
   }
 
   @Test
@@ -189,14 +222,23 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.ts")
       .setContents("alert('Fly, you fools!')")
       .build();
-    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
+    DefaultInputFile tsConfig = TestInputFileBuilder
+      .create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
-      singletonList(tsConfig.absolutePath()), null, DEFAULT_LINTER_ID);
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      null,
+      true,
+      singletonList(tsConfig.absolutePath()),
+      null,
+      DEFAULT_LINTER_ID
+    );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
 
@@ -206,10 +248,19 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      null,
+      true,
+      null,
+      null,
+      DEFAULT_LINTER_ID
+    );
     assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
   }
 
@@ -219,15 +270,24 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    TsProgram programCreated = eslintBridgeServer.createProgram(new TsProgramRequest("/absolute/path/tsconfig.json"));
+    TsProgram programCreated = eslintBridgeServer.createProgram(
+      new TsProgramRequest("/absolute/path/tsconfig.json")
+    );
 
     // values from 'startServer.js'
     assertThat(programCreated.programId).isEqualTo("42");
     assertThat(programCreated.projectReferences).isEmpty();
     assertThat(programCreated.files.size()).isEqualTo(3);
 
-    JsAnalysisRequest request = new JsAnalysisRequest("/absolute/path/file.ts", "MAIN",
-      null, true, null, programCreated.programId, DEFAULT_LINTER_ID);
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      "/absolute/path/file.ts",
+      "MAIN",
+      null,
+      true,
+      null,
+      programCreated.programId,
+      DEFAULT_LINTER_ID
+    );
     assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
 
     assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
@@ -239,7 +299,9 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    var tsConfig = eslintBridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
+    var tsConfig = eslintBridgeServer.createTsConfigFile(
+      "{\"include\":[\"/path/to/project/**/*\"]}"
+    );
     assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
   }
 
@@ -249,7 +311,9 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    TsProgram programCreated = eslintBridgeServer.createProgram(new TsProgramRequest("/absolute/path/invalid.json"));
+    TsProgram programCreated = eslintBridgeServer.createProgram(
+      new TsProgramRequest("/absolute/path/invalid.json")
+    );
 
     assertThat(programCreated.programId).isNull();
     assertThat(programCreated.error).isEqualTo("failed to create program");
@@ -261,10 +325,15 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.css")
       .setContents("a { }")
       .build();
-    CssAnalysisRequest request = new CssAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), Collections.emptyList());
+    CssAnalysisRequest request = new CssAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      Collections.emptyList()
+    );
     assertThat(eslintBridgeServer.analyzeCss(request).issues).isEmpty();
   }
 
@@ -282,19 +351,22 @@ class EslintBridgeServerImplTest {
   @Test
   void should_return_command_info() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    assertThat(eslintBridgeServer.getCommandInfo()).isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
 
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: ", "node", START_SERVER_SCRIPT);
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .contains("Node.js command to start eslint-bridge was: ", "node", START_SERVER_SCRIPT);
     assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
   }
 
   @Test
   void should_set_max_old_space_size() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    assertThat(eslintBridgeServer.getCommandInfo()).isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
 
     eslintBridgeServer.deploy();
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.maxspace", 2048));
@@ -307,7 +379,9 @@ class EslintBridgeServerImplTest {
   void should_set_allowTsParserJsFiles_to_false() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
-    context.setSettings(new MapSettings().setProperty("sonar.javascript.allowTsParserJsFiles", "false"));
+    context.setSettings(
+      new MapSettings().setProperty("sonar.javascript.allowTsParserJsFiles", "false")
+    );
     eslintBridgeServer.startServer(context, emptyList());
     eslintBridgeServer.stop();
 
@@ -351,7 +425,8 @@ class EslintBridgeServerImplTest {
   @Test
   void should_throw_special_exception_when_failed_start_server_before() {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
-    String failedToStartExceptionMessage = "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
+    String failedToStartExceptionMessage =
+      "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
@@ -388,11 +463,21 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServerLazily(context);
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null, null, DEFAULT_LINTER_ID);
-    assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      null,
+      true,
+      null,
+      null,
+      DEFAULT_LINTER_ID
+    );
+    assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request))
+      .isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -422,8 +507,11 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
     String tsconfig = "path/to/tsconfig.json";
-    EslintBridgeServerImpl.TsConfigResponse tsConfigResponse = eslintBridgeServer.tsConfigFiles(tsconfig);
-    assertThat(tsConfigResponse.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    EslintBridgeServerImpl.TsConfigResponse tsConfigResponse = eslintBridgeServer.tsConfigFiles(
+      tsconfig
+    );
+    assertThat(tsConfigResponse.files)
+      .contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
     assertThat(tsConfigResponse.error).isNull();
 
     TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
@@ -436,7 +524,9 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("badResponse.js");
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
-    EslintBridgeServerImpl.TsConfigResponse response = eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json");
+    EslintBridgeServerImpl.TsConfigResponse response = eslintBridgeServer.tsConfigFiles(
+      "path/to/tsconfig.json"
+    );
     assertThat(response.files).isEmpty();
     assertThat(response.error).isEqualTo("Invalid response");
   }
@@ -471,14 +561,21 @@ class EslintBridgeServerImplTest {
     assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("any.ts"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("eslint-bridge is unresponsive");
-    assertThat(logTester.logs(ERROR)).contains("eslint-bridge Node.js process is unresponsive. This is most likely " +
-      "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
-      " (e.g. 4096).");
+    assertThat(logTester.logs(ERROR))
+      .contains(
+        "eslint-bridge Node.js process is unresponsive. This is most likely " +
+        "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
+        " (e.g. 4096)."
+      );
   }
 
   @Test
   void test_rule_tostring() {
-    EslintRule rule = new EslintRule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
+    EslintRule rule = new EslintRule(
+      "key",
+      emptyList(),
+      Collections.singletonList(InputFile.Type.MAIN)
+    );
     assertThat(rule).hasToString("key");
   }
 
@@ -486,10 +583,14 @@ class EslintBridgeServerImplTest {
   void should_load_custom_rules() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    eslintBridgeServer.startServer(
+      context,
+      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
+    );
     eslintBridgeServer.stop();
 
-    assertThat(logTester.logs()).contains("additional rules: [bundle1" + File.pathSeparator + "bundle2]");
+    assertThat(logTester.logs())
+      .contains("additional rules: [bundle1" + File.pathSeparator + "bundle2]");
   }
 
   @Test
@@ -497,7 +598,10 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
-    eslintBridgeServer.startServer(context, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    eslintBridgeServer.startServer(
+      context,
+      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
+    );
     eslintBridgeServer.stop();
 
     assertThat(logTester.logs()).contains("sonarlint: true");
@@ -505,7 +609,15 @@ class EslintBridgeServerImplTest {
 
   @Test
   void should_use_default_timeout() {
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer =
+      new EslintBridgeServerImpl(
+        NodeCommand.builder(),
+        mock(Bundle.class),
+        mock(RulesBundles.class),
+        deprecationWarning,
+        tempFolder,
+        monitoring
+      );
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
 
@@ -528,8 +640,15 @@ class EslintBridgeServerImplTest {
 
   @Test
   void test_tsProgram_toString() {
-    TsProgram tsProgram = new TsProgram("42", singletonList("path/file.ts"), singletonList("path/tsconfig.json"));
-    assertThat(tsProgram).hasToString("TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}");
+    TsProgram tsProgram = new TsProgram(
+      "42",
+      singletonList("path/file.ts"),
+      singletonList("path/tsconfig.json")
+    );
+    assertThat(tsProgram)
+      .hasToString(
+        "TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}"
+      );
 
     TsProgram tsProgramError = new TsProgram("failed to create program");
     assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
@@ -540,24 +659,33 @@ class EslintBridgeServerImplTest {
     var settings = new MapSettings();
     settings.setProperty("sonar.javascript.monitoring", "true");
     var monitoring = new Monitoring(settings.asConfig());
-    monitoring.startSensor(context, new Sensor() {
-      @Override
-      public void describe(SensorDescriptor descriptor) {
+    monitoring.startSensor(
+      context,
+      new Sensor() {
+        @Override
+        public void describe(SensorDescriptor descriptor) {}
 
+        @Override
+        public void execute(SensorContext context) {}
       }
-
-      @Override
-      public void execute(SensorContext context) {
-
-      }
-    });
+    );
     assertThat(monitoring.isMonitoringEnabled()).isTrue();
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS,
-      new TestBundle(START_SERVER_SCRIPT), emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer =
+      new EslintBridgeServerImpl(
+        NodeCommand.builder(),
+        TEST_TIMEOUT_SECONDS,
+        new TestBundle(START_SERVER_SCRIPT),
+        emptyRulesBundles,
+        deprecationWarning,
+        tempFolder,
+        monitoring
+      );
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServerLazily(context);
     eslintBridgeServer.stop();
-    var rules = monitoring.metrics().stream()
+    var rules = monitoring
+      .metrics()
+      .stream()
       .filter(m -> m.metricType == Monitoring.MetricType.RULE)
       .map(m -> ((Monitoring.RuleMetric) m).ruleKey)
       .collect(Collectors.toList());
@@ -566,20 +694,39 @@ class EslintBridgeServerImplTest {
 
   @Test
   void test_ucfg_bundle_version() throws Exception {
-    RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle("/test-bundle.tgz");
+    RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle(
+      "/test-bundle.tgz"
+    );
 
     RulesBundles rulesBundles = mock(RulesBundles.class);
     when(rulesBundles.getUcfgRulesBundle()).thenReturn(Optional.of(ucfgRulesBundle));
 
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS,
-      new TestBundle(START_SERVER_SCRIPT), rulesBundles, deprecationWarning, tempFolder, monitoring);
+    eslintBridgeServer =
+      new EslintBridgeServerImpl(
+        NodeCommand.builder(),
+        TEST_TIMEOUT_SECONDS,
+        new TestBundle(START_SERVER_SCRIPT),
+        rulesBundles,
+        deprecationWarning,
+        tempFolder,
+        monitoring
+      );
     eslintBridgeServer.startServerLazily(context);
 
-    assertThat(logTester.logs(DEBUG)).contains("Security Frontend version is available: [some_bundle_version]");
+    assertThat(logTester.logs(DEBUG))
+      .contains("Security Frontend version is available: [some_bundle_version]");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder, monitoring);
+    return new EslintBridgeServerImpl(
+      NodeCommand.builder(),
+      TEST_TIMEOUT_SECONDS,
+      new TestBundle(startServerScript),
+      emptyRulesBundles,
+      deprecationWarning,
+      tempFolder,
+      monitoring
+    );
   }
 
   static class TestBundle implements Bundle {

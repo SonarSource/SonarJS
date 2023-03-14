@@ -29,7 +29,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1854")
 public class DeadStoreCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "no-dead-store";

@@ -38,13 +38,15 @@ public class ArrowFunctionConventionCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "parameter_parens",
     description = "True to require parentheses around parameters. False to forbid them for single parameter.",
-    defaultValue = "" + DEFAULT_PARAMETER_PARENS)
+    defaultValue = "" + DEFAULT_PARAMETER_PARENS
+  )
   boolean parameterParens = DEFAULT_PARAMETER_PARENS;
 
   @RuleProperty(
     key = "body_braces",
     description = "True to require curly braces around function body. False to forbid them for single-return bodies.",
-    defaultValue = "" + DEFAULT_BODY_BRACES)
+    defaultValue = "" + DEFAULT_BODY_BRACES
+  )
   boolean bodyBraces = DEFAULT_BODY_BRACES;
 
   @Override
@@ -58,6 +60,7 @@ public class ArrowFunctionConventionCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean requireParameterParentheses;
     boolean requireBodyBraces;
 
@@ -66,5 +69,4 @@ public class ArrowFunctionConventionCheck implements EslintBasedCheck {
       this.requireBodyBraces = requireBodyBraces;
     }
   }
-
 }

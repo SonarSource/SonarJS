@@ -35,7 +35,8 @@ public class MaxUnionSizeCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "max",
     description = "Maximum elements authorized in a union type definition.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
   int threshold = DEFAULT_THRESHOLD;
 
   @Override

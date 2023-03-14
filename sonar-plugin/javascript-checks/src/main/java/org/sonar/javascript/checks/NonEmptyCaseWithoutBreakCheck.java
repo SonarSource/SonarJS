@@ -35,5 +35,4 @@ public class NonEmptyCaseWithoutBreakCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-fallthrough";
   }
-
 }

@@ -40,24 +40,30 @@ public class EslintRulesDefinition implements RulesDefinition {
     "promise",
     "react",
     "sonarjs",
-    "vue"
+    "vue",
   };
 
   private static final Map<String, ExternalRuleLoader> RULE_LOADERS = new HashMap<>();
 
   static {
     for (String plugin : ESLINT_PLUGINS) {
-      RULE_LOADERS.put(plugin, new ExternalRuleLoader(
-        REPOSITORY_KEY,
-        LINTER_NAME,
-        "org/sonar/l10n/javascript/rules/eslint/" + plugin + ".json",
-        JavaScriptLanguage.KEY));
+      RULE_LOADERS.put(
+        plugin,
+        new ExternalRuleLoader(
+          REPOSITORY_KEY,
+          LINTER_NAME,
+          "org/sonar/l10n/javascript/rules/eslint/" + plugin + ".json",
+          JavaScriptLanguage.KEY
+        )
+      );
     }
   }
 
   @Override
   public void define(Context context) {
-    RULE_LOADERS.forEach((s, externalRuleLoader) -> externalRuleLoader.createExternalRuleRepository(context));
+    RULE_LOADERS.forEach((s, externalRuleLoader) ->
+      externalRuleLoader.createExternalRuleRepository(context)
+    );
   }
 
   public static ExternalRuleLoader loader(String eslintKey) {

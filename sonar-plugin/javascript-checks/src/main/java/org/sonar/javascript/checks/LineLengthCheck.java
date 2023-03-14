@@ -41,9 +41,9 @@ public class LineLengthCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximumLineLength",
     description = "The maximum authorized line length.",
-    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENGTH)
+    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENGTH
+  )
   public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENGTH;
-
 
   @Override
   public List<Object> configurations() {

@@ -33,5 +33,4 @@ public class NoUselessReactSetstateCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-useless-react-setstate";
   }
-
 }

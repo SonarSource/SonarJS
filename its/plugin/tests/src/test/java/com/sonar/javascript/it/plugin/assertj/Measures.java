@@ -19,13 +19,13 @@
  */
 package com.sonar.javascript.it.plugin.assertj;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
+
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
 
 public class Measures {
 
@@ -34,7 +34,12 @@ public class Measures {
   private final String branch;
   private final String pullRequest;
 
-  public Measures(Orchestrator orchestrator, String componentKey, String branch, String pullRequest) {
+  public Measures(
+    Orchestrator orchestrator,
+    String componentKey,
+    String branch,
+    String pullRequest
+  ) {
     this.orchestrator = orchestrator;
     this.componentKey = componentKey;
     this.branch = branch;
@@ -42,7 +47,8 @@ public class Measures {
   }
 
   Map<String, Double> load(List<String> metricKeys) {
-    return metricKeys.stream()
+    return metricKeys
+      .stream()
       .map(this::getMeasure)
       .filter(entry -> entry.getValue().isPresent())
       .map(entry -> Map.entry(entry.getKey(), entry.getValue().get()))
@@ -53,5 +59,4 @@ public class Measures {
     var measure = getMeasureAsDouble(orchestrator, componentKey, metricKey, branch, pullRequest);
     return Map.entry(metricKey, Optional.ofNullable(measure));
   }
-
 }

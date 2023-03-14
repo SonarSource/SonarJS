@@ -24,6 +24,7 @@ import com.sonar.sslr.api.TokenType;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 public class CssToken {
+
   CssTokenType type;
   String text;
   Integer startLine;
@@ -33,10 +34,14 @@ public class CssToken {
 
   public CssToken(Token token) {
     TokenType tokenType = token.getType();
-    this.type = (CssTokenType)tokenType;
+    this.type = (CssTokenType) tokenType;
     this.text = token.getValue();
 
-    TokenLocation tokenLocation = new TokenLocation(token.getLine(), token.getColumn(), token.getValue());
+    TokenLocation tokenLocation = new TokenLocation(
+      token.getLine(),
+      token.getColumn(),
+      token.getValue()
+    );
     this.startLine = tokenLocation.startLine();
     this.startColumn = tokenLocation.startLineOffset();
     this.endLine = tokenLocation.endLine();

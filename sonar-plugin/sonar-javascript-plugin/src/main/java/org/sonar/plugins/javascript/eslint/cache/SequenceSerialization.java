@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,11 +38,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-
 class SequenceSerialization extends CacheSerialization {
 
   private static final Logger LOG = Loggers.get(SequenceSerialization.class);
@@ -50,7 +50,8 @@ class SequenceSerialization extends CacheSerialization {
 
   private static String convertToEntryName(Path baseAbsolutePath, Path fileAbsolutePath) {
     var relativePath = baseAbsolutePath.relativize(fileAbsolutePath);
-    return StreamSupport.stream(relativePath.spliterator(), false)
+    return StreamSupport
+      .stream(relativePath.spliterator(), false)
       .map(Path::getFileName)
       .map(Path::toString)
       .collect(joining(ENTRY_SEPARATOR));
@@ -65,7 +66,8 @@ class SequenceSerialization extends CacheSerialization {
     return fileAbsolutePath;
   }
 
-  private static void writeFile(InputStream input, Path file, long limit, boolean shouldFinish) throws IOException {
+  private static void writeFile(InputStream input, Path file, long limit, boolean shouldFinish)
+    throws IOException {
     Files.createDirectories(file.getParent());
 
     try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
@@ -81,9 +83,13 @@ class SequenceSerialization extends CacheSerialization {
       }
 
       if (totalRead < limit) {
-        throw new IOException(String.format("The cache stream is too small (<%d) for file %s", limit, file));
+        throw new IOException(
+          String.format("The cache stream is too small (<%d) for file %s", limit, file)
+        );
       } else if (shouldFinish && input.read() >= 0) {
-        throw new IOException(String.format("The cache stream is too big (>%d) for file %s", limit, file));
+        throw new IOException(
+          String.format("The cache stream is too big (>%d) for file %s", limit, file)
+        );
       }
     }
   }
@@ -102,14 +108,20 @@ class SequenceSerialization extends CacheSerialization {
   }
 
   FilesManifest writeToCache(@Nullable List<String> generatedFiles) throws IOException {
-    List<Path> paths = generatedFiles == null ? emptyList() : generatedFiles.stream().map(Path::of).collect(toList());
+    List<Path> paths = generatedFiles == null
+      ? emptyList()
+      : generatedFiles.stream().map(Path::of).collect(toList());
     var iterator = new FileIterator(paths);
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {
       writeToCache(sequence);
     }
 
-    LOG.debug("Cache entry created for key '{}' containing {} file(s)", getCacheKey(), iterator.getCount());
+    LOG.debug(
+      "Cache entry created for key '{}' containing {} file(s)",
+      getCacheKey(),
+      iterator.getCount()
+    );
 
     return createManifest(getWorkingDirectoryAbsolutePath(), iterator);
   }
@@ -137,5 +149,4 @@ class SequenceSerialization extends CacheSerialization {
   private Path getWorkingDirectoryAbsolutePath() {
     return getContext().fileSystem().workDir().toPath();
   }
-
 }

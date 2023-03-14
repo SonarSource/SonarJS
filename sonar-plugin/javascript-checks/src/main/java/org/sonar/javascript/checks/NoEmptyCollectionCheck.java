@@ -33,5 +33,4 @@ public class NoEmptyCollectionCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-empty-collection";
   }
-
 }

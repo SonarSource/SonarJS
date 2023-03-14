@@ -34,4 +34,3 @@ public class NoWeakKeysCheck implements EslintBasedCheck {
     return "no-weak-keys";
   }
 }
-

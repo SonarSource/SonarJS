@@ -71,7 +71,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
-
 build_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
@@ -129,10 +128,10 @@ ws_scan_task:
     - source set_maven_build_version $BUILD_NUMBER
     - mvn clean install -DskipTests
     - source ws_scan.sh
-  allow_failures: "true"
+  allow_failures: 'true'
   always:
     ws_artifacts:
-      path: "whitesource/**/*"
+      path: 'whitesource/**/*'
 
 plugin_qa_task:
   <<: *PLUGIN_QA_BODY
@@ -163,13 +162,13 @@ plugin_qa_win_task:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
     matrix:
-      - TEST: "!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest"
-      - TEST: "CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest"
+      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
+      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-  # building the custom plugin required for the further tests
+    # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
     - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
@@ -201,7 +200,7 @@ ruling_task:
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
-      path: "**/target/actual/**/*"
+      path: '**/target/actual/**/*'
 
 promote_task:
   depends_on:

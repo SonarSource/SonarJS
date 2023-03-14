@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -36,9 +35,10 @@ public class ClassNameCheck implements EslintBasedCheck {
   private static final String DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
 
   @RuleProperty(
-      key = "format",
-      description = "Regular expression used to check the class names against.",
-      defaultValue = "" + DEFAULT_FORMAT)
+    key = "format",
+    description = "Regular expression used to check the class names against.",
+    defaultValue = "" + DEFAULT_FORMAT
+  )
   public String format = DEFAULT_FORMAT;
 
   @Override
@@ -50,5 +50,4 @@ public class ClassNameCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "class-name";
   }
-
 }

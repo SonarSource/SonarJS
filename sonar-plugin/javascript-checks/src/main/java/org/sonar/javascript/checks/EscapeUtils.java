@@ -21,8 +21,7 @@ package org.sonar.javascript.checks;
 
 public final class EscapeUtils {
 
-  private EscapeUtils() {
-  }
+  private EscapeUtils() {}
 
   public static String unescape(String value) {
     StringBuilder result = new StringBuilder();
@@ -49,7 +48,13 @@ public final class EscapeUtils {
     return result.toString();
   }
 
-  private static int consumeEscapeSequence(int i, int len, String value, StringBuilder escapeSequence, StringBuilder result) {
+  private static int consumeEscapeSequence(
+    int i,
+    int len,
+    String value,
+    StringBuilder escapeSequence,
+    StringBuilder result
+  ) {
     int ii = i;
     while (escapeSequence.length() != len && ii < value.length()) {
       ii++;
@@ -99,5 +104,4 @@ public final class EscapeUtils {
     }
     return result;
   }
-
 }

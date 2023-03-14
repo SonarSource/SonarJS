@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 class FileLocator {
+
   private final ReversePathTree tree = new ReversePathTree();
 
   FileLocator(Iterable<InputFile> inputFiles) {

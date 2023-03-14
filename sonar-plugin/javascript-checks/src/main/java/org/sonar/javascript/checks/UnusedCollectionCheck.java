@@ -33,5 +33,4 @@ public class UnusedCollectionCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-unused-collection";
   }
-
 }

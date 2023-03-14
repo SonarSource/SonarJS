@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5757")
 public class ConfidentialInformationLoggingCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "confidential-information-logging";

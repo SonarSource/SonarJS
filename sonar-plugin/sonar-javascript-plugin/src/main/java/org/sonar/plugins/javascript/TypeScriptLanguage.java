@@ -40,5 +40,4 @@ public class TypeScriptLanguage extends AbstractLanguage {
   public String[] getFileSuffixes() {
     return configuration.getStringArray(FILE_SUFFIXES_KEY);
   }
-
 }

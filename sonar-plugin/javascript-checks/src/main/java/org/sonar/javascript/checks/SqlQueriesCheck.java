@@ -34,4 +34,3 @@ public class SqlQueriesCheck implements EslintBasedCheck {
     return "sql-queries";
   }
 }
-

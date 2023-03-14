@@ -1,6 +1,7 @@
 # Developer Guide
 
 ## Prerequisites
+
 - [JDK 11](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/what-is-corretto-11.html)
 - [Maven](https://maven.apache.org/install.html)
 - Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
@@ -8,6 +9,7 @@
 You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
+
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
 ```sh
@@ -15,6 +17,7 @@ mvn clean install
 ```
 
 ## Integration Tests
+
 First make sure the submodules are checked out:
 
 ```sh
@@ -23,14 +26,18 @@ First make sure the submodules are checked out:
 ```
 
 ### Plugin Tests
+
 The "Plugin Test" is an integration test which verifies plugin features such as metric calculation, coverage etc.
+
 ```sh
 cd its/plugin
 mvn clean install
 ```
 
 ### Ruling Tests
+
 The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files).
+
 ```sh
 cd its/ruling
 mvn verify -Dtest=JavaScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
@@ -44,9 +51,10 @@ If everything looks good to you, you can copy the file with the actual issues lo
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
 
 From `its/ruling/`:
-* for JS `cp -R target/actual/js/ src/test/expected/js`
-* for TS `cp -R target/actual/ts/ src/test/expected/ts`
-* for CSS `cp -R target/actual/css/ src/test/expected/css`
+
+- for JS `cp -R target/actual/js/ src/test/expected/js`
+- for TS `cp -R target/actual/ts/ src/test/expected/ts`
+- for CSS `cp -R target/actual/css/ src/test/expected/css`
 
 You can review the Ruling difference by running `diff -rq src/test/expected/js target/actual/js` from `its/ruling`.
 
@@ -56,11 +64,13 @@ Note that you can fix the port in `orchestrator.properties files`, e.g. `orchest
 ## Adding a rule
 
 ### Rule Description
+
 1. Create a PR with a rule description in RSPEC repo like described [here](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
 2. Link this RSPEC PR to the implementation issue in this repo
-5. Make sure the implementation issue title contains the RSPEC number and name
+3. Make sure the implementation issue title contains the RSPEC number and name
 
 ### Implementing a rule
+
 1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
 
 ```sh
@@ -68,38 +78,42 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 ```
 
 2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
+
 ```sh
 npm run new-rule S1234 <ESLint-style rulekey>
 // e.g.
 npm run new-rule S1234 no-invalid-something [eslint]
 ```
+
 This script:
-* generates a Java check class for the rule `NoInvalidSomethingCheck.java`
-* generates a `no-invalid-something.ts` file for the rule implementation
-* generates a `comment-based/no-invalid-something.js` test file
-* updates the `index.ts` file to include the new rule
-* updates the `CheckList.java` to include the new rule
+
+- generates a Java check class for the rule `NoInvalidSomethingCheck.java`
+- generates a `no-invalid-something.ts` file for the rule implementation
+- generates a `comment-based/no-invalid-something.js` test file
+- updates the `index.ts` file to include the new rule
+- updates the `CheckList.java` to include the new rule
 
 3. Update generated files
-   * Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
-   * If required, override the `configurations()` method of the Java check class
-   * If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
-   * In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
-      ```json
-       "compatibleLanguages": [
-         "JAVASCRIPT",
-         "TYPESCRIPT"
-       ]
-      ```
+   - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
+   - If required, override the `configurations()` method of the Java check class
+   - If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
+   - In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
+     ```json
+      "compatibleLanguages": [
+        "JAVASCRIPT",
+        "TYPESCRIPT"
+      ]
+     ```
 4. Implement the rule logic in `no-invalid-something.ts`
-   * Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   * Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
-   * If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
+
+   - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
+   - Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
+   - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
 
 5. If possible, implement quick fixes for the rule:
-   * Add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`
-   * If it's an ESLint fix (and not a suggestion), add a message for the quick fix in `src/linting/eslint/linter/quickfixes/rules.ts`
-   * If it's an ESLint fix (and not a suggestion), add code that should provide a quickfix in `tests/linting/eslint/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
+   - Add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`
+   - If it's an ESLint fix (and not a suggestion), add a message for the quick fix in `src/linting/eslint/linter/quickfixes/rules.ts`
+   - If it's an ESLint fix (and not a suggestion), add code that should provide a quickfix in `tests/linting/eslint/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
 
 ## Testing a rule
 
@@ -117,7 +131,7 @@ some.faulty.code(); // Noncompliant N [[qf1,qf2,...]] {{Optional message to asse
 //   ^^^^^^
 // fix@qf1 {{Optional suggestion description}}
 // edit@qf1 [[sc=1;ec=5]] {{text to replace line from [sc] column to [ec] column}}
-faulty.setFaultyParam(true)
+faulty.setFaultyParam(true);
 //     ^^^^^^^^^^^^^^< {{Optional secondary message to assert}}
 ```
 
@@ -125,7 +139,7 @@ The contents of the options file must be a valid JSON array:
 
 ```javascript
 // brace-style.json
-["1tbs", { "allowSingleLine": true }]
+['1tbs', { allowSingleLine: true }];
 ```
 
 #### Tests syntax
@@ -146,6 +160,7 @@ some.faulty.code();
 ```
 
 Another option is to use relative line increments (`@+line_increment`) or decrements (`@-line_decrement`):
+
 ```javascript
 // Noncompliant@+1
 some.faulty.code();
@@ -170,7 +185,7 @@ In order to indicate secondary locations, you must use either `// ^^^^^<` or `//
 
 As stated before, the message is optional.
 
-**/!\** If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
+\*\*/!\*\* If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
 
 #### Quick fixes
 
@@ -189,30 +204,33 @@ The line affected in each of these operations will be the line of the issue to w
 
 ```javascript
 //Noncompliant@+1 [[qf!]]
-if (condition) { doSomething()
+if (condition) {
+  doSomething();
 }
 // edit@qf [[sc=16]] {{}}
 // add@qf@+1 {{ doSomething()}}
 ```
+
 The expected output is:
+
 ```javascript
 if (condition) {
- doSomething()
+  doSomething();
 }
 ```
+
 Let's go through the syntax used in this example:
+
 - The test provides a fix (note the `!` after the ID `qf`).
 - The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue for which we provide a quick fix.
 - The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by `if (condition) {`.
 - Lastly, the line `// add@qf@+1 {{ doSomething()}}` will add a new line just after the issue line (`@+1`) with the contents `&nbsp;doSomething()`
 
-
-
 Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below).
 
 Quick fixes IDs can be any `string`, they don't have to follow the `qfN` convention. The order of the list is important, as they will be assigned to the message in the matching position. If one provides 3 messages and 2 quick fixes which are not to be matched against first and second message, there are two options:
 
-* A *dummy* quick fix can be used as placeholder:
+- A _dummy_ quick fix can be used as placeholder:
 
 ```javascript
 some.faulty.code(); // Noncompliant [[qf1,qf2,qf3]] {{message1}} {{message2}} {{message3}}
@@ -221,7 +239,7 @@ some.faulty.code(); // Noncompliant [[qf1,qf2,qf3]] {{message1}} {{message2}} {{
 // qf2 is declared but never used --> ignored by the engine
 ```
 
-* Explicitly set the index (0-based) of the message to which the quick fix refers to with the syntax `=index` next to the quick fix ID:
+- Explicitly set the index (0-based) of the message to which the quick fix refers to with the syntax `=index` next to the quick fix ID:
 
 ```javascript
 some.faulty.code(); // Noncompliant [[qf1,qf3=2]] {{message1}} {{message2}} {{message3}}
@@ -240,6 +258,7 @@ some.faulty.code(); // Noncompliant [[qf1,qf2=0]]
 ```
 
 To execute a single comment-based test:
+
 ```sh
 npm run ctest -- -t="no-invalid-something"
 ```
@@ -249,6 +268,7 @@ npm run ctest -- -t="no-invalid-something"
 Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild the jar before that!).
 
 If your rule does not raise any issue, you should write your own code that triggers your rule in:
+
 - `its/sources/file-for-rules/S1234.js` for code
 - `its/sources/file-for-rules/tests/S1234.js` for test code
 
@@ -256,13 +276,14 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 
 ## Examples
 
-* Security Hotspot implementation: [PR](https://github.com/SonarSource/SonarJS/pull/3148)
-* Quality rule implemented with quickfix: [PR](https://github.com/SonarSource/SonarJS/pull/3141)
-* Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
-* Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
-* Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
+- Security Hotspot implementation: [PR](https://github.com/SonarSource/SonarJS/pull/3148)
+- Quality rule implemented with quickfix: [PR](https://github.com/SonarSource/SonarJS/pull/3141)
+- Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
+- Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
+- Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
 
 ## Misc
-* Use issue number for a branch name, e.g. `issue-1234`
-* You can use [AST explorer](https://astexplorer.net/) to explore the tree share. Use the `regexpp` parser when implementing a Regex rule.
-* [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
+
+- Use issue number for a branch name, e.g. `issue-1234`
+- You can use [AST explorer](https://astexplorer.net/) to explore the tree share. Use the `regexpp` parser when implementing a Regex rule.
+- [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)

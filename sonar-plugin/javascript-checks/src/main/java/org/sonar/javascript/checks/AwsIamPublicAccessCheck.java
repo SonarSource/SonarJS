@@ -33,5 +33,4 @@ public class AwsIamPublicAccessCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-iam-public-access";
   }
-
 }

@@ -23,9 +23,13 @@ import org.sonar.api.Plugin;
 
 public class EslintCustomRulesPlugin implements Plugin {
 
-
   @Override
   public void define(Context context) {
-    context.addExtensions(EslintRulesBundle.class, CustomRulesDefinition.class, RuleRepository.class, TsRepository.class);
+    context.addExtensions(
+      EslintRulesBundle.class,
+      CustomRulesDefinition.class,
+      RuleRepository.class,
+      TsRepository.class
+    );
   }
 }

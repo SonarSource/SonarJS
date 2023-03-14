@@ -34,4 +34,3 @@ public class UnusedNamedGroupsCheck implements EslintBasedCheck {
     return "unused-named-groups";
   }
 }
-

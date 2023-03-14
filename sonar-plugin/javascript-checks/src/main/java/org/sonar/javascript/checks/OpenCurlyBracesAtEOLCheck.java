@@ -37,7 +37,8 @@ public class OpenCurlyBracesAtEOLCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "braceStyle",
     description = "enforced brace-style: 1tbs, stroustrup or allman.",
-    defaultValue = DEFAULT_BRACE_STYLE)
+    defaultValue = DEFAULT_BRACE_STYLE
+  )
   public String braceStyle = DEFAULT_BRACE_STYLE;
 
   @Override
@@ -51,6 +52,7 @@ public class OpenCurlyBracesAtEOLCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean allowSingleLine = true;
   }
 }

@@ -55,8 +55,12 @@ public class CssRuleSensor extends AbstractEslintSensor {
   private final SonarRuntime sonarRuntime;
   private final CssRules cssRules;
 
-  public CssRuleSensor(SonarRuntime sonarRuntime, EslintBridgeServer eslintBridgeServer, AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
-                       CheckFactory checkFactory
+  public CssRuleSensor(
+    SonarRuntime sonarRuntime,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    Monitoring monitoring,
+    CheckFactory checkFactory
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.sonarRuntime = sonarRuntime;
@@ -65,16 +69,16 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .createIssuesForRuleRepository("css")
-      .name("CSS Rules");
+    descriptor.createIssuesForRuleRepository("css").name("CSS Rules");
 
     processesFilesIndependently(descriptor);
   }
 
   private void processesFilesIndependently(SensorDescriptor descriptor) {
-    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
-      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
+    if (
+      sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
+      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))
+    ) {
       descriptor.processesFilesIndependently();
     }
   }
@@ -84,7 +88,9 @@ public class CssRuleSensor extends AbstractEslintSensor {
     this.context = context;
     List<InputFile> inputFiles = getInputFiles();
     if (inputFiles.isEmpty()) {
-      LOG.info("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
+      LOG.info(
+        "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
+      );
       return;
     }
     super.execute(context);
@@ -92,7 +98,10 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
+    ProgressReport progressReport = new ProgressReport(
+      "Analysis progress",
+      TimeUnit.SECONDS.toMillis(10)
+    );
     boolean success = false;
     List<StylelintRule> rules = cssRules.getStylelintRules();
 
@@ -100,7 +109,9 @@ public class CssRuleSensor extends AbstractEslintSensor {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
-          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
         }
         if (!eslintBridgeServer.isAlive()) {
           throw new IllegalStateException("eslint-bridge server is not answering");
@@ -110,7 +121,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
         progressReport.nextFile(inputFile.absolutePath());
       }
       success = true;
-
     } finally {
       if (success) {
         progressReport.stop();
@@ -128,8 +138,14 @@ public class CssRuleSensor extends AbstractEslintSensor {
         return;
       }
       LOG.debug("Analyzing file: {}", uri);
-      String fileContent = contextUtils.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
-      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, rules);
+      String fileContent = contextUtils.shouldSendFileContent(inputFile)
+        ? inputFile.contents()
+        : null;
+      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(
+        new File(uri).getAbsolutePath(),
+        fileContent,
+        rules
+      );
       EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
       saveIssues(context, inputFile, analysisResponse.issues);
@@ -138,28 +154,38 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  private void saveIssues(SensorContext context, InputFile inputFile, List<EslintBridgeServer.Issue> issues) {
+  private void saveIssues(
+    SensorContext context,
+    InputFile inputFile,
+    List<EslintBridgeServer.Issue> issues
+  ) {
     for (EslintBridgeServer.Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId)) {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
-          logErrorOrDebug(inputFile, "Failed to parse {}, line {}, {}", inputFile.uri(), issue.line, errorMessage);
+          logErrorOrDebug(
+            inputFile,
+            "Failed to parse {}, line {}, {}",
+            inputFile.uri(),
+            issue.line,
+            errorMessage
+          );
         } else {
-          logErrorOrDebug(inputFile, "Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'");
+          logErrorOrDebug(
+            inputFile,
+            "Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'"
+          );
         }
-
       } else {
         NewIssue sonarIssue = context.newIssue();
-        NewIssueLocation location = sonarIssue.newLocation()
+        NewIssueLocation location = sonarIssue
+          .newLocation()
           .on(inputFile)
           .at(inputFile.selectLine(issue.line))
           .message(normalizeMessage(issue.message));
 
-        sonarIssue
-          .at(location)
-          .forRule(ruleKey)
-          .save();
+        sonarIssue.at(location).forRule(ruleKey).save();
       }
     }
   }
@@ -185,25 +211,40 @@ public class CssRuleSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = this.context.fileSystem();
 
-    FilePredicate mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguages(CssLanguage.KEY, "php", "web"));
+    FilePredicate mainFilePredicate = fileSystem
+      .predicates()
+      .and(
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasLanguages(CssLanguage.KEY, "php", "web")
+      );
 
-    FilePredicate vueFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasExtension("vue"),
-      // by default 'vue' extension is defined for JS language, but 'vue' files can contain TS code and thus language can be changed
-      fileSystem.predicates().hasLanguages("js", "ts"));
+    FilePredicate vueFilePredicate = fileSystem
+      .predicates()
+      .and(
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasExtension("vue"),
+        // by default 'vue' extension is defined for JS language, but 'vue' files can contain TS code and thus language can be changed
+        fileSystem.predicates().hasLanguages("js", "ts")
+      );
 
-    return StreamSupport.stream(fileSystem.inputFiles(fileSystem.predicates().or(mainFilePredicate, vueFilePredicate)).spliterator(), false)
+    return StreamSupport
+      .stream(
+        fileSystem
+          .inputFiles(fileSystem.predicates().or(mainFilePredicate, vueFilePredicate))
+          .spliterator(),
+        false
+      )
       .collect(Collectors.toList());
   }
 
   public static boolean hasCssFiles(SensorContext context) {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguages(CssLanguage.KEY));
+    FilePredicate mainFilePredicate = fileSystem
+      .predicates()
+      .and(
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasLanguages(CssLanguage.KEY)
+      );
     return fileSystem.inputFiles(mainFilePredicate).iterator().hasNext();
   }
 

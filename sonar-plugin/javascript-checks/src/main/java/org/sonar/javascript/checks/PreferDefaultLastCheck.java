@@ -33,5 +33,4 @@ public class PreferDefaultLastCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "prefer-default-last";
   }
-
 }

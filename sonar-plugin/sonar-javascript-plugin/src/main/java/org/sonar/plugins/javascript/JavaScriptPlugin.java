@@ -81,14 +81,35 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String ENVIRONMENTS = "sonar.javascript.environments";
   public static final String[] ENVIRONMENTS_DEFAULT_VALUE = {
-    "amd", "applescript", "atomtest", "browser", "commonjs", "embertest",
-    "greasemonkey", "jasmine", "jest", "jquery", "meteor", "mocha", "mongo", "nashorn",
-    "node", "phantomjs", "prototypejs", "protractor", "qunit", "serviceworker",
-    "shared-node-browser", "shelljs", "webextensions", "worker"
+    "amd",
+    "applescript",
+    "atomtest",
+    "browser",
+    "commonjs",
+    "embertest",
+    "greasemonkey",
+    "jasmine",
+    "jest",
+    "jquery",
+    "meteor",
+    "mocha",
+    "mongo",
+    "nashorn",
+    "node",
+    "phantomjs",
+    "prototypejs",
+    "protractor",
+    "qunit",
+    "serviceworker",
+    "shared-node-browser",
+    "shelljs",
+    "webextensions",
+    "worker",
   };
 
   public static final String GLOBALS = "sonar.javascript.globals";
-  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
+  public static final String GLOBALS_DEFAULT_VALUE =
+    "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
 
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
@@ -137,7 +158,8 @@ public class JavaScriptPlugin implements Plugin {
     );
 
     context.addExtensions(
-      PropertyDefinition.builder(LCOV_REPORT_PATHS)
+      PropertyDefinition
+        .builder(LCOV_REPORT_PATHS)
         .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
         .name("LCOV Files")
         .description("Paths (absolute or relative) to the files with LCOV data.")
@@ -146,8 +168,8 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .multiValues(true)
         .build(),
-
-      PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition
+        .builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("JavaScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -156,8 +178,8 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
-
-      PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition
+        .builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("TypeScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -166,8 +188,8 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .build(),
-
-      PropertyDefinition.builder(TSCONFIG_PATHS)
+      PropertyDefinition
+        .builder(TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
         .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
         .onQualifiers(Qualifiers.PROJECT)
@@ -175,8 +197,8 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .multiValues(true)
         .build(),
-
-      PropertyDefinition.builder(PROPERTY_KEY_MAX_FILE_SIZE)
+      PropertyDefinition
+        .builder(PROPERTY_KEY_MAX_FILE_SIZE)
         .name("Maximum size of analyzed files")
         .description(
           "Threshold for the maximum size of analyzed files (in kilobytes). " +
@@ -188,8 +210,8 @@ public class JavaScriptPlugin implements Plugin {
         .type(PropertyType.INTEGER)
         .defaultValue("1000")
         .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+      PropertyDefinition
+        .builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
@@ -198,19 +220,23 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
         .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
+      PropertyDefinition
+        .builder(JavaScriptPlugin.ENVIRONMENTS)
         .defaultValue(String.join(",", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE))
         .name("JavaScript execution environments")
-        .description("List of environments names. The analyzer automatically adds global variables based on that list. "
-          + "Available environment names: " + String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) + ".")
+        .description(
+          "List of environments names. The analyzer automatically adds global variables based on that list. " +
+          "Available environment names: " +
+          String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) +
+          "."
+        )
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JS_TS_CATEGORY)
         .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
+      PropertyDefinition
+        .builder(JavaScriptPlugin.GLOBALS)
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
@@ -229,7 +255,8 @@ public class JavaScriptPlugin implements Plugin {
     );
 
     context.addExtension(
-      PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition
+        .builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -237,11 +264,12 @@ public class JavaScriptPlugin implements Plugin {
         .category(CSS_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .build());
-
+        .build()
+    );
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
-      context.addExtensions(CoverageSensor.class,
+      context.addExtensions(
+        CoverageSensor.class,
         EslintReportSensor.class,
         EslintRulesDefinition.class,
         TslintReportSensor.class,
@@ -249,32 +277,34 @@ public class JavaScriptPlugin implements Plugin {
       );
 
       context.addExtension(
-        PropertyDefinition.builder(ESLINT_REPORT_PATHS)
+        PropertyDefinition
+          .builder(ESLINT_REPORT_PATHS)
           .name("ESLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
           .onQualifiers(Qualifiers.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
           .multiValues(true)
-          .build());
+          .build()
+      );
 
       context.addExtension(
-        PropertyDefinition.builder(TSLINT_REPORT_PATHS)
+        PropertyDefinition
+          .builder(TSLINT_REPORT_PATHS)
           .name("TSLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with TSLint issues.")
           .onQualifiers(Qualifiers.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
           .multiValues(true)
-          .build());
-
-      context.addExtensions(
-        CssMetricSensor.class,
-        StylelintReportSensor.class
+          .build()
       );
 
+      context.addExtensions(CssMetricSensor.class, StylelintReportSensor.class);
+
       context.addExtension(
-        PropertyDefinition.builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)
+        PropertyDefinition
+          .builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)
           .defaultValue(StylelintReportSensor.STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
           .name("Stylelint Report Files")
           .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
@@ -282,15 +312,23 @@ public class JavaScriptPlugin implements Plugin {
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory("CSS")
           .multiValues(true)
-          .build());
+          .build()
+      );
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(context, new SonarLintPluginAPIVersion());
+      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(
+        context,
+        new SonarLintPluginAPIVersion()
+      );
     }
   }
 
   static class SonarLintPluginAPIManager {
-    public void addSonarlintJavaScriptProjectChecker(Context context, SonarLintPluginAPIVersion sonarLintPluginAPIVersion) {
+
+    public void addSonarlintJavaScriptProjectChecker(
+      Context context,
+      SonarLintPluginAPIVersion sonarLintPluginAPIVersion
+    ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         context.addExtension(SonarLintJavaScriptProjectChecker.class);
       } else {
@@ -300,6 +338,7 @@ public class JavaScriptPlugin implements Plugin {
   }
 
   static class SonarLintPluginAPIVersion {
+
     boolean isDependencyAvailable() {
       try {
         Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem");

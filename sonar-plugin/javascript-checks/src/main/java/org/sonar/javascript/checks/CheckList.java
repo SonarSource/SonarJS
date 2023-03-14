@@ -34,8 +34,7 @@ public final class CheckList {
 
   public static final String REPOSITORY_NAME = "SonarAnalyzer";
 
-  private CheckList() {
-  }
+  private CheckList() {}
 
   public static List<Class<? extends JavaScriptCheck>> getTypeScriptChecks() {
     return filterChecksByAnnotation(TypeScriptRule.class);
@@ -45,9 +44,12 @@ public final class CheckList {
     return filterChecksByAnnotation(JavaScriptRule.class);
   }
 
-  private static List<Class<? extends JavaScriptCheck>> filterChecksByAnnotation(Class<? extends Annotation> annotation) {
+  private static List<Class<? extends JavaScriptCheck>> filterChecksByAnnotation(
+    Class<? extends Annotation> annotation
+  ) {
     List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
-    return allChecks.stream()
+    return allChecks
+      .stream()
       .filter(c -> c.isAnnotationPresent(annotation))
       .collect(Collectors.toList());
   }

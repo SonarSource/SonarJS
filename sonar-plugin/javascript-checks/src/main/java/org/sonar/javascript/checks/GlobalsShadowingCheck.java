@@ -33,6 +33,4 @@ public class GlobalsShadowingCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-globals-shadowing";
   }
-
-
 }

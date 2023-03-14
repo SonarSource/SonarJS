@@ -54,15 +54,23 @@ public class RulesBundles {
 
   public RulesBundles(RulesBundle[] rulesBundles) {
     bundles = List.of(rulesBundles);
-    bundleUrls = Arrays.stream(rulesBundles)
-      .map(bundle -> {
-        URL resource = bundle.getClass().getResource(bundle.bundlePath());
-        if (resource == null) {
-          throw new IllegalStateException(String.format("Resource for bundle %s from %s not found.", bundle.bundlePath(), bundle));
-        }
-        return resource;
-      })
-      .collect(Collectors.toList());
+    bundleUrls =
+      Arrays
+        .stream(rulesBundles)
+        .map(bundle -> {
+          URL resource = bundle.getClass().getResource(bundle.bundlePath());
+          if (resource == null) {
+            throw new IllegalStateException(
+              String.format(
+                "Resource for bundle %s from %s not found.",
+                bundle.bundlePath(),
+                bundle
+              )
+            );
+          }
+          return resource;
+        })
+        .collect(Collectors.toList());
   }
 
   /**
@@ -80,7 +88,9 @@ public class RulesBundles {
         if (!Files.exists(deployedBundle)) {
           // Inside tgz we expect "package" directory, this is npm contract.
           // see https://stackoverflow.com/questions/29717774/npm-pack-rename-package-directory
-          throw new IllegalStateException("Failed to deploy bundle " + bundle + ". Didn't find 'package' dir.");
+          throw new IllegalStateException(
+            "Failed to deploy bundle " + bundle + ". Didn't find 'package' dir."
+          );
         }
         unpackedBundles.add(deployedBundle);
       } catch (IOException e) {
@@ -91,9 +101,6 @@ public class RulesBundles {
   }
 
   public Optional<RulesBundle> getUcfgRulesBundle() {
-    return bundles.stream()
-      .filter(bundle -> "ucfg".equals(bundle.bundleKey()))
-      .findAny();
+    return bundles.stream().filter(bundle -> "ucfg".equals(bundle.bundleKey())).findAny();
   }
-
 }

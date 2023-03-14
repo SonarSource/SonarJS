@@ -33,5 +33,4 @@ public class JsxNoConstructedContextValuesCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "jsx-no-constructed-context-values";
   }
-
 }

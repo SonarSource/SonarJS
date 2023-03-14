@@ -39,5 +39,4 @@ public class JavaScriptLanguage extends AbstractLanguage {
   public String[] getFileSuffixes() {
     return configuration.getStringArray(FILE_SUFFIXES_KEY);
   }
-
 }

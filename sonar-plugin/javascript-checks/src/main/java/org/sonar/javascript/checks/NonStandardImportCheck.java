@@ -33,5 +33,4 @@ public class NonStandardImportCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-require-or-define";
   }
-
 }

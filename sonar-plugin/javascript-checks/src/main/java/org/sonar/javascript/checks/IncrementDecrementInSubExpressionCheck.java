@@ -33,5 +33,4 @@ public class IncrementDecrementInSubExpressionCheck implements EslintBasedCheck 
   public String eslintKey() {
     return "no-nested-incdec";
   }
-
 }

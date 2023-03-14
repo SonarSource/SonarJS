@@ -33,5 +33,4 @@ public class JsxNoCommentTextnodesCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "jsx-no-comment-textnodes";
   }
-
 }

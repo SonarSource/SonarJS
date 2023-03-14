@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import org.sonar.plugins.javascript.nodejs.BundlePathResolver;
 
 interface Bundle extends BundlePathResolver {
-
   void deploy(Path deployLocation) throws IOException;
 
   String startServerScript();

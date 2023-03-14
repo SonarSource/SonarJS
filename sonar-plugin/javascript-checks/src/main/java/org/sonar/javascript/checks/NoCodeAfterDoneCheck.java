@@ -33,5 +33,4 @@ public class NoCodeAfterDoneCheck extends TestFileCheck {
   public String eslintKey() {
     return "no-code-after-done";
   }
-
 }

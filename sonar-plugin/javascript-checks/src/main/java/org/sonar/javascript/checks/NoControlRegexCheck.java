@@ -33,5 +33,4 @@ public class NoControlRegexCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-control-regex";
   }
-
 }

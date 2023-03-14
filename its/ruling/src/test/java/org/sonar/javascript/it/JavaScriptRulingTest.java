@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.it;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
@@ -56,20 +58,25 @@ import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
 import org.sonarqube.ws.client.rules.CreateRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   static final String LITS_VERSION = "0.10.0.2181";
   static final String SCANNER_VERSION = "4.7.0.2747";
 
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static final Orchestrator orchestrator = Orchestrator
+    .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-    .addPlugin(FileLocation.byWildcardMavenFilename(
-      new File("../../sonar-plugin/sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
-    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
+    .addPlugin(
+      FileLocation.byWildcardMavenFilename(
+        new File("../../sonar-plugin/sonar-javascript-plugin/target"),
+        "sonar-javascript-plugin-*.jar"
+      )
+    )
+    .addPlugin(
+      MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION)
+    )
     // required to load YAML files
     .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
@@ -111,25 +118,40 @@ class JavaScriptRulingTest {
   public static void setUp() throws Exception {
     cleanRootNodeModules();
     orchestrator.start();
-    ProfileGenerator.RulesConfiguration jsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
-      .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
-      .add("S1451", "isRegularExpression", "true")
-      // to test parameters for eslint-based rules
-      .add("S1192", "threshold", "4");
+    ProfileGenerator.RulesConfiguration jsRulesConfiguration =
+      new ProfileGenerator.RulesConfiguration()
+        .add(
+          "S1451",
+          "headerFormat",
+          "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved."
+        )
+        .add("S1451", "isRegularExpression", "true")
+        // to test parameters for eslint-based rules
+        .add("S1192", "threshold", "4");
 
-    ProfileGenerator.RulesConfiguration tsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
-      // should be no issue only on files starting with a single-line comment
-      .add("S1451", "headerFormat", "//.*")
-      .add("S1451", "isRegularExpression", "true");
+    ProfileGenerator.RulesConfiguration tsRulesConfiguration =
+      new ProfileGenerator.RulesConfiguration()
+        // should be no issue only on files starting with a single-line comment
+        .add("S1451", "headerFormat", "//.*")
+        .add("S1451", "isRegularExpression", "true");
     Set<String> excludedRules = Collections.singleton("S124");
-    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", jsRulesConfiguration, excludedRules);
+    File jsProfile = ProfileGenerator.generateProfile(
+      orchestrator.getServer().getUrl(),
+      "js",
+      "javascript",
+      jsRulesConfiguration,
+      excludedRules
+    );
     File tsProfile = ProfileGenerator.generateProfile(
       orchestrator.getServer().getUrl(),
-      "ts", "typescript",
+      "ts",
+      "typescript",
       tsRulesConfiguration,
-      new HashSet<>());
+      new HashSet<>()
+    );
 
-    orchestrator.getServer()
+    orchestrator
+      .getServer()
       .restoreProfile(FileLocation.of(jsProfile))
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
@@ -137,16 +159,21 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-html-profile.xml"));
 
-    instantiateTemplateRule("js", "rules",
+    instantiateTemplateRule(
+      "js",
+      "rules",
       "S124",
       "CommentRegexTest",
-      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
+      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\""
+    );
 
-
-    instantiateTemplateRule("ts", "rules",
+    instantiateTemplateRule(
+      "ts",
+      "rules",
       "S124",
       "CommentRegexTestTS",
-      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
+      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\""
+    );
 
     // install scanner before jobs to avoid race condition when unzipping in parallel
     installScanner();
@@ -187,15 +214,26 @@ class JavaScriptRulingTest {
   @ParameterizedTest
   @MethodSource
   @Execution(ExecutionMode.CONCURRENT)
-  void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
+  void ruling(String project, String language, String sourceDir, String exclusions, String testDir)
+    throws Exception {
     runRulingTest(project, language, sourceDir, exclusions, testDir);
   }
 
-  static void runRulingTest(String projectKey, String languageToAnalyze, String sources, String exclusions, String testDir) throws IOException {
+  static void runRulingTest(
+    String projectKey,
+    String languageToAnalyze,
+    String sources,
+    String exclusions,
+    String testDir
+  ) throws IOException {
     String languageToIgnore = "js".equals(languageToAnalyze) ? "ts" : "js";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "web", "empty-profile");
 
@@ -206,8 +244,11 @@ class JavaScriptRulingTest {
       actualExclusions += ", " + testDir + "/**/*";
     }
 
-    var differencesPath = Path.of("target", languageToAnalyze + "-" + projectKey + "-differences").toAbsolutePath();
-    SonarScanner build = SonarScanner.create(sourcesLocation)
+    var differencesPath = Path
+      .of("target", languageToAnalyze + "-" + projectKey + "-differences")
+      .toAbsolutePath();
+    SonarScanner build = SonarScanner
+      .create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
@@ -215,8 +256,20 @@ class JavaScriptRulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
-      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
-      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
+      .setProperty(
+        "sonar.lits.dump.old",
+        FileLocation
+          .of("src/test/expected/" + languageToAnalyze + "/" + projectKey)
+          .getFile()
+          .getAbsolutePath()
+      )
+      .setProperty(
+        "sonar.lits.dump.new",
+        FileLocation
+          .of("target/actual/" + languageToAnalyze + "/" + projectKey)
+          .getFile()
+          .getAbsolutePath()
+      )
       .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
       .setProperty("sonar.javascript.node.maxspace", "2048")
@@ -228,47 +281,82 @@ class JavaScriptRulingTest {
     assertThat(differencesPath).hasContent("");
   }
 
-  private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {
+  private static void instantiateTemplateRule(
+    String language,
+    String qualityProfile,
+    String ruleTemplateKey,
+    String instantiationKey,
+    String params
+  ) {
     String keyPrefix = "ts".equals(language) ? "typescript:" : "javascript:";
     newAdminWsClient(orchestrator)
       .rules()
-      .create(new CreateRequest()
-        .setName(instantiationKey)
-        .setMarkdownDescription(instantiationKey)
-        .setSeverity("INFO")
-        .setStatus("READY")
-        .setTemplateKey(keyPrefix + ruleTemplateKey)
-        .setCustomKey(instantiationKey)
-        .setPreventReactivation("true")
-        .setParams(Arrays.asList(("name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params).split(";", 0))));
+      .create(
+        new CreateRequest()
+          .setName(instantiationKey)
+          .setMarkdownDescription(instantiationKey)
+          .setSeverity("INFO")
+          .setStatus("READY")
+          .setTemplateKey(keyPrefix + ruleTemplateKey)
+          .setCustomKey(instantiationKey)
+          .setPreventReactivation("true")
+          .setParams(
+            Arrays.asList(
+              (
+                "name=\"" +
+                instantiationKey +
+                "\";key=\"" +
+                instantiationKey +
+                "\";markdown_description=\"" +
+                instantiationKey +
+                "\";" +
+                params
+              ).split(";", 0)
+            )
+          )
+      );
 
-
-    String profileKey = newAdminWsClient(orchestrator).qualityprofiles()
+    String profileKey = newAdminWsClient(orchestrator)
+      .qualityprofiles()
       .search(new SearchRequest().setLanguage(language))
-      .getProfilesList().stream()
+      .getProfilesList()
+      .stream()
       .filter(qp -> qualityProfile.equals(qp.getName()))
       .map(Qualityprofiles.SearchWsResponse.QualityProfile::getKey)
       .findFirst()
       .orElse(null);
 
     if (!StringUtils.isEmpty(profileKey)) {
-      newAdminWsClient(orchestrator).qualityprofiles()
-        .activateRule(new ActivateRuleRequest()
-          .setKey(profileKey)
-          .setRule(keyPrefix + instantiationKey)
-          .setSeverity("INFO")
-          .setParams(Collections.emptyList()));
-      LOG.warn(String.format("Successfully activated template rule '%s'", keyPrefix + instantiationKey));
+      newAdminWsClient(orchestrator)
+        .qualityprofiles()
+        .activateRule(
+          new ActivateRuleRequest()
+            .setKey(profileKey)
+            .setRule(keyPrefix + instantiationKey)
+            .setSeverity("INFO")
+            .setParams(Collections.emptyList())
+        );
+      LOG.warn(
+        String.format("Successfully activated template rule '%s'", keyPrefix + instantiationKey)
+      );
     } else {
-      throw new IllegalStateException("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");
+      throw new IllegalStateException(
+        "Could not retrieve profile key : Template rule " +
+        ruleTemplateKey +
+        " has not been activated"
+      );
     }
   }
 
   static WsClient newAdminWsClient(Orchestrator orchestrator) {
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
-      .url(orchestrator.getServer().getUrl())
-      .build());
+    return WsClientFactories
+      .getDefault()
+      .newClient(
+        HttpConnector
+          .newBuilder()
+          .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
+          .url(orchestrator.getServer().getUrl())
+          .build()
+      );
   }
-
 }

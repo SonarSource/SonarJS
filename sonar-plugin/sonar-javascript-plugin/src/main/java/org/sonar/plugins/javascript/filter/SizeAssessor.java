@@ -32,25 +32,29 @@ class SizeAssessor implements Assessor {
   private static final Logger LOG = Loggers.get(SizeAssessor.class);
   private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
-
-
   /**
    * Note that in user-facing option handling the units are kilobytes, not bytes.
    */
   private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
 
-
   SizeAssessor(Configuration configuration) {
-    configuration.get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE).ifPresent(str -> {
-      try {
-        maxFileSizeKb = Long.parseLong(str);
-        if (maxFileSizeKb <= 0) {
-          fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " + maxFileSizeKb);
+    configuration
+      .get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE)
+      .ifPresent(str -> {
+        try {
+          maxFileSizeKb = Long.parseLong(str);
+          if (maxFileSizeKb <= 0) {
+            fallbackToDefaultMaxFileSize(
+              "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " +
+              maxFileSizeKb
+            );
+          }
+        } catch (NumberFormatException nfe) {
+          fallbackToDefaultMaxFileSize(
+            "Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\""
+          );
         }
-      } catch (NumberFormatException nfe) {
-        fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\"");
-      }
-    });
+      });
   }
 
   final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {

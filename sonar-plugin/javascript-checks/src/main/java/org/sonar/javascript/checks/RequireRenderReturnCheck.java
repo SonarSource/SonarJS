@@ -33,5 +33,4 @@ public class RequireRenderReturnCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "require-render-return";
   }
-
 }

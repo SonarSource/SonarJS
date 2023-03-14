@@ -48,7 +48,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   private static final Profiler PROFILER = Profiler.create(LOG);
   private final AnalysisWarningsWrapper analysisWarnings;
 
-  public AnalysisWithProgram(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor analysisProcessor, AnalysisWarningsWrapper analysisWarnings) {
+  public AnalysisWithProgram(
+    EslintBridgeServer eslintBridgeServer,
+    Monitoring monitoring,
+    AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings
+  ) {
     super(eslintBridgeServer, monitoring, analysisProcessor);
     this.analysisWarnings = analysisWarnings;
   }
@@ -83,7 +88,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           continue;
         }
         if (program.missingTsConfig) {
-          String msg = "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+          String msg =
+            "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }
@@ -96,7 +102,10 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
       if (!skippedFiles.isEmpty()) {
-        LOG.info("Skipped {} file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)", skippedFiles.size());
+        LOG.info(
+          "Skipped {} file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)",
+          skippedFiles.size()
+        );
         skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig.json: {}", f));
       }
       success = true;
@@ -114,11 +123,16 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     var fs = context.fileSystem();
     var counter = 0;
     for (var file : program.files) {
-      var inputFile = fs.inputFile(fs.predicates().and(
-        fs.predicates().hasAbsolutePath(file),
-        // we need to check the language, because project might contain files which were already analyzed with JS sensor
-        // this should be removed once we unify the two sensors
-        fs.predicates().hasLanguage(TypeScriptLanguage.KEY)));
+      var inputFile = fs.inputFile(
+        fs
+          .predicates()
+          .and(
+            fs.predicates().hasAbsolutePath(file),
+            // we need to check the language, because project might contain files which were already analyzed with JS sensor
+            // this should be removed once we unify the two sensors
+            fs.predicates().hasLanguage(TypeScriptLanguage.KEY)
+          )
+      );
       if (inputFile == null) {
         LOG.debug("File not part of the project: '{}'", file);
         continue;
@@ -127,7 +141,10 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         analyze(inputFile, program);
         counter++;
       } else {
-        LOG.debug("File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.", file);
+        LOG.debug(
+          "File already analyzed: '{}'. Check your project configuration to avoid files being part of multiple projects.",
+          file
+        );
       }
     }
 
@@ -136,7 +153,9 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   private void analyze(InputFile file, TsProgram tsProgram) throws IOException {
     if (context.isCancelled()) {
-      throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+      throw new CancellationException(
+        "Analysis interrupted because the SensorContext is in cancelled state"
+      );
     }
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
@@ -144,11 +163,23 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.absolutePath());
         monitoring.startFile(file);
-        EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(file.absolutePath(),
-          file.type().toString(), null, contextUtils.ignoreHeaderComments(), null, tsProgram.programId, analysisMode.getLinterIdFor(file));
-        EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(request);
+        EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          null,
+          contextUtils.ignoreHeaderComments(),
+          null,
+          tsProgram.programId,
+          analysisMode.getLinterIdFor(file)
+        );
+        EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(
+          request
+        );
         analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file, e);
         throw e;
@@ -159,5 +190,4 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
-
 }

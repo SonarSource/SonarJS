@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
-
-import static java.util.Arrays.asList;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
@@ -37,7 +37,8 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
-    fileMetadataSerialization = new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
+    fileMetadataSerialization =
+      new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
   }
 
   @Override
@@ -57,7 +58,9 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.readFromCache();
 
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0]));
+    return CacheAnalysis.fromCache(
+      cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0])
+    );
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
@@ -71,5 +74,4 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.copyFromPrevious();
     cpdSerialization.copyFromPrevious();
   }
-
 }

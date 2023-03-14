@@ -33,5 +33,4 @@ public class StringConcatenationCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "prefer-template";
   }
-
 }

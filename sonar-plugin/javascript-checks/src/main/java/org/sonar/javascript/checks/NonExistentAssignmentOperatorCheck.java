@@ -33,5 +33,4 @@ public class NonExistentAssignmentOperatorCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "non-existent-operator";
   }
-
 }

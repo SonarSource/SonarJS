@@ -33,5 +33,4 @@ public class NoUnstableNestedComponentsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-unstable-nested-components";
   }
-
 }

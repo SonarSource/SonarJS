@@ -36,52 +36,62 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 public class AbstractChecks {
+
   private static final Logger LOG = Loggers.get(AbstractChecks.class);
   private final CheckFactory checkFactory;
   private final CustomRuleRepository[] customRuleRepositories;
   private final Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
   private RuleKey parseErrorRuleKey;
 
-  public AbstractChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
+  public AbstractChecks(
+    CheckFactory checkFactory,
+    @Nullable CustomRuleRepository[] customRuleRepositories
+  ) {
     this.checkFactory = checkFactory;
     this.customRuleRepositories = customRuleRepositories;
   }
 
-  protected void addChecks(CustomRuleRepository.Language language, String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
+  protected void addChecks(
+    CustomRuleRepository.Language language,
+    String repositoryKey,
+    Iterable<Class<? extends JavaScriptCheck>> checkClass
+  ) {
     doAddChecks(repositoryKey, checkClass);
     addCustomChecks(language);
   }
 
-  private void doAddChecks(String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
-    checksByRepository.add(checkFactory
-      .<JavaScriptCheck>create(repositoryKey)
-      .addAnnotatedChecks(checkClass));
+  private void doAddChecks(
+    String repositoryKey,
+    Iterable<Class<? extends JavaScriptCheck>> checkClass
+  ) {
+    checksByRepository.add(
+      checkFactory.<JavaScriptCheck>create(repositoryKey).addAnnotatedChecks(checkClass)
+    );
   }
 
   private void addCustomChecks(CustomRuleRepository.Language language) {
-
     if (customRuleRepositories != null) {
       for (CustomRuleRepository repo : customRuleRepositories) {
         if (repo.languages().contains(language)) {
-          LOG.debug("Adding rules for repository '{}', language: {}, {} from {}", repo.repositoryKey(), language,
+          LOG.debug(
+            "Adding rules for repository '{}', language: {}, {} from {}",
+            repo.repositoryKey(),
+            language,
             repo.checkClasses(),
-            repo.getClass().getCanonicalName());
+            repo.getClass().getCanonicalName()
+          );
           doAddChecks(repo.repositoryKey(), repo.checkClasses());
         }
       }
     }
-
   }
 
   private Stream<JavaScriptCheck> all() {
-    return checksByRepository.stream()
-      .flatMap(checks -> checks.all().stream());
+    return checksByRepository.stream().flatMap(checks -> checks.all().stream());
   }
 
   Stream<EslintBasedCheck> eslintBasedChecks() {
-    return all()
-      .filter(EslintBasedCheck.class::isInstance)
-      .map(EslintBasedCheck.class::cast);
+    return all().filter(EslintBasedCheck.class::isInstance).map(EslintBasedCheck.class::cast);
   }
 
   @Nullable
@@ -104,14 +114,16 @@ public class AbstractChecks {
 
     for (Checks<JavaScriptCheck> checks : checksByRepository) {
       for (JavaScriptCheck check : checks.all()) {
-        if (check instanceof EslintBasedCheck && ((EslintBasedCheck) check).eslintKey().equals(eslintKey)) {
+        if (
+          check instanceof EslintBasedCheck &&
+          ((EslintBasedCheck) check).eslintKey().equals(eslintKey)
+        ) {
           ruleKey = checks.ruleKey(check);
           if (ruleKey != null) {
             return ruleKey;
           }
         }
       }
-
     }
     return null;
   }
@@ -127,10 +139,12 @@ public class AbstractChecks {
   }
 
   protected void initParsingErrorRuleKey() {
-    this.parseErrorRuleKey = all()
-      .filter(ParsingErrorCheck.class::isInstance)
-      .findFirst()
-      .map(this::ruleKeyFor).orElse(null);
+    this.parseErrorRuleKey =
+      all()
+        .filter(ParsingErrorCheck.class::isInstance)
+        .findFirst()
+        .map(this::ruleKeyFor)
+        .orElse(null);
   }
 
   List<EslintRule> eslintRules() {

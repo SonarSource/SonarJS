@@ -33,5 +33,4 @@ public class AwsRestrictedIpAdminAccessCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-restricted-ip-admin-access";
   }
-
 }

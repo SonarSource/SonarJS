@@ -71,26 +71,44 @@ public class RulesMetadataForSonarLint {
 
   private final List<Rule> rules = new ArrayList<>();
 
-  RulesMetadataForSonarLint() {
+  RulesMetadataForSonarLint() {}
 
-  }
-
-  void addRules(String repositoryKey, List<? extends Class<?>> ruleClasses, String metadataLocation, String profilePath) {
+  void addRules(
+    String repositoryKey,
+    List<? extends Class<?>> ruleClasses,
+    String metadataLocation,
+    String profilePath
+  ) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository repository = context
       .createRepository(repositoryKey, JavaScriptLanguage.KEY)
       .setName("dummy");
 
-
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(metadataLocation, profilePath, getSonarlintRuntime());
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(ruleClasses));
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
+      metadataLocation,
+      profilePath,
+      getSonarlintRuntime()
+    );
+    ruleMetadataLoader.addRulesByAnnotatedClass(
+      repository,
+      Collections.unmodifiableList(ruleClasses)
+    );
     repository.done();
 
-    Map<String, Object> ruleKeyToCheck = ruleClasses.stream()
+    Map<String, Object> ruleKeyToCheck = ruleClasses
+      .stream()
       .filter(c -> EslintBasedCheck.class.isAssignableFrom(c) || CssRule.class.isAssignableFrom(c))
-      .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::checkInstance));
+      .collect(
+        Collectors.toMap(
+          RulesMetadataForSonarLint::ruleKeyFromRuleClass,
+          RulesMetadataForSonarLint::checkInstance
+        )
+      );
 
-    context.repository(repositoryKey).rules().stream()
+    context
+      .repository(repositoryKey)
+      .rules()
+      .stream()
       .map(r -> {
         var check = ruleKeyToCheck.get(r.key());
         if (check != null) {
@@ -103,7 +121,10 @@ public class RulesMetadataForSonarLint {
   }
 
   static String ruleKeyFromRuleClass(Class<?> clazz) {
-    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(clazz, org.sonar.check.Rule.class);
+    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(
+      clazz,
+      org.sonar.check.Rule.class
+    );
     return ruleAnnotation.key();
   }
 
@@ -127,12 +148,24 @@ public class RulesMetadataForSonarLint {
     }
     try {
       var metadata = new RulesMetadataForSonarLint();
-      metadata.addRules(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks(),
-        JavaScriptRulesDefinition.METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
-      metadata.addRules(CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks(),
-        JavaScriptRulesDefinition.METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
-      metadata.addRules(CssRulesDefinition.REPOSITORY_KEY, CssRules.getRuleClasses(),
-        CssRulesDefinition.RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY, CssProfileDefinition.PROFILE_PATH);
+      metadata.addRules(
+        CheckList.JS_REPOSITORY_KEY,
+        CheckList.getJavaScriptChecks(),
+        JavaScriptRulesDefinition.METADATA_LOCATION,
+        JavaScriptProfilesDefinition.SONAR_WAY_JSON
+      );
+      metadata.addRules(
+        CheckList.TS_REPOSITORY_KEY,
+        CheckList.getTypeScriptChecks(),
+        JavaScriptRulesDefinition.METADATA_LOCATION,
+        JavaScriptProfilesDefinition.SONAR_WAY_JSON
+      );
+      metadata.addRules(
+        CssRulesDefinition.REPOSITORY_KEY,
+        CssRules.getRuleClasses(),
+        CssRulesDefinition.RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY,
+        CssProfileDefinition.PROFILE_PATH
+      );
       metadata.save(Paths.get(args[0]));
     } catch (IOException e) {
       e.printStackTrace();
@@ -166,6 +199,7 @@ public class RulesMetadataForSonarLint {
   }
 
   static class Rule {
+
     private String ruleKey;
     private RuleType type;
     private String name;

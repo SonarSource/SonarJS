@@ -33,5 +33,4 @@ public class AwsIamPrivilegeEscalationCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-iam-privilege-escalation";
   }
-
 }

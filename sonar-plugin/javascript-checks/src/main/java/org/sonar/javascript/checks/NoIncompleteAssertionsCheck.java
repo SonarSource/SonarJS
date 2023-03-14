@@ -33,5 +33,4 @@ public class NoIncompleteAssertionsCheck extends TestFileCheck {
   public String eslintKey() {
     return "no-incomplete-assertions";
   }
-
 }

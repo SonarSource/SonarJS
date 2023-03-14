@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
 const server = require('../lib/server');
 const path = require('path');
 const context = require('../lib/helpers');
@@ -29,6 +28,11 @@ const port = 64829;
 const host = '127.0.0.1';
 const workDir = tmpdir();
 
-context.setContext({ workDir, shouldUseTypeScriptParserForJS: false, sonarlint: false, bundles: [] });
+context.setContext({
+  workDir,
+  shouldUseTypeScriptParserForJS: false,
+  sonarlint: false,
+  bundles: [],
+});
 const BIG_TIMEOUT = 1719925474;
 server.start(port, host, BIG_TIMEOUT);

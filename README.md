@@ -8,33 +8,39 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 
 # Features
 
-* Advanced rules based on pattern matching and control flow analysis
-* ~280 rules for [JavaScript](https://rules.sonarsource.com/javascript) and [TypeScript](https://rules.sonarsource.com/typescript)
-* ~30 rules for [CSS](https://rules.sonarsource.com/css)
-* Compatible with ECMAScript 2015-2020
-* React JSX, Flow and Vue support for JavaScript and TypeScript
-* CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
-* Metrics (complexity, number of lines etc.)
-* Import of test coverage reports
-* Import of ESLint, TSLint and Stylelint issues
+- Advanced rules based on pattern matching and control flow analysis
+- ~280 rules for [JavaScript](https://rules.sonarsource.com/javascript) and [TypeScript](https://rules.sonarsource.com/typescript)
+- ~30 rules for [CSS](https://rules.sonarsource.com/css)
+- Compatible with ECMAScript 2015-2020
+- React JSX, Flow and Vue support for JavaScript and TypeScript
+- CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
+- Metrics (complexity, number of lines etc.)
+- Import of test coverage reports
+- Import of ESLint, TSLint and Stylelint issues
 
 # Documentation
+
 You can find [documentation here](https://docs.sonarqube.org/latest/analysis/languages/javascript/)
 
 # <a name="support"></a>Have question or feedback?
+
 ### SonarSource Community Forum
+
 If you want to report a bug, request a feature or provide other kind of feedback, please use [SonarQube Community Forum](https://community.sonarsource.com/). Please do not forget to specify the details of your request, code reproducer, versions of projects you use.
 
 # Contributing
 
 #### 1. Request a new feature
+
 To request a new feature, create a new thread in [SonarSource Community Forum](https://community.sonarsource.com/). Even if you plan to implement it yourself and submit it back to the community, please create a thread to be sure that we can follow up on it.
 
 #### 2. Pull Request
+
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset) and all [tests](/docs/DEV.md#testing) are passing.
 
 #### Work with us
-Would you like to work on this project full-time? We are hiring! Check out https://www.sonarsource.com/hiring 
+
+Would you like to work on this project full-time? We are hiring! Check out https://www.sonarsource.com/hiring
 
 ## License
 

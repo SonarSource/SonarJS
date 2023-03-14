@@ -62,21 +62,33 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
       beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
-        LOG.debug("Project type checking for JavaScript files activated as project size is below limit (total number of files is {}, maximum is {})",
-          cappedFileCount, maxFilesForTypeChecking);
+        LOG.debug(
+          "Project type checking for JavaScript files activated as project size is below limit (total number of files is {}, maximum is {})",
+          cappedFileCount,
+          maxFilesForTypeChecking
+        );
       } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug("Project type checking for JavaScript files deactivated as project has too many files (maximum is {} files)", maxFilesForTypeChecking);
+        LOG.debug(
+          "Project type checking for JavaScript files deactivated as project has too many files (maximum is {} files)",
+          maxFilesForTypeChecking
+        );
         // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
         LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
       }
 
-      LOG.debug("Project checker duration took: {}ms", Duration.between(start, Instant.now()).toMillis());
+      LOG.debug(
+        "Project checker duration took: {}ms",
+        Duration.between(start, Instant.now()).toMillis()
+      );
     } catch (RuntimeException e) {
       // Any runtime error raised by the SonarLint API would be caught here to let the analyzer proceed with the rules that don't require
       // type checking.
-      LOG.debug("Project type checking for JavaScript files deactivated because of unexpected error", e);
+      LOG.debug(
+        "Project type checking for JavaScript files deactivated because of unexpected error",
+        e
+      );
     }
   }
 
@@ -84,7 +96,8 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
     try (var files = walkProjectFiles(context)) {
-      return files.filter(Files::isRegularFile)
+      return files
+        .filter(Files::isRegularFile)
         .map(path -> path.getFileName().toString())
         .filter(isPluginFile)
         .limit(maxFilesForTypeChecking)
@@ -98,7 +111,9 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
   }
 
   private static int getMaxFilesForTypeChecking(SensorContext context) {
-    return Math.max(context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING), 0);
+    return Math.max(
+      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
+      0
+    );
   }
-
 }

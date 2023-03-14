@@ -47,11 +47,12 @@ public class HtmlSensor extends AbstractEslintSensor {
   private AnalysisMode analysisMode;
 
   public HtmlSensor(
-      JavaScriptChecks checks,
-      EslintBridgeServer eslintBridgeServer,
-      AnalysisWarningsWrapper analysisWarnings,
-      Monitoring monitoring,
-      AnalysisProcessor processAnalysis) {
+    JavaScriptChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    Monitoring monitoring,
+    AnalysisProcessor processAnalysis
+  ) {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
     super(eslintBridgeServer, analysisWarnings, monitoring);
@@ -61,9 +62,7 @@ public class HtmlSensor extends AbstractEslintSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .onlyOnLanguage(LANGUAGE)
-      .name("JavaScript inside HTML analysis");
+    descriptor.onlyOnLanguage(LANGUAGE).name("JavaScript inside HTML analysis");
   }
 
   @Override
@@ -73,10 +72,17 @@ public class HtmlSensor extends AbstractEslintSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(AnalysisMode.getHtmlFileRules(checks.eslintRules()), environments, globals, analysisMode);
+      eslintBridgeServer.initLinter(
+        AnalysisMode.getHtmlFileRules(checks.eslintRules()),
+        environments,
+        globals,
+        analysisMode
+      );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
-          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
@@ -104,10 +110,12 @@ public class HtmlSensor extends AbstractEslintSensor {
     FilePredicates p = fileSystem.predicates();
     FilePredicate filePredicate = p.and(
       p.hasLanguage(HtmlSensor.LANGUAGE),
-      fileSystem.predicates().or(
-        fileSystem.predicates().hasExtension("htm"),
-        fileSystem.predicates().hasExtension("html")
-      )
+      fileSystem
+        .predicates()
+        .or(
+          fileSystem.predicates().hasExtension("htm"),
+          fileSystem.predicates().hasExtension("html")
+        )
     );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
@@ -124,10 +132,14 @@ public class HtmlSensor extends AbstractEslintSensor {
         contextUtils.ignoreHeaderComments(),
         null,
         null,
-        analysisMode.getLinterIdFor(file));
+        analysisMode.getLinterIdFor(file)
+      );
       var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+      cacheStrategy.writeAnalysisToCache(
+        CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+        file
+      );
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;

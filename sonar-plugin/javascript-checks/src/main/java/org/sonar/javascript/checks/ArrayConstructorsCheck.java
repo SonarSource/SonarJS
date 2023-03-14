@@ -31,7 +31,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @DeprecatedRuleKey(ruleKey = "ArrayAndObjectConstructors")
 public class ArrayConstructorsCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "array-constructor";

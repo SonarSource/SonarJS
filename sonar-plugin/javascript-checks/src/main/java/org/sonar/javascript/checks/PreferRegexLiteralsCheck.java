@@ -33,5 +33,4 @@ public class PreferRegexLiteralsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "prefer-regex-literals";
   }
-
 }

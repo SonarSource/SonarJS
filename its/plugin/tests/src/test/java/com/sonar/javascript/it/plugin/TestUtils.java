@@ -33,7 +33,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
-
 public class TestUtils {
 
   private static final File HOME;
@@ -46,11 +45,12 @@ public class TestUtils {
       throw new IllegalStateException("failed to obtain HOME", e);
     }
 
-    HOME = testResources // home/tests/src/test/resources
-      .getParentFile() // home/tests/src/test
-      .getParentFile() // home/tests/src
-      .getParentFile() // home/tests
-      .getParentFile(); // home
+    HOME =
+      testResources // home/tests/src/test/resources
+        .getParentFile() // home/tests/src/test
+        .getParentFile() // home/tests/src
+        .getParentFile() // home/tests
+        .getParentFile(); // home
   }
 
   public static File homeDir() {
@@ -79,7 +79,11 @@ public class TestUtils {
 
   public static void copyFile(Path sourceFile, Path targetDirectory) {
     try {
-      Files.copy(sourceFile, targetDirectory.resolve(sourceFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(
+        sourceFile,
+        targetDirectory.resolve(sourceFile.getFileName()),
+        StandardCopyOption.REPLACE_EXISTING
+      );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -94,6 +98,7 @@ public class TestUtils {
   }
 
   static class TestClientInputFile implements ClientInputFile {
+
     private final String content;
     private final Path path;
 
@@ -143,4 +148,3 @@ public class TestUtils {
     }
   }
 }
-

@@ -33,5 +33,4 @@ public class NoSameArgumentAssertCheck extends TestFileCheck {
   public String eslintKey() {
     return "no-same-argument-assert";
   }
-
 }

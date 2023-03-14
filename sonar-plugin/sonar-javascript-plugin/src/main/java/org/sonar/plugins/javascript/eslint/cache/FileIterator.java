@@ -82,5 +82,4 @@ class FileIterator implements Iterator<InputStream> {
       throw new UncheckedIOException("Failure when opening file", e);
     }
   }
-
 }

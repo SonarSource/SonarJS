@@ -33,5 +33,4 @@ public class NoNestedTemplateLiteralsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-nested-template-literals";
   }
-
 }

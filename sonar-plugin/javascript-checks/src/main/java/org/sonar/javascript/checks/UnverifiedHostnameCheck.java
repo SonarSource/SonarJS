@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5527")
 public class UnverifiedHostnameCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "unverified-hostname";

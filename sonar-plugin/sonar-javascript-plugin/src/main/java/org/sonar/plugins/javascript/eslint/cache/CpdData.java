@@ -33,5 +33,4 @@ class CpdData {
   List<EslintBridgeServer.CpdToken> getCpdTokens() {
     return cpdTokens;
   }
-
 }

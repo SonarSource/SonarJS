@@ -34,4 +34,3 @@ public class EncryptionCheck implements EslintBasedCheck {
     return "encryption";
   }
 }
-

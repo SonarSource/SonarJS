@@ -33,5 +33,4 @@ public class NoMisleadingArrayReverseCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-misleading-array-reverse";
   }
-
 }

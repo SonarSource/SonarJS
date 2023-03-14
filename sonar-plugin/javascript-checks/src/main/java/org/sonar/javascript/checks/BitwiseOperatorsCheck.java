@@ -35,5 +35,4 @@ public class BitwiseOperatorsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "bitwise-operators";
   }
-
 }

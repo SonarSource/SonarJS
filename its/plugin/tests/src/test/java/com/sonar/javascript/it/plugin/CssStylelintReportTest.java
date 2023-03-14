@@ -19,6 +19,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Collections;
 import java.util.List;
@@ -27,9 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class CssStylelintReportTest {
@@ -40,7 +40,11 @@ class CssStylelintReportTest {
 
   @BeforeAll
   public static void prepare() {
-    orchestrator.executeBuild(CssTestsUtils.createScanner(PROJECT_KEY).setProperty("sonar.css.stylelint.reportPaths", "report.json"));
+    orchestrator.executeBuild(
+      CssTestsUtils
+        .createScanner(PROJECT_KEY)
+        .setProperty("sonar.css.stylelint.reportPaths", "report.json")
+    );
   }
 
   @Test
@@ -51,12 +55,15 @@ class CssStylelintReportTest {
       List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
 
       assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(111, 81, 55, 58, 114);
-      assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(
-        "external_stylelint:no-missing-end-of-source-newline",
-        "external_stylelint:no-missing-end-of-source-newline",
-        "external_stylelint:rule-empty-line-before",
-        "external_stylelint:selector-pseudo-element-colon-notation",
-        "css:S4658");
+      assertThat(issuesList)
+        .extracting("rule")
+        .containsExactlyInAnyOrder(
+          "external_stylelint:no-missing-end-of-source-newline",
+          "external_stylelint:no-missing-end-of-source-newline",
+          "external_stylelint:rule-empty-line-before",
+          "external_stylelint:selector-pseudo-element-colon-notation",
+          "css:S4658"
+        );
     }
   }
 }

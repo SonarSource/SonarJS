@@ -37,7 +37,8 @@ public class MaxSwitchCasesCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximum",
     description = "Maximum number of \"case\".",
-    defaultValue = "" + DEFAULT_MAXIMUM)
+    defaultValue = "" + DEFAULT_MAXIMUM
+  )
   int maximum = DEFAULT_MAXIMUM;
 
   @Override

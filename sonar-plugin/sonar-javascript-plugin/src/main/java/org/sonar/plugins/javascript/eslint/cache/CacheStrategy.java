@@ -34,7 +34,11 @@ public class CacheStrategy {
   private final CacheAnalysis cacheAnalysis;
   private final CacheAnalysisSerialization serialization;
 
-  private CacheStrategy(String name, @Nullable CacheAnalysis cacheAnalysis, @Nullable CacheAnalysisSerialization serialization) {
+  private CacheStrategy(
+    String name,
+    @Nullable CacheAnalysis cacheAnalysis,
+    @Nullable CacheAnalysisSerialization serialization
+  ) {
     this.name = name;
     this.cacheAnalysis = cacheAnalysis;
     this.serialization = serialization;
@@ -48,7 +52,10 @@ public class CacheStrategy {
     return new CacheStrategy(WRITE_ONLY, null, serialization);
   }
 
-  static CacheStrategy readAndWrite(CacheAnalysis cacheAnalysis, CacheAnalysisSerialization serialization) {
+  static CacheStrategy readAndWrite(
+    CacheAnalysis cacheAnalysis,
+    CacheAnalysisSerialization serialization
+  ) {
     return new CacheStrategy(READ_AND_WRITE, cacheAnalysis, serialization);
   }
 
@@ -69,5 +76,4 @@ public class CacheStrategy {
   public CacheAnalysis readAnalysisFromCache() {
     return Objects.requireNonNull(cacheAnalysis);
   }
-
 }

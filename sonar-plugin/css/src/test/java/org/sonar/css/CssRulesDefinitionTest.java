@@ -19,6 +19,8 @@
  */
 package org.sonar.css;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -31,11 +33,11 @@ import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.api.utils.Version;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class CssRulesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+    Version.create(9, 3)
+  );
 
   @Test
   void test_repos() {
@@ -60,7 +62,10 @@ class CssRulesDefinitionTest {
 
   @Test
   void test_main_repo() {
-    RulesDefinition.Repository repository = buildRepository("css", new CssRulesDefinition(sonarRuntime));
+    RulesDefinition.Repository repository = buildRepository(
+      "css",
+      new CssRulesDefinition(sonarRuntime)
+    );
 
     assertRuleProperties(repository);
     assertParameterProperties(repository);
@@ -80,7 +85,8 @@ class CssRulesDefinitionTest {
     Param param = repository.rule("S4662").param("ignoreAtRules");
     assertThat(param).isNotNull();
     assertThat(param.defaultValue()).startsWith("value,at-root,content");
-    assertThat(param.description()).isEqualTo("Comma-separated list of \"at-rules\" to consider as valid.");
+    assertThat(param.description())
+      .isEqualTo("Comma-separated list of \"at-rules\" to consider as valid.");
     assertThat(param.type()).isEqualTo(RuleParamType.STRING);
   }
 
@@ -92,7 +98,10 @@ class CssRulesDefinitionTest {
     }
   }
 
-  static RulesDefinition.Repository buildRepository(String repositoryKey, RulesDefinition rulesDefinition) {
+  static RulesDefinition.Repository buildRepository(
+    String repositoryKey,
+    RulesDefinition rulesDefinition
+  ) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     return context.repository(repositoryKey);

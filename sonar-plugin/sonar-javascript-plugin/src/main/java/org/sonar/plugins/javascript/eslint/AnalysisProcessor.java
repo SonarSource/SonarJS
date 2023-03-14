@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
+import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
+import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -48,10 +52,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
 
-import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
-import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
-import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
-
 @ScannerSide
 @SonarLintSide
 public class AnalysisProcessor {
@@ -67,13 +67,22 @@ public class AnalysisProcessor {
   private InputFile file;
   private AbstractChecks checks;
 
-  public AnalysisProcessor(NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, Monitoring monitoring) {
+  public AnalysisProcessor(
+    NoSonarFilter noSonarFilter,
+    FileLinesContextFactory fileLinesContextFactory,
+    Monitoring monitoring
+  ) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;
   }
 
-  void processResponse(SensorContext context, AbstractChecks checks, InputFile file, AnalysisResponse response) {
+  void processResponse(
+    SensorContext context,
+    AbstractChecks checks,
+    InputFile file,
+    AnalysisResponse response
+  ) {
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
@@ -83,7 +92,9 @@ public class AnalysisProcessor {
       return;
     }
 
-    if (YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())) {
+    if (
+      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
+    ) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
@@ -106,12 +117,16 @@ public class AnalysisProcessor {
     contextUtils = new ContextUtils(context);
     this.file = file;
 
-    if (YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())) {
+    if (
+      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
+    ) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
-      LOG.debug("Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files");
+      LOG.debug(
+        "Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files"
+      );
     } else {
       saveCpd(cacheAnalysis.getCpdTokens());
     }
@@ -136,21 +151,17 @@ public class AnalysisProcessor {
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = context.newIssue();
 
-      NewIssueLocation primaryLocation = newIssue.newLocation()
-        .message(message)
-        .on(file);
+      NewIssueLocation primaryLocation = newIssue.newLocation().message(message).on(file);
 
       if (line != null) {
         primaryLocation.at(file.selectLine(line));
       }
 
-      newIssue
-        .forRule(parsingErrorRuleKey)
-        .at(primaryLocation)
-        .save();
+      newIssue.forRule(parsingErrorRuleKey).at(primaryLocation).save();
     }
 
-    context.newAnalysisError()
+    context
+      .newAnalysisError()
       .onFile(file)
       .at(file.newPointer(line != null ? line : 1, 0))
       .message(message)
@@ -167,7 +178,10 @@ public class AnalysisProcessor {
   private void saveHighlights(EslintBridgeServer.Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (EslintBridgeServer.Highlight highlight : highlights) {
-      highlighting.highlight(highlight.location.toTextRange(file), TypeOfText.valueOf(highlight.textType));
+      highlighting.highlight(
+        highlight.location.toTextRange(file),
+        TypeOfText.valueOf(highlight.textType)
+      );
     }
     highlighting.save();
   }
@@ -176,9 +190,19 @@ public class AnalysisProcessor {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (EslintBridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       EslintBridgeServer.Location declaration = highlightedSymbol.declaration;
-      NewSymbol newSymbol = symbolTable.newSymbol(declaration.startLine, declaration.startCol, declaration.endLine, declaration.endCol);
+      NewSymbol newSymbol = symbolTable.newSymbol(
+        declaration.startLine,
+        declaration.startCol,
+        declaration.endLine,
+        declaration.endCol
+      );
       for (EslintBridgeServer.Location reference : highlightedSymbol.references) {
-        newSymbol.newReference(reference.startLine, reference.startCol, reference.endLine, reference.endCol);
+        newSymbol.newReference(
+          reference.startLine,
+          reference.startCol,
+          reference.endLine,
+          reference.endCol
+        );
       }
     }
     symbolTable.save();
@@ -186,7 +210,10 @@ public class AnalysisProcessor {
 
   private void saveMetrics(EslintBridgeServer.Metrics metrics) {
     if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
-      noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
+      noSonarFilter.noSonarInFile(
+        file,
+        Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet())
+      );
       return;
     }
 
@@ -198,7 +225,10 @@ public class AnalysisProcessor {
     saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity);
     saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity);
 
-    noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
+    noSonarFilter.noSonarInFile(
+      file,
+      Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet())
+    );
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
     for (int line : metrics.ncloc) {
@@ -213,11 +243,7 @@ public class AnalysisProcessor {
   }
 
   private <T extends Serializable> void saveMetric(InputFile file, Metric<T> metric, T value) {
-    context.<T>newMeasure()
-      .withValue(value)
-      .forMetric(metric)
-      .on(file)
-      .save();
+    context.<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
   }
 
   private void saveCpd(EslintBridgeServer.CpdToken[] cpdTokens) {
@@ -234,9 +260,7 @@ public class AnalysisProcessor {
 
   void saveIssue(EslintBridgeServer.Issue issue) {
     NewIssue newIssue = context.newIssue();
-    NewIssueLocation location = newIssue.newLocation()
-      .message(issue.message)
-      .on(file);
+    NewIssueLocation location = newIssue.newLocation().message(issue.message).on(file);
 
     if (issue.endLine != null) {
       location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
@@ -268,26 +292,41 @@ public class AnalysisProcessor {
 
     RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
     if (ruleKey != null) {
-      newIssue.at(location)
-        .forRule(ruleKey)
-        .save();
+      newIssue.at(location).forRule(ruleKey).save();
     }
   }
 
   private boolean isSqQuickFixCompatible() {
-    return contextUtils.isSonarQube() && context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 2));
+    return (
+      contextUtils.isSonarQube() &&
+      context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 2))
+    );
   }
 
   private boolean isQuickFixCompatible() {
-    return contextUtils.isSonarLint()
-      && ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(SONARLINT_6_3);
+    return (
+      contextUtils.isSonarLint() &&
+      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion()
+        .isGreaterThanOrEqual(SONARLINT_6_3)
+    );
   }
 
-  private static NewIssueLocation newSecondaryLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
+  private static NewIssueLocation newSecondaryLocation(
+    InputFile inputFile,
+    NewIssue issue,
+    IssueLocation location
+  ) {
     NewIssueLocation newIssueLocation = issue.newLocation().on(inputFile);
 
-    if (location.line != null && location.endLine != null && location.column != null && location.endColumn != null) {
-      newIssueLocation.at(inputFile.newRange(location.line, location.column, location.endLine, location.endColumn));
+    if (
+      location.line != null &&
+      location.endLine != null &&
+      location.column != null &&
+      location.endColumn != null
+    ) {
+      newIssueLocation.at(
+        inputFile.newRange(location.line, location.column, location.endLine, location.endColumn)
+      );
       if (location.message != null) {
         newIssueLocation.message(location.message);
       }

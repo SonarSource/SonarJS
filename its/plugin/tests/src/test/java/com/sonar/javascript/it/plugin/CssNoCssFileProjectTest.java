@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Collections;
@@ -29,10 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 class CssNoCssFileProjectTest {
@@ -52,13 +52,16 @@ class CssNoCssFileProjectTest {
   void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-    List<Issues.Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList().stream()
+    List<Issues.Issue> issuesList = newWsClient(orchestrator)
+      .issues()
+      .search(request)
+      .getIssuesList()
+      .stream()
       .filter(i -> i.getRule().startsWith("css:"))
       .collect(Collectors.toList());
 
-    assertThat(issuesList).extracting(Issues.Issue::getRule, Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple("css:S4658", 7, "css-php-project:src/index.php"));
-
+    assertThat(issuesList)
+      .extracting(Issues.Issue::getRule, Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(tuple("css:S4658", 7, "css-php-project:src/index.php"));
   }
-
 }

@@ -9,6 +9,7 @@ Run: `npm i`
 ## Chrome dev tools
 
 The Chrome dev tools allow you to see what functions took how much CPU time as:
+
 - a top-down tree
 - a bottom-up tree
 - a (flame) graph
@@ -22,8 +23,8 @@ The Chrome dev tools allow you to see what functions took how much CPU time as:
 4. You might need to make sure the server starts by going to the "sources" tab and pressing the "play" button
 5. In the server logs, you should see that the server is listening
 6. Select the "Profiler" tab
-5. Select "Profiles" on the left
-6. Press "Start" on the bottom
+7. Select "Profiles" on the left
+8. Press "Start" on the bottom
 
 ![profiler](images/profiler.png)
 
@@ -32,7 +33,7 @@ The Chrome dev tools allow you to see what functions took how much CPU time as:
    2. `parallelism` sets the number of parallel files sent to the ESLint bridge for analysis. Defaults to 5.
 8. Press "Stop"
 9. View the profile
-10.  Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")
+10. Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")
 
 ![profile](images/profile.png)
 

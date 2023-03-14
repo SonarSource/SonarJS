@@ -33,5 +33,4 @@ public class SonarNoMisleadingCharacterClassCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-misleading-character-class";
   }
-
 }

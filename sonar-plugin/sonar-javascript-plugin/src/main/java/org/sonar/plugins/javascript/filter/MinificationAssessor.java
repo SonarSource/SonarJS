@@ -38,9 +38,9 @@ class MinificationAssessor implements Assessor {
   private static final int DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
   /**
-   * Value of the average line length 
+   * Value of the average line length
    * (= number of chars in the file / number of lines in the file)
-   * below which a file is not assessed as being a minified file.   
+   * below which a file is not assessed as being a minified file.
    */
   private final int averageLineLengthThreshold;
 
@@ -53,13 +53,19 @@ class MinificationAssessor implements Assessor {
   }
 
   public boolean isMinified(InputFile file) {
-    return isMinifiableFile(file) &&
-      (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file));
+    return (
+      isMinifiableFile(file) && (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file))
+    );
   }
 
   private static boolean hasMinifiedFileName(InputFile file) {
     String fileName = file.filename();
-    return fileName.endsWith("-min.js") || fileName.endsWith(".min.js") || fileName.endsWith("-min.css") || fileName.endsWith(".min.css");
+    return (
+      fileName.endsWith("-min.js") ||
+      fileName.endsWith(".min.js") ||
+      fileName.endsWith("-min.css") ||
+      fileName.endsWith(".min.css")
+    );
   }
 
   private static boolean isMinifiableFile(InputFile file) {

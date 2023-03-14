@@ -19,18 +19,18 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class CacheKeyTest {
 
-  private final static InputFile inputFile = mock(InputFile.class);
+  private static final InputFile inputFile = mock(InputFile.class);
 
   @BeforeEach
   void setUp() {
@@ -51,6 +51,7 @@ class CacheKeyTest {
   @Test
   void test_ucfg_version_in_key() {
     PluginInfo.setUcfgPluginVersion("ucfg_version");
-    assertThat(CacheKey.forFile(inputFile, null).forUcfg()).hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
+    assertThat(CacheKey.forFile(inputFile, null).forUcfg())
+      .hasToString("jssecurity:ucfgs:ucfg_version:fileKey");
   }
 }

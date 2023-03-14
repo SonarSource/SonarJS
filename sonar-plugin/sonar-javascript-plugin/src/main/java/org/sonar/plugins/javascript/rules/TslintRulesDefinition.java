@@ -34,16 +34,36 @@ public class TslintRulesDefinition implements RulesDefinition {
   public static final String REPOSITORY_KEY = "tslint_repo";
   public static final String LINTER_NAME = "TSLint";
 
-  private static final String TSLINT_JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/tslint/rules.json";
-  private static final String TSLINT_SONARTS_JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/tslint-sonarts/rules.json";
+  private static final String TSLINT_JSON_CLASSPATH =
+    "org/sonar/l10n/typescript/rules/tslint/rules.json";
+  private static final String TSLINT_SONARTS_JSON_CLASSPATH =
+    "org/sonar/l10n/typescript/rules/tslint-sonarts/rules.json";
 
   private static final List<ExternalRuleLoader> RULE_LOADERS = Arrays.asList(
-    new ExternalRuleLoader(REPOSITORY_KEY, LINTER_NAME, TSLINT_JSON_CLASSPATH, TypeScriptLanguage.KEY),
-    new ExternalRuleLoader(REPOSITORY_KEY, "tslint-sonarts", TSLINT_SONARTS_JSON_CLASSPATH, TypeScriptLanguage.KEY)
+    new ExternalRuleLoader(
+      REPOSITORY_KEY,
+      LINTER_NAME,
+      TSLINT_JSON_CLASSPATH,
+      TypeScriptLanguage.KEY
+    ),
+    new ExternalRuleLoader(
+      REPOSITORY_KEY,
+      "tslint-sonarts",
+      TSLINT_SONARTS_JSON_CLASSPATH,
+      TypeScriptLanguage.KEY
+    )
   );
 
-  private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS.stream()
-    .flatMap(loader -> loader.ruleKeys().stream().collect(Collectors.toMap(Function.identity(), loader::ruleType)).entrySet().stream())
+  private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS
+    .stream()
+    .flatMap(loader ->
+      loader
+        .ruleKeys()
+        .stream()
+        .collect(Collectors.toMap(Function.identity(), loader::ruleType))
+        .entrySet()
+        .stream()
+    )
     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
   @Override
@@ -54,5 +74,4 @@ public class TslintRulesDefinition implements RulesDefinition {
   public static RuleType ruleType(String ruleKey) {
     return RULE_TYPE_MAP.getOrDefault(ruleKey, RuleType.CODE_SMELL);
   }
-
 }

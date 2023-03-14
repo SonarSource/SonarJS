@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class UnchangedLetVariableCheckTest {
 
@@ -31,5 +31,4 @@ class UnchangedLetVariableCheckTest {
     String json = new Gson().toJson(new UnchangedLetVariableCheck().configurations());
     assertThat(json).isEqualTo("[{\"destructuring\":\"all\"}]");
   }
-
 }

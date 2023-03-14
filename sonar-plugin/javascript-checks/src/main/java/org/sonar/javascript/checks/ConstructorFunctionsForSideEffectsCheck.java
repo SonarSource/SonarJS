@@ -35,5 +35,4 @@ public class ConstructorFunctionsForSideEffectsCheck implements EslintBasedCheck
   public String eslintKey() {
     return "constructor-for-side-effects";
   }
-
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -27,8 +29,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
 @ScannerSide
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
@@ -73,5 +73,4 @@ public class BundleImpl implements Bundle {
   public String resolve(String relativePath) {
     return deployLocation.resolve(relativePath).toAbsolutePath().toString();
   }
-
 }

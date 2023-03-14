@@ -33,7 +33,8 @@ public class DeclarationBlockNoDuplicateProperties implements CssRule {
   @RuleProperty(
     key = "ignoreFallbacks",
     description = "Ignore consecutive duplicated properties with different values.",
-    defaultValue = "" + DEFAULT_IGNORE_FALLBACKS)
+    defaultValue = "" + DEFAULT_IGNORE_FALLBACKS
+  )
   boolean ignoreFallbacks = DEFAULT_IGNORE_FALLBACKS;
 
   @Override
@@ -43,10 +44,15 @@ public class DeclarationBlockNoDuplicateProperties implements CssRule {
 
   @Override
   public List<Object> stylelintOptions() {
-    return ignoreFallbacks ? Arrays.asList(true, new StylelintIgnoreOption()) : Collections.emptyList();
+    return ignoreFallbacks
+      ? Arrays.asList(true, new StylelintIgnoreOption())
+      : Collections.emptyList();
   }
 
   private static class StylelintIgnoreOption {
-    private final List<String> ignore = Collections.singletonList("consecutive-duplicates-with-different-values");
+
+    private final List<String> ignore = Collections.singletonList(
+      "consecutive-duplicates-with-different-values"
+    );
   }
 }

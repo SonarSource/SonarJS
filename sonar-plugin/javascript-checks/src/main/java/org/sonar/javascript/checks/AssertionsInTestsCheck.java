@@ -33,5 +33,4 @@ public class AssertionsInTestsCheck extends TestFileCheck {
   public String eslintKey() {
     return "assertions-in-tests";
   }
-
 }

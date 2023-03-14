@@ -21,4 +21,3 @@
 package org.sonar.plugins.javascript.rules;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-

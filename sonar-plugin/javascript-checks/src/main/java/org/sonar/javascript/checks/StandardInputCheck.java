@@ -34,4 +34,3 @@ public class StandardInputCheck implements EslintBasedCheck {
     return "standard-input";
   }
 }
-

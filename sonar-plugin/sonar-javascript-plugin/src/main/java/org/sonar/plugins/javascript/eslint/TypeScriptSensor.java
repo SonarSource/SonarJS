@@ -39,9 +39,15 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final TypeScriptChecks checks;
 
-  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, EslintBridgeServer eslintBridgeServer,
-                          AnalysisWarningsWrapper analysisWarnings, TempFolder tempFolder, Monitoring monitoring,
-                          AnalysisWithProgram analysisWithProgram, AnalysisWithWatchProgram analysisWithWatchProgram) {
+  public TypeScriptSensor(
+    TypeScriptChecks typeScriptChecks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    TempFolder tempFolder,
+    Monitoring monitoring,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram
+  ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
@@ -61,7 +67,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
-    return StreamSupport.stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
+    return StreamSupport
+      .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
       .collect(Collectors.toList());
   }
 
@@ -70,13 +77,17 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
 
-    var analysis = shouldAnalyzeWithProgram(inputFiles) ? analysisWithProgram : analysisWithWatchProgram;
+    var analysis = shouldAnalyzeWithProgram(inputFiles)
+      ? analysisWithProgram
+      : analysisWithWatchProgram;
     analysis.initialize(context, checks, analysisMode, tempFolder);
     analysis.analyzeFiles(inputFiles);
   }
 
   private boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
-    return inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) && !contextUtils.isSonarLint();
+    return (
+      inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) &&
+      !contextUtils.isSonarLint()
+    );
   }
-
 }

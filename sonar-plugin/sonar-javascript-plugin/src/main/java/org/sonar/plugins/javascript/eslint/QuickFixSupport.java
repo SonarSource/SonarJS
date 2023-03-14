@@ -36,19 +36,23 @@ class QuickFixSupport {
     // utility class
   }
 
-  static void addQuickFixes(EslintBridgeServer.Issue issue, NewSonarLintIssue sonarLintIssue, InputFile file) {
+  static void addQuickFixes(
+    EslintBridgeServer.Issue issue,
+    NewSonarLintIssue sonarLintIssue,
+    InputFile file
+  ) {
     issue.quickFixes.forEach(qf -> {
       LOG.debug("Adding quick fix for issue {} at line {}", issue.ruleId, issue.line);
       var quickFix = sonarLintIssue.newQuickFix();
       var fileEdit = quickFix.newInputFileEdit();
       qf.edits.forEach(e -> {
         var textEdit = fileEdit.newTextEdit();
-        textEdit.at(file.newRange(e.loc.line, e.loc.column, e.loc.endLine, e.loc.endColumn)).withNewText(e.text);
+        textEdit
+          .at(file.newRange(e.loc.line, e.loc.column, e.loc.endLine, e.loc.endColumn))
+          .withNewText(e.text);
         fileEdit.on(file).addTextEdit(textEdit);
       });
-      quickFix
-        .addInputFileEdit(fileEdit)
-        .message(qf.message);
+      quickFix.addInputFileEdit(fileEdit).message(qf.message);
       sonarLintIssue.addQuickFix(quickFix);
     });
   }

@@ -42,25 +42,42 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.FileProvider;
 
 public class CoverageSensor implements Sensor {
+
   private static final Logger LOG = Loggers.get(CoverageSensor.class);
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) || conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS))
+      .onlyWhenConfiguration(conf ->
+        conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) ||
+        conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)
+      )
       .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
   }
 
   @Override
   public void execute(SensorContext context) {
-    Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
-    reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)));
+    Set<String> reports = new HashSet<>(
+      Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS))
+    );
+    reports.addAll(
+      Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS))
+    );
     logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS);
     logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS);
-    if (context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) && context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)) {
-      LOG.info(String.format("Merging coverage reports from %s and %s.", JavaScriptPlugin.LCOV_REPORT_PATHS, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS));
+    if (
+      context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) &&
+      context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)
+    ) {
+      LOG.info(
+        String.format(
+          "Merging coverage reports from %s and %s.",
+          JavaScriptPlugin.LCOV_REPORT_PATHS,
+          JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS
+        )
+      );
     }
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
     if (lcovFiles.isEmpty()) {
@@ -95,9 +112,12 @@ public class CoverageSensor implements Sensor {
     LOG.info("Analysing {}", lcovFiles);
 
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY));
+    FilePredicate mainFilePredicate = fileSystem
+      .predicates()
+      .and(
+        fileSystem.predicates().hasType(Type.MAIN),
+        fileSystem.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
+      );
     FileLocator fileLocator = new FileLocator(fileSystem.inputFiles(mainFilePredicate));
 
     LCOVParser parser = LCOVParser.create(context, lcovFiles, fileLocator);
@@ -113,17 +133,26 @@ public class CoverageSensor implements Sensor {
 
     List<String> unresolvedPaths = parser.unresolvedPaths();
     if (!unresolvedPaths.isEmpty()) {
-      LOG.warn(String.format("Could not resolve %d file paths in %s", unresolvedPaths.size(), lcovFiles));
+      LOG.warn(
+        String.format("Could not resolve %d file paths in %s", unresolvedPaths.size(), lcovFiles)
+      );
       if (LOG.isDebugEnabled()) {
         LOG.debug("Unresolved paths:\n" + String.join("\n", unresolvedPaths));
       } else {
-        LOG.warn("First unresolved path: " + unresolvedPaths.get(0) + " (Run in DEBUG mode to get full list of unresolved paths)");
+        LOG.warn(
+          "First unresolved path: " +
+          unresolvedPaths.get(0) +
+          " (Run in DEBUG mode to get full list of unresolved paths)"
+        );
       }
     }
 
     int inconsistenciesNumber = parser.inconsistenciesNumber();
     if (inconsistenciesNumber > 0) {
-      LOG.warn("Found {} inconsistencies in coverage report. Re-run analyse in debug mode to see details.", inconsistenciesNumber);
+      LOG.warn(
+        "Found {} inconsistencies in coverage report. Re-run analyse in debug mode to see details.",
+        inconsistenciesNumber
+      );
     }
   }
 

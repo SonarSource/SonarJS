@@ -19,15 +19,15 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class CoverageTest {
@@ -37,7 +37,8 @@ class CoverageTest {
   @Test
   void LCOV_path_can_be_relative() {
     final String projectKey = "LcovPathCanBeRelative";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -57,14 +58,18 @@ class CoverageTest {
   @Test
   void LCOV_path_can_be_absolute() {
     final String projectKey = "LcovPathCanBeAbsolute";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.exclusions", "dir/**")
-      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+      .setProperty(
+        "sonar.javascript.lcov.reportPaths",
+        TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath()
+      );
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
@@ -77,14 +82,18 @@ class CoverageTest {
   @Test
   void LCOV_report_paths() {
     final String projectKey = "LcovReportPaths";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.exclusions", "dir/**")
-      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+      .setProperty(
+        "sonar.javascript.lcov.reportPaths",
+        TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath()
+      );
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
@@ -97,14 +106,18 @@ class CoverageTest {
   @Test
   void LCOV_report_paths_alias() {
     final String projectKey = "LcovReportPathsAlias";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.exclusions", "dir/**")
-      .setProperty("sonar.typescript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+      .setProperty(
+        "sonar.typescript.lcov.reportPaths",
+        TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath()
+      );
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
@@ -114,7 +127,8 @@ class CoverageTest {
   @Test
   void zero_coverage() {
     final String projectKey = "ZeroCoverage";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -136,13 +150,17 @@ class CoverageTest {
   // SONARJS-301
   public void print_log_for_not_found_resource() {
     final String projectKey = "PrintLogForNotFoundResource";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
+      .setProperty(
+        "sonar.javascript.lcov.reportPaths",
+        TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath()
+      )
       .setDebugLogs(true);
     OrchestratorStarter.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
@@ -150,7 +168,11 @@ class CoverageTest {
     // Check that a log is printed
     assertThat(result.getLogs())
       .containsPattern(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov"))
-      .containsPattern(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\]"))
+      .containsPattern(
+        Pattern.compile(
+          "WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\]"
+        )
+      )
       .containsPattern(Pattern.compile("DEBUG: Unresolved paths:\n\\./wrong/fileName\\.js"));
   }
 
@@ -158,7 +180,8 @@ class CoverageTest {
   // SONARJS-547
   void wrong_line_in_report() {
     final String projectKey = "WrongLineInReport";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -166,14 +189,21 @@ class CoverageTest {
       .setSourceDirs(".")
       .setDebugLogs(true)
       .setProperty("sonar.exclusions", "dir/**")
-      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
+      .setProperty(
+        "sonar.javascript.lcov.reportPaths",
+        TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath()
+      );
     OrchestratorStarter.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
     assertThat(result.getLogs())
-      .contains("DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
-      .contains("DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
+      .contains(
+        "DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file"
+      )
+      .contains(
+        "DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file"
+      );
 
     assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
     assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
@@ -184,14 +214,20 @@ class CoverageTest {
   @Test
   void conditions_on_non_executable_lines() {
     final String projectKey = "ConditionsOnNonExecutableLines";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-jsx"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov-jsx/conditions-on-non-executable-lines.lcov").getAbsolutePath());
+      .setProperty(
+        "sonar.javascript.lcov.reportPaths",
+        TestUtils
+          .file("projects/lcov-jsx/conditions-on-non-executable-lines.lcov")
+          .getAbsolutePath()
+      );
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
@@ -204,7 +240,8 @@ class CoverageTest {
   @Test
   void wildcard_LCOV_report_paths() {
     final String projectKey = "LcovWildcardReportPaths";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-wildcard"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -223,7 +260,8 @@ class CoverageTest {
   @Test
   void LCOV_report_outside_module() {
     final String projectKey = "LcovReportOutsideModule";
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProperty("sonar.modules", "dir")
       .setProjectKey(projectKey)

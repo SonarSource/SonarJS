@@ -33,5 +33,4 @@ public class AwsEfsUnencryptedCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-efs-unencrypted";
   }
-
 }

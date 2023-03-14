@@ -33,5 +33,4 @@ public class AwsS3BucketServerEncryptionCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-s3-bucket-server-encryption";
   }
-
 }

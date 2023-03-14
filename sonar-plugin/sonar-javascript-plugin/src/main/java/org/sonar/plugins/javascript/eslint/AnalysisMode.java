@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Collections.emptyList;
+
 import java.util.HashSet;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
@@ -27,10 +29,9 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static java.util.Collections.emptyList;
-
 public enum AnalysisMode {
-  DEFAULT, SKIP_UNCHANGED;
+  DEFAULT,
+  SKIP_UNCHANGED;
 
   static final String DEFAULT_LINTER_ID = "default";
   static final String UNCHANGED_LINTER_ID = "unchanged";
@@ -62,7 +63,9 @@ public enum AnalysisMode {
       return AnalysisMode.DEFAULT;
     }
 
-    LOG.debug("Files which didn't change will be part of UCFG generation only, other rules will not be executed");
+    LOG.debug(
+      "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+    );
     return AnalysisMode.SKIP_UNCHANGED;
   }
 
@@ -91,5 +94,4 @@ public enum AnalysisMode {
       return DEFAULT_LINTER_ID;
     }
   }
-
 }

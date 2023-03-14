@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S3330")
 public class CookieNoHttpOnlyCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "cookie-no-httponly";

@@ -19,12 +19,12 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
 
 @Rule(key = "S4649")
 public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
@@ -34,7 +34,8 @@ public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
   @RuleProperty(
     key = "ignoreFontFamilies",
     description = "Comma-separated list of font families exempt from this rule (regular expressions supported).",
-    defaultValue = "" + DEFAULT_IGNORE_FONT_FAMILIES)
+    defaultValue = "" + DEFAULT_IGNORE_FONT_FAMILIES
+  )
   String ignoreFontFamilies = DEFAULT_IGNORE_FONT_FAMILIES;
 
   @Override
@@ -48,6 +49,7 @@ public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
   }
 
   private static class StylelintIgnoreOption {
+
     // Used by GSON serialization
     private final List<String> ignoreFontFamilies;
 

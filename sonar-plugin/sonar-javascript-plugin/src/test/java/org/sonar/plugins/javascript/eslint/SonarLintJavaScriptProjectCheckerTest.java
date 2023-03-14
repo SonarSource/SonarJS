@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,12 +37,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
 
 class SonarLintProjectCheckerTest {
 
@@ -53,7 +53,10 @@ class SonarLintProjectCheckerTest {
     var checker = sonarLintJavaScriptProjectChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs()).contains("Project type checking for JavaScript files activated as project size is below limit (total number of files is 1, maximum is 2)");
+    assertThat(logTester.logs())
+      .contains(
+        "Project type checking for JavaScript files activated as project size is below limit (total number of files is 1, maximum is 2)"
+      );
   }
 
   @Test
@@ -66,8 +69,11 @@ class SonarLintProjectCheckerTest {
     var checker = sonarLintJavaScriptProjectChecker(3);
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).contains("Project type checking for JavaScript files deactivated as project has too many files (maximum is 3 files)",
-      "Update \"sonar.javascript.sonarlint.typechecking.maxfiles\" to set a different limit.");
+    assertThat(logTester.logs())
+      .contains(
+        "Project type checking for JavaScript files deactivated as project has too many files (maximum is 3 files)",
+        "Update \"sonar.javascript.sonarlint.typechecking.maxfiles\" to set a different limit."
+      );
   }
 
   @Test
@@ -76,7 +82,10 @@ class SonarLintProjectCheckerTest {
     var checker = sonarLintJavaScriptProjectChecker(new IllegalArgumentException());
 
     assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs()).containsExactly("Project type checking for JavaScript files deactivated because of unexpected error");
+    assertThat(logTester.logs())
+      .containsExactly(
+        "Project type checking for JavaScript files deactivated because of unexpected error"
+      );
   }
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
@@ -85,7 +94,9 @@ class SonarLintProjectCheckerTest {
     return checker;
   }
 
-  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(RuntimeException error) {
+  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(
+    RuntimeException error
+  ) {
     var checker = new SonarLintJavaScriptProjectChecker();
     var context = sensorContext();
     when(context.fileSystem().baseDir()).thenThrow(error);
@@ -111,5 +122,4 @@ class SonarLintProjectCheckerTest {
     var path = baseDir.resolve(filename);
     Files.writeString(path, "inputFile");
   }
-
 }

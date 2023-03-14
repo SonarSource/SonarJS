@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 
 class EslintRule {
+
   static final String UCFG_ESLINT_KEY = "ucfg";
 
   final String key;
@@ -34,7 +35,8 @@ class EslintRule {
 
   EslintRule(String key, List<Object> configurations, List<InputFile.Type> fileTypeTarget) {
     this.key = key;
-    this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
+    this.fileTypeTarget =
+      fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
     this.configurations = configurations;
   }
 
@@ -52,15 +54,13 @@ class EslintRule {
   }
 
   static EslintRule findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
-    return rules.stream()
-      .filter(ruleMatcher(eslintKey))
-      .findFirst()
-      .orElse(null);
+    return rules.stream().filter(ruleMatcher(eslintKey)).findFirst().orElse(null);
   }
 
   static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
-    return rules.stream()
-      .filter(rule -> ! blackListRuleKeys.contains(rule.key))
+    return rules
+      .stream()
+      .filter(rule -> !blackListRuleKeys.contains(rule.key))
       .collect(Collectors.toList());
   }
 

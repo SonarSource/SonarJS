@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 @SuppressWarnings("java:S1150")
 class IteratorEnumeration<T> implements Enumeration<T> {
+
   private final Iterator<T> iterator;
 
   IteratorEnumeration(Iterator<T> iterator) {

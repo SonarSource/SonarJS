@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.external;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
+
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,8 +40,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
-
 public class EslintReportSensor extends AbstractExternalIssuesSensor {
 
   private static final Logger LOG = Loggers.get(EslintReportSensor.class);
@@ -58,8 +58,16 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
   void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
-    try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(report), StandardCharsets.UTF_8)) {
-      FileWithMessages[] filesWithMessages = gson.fromJson(inputStreamReader, FileWithMessages[].class);
+    try (
+      InputStreamReader inputStreamReader = new InputStreamReader(
+        new FileInputStream(report),
+        StandardCharsets.UTF_8
+      )
+    ) {
+      FileWithMessages[] filesWithMessages = gson.fromJson(
+        inputStreamReader,
+        FileWithMessages[].class
+      );
 
       for (FileWithMessages fileWithMessages : filesWithMessages) {
         InputFile inputFile = getInputFile(context, fileWithMessages.filePath);
@@ -69,13 +77,17 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
           }
         }
       }
-    } catch (IOException|JsonSyntaxException e) {
+    } catch (IOException | JsonSyntaxException e) {
       LOG.error(FILE_EXCEPTION_MESSAGE, e);
     }
   }
 
-
-  private static void saveEslintError(SensorContext context, EslintError eslintError, InputFile inputFile, String originalFilePath) {
+  private static void saveEslintError(
+    SensorContext context,
+    EslintError eslintError,
+    InputFile inputFile,
+    String originalFilePath
+  ) {
     String eslintKey = eslintError.ruleId;
     if (eslintKey == null) {
       LOG.warn("Parse error issue from ESLint will not be imported, file " + inputFile.uri());
@@ -89,12 +101,22 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
     Severity severity = ruleLoader.ruleSeverity(eslintKey);
     Long effortInMinutes = ruleLoader.ruleConstantDebtMinutes(eslintKey);
 
-    LOG.debug("Saving external ESLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {}, severity:{}, remediation:{} }",
-      originalFilePath, eslintKey, eslintError.message, start.line(), start.lineOffset(), ruleType, severity, effortInMinutes);
+    LOG.debug(
+      "Saving external ESLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {}, severity:{}, remediation:{} }",
+      originalFilePath,
+      eslintKey,
+      eslintError.message,
+      start.line(),
+      start.lineOffset(),
+      ruleType,
+      severity,
+      effortInMinutes
+    );
 
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
-    NewIssueLocation primaryLocation = newExternalIssue.newLocation()
+    NewIssueLocation primaryLocation = newExternalIssue
+      .newLocation()
       .message(eslintError.message)
       .on(inputFile)
       .at(location);
@@ -118,16 +140,19 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
         eslintError.line,
         eslintError.column - 1,
         eslintError.endLine,
-        eslintError.endColumn - 1);
+        eslintError.endColumn - 1
+      );
     }
   }
 
   private static class FileWithMessages {
+
     String filePath;
     EslintError[] messages;
   }
 
   private static class EslintError {
+
     String ruleId;
     String message;
     int line;
@@ -139,5 +164,4 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
       return line == endLine && column == endColumn;
     }
   }
-
 }

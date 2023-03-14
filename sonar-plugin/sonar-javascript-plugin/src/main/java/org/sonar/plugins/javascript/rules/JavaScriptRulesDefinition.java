@@ -43,15 +43,19 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.JS_REPOSITORY_KEY, JavaScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, sonarRuntime);
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(CheckList.getJavaScriptChecks()));
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
+      METADATA_LOCATION,
+      JavaScriptProfilesDefinition.SONAR_WAY_JSON,
+      sonarRuntime
+    );
+    ruleMetadataLoader.addRulesByAnnotatedClass(
+      repository,
+      Collections.unmodifiableList(CheckList.getJavaScriptChecks())
+    );
 
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);
 
-
     repository.done();
   }
-
-
 }
