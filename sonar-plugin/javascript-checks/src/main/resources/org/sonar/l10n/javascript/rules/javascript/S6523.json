@@ -1,0 +1,22 @@
+{
+  "title": "No optional chaining where undefined is forbidden",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bad-practice",
+    "es2015"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6523",
+  "sqKey": "S6523",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
