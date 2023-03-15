@@ -25,7 +25,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 
 public interface EslintBasedCheck extends JavaScriptCheck {
-
   String eslintKey();
 
   default List<Object> configurations() {
@@ -35,5 +34,4 @@ public interface EslintBasedCheck extends JavaScriptCheck {
   default List<InputFile.Type> targets() {
     return Collections.singletonList(Type.MAIN);
   }
-
 }

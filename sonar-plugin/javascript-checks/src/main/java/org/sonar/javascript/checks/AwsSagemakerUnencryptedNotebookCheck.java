@@ -33,5 +33,4 @@ public class AwsSagemakerUnencryptedNotebookCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-sagemaker-unencrypted-notebook";
   }
-
 }

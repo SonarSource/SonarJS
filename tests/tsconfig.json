@@ -8,15 +8,12 @@
     "baseUrl": ".",
     "paths": {
       "*": ["../src/*"]
-    },
+    }
   },
   "references": [
     {
       "path": "../src/tsconfig.json"
     }
   ],
-  "exclude": [
-    "**/fixtures/**",
-    "**/linting/eslint/rules/comment-based/**"
-  ]
+  "exclude": ["**/fixtures/**", "**/linting/eslint/rules/comment-based/**"]
 }

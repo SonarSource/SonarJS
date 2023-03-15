@@ -34,4 +34,3 @@ public class EmptyStringRepetitionCheck implements EslintBasedCheck {
     return "empty-string-repetition";
   }
 }
-

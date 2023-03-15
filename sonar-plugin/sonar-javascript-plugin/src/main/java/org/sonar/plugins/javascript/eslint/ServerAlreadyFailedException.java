@@ -23,5 +23,4 @@ package org.sonar.plugins.javascript.eslint;
  * This exception is required to inform sensor about Eslint-bridge server start up failure in SonarLint
  * It is required to not try to start it again
  */
-public class ServerAlreadyFailedException extends RuntimeException {
-}
+public class ServerAlreadyFailedException extends RuntimeException {}

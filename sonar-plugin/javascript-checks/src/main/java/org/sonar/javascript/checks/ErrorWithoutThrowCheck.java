@@ -33,5 +33,4 @@ public class ErrorWithoutThrowCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-unthrown-error";
   }
-
 }

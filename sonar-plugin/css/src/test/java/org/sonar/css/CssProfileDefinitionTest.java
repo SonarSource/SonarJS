@@ -19,11 +19,11 @@
  */
 package org.sonar.css;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class CssProfileDefinitionTest {
 
@@ -37,8 +37,9 @@ class CssProfileDefinitionTest {
 
     assertThat(profile.language()).isEqualTo(CssLanguage.KEY);
     assertThat(profile.name()).isEqualTo(CssProfileDefinition.PROFILE_NAME);
-    assertThat(profile.rules()).extracting("repoKey").containsOnly(CssRulesDefinition.REPOSITORY_KEY);
+    assertThat(profile.rules())
+      .extracting("repoKey")
+      .containsOnly(CssRulesDefinition.REPOSITORY_KEY);
     assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 2);
   }
-
 }

@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
@@ -37,17 +41,17 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
-
-public final class OrchestratorStarter implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
+public final class OrchestratorStarter
+  implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
   static final String SCANNER_VERSION = "4.7.0.2747";
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
-    new File("../../../sonar-plugin/sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
+    new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
+    "sonar-javascript-plugin-*.jar"
+  );
 
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static final Orchestrator ORCHESTRATOR = Orchestrator
+    .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
@@ -70,15 +74,13 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   private static volatile boolean started;
 
-  private OrchestratorStarter() {
-  }
+  private OrchestratorStarter() {}
 
   /**
    * make sure that whole test suite uses the same version of the scanner
    */
   static SonarScanner getSonarScanner() {
-    return SonarScanner.create()
-        .setScannerVersion(SCANNER_VERSION);
+    return SonarScanner.create().setScannerVersion(SCANNER_VERSION);
   }
 
   @Override
@@ -96,7 +98,6 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     }
   }
 
-
   @Override
   public void close() {
     // this is executed once all tests are finished
@@ -105,7 +106,10 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
 
   public static SonarScanner createScanner() {
     SonarScanner scanner = getSonarScanner();
-    scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**, **/jest/**/*, **/babylon/**/*");
+    scanner.setProperty(
+      "sonar.exclusions",
+      "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**, **/jest/**/*, **/babylon/**/*"
+    );
     scanner.setSourceEncoding("UTF-8");
     return scanner;
   }
@@ -125,9 +129,15 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     setProfiles(ORCHESTRATOR, projectKey, profiles);
   }
 
-  static void setProfiles(Orchestrator orchestrator, String projectKey, Map<String, String> profiles) {
+  static void setProfiles(
+    Orchestrator orchestrator,
+    String projectKey,
+    Map<String, String> profiles
+  ) {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    profiles.forEach((profileName, language) -> orchestrator.getServer().associateProjectToQualityProfile(projectKey, language, profileName));
+    profiles.forEach((profileName, language) ->
+      orchestrator.getServer().associateProjectToQualityProfile(projectKey, language, profileName)
+    );
   }
 
   @CheckForNull
@@ -136,7 +146,13 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   @CheckForNull
-  private static Measure getMeasure(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+  private static Measure getMeasure(
+    Orchestrator orchestrator,
+    String componentKey,
+    String metricKey,
+    String branch,
+    String pullRequest
+  ) {
     var request = new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey));
@@ -163,22 +179,33 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
   }
 
   @CheckForNull
-  public static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey, String branch, String pullRequest) {
+  public static Double getMeasureAsDouble(
+    Orchestrator orchestrator,
+    String componentKey,
+    String metricKey,
+    String branch,
+    String pullRequest
+  ) {
     var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 
   static WsClient newWsClient(Orchestrator orchestrator) {
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(orchestrator.getServer().getUrl())
-      .build());
+    return WsClientFactories
+      .getDefault()
+      .newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).build());
   }
 
   static List<Issue> getIssues(String componentKey) {
     return getIssues(ORCHESTRATOR, componentKey, null, null);
   }
 
-  static List<Issue> getIssues(Orchestrator orchestrator, String componentKey, String branch, String pullRequest) {
+  static List<Issue> getIssues(
+    Orchestrator orchestrator,
+    String componentKey,
+    String branch,
+    String pullRequest
+  ) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
     if (branch != null) {
@@ -204,5 +231,4 @@ public final class OrchestratorStarter implements BeforeAllCallback, ExtensionCo
     assertThat(buildResult.isSuccess()).isTrue();
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
   }
-
 }

@@ -33,5 +33,4 @@ public class CommaOperatorUseCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-sequences";
   }
-
 }

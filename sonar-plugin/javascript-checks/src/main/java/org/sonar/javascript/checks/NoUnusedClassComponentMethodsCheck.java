@@ -33,5 +33,4 @@ public class NoUnusedClassComponentMethodsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-unused-class-component-methods";
   }
-
 }

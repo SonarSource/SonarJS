@@ -1,4 +1,3 @@
-
 // https://typedoc.org/guides/options
 module.exports = {
   entryPoints: ['../src/linting/eslint/rules/helpers/index.ts'],
@@ -14,6 +13,5 @@ module.exports = {
     'ESlint dev guide': 'https://eslint.org/docs/latest/developer-guide/working-with-rules',
   },
   skipErrorChecking: true,
-  visibilityFilters: {
-  },
+  visibilityFilters: {},
 };

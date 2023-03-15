@@ -37,8 +37,9 @@ public class IntrusivePermissionsCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "permissions",
     description = "Comma-separated list of intrusive permissions to report " +
-      "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
-    defaultValue = "" + DEFAULT)
+    "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
+    defaultValue = "" + DEFAULT
+  )
   public String permissions = DEFAULT;
 
   @Override

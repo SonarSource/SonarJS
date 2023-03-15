@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 public abstract class AbstractEslintSensor implements Sensor {
+
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
   protected final EslintBridgeServer eslintBridgeServer;
@@ -44,8 +45,11 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected SensorContext context;
   protected ContextUtils contextUtils;
 
-  protected AbstractEslintSensor(EslintBridgeServer eslintBridgeServer,
-                                 AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring) {
+  protected AbstractEslintSensor(
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    Monitoring monitoring
+  ) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.analysisWarnings = analysisWarnings;
     this.monitoring = monitoring;
@@ -71,20 +75,29 @@ public abstract class AbstractEslintSensor implements Sensor {
       // do not propagate the exception
       LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
-      LOG.debug("Skipping the start of eslint-bridge server " +
-        "as it failed to start during the first analysis or it's not answering anymore");
+      LOG.debug(
+        "Skipping the start of eslint-bridge server " +
+        "as it failed to start during the first analysis or it's not answering anymore"
+      );
       LOG.debug("No rules will be executed");
-
     } catch (NodeCommandException e) {
       logErrorOrWarn(e.getMessage(), e);
-      analysisWarnings.addUnique("JavaScript/TypeScript/CSS rules were not executed. " + e.getMessage());
+      analysisWarnings.addUnique(
+        "JavaScript/TypeScript/CSS rules were not executed. " + e.getMessage()
+      );
       if (contextUtils.failFast()) {
-        throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
+        throw new IllegalStateException(
+          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
+          e
+        );
       }
     } catch (Exception e) {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
       if (contextUtils.failFast()) {
-        throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
+        throw new IllegalStateException(
+          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
+          e
+        );
       }
     } finally {
       CacheStrategies.logReport();
@@ -99,7 +112,4 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
-
-
 }
-

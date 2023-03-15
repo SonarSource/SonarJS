@@ -54,10 +54,15 @@ public class ProfileGenerator {
   private static final Gson gson = new Gson();
   private static final int QUERY_PAGE_SIZE = 500;
 
-  private ProfileGenerator() {
-  }
+  private ProfileGenerator() {}
 
-  public static String generateProfile(Orchestrator orchestrator, String language, String repository, RulesConfiguration rulesConfiguration, Set<String> excludedRules) {
+  public static String generateProfile(
+    Orchestrator orchestrator,
+    String language,
+    String repository,
+    RulesConfiguration rulesConfiguration,
+    Set<String> excludedRules
+  ) {
     try {
       Set<String> ruleKeys = getRuleKeys(orchestrator.getServer().getUrl(), language, repository);
       ruleKeys.removeAll(excludedRules);
@@ -70,7 +75,13 @@ public class ProfileGenerator {
     }
   }
 
-  private static File generateProfile(String name, String language, String repository, RulesConfiguration rulesConfiguration, Set<String> ruleKeys) throws XMLStreamException, IOException {
+  private static File generateProfile(
+    String name,
+    String language,
+    String repository,
+    RulesConfiguration rulesConfiguration,
+    Set<String> ruleKeys
+  ) throws XMLStreamException, IOException {
     XMLOutputFactory output = XMLOutputFactory.newInstance();
     StringWriter stringWriter = new StringWriter();
     XMLStreamWriter xml = output.createXMLStreamWriter(stringWriter);
@@ -86,7 +97,10 @@ public class ProfileGenerator {
       el(xml, "repositoryKey", repository);
       el(xml, "key", key);
       el(xml, "priority", "INFO");
-      Collection<Parameter> parameters = rulesConfiguration.config.getOrDefault(key, Collections.emptyList());
+      Collection<Parameter> parameters = rulesConfiguration.config.getOrDefault(
+        key,
+        Collections.emptyList()
+      );
       if (!parameters.isEmpty()) {
         xml.writeStartElement("parameters");
         for (Parameter parameter : parameters) {
@@ -107,7 +121,6 @@ public class ProfileGenerator {
     Files.write(file.toPath(), stringWriter.toString().getBytes(StandardCharsets.UTF_8));
     file.deleteOnExit();
     return file;
-
   }
 
   private static void el(XMLStreamWriter xml, String name, String text) throws XMLStreamException {
@@ -116,7 +129,8 @@ public class ProfileGenerator {
     xml.writeEndElement();
   }
 
-  private static Set<String> getRuleKeys(String serverUrl, String language, String repository) throws IOException {
+  private static Set<String> getRuleKeys(String serverUrl, String language, String repository)
+    throws IOException {
     Set<String> ruleKeys = new HashSet<>();
     long total;
     int processed = 0;
@@ -137,13 +151,20 @@ public class ProfileGenerator {
     return ruleKeys;
   }
 
-  private static Map<String, Object> queryRules(String serverUrl, String language, String repository, int page) throws IOException {
+  private static Map<String, Object> queryRules(
+    String serverUrl,
+    String language,
+    String repository,
+    int page
+  ) throws IOException {
     Map<String, Object> queryParams = new HashMap<>();
     queryParams.put("languages", language);
     queryParams.put("repositories", repository);
     queryParams.put("ps", QUERY_PAGE_SIZE);
     queryParams.put("p", page);
-    String params = queryParams.entrySet().stream()
+    String params = queryParams
+      .entrySet()
+      .stream()
       .map(e -> e.getKey() + "=" + e.getValue())
       .collect(Collectors.joining("&"));
 
@@ -152,22 +173,26 @@ public class ProfileGenerator {
     con.setRequestMethod("GET");
     con.connect();
     String response = new BufferedReader(new InputStreamReader(con.getInputStream()))
-      .lines().collect(Collectors.joining("\n"));
+      .lines()
+      .collect(Collectors.joining("\n"));
     con.disconnect();
     return gson.fromJson(response, Map.class);
   }
 
   public static class RulesConfiguration {
+
     private Map<String, List<Parameter>> config = new HashMap<>();
 
     public RulesConfiguration add(String ruleKey, String parameterKey, String parameterValue) {
-      List<Parameter> ruleConfiguration = this.config.computeIfAbsent(ruleKey, k -> new ArrayList<>());
+      List<Parameter> ruleConfiguration =
+        this.config.computeIfAbsent(ruleKey, k -> new ArrayList<>());
       ruleConfiguration.add(new Parameter(parameterKey, parameterValue));
       return this;
     }
   }
 
   private static class Parameter {
+
     String parameterKey;
     String parameterValue;
 
@@ -176,5 +201,4 @@ public class ProfileGenerator {
       this.parameterValue = parameterValue;
     }
   }
-
 }

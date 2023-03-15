@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 class AnalysisWarningsWrapperTest {
 
@@ -45,5 +45,4 @@ class AnalysisWarningsWrapperTest {
       fail("No exception should be thrown");
     }
   }
-
 }

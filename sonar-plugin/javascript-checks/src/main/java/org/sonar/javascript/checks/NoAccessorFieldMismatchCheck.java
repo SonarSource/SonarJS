@@ -33,5 +33,4 @@ public class NoAccessorFieldMismatchCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-accessor-field-mismatch";
   }
-
 }

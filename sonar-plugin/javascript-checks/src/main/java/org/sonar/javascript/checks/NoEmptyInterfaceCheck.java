@@ -31,5 +31,4 @@ public class NoEmptyInterfaceCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-empty-interface";
   }
-
 }

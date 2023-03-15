@@ -63,7 +63,8 @@ public class CssRules {
   private final Collection<CssRule> rules;
 
   public CssRules(CheckFactory checkFactory) {
-    Checks<CssRule> checks = checkFactory.<CssRule>create(CssRulesDefinition.REPOSITORY_KEY)
+    Checks<CssRule> checks = checkFactory
+      .<CssRule>create(CssRulesDefinition.REPOSITORY_KEY)
       .addAnnotatedChecks((Iterable<?>) getRuleClasses());
     this.rules = checks.all();
     stylelintKeyToRuleKey = new HashMap<>();
@@ -73,33 +74,35 @@ public class CssRules {
   }
 
   public static List<Class<?>> getRuleClasses() {
-    return Collections.unmodifiableList(Arrays.asList(
-      AtRuleNoUnknown.class,
-      BlockNoEmpty.class,
-      ColorNoInvalidHex.class,
-      CommentNoEmpty.class,
-      DeclarationBlockNoDuplicateProperties.class,
-      DeclarationBlockNoShorthandPropertyOverrides.class,
-      FontFamilyNoDuplicateNames.class,
-      FontFamilyNoMissingGenericFamilyKeyword.class,
-      FunctionCalcNoUnspacedOperator.class,
-      FunctionCalcNoInvalid.class,
-      FunctionLinearGradientNoNonstandardDirection.class,
-      KeyframeDeclarationNoImportant.class,
-      MediaFeatureNameNoUnknown.class,
-      NoDescendingSpecificity.class,
-      NoDuplicateAtImportRules.class,
-      NoDuplicateSelectors.class,
-      NoEmptySource.class,
-      NoExtraSemicolons.class,
-      NoInvalidDoubleSlashComments.class,
-      PropertyNoUnknown.class,
-      SelectorPseudoClassNoUnknown.class,
-      SelectorPseudoElementNoUnknown.class,
-      SelectorTypeNoUnknown.class,
-      StringNoNewline.class,
-      UnitNoUnknown.class
-    ));
+    return Collections.unmodifiableList(
+      Arrays.asList(
+        AtRuleNoUnknown.class,
+        BlockNoEmpty.class,
+        ColorNoInvalidHex.class,
+        CommentNoEmpty.class,
+        DeclarationBlockNoDuplicateProperties.class,
+        DeclarationBlockNoShorthandPropertyOverrides.class,
+        FontFamilyNoDuplicateNames.class,
+        FontFamilyNoMissingGenericFamilyKeyword.class,
+        FunctionCalcNoUnspacedOperator.class,
+        FunctionCalcNoInvalid.class,
+        FunctionLinearGradientNoNonstandardDirection.class,
+        KeyframeDeclarationNoImportant.class,
+        MediaFeatureNameNoUnknown.class,
+        NoDescendingSpecificity.class,
+        NoDuplicateAtImportRules.class,
+        NoDuplicateSelectors.class,
+        NoEmptySource.class,
+        NoExtraSemicolons.class,
+        NoInvalidDoubleSlashComments.class,
+        PropertyNoUnknown.class,
+        SelectorPseudoClassNoUnknown.class,
+        SelectorPseudoElementNoUnknown.class,
+        SelectorTypeNoUnknown.class,
+        StringNoNewline.class,
+        UnitNoUnknown.class
+      )
+    );
   }
 
   @Nullable
@@ -108,6 +111,8 @@ public class CssRules {
   }
 
   public List<StylelintRule> getStylelintRules() {
-    return this.rules.stream().map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions())).collect(Collectors.toList());
+    return this.rules.stream()
+      .map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions()))
+      .collect(Collectors.toList());
   }
 }

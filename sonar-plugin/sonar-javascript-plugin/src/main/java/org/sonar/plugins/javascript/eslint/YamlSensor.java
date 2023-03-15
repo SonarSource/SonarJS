@@ -50,11 +50,12 @@ public class YamlSensor extends AbstractEslintSensor {
   private AnalysisMode analysisMode;
 
   public YamlSensor(
-      JavaScriptChecks checks,
-      EslintBridgeServer eslintBridgeServer,
-      AnalysisWarningsWrapper analysisWarnings,
-      Monitoring monitoring,
-      AnalysisProcessor processAnalysis) {
+    JavaScriptChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    Monitoring monitoring,
+    AnalysisProcessor processAnalysis
+  ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
     super(eslintBridgeServer, analysisWarnings, monitoring);
@@ -64,9 +65,7 @@ public class YamlSensor extends AbstractEslintSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .name("JavaScript inside YAML analysis")
-      .onlyOnLanguage(LANGUAGE);
+    descriptor.name("JavaScript inside YAML analysis").onlyOnLanguage(LANGUAGE);
   }
 
   @Override
@@ -79,7 +78,9 @@ public class YamlSensor extends AbstractEslintSensor {
       eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
-          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
         }
         if (eslintBridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
@@ -102,7 +103,10 @@ public class YamlSensor extends AbstractEslintSensor {
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
     FilePredicates p = fileSystem.predicates();
-    var filePredicate = p.and(p.hasLanguage(YamlSensor.LANGUAGE), input -> isSamTemplate(input, LOG));
+    var filePredicate = p.and(
+      p.hasLanguage(YamlSensor.LANGUAGE),
+      input -> isSamTemplate(input, LOG)
+    );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
@@ -154,10 +158,14 @@ public class YamlSensor extends AbstractEslintSensor {
           contextUtils.ignoreHeaderComments(),
           null,
           null,
-          analysisMode.getLinterIdFor(file));
+          analysisMode.getLinterIdFor(file)
+        );
         var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
         analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens), file);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;

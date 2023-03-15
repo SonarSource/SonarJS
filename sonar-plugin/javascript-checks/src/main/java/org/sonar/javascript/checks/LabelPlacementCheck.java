@@ -35,5 +35,4 @@ public class LabelPlacementCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "label-position";
   }
-
 }

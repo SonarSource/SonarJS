@@ -21,7 +21,5 @@ package org.sonar.plugins.javascript.nodejs;
 
 @FunctionalInterface
 public interface BundlePathResolver {
-
   String resolve(String relativePath);
-
 }

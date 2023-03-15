@@ -33,5 +33,4 @@ public class DestructuringAssignmentSyntaxCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "destructuring-assignment-syntax";
   }
-
 }

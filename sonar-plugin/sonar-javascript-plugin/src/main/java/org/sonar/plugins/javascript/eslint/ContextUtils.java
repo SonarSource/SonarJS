@@ -42,7 +42,9 @@ class ContextUtils {
   }
 
   boolean ignoreHeaderComments() {
-    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+    return context
+      .config()
+      .getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
       .orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 

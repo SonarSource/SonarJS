@@ -32,7 +32,11 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 public class TestUtils {
 
-  public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
+  public static DefaultInputFile createInputFile(
+    SensorContextTester sensorContext,
+    String content,
+    String relativePath
+  ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
       .setType(Type.MAIN)
@@ -45,7 +49,12 @@ public class TestUtils {
     return testInputFile;
   }
 
-  public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath, String language) {
+  public static DefaultInputFile createInputFile(
+    SensorContextTester sensorContext,
+    String content,
+    String relativePath,
+    String language
+  ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
       .setType(Type.MAIN)
@@ -58,7 +67,10 @@ public class TestUtils {
     return testInputFile;
   }
 
-  public static RulesDefinition.Repository buildRepository(String repositoryKey, RulesDefinition rulesDefinition) {
+  public static RulesDefinition.Repository buildRepository(
+    String repositoryKey,
+    RulesDefinition rulesDefinition
+  ) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     return context.repository(repositoryKey);
@@ -67,9 +79,10 @@ public class TestUtils {
   public static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(repositoryKey, ruleKey)).build());
+      builder.addRule(
+        new NewActiveRule.Builder().setRuleKey(RuleKey.of(repositoryKey, ruleKey)).build()
+      );
     }
     return new CheckFactory(builder.build());
   }
-
 }

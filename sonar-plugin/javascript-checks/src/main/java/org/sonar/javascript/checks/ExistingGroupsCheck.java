@@ -34,4 +34,3 @@ public class ExistingGroupsCheck implements EslintBasedCheck {
     return "existing-groups";
   }
 }
-

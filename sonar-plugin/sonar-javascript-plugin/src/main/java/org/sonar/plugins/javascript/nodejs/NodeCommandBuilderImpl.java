@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.javascript.nodejs;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,21 +42,19 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Logger LOG = Loggers.get(NodeCommandBuilderImpl.class);
 
   public static final String NODE_EXECUTABLE_DEFAULT = "node";
-  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/node_modules/run-node/run-node";
+  private static final String NODE_EXECUTABLE_DEFAULT_MACOS =
+    "package/node_modules/run-node/run-node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
 
-  private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.(\\d+)\\.(\\d+)");
+  private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
+    "v?(\\d+)\\.(\\d+)\\.(\\d+)"
+  );
 
   private final ProcessWrapper processWrapper;
   private Version minNodeVersion;
@@ -157,7 +160,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       args,
       outputConsumer,
       errorConsumer,
-      env);
+      env
+    );
   }
 
   private void checkNodeCompatibility(String nodeExecutable) throws NodeCommandException {
@@ -169,7 +173,13 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     String versionString = getVersion(nodeExecutable);
     actualNodeVersion = nodeVersion(versionString);
     if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
-      throw new NodeCommandException(String.format("Only Node.js v%s or later is supported, got %s.", minNodeVersion, actualNodeVersion));
+      throw new NodeCommandException(
+        String.format(
+          "Only Node.js v%s or later is supported, got %s.",
+          minNodeVersion,
+          actualNodeVersion
+        )
+      );
     }
 
     LOG.debug("Using Node.js {}.", versionString);
@@ -182,9 +192,12 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       return Version.create(
         Integer.parseInt(versionMatcher.group(1)),
         Integer.parseInt(versionMatcher.group(2)),
-        Integer.parseInt(versionMatcher.group(3)));
+        Integer.parseInt(versionMatcher.group(3))
+      );
     } else {
-      throw new NodeCommandException("Failed to parse Node.js version, got '" + versionString + "'");
+      throw new NodeCommandException(
+        "Failed to parse Node.js version, got '" + versionString + "'"
+      );
     }
   }
 
@@ -199,24 +212,40 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       emptyList(),
       output::append,
       LOG::error,
-      Map.of());
+      Map.of()
+    );
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {
-      throw new NodeCommandException("Failed to determine the version of Node.js, exit value " + exitValue + ". Executed: '" + nodeCommand.toString() + "'");
+      throw new NodeCommandException(
+        "Failed to determine the version of Node.js, exit value " +
+        exitValue +
+        ". Executed: '" +
+        nodeCommand.toString() +
+        "'"
+      );
     }
     return output.toString();
   }
 
-  private String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException, IOException {
+  private String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration)
+    throws NodeCommandException, IOException {
     if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
       String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       File file = new File(nodeExecutable);
       if (file.exists()) {
-        LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), NODE_EXECUTABLE_PROPERTY);
+        LOG.info(
+          "Using Node.js executable {} from property {}.",
+          file.getAbsoluteFile(),
+          NODE_EXECUTABLE_PROPERTY
+        );
         return nodeExecutable;
       } else {
-        LOG.error("Provided Node.js executable file does not exist. Property '{}' was set to '{}'", NODE_EXECUTABLE_PROPERTY, nodeExecutable);
+        LOG.error(
+          "Provided Node.js executable file does not exist. Property '{}' was set to '{}'",
+          NODE_EXECUTABLE_PROPERTY,
+          nodeExecutable
+        );
         throw new NodeCommandException("Provided Node.js executable file does not exist.");
       }
     }
@@ -242,10 +271,17 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     String defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
     File file = new File(defaultNode);
     if (!file.exists()) {
-      LOG.error("Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'", defaultNode, NODE_EXECUTABLE_PROPERTY);
+      LOG.error(
+        "Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'",
+        defaultNode,
+        NODE_EXECUTABLE_PROPERTY
+      );
       throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
     } else {
-      Files.setPosixFilePermissions(file.toPath(), EnumSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ));
+      Files.setPosixFilePermissions(
+        file.toPath(),
+        EnumSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ)
+      );
     }
     return defaultNode;
   }
@@ -255,7 +291,12 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     // To avoid it we use where.exe to find node binary only in PATH. See SSF-181
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
     List<String> stdOut = new ArrayList<>();
-    Process whereTool = processWrapper.startProcess(asList("C:\\Windows\\System32\\where.exe", "$PATH:node.exe"), emptyMap(), stdOut::add, LOG::error);
+    Process whereTool = processWrapper.startProcess(
+      asList("C:\\Windows\\System32\\where.exe", "$PATH:node.exe"),
+      emptyMap(),
+      stdOut::add,
+      LOG::error
+    );
     try {
       processWrapper.waitFor(whereTool, 5, TimeUnit.SECONDS);
       if (!stdOut.isEmpty()) {
@@ -267,6 +308,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       processWrapper.interrupt();
       LOG.error("Interrupted while waiting for 'where.exe' to terminate.");
     }
-    throw new NodeCommandException("Node.js not found in PATH. PATH value was: " + processWrapper.getenv("PATH"));
+    throw new NodeCommandException(
+      "Node.js not found in PATH. PATH value was: " + processWrapper.getenv("PATH")
+    );
   }
 }

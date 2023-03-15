@@ -33,5 +33,4 @@ public class TestCheckExceptionCheck extends TestFileCheck {
   public String eslintKey() {
     return "test-check-exception";
   }
-
 }

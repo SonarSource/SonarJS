@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +30,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
-
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 class CacheKey {
 
@@ -52,11 +52,14 @@ class CacheKey {
   }
 
   CacheKey forUcfg() {
-    return withPrefix("jssecurity", "ucfgs",
+    return withPrefix(
+      "jssecurity",
+      "ucfgs",
       // UCFG version will be missing in the first period after this change as sonar-security does not have the change yet.
       // We might consider throwing when "ucfgVersion" is not defined some time later (e.g. when SQ 10.x series development starts).
       // Note that we should consider SonarJS running in the context without sonar-security (SQ with Community Edition)
-      PluginInfo.getUcfgPluginVersion().orElse(null));
+      PluginInfo.getUcfgPluginVersion().orElse(null)
+    );
   }
 
   CacheKey forFileMetadata() {
@@ -64,7 +67,11 @@ class CacheKey {
   }
 
   CacheKey withPrefix(String... prefixes) {
-    return new CacheKey(Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()), pluginVersion, file);
+    return new CacheKey(
+      Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()),
+      pluginVersion,
+      file
+    );
   }
 
   @Override
@@ -76,5 +83,4 @@ class CacheKey {
     elements.add(file);
     return String.join(":", elements);
   }
-
 }

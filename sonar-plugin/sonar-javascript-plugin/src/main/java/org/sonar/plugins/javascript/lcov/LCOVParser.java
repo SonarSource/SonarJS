@@ -94,18 +94,18 @@ class LCOVParser {
     for (String line : lines) {
       reportLineNum++;
       if (line.startsWith(SF)) {
-        fileData = files.computeIfAbsent(inputFileForSourceFile(line),
-          inputFile -> inputFile == null ? null : new FileData(inputFile));
-
+        fileData =
+          files.computeIfAbsent(
+            inputFileForSourceFile(line),
+            inputFile -> inputFile == null ? null : new FileData(inputFile)
+          );
       } else if (fileData != null) {
         if (line.startsWith(DA)) {
           parseLineCoverage(fileData, reportLineNum, line);
-
         } else if (line.startsWith(BRDA)) {
           parseBranchCoverage(fileData, reportLineNum, line);
         }
       }
-
     }
 
     Map<InputFile, NewCoverage> coveredFiles = new HashMap<>();
@@ -126,7 +126,11 @@ class LCOVParser {
       String branchNumber = tokens[1] + tokens[2];
       String taken = tokens[3];
 
-      fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
+      fileData.addBranch(
+        Integer.valueOf(lineNumber),
+        branchNumber,
+        "-".equals(taken) ? 0 : Integer.valueOf(taken)
+      );
     } catch (Exception e) {
       logWrongDataWarning("BRDA", reportLineNum, e);
     }
@@ -146,7 +150,14 @@ class LCOVParser {
   }
 
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
-    LOG.debug(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
+    LOG.debug(
+      String.format(
+        "Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).",
+        dataType,
+        reportLineNum,
+        e.toString()
+      )
+    );
     inconsistenciesCounter++;
   }
 
@@ -155,7 +166,9 @@ class LCOVParser {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
+    InputFile inputFile = context
+      .fileSystem()
+      .inputFile(context.fileSystem().predicates().hasPath(filePath));
     if (inputFile == null) {
       inputFile = fileLocator.getInputFile(filePath);
     }
@@ -166,6 +179,7 @@ class LCOVParser {
   }
 
   private static class FileData {
+
     /**
      * line number -> branch number -> taken
      */
@@ -183,7 +197,8 @@ class LCOVParser {
     private final int linesInFile;
 
     private final String filename;
-    private static final String WRONG_LINE_EXCEPTION_MESSAGE = "Line with number %s doesn't belong to file %s";
+    private static final String WRONG_LINE_EXCEPTION_MESSAGE =
+      "Line with number %s doesn't belong to file %s";
 
     FileData(InputFile inputFile) {
       linesInFile = inputFile.lines();
@@ -192,7 +207,10 @@ class LCOVParser {
 
     void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
       checkLine(lineNumber);
-      Map<String, Integer> branchesForLine = branches.computeIfAbsent(lineNumber, l -> new HashMap<>());
+      Map<String, Integer> branchesForLine = branches.computeIfAbsent(
+        lineNumber,
+        l -> new HashMap<>()
+      );
       branchesForLine.merge(branchNumber, taken, Integer::sum);
     }
 
@@ -222,10 +240,10 @@ class LCOVParser {
 
     private void checkLine(Integer lineNumber) {
       if (lineNumber < 1 || lineNumber > linesInFile) {
-        throw new IllegalArgumentException(String.format(WRONG_LINE_EXCEPTION_MESSAGE, lineNumber, filename));
+        throw new IllegalArgumentException(
+          String.format(WRONG_LINE_EXCEPTION_MESSAGE, lineNumber, filename)
+        );
       }
     }
-
   }
-
 }

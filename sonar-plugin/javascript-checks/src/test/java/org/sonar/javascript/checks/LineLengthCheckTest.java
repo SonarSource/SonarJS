@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class LineLengthCheckTest {
 
@@ -45,5 +45,4 @@ class LineLengthCheckTest {
     expectedConfigurationsMap.put("code", 120);
     assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
   }
-
 }

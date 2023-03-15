@@ -33,5 +33,4 @@ public class ShorthandPropertiesNotGroupedCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "shorthand-property-grouping";
   }
-
 }

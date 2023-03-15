@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5876")
 public class SessionRegenerationCheck implements EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "session-regeneration";

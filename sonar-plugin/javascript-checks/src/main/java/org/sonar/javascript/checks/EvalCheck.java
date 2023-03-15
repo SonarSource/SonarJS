@@ -36,4 +36,3 @@ public class EvalCheck implements EslintBasedCheck {
     return "code-eval";
   }
 }
-

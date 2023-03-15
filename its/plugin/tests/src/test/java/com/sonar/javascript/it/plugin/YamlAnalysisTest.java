@@ -19,18 +19,17 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues.Issue;
-
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.sonarqube.ws.Issues.Issue;
 
 @ExtendWith(OrchestratorStarter.class)
 public class YamlAnalysisTest {
@@ -47,14 +46,13 @@ public class YamlAnalysisTest {
       .setDebugLogs(true)
       .setProjectDir(TestUtils.projectDir(projectKey));
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "eslint-based-rules-profile", "js"));
+    OrchestratorStarter.setProfiles(projectKey, Map.of("eslint-based-rules-profile", "js"));
     BuildResult result = orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(12, "javascript:S3923")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule)
+      .containsExactlyInAnyOrder(tuple(12, "javascript:S3923"));
     assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
   }
 
@@ -68,8 +66,7 @@ public class YamlAnalysisTest {
       .setDebugLogs(true)
       .setProjectDir(TestUtils.projectDir(projectKey));
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "eslint-based-rules-profile", "js"));
+    OrchestratorStarter.setProfiles(projectKey, Map.of("eslint-based-rules-profile", "js"));
     BuildResult result = orchestrator.executeBuild(build);
     assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(0);
   }

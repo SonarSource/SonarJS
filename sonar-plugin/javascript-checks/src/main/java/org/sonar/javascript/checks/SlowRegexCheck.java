@@ -33,5 +33,4 @@ public class SlowRegexCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "slow-regex";
   }
-
 }

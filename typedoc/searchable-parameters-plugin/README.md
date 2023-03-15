@@ -21,10 +21,16 @@ Used locally, Typedoc looks for the plugin in `node_modules/`, you must therefor
 - You can review the indexed values that you added by printing [this variable](https://github.com/TypeStrong/typedoc/blob/56813c0cb201f0c248a0cc43ef6e7578d680191c/src/lib/output/plugins/JavascriptIndexPlugin.ts#L128) in your local `typedoc` dependency like that:
 
 ```javascript
-console.log('added', {
+console.log(
+  'added',
+  {
     name: reflection.name,
     comment: this.getCommentSearchText(reflection),
     ...indexEvent.searchFields[rows.length],
     id: rows.length,
-}, boost, 'for', row);
+  },
+  boost,
+  'for',
+  row,
+);
 ```

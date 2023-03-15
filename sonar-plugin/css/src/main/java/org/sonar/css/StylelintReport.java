@@ -21,18 +21,18 @@ package org.sonar.css;
 
 public class StylelintReport {
 
-  private StylelintReport(){
-  }
+  private StylelintReport() {}
 
   static class IssuesPerFile {
+
     String source;
     Issue[] warnings;
   }
 
   static class Issue {
+
     int line;
     String rule;
     String text;
   }
-
 }

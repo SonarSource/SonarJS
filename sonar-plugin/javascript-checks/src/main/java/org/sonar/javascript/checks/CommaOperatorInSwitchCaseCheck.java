@@ -33,5 +33,4 @@ public class CommaOperatorInSwitchCaseCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "comma-or-logical-or-case";
   }
-
 }

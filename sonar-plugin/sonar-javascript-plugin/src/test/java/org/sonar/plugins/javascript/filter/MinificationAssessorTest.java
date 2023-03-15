@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
@@ -27,13 +30,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 class MinificationAssessorTest {
 
-  private final static String DIR = "src/test/resources/minify/";
-
+  private static final String DIR = "src/test/resources/minify/";
 
   @Test
   void assessOnFileName() {
@@ -59,8 +58,7 @@ class MinificationAssessorTest {
   void assessNonExistingFile() {
     var assessor = new MinificationAssessor(20);
     var file = getFile("file-does-not-exist.js");
-    assertThatThrownBy(() -> assessor.isMinified(file))
-      .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> assessor.isMinified(file)).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -88,7 +86,7 @@ class MinificationAssessorTest {
   }
 
   private AbstractBooleanAssert<?> getAssert(MinificationAssessor assessor, String fileName) {
-    return assertThat(assessor.isMinified(getFile(fileName))).as("File '" + fileName + "' is minified?");
+    return assertThat(assessor.isMinified(getFile(fileName)))
+      .as("File '" + fileName + "' is minified?");
   }
-
 }

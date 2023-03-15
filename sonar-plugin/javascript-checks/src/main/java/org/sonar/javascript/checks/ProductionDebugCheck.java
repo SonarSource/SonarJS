@@ -34,4 +34,3 @@ public class ProductionDebugCheck implements EslintBasedCheck {
     return "production-debug";
   }
 }
-

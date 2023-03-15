@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.javascript.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,11 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 class ProgressReportTest {
 
@@ -52,7 +52,12 @@ class ProgressReportTest {
   void testPlural() throws Exception {
     Logger logger = mock(Logger.class);
 
-    ProgressReport report = new ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(
+      ProgressReportTest.class.getName(),
+      100,
+      logger,
+      "analyzed"
+    );
 
     report.start(2, "foo1.java");
 
@@ -73,14 +78,20 @@ class ProgressReportTest {
     for (int i = 1; i < messages.size() - 1; i++) {
       assertThat(messages.get(i)).isEqualTo("0/2 files analyzed, current file: foo1.java");
     }
-    assertThat(messages.get(messages.size() - 1)).isEqualTo("2/2" + " source files have been analyzed");
+    assertThat(messages.get(messages.size() - 1))
+      .isEqualTo("2/2" + " source files have been analyzed");
   }
 
   @Test
   void testSingular() throws Exception {
     Logger logger = mock(Logger.class);
 
-    ProgressReport report = new ProgressReport(ProgressReportTest.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(
+      ProgressReportTest.class.getName(),
+      100,
+      logger,
+      "analyzed"
+    );
 
     report.start(1, "foo.java");
 
@@ -101,14 +112,20 @@ class ProgressReportTest {
     for (int i = 1; i < messages.size() - 1; i++) {
       assertThat(messages.get(i)).isEqualTo("0/1 files analyzed, current file: foo.java");
     }
-    assertThat(messages.get(messages.size() - 1)).isEqualTo("1/1" + " source file has been analyzed");
+    assertThat(messages.get(messages.size() - 1))
+      .isEqualTo("1/1" + " source file has been analyzed");
   }
 
   @Test
   void testCancel() throws InterruptedException {
     Logger logger = mock(Logger.class);
 
-    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(
+      ProgressReport.class.getName(),
+      100,
+      logger,
+      "analyzed"
+    );
     report.start(1, "foo.java");
 
     // Wait for start message
@@ -121,7 +138,12 @@ class ProgressReportTest {
   void testStopPreserveTheInterruptedFlag() throws InterruptedException {
     Logger logger = mock(Logger.class);
 
-    ProgressReport report = new ProgressReport(ProgressReport.class.getName(), 100, logger, "analyzed");
+    ProgressReport report = new ProgressReport(
+      ProgressReport.class.getName(),
+      100,
+      logger,
+      "analyzed"
+    );
     report.start(1, "foo.java");
 
     // Wait for start message
@@ -193,5 +215,4 @@ class ProgressReportTest {
       logger.wait();
     }
   }
-
 }

@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,10 +47,6 @@ import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.Version;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 
-import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-
 /**
  * NOTE on how SonarLint resolves NodeJS path
  * 1. It takes property `sonar.nodejs.executable` set by user
@@ -61,8 +61,10 @@ import static org.assertj.core.api.Assertions.tuple;
 class SonarLintTest {
 
   private static final String FILE_PATH = "foo.js";
+
   @TempDir
   Path baseDir;
+
   private StandaloneSonarLintEngine sonarlintEngine;
   private List<String> logs;
 
@@ -83,24 +85,34 @@ class SonarLintTest {
 
   @Test
   void should_raise_issues() throws IOException {
-    List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
-      + "  var a; \n"
-      + "  var c; // NOSONAR\n"
-      + "  var b = 42; \n"
-      + "} \n");
+    List<Issue> issues = analyze(
+      FILE_PATH,
+      "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n"
+    );
     String filePath = baseDir.resolve(FILE_PATH).toAbsolutePath().toString();
-    assertThat(issues).extracting(Issue::getRuleKey,
-      WithTextRange::getStartLine,
-      i -> Path.of(i.getInputFile().relativePath()).toAbsolutePath().toString(),
-      i -> i.getSeverity().toString())
+    assertThat(issues)
+      .extracting(
+        Issue::getRuleKey,
+        WithTextRange::getStartLine,
+        i -> Path.of(i.getInputFile().relativePath()).toAbsolutePath().toString(),
+        i -> i.getSeverity().toString()
+      )
       .containsExactlyInAnyOrder(
         tuple("javascript:S1481", 2, filePath, "MINOR"),
         tuple("javascript:S3504", 2, filePath, "CRITICAL"),
         tuple("javascript:S1481", 4, filePath, "MINOR"),
         tuple("javascript:S1854", 4, filePath, "MAJOR"),
-        tuple("javascript:S3504", 4, filePath, "CRITICAL"));
+        tuple("javascript:S3504", 4, filePath, "CRITICAL")
+      );
 
-    assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
+    assertThat(
+      logs
+        .stream()
+        .anyMatch(s ->
+          s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
+        )
+    )
+      .isTrue();
   }
 
   @Test
@@ -139,7 +151,9 @@ class SonarLintTest {
 
     String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("css:S1128", "css:S1116", "css:S4660");
+    assertThat(issues)
+      .extracting(Issue::getRuleKey)
+      .containsExactly("css:S1128", "css:S1116", "css:S4660");
   }
 
   @Test
@@ -149,14 +163,20 @@ class SonarLintTest {
     List<Issue> issues;
 
     fileName = "file.js";
-    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    content =
+      Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+    assertThat(issues)
+      .extracting(Issue::getRuleKey)
+      .contains("javascript:S2870", "javascript:S3504");
 
     fileName = "file.vue";
-    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    content =
+      Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870", "javascript:S3504");
+    assertThat(issues)
+      .extracting(Issue::getRuleKey)
+      .contains("javascript:S2870", "javascript:S3504");
   }
 
   @Test
@@ -164,7 +184,10 @@ class SonarLintTest {
     // we need to stop engine initialized in @BeforeEach prepare() method, because we need configuration with different node
     sonarlintEngine.stop();
     // version `42` will let us pass SonarLint check of version
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
+    sonarlintEngine =
+      new StandaloneSonarLintEngineImpl(
+        getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42"))
+      );
     List<Issue> issues = analyze(FILE_PATH, "");
     assertThat(logs).contains("Provided Node.js executable file does not exist.");
     assertThat(issues).isEmpty();
@@ -173,7 +196,9 @@ class SonarLintTest {
     assertThat(issues).isEmpty();
     assertThat(logs)
       .doesNotContain("Provided Node.js executable file does not exist.")
-      .contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore");
+      .contains(
+        "Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore"
+      );
   }
 
   @Test
@@ -206,12 +231,36 @@ class SonarLintTest {
     assertThat(issue.getRuleKey()).isEqualTo("javascript:S3812");
     assertThat(issue.quickFixes()).hasSize(2);
     var quickFix1 = issue.quickFixes().get(0);
-    assertQuickFix(quickFix1, "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.", "(5 instanceof number)", 1, 5, 1, 24);
+    assertQuickFix(
+      quickFix1,
+      "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.",
+      "(5 instanceof number)",
+      1,
+      5,
+      1,
+      24
+    );
     var quickFix2 = issue.quickFixes().get(1);
-    assertQuickFix(quickFix2, "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.", "(!5)", 1, 4, 1, 6);
+    assertQuickFix(
+      quickFix2,
+      "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.",
+      "(!5)",
+      1,
+      4,
+      1,
+      6
+    );
   }
 
-  private void assertQuickFix(QuickFix quickFix, String message, String code, int line, int column, int endLine, int endColumn) {
+  private void assertQuickFix(
+    QuickFix quickFix,
+    String message,
+    String code,
+    int line,
+    int column,
+    int endLine,
+    int endColumn
+  ) {
     assertThat(quickFix.message()).isEqualTo(message);
     assertThat(quickFix.inputFileEdits()).hasSize(1);
     var fileEdit = quickFix.inputFileEdits().get(0);
@@ -219,7 +268,12 @@ class SonarLintTest {
     var textEdit = fileEdit.textEdits().get(0);
     assertThat(textEdit.newText()).isEqualTo(code);
     assertThat(textEdit.range())
-      .extracting(r -> r.getStartLine(), r -> r.getStartLineOffset(), r -> r.getEndLine(), r -> r.getEndLineOffset())
+      .extracting(
+        r -> r.getStartLine(),
+        r -> r.getStartLineOffset(),
+        r -> r.getEndLine(),
+        r -> r.getEndLineOffset()
+      )
       .containsExactly(line, column, endLine, endColumn);
   }
 
@@ -230,7 +284,10 @@ class SonarLintTest {
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),
-      issues::add, null, null);
+      issues::add,
+      null,
+      null
+    );
     return issues;
   }
 
@@ -241,13 +298,15 @@ class SonarLintTest {
     return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
   }
 
-  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion)
+    throws IOException {
     ClientLogOutput logOutput = (formattedMessage, level) -> {
       logs.add(formattedMessage);
       System.out.println(formattedMessage);
     };
 
-    return StandaloneGlobalConfiguration.builder()
+    return StandaloneGlobalConfiguration
+      .builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addEnabledLanguage(Language.CSS)
@@ -257,5 +316,4 @@ class SonarLintTest {
       .setNodeJs(nodePath, nodeVersion)
       .build();
   }
-
 }

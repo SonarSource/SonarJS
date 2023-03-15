@@ -33,5 +33,4 @@ public class NoReturnAwaitCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-return-await";
   }
-
 }

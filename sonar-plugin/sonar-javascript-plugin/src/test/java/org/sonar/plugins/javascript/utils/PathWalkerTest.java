@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.utils;
 
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -30,9 +33,6 @@ import java.util.stream.StreamSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class PathWalkerTest {
 
@@ -65,7 +65,8 @@ class PathWalkerTest {
 
   @NotNull
   private List<String> getPaths(Stream<Path> folder, int maxDepth) {
-    return folder.map(path -> baseDir.relativize(path))
+    return folder
+      .map(path -> baseDir.relativize(path))
       .filter(path -> StreamSupport.stream(path.spliterator(), false).count() <= maxDepth)
       .map(Path::toString)
       .sorted()
@@ -80,16 +81,21 @@ class PathWalkerTest {
       Files.createDirectory(path);
 
       if (depth > 0) {
-        IntStream.range(0, width)
+        IntStream
+          .range(0, width)
           .mapToObj(n -> path.resolve(String.format("folder-%d", n)))
           .flatMap(folder -> createFolder(folder, depth - 1, width))
           .forEach(streamBuilder::add);
 
         // For Windows this requires special permissions, user running test to be added in 'gpedit.msc':
         // "Computer Configuration → Windows Settings → Security Settings → Local Policies → User Rights Assignment → Create symbolic links"
-        Files.createSymbolicLink(path.resolve("folder"), path.resolve(String.format("folder-%d", width - 1)));
+        Files.createSymbolicLink(
+          path.resolve("folder"),
+          path.resolve(String.format("folder-%d", width - 1))
+        );
 
-        IntStream.range(0, width)
+        IntStream
+          .range(0, width)
           .mapToObj(n -> path.resolve(String.format("file-%d.js", n)))
           .peek(PathWalkerTest::createFile)
           .forEach(streamBuilder::add);
@@ -108,5 +114,4 @@ class PathWalkerTest {
       throw new UncheckedIOException(e);
     }
   }
-
 }

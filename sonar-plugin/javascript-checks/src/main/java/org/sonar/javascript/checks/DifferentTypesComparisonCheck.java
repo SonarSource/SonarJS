@@ -32,4 +32,3 @@ public class DifferentTypesComparisonCheck implements EslintBasedCheck {
     return "different-types-comparison";
   }
 }
-

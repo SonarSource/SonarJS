@@ -21,4 +21,3 @@
 package org.sonar.plugins.javascript.eslint;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-

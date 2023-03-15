@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.javascript.nodejs;
 
-import java.util.Arrays;
-import org.junit.jupiter.api.Test;
-
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 class ProcessWrapperImplTest {
 
@@ -44,10 +44,14 @@ class ProcessWrapperImplTest {
   @Test
   void test_destroyforcibly() throws Exception {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
-    Process ping = processWrapper.startProcess(Arrays.asList("ping", "127.0.0.1"), emptyMap(), System.out::println, System.out::println);
+    Process ping = processWrapper.startProcess(
+      Arrays.asList("ping", "127.0.0.1"),
+      emptyMap(),
+      System.out::println,
+      System.out::println
+    );
     processWrapper.destroyForcibly(ping);
     await().until(() -> !ping.isAlive());
     assertThat(ping.isAlive()).isFalse();
   }
-
 }

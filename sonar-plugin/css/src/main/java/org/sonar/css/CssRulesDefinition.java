@@ -19,11 +19,11 @@
  */
 package org.sonar.css;
 
+import static org.sonar.css.CssProfileDefinition.PROFILE_PATH;
+
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
-
-import static org.sonar.css.CssProfileDefinition.PROFILE_PATH;
 
 public class CssRulesDefinition implements RulesDefinition {
 
@@ -44,7 +44,11 @@ public class CssRulesDefinition implements RulesDefinition {
       .createRepository(REPOSITORY_KEY, CssLanguage.KEY)
       .setName(RULE_REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER + REPOSITORY_KEY, PROFILE_PATH, sonarRuntime);
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
+      RESOURCE_FOLDER + REPOSITORY_KEY,
+      PROFILE_PATH,
+      sonarRuntime
+    );
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CssRules.getRuleClasses());
     repository.done();
 

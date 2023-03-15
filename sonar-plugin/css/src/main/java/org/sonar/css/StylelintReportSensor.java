@@ -19,6 +19,8 @@
  */
 package org.sonar.css;
 
+import static org.sonar.css.CssRulesDefinition.RESOURCE_FOLDER;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
@@ -46,8 +48,6 @@ import org.sonar.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-import static org.sonar.css.CssRulesDefinition.RESOURCE_FOLDER;
-
 public class StylelintReportSensor implements Sensor {
 
   public static final String STYLELINT = "stylelint";
@@ -55,8 +55,15 @@ public class StylelintReportSensor implements Sensor {
   public static final String STYLELINT_REPORT_PATHS_DEFAULT_VALUE = "";
 
   private static final Logger LOG = Loggers.get(StylelintReportSensor.class);
-  private static final String FILE_EXCEPTION_MESSAGE = "No issues information will be saved as the report file can't be read.";
-  private static final ByteOrderMark[] BYTE_ORDER_MARKS = {ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE};
+  private static final String FILE_EXCEPTION_MESSAGE =
+    "No issues information will be saved as the report file can't be read.";
+  private static final ByteOrderMark[] BYTE_ORDER_MARKS = {
+    ByteOrderMark.UTF_8,
+    ByteOrderMark.UTF_16LE,
+    ByteOrderMark.UTF_16BE,
+    ByteOrderMark.UTF_32LE,
+    ByteOrderMark.UTF_32BE,
+  };
 
   private final CssRules cssRules;
   private ExternalRuleLoader stylelintRuleLoader = getStylelintRuleLoader();
@@ -82,13 +89,19 @@ public class StylelintReportSensor implements Sensor {
   private void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
-    try (BOMInputStream bomInputStream = new BOMInputStream(Files.newInputStream(report.toPath()), BYTE_ORDER_MARKS)) {
+    try (
+      BOMInputStream bomInputStream = new BOMInputStream(
+        Files.newInputStream(report.toPath()),
+        BYTE_ORDER_MARKS
+      )
+    ) {
       String charsetName = bomInputStream.getBOMCharsetName();
       if (charsetName == null) {
         charsetName = StandardCharsets.UTF_8.name();
       }
 
-      IssuesPerFile[] issues = new Gson().fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
+      IssuesPerFile[] issues = new Gson()
+        .fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
       for (IssuesPerFile issuesPerFile : issues) {
         InputFile inputFile = getInputFile(context, issuesPerFile.source);
         if (inputFile != null) {
@@ -107,9 +120,16 @@ public class StylelintReportSensor implements Sensor {
   @Nullable
   private static InputFile getInputFile(SensorContext context, String fileName) {
     FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(predicates.hasRelativePath(fileName), predicates.hasAbsolutePath(fileName)));
+    InputFile inputFile = context
+      .fileSystem()
+      .inputFile(
+        predicates.or(predicates.hasRelativePath(fileName), predicates.hasAbsolutePath(fileName))
+      );
     if (inputFile == null) {
-      LOG.warn("No input file found for {}. No stylelint issues will be imported on this file.", fileName);
+      LOG.warn(
+        "No input file found for {}. No stylelint issues will be imported on this file.",
+        fileName
+      );
       return null;
     }
     return inputFile;
@@ -120,14 +140,16 @@ public class StylelintReportSensor implements Sensor {
 
     RuleKey sonarKey = cssRules.getActiveSonarKey(stylelintKey);
     if (sonarKey != null) {
-      String message = "Stylelint issue for rule '{}' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ {})";
+      String message =
+        "Stylelint issue for rule '{}' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ {})";
       LOG.debug(message, stylelintKey, sonarKey.toString());
       return;
     }
 
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
-    NewIssueLocation primaryLocation = newExternalIssue.newLocation()
+    NewIssueLocation primaryLocation = newExternalIssue
+      .newLocation()
       .message(issue.text)
       .on(inputFile)
       .at(inputFile.selectLine(issue.line));
@@ -147,7 +169,7 @@ public class StylelintReportSensor implements Sensor {
       StylelintReportSensor.STYLELINT,
       StylelintReportSensor.STYLELINT,
       RESOURCE_FOLDER + StylelintReportSensor.STYLELINT + "/rules.json",
-      CssLanguage.KEY);
+      CssLanguage.KEY
+    );
   }
-
 }

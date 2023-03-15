@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
+import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
+
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -30,26 +34,28 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.eslint.AnalysisMode;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
-import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.noCache;
-import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.readAndWrite;
-import static org.sonar.plugins.javascript.eslint.cache.CacheStrategy.writeOnly;
-
 public class CacheStrategies {
 
   private static final Logger LOG = Loggers.get(CacheStrategies.class);
 
   private static final CacheReporter REPORTER = new CacheReporter();
 
-  private CacheStrategies() {
-  }
+  private CacheStrategies() {}
 
   private static boolean isRuntimeApiCompatible(SensorContext context) {
-    var isVersionValid = context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
+    var isVersionValid = context
+      .runtime()
+      .getApiVersion()
+      .isGreaterThanOrEqual(Version.create(9, 4));
     var isProductValid = context.runtime().getProduct() != SonarProduct.SONARLINT;
     return isVersionValid && isProductValid;
   }
 
-  static String getLogMessage(CacheStrategy cacheStrategy, InputFile inputFile, @Nullable String reason) {
+  static String getLogMessage(
+    CacheStrategy cacheStrategy,
+    InputFile inputFile,
+    @Nullable String reason
+  ) {
     var logBuilder = new StringBuilder("Cache strategy set to '");
     logBuilder.append(cacheStrategy.getName()).append("' for file '").append(inputFile).append("'");
     if (reason != null) {
@@ -58,11 +64,16 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile) throws IOException {
+  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile)
+    throws IOException {
     return getStrategyFor(context, inputFile, PluginInfo.getVersion());
   }
 
-  static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile, @Nullable String pluginVersion) throws IOException {
+  static CacheStrategy getStrategyFor(
+    SensorContext context,
+    InputFile inputFile,
+    @Nullable String pluginVersion
+  ) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
@@ -103,7 +114,8 @@ public class CacheStrategies {
     return strategy;
   }
 
-  private static boolean isSameFile(FileMetadata fileMetadata, InputFile inputFile) throws IOException {
+  private static boolean isSameFile(FileMetadata fileMetadata, InputFile inputFile)
+    throws IOException {
     return fileMetadata.compareTo(inputFile);
   }
 
@@ -144,5 +156,4 @@ public class CacheStrategies {
       return description;
     }
   }
-
 }

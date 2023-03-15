@@ -19,6 +19,10 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.javascript.it.plugin.assertj.BuildResultAssert;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -30,10 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sonarqube.ws.Issues;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * Tests different TypeScript project structures to verify SonarJS ability to run typed rules (like S3003 'strings-comparison').
@@ -62,24 +62,33 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(scanner))
       .logsOnce("Found 1 tsconfig.json file(s)")
-      .logsOnce("INFO: Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)");
+      .logsOnce(
+        "INFO: Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)"
+      );
 
-    assertThat(getIssues(key)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, key + ":src/main.ts")
-    );
+    assertThat(getIssues(key))
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
     // Missing issues for main.es6.ts
 
-    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,tsconfig.es6.json");
-    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
-      .logsOnce("Found 2 TSConfig file(s)")
-        .doesNotLog("INFO: Skipped");
-
-    assertThat(getIssues(key)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, key + ":src/main.ts"),
-      tuple(4, key + ":src/main.es6.ts")
+    var configuredBuild = scanner.setProperty(
+      "sonar.typescript.tsconfigPaths",
+      "tsconfig.json,tsconfig.es6.json"
     );
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(configuredBuild))
+      .logsOnce("Found 2 TSConfig file(s)")
+      .doesNotLog("INFO: Skipped");
+
+    assertThat(getIssues(key))
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple(4, key + ":src/main.ts"),
+        tuple(4, key + ":src/main.es6.ts")
+      );
   }
 
   /**
@@ -93,19 +102,24 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(scanner))
       .logsOnce("Found 2 tsconfig.json file(s)");
 
     assertThat(getIssues(key)).isEmpty();
     // Missing issues for main.ts
 
-    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "src/tsconfig.json");
-    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
+    var configuredBuild = scanner.setProperty(
+      "sonar.typescript.tsconfigPaths",
+      "src/tsconfig.json"
+    );
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(configuredBuild))
       .logsOnce("Found 1 TSConfig file(s)");
 
-    assertThat(getIssues(key)).extracting(Issues.Issue::getLine, Issues.Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(4, key + ":src/main.ts")
-    );
+    assertThat(getIssues(key))
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
   }
 
   /**
@@ -123,8 +137,13 @@ class TypeCheckerConfigTest {
     BuildResultAssert.assertThat(buildResult).logsOnce("INFO: 2/2 source files have been analyzed");
     assertThat(getIssues(key)).isEmpty(); // False negative
 
-    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "src/jsconfig.json");
-    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild)).logsOnce("INFO: 2/2 source files have been analyzed");
+    var configuredBuild = scanner.setProperty(
+      "sonar.typescript.tsconfigPaths",
+      "src/jsconfig.json"
+    );
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(configuredBuild))
+      .logsOnce("INFO: 2/2 source files have been analyzed");
     assertThat(getIssues(key)).isEmpty(); // False negative
   }
 
@@ -134,8 +153,11 @@ class TypeCheckerConfigTest {
     var scanner = getSonarScanner(project.getName());
     var buildResult = orchestrator.executeBuild(scanner);
 
-    BuildResultAssert.assertThat(buildResult).logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
-    assertThat(getIssues(project.getKey())).extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+    BuildResultAssert
+      .assertThat(buildResult)
+      .logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
+    assertThat(getIssues(project.getKey()))
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
       .containsExactlyInAnyOrder(project.getIssues());
   }
 
@@ -151,7 +173,8 @@ class TypeCheckerConfigTest {
     orchestrator.getServer().associateProjectToQualityProfile(key, "ts", createName("ts-profile"));
     orchestrator.getServer().associateProjectToQualityProfile(key, "js", createName("js-profile"));
 
-    return OrchestratorStarter.getSonarScanner()
+    return OrchestratorStarter
+      .getSonarScanner()
       .setProjectKey(key)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -216,8 +239,10 @@ class TypeCheckerConfigTest {
     }
 
     Tuple[] getIssues() {
-      return Arrays.stream(filesWithIssue).map(file -> tuple(ISSUE_LINE, getKey() + ":" + file)).toArray(Tuple[]::new);
+      return Arrays
+        .stream(filesWithIssue)
+        .map(file -> tuple(ISSUE_LINE, getKey() + ":" + file))
+        .toArray(Tuple[]::new);
     }
   }
-
 }

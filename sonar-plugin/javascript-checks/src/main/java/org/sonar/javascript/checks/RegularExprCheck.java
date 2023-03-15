@@ -34,4 +34,3 @@ public class RegularExprCheck implements EslintBasedCheck {
     return "regular-expr";
   }
 }
-

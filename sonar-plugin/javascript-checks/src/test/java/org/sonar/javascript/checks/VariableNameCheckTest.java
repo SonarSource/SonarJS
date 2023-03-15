@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class VariableNameCheckTest {
 
@@ -32,7 +32,8 @@ class VariableNameCheckTest {
 
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"format\":\"^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$\"}]");
+    assertThat(defaultConfigAsString)
+      .isEqualTo("[{\"format\":\"^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$\"}]");
 
     // custom configuration
     check.format = "^[a-zA-Z0-9]*$";

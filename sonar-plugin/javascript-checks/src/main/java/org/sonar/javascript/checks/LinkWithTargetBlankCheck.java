@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S5148")
-public class LinkWithTargetBlankCheck implements EslintBasedCheck{
+public class LinkWithTargetBlankCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

@@ -34,4 +34,3 @@ public class StatefulRegexCheck implements EslintBasedCheck {
     return "stateful-regex";
   }
 }
-

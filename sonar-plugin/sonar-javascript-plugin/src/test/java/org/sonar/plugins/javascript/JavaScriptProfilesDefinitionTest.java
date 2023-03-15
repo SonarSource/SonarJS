@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULES_CLASS_NAME;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
+
 import com.sonar.plugins.security.api.JsRules;
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -40,27 +46,28 @@ import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULES_CLASS_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
-
 class JavaScriptProfilesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(9, 3));
-  private final BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-  private final Set<String> deprecatedJsRules =
-    TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime)).rules().stream()
-      .filter(r -> r.status() == RuleStatus.DEPRECATED)
-      .map(RulesDefinition.Rule::key)
-      .collect(Collectors.toSet());
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+    Version.create(9, 3)
+  );
+  private final BuiltInQualityProfilesDefinition.Context context =
+    new BuiltInQualityProfilesDefinition.Context();
+  private final Set<String> deprecatedJsRules = TestUtils
+    .buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime))
+    .rules()
+    .stream()
+    .filter(r -> r.status() == RuleStatus.DEPRECATED)
+    .map(RulesDefinition.Rule::key)
+    .collect(Collectors.toSet());
 
-  private final Set<String> deprecatedTsRules =
-    TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime)).rules().stream()
-      .filter(r -> r.status() == RuleStatus.DEPRECATED)
-      .map(RulesDefinition.Rule::key)
-      .collect(Collectors.toSet());
+  private final Set<String> deprecatedTsRules = TestUtils
+    .buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime))
+    .rules()
+    .stream()
+    .filter(r -> r.status() == RuleStatus.DEPRECATED)
+    .map(RulesDefinition.Rule::key)
+    .collect(Collectors.toSet());
 
   @BeforeEach
   public void setUp() {
@@ -69,19 +76,29 @@ class JavaScriptProfilesDefinitionTest {
 
   @Test
   void sonar_way_js() {
-    BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
+    BuiltInQualityProfile profile = context.profile(
+      JavaScriptLanguage.KEY,
+      JavaScriptProfilesDefinition.SONAR_WAY
+    );
 
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(100);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S2814");
+    assertThat(profile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("S2814");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
 
-  private List<String> deprecatedRulesInProfile(BuiltInQualityProfile profile, Set<String> deprecatedRuleKeys) {
-    return profile.rules().stream()
+  private List<String> deprecatedRulesInProfile(
+    BuiltInQualityProfile profile,
+    Set<String> deprecatedRuleKeys
+  ) {
+    return profile
+      .rules()
+      .stream()
       .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .filter(deprecatedRuleKeys::contains)
       .collect(Collectors.toList());
@@ -89,26 +106,39 @@ class JavaScriptProfilesDefinitionTest {
 
   @Test
   void sonar_way_ts() {
-    BuiltInQualityProfile profile = context.profile(TypeScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
+    BuiltInQualityProfile profile = context.profile(
+      TypeScriptLanguage.KEY,
+      JavaScriptProfilesDefinition.SONAR_WAY
+    );
 
     assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(100);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).doesNotContain("S2814");
+    assertThat(profile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("S5122");
+    assertThat(profile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .doesNotContain("S2814");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }
 
   @Test
   void no_legacy_Key_in_profile_json() {
-    Set<String> allKeys = CheckList.getAllChecks().stream().map(c -> {
-      Annotation ruleAnnotation = c.getAnnotation(Rule.class);
-      return ((Rule) ruleAnnotation).key();
-    }).collect(Collectors.toSet());
+    Set<String> allKeys = CheckList
+      .getAllChecks()
+      .stream()
+      .map(c -> {
+        Annotation ruleAnnotation = c.getAnnotation(Rule.class);
+        return ((Rule) ruleAnnotation).key();
+      })
+      .collect(Collectors.toSet());
 
-    Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_JSON);
+    Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(
+      SONAR_WAY_JSON
+    );
 
     assertThat(sonarWayKeys).isSubsetOf(allKeys);
   }

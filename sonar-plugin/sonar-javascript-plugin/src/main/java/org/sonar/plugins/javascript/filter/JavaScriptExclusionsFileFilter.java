@@ -30,16 +30,20 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
+
   private final List<Assessor> assessors;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
-    assessors = Stream.of(
-        new PathAssessor(configuration),
-        new SizeAssessor(configuration),
-        new MinificationAssessor(),
-        new BundleAssessor())
-      .filter(assessor -> shouldBeEnabled(assessor, configuration))
-      .collect(Collectors.toUnmodifiableList());
+    assessors =
+      Stream
+        .of(
+          new PathAssessor(configuration),
+          new SizeAssessor(configuration),
+          new MinificationAssessor(),
+          new BundleAssessor()
+        )
+        .filter(assessor -> shouldBeEnabled(assessor, configuration))
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private static boolean shouldBeEnabled(Assessor assessor, Configuration configuration) {
@@ -51,7 +55,8 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    boolean isJsTsCss = JavaScriptLanguage.KEY.equals(inputFile.language()) ||
+    boolean isJsTsCss =
+      JavaScriptLanguage.KEY.equals(inputFile.language()) ||
       TypeScriptLanguage.KEY.equals(inputFile.language()) ||
       CssLanguage.KEY.equals(inputFile.language());
 

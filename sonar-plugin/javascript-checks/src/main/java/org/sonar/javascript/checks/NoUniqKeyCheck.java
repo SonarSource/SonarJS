@@ -33,5 +33,4 @@ public class NoUniqKeyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-uniq-key";
   }
-
 }

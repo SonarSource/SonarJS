@@ -31,5 +31,4 @@ public class NoMisusedNewCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-misused-new";
   }
-
 }

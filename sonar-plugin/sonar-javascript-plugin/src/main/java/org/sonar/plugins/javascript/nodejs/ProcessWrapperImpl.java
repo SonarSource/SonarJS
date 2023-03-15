@@ -32,8 +32,12 @@ public class ProcessWrapperImpl implements ProcessWrapper {
   private StreamConsumer streamConsumer;
 
   @Override
-  public Process startProcess(List<String> commandLine, Map<String, String> env, Consumer<String> outputConsumer,
-                              Consumer<String> errorConsumer) throws IOException {
+  public Process startProcess(
+    List<String> commandLine,
+    Map<String, String> env,
+    Consumer<String> outputConsumer,
+    Consumer<String> errorConsumer
+  ) throws IOException {
     ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
     processBuilder.environment().putAll(env);
     Process process = processBuilder.start();
@@ -84,5 +88,4 @@ public class ProcessWrapperImpl implements ProcessWrapper {
   public int exitValue(Process process) {
     return process.exitValue();
   }
-
 }

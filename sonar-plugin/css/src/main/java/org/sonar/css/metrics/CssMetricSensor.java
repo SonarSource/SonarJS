@@ -47,22 +47,25 @@ public class CssMetricSensor implements Sensor {
   private final SonarRuntime sonarRuntime;
   private final FileLinesContextFactory fileLinesContextFactory;
 
-  public CssMetricSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory) {
+  public CssMetricSensor(
+    SonarRuntime sonarRuntime,
+    FileLinesContextFactory fileLinesContextFactory
+  ) {
     this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .name("CSS Metrics")
-      .onlyOnLanguage(CssLanguage.KEY);
+    descriptor.name("CSS Metrics").onlyOnLanguage(CssLanguage.KEY);
     processesFilesIndependently(descriptor);
   }
 
   private void processesFilesIndependently(SensorDescriptor descriptor) {
-    if (sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
-      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
+    if (
+      sonarRuntime.getProduct() == SonarProduct.SONARQUBE &&
+      sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))
+    ) {
       descriptor.processesFilesIndependently();
     }
   }
@@ -70,7 +73,9 @@ public class CssMetricSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     FileSystem fileSystem = context.fileSystem();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(fileSystem.predicates().hasLanguage(CssLanguage.KEY));
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
+      fileSystem.predicates().hasLanguage(CssLanguage.KEY)
+    );
 
     Tokenizer tokenizer = new Tokenizer();
 
@@ -80,14 +85,17 @@ public class CssMetricSensor implements Sensor {
 
         saveHighlights(context, file, tokenList);
         saveLineTypes(context, file, tokenList);
-
       } catch (IOException e) {
         LOG.error(String.format("Failed to read file '%s'", file.toString()), e);
       }
     }
   }
 
-  private static void saveHighlights(SensorContext context, InputFile file, List<CssToken> tokenList) {
+  private static void saveHighlights(
+    SensorContext context,
+    InputFile file,
+    List<CssToken> tokenList
+  ) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
 
     for (int i = 0; i < tokenList.size(); i++) {
@@ -99,23 +107,18 @@ public class CssMetricSensor implements Sensor {
         case COMMENT:
           highlightingType = TypeOfText.COMMENT;
           break;
-
         case STRING:
           highlightingType = TypeOfText.STRING;
           break;
-
         case NUMBER:
           highlightingType = TypeOfText.CONSTANT;
           break;
-
         case AT_IDENTIFIER:
           highlightingType = TypeOfText.ANNOTATION;
           break;
-
         case DOLLAR_IDENTIFIER:
           highlightingType = TypeOfText.KEYWORD;
           break;
-
         case HASH_IDENTIFIER:
           if (currentToken.text.matches("^#[0-9a-fA-F]+$")) {
             highlightingType = TypeOfText.CONSTANT;
@@ -123,7 +126,6 @@ public class CssMetricSensor implements Sensor {
             highlightingType = TypeOfText.KEYWORD;
           }
           break;
-
         case IDENTIFIER:
           // We want to highlight the property key of a css/scss/less file and as the tokenizer is putting the ':' into another token
           // we need to look for identifier followed by a PUNCTUATOR token with text ':'.
@@ -131,13 +133,18 @@ public class CssMetricSensor implements Sensor {
             highlightingType = TypeOfText.KEYWORD_LIGHT;
           }
           break;
-
         default:
           highlightingType = null;
       }
 
       if (highlightingType != null) {
-        highlighting.highlight(currentToken.startLine, currentToken.startColumn, currentToken.endLine, currentToken.endColumn, highlightingType);
+        highlighting.highlight(
+          currentToken.startLine,
+          currentToken.startColumn,
+          currentToken.endLine,
+          currentToken.endColumn,
+          highlightingType
+        );
       }
     }
 
@@ -159,12 +166,21 @@ public class CssMetricSensor implements Sensor {
       }
     }
 
-    context.<Integer>newMeasure().on(file).forMetric(CoreMetrics.NCLOC).withValue(linesOfCode.size()).save();
-    context.<Integer>newMeasure().on(file).forMetric(CoreMetrics.COMMENT_LINES).withValue(linesOfComment.size()).save();
+    context
+      .<Integer>newMeasure()
+      .on(file)
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(linesOfCode.size())
+      .save();
+    context
+      .<Integer>newMeasure()
+      .on(file)
+      .forMetric(CoreMetrics.COMMENT_LINES)
+      .withValue(linesOfComment.size())
+      .save();
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
     fileLinesContext.save();
   }
-
 }

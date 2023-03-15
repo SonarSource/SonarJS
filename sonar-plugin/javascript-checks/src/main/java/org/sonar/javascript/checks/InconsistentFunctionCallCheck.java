@@ -31,5 +31,4 @@ public class InconsistentFunctionCallCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "inconsistent-function-call";
   }
-
 }

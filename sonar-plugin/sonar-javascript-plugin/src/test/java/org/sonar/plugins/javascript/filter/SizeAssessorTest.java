@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /*
  * SonarQube JavaScript Plugin
@@ -46,10 +46,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 class SizeAssessorTest {
+
   @Test
   void testOnMisbehavedStuckInputStream() {
-    SizeAssessor.SupplierThrowing<InputStream, IOException> brokenStreamSupplier =
-      () -> new ByteArrayInputStream(new byte[0]) {
+    SizeAssessor.SupplierThrowing<InputStream, IOException> brokenStreamSupplier = () ->
+      new ByteArrayInputStream(new byte[0]) {
         @Override
         public int read(byte[] buffer, int offset, int len) {
           return 0;

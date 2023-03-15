@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint.cache;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.gson.Gson;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -38,17 +41,16 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class CacheTestUtils {
 
-  public static final String CPD_TOKENS = "{ cpdTokens: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}] }";
+  public static final String CPD_TOKENS =
+    "{ cpdTokens: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}] }";
 
-  private CacheTestUtils() {
-  }
+  private CacheTestUtils() {}
 
-  public static CpdSerializer.SerializationResult getSerializedCpdTokens(List<EslintBridgeServer.CpdToken> cpdTokens) throws IOException {
+  public static CpdSerializer.SerializationResult getSerializedCpdTokens(
+    List<EslintBridgeServer.CpdToken> cpdTokens
+  ) throws IOException {
     return CpdSerializer.toBinary(new CpdData(cpdTokens));
   }
 
@@ -56,35 +58,53 @@ public class CacheTestUtils {
     return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
   }
 
-  public static SensorContextTester createContextWithCache(Path baseDir, Path workDir, String filePath) throws IOException {
+  public static SensorContextTester createContextWithCache(
+    Path baseDir,
+    Path workDir,
+    String filePath
+  ) throws IOException {
     var context = SensorContextTester.create(baseDir.toRealPath());
     context.fileSystem().setWorkDir(workDir);
-    context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(9, 6), SonarQubeSide.SCANNER, SonarEdition.ENTERPRISE));
+    context.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 6),
+        SonarQubeSide.SCANNER,
+        SonarEdition.ENTERPRISE
+      )
+    );
     context.setNextCache(mock(WriteCache.class));
     context.setPreviousCache(mock(ReadCache.class));
     context.setCanSkipUnchangedFiles(true);
 
     var cache = context.previousCache();
     when(cache.contains("jssecurity:ucfgs:JSON:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:JSON:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream("{\"fileSizes\":[]}".getBytes(StandardCharsets.UTF_8)));
+    when(cache.read("jssecurity:ucfgs:JSON:moduleKey:" + filePath))
+      .thenReturn(new ByteArrayInputStream("{\"fileSizes\":[]}".getBytes(StandardCharsets.UTF_8)));
     when(cache.contains("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(cache.read("jssecurity:ucfgs:SEQ:moduleKey:" + filePath))
+      .thenReturn(new ByteArrayInputStream(new byte[0]));
 
     when(cache.contains("js:cpd:DATA:moduleKey:" + filePath)).thenReturn(true);
     when(cache.contains("js:cpd:STRING_TABLE:moduleKey:" + filePath)).thenReturn(true);
 
     try {
       var result = getSerializedCpdTokens(getCpdTokens());
-      when(cache.read("js:cpd:DATA:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getData()));
-      when(cache.read("js:cpd:STRING_TABLE:moduleKey:" + filePath)).thenReturn(new ByteArrayInputStream(result.getStringTable()));
+      when(cache.read("js:cpd:DATA:moduleKey:" + filePath))
+        .thenReturn(new ByteArrayInputStream(result.getData()));
+      when(cache.read("js:cpd:STRING_TABLE:moduleKey:" + filePath))
+        .thenReturn(new ByteArrayInputStream(result.getStringTable()));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
     when(cache.contains("js:filemetadata:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("js:filemetadata:moduleKey:" + filePath)).thenReturn(
-      inputStream("{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
-        "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"));
+    when(cache.read("js:filemetadata:moduleKey:" + filePath))
+      .thenReturn(
+        inputStream(
+          "{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
+          "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"
+        )
+      );
 
     return context;
   }
@@ -104,5 +124,4 @@ public class CacheTestUtils {
   public static InputStream inputStream(Path path) throws IOException {
     return new BufferedInputStream(Files.newInputStream(path));
   }
-
 }

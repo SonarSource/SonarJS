@@ -19,6 +19,15 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static java.util.Collections.emptyList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -29,15 +38,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-
-import static java.util.Collections.emptyList;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class AnalysisModeTest {
 
@@ -84,7 +84,10 @@ class AnalysisModeTest {
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)).isTrue();
+    assertThat(
+      files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)
+    )
+      .isTrue();
   }
 
   @Test
@@ -98,7 +101,10 @@ class AnalysisModeTest {
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)).isTrue();
+    assertThat(
+      files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)
+    )
+      .isTrue();
   }
 
   @Test
@@ -112,20 +118,32 @@ class AnalysisModeTest {
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(files.stream().map(mode::getLinterIdFor)).containsExactly(
-      AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.UNCHANGED_LINTER_ID,
-      AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID, AnalysisMode.DEFAULT_LINTER_ID);
+    assertThat(files.stream().map(mode::getLinterIdFor))
+      .containsExactly(
+        AnalysisMode.DEFAULT_LINTER_ID,
+        AnalysisMode.DEFAULT_LINTER_ID,
+        AnalysisMode.UNCHANGED_LINTER_ID,
+        AnalysisMode.DEFAULT_LINTER_ID,
+        AnalysisMode.DEFAULT_LINTER_ID,
+        AnalysisMode.DEFAULT_LINTER_ID
+      );
   }
 
   @Test
   void should_filter_out_rules_for_html() {
     var rules = rules("key1", "key2", "ucfg", "no-var");
     var filteredRules = AnalysisMode.getHtmlFileRules(rules);
-    assertThat(filteredRules).hasSize(3).extracting(EslintRule::getKey).containsExactlyInAnyOrder("key1", "key2", "ucfg");
+    assertThat(filteredRules)
+      .hasSize(3)
+      .extracting(EslintRule::getKey)
+      .containsExactlyInAnyOrder("key1", "key2", "ucfg");
   }
 
   private static List<EslintRule> rules(String... keys) {
-    return Arrays.stream(keys).map(key -> new EslintRule(key, emptyList(), emptyList())).collect(toList());
+    return Arrays
+      .stream(keys)
+      .map(key -> new EslintRule(key, emptyList(), emptyList()))
+      .collect(toList());
   }
 
   private static List<InputFile> changedFileList(int count) {
@@ -150,9 +168,7 @@ class AnalysisModeTest {
   }
 
   private static Stream<InputFile> files(int count, Function<String, InputFile> factory) {
-    return IntStream.range(0, count)
-      .mapToObj(i -> String.format("file-%d.js", i + 1))
-      .map(factory);
+    return IntStream.range(0, count).mapToObj(i -> String.format("file-%d.js", i + 1)).map(factory);
   }
 
   private static InputFile changedFile(String filename) {
@@ -173,5 +189,4 @@ class AnalysisModeTest {
     when(mock.status()).thenReturn(status);
     return mock;
   }
-
 }

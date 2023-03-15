@@ -1,0 +1,21 @@
+<p>Disallow assigning values to variables used for imports.</p>
+<h2>Why is this an issue?</h2>
+<p>Assigning a new value to an import variable is a poor practice that affects code readability.</p>
+<h3>What is the potential impact?</h3>
+<p>Bad practices can cause bugs. When using the reassigned variable, if you are expecting to access the imported value, but are in fact using
+something else can lead to unexpected behaviour that is hard to debug.</p>
+<p>More importantly, it will cause a runtime error when using ES modules. With TypeScript, it will raise a compilation error.</p>
+<h2>How to fix it</h2>
+<p>You should use a separate variable to store your other values and make constant the import variable.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+let { readFile } = require('fs');
+readFile = 'hello world!';
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+const { readFile } = require('fs');
+const text = 'hello world!';
+</pre>
+

@@ -39,7 +39,8 @@ public class MaxParameterCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximumFunctionParameters",
     description = "The maximum authorized number of parameters",
-    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS)
+    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS
+  )
   int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 
   @Override

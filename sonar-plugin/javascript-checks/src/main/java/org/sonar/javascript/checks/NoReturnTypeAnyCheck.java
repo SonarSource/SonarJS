@@ -31,5 +31,4 @@ public class NoReturnTypeAnyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-return-type-any";
   }
-
 }

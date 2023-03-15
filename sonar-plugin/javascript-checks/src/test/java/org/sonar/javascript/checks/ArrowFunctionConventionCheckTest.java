@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ArrowFunctionConventionCheckTest {
 
@@ -31,15 +31,17 @@ class ArrowFunctionConventionCheckTest {
     ArrowFunctionConventionCheck check = new ArrowFunctionConventionCheck();
 
     String config = new Gson().toJson(check.configurations());
-    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":false,\"requireBodyBraces\":false}]");
+    assertThat(config)
+      .isEqualTo("[{\"requireParameterParentheses\":false,\"requireBodyBraces\":false}]");
 
     check.parameterParens = true;
     config = new Gson().toJson(check.configurations());
-    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":false}]");
+    assertThat(config)
+      .isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":false}]");
 
     check.bodyBraces = true;
     config = new Gson().toJson(check.configurations());
-    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":true}]");
+    assertThat(config)
+      .isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":true}]");
   }
-
 }

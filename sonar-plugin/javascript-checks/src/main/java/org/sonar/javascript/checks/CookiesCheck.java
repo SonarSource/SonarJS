@@ -34,4 +34,3 @@ public class CookiesCheck implements EslintBasedCheck {
     return "cookies";
   }
 }
-

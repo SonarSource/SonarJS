@@ -20,7 +20,9 @@
 package org.sonar.javascript.checks;
 
 class FormatRuleProperty {
+
   String format;
+
   FormatRuleProperty(String format) {
     this.format = format;
   }

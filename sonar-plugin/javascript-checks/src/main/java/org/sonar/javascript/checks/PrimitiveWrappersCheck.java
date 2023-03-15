@@ -35,5 +35,4 @@ public class PrimitiveWrappersCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-primitive-wrappers";
   }
-
 }

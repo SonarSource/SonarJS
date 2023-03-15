@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class VariableShadowingCheckTest {
 
   @Test
   void test() {
-    assertThat(new Gson().toJson(new VariableShadowingCheck().configurations())).isEqualTo("[{\"hoist\":\"all\"}]");
+    assertThat(new Gson().toJson(new VariableShadowingCheck().configurations()))
+      .isEqualTo("[{\"hoist\":\"all\"}]");
   }
-
 }

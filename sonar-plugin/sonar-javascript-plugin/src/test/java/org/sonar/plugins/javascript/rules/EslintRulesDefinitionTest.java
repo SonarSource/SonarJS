@@ -19,11 +19,11 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class EslintRulesDefinitionTest {
 
@@ -42,7 +42,7 @@ class EslintRulesDefinitionTest {
 
     // checking randoms rules from each ESLint plugin we support
     assertThat(eslintRepo.rule("angular/function-type")).isNotNull();
-    assertThat(eslintRepo.rule(/*core*/ "no-useless-escape")).isNotNull();
+    assertThat(eslintRepo.rule(/*core*/"no-useless-escape")).isNotNull();
     assertThat(eslintRepo.rule("ember/routes-segments-snake-case")).isNotNull();
     assertThat(eslintRepo.rule("flowtype/space-before-generic-bracket")).isNotNull();
     assertThat(eslintRepo.rule("import/order")).isNotNull();
@@ -52,5 +52,4 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.rule("vue/v-on-style")).isNotNull();
     assertThat(eslintRepo.rule("sonarjs/no-duplicate-string")).isNotNull();
   }
-
 }

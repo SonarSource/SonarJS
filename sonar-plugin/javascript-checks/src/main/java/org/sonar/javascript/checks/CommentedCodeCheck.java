@@ -35,5 +35,4 @@ public class CommentedCodeCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-commented-code";
   }
-
 }

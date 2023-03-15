@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -37,12 +36,17 @@ public class ImplicitDependenciesCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "whitelist",
     description = "Comma separated list of modules to ignore while checking in package.json.",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public String whitelist = DEFAULT;
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList(whitelist.split(",")).stream().map(String::trim).collect(Collectors.toList());
+    return Arrays
+      .asList(whitelist.split(","))
+      .stream()
+      .map(String::trim)
+      .collect(Collectors.toList());
   }
 
   @Override

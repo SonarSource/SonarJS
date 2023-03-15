@@ -31,5 +31,4 @@ public class NoAnyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-explicit-any";
   }
-
 }

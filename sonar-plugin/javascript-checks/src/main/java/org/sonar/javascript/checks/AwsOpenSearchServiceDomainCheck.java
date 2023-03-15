@@ -33,5 +33,4 @@ public class AwsOpenSearchServiceDomainCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-opensearchservice-domain";
   }
-
 }

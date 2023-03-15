@@ -19,6 +19,12 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -27,12 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 class ProjectWithDifferentEncodingTest {
@@ -54,9 +54,12 @@ class ProjectWithDifferentEncodingTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issues.Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
-    assertThat(issuesList).extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
+    List<Issues.Issue> issuesList = newWsClient(orchestrator)
+      .issues()
+      .search(request)
+      .getIssuesList();
+    assertThat(issuesList)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
       .containsExactly(tuple(2, projectKey + ":fileWithUtf16.js", "javascript:S3923"));
   }
-
 }

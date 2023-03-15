@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -31,14 +30,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2999")
-public class NewOperatorMisuseCheck implements EslintBasedCheck{
+public class NewOperatorMisuseCheck implements EslintBasedCheck {
 
   public static final boolean CONSIDER_JSDOC = false;
 
   @RuleProperty(
     key = "considerJSDoc",
     description = "Consider only functions with @constructor tag as constructor functions",
-    defaultValue = "" + CONSIDER_JSDOC)
+    defaultValue = "" + CONSIDER_JSDOC
+  )
   public boolean considerJSDoc = CONSIDER_JSDOC;
 
   @Override
@@ -52,6 +52,7 @@ public class NewOperatorMisuseCheck implements EslintBasedCheck{
   }
 
   private static class Config {
+
     public boolean considerJSDoc;
 
     Config(boolean considerJSDoc) {

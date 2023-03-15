@@ -31,7 +31,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @DeprecatedRuleKey(ruleKey = "OneStatementPerLine")
 public class OneStatementPerLineCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "max-statements-per-line";

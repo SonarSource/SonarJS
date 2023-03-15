@@ -34,4 +34,3 @@ public class OSCommandCheck implements EslintBasedCheck {
     return "os-command";
   }
 }
-

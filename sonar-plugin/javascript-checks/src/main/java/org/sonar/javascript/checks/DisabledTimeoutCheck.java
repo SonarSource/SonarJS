@@ -28,9 +28,9 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S6080")
 public class DisabledTimeoutCheck extends TestFileCheck {
+
   @Override
   public String eslintKey() {
     return "disabled-timeout";
   }
-
 }

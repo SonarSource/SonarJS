@@ -22,6 +22,7 @@ package org.sonar.css;
 import java.util.List;
 
 public class StylelintRule {
+
   final String key;
   final List<Object> configurations;
 

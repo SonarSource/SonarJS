@@ -37,7 +37,8 @@ public class FunctionNameCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "format",
     description = "Regular expression used to check the function names against.",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public String format = DEFAULT;
 
   @Override
@@ -49,5 +50,4 @@ public class FunctionNameCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "function-name";
   }
-
 }

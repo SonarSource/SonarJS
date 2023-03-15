@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,8 +36,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class JavaScriptFilePredicateTest {
 
   @TempDir
@@ -45,49 +45,73 @@ class JavaScriptFilePredicateTest {
 
   @Test
   void testJavaScriptPredicate() throws IOException {
-
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
     fs.add(createInputFile(baseDir, "c.vue"));
-    fs.add(createInputFile(baseDir, "d.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("<script>foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "e.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("<script lang=\"js\">foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "f.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script  ")
-      .concat(newLine)
-      .concat("   lang='js'   ")
-      .concat(newLine)
-      .concat(">foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "g.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script  ")
-      .concat(newLine)
-      .concat("   lang=\"ts\"   ")
-      .concat(newLine)
-      .concat(">foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "h.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script setup awesomeAttribute  AnnoYingAtTribute42-666='à$'>foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
+    fs.add(
+      createInputFile(
+        baseDir,
+        "d.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("<script>foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "e.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("<script lang=\"js\">foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "f.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <script  ")
+          .concat(newLine)
+          .concat("   lang='js'   ")
+          .concat(newLine)
+          .concat(">foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "g.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <script  ")
+          .concat(newLine)
+          .concat("   lang=\"ts\"   ")
+          .concat(newLine)
+          .concat(">foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "h.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <script setup awesomeAttribute  AnnoYingAtTribute42-666='à$'>foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
     fs.add(createInputFile(baseDir, "i.java"));
     fs.add(createInputFile(baseDir, "j.jsx"));
     fs.add(createInputFile(baseDir, "k.tsx"));
@@ -97,48 +121,70 @@ class JavaScriptFilePredicateTest {
     fs.files(predicate).forEach(files::add);
 
     List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
+    assertThat(filenames)
+      .containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
   }
 
   @Test
   void testTypeScriptPredicate() throws IOException {
-
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
     fs.add(createInputFile(baseDir, "c.vue"));
-    fs.add(createInputFile(baseDir, "d.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script  ")
-      .concat(newLine)
-      .concat("   lang=\"js\"   ")
-      .concat(newLine)
-      .concat(">foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "e.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script  ")
-      .concat(newLine)
-      .concat("   lang=\"ts\"   ")
-      .concat(newLine)
-      .concat(">foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "f.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <script someAttribute=9000  setup lang='ts' otherAttribute=\"hello\"   wazzzAAAA='waaaaaaa'  >foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
-    fs.add(createInputFile(baseDir, "g.vue", ""
-      .concat("<template><p>Hello, world!</p></template>")
-      .concat(newLine)
-      .concat("   <scriptlang='ts'>foo()</script>")
-      .concat(newLine)
-      .concat("<style>p{}</style>")));
+    fs.add(
+      createInputFile(
+        baseDir,
+        "d.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <script  ")
+          .concat(newLine)
+          .concat("   lang=\"js\"   ")
+          .concat(newLine)
+          .concat(">foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "e.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <script  ")
+          .concat(newLine)
+          .concat("   lang=\"ts\"   ")
+          .concat(newLine)
+          .concat(">foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "f.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat(
+            "   <script someAttribute=9000  setup lang='ts' otherAttribute=\"hello\"   wazzzAAAA='waaaaaaa'  >foo()</script>"
+          )
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "g.vue",
+        "".concat("<template><p>Hello, world!</p></template>")
+          .concat(newLine)
+          .concat("   <scriptlang='ts'>foo()</script>")
+          .concat(newLine)
+          .concat("<style>p{}</style>")
+      )
+    );
     fs.add(createInputFile(baseDir, "h.java"));
     fs.add(createInputFile(baseDir, "i.jsx"));
     fs.add(createInputFile(baseDir, "j.tsx"));
@@ -153,35 +199,54 @@ class JavaScriptFilePredicateTest {
 
   @Test
   void testYamlPredicate() throws IOException {
-
-    var baseYamlFile = ""
-      .concat("apiVersion: apps/v1")
-      .concat(newLine)
-      .concat("kind: Deployment")
-      .concat(newLine)
-      .concat("metadata:")
-      .concat(" name: ");
+    var baseYamlFile =
+      "".concat("apiVersion: apps/v1")
+        .concat(newLine)
+        .concat("kind: Deployment")
+        .concat(newLine)
+        .concat("metadata:")
+        .concat(" name: ");
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "plain.yaml", baseYamlFile.concat("{{ .Values.count }}")));
-    fs.add(createInputFile(baseDir, "single-quote.yaml", baseYamlFile.concat("'{{ .Values.count }}'")));
-    fs.add(createInputFile(baseDir, "double-quote.yaml", baseYamlFile.concat("\"{{ .Values.count }}\"")));
+    fs.add(
+      createInputFile(baseDir, "single-quote.yaml", baseYamlFile.concat("'{{ .Values.count }}'"))
+    );
+    fs.add(
+      createInputFile(baseDir, "double-quote.yaml", baseYamlFile.concat("\"{{ .Values.count }}\""))
+    );
     fs.add(createInputFile(baseDir, "comment.yaml", baseYamlFile.concat("# {{ .Values.count }}")));
-    fs.add(createInputFile(baseDir, "code-fresh.yaml", baseYamlFile.concat("custom-label: {{MY_CUSTOM_LABEL}}")));
+    fs.add(
+      createInputFile(
+        baseDir,
+        "code-fresh.yaml",
+        baseYamlFile.concat("custom-label: {{MY_CUSTOM_LABEL}}")
+      )
+    );
 
     FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs);
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("single-quote.yaml", "double-quote.yaml", "comment.yaml", "code-fresh.yaml");
+    assertThat(filenames)
+      .containsExactlyInAnyOrder(
+        "single-quote.yaml",
+        "double-quote.yaml",
+        "comment.yaml",
+        "code-fresh.yaml"
+      );
   }
 
   private static final InputFile createInputFile(Path baseDir, String relativePath) {
     return createInputFile(baseDir, relativePath, "");
   }
 
-  private static final InputFile createInputFile(Path baseDir, String relativePath, String content) {
+  private static final InputFile createInputFile(
+    Path baseDir,
+    String relativePath,
+    String content
+  ) {
     InputFile file = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir)
       .setType(Type.MAIN)

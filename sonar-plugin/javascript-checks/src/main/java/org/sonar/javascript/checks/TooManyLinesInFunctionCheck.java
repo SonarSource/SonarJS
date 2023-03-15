@@ -37,7 +37,8 @@ public class TooManyLinesInFunctionCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "max",
     description = "Maximum authorized lines in a function",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public int max = DEFAULT;
 
   @Override
@@ -49,5 +50,4 @@ public class TooManyLinesInFunctionCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-max-lines-per-function";
   }
-
 }

@@ -31,5 +31,4 @@ public class NoDuplicateInCompositeCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-duplicate-in-composite";
   }
-
 }

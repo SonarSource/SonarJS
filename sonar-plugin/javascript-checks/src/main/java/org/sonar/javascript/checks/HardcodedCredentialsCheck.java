@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -38,12 +37,13 @@ public class HardcodedCredentialsCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "credentialWords",
     description = "Comma separated list of words identifying potential credentials.",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT
+  )
   public String credentialWords = DEFAULT;
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList((Object[])credentialWords.split("\\s*,\\s*"));
+    return Arrays.asList((Object[]) credentialWords.split("\\s*,\\s*"));
   }
 
   @Override

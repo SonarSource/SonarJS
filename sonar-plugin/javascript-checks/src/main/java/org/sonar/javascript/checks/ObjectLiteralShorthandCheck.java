@@ -33,5 +33,4 @@ public class ObjectLiteralShorthandCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "object-shorthand";
   }
-
 }

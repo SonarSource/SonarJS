@@ -19,6 +19,12 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
+import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -39,12 +45,6 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 import org.sonarsource.sonarlint.core.commons.Language;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Isolated
 @ExtendWith(OrchestratorStarter.class)
@@ -70,7 +70,12 @@ class TestCodeAnalysisTest {
       .setProjectDir(TestUtils.projectDir(project));
 
     var jsProfile = ProfileGenerator.generateProfile(
-      orchestrator, "js", "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
+      orchestrator,
+      "js",
+      "javascript",
+      new ProfileGenerator.RulesConfiguration(),
+      new HashSet<>()
+    );
 
     OrchestratorStarter.setProfile(project, jsProfile, "js");
 
@@ -81,7 +86,8 @@ class TestCodeAnalysisTest {
     List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getComponent()).endsWith("src/file.js");
-    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed"))).hasSize(1);
+    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed")))
+      .hasSize(1);
   }
 
   @Test
@@ -91,7 +97,8 @@ class TestCodeAnalysisTest {
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
 
-    StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
+    StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration
+      .builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
@@ -109,18 +116,21 @@ class TestCodeAnalysisTest {
       sonarLintInputFile(testFile, Files.readString(testFile))
     );
 
-    StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration.builder()
+    StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration
+      .builder()
       .setBaseDir(baseDir)
       .addInputFiles(inputFiles)
       .build();
 
-    List<org.sonarsource.sonarlint.core.client.api.common.analysis.Issue> issues = new ArrayList<>();
+    List<org.sonarsource.sonarlint.core.client.api.common.analysis.Issue> issues =
+      new ArrayList<>();
 
     StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(globalConfig);
     sonarlintEngine.analyze(analysisConfig, issues::add, null, null);
     sonarlintEngine.stop();
 
-    assertThat(issues).extracting(org.sonarsource.sonarlint.core.client.api.common.analysis.Issue::getRuleKey)
+    assertThat(issues)
+      .extracting(org.sonarsource.sonarlint.core.client.api.common.analysis.Issue::getRuleKey)
       .containsOnly("javascript:S1848", "javascript:S1848");
   }
 }

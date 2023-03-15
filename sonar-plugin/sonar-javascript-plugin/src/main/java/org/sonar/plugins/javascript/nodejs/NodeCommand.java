@@ -52,11 +52,17 @@ public class NodeCommand {
   private Process process;
   private final List<String> command;
 
-  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, Version actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
-              List<String> args,
-              Consumer<String> outputConsumer,
-              Consumer<String> errorConsumer,
-              Map<String, String> env) {
+  NodeCommand(
+    ProcessWrapper processWrapper,
+    String nodeExecutable,
+    Version actualNodeVersion,
+    List<String> nodeJsArgs,
+    @Nullable String scriptFilename,
+    List<String> args,
+    Consumer<String> outputConsumer,
+    Consumer<String> errorConsumer,
+    Map<String, String> env
+  ) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
     this.actualNodeVersion = actualNodeVersion;
@@ -75,11 +81,19 @@ public class NodeCommand {
       LOG.debug("Launching command {}", toString());
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
-      throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
+      throw new NodeCommandException(
+        "Error when running: '" + toString() + "'. Is Node.js available during analysis?",
+        e
+      );
     }
   }
 
-  private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
+  private static List<String> buildCommand(
+    String nodeExecutable,
+    List<String> nodeJsArgs,
+    @Nullable String scriptFilename,
+    List<String> args
+  ) {
     List<String> result = new ArrayList<>();
     result.add(nodeExecutable);
     result.addAll(nodeJsArgs);
@@ -129,5 +143,4 @@ public class NodeCommand {
   static NodeCommandBuilder builder(ProcessWrapper processWrapper) {
     return new NodeCommandBuilderImpl(processWrapper);
   }
-
 }

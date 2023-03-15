@@ -33,5 +33,4 @@ public class AwsS3BucketVersioningCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "aws-s3-bucket-versioning";
   }
-
 }

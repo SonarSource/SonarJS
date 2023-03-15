@@ -27,7 +27,6 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 @Rule(key = "S4125")
 public class ValidTypeOfCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "valid-typeof";

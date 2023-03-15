@@ -33,5 +33,4 @@ public class LabelledStatementCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-labels";
   }
-
 }

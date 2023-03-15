@@ -33,5 +33,4 @@ public class ParseIntCallWithoutBaseCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "radix";
   }
-
 }

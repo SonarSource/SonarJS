@@ -33,5 +33,4 @@ public class ConsistentReturnsCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-inconsistent-returns";
   }
-
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -30,15 +32,17 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.css.StylelintRule;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
-
 @ScannerSide
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public interface EslintBridgeServer extends Startable {
-
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode) throws IOException;
+  void initLinter(
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals,
+    AnalysisMode analysisMode
+  ) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -69,6 +73,7 @@ public interface EslintBridgeServer extends Startable {
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
   class JsAnalysisRequest {
+
     final String filePath;
     final String fileContent;
     final String fileType;
@@ -77,8 +82,15 @@ public interface EslintBridgeServer extends Startable {
     final String programId;
     final String linterId;
 
-    JsAnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs, @Nullable String programId,
-      String linterId) {
+    JsAnalysisRequest(
+      String filePath,
+      String fileType,
+      @Nullable String fileContent,
+      boolean ignoreHeaderComments,
+      @Nullable List<String> tsConfigs,
+      @Nullable String programId,
+      String linterId
+    ) {
       this.filePath = filePath;
       this.fileType = fileType;
       this.fileContent = fileContent;
@@ -90,6 +102,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class CssAnalysisRequest {
+
     final String filePath;
     final String fileContent;
     final List<StylelintRule> rules;
@@ -102,6 +115,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class AnalysisResponse {
+
     ParsingError parsingError;
     List<Issue> issues = List.of();
     Highlight[] highlights = {};
@@ -113,6 +127,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class ParsingError {
+
     String message;
     Integer line;
     ParsingErrorCode code;
@@ -123,10 +138,11 @@ public interface EslintBridgeServer extends Startable {
     MISSING_TYPESCRIPT,
     UNSUPPORTED_TYPESCRIPT,
     FAILING_TYPESCRIPT,
-    GENERAL_ERROR
+    GENERAL_ERROR,
   }
 
   class Issue {
+
     Integer line;
     Integer column;
     Integer endLine;
@@ -139,16 +155,19 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class QuickFix {
+
     String message;
     List<QuickFixEdit> edits;
   }
 
   class QuickFixEdit {
+
     String text;
     IssueLocation loc;
   }
 
   class IssueLocation {
+
     Integer line;
     Integer column;
     Integer endLine;
@@ -157,16 +176,19 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Highlight {
+
     Location location;
     String textType;
   }
 
   class HighlightedSymbol {
+
     Location declaration;
     Location[] references;
   }
 
   class Location {
+
     int startLine;
     int startCol;
     int endLine;
@@ -210,6 +232,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Metrics {
+
     int[] ncloc = {};
     int[] commentLines = {};
     int[] nosonarLines = {};
@@ -222,6 +245,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class CpdToken {
+
     Location location;
     String image;
 
@@ -243,17 +267,24 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Perf {
+
     int parseTime;
     int analysisTime;
   }
 
   class TsConfigResponse {
+
     final List<String> files;
     final List<String> projectReferences;
     final String error;
     final ParsingErrorCode errorCode;
 
-    TsConfigResponse(List<String> files, List<String> projectReferences, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
+    TsConfigResponse(
+      List<String> files,
+      List<String> projectReferences,
+      @Nullable String error,
+      @Nullable ParsingErrorCode errorCode
+    ) {
       this.files = files;
       this.projectReferences = projectReferences;
       this.error = error;
@@ -262,13 +293,20 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class TsProgram {
+
     final String programId;
     final List<String> files;
     final List<String> projectReferences;
     final String error;
     final boolean missingTsConfig;
 
-    TsProgram(@Nullable String programId, @Nullable List<String> files, @Nullable List<String> projectReferences, boolean missingTsConfig, @Nullable String error) {
+    TsProgram(
+      @Nullable String programId,
+      @Nullable List<String> files,
+      @Nullable List<String> projectReferences,
+      boolean missingTsConfig,
+      @Nullable String error
+    ) {
       this.programId = programId;
       this.files = files;
       this.projectReferences = projectReferences;
@@ -280,7 +318,12 @@ public interface EslintBridgeServer extends Startable {
       this(programId, files, projectReferences, false, null);
     }
 
-    TsProgram(String programId, List<String> files, List<String> projectReferences, boolean missingTsConfig) {
+    TsProgram(
+      String programId,
+      List<String> files,
+      List<String> projectReferences,
+      boolean missingTsConfig
+    ) {
       this(programId, files, projectReferences, missingTsConfig, null);
     }
 
@@ -291,11 +334,17 @@ public interface EslintBridgeServer extends Startable {
     @Override
     public String toString() {
       if (error == null) {
-        return "TsProgram{" +
-          "programId='" + programId + '\'' +
-          ", files=" + files +
-          ", projectReferences=" + projectReferences +
-          '}';
+        return (
+          "TsProgram{" +
+          "programId='" +
+          programId +
+          '\'' +
+          ", files=" +
+          files +
+          ", projectReferences=" +
+          projectReferences +
+          '}'
+        );
       } else {
         return "TsProgram{ error='" + error + "'}";
       }
@@ -303,6 +352,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class TsProgramRequest {
+
     final String tsConfig;
 
     public TsProgramRequest(String tsConfig) {
@@ -310,4 +360,3 @@ public interface EslintBridgeServer extends Startable {
     }
   }
 }
-

@@ -33,5 +33,4 @@ public class SameLineConditionalCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-same-line-conditional";
   }
-
 }

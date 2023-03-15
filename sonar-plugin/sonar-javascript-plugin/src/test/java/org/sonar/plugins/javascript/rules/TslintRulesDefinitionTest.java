@@ -19,15 +19,15 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class TslintRulesDefinitionTest {
-  private static int NUMBER_TSLINT_RULES = 144;
 
+  private static int NUMBER_TSLINT_RULES = 144;
 
   @Test
   void test_external_repositories() {
@@ -47,22 +47,32 @@ class TslintRulesDefinitionTest {
     assertThat(tsLintRule.name()).isEqualTo("Enforces function overloads to be consecutive.");
     assertThat(tsLintRule.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(tsLintRule.severity()).isEqualTo("MAJOR");
-    String adjacentOverloadSignaturesDoc = "https://palantir.github.io/tslint/rules/adjacent-overload-signatures";
+    String adjacentOverloadSignaturesDoc =
+      "https://palantir.github.io/tslint/rules/adjacent-overload-signatures";
     assertThat(tsLintRule.htmlDescription())
-      .isEqualTo("See description of TSLint rule <code>adjacent-overload-signatures</code> at the <a href=\"" + adjacentOverloadSignaturesDoc + "\">TSLint website</a>.");
+      .isEqualTo(
+        "See description of TSLint rule <code>adjacent-overload-signatures</code> at the <a href=\"" +
+        adjacentOverloadSignaturesDoc +
+        "\">TSLint website</a>."
+      );
     assertThat(tsLintRule.tags()).isEmpty();
     assertThat(tsLintRule.debtRemediationFunction().baseEffort()).isEqualTo("5min");
 
     RulesDefinition.Rule sonartsRule = tslintRepository.rule("cognitive-complexity");
     assertThat(sonartsRule).isNotNull();
-    assertThat(sonartsRule.name()).isEqualTo("Cognitive Complexity of functions should not be too high");
+    assertThat(sonartsRule.name())
+      .isEqualTo("Cognitive Complexity of functions should not be too high");
     assertThat(sonartsRule.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(sonartsRule.severity()).isEqualTo("MAJOR");
-    String cognitiveComplexityDoc = "https://github.com/SonarSource/SonarTS/tree/1.9.0.3766/sonarts-core/docs/rules/cognitive-complexity.md";
+    String cognitiveComplexityDoc =
+      "https://github.com/SonarSource/SonarTS/tree/1.9.0.3766/sonarts-core/docs/rules/cognitive-complexity.md";
     assertThat(sonartsRule.htmlDescription())
-      .isEqualTo("See description of tslint-sonarts rule <code>cognitive-complexity</code> at the <a href=\"" + cognitiveComplexityDoc + "\">tslint-sonarts website</a>.");
+      .isEqualTo(
+        "See description of tslint-sonarts rule <code>cognitive-complexity</code> at the <a href=\"" +
+        cognitiveComplexityDoc +
+        "\">tslint-sonarts website</a>."
+      );
     assertThat(sonartsRule.tags()).isEmpty();
     assertThat(sonartsRule.debtRemediationFunction().baseEffort()).isEqualTo("5min");
   }
-
 }

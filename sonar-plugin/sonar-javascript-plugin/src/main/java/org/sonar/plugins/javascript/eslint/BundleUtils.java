@@ -40,8 +40,10 @@ class BundleUtils {
 
   static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {
     Objects.requireNonNull(resource);
-    try (InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
-         ArchiveInputStream archive = new TarArchiveInputStream(stream)) {
+    try (
+      InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
+      ArchiveInputStream archive = new TarArchiveInputStream(stream)
+    ) {
       ArchiveEntry entry;
       while ((entry = archive.getNextEntry()) != null) {
         if (!archive.canReadEntryData(entry)) {
@@ -64,7 +66,9 @@ class BundleUtils {
   private static Path entryPath(Path targetPath, ArchiveEntry entry) {
     Path entryPath = targetPath.resolve(entry.getName()).normalize();
     if (!entryPath.startsWith(targetPath)) {
-      throw new IllegalStateException("Archive entry " + entry.getName() + " is not within " + targetPath);
+      throw new IllegalStateException(
+        "Archive entry " + entry.getName() + " is not within " + targetPath
+      );
     }
     return entryPath;
   }

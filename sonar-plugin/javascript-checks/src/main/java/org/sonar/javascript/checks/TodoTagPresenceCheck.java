@@ -33,5 +33,4 @@ public class TodoTagPresenceCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "todo-tag";
   }
-
 }

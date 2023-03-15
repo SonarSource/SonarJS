@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint.cache;
 import java.util.List;
 
 class FilesManifest {
+
   private final List<FileSize> fileSizes;
 
   FilesManifest(List<FileSize> fileSizes) {
@@ -33,6 +34,7 @@ class FilesManifest {
   }
 
   static class FileSize {
+
     private final String name;
     private final long size;
 

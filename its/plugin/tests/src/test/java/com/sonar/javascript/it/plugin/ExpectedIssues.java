@@ -38,13 +38,17 @@ public class ExpectedIssues {
 
   private Map<String, List<Integer>> expectedLinesPerFile = new TreeMap<>();
 
-  private static final Pattern NON_COMPLIANT_PATTERN = Pattern.compile("//\\s*Noncompliant", Pattern.CASE_INSENSITIVE);
+  private static final Pattern NON_COMPLIANT_PATTERN = Pattern.compile(
+    "//\\s*Noncompliant",
+    Pattern.CASE_INSENSITIVE
+  );
   private static final String GENERATED_EXPECTATIONS_DIR = "target/expected/ts";
 
   public static void parseForExpectedIssues(String projectKey, Path projectDir) throws IOException {
     Map<String, ExpectedIssues> expectedIssuesByRule = new HashMap<>();
 
-    Arrays.stream(projectDir.toFile().listFiles())
+    Arrays
+      .stream(projectDir.toFile().listFiles())
       .filter(file -> file.toString().endsWith(".ts") || file.toString().endsWith(".tsx"))
       .forEach(file -> parseFile(projectKey, projectDir, expectedIssuesByRule, file.toPath()));
 
@@ -62,14 +66,24 @@ public class ExpectedIssues {
     });
   }
 
-  private static void parseFile(String projectKey, Path projectDirPath, Map<String, ExpectedIssues> expectedIssuesByRule, Path file) {
+  private static void parseFile(
+    String projectKey,
+    Path projectDirPath,
+    Map<String, ExpectedIssues> expectedIssuesByRule,
+    Path file
+  ) {
     String ruleKey = file.toFile().getName().split("\\.")[0];
-    String fileKey = projectKey + ":" + projectDirPath.relativize(file).toString().replaceAll(Pattern.quote(File.separator), "/");
+    String fileKey =
+      projectKey +
+      ":" +
+      projectDirPath.relativize(file).toString().replaceAll(Pattern.quote(File.separator), "/");
     List<String> lines = getLines(file);
     for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
       String currentLine = lines.get(lineNumber - 1);
 
-      if (NON_COMPLIANT_PATTERN.matcher(currentLine).find() && !currentLine.trim().startsWith("//")) {
+      if (
+        NON_COMPLIANT_PATTERN.matcher(currentLine).find() && !currentLine.trim().startsWith("//")
+      ) {
         addLineWithIssue(expectedIssuesByRule, ruleKey, fileKey, lineNumber);
       }
       // continue if no "// Noncompliant" in the line or the entire line is commented (to not consider commented out code)
@@ -98,10 +112,15 @@ public class ExpectedIssues {
     return Files.createDirectory(projectExpectationsDir);
   }
 
-  private static void addLineWithIssue(Map<String, ExpectedIssues> expectedIssuesByRule, String currentRuleKey, String fileKey, int lineNumber) {
-    expectedIssuesByRule.computeIfAbsent(currentRuleKey, key -> new ExpectedIssues())
+  private static void addLineWithIssue(
+    Map<String, ExpectedIssues> expectedIssuesByRule,
+    String currentRuleKey,
+    String fileKey,
+    int lineNumber
+  ) {
+    expectedIssuesByRule
+      .computeIfAbsent(currentRuleKey, key -> new ExpectedIssues())
       .expectedLinesPerFile.computeIfAbsent(fileKey, key -> new ArrayList<>())
       .add(lineNumber);
   }
-
 }

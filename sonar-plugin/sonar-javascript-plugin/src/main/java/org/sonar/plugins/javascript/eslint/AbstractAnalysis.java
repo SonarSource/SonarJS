@@ -42,13 +42,22 @@ abstract class AbstractAnalysis {
   AnalysisMode analysisMode;
   TempFolder tempFolder;
 
-  AbstractAnalysis(EslintBridgeServer eslintBridgeServer, Monitoring monitoring, AnalysisProcessor analysisProcessor) {
+  AbstractAnalysis(
+    EslintBridgeServer eslintBridgeServer,
+    Monitoring monitoring,
+    AnalysisProcessor analysisProcessor
+  ) {
     this.eslintBridgeServer = eslintBridgeServer;
     this.monitoring = monitoring;
     this.analysisProcessor = analysisProcessor;
   }
 
-  void initialize(SensorContext context, AbstractChecks checks, AnalysisMode analysisMode, TempFolder tempFolder) {
+  void initialize(
+    SensorContext context,
+    AbstractChecks checks,
+    AnalysisMode analysisMode,
+    TempFolder tempFolder
+  ) {
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
@@ -57,5 +66,4 @@ abstract class AbstractAnalysis {
   }
 
   abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
-
 }

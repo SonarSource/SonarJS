@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -57,10 +61,6 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class HtmlSensorTest {
 
@@ -106,7 +106,8 @@ class HtmlSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor =
+      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
   }
 
   @Test
@@ -120,10 +121,12 @@ class HtmlSensorTest {
 
   @Test
   void should_create_issues() throws Exception {
-    AnalysisResponse expectedResponse = response("{ issues: [" +
+    AnalysisResponse expectedResponse = response(
+      "{ issues: [" +
       "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
-      "]}");
+      "]}"
+    );
     when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
 
     HtmlSensor sensor = createSensor();
@@ -140,16 +143,21 @@ class HtmlSensorTest {
     IssueLocation location = firstIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Issue message");
-    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+    assertThat(location.textRange())
+      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
 
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 15)));
+    assertThat(location.textRange())
+      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 15)));
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
-    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("Custom JavaScript rules are deprecated and API will be removed in future version.");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .doesNotContain(
+        "Custom JavaScript rules are deprecated and API will be removed in future version."
+      );
   }
 
   @Test
@@ -165,7 +173,12 @@ class HtmlSensorTest {
 
     var htmFile = TestUtils.createInputFile(context, getInputFileContent(), htmPath, "web");
     var htmlFile = TestUtils.createInputFile(context, getInputFileContent(), htmlPath, "web");
-    var templateFile = TestUtils.createInputFile(context, getInputFileContent(), templatePath, "web");
+    var templateFile = TestUtils.createInputFile(
+      context,
+      getInputFileContent(),
+      templatePath,
+      "web"
+    );
 
     when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
 
@@ -174,13 +187,20 @@ class HtmlSensorTest {
     verify(eslintBridgeServerMock, times(2)).analyzeHtml(any());
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmFile.uri());
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmlFile.uri());
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).doesNotContain("Analyzing file: " + templateFile.uri());
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .doesNotContain("Analyzing file: " + templateFile.uri());
   }
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
     when(eslintBridgeServerMock.analyzeHtml(any()))
-      .thenReturn(new Gson().fromJson("{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
+      .thenReturn(
+        new Gson()
+          .fromJson(
+            "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
+            AnalysisResponse.class
+          )
+      );
 
     createInputFile(context);
     createSensor().execute(context);
@@ -192,7 +212,8 @@ class HtmlSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.html] at line 1: Parse error message");
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("Failed to parse file [dir/file.html] at line 1: Parse error message");
   }
 
   @Test
@@ -203,7 +224,8 @@ class HtmlSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile.uri());
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -215,7 +237,10 @@ class HtmlSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains(
+        "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+      );
   }
 
   @Test
@@ -228,8 +253,10 @@ class HtmlSensorTest {
 
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
 
-    assertThat(logAndArguments.getFormattedMsg()).isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
-    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage()).isEqualTo("eslint-bridge server is not answering");
+    assertThat(logAndArguments.getFormattedMsg())
+      .isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage())
+      .isEqualTo("eslint-bridge server is not answering");
   }
 
   @Test
@@ -247,7 +274,9 @@ class HtmlSensorTest {
   void should_not_save_cached_cpd() throws IOException {
     var path = "dir/file.html";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(InputFile.Status.SAME);
+    var file = TestUtils
+      .createInputFile(context, getInputFileContent(), path)
+      .setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 
     sensor.execute(context);
@@ -260,7 +289,11 @@ class HtmlSensorTest {
   private static JavaScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey)).build());
+      builder.addRule(
+        new NewActiveRule.Builder()
+          .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey))
+          .build()
+      );
     }
     return new JavaScriptChecks(new CheckFactory(builder.build()));
   }
@@ -270,12 +303,14 @@ class HtmlSensorTest {
   }
 
   private static String getInputFileContent() {
-    return "<!doctype html>\n" +
+    return (
+      "<!doctype html>\n" +
       "<html lang=\"en\">\n" +
       "<script>\n" +
       "  if (foo()) bar(); else bar();\n" +
       "</script>\n" +
-      "</html>\n";
+      "</html>\n"
+    );
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context, String contents) {
@@ -289,7 +324,13 @@ class HtmlSensorTest {
   }
 
   private HtmlSensor createSensor() {
-    return new HtmlSensor(checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY), eslintBridgeServerMock, new AnalysisWarningsWrapper(), monitoring, analysisProcessor);
+    return new HtmlSensor(
+      checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
+      eslintBridgeServerMock,
+      new AnalysisWarningsWrapper(),
+      monitoring,
+      analysisProcessor
+    );
   }
 
   private AnalysisResponse response(String json) {

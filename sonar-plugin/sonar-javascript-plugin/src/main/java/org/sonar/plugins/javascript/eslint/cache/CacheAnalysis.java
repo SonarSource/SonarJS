@@ -33,7 +33,10 @@ public class CacheAnalysis {
     this.cpdTokens = cpdTokens;
   }
 
-  public static CacheAnalysis fromResponse(List<String> ucfgPaths, EslintBridgeServer.CpdToken[] cpdTokens) {
+  public static CacheAnalysis fromResponse(
+    List<String> ucfgPaths,
+    EslintBridgeServer.CpdToken[] cpdTokens
+  ) {
     return new CacheAnalysis(ucfgPaths, cpdTokens);
   }
 
@@ -49,5 +52,4 @@ public class CacheAnalysis {
   public EslintBridgeServer.CpdToken[] getCpdTokens() {
     return cpdTokens;
   }
-
 }

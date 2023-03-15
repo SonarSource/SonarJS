@@ -19,12 +19,12 @@
  */
 package org.sonar.css.rules;
 
+import static org.sonar.css.rules.RuleUtils.splitAndTrim;
+
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import static org.sonar.css.rules.RuleUtils.splitAndTrim;
 
 @Rule(key = "S4659")
 public class SelectorPseudoClassNoUnknown implements CssRule {
@@ -34,7 +34,8 @@ public class SelectorPseudoClassNoUnknown implements CssRule {
   @RuleProperty(
     key = "ignorePseudoClasses",
     description = "Comma-separated list of strings and/or regular expressions for pseudo classes to consider as valid.",
-    defaultValue = "" + DEFAULT_IGNORED_PSEUDO_CLASSES)
+    defaultValue = "" + DEFAULT_IGNORED_PSEUDO_CLASSES
+  )
   String ignoredPseudoClasses = DEFAULT_IGNORED_PSEUDO_CLASSES;
 
   @Override
@@ -47,8 +48,8 @@ public class SelectorPseudoClassNoUnknown implements CssRule {
     return Arrays.asList(true, new StylelintIgnoreOption(splitAndTrim(ignoredPseudoClasses)));
   }
 
-
   private static class StylelintIgnoreOption {
+
     // Used by GSON serialization
     private final List<String> ignorePseudoClasses;
 

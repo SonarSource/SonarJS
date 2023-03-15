@@ -33,5 +33,4 @@ public class NoVueBypassSanitizationCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-vue-bypass-sanitization";
   }
-
 }

@@ -27,7 +27,6 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 @Rule(key = "S3782")
 public class ArgumentTypesCheck implements EslintBasedCheck {
 
-
   @Override
   public String eslintKey() {
     return "argument-type";

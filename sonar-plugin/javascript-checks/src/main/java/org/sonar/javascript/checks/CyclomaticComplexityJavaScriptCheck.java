@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -41,7 +40,8 @@ public class CyclomaticComplexityJavaScriptCheck implements EslintBasedCheck {
   @RuleProperty(
     key = "maximumFunctionComplexityThreshold",
     description = "The maximum authorized complexity in function",
-    defaultValue = "" + DEFAULT_THRESHOLD)
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
   int threshold = DEFAULT_THRESHOLD;
 
   @Override

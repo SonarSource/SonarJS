@@ -33,5 +33,4 @@ public class UselessIncrementCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-useless-increment";
   }
-
 }

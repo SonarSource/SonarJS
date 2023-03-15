@@ -33,5 +33,4 @@ public class NoInMisuseCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-in-misuse";
   }
-
 }

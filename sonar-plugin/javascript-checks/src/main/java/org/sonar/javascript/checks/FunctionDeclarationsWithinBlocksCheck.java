@@ -35,5 +35,4 @@ public class FunctionDeclarationsWithinBlocksCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-function-declaration-in-block";
   }
-
 }

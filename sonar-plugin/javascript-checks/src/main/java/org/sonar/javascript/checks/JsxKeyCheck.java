@@ -33,5 +33,4 @@ public class JsxKeyCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "jsx-key";
   }
-
 }

@@ -41,6 +41,7 @@ public class JsxNoBindCheck implements EslintBasedCheck {
   }
 
   private static class Config {
+
     boolean ignoreRefs = true;
     boolean ignoreDOMComponents = true;
   }

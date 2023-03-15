@@ -19,19 +19,23 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class JavaScriptLanguageTest {
 
   @Test
   void defaultSuffixes() {
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE);
+    mapSettings.setProperty(
+      JavaScriptLanguage.FILE_SUFFIXES_KEY,
+      JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE
+    );
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".cjs", ".mjs", ".vue");
+    assertThat(javaScriptLanguage.getFileSuffixes())
+      .containsOnly(".js", ".jsx", ".cjs", ".mjs", ".vue");
   }
 
   @Test
@@ -41,5 +45,4 @@ class JavaScriptLanguageTest {
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
   }
-
 }

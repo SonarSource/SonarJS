@@ -33,5 +33,4 @@ public class RulesOfHooksCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "rules-of-hooks";
   }
-
 }

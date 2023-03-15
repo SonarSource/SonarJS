@@ -19,9 +19,9 @@
  */
 package org.sonar.css.metrics;
 
-import com.sonar.sslr.impl.Lexer;
-
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
+
+import com.sonar.sslr.impl.Lexer;
 
 // This is a at-best lexer.
 // It is far from being entirely matching the standard definition of css/less/scss tokens nor
@@ -36,7 +36,8 @@ public final class CssLexer {
   private static final String WHITESPACE = "[\t\n\f\r ]";
   private static final String NON_ASCII = "[^\\p{ASCII}]";
   private static final String HEX_DIGIT = "0-9a-fA-F";
-  private static final String ESCAPE = "(?:\\\\[" + HEX_DIGIT + "]{1,6}" + WHITESPACE + "?)|\\[^\r\n\f" + HEX_DIGIT + "]";
+  private static final String ESCAPE =
+    "(?:\\\\[" + HEX_DIGIT + "]{1,6}" + WHITESPACE + "?)|\\[^\r\n\f" + HEX_DIGIT + "]";
 
   private static final String PUNCTUATOR = "[!:,;%&+#\\*-/=>\\(\\)\\[\\]\\{\\}]";
 
@@ -55,16 +56,17 @@ public final class CssLexer {
   private static final String HASH_IDENTIFIER = "#(?:" + NAME_CHAR + ")++";
   private static final String DOLLAR_IDENTIFIER = "\\$(?:" + NAME_CHAR + ")++";
 
-  private static final String DOUBLE_QUOTE_STRING = "~?+\"(?:[^\"\\\\\r\n\f]|" + ESCAPE + "|\\\\" + NEW_LINE + ")*+\"";
-  private static final String SINGLE_QUOTE_STRING = "~?+'(?:[^'\\\\\r\n\f]|" + ESCAPE + "|\\\\" + NEW_LINE + ")*+'";
+  private static final String DOUBLE_QUOTE_STRING =
+    "~?+\"(?:[^\"\\\\\r\n\f]|" + ESCAPE + "|\\\\" + NEW_LINE + ")*+\"";
+  private static final String SINGLE_QUOTE_STRING =
+    "~?+'(?:[^'\\\\\r\n\f]|" + ESCAPE + "|\\\\" + NEW_LINE + ")*+'";
 
-  private CssLexer() {
-  }
+  private CssLexer() {}
 
   public static Lexer create() {
-    return Lexer.builder()
+    return Lexer
+      .builder()
       .withFailIfNoChannelToConsumeOneCharacter(false)
-
       .withChannel(regexp(CssTokenType.COMMENT, MULTI_LINE_COMMENT))
       .withChannel(regexp(CssTokenType.COMMENT, INLINE_COMMENT))
       .withChannel(regexp(CssTokenType.STRING, DOUBLE_QUOTE_STRING))
@@ -75,7 +77,6 @@ public final class CssLexer {
       .withChannel(regexp(CssTokenType.IDENTIFIER, IDENTIFIER))
       .withChannel(regexp(CssTokenType.NUMBER, NUMBER))
       .withChannel(regexp(CssTokenType.PUNCTUATOR, PUNCTUATOR))
-
       .build();
   }
 }

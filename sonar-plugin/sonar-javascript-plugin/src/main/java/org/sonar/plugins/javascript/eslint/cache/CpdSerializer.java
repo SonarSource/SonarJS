@@ -42,7 +42,6 @@ class CpdSerializer {
     return serializer.convert(cpdData);
   }
 
-
   private SerializationResult convert(CpdData cpdData) throws IOException {
     try (out; stream) {
       var cpdTokens = cpdData.getCpdTokens();
@@ -106,7 +105,5 @@ class CpdSerializer {
     byte[] getStringTable() {
       return stringTable;
     }
-
   }
-
 }

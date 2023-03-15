@@ -33,5 +33,4 @@ public class NoRegexSpacesCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-regex-spaces";
   }
-
 }

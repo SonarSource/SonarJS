@@ -19,16 +19,16 @@
  */
 package org.sonar.css.metrics;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class TokenizerTest {
 
-  private final static Tokenizer tokenizer = new Tokenizer();
-  
+  private static final Tokenizer tokenizer = new Tokenizer();
+
   @Test
   void identifier() {
     assertToken("bar { }", 0, "bar", CssTokenType.IDENTIFIER);
@@ -103,7 +103,12 @@ class TokenizerTest {
     assertToken("bar { foo: \"hello, world\"; }", 4, "\"hello, world\"", CssTokenType.STRING);
     assertToken("bar { foo: \"\"; }", 4, "\"\"", CssTokenType.STRING);
     assertToken("\"foo\\\nbar\"", 0, "\"foo\\\nbar\"", CssTokenType.STRING);
-    assertToken("@min768: ~\"(min-width: 768px)\"", 2, "~\"(min-width: 768px)\"", CssTokenType.STRING);
+    assertToken(
+      "@min768: ~\"(min-width: 768px)\"",
+      2,
+      "~\"(min-width: 768px)\"",
+      CssTokenType.STRING
+    );
 
     int numberOfChars = 1000000;
     String seedCode = StringUtils.repeat("a", numberOfChars);
@@ -118,14 +123,42 @@ class TokenizerTest {
   void comment() {
     assertToken("/* foo */", 0, "/* foo */", CssTokenType.COMMENT);
     assertToken("foo { a: /* foo */ 42; }", 4, "/* foo */", CssTokenType.COMMENT);
-    assertToken("foo { a: /* foo\nbar*/ 42; }", 4, "/* foo\nbar*/", CssTokenType.COMMENT, 1, 9, 2, 5);
-    assertToken("foo { a: /* foo\r\nbar*/ 42; }", 4, "/* foo\r\nbar*/", CssTokenType.COMMENT, 1, 9, 2, 5);
-    assertToken("foo { a: /* foo\fbar*/ 42; }", 4, "/* foo\fbar*/", CssTokenType.COMMENT, 1, 9, 1, 21);
-    String code = "/* \n"
-      + "  this is a comment\n"
-      + "  and it is awesome because\n"
-      + "  it is multiline!\n"
-      + "*/";
+    assertToken(
+      "foo { a: /* foo\nbar*/ 42; }",
+      4,
+      "/* foo\nbar*/",
+      CssTokenType.COMMENT,
+      1,
+      9,
+      2,
+      5
+    );
+    assertToken(
+      "foo { a: /* foo\r\nbar*/ 42; }",
+      4,
+      "/* foo\r\nbar*/",
+      CssTokenType.COMMENT,
+      1,
+      9,
+      2,
+      5
+    );
+    assertToken(
+      "foo { a: /* foo\fbar*/ 42; }",
+      4,
+      "/* foo\fbar*/",
+      CssTokenType.COMMENT,
+      1,
+      9,
+      1,
+      21
+    );
+    String code =
+      "/* \n" +
+      "  this is a comment\n" +
+      "  and it is awesome because\n" +
+      "  it is multiline!\n" +
+      "*/";
     assertToken(code, 0, code, CssTokenType.COMMENT, 1, 0, 5, 2);
 
     int numberOfLineReturn = 1000000;
@@ -207,8 +240,18 @@ class TokenizerTest {
   @Test
   void less_comment() {
     assertToken("// Get in line!", 0, "// Get in line!", CssTokenType.COMMENT);
-    assertToken("// body font size = 62.5%\n\n/* some comment */", 0, "// body font size = 62.5%", CssTokenType.COMMENT);
-    assertToken("/* One heck of a block\n * style comment! */", 0, "/* One heck of a block\n * style comment! */", CssTokenType.COMMENT);
+    assertToken(
+      "// body font size = 62.5%\n\n/* some comment */",
+      0,
+      "// body font size = 62.5%",
+      CssTokenType.COMMENT
+    );
+    assertToken(
+      "/* One heck of a block\n * style comment! */",
+      0,
+      "/* One heck of a block\n * style comment! */",
+      CssTokenType.COMMENT
+    );
   }
 
   @Test
@@ -216,22 +259,50 @@ class TokenizerTest {
     assertToken("$$a", 0, "$a", CssTokenType.DOLLAR_IDENTIFIER);
   }
 
-  private static void assertToken(String input, int index, String value, CssTokenType CssTokenType) {
+  private static void assertToken(
+    String input,
+    int index,
+    String value,
+    CssTokenType CssTokenType
+  ) {
     List<CssToken> tokenList = tokenizer.tokenize(input);
     assertToken(tokenList, index, value, CssTokenType);
   }
 
-  private static void assertToken(String input, int index, String value, CssTokenType CssTokenType, int line, int column, int endLine, int endColumn) {
+  private static void assertToken(
+    String input,
+    int index,
+    String value,
+    CssTokenType CssTokenType,
+    int line,
+    int column,
+    int endLine,
+    int endColumn
+  ) {
     List<CssToken> tokenList = tokenizer.tokenize(input);
     assertToken(tokenList, index, value, CssTokenType, line, column, endLine, endColumn);
   }
 
-  private static void assertToken(List<CssToken> tokenList, int index, String value, CssTokenType CssTokenType) {
+  private static void assertToken(
+    List<CssToken> tokenList,
+    int index,
+    String value,
+    CssTokenType CssTokenType
+  ) {
     assertThat(tokenList.get(index).type).isEqualTo(CssTokenType);
     assertThat(tokenList.get(index).text).isEqualTo(value);
   }
 
-  private static void assertToken(List<CssToken> tokenList, int index, String value, CssTokenType CssTokenType, int line, int column, int endLine, int endColumn) {
+  private static void assertToken(
+    List<CssToken> tokenList,
+    int index,
+    String value,
+    CssTokenType CssTokenType,
+    int line,
+    int column,
+    int endLine,
+    int endColumn
+  ) {
     assertToken(tokenList, index, value, CssTokenType);
     assertThat(tokenList.get(index).startLine).isEqualTo(line);
     assertThat(tokenList.get(index).startColumn).isEqualTo(column);
