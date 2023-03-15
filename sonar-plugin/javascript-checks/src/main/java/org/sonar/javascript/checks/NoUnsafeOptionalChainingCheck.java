@@ -33,5 +33,4 @@ public class NoUnsafeOptionalChainingCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-unsafe-optional-chaining";
   }
-
 }
