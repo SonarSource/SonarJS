@@ -63,11 +63,16 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
-          reportBadUsage(decl.id, getDeclarationIssue('variable'), context, decl.init != null);
+          reportGlobalShadowing(
+            decl.id,
+            getDeclarationIssue('variable'),
+            context,
+            decl.init != null,
+          );
         });
       },
       UpdateExpression(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.UpdateExpression).argument,
           getModificationIssue,
           context,
@@ -75,7 +80,7 @@ export const rule: Rule.RuleModule = {
         );
       },
       AssignmentExpression(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.AssignmentExpression).left,
           getModificationIssue,
           context,
@@ -83,7 +88,7 @@ export const rule: Rule.RuleModule = {
         );
       },
       CatchClause(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.CatchClause).param,
           getDeclarationIssue('variable'),
           context,
@@ -99,13 +104,13 @@ function reportBadUsageOnFunction(
   id: estree.Node | null | undefined,
   context: Rule.RuleContext,
 ) {
-  reportBadUsage(id, getDeclarationIssue('function'), context, true);
+  reportGlobalShadowing(id, getDeclarationIssue('function'), context, true);
   func.params.forEach(p => {
-    reportBadUsage(p, getDeclarationIssue('parameter'), context, false);
+    reportGlobalShadowing(p, getDeclarationIssue('parameter'), context, false);
   });
 }
 
-function reportBadUsage(
+function reportGlobalShadowing(
   node: estree.Node | null | undefined,
   buildMessageAndData: (name: string) => { messageId: string; data: any },
   context: Rule.RuleContext,
@@ -114,7 +119,7 @@ function reportBadUsage(
   if (node) {
     switch (node.type) {
       case 'Identifier': {
-        if (isBadNameUsage(node.name, isWrite) && !isBadNameException(node.name)) {
+        if (isGlobalShadowing(node.name, isWrite) && !isShadowingException(node.name)) {
           context.report({
             node: node,
             ...buildMessageAndData(node.name),
@@ -123,31 +128,31 @@ function reportBadUsage(
         break;
       }
       case 'RestElement':
-        reportBadUsage(node.argument, buildMessageAndData, context, true);
+        reportGlobalShadowing(node.argument, buildMessageAndData, context, true);
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
           if (prop.type === 'Property') {
-            reportBadUsage(prop.value, buildMessageAndData, context, true);
+            reportGlobalShadowing(prop.value, buildMessageAndData, context, true);
           } else {
-            reportBadUsage(prop.argument, buildMessageAndData, context, true);
+            reportGlobalShadowing(prop.argument, buildMessageAndData, context, true);
           }
         });
         break;
       case 'ArrayPattern':
         node.elements.forEach(elem => {
-          reportBadUsage(elem, buildMessageAndData, context, true);
+          reportGlobalShadowing(elem, buildMessageAndData, context, true);
         });
         break;
       case 'AssignmentPattern':
-        reportBadUsage(node.left, buildMessageAndData, context, true);
+        reportGlobalShadowing(node.left, buildMessageAndData, context, true);
         break;
     }
   }
 }
 
-function isBadNameUsage(name: string, isWrite: boolean) {
-  return isIllegalName(name) || isBuiltInName(name) || isBadUndefinedUsage(isWrite, name);
+function isGlobalShadowing(name: string, isWrite: boolean) {
+  return isIllegalName(name) || isBuiltInName(name) || isUndefinedShadowing(isWrite, name);
 }
 
 function isIllegalName(name: string) {
@@ -158,11 +163,11 @@ function isBuiltInName(name: string) {
   return globalsByLibraries.builtin.includes(name);
 }
 
-function isBadUndefinedUsage(isWrite: boolean, name: string) {
+function isUndefinedShadowing(isWrite: boolean, name: string) {
   return isWrite && name === 'undefined';
 }
 
-function isBadNameException(name: string) {
+function isShadowingException(name: string) {
   return isObjectPrototypeProperty(name) || isDeprecatedName(name);
 }
 
