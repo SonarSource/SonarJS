@@ -33,5 +33,4 @@ public class NoImportAssignCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "no-import-assign";
   }
-
 }
