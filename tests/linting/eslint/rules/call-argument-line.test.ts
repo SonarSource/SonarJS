@@ -20,7 +20,10 @@
 import { RuleTester } from 'eslint';
 import { rule } from 'linting/eslint/rules/call-argument-line';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018 },
+});
 ruleTester.run(`Function call arguments should not start on new lines`, rule, {
   valid: [
     {
@@ -50,6 +53,20 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
       code: `
       (foo
       )((bar));
+      `,
+    },
+    {
+      code: `
+      const MyContext = React.createContext<{
+        foo: number,
+        bar: number,
+      }>({ foo: 1, bar: 2 });
+      `,
+    },
+    {
+      code: `
+      const MyContext = React.createContext
+      <string>('foo');
       `,
     },
   ],
@@ -138,6 +155,39 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
           endLine: 3,
           column: 1,
           endColumn: 2,
+        },
+      ],
+    },
+    {
+      code: `
+      const MyContext = React.createContext<{
+        foo: number,
+        bar: number,
+      }>
+      ({ foo: 1, bar: 2 });
+      `,
+      errors: [
+        {
+          message: 'Make those call arguments start on line 5.',
+          line: 6,
+          endLine: 6,
+          column: 7,
+          endColumn: 27,
+        },
+      ],
+    },
+    {
+      code: `
+      const MyContext = React.createContext<string>
+      ('foo');
+      `,
+      errors: [
+        {
+          message: 'Make those call arguments start on line 2.',
+          line: 3,
+          endLine: 3,
+          column: 7,
+          endColumn: 14,
         },
       ],
     },
