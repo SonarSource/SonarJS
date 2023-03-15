@@ -26,11 +26,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
-@Rule(key = "S6522")
-public class NoImportAssignCheck implements EslintBasedCheck {
+@Rule(key = "S6523")
+public class NoUnsafeOptionalChainingCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-import-assign";
+    return "no-unsafe-optional-chaining";
   }
 }

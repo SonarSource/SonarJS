@@ -269,6 +269,7 @@ public final class CheckList {
       NoThisAliasCheck.class,
       NoUniqKeyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
+      NoUnsafeOptionalChainingCheck.class,
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
       NoUselessCatchCheck.class,
