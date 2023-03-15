@@ -22,12 +22,37 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { toEncodedMessage } from './helpers';
+import {
+  getVariableFromName,
+  isMethodInvocation,
+  isStringLiteral,
+  toEncodedMessage,
+} from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { eslintRules } from 'linting/eslint/rules/core';
+import { interceptReport, mergeRules } from './decorators/helpers';
 
+type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
+
+function isAccessorNode(node: TSESTree.Node | null | undefined): node is AccessorNode {
+  return node?.type === 'Property' || node?.type === 'MethodDefinition';
+}
+
+// The 'definition' property says how the accessor is defined: that's to say if it's part of a class definition,
+// an object literal or a property descriptor passed to one of the Object.defineProperty() variants.
+// The 'refResolver' property is used to extract the reference name used by the accessor.
 interface AccessorInfo {
-  type: 'getter' | 'setter';
   name: string;
+  type: 'getter' | 'setter';
+  definition: 'class' | 'object' | 'descriptor';
+  refResolver: (expression: TSESTree.Expression | null) => string | null;
+}
+
+interface Accessor {
+  info: AccessorInfo;
+  statement: TSESTree.Statement | null;
+  matchingFields: Field[];
+  node: AccessorNode;
 }
 
 interface Field {
@@ -35,6 +60,7 @@ interface Field {
   node: TSESTree.Node;
 }
 
+// The rule is the merger of a decorated ESLint 'getter-return' with the SonarJS 'no-accessor-field-mismatch'.
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -44,64 +70,94 @@ export const rule: Rule.RuleModule = {
       },
     ],
   },
+  create(context: Rule.RuleContext): Rule.RuleListener {
+    const getterReturnListener = getterReturnDecorator.create(context);
+    const noAccessorFieldMismatchListener = noAccessorFieldMismatchRule.create(context);
+    return mergeRules(getterReturnListener, noAccessorFieldMismatchListener);
+  },
+};
 
-  create(context: Rule.RuleContext) {
-    const currentFieldsStack = [new Map<string, Field>()];
+// The decorator adds secondary location to ESLint 'getter-return'
+// as found in issues raised by SonarJS 'no-accessor-field-mismatch'.
+function decorateGetterReturn(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, descriptor) => {
+    const props: { messageId?: string; node?: estree.Node } & Rule.ReportDescriptor = descriptor;
+    const { node, messageId } = props;
 
-    function checkAccessor(accessor: TSESTree.Property | TSESTree.MethodDefinition) {
-      const accessorIsPublic =
-        accessor.type !== 'MethodDefinition' || accessor.accessibility === 'public';
-      const accessorInfo = getAccessorInfo(accessor);
-      const statements = getFunctionBody(accessor.value);
-      if (!accessorInfo || !accessorIsPublic || !statements || statements.length > 1) {
-        return;
-      }
-
-      const matchingFields = findMatchingFields(
-        currentFieldsStack[currentFieldsStack.length - 1],
-        accessorInfo.name,
-      );
-      if (
-        matchingFields.length > 0 &&
-        (statements.length === 0 ||
-          !isUsingAccessorFieldInBody(statements[0], accessorInfo, matchingFields))
-      ) {
-        const fieldToRefer = matchingFields[0];
-        const primaryMessage =
-          `Refactor this ${accessorInfo.type} ` +
-          `so that it actually refers to the property '${fieldToRefer.name}'.`;
-        const secondaryLocations = [fieldToRefer.node];
-        const secondaryMessages = ['Property which should be referred.'];
-
-        context.report({
-          message: toEncodedMessage(primaryMessage, secondaryLocations, secondaryMessages),
-          loc: accessor.key.loc,
-        });
-      }
+    // The ESLint reports on functions, so the accessor might be the parent.
+    // And if it's an accessor with a matching field, report with secondary location pointing to the field.
+    if (node != null && reportWithFieldLocation(context, (node as TSESTree.Node).parent)) {
+      return;
     }
 
+    // Otherwise convert the message to the Sonar format.
+    if (messageId === 'expected') {
+      reportWithSonarFormat(context, descriptor, 'Refactor this getter to return a value.');
+    } else if (messageId === 'expectedAlways') {
+      reportWithSonarFormat(context, descriptor, 'Refactor this getter to always return a value.');
+    }
+  });
+}
+
+const getterReturnDecorator = decorateGetterReturn(eslintRules['getter-return']);
+
+const noAccessorFieldMismatchRule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    // Stack of nested object or class fields
+    const currentFieldsStack = [new Map<string, Field>()];
+
+    // Selector of a single property descriptor used in Object.defineProperty() or Reflect.defineProperty()
+    const singleDescriptorAccessorSelector = [
+      'CallExpression[arguments.1.type=Literal]',
+      'ObjectExpression:nth-child(3)',
+      'Property[value.type=FunctionExpression][key.name=/^[gs]et$/]',
+    ].join(' > ');
+
+    // Selector of multiple property descriptors used in Object.defineProperties() or Object.create()
+    const multiDescriptorsAccessorSelector = [
+      'CallExpression',
+      'ObjectExpression:nth-child(2)',
+      'Property:matches([key.type=Identifier], [key.type=Literal])',
+      'ObjectExpression',
+      'Property[value.type=FunctionExpression][key.name=/^[gs]et$/]',
+    ].join(' > ');
+
     return {
-      Property: (node: estree.Node) => checkAccessor(node as TSESTree.Property),
-      MethodDefinition: (node: estree.Node) => checkAccessor(node as TSESTree.MethodDefinition),
+      // Check Object literal properties or Class method definitions
+      'Property,MethodDefinition': (node: estree.Node) => {
+        const accessorNode = node as AccessorNode;
+        const accessorInfo = getObjectOrClassAccessorInfo(accessorNode);
+        if (accessorInfo) {
+          const fieldMap = currentFieldsStack[currentFieldsStack.length - 1];
+          checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
+        }
+      },
+
+      // Check Object.defineProperty() or Reflect.defineProperty()
+      [singleDescriptorAccessorSelector]: (node: estree.Node) => {
+        const accessorNode = node as TSESTree.Property;
+        const accessorInfo = getSingleDescriptorAccessorInfo(accessorNode);
+        if (accessorInfo) {
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
+          checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
+        }
+      },
+
+      // Check Object.defineProperties() or Object.create()
+      [multiDescriptorsAccessorSelector]: (node: estree.Node) => {
+        const accessorNode = node as TSESTree.Property;
+        const accessorInfo = getMultiDescriptorsAccessorInfo(accessorNode);
+        if (accessorInfo) {
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
+          checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
+        }
+      },
 
       ClassBody: (node: estree.Node) => {
-        const classBody = node as TSESTree.ClassBody;
-        const fields = getFieldMap(classBody.body, classElement =>
-          (classElement.type === 'PropertyDefinition' ||
-            classElement.type === 'TSAbstractPropertyDefinition') &&
-          !classElement.static
-            ? classElement.key
-            : null,
-        );
-        const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(classBody);
-        const allFields = new Map([...fields, ...fieldsFromConstructor]);
-        currentFieldsStack.push(allFields);
+        currentFieldsStack.push(getClassBodyFieldMap(node as TSESTree.ClassBody));
       },
       ObjectExpression: (node: estree.Node) => {
-        const currentFields = getFieldMap((node as TSESTree.ObjectExpression).properties, prop =>
-          isValidObjectField(prop) ? prop.key : null,
-        );
-        currentFieldsStack.push(currentFields);
+        currentFieldsStack.push(getObjectExpressionFieldMap(node as TSESTree.ObjectExpression));
       },
       ':matches(ClassBody, ObjectExpression):exit': () => {
         currentFieldsStack.pop();
@@ -110,53 +166,261 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getAccessorInfo(
-  accessor: TSESTree.Property | TSESTree.MethodDefinition,
-): AccessorInfo | null {
+function checkAccessorNode(
+  context: Rule.RuleContext,
+  node: AccessorNode,
+  fieldMap: Map<string, Field>,
+  info: AccessorInfo,
+) {
+  const accessor = getAccessor(node, fieldMap, info);
+  if (accessor == null || isReportedByGetterReturnDecorator(accessor)) {
+    return;
+  }
+
+  if (!isUsingAccessorFieldInBody(accessor)) {
+    reportWithSecondaryLocation(context, accessor);
+  }
+}
+
+// ESLint 'getter-return' reports for empty getters
+// or empty property descriptor get functions.
+function isReportedByGetterReturnDecorator(accessor: Accessor) {
+  const info = accessor.info;
+  const emptyGetter = info.type === 'getter' && accessor.statement == null;
+  return emptyGetter && (info.definition === 'descriptor' || accessor.node.kind === 'get');
+}
+
+function reportWithFieldLocation(context: Rule.RuleContext, node: TSESTree.Node | undefined) {
+  if (!node || !isAccessorNode(node)) {
+    return false;
+  }
+  const info = getNodeAccessorInfo(node);
+  if (!info) {
+    return false;
+  }
+  const fieldMap = getNodeFieldMap(context, node.parent, info);
+  const accessor = getAccessor(node, fieldMap, info);
+  if (!accessor) {
+    return false;
+  }
+  reportWithSecondaryLocation(context, accessor);
+  return true;
+}
+
+function reportWithSonarFormat(
+  context: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+  message: string,
+) {
+  context.report({ ...descriptor, messageId: undefined, message: toEncodedMessage(message) });
+}
+
+function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Accessor) {
+  const fieldToRefer = accessor.matchingFields[0];
+  const ref = accessor.info.definition === 'descriptor' ? 'variable' : 'property';
+  const primaryMessage =
+    `Refactor this ${accessor.info.type} ` +
+    `so that it actually refers to the ${ref} '${fieldToRefer.name}'.`;
+  const secondaryLocations = [fieldToRefer.node];
+  const secondaryMessages = [`${ref[0].toUpperCase()}${ref.slice(1)} which should be referred.`];
+
+  context.report({
+    message: toEncodedMessage(primaryMessage, secondaryLocations, secondaryMessages),
+    loc: accessor.node.key.loc,
+  });
+}
+
+function isPropertyDefinitionCall(call: estree.CallExpression | undefined) {
+  const objects = ['Object', 'Reflect'];
+  const method = 'defineProperty';
+  const minArgs = 3;
+  return call && objects.some(object => isMethodInvocation(call, object, method, minArgs));
+}
+
+function isPropertiesDefinitionCall(call: estree.CallExpression | undefined) {
+  const object = 'Object';
+  const methods = ['defineProperties', 'create'];
+  const minArgs = 2;
+  return call && methods.some(methodName => isMethodInvocation(call, object, methodName, minArgs));
+}
+
+function getAccessor(
+  accessor: AccessorNode,
+  fieldMap: Map<string, Field> | null,
+  info: AccessorInfo,
+) {
+  const accessorIsPublic =
+    accessor.type !== 'MethodDefinition' ||
+    accessor.accessibility == null ||
+    accessor.accessibility === 'public';
+  const statements = getFunctionBody(accessor.value);
+  if (!fieldMap || !accessorIsPublic || !statements || statements.length > 1) {
+    return null;
+  }
+
+  const matchingFields = findMatchingFields(fieldMap, info.name);
+  if (matchingFields.length === 0) {
+    return null;
+  }
+
+  return {
+    statement: statements.length === 0 ? null : statements[0],
+    info,
+    matchingFields,
+    node: accessor,
+  };
+}
+
+function getNodeAccessorInfo(accessorNode: AccessorNode) {
+  if (accessorNode.type === 'MethodDefinition') {
+    return getObjectOrClassAccessorInfo(accessorNode);
+  } else {
+    return (
+      getMultiDescriptorsAccessorInfo(accessorNode) ??
+      getSingleDescriptorAccessorInfo(accessorNode) ??
+      getObjectOrClassAccessorInfo(accessorNode)
+    );
+  }
+}
+
+function getSingleDescriptorAccessorInfo(accessorNode: TSESTree.Property) {
+  const callNode = findParentCallExpression(accessorNode);
+  const propertyNode = callNode?.arguments[1];
+  if (!isPropertyDefinitionCall(callNode) || !propertyNode || !isStringLiteral(propertyNode)) {
+    return null;
+  }
+  return getDescriptorAccessorInfo(String(propertyNode.value), accessorNode);
+}
+
+function getMultiDescriptorsAccessorInfo(accessorNode: TSESTree.Property) {
+  const callNode = findParentCallExpression(accessorNode);
+  const propertyNode = accessorNode.parent?.parent;
+  if (!isPropertiesDefinitionCall(callNode) || propertyNode?.type !== 'Property') {
+    return null;
+  }
+  const propertyName = getName(propertyNode.key);
+  if (!propertyName) {
+    return null;
+  }
+  return getDescriptorAccessorInfo(propertyName, accessorNode);
+}
+
+function getDescriptorAccessorInfo(name: string, accessor: TSESTree.Property): AccessorInfo | null {
+  const key = getName(accessor.key);
+  if (key == null) {
+    return null;
+  } else {
+    // Name is not set to lower-case as we can't search variables in a case-insensitive way.
+    return {
+      type: key === 'get' ? 'getter' : 'setter',
+      name,
+      definition: 'descriptor',
+      refResolver: getIdentifierName,
+    };
+  }
+}
+
+function getObjectOrClassAccessorInfo(accessor: AccessorNode): AccessorInfo | null {
   let name = getName(accessor.key);
   if (!name) {
     return null;
   }
 
   name = name.toLowerCase();
+  let type: AccessorInfo['type'] | null = null;
+
   if (accessor.kind === 'get') {
-    return { type: 'getter', name };
+    type = 'getter';
   } else if (accessor.kind === 'set') {
-    return { type: 'setter', name };
-  } else {
-    return setterOrGetter(name, accessor.value);
+    type = 'setter';
+  } else if (accessor.value.type === 'FunctionExpression') {
+    const offset = 3;
+    const params = accessor.value.params;
+    if (name.startsWith('set') && name.length > offset && params.length === 1) {
+      type = 'setter';
+      name = name.substring(offset);
+    } else if (name.startsWith('get') && name.length > offset && params.length === 0) {
+      type = 'getter';
+      name = name.substring(offset);
+    }
   }
+
+  if (type == null) {
+    return null;
+  }
+
+  return {
+    type,
+    name,
+    definition: accessor.type === 'Property' ? 'object' : 'class',
+    refResolver: getPropertyName,
+  };
+}
+
+function findParentCallExpression(node: TSESTree.Property) {
+  const parent = node.parent?.parent;
+  const candidates = [parent, parent?.parent?.parent];
+  return candidates.find(node => node?.type === 'CallExpression') as estree.CallExpression;
 }
 
 function getName(key: TSESTree.Node) {
   if (key.type === 'Literal') {
     return String(key.value);
-  } else if (key.type === 'Identifier') {
+  } else if (key.type === 'Identifier' || key.type === 'PrivateIdentifier') {
     return key.name;
   }
   return null;
 }
 
-function setterOrGetter(name: string, functionExpression: TSESTree.Node): AccessorInfo | null {
-  if (functionExpression.type !== 'FunctionExpression') {
+function getNodeFieldMap(
+  context: Rule.RuleContext,
+  node: TSESTree.Node | undefined | null,
+  info: AccessorInfo,
+) {
+  if (info.definition === 'descriptor') {
+    return getSingleVariableFieldMap(context, info.name);
+  } else if (node?.type === 'ObjectExpression') {
+    return getObjectExpressionFieldMap(node);
+  } else if (node?.type === 'ClassBody') {
+    return getClassBodyFieldMap(node);
+  } else {
     return null;
   }
+}
 
-  if (name.startsWith('set') && functionExpression.params.length === 1) {
-    return { type: 'setter', name: name.substring(3) };
+function getSingleVariableFieldMap(context: Rule.RuleContext, name: string) {
+  const fieldMap = new Map<string, Field>();
+  for (const candidate of [name, `_${name}`, `${name}_`]) {
+    const variable = getVariableFromName(context, candidate);
+    if (variable != null && variable.defs.length > 0) {
+      fieldMap.set(candidate, { name: candidate, node: variable.defs[0].node });
+      break;
+    }
   }
-  if (name.startsWith('get') && functionExpression.params.length === 0) {
-    return { type: 'getter', name: name.substring(3) };
-  }
+  return fieldMap;
+}
 
-  return null;
+function getObjectExpressionFieldMap(node: TSESTree.ObjectExpression) {
+  return getFieldMap(node.properties, prop => (isValidObjectField(prop) ? prop.key : null));
+}
+
+function getClassBodyFieldMap(classBody: TSESTree.ClassBody) {
+  const fields = getFieldMap(classBody.body, classElement =>
+    (classElement.type === 'PropertyDefinition' ||
+      classElement.type === 'TSAbstractPropertyDefinition') &&
+    !classElement.static
+      ? classElement.key
+      : null,
+  );
+  const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(classBody);
+  return new Map([...fields, ...fieldsFromConstructor]);
 }
 
 function getFieldMap<T extends TSESTree.Node>(
   elements: T[],
   getPropertyName: (arg: T) => TSESTree.PropertyName | null,
 ) {
-  const fields: Map<string, Field> = new Map<string, Field>();
+  const fields = new Map<string, Field>();
   for (const element of elements) {
     const propertyNameNode = getPropertyName(element);
     if (propertyNameNode) {
@@ -177,27 +441,26 @@ function isValidObjectField(prop: TSESTree.Node): prop is TSESTree.Property {
 }
 
 function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBody) {
+  const fieldsFromConstructor = new Map<string, Field>();
   const constr = getConstructorOf(containingClass);
-  if (constr) {
-    const fieldsFromConstructor = new Map<string, Field>();
-    for (const parameter of constr.params) {
-      if (
-        parameter.type === 'TSParameterProperty' &&
-        (parameter.accessibility || parameter.readonly)
-      ) {
-        const parameterName = getName(parameter.parameter);
-        if (parameterName) {
-          fieldsFromConstructor.set(parameterName, {
-            name: parameterName,
-            node: parameter,
-          });
-        }
+  if (!constr) {
+    return fieldsFromConstructor;
+  }
+  for (const parameter of constr.params) {
+    if (
+      parameter.type === 'TSParameterProperty' &&
+      (parameter.accessibility || parameter.readonly)
+    ) {
+      const parameterName = getName(parameter.parameter);
+      if (parameterName) {
+        fieldsFromConstructor.set(parameterName, {
+          name: parameterName,
+          node: parameter,
+        });
       }
     }
-    return fieldsFromConstructor;
-  } else {
-    return new Map<string, Field>();
   }
+  return fieldsFromConstructor;
 }
 
 function getConstructorOf(
@@ -228,7 +491,7 @@ function getFunctionBody(node: TSESTree.Node) {
   return node.body.body;
 }
 
-function getPropertyName(expression: TSESTree.Expression | null) {
+function getPropertyName(expression: TSESTree.Expression | null): string | null {
   if (
     expression &&
     expression.type === 'MemberExpression' &&
@@ -239,25 +502,31 @@ function getPropertyName(expression: TSESTree.Expression | null) {
   return null;
 }
 
+function getIdentifierName(expression: TSESTree.Expression | null): string | null {
+  return expression?.type === 'Identifier' ? expression.name : null;
+}
+
 function getFieldUsedInsideSimpleBody(statement: TSESTree.Statement, accessorInfo: AccessorInfo) {
   if (accessorInfo.type === 'setter') {
     if (
       statement.type === 'ExpressionStatement' &&
       statement.expression.type === 'AssignmentExpression'
     ) {
-      return getPropertyName(statement.expression.left);
+      return accessorInfo.refResolver(statement.expression.left);
     }
   } else if (statement.type === 'ReturnStatement') {
-    return getPropertyName(statement.argument);
+    return accessorInfo.refResolver(statement.argument);
   }
   return null;
 }
 
-function isUsingAccessorFieldInBody(
-  statement: TSESTree.Statement,
-  accessorInfo: AccessorInfo,
-  matchingFields: Field[],
-) {
-  const usedField = getFieldUsedInsideSimpleBody(statement, accessorInfo);
-  return !usedField || matchingFields.some(matchingField => usedField === matchingField.name);
+function isUsingAccessorFieldInBody(accessor: Accessor) {
+  if (accessor.statement == null) {
+    return false;
+  }
+  const usedField = getFieldUsedInsideSimpleBody(accessor.statement, accessor.info);
+  if (!usedField) {
+    return true;
+  }
+  return accessor.matchingFields.some(matchingField => usedField === matchingField.name);
 }
