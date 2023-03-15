@@ -24,6 +24,16 @@ import * as estree from 'estree';
 import { globalsByLibraries } from './helpers';
 
 const illegalNames = ['arguments'];
+const objectPrototypeProperties = [
+  'constructor',
+  'hasOwnProperty',
+  'isPrototypeOf',
+  'propertyIsEnumerable',
+  'toLocaleString',
+  'toString',
+  'valueOf',
+];
+const deprecatedNames = ['escape', 'unescape'];
 
 const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
   messageId: 'forbidDeclaration',
@@ -84,10 +94,6 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isBuiltIn(name: string) {
-  return globalsByLibraries.builtin.includes(name);
-}
-
 function reportBadUsageOnFunction(
   func: estree.Function,
   id: estree.Node | null | undefined,
@@ -108,11 +114,7 @@ function reportBadUsage(
   if (node) {
     switch (node.type) {
       case 'Identifier': {
-        if (
-          illegalNames.includes(node.name) ||
-          isBuiltIn(node.name) ||
-          (isWrite && node.name === 'undefined')
-        ) {
+        if (isBadNameUsage(node.name, isWrite) && !isBadNameException(node.name)) {
           context.report({
             node: node,
             ...buildMessageAndData(node.name),
@@ -142,4 +144,32 @@ function reportBadUsage(
         break;
     }
   }
+}
+
+function isBadNameUsage(name: string, isWrite: boolean) {
+  return isIllegalName(name) || isBuiltInName(name) || isBadUndefinedUsage(isWrite, name);
+}
+
+function isIllegalName(name: string) {
+  return illegalNames.includes(name);
+}
+
+function isBuiltInName(name: string) {
+  return globalsByLibraries.builtin.includes(name);
+}
+
+function isBadUndefinedUsage(isWrite: boolean, name: string) {
+  return isWrite && name === 'undefined';
+}
+
+function isBadNameException(name: string) {
+  return isObjectPrototypeProperty(name) || isDeprecatedName(name);
+}
+
+function isObjectPrototypeProperty(name: string) {
+  return objectPrototypeProperties.includes(name);
+}
+
+function isDeprecatedName(name: string) {
+  return deprecatedNames.includes(name);
 }

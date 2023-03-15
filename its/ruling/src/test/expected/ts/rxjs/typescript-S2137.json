@@ -2,9 +2,6 @@
 'rxjs:src/Rx.ts':[
 213,
 ],
-'rxjs:src/observable/FromEventObservable.ts':[
-8,
-],
 'rxjs:src/symbol/iterator.ts':[
 4,
 13,

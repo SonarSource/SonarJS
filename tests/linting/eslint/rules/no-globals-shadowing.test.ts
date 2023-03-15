@@ -64,6 +64,11 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
         })(this);
         `,
     },
+    'var hasOwnProperty = Object.prototype.hasOwnProperty',
+    'const toString = Object.prototype.hasOwnProperty',
+    'function escape(html, encode) { return html; }',
+    'function unescape(html) { return html; }',
+    'const toString = {}.toString()',
   ],
   invalid: [
     {
