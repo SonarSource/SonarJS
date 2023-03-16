@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { getProgramById } from 'services/program';
+import { getProgramById, getProgramForFile } from 'services/program';
 import { JsTsAnalysisInput } from 'services/analysis';
 
 /**
@@ -43,7 +43,12 @@ export function buildParserOptions(
   sourceType: 'script' | 'module' = 'module',
 ) {
   const project = 'tsConfigs' in input ? input.tsConfigs : undefined;
-  const programs = 'programId' in input ? [getProgramById(input.programId)] : undefined;
+  const programs =
+    'programId' in input
+      ? [getProgramById(input.programId)]
+      : project
+      ? [getProgramForFile(input.filePath, project)]
+      : undefined;
 
   const options: Linter.ParserOptions = {
     tokens: true,

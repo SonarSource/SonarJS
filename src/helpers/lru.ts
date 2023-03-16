@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import express from 'express';
-import { createProgram } from 'services/program';
+class LRU<T> {
+  private readonly max: number;
+  private readonly cache: T[];
+  constructor(max = 5) {
+    this.max = max;
+    this.cache = [];
+  }
 
-/**
- * Handles TypeScript Program creation requests
- */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { tsConfig } = request.body;
-    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
-    response.json({ programId, files, projectReferences, missingTsConfig });
-  } catch (error) {
-    next(error);
+  get() {
+    return this.cache;
+  }
+
+  set(item: T) {
+    const index = this.cache.indexOf(item);
+    if (index >= 0) {
+      this.cache.splice(index, 1);
+    }
+    this.cache.push(item);
+    if (this.cache.length > this.max) {
+      this.cache.shift();
+    }
   }
 }

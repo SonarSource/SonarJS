@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getContext } from 'helpers';
+import { debug } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
-import { buildJs } from './build-js';
-import { buildTs } from './build-ts';
-import { buildVue } from './build-vue';
-import { Language } from 'parsing/jsts';
+import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -35,22 +32,50 @@ import { Language } from 'parsing/jsts';
  * @returns the parsed source code
  */
 export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
-  const isVueFile = input.filePath.endsWith('.vue');
+  const isVueFile = input.filePath.toLowerCase().endsWith('.vue');
 
-  if (language === 'ts') {
-    return buildTs(input, isVueFile);
+  try {
+    return parseForESLint(
+      input.fileContent,
+      isVueFile ? parsers.vuejs.parse : parsers.typescript.parse,
+      buildParserOptions(input, false, isVueFile ? parsers.typescript.parser : undefined),
+    );
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
+    if (language === 'ts') {
+      throw error;
+    }
   }
 
-  const tryTypeScriptParser = shouldTryTypeScriptParser();
-
-  if (isVueFile) {
-    return buildVue(input, tryTypeScriptParser);
-  } else {
-    return buildJs(input, tryTypeScriptParser);
+  let moduleError;
+  try {
+    return parseForESLint(
+      input.fileContent,
+      isVueFile ? parsers.vuejs.parse : parsers.javascript.parse,
+      buildParserOptions(input, true, isVueFile ? parsers.javascript.parser : undefined),
+    );
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);
+    if (isVueFile) {
+      throw error;
+    }
+    moduleError = error;
   }
-}
 
-function shouldTryTypeScriptParser() {
-  const context = getContext();
-  return context ? context.shouldUseTypeScriptParserForJS : true;
+  try {
+    return parseForESLint(
+      input.fileContent,
+      parsers.javascript.parse,
+      buildParserOptions(input, true, undefined, 'script'),
+    );
+  } catch (error) {
+    debug(
+      `Failed to parse ${input.filePath} with Javascript parser in 'script' mode: ${error.message}`,
+    );
+    /**
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
+     */
+    throw moduleError;
+  }
 }

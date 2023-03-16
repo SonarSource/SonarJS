@@ -71,6 +71,17 @@ const emptySourceCode = {
 const programs = new Map<string, ts.Program>();
 
 /**
+ * A cache of created TypeScript's Program instances
+ *
+ * It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
+ */
+const cachedPrograms = new Map<string, WeakRef<ts.Program>>();
+/**
+ * Cache to keep strong references to the latest used Programs to avoid GC
+ */
+const LRUCache = new LRU<ts.Program>();
+
+/**
  * A counter of created TypeScript's Program instances
  */
 let programCount = 0;
@@ -99,22 +110,70 @@ export function getProgramById(programId: string): ts.Program {
 }
 
 /**
+ * Creates or gets the proper existing TypeScript's Program containing a given source file.
+ * @param filePath The file to the sourceCode file to analyze
+ * @param tsconfigs The list of jsconfig/tsconfig files found in the project
+ * @returns the retrieved TypeScript's Program
+ */
+export async function getProgramForFile(
+  filePath: string,
+  tsconfigs: string[],
+): Promise<ts.Program> {
+  for (const [tsconfig, programRef] of cachedPrograms) {
+    const program = programRef.deref();
+    if (program) {
+      if (program.getSourceFiles().find(sourceFile => sourceFile.fileName === filePath)) {
+        LRUCache.set(program);
+        return program;
+      }
+    } else {
+      cachedPrograms.delete(tsconfig);
+    }
+  }
+  for (const tsconfig of tsconfigs) {
+    if (!cachedPrograms.has(tsconfig)) {
+      const { program } = await createProgram(tsconfig);
+      cachedPrograms.set(tsconfig, new WeakRef(program));
+      if (program.getSourceFiles().find(sourceFile => sourceFile.fileName === filePath)) {
+        LRUCache.set(program);
+        return program;
+      }
+    }
+  }
+  const tsconfig = `tsconfig-${filePath}.json`;
+  const tsConfigContents = {
+    compilerOptions: {
+      allowJs: true,
+      noImplicitAny: true,
+    },
+    files: [filePath],
+  };
+  const { program } = await createProgram(tsconfig, JSON.stringify(tsConfigContents));
+  cachedPrograms.set(tsconfig, new WeakRef(program));
+  if (program.getSourceFiles().find(sourceFile => sourceFile.fileName === filePath)) {
+    LRUCache.set(program);
+    return program;
+  }
+  throw Error(`Could not create a program containing ${filePath}`);
+}
+
+/**
  * Gets the files resolved by a TSConfig
  *
  * The resolving of the files for a given TSConfig file is done
  * by invoking TypeScript compiler.
  *
  * @param tsConfig TSConfig to parse
- * @param configHost parsing configuration
+ * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
  * @returns the resolved TSConfig files
  */
 export function createProgramOptions(
   tsConfig: string,
-  configHost?: ts.ParseConfigHost,
+  tsconfigContents?: string,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = configHost || {
+  const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -126,6 +185,9 @@ export function createProgramOptions(
       return ts.sys.fileExists(file);
     },
     readFile: file => {
+      if (file === tsConfig && tsconfigContents) {
+        return tsconfigContents;
+      }
       const fileContents = ts.sys.readFile(file);
       // When Typescript search for tsconfig which does not exist, return empty configuration
       // only when the check is for the last location at the root node_modules
@@ -187,18 +249,23 @@ export function createProgramOptions(
  * files considered by the TSConfig as well as any project references.
  *
  * @param tsConfig the TSConfig input to create a program for
+ * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
  * @returns the identifier of the created TypeScript's Program along with the
- *          resolved files, project references and a boolean 'missingTsConfig'
- *          which is true when an extended tsconfig.json path was not found,
- *          which defaulted to default Typescript configuration
+ *          program itself, the resolved files, project references and a boolean
+ *          'missingTsConfig' which is true when an extended tsconfig.json path
+ *          was not found, which defaulted to default Typescript configuration
  */
-export async function createProgram(tsConfig: string): Promise<{
+export async function createProgram(
+  tsConfig: string,
+  tsconfigContents?: string,
+): Promise<{
   programId: string;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
+  program: ts.Program;
 }> {
-  const programOptions = createProgramOptions(tsConfig);
+  const programOptions = createProgramOptions(tsConfig, tsconfigContents);
 
   programOptions.host = ts.createCompilerHost(programOptions.options);
 
@@ -244,6 +311,7 @@ export async function createProgram(tsConfig: string): Promise<{
     files,
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
+    program,
   };
 }
 
