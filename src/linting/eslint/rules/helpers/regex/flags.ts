@@ -18,14 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
+import { isStaticTemplateLiteral, isStringLiteral } from '../ast';
 
 export function getFlags(callExpr: estree.CallExpression): string | null {
   if (callExpr.arguments.length < 2) {
     return '';
   }
   const flags = callExpr.arguments[1];
-  if (flags.type === 'Literal' && typeof flags.value === 'string') {
+  // Matches flags in: new RegExp(pattern, 'u')
+  if (isStringLiteral(flags)) {
     return flags.value;
+  }
+  // Matches flags with basic template literals as in: new RegExp(pattern, `u`)
+  // but not: new RegExp(pattern, `${flag}`)
+  if (isStaticTemplateLiteral(flags) && flags.quasis[0].value.cooked != null) {
+    return flags.quasis[0].value.cooked;
   }
   return null;
 }
