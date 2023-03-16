@@ -357,6 +357,7 @@ public final class CheckList {
       UndefinedArgumentCheck.class,
       UndefinedAssignmentCheck.class,
       UnicodeAwareRegexCheck.class,
+      UnnecessaryCharacterEscapesCheck.class,
       UnnecessaryTypeArgumentsCheck.class,
       UnreachableCodeCheck.class,
       UnsafeUnzipCheck.class,
