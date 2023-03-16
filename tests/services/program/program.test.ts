@@ -30,13 +30,6 @@ import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { writeTSConfigFile } from 'services/program';
 import fs from 'fs/promises';
 
-const defaultParseConfigHost: ts.ParseConfigHost = {
-  useCaseSensitiveFileNames: true,
-  readDirectory: ts.sys.readDirectory,
-  fileExists: ts.sys.fileExists,
-  readFile: ts.sys.readFile,
-};
-
 describe('program', () => {
   it('should create a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
@@ -188,8 +181,7 @@ describe('program', () => {
   });
 
   it('should return files', () => {
-    const readFile = _path => `{ "files": ["/foo/file.ts"] }`;
-    const result = createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    const result = createProgramOptions('tsconfig.json', '{ "files": ["/foo/file.ts"] }');
     expect(result).toMatchObject({
       rootNames: ['/foo/file.ts'],
       projectReferences: undefined,
@@ -197,15 +189,16 @@ describe('program', () => {
   });
 
   it('should report errors', () => {
-    const readFile = _path => `{ "files": [] }`;
-    expect(() =>
-      createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile }),
-    ).toThrow(`The 'files' list in config file 'tsconfig.json' is empty.`);
+    expect(() => createProgramOptions('tsconfig.json', '{ "files": [] }')).toThrow(
+      `The 'files' list in config file 'tsconfig.json' is empty.`,
+    );
   });
 
   it('should return projectReferences', () => {
-    const readFile = _path => `{ "files": [], "references": [{ "path": "foo" }] }`;
-    const result = createProgramOptions('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    const result = createProgramOptions(
+      'tsconfig.json',
+      '{ "files": [], "references": [{ "path": "foo" }] }',
+    );
     const cwd = process.cwd().split(path.sep).join(path.posix.sep);
     expect(result).toMatchObject({
       rootNames: [],
