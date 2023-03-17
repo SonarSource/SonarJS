@@ -22,6 +22,7 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { Position } from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -37,14 +38,15 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         if (call.callee.type !== 'CallExpression' && call.arguments.length === 1) {
+          const callee = getCallee(call);
           const parenthesis = sourceCode.getLastTokenBetween(
-            call.callee,
+            callee,
             call.arguments[0],
             isClosingParen,
           );
-          const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(call.callee))!
-            .loc.end.line;
-          const { start } = sourceCode.getTokenAfter(call.callee, isNotClosingParen)!.loc;
+          const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(callee))!.loc
+            .end.line;
+          const { start } = sourceCode.getTokenAfter(callee, isNotClosingParen)!.loc;
           if (calleeLastLine !== start.line) {
             const { end } = sourceCode.getLastToken(call)!.loc;
             if (end.line !== start.line) {
@@ -73,6 +75,11 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getCallee(call: estree.CallExpression) {
+  const node = call as TSESTree.CallExpression;
+  return (node.typeParameters ?? node.callee) as estree.Node;
+}
 
 function isClosingParen(token: AST.Token) {
   return token.type === 'Punctuator' && token.value === ')';
