@@ -1,0 +1,33 @@
+<h2>Why is this an issue?</h2>
+<p>Numbers in JavaScript are stored as 64-bit floating-point. However, numbers that can’t be represented in such a format get rounded before assigning
+them to a variable.</p>
+<h3>What is the potential impact?</h3>
+<p>When you are saving a number that is too big or contains a fraction that is not expressible in the 64-bit floating-point format, it gets rounded
+which will lead to unexpected behaviours when it will be used.</p>
+<h2>How to fix it</h2>
+<p>When you need to store a large number, use <code>BigInt()</code>. Pay attention that operations between <code>BigInt</code> and <code>Number</code>
+types raise an error, so you will have to adapt your code accordingly.</p>
+<p>For numbers with digits after the decimal, it is recommended to use a library to ensure that calculation errors are not introduced by rounding.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+const foo = 2312123211345545367
+const bar = 0.123456789123456789
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+const foo = BigInt(2312123211345545367)
+// use a library like decimal.js for storing numbers containing decimal digits
+</pre>
+<h3>How does this work?</h3>
+<p>JavaScript numbers are stored in a double-precision 64-bit binary format IEEE 754. There are limits to what can be stored in this format both in
+huge numbers as in numbers with decimal digits. When attempting to store a number that can not be represented in this format into a variable, the
+number gets rounded before storage.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">MDN Number</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">Wikipedia Double-precision floating-point format</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/IEEE_754">Wikipedia IEEE 754 Standard</a> </li>
+</ul>
+
