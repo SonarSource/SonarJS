@@ -18,62 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { getProgramById, getProgramForFile } from 'services/program';
-import { JsTsAnalysisInput } from 'services/analysis';
 
 /**
  * Builds ESLint parser options
  *
  * ESLint parser options allows for customizing the behaviour of
  * the ESLint-based parser used to parse JavaScript or TypeScript
- * code. It configures the ECMAscript version, specific syntax or
+ * code. It configures the ECMAScript version, specific syntax or
  * features to consider as valid during parsing, and additional
  * contents in the abstract syntax tree, among other things.
  *
- * @param input the analysis input to parse
+ * @param initialOptions the analysis options to use
  * @param usingBabel a flag to indicate if we intend to parse with Babel
- * @param parser a parser dependency to use
- * @param sourceType the type of the source code
  * @returns the parser options for the input
  */
-export function buildParserOptions(
-  input: JsTsAnalysisInput,
-  usingBabel = false,
-  parser?: string,
-  sourceType: 'script' | 'module' = 'module',
-) {
-  const project = 'tsConfigs' in input ? input.tsConfigs : undefined;
-  const programs =
-    'programId' in input
-      ? [getProgramById(input.programId)]
-      : project
-      ? [getProgramForFile(input.filePath, project)]
-      : undefined;
-
+export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBabel = false) {
   const options: Linter.ParserOptions = {
     tokens: true,
     comment: true,
     loc: true,
     range: true,
     ecmaVersion: 2018,
-    sourceType,
+    sourceType: 'module',
     codeFrame: false,
     ecmaFeatures: {
       jsx: true,
       globalReturn: false,
       legacyDecorators: true,
     },
-
     // for Vue parser
     extraFileExtensions: ['.vue'],
-    parser,
-
-    // for TS parser
-    filePath: input.filePath,
-    project,
-    programs,
-    // enable logs for @typescripteslint
-    // debugLevel: true,
+    ...initialOptions,
   };
 
   if (usingBabel) {

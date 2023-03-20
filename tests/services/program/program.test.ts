@@ -19,10 +19,12 @@
  */
 import path from 'path';
 import {
+  createAndSaveProgram,
   createProgram,
   createProgramOptions,
   deleteProgram,
   getProgramById,
+  getProgramForFile,
   isRootNodeModules,
 } from 'services/program';
 import { toUnixPath } from 'helpers';
@@ -36,7 +38,7 @@ describe('program', () => {
     const reference = path.join(fixtures, 'reference');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-    const { programId, files, projectReferences } = await createProgram(tsConfig);
+    const { programId, files, projectReferences } = await createAndSaveProgram(tsConfig);
 
     expect(programId).toBeDefined();
     expect(files).toEqual(
@@ -52,7 +54,9 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
 
-    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
+    const { programId, files, projectReferences, missingTsConfig } = await createAndSaveProgram(
+      tsConfig,
+    );
 
     expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
@@ -76,7 +80,9 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-    const { programId, files, projectReferences, missingTsConfig } = await createProgram(tsConfig);
+    const { programId, files, projectReferences, missingTsConfig } = await createAndSaveProgram(
+      tsConfig,
+    );
 
     expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
@@ -156,7 +162,7 @@ describe('program', () => {
   it('should find an existing program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files } = await createProgram(tsConfig);
+    const { programId, files } = await createAndSaveProgram(tsConfig);
 
     const program = getProgramById(programId);
 
@@ -174,7 +180,7 @@ describe('program', () => {
   it('should delete a program', async () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = await createAndSaveProgram(tsConfig);
 
     deleteProgram(programId);
     expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
@@ -240,5 +246,15 @@ describe('program', () => {
     expect(content).toBe(
       '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
     );
+  });
+
+  it('getProgramFromFile creates Program using tsconfig.json', async () => {
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures'));
+    const tsConfig = toUnixPath(path.join(fixtures, 'paths', 'tsconfig.json'));
+    const mainFile = toUnixPath(path.join(fixtures, 'paths', 'file.ts'));
+    const dependencyPath = toUnixPath(path.join(fixtures, 'paths', 'subfolder', 'index.ts'));
+
+    const program = await getProgramForFile(mainFile, [tsConfig]);
+    expect(program.files).toContain(dependencyPath);
   });
 });
