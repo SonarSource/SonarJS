@@ -118,7 +118,7 @@ ws_scan_task:
     cpu: 4
     memory: 8G
   # run only on master and long-term branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  #  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
   <<: *MAVEN_CACHE
@@ -126,7 +126,7 @@ ws_scan_task:
     - source cirrus-env QA
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn clean install -DskipTests
+    - npm run build-plugin
     - source ws_scan.sh
   allow_failures: 'true'
   always:
