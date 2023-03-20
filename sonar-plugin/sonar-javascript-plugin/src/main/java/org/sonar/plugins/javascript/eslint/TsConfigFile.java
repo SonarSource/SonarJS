@@ -21,11 +21,16 @@ package org.sonar.plugins.javascript.eslint;
 
 import static java.util.Collections.emptyList;
 
+import java.io.IOException;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,18 +46,32 @@ class TsConfigFile implements Predicate<InputFile> {
   );
 
   final String filename;
-  final List<String> files;
+  final Set<String> files;
   final List<String> projectReferences;
 
   TsConfigFile(String filename, List<String> files, List<String> projectReferences) {
     this.filename = filename;
-    this.files = files;
+    this.files = files.stream().map(TsConfigFile::normalizePath).collect(Collectors.toSet());
     this.projectReferences = projectReferences;
+  }
+
+  static String normalizePath(String path) {
+    try {
+      return Path
+        .of(path)
+        .toRealPath(LinkOption.NOFOLLOW_LINKS)
+        .toString()
+        .replaceAll("[\\\\/]", "/");
+    } catch (IOException e) {
+      LOG.debug("Could not normalize {}", path);
+      return path;
+    }
   }
 
   @Override
   public boolean test(InputFile inputFile) {
-    return files.contains(inputFile.absolutePath());
+    var path = normalizePath(inputFile.absolutePath());
+    return files.contains(path);
   }
 
   static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(

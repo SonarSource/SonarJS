@@ -35,6 +35,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -55,14 +56,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   }
 
   @Override
-  public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
-    if (tsConfigs.isEmpty()) {
-      // This can happen where we are not able to create temporary file for generated tsconfig.json
-      LOG.warn("No tsconfig.json file found, analysis will be skipped.");
-      return;
-    }
-
+  public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(
@@ -156,7 +150,9 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           null,
           analysisMode.getLinterIdFor(file)
         );
-        var response = eslintBridgeServer.analyzeTypeScript(request);
+        var response = isJavaScript(file)
+          ? eslintBridgeServer.analyzeJavaScript(request)
+          : eslintBridgeServer.analyzeTypeScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
@@ -171,5 +167,9 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
+  }
+
+  private boolean isJavaScript(InputFile file) {
+    return JavaScriptLanguage.KEY.equals(file.language());
   }
 }

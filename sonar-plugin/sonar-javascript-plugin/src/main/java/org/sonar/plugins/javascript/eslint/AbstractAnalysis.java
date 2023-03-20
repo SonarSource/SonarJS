@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
@@ -40,7 +39,10 @@ abstract class AbstractAnalysis {
   AbstractChecks checks;
   ProgressReport progressReport;
   AnalysisMode analysisMode;
-  TempFolder tempFolder;
+
+  // eventually it would be possible to remove this field, it's only needed because we analyze JS and TS in two different sensors
+  // to avoid the files to be analyzed by both sensors. With single sensor we won't have this problem
+  protected String language;
 
   AbstractAnalysis(
     EslintBridgeServer eslintBridgeServer,
@@ -56,14 +58,14 @@ abstract class AbstractAnalysis {
     SensorContext context,
     AbstractChecks checks,
     AnalysisMode analysisMode,
-    TempFolder tempFolder
+    String language
   ) {
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = analysisMode;
-    this.tempFolder = tempFolder;
+    this.language = language;
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+  abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
 }

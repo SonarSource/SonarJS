@@ -112,4 +112,11 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
+
+  protected boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
+    return (
+      inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) &&
+      !contextUtils.isSonarLint()
+    );
+  }
 }

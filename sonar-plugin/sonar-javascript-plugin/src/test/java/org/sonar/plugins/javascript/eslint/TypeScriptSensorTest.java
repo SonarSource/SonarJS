@@ -363,8 +363,14 @@ class TypeScriptSensorTest {
     parseError.parsingError.message = "Debug Failure. False expression.";
     parseError.parsingError.code = ParsingErrorCode.FAILING_TYPESCRIPT;
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
-    createInputFile(context, "dir/file1.ts");
-    createInputFile(context, "dir/file2.ts");
+    var file1 = createInputFile(context, "dir/file1.ts");
+    var file2 = createInputFile(context, "dir/file2.ts");
+    var tsConfigFile = new TsConfigFile(
+      "tsconfig.json",
+      List.of(file1.absolutePath(), file2.absolutePath()),
+      emptyList()
+    );
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     createVueInputFile();
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR))

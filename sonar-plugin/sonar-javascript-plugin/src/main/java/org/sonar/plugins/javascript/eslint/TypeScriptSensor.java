@@ -28,12 +28,15 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
+  private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
@@ -77,17 +80,21 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
 
-    var analysis = shouldAnalyzeWithProgram(inputFiles)
-      ? analysisWithProgram
-      : analysisWithWatchProgram;
-    analysis.initialize(context, checks, analysisMode, tempFolder);
-    analysis.analyzeFiles(inputFiles);
-  }
-
-  private boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
-    return (
-      inputFiles.stream().noneMatch(f -> f.filename().endsWith(".vue")) &&
-      !contextUtils.isSonarLint()
-    );
+    List<String> tsConfigs;
+    AbstractAnalysis analysis;
+    if (shouldAnalyzeWithProgram(inputFiles)) {
+      tsConfigs = new TsConfigProvider().tsconfigs(context);
+      analysis = analysisWithProgram;
+    } else {
+      // we keep the TsConfigProvider with tempFolder to create tsconfig for vue analysis, this should be removed in
+      // next refactoring
+      tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+      analysis = analysisWithWatchProgram;
+    }
+    if (tsConfigs.isEmpty()) {
+      LOG.info("No tsconfig.json file found");
+    }
+    analysis.initialize(context, checks, analysisMode, TypeScriptLanguage.KEY);
+    analysis.analyzeFiles(inputFiles, tsConfigs);
   }
 }

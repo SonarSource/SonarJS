@@ -21,37 +21,25 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
-import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
-  private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
-
   private final TempFolder tempFolder;
   private final JavaScriptChecks checks;
-  private final AnalysisProcessor processAnalysis;
   private final JavaScriptProjectChecker javaScriptProjectChecker;
-  private AnalysisMode analysisMode;
+  private final AnalysisWithProgram analysisWithProgram;
+  private final AnalysisWithWatchProgram analysisWithWatchProgram;
 
   // This constructor is required to avoid an error in SonarCloud because there's no implementation available for the interface
   // JavaScriptProjectChecker. The implementation for that interface is available only in SonarLint. Unlike SonarCloud,
@@ -62,9 +50,19 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder folder,
     Monitoring monitoring,
-    AnalysisProcessor processAnalysis
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
-    this(checks, eslintBridgeServer, analysisWarnings, folder, monitoring, processAnalysis, null);
+    this(
+      checks,
+      eslintBridgeServer,
+      analysisWarnings,
+      folder,
+      monitoring,
+      null,
+      analysisWithProgram,
+      analysisWithWatchProgram
+    );
   }
 
   public JavaScriptEslintBasedSensor(
@@ -73,23 +71,32 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder folder,
     Monitoring monitoring,
-    AnalysisProcessor processAnalysis,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = folder;
     this.checks = checks;
-    this.processAnalysis = processAnalysis;
     this.javaScriptProjectChecker = javaScriptProjectChecker;
+    this.analysisWithProgram = analysisWithProgram;
+    this.analysisWithWatchProgram = analysisWithWatchProgram;
   }
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    runEslintAnalysis(getTsConfigProvider().tsconfigs(context), inputFiles);
+    AnalysisMode analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+    var tsConfigs = getTsConfigProvider().tsconfigs(context);
+    var analysis = shouldAnalyzeWithProgram(inputFiles)
+      ? analysisWithProgram
+      : analysisWithWatchProgram;
+    analysis.initialize(context, checks, analysisMode, JavaScriptLanguage.KEY);
+    analysis.analyzeFiles(inputFiles, tsConfigs);
   }
 
   private TsConfigProvider.Provider getTsConfigProvider() {
-    if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
+    if (contextUtils.isSonarLint()) {
       JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
       return new TsConfigProvider.WildcardTsConfigProvider(
         javaScriptProjectChecker,
@@ -105,73 +112,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private String createTsConfigFile(String content) throws IOException {
     return eslintBridgeServer.createTsConfigFile(content).filename;
-  }
-
-  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles)
-    throws IOException {
-    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    ProgressReport progressReport = new ProgressReport(
-      "Analysis progress",
-      TimeUnit.SECONDS.toMillis(10)
-    );
-    boolean success = false;
-    try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
-      for (InputFile inputFile : inputFiles) {
-        monitoring.startFile(inputFile);
-        if (context.isCancelled()) {
-          throw new CancellationException(
-            "Analysis interrupted because the SensorContext is in cancelled state"
-          );
-        }
-        if (eslintBridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.absolutePath());
-          analyze(inputFile, tsConfigs);
-        } else {
-          throw new IllegalStateException("eslint-bridge server is not answering");
-        }
-      }
-      success = true;
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
-    }
-  }
-
-  private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
-    if (cacheStrategy.isAnalysisRequired()) {
-      try {
-        LOG.debug("Analyzing file: {}", file.uri());
-        String fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        JsAnalysisRequest jsAnalysisRequest = new JsAnalysisRequest(
-          file.absolutePath(),
-          file.type().toString(),
-          fileContent,
-          contextUtils.ignoreHeaderComments(),
-          tsConfigs,
-          null,
-          analysisMode.getLinterIdFor(file)
-        );
-        AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(jsAnalysisRequest);
-        processAnalysis.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
-          file
-        );
-      } catch (IOException e) {
-        LOG.error("Failed to get response while analyzing " + file.uri(), e);
-        throw e;
-      }
-    } else {
-      LOG.debug("Processing cache analysis of file: {}", file.uri());
-      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-      processAnalysis.processCacheAnalysis(context, file, cacheAnalysis);
-    }
   }
 
   @Override
