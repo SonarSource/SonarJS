@@ -94,5 +94,6 @@ export const quickFixRules = new Set([
   'no-unused-function-argument',
   'prefer-promise-shorthand',
   'prefer-type-guard',
+  'unnecessary-character-escapes',
   'unused-import',
 ]);

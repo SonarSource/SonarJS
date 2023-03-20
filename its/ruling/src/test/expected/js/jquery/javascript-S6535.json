@@ -1,0 +1,17 @@
+{
+'jquery:build/tasks/build.js':[
+95,
+120,
+120,
+220,
+],
+'jquery:src/core/var/rsingleTag.js':[
+3,
+],
+'jquery:src/manipulation.js':[
+27,
+],
+'jquery:src/manipulation/var/rtagName.js':[
+4,
+],
+}

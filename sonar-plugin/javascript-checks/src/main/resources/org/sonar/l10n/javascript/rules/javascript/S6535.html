@@ -1,0 +1,28 @@
+<p>In JavaScript, we can use the <code>/</code> (backslash) character to escape special characters inside a string, a template literal, or a regular
+expression.</p>
+<p>It indicates that the next character should be treated as a literal character rather than as a special character or string delimiter.</p>
+<p>For instance, it is common to escape single quotes inside a string literal using the single quote delimiter like <code>'It\'s a beautiful
+day'</code>.</p>
+<p>Escaping is only meaningful for special characters.</p>
+<h2>Why is this an issue?</h2>
+<p>Escaping non-special characters in strings, template literals, and regular expressions doesn’t affect their value. Therefore, useless escapes
+impact code readability and could even denote a bug in the code if the developer left it by mistake or intended to escape another special character
+instead.</p>
+<h2>How to fix it</h2>
+<p>We can safely remove a useless character escape without changing the original behaviour.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+const regex = /[\[]/;
+const octal = '\8';
+const hello = 'Hello, world\!';
+const path  = `\/${some}\/${dir}`;
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+const regex = /[[]/;
+const octal = '8';
+const hello = 'Hello, world!';
+const path  = `/${some}/${dir}`;
+</pre>
+

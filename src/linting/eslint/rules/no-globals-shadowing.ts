@@ -24,6 +24,16 @@ import * as estree from 'estree';
 import { globalsByLibraries } from './helpers';
 
 const illegalNames = ['arguments'];
+const objectPrototypeProperties = [
+  'constructor',
+  'hasOwnProperty',
+  'isPrototypeOf',
+  'propertyIsEnumerable',
+  'toLocaleString',
+  'toString',
+  'valueOf',
+];
+const deprecatedNames = ['escape', 'unescape'];
 
 const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
   messageId: 'forbidDeclaration',
@@ -53,11 +63,16 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
-          reportBadUsage(decl.id, getDeclarationIssue('variable'), context, decl.init != null);
+          reportGlobalShadowing(
+            decl.id,
+            getDeclarationIssue('variable'),
+            context,
+            decl.init != null,
+          );
         });
       },
       UpdateExpression(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.UpdateExpression).argument,
           getModificationIssue,
           context,
@@ -65,7 +80,7 @@ export const rule: Rule.RuleModule = {
         );
       },
       AssignmentExpression(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.AssignmentExpression).left,
           getModificationIssue,
           context,
@@ -73,7 +88,7 @@ export const rule: Rule.RuleModule = {
         );
       },
       CatchClause(node: estree.Node) {
-        reportBadUsage(
+        reportGlobalShadowing(
           (node as estree.CatchClause).param,
           getDeclarationIssue('variable'),
           context,
@@ -84,22 +99,18 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isBuiltIn(name: string) {
-  return globalsByLibraries.builtin.includes(name);
-}
-
 function reportBadUsageOnFunction(
   func: estree.Function,
   id: estree.Node | null | undefined,
   context: Rule.RuleContext,
 ) {
-  reportBadUsage(id, getDeclarationIssue('function'), context, true);
+  reportGlobalShadowing(id, getDeclarationIssue('function'), context, true);
   func.params.forEach(p => {
-    reportBadUsage(p, getDeclarationIssue('parameter'), context, false);
+    reportGlobalShadowing(p, getDeclarationIssue('parameter'), context, false);
   });
 }
 
-function reportBadUsage(
+function reportGlobalShadowing(
   node: estree.Node | null | undefined,
   buildMessageAndData: (name: string) => { messageId: string; data: any },
   context: Rule.RuleContext,
@@ -108,11 +119,7 @@ function reportBadUsage(
   if (node) {
     switch (node.type) {
       case 'Identifier': {
-        if (
-          illegalNames.includes(node.name) ||
-          isBuiltIn(node.name) ||
-          (isWrite && node.name === 'undefined')
-        ) {
+        if (isGlobalShadowing(node.name, isWrite) && !isShadowingException(node.name)) {
           context.report({
             node: node,
             ...buildMessageAndData(node.name),
@@ -121,25 +128,53 @@ function reportBadUsage(
         break;
       }
       case 'RestElement':
-        reportBadUsage(node.argument, buildMessageAndData, context, true);
+        reportGlobalShadowing(node.argument, buildMessageAndData, context, true);
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
           if (prop.type === 'Property') {
-            reportBadUsage(prop.value, buildMessageAndData, context, true);
+            reportGlobalShadowing(prop.value, buildMessageAndData, context, true);
           } else {
-            reportBadUsage(prop.argument, buildMessageAndData, context, true);
+            reportGlobalShadowing(prop.argument, buildMessageAndData, context, true);
           }
         });
         break;
       case 'ArrayPattern':
         node.elements.forEach(elem => {
-          reportBadUsage(elem, buildMessageAndData, context, true);
+          reportGlobalShadowing(elem, buildMessageAndData, context, true);
         });
         break;
       case 'AssignmentPattern':
-        reportBadUsage(node.left, buildMessageAndData, context, true);
+        reportGlobalShadowing(node.left, buildMessageAndData, context, true);
         break;
     }
   }
+}
+
+function isGlobalShadowing(name: string, isWrite: boolean) {
+  return isIllegalName(name) || isBuiltInName(name) || isUndefinedShadowing(isWrite, name);
+}
+
+function isIllegalName(name: string) {
+  return illegalNames.includes(name);
+}
+
+function isBuiltInName(name: string) {
+  return globalsByLibraries.builtin.includes(name);
+}
+
+function isUndefinedShadowing(isWrite: boolean, name: string) {
+  return isWrite && name === 'undefined';
+}
+
+function isShadowingException(name: string) {
+  return isObjectPrototypeProperty(name) || isDeprecatedName(name);
+}
+
+function isObjectPrototypeProperty(name: string) {
+  return objectPrototypeProperties.includes(name);
+}
+
+function isDeprecatedName(name: string) {
+  return deprecatedNames.includes(name);
 }
