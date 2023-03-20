@@ -449,6 +449,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (tsConfigResponse.error != null) {
       LOG.error(tsConfigResponse.error);
     }
+    LOG.debug("tsconfig {} files {}", filename, tsConfigResponse.files);
     return new TsConfigFile(
       filename,
       emptyListIfNull(tsConfigResponse.files),

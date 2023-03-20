@@ -32,7 +32,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
@@ -59,11 +58,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var tsConfigs = new TsConfigProvider().tsconfigs(context);
-    if (tsConfigs.isEmpty()) {
-      LOG.info("No tsconfig.json file found");
-    }
+  void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
     boolean success = false;
@@ -130,7 +125,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
             fs.predicates().hasAbsolutePath(file),
             // we need to check the language, because project might contain files which were already analyzed with JS sensor
             // this should be removed once we unify the two sensors
-            fs.predicates().hasLanguage(TypeScriptLanguage.KEY)
+            fs.predicates().hasLanguage(language)
           )
       );
       if (inputFile == null) {
@@ -157,24 +152,26 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         "Analysis interrupted because the SensorContext is in cancelled state"
       );
     }
+    if (!eslintBridgeServer.isAlive()) {
+      throw new IllegalStateException("eslint-bridge server is not answering");
+    }
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.absolutePath());
         monitoring.startFile(file);
-        EslintBridgeServer.JsAnalysisRequest request = new EslintBridgeServer.JsAnalysisRequest(
+        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var request = new EslintBridgeServer.JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
-          null,
+          fileContent,
           contextUtils.ignoreHeaderComments(),
           null,
           tsProgram.programId,
           analysisMode.getLinterIdFor(file)
         );
-        EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeWithProgram(
-          request
-        );
+        var response = eslintBridgeServer.analyzeWithProgram(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
