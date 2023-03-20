@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug } from 'helpers';
+import { debug, getContext } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
+import { getProgramById, getProgramForFile } from '../../../services/program';
+import { Linter } from 'eslint';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -31,19 +33,33 @@ import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/j
  * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
+export async function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
   const isVueFile = input.filePath.toLowerCase().endsWith('.vue');
 
-  try {
-    return parseForESLint(
-      input.fileContent,
-      isVueFile ? parsers.vuejs.parse : parsers.typescript.parse,
-      buildParserOptions(input, false, isVueFile ? parsers.typescript.parser : undefined),
-    );
-  } catch (error) {
-    debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
-    if (language === 'ts') {
-      throw error;
+  if (getContext()?.shouldUseTypeScriptParserForJS !== false) {
+    const options: Linter.ParserOptions = {
+      // enable logs for @typescripteslint
+      // debugLevel: true,
+      filePath: input.filePath,
+      programs: 'programId' in input ? [getProgramById(input.programId)] : undefined,
+      project: 'tsConfigs' in input ? input.tsConfigs : undefined,
+      parser: isVueFile ? parsers.typescript.parser : undefined,
+    };
+    if ('tsConfigs' in input && !options.programs) {
+      options.programs = [(await getProgramForFile(input.filePath, input.tsConfigs)).program];
+    }
+
+    try {
+      return parseForESLint(
+        input.fileContent,
+        isVueFile ? parsers.vuejs.parse : parsers.typescript.parse,
+        buildParserOptions(options, false),
+      );
+    } catch (error) {
+      debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
+      if (language === 'ts') {
+        throw error;
+      }
     }
   }
 
@@ -52,7 +68,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
     return parseForESLint(
       input.fileContent,
       isVueFile ? parsers.vuejs.parse : parsers.javascript.parse,
-      buildParserOptions(input, true, isVueFile ? parsers.javascript.parser : undefined),
+      buildParserOptions({ parser: isVueFile ? parsers.javascript.parser : undefined }, true),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);
@@ -66,7 +82,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
     return parseForESLint(
       input.fileContent,
       parsers.javascript.parse,
-      buildParserOptions(input, true, undefined, 'script'),
+      buildParserOptions({ sourceType: 'script' }, true),
     );
   } catch (error) {
     debug(
