@@ -19,9 +19,24 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5868/javascript
 
-import { Rule } from 'eslint';
+import { AST, Rule } from 'eslint';
+import {
+  getSimpleRawStringValue,
+  isRegexLiteral,
+  isSimpleRawString,
+  isStaticTemplateLiteral,
+  isStringLiteral,
+} from './helpers';
+import { createRegExpRule, isRegExpConstructor } from './helpers/regex';
+import { RegExpValidator } from 'regexpp';
 import { Character, CharacterClassElement } from 'regexpp/ast';
-import { createRegExpRule } from './helpers/regex';
+import * as estree from 'estree';
+
+const metadata = {
+  meta: {
+    hasSuggestions: true,
+  },
+};
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function characters(nodes: CharacterClassElement[]): Character[][] {
@@ -45,15 +60,6 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     }
     return sequences;
   }
-
-  // The order matters as surrogate pair check may trigger at the same time as zero-width-joiner.
-  const characterChecks = [
-    checkCombinedCharacter,
-    checkZeroWidthJoinerCharacter,
-    checkModifiedEmojiCharacter,
-    checkRegionalIndicatorCharacter,
-    checkSurrogatePairTailCharacter,
-  ];
 
   function checkSequence(sequence: Character[]) {
     // Stop on the first illegal character in the sequence
@@ -99,10 +105,59 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
       const surrogatePair = characters[index - 1].raw + characters[index].raw;
       const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of [...] or use 'u' flag`;
-      context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
+      const pattern = getPattern(context.node);
+      let suggest: Rule.ReportDescriptorOptions['suggest'];
+
+      if (pattern && isValidWithUnicodeFlag(pattern)) {
+        suggest = [
+          {
+            desc: "Add unicode 'u' flag to regex",
+            fix: fixer => addUnicodeFlag(fixer, context.node),
+          },
+        ];
+      }
+
+      context.reportRegExpNode({
+        regexpNode: characters[index],
+        node: context.node,
+        message,
+        suggest,
+      });
       reported = true;
     }
     return reported;
+  }
+
+  function getPattern(node: estree.Node): string | null | undefined {
+    if (isRegexLiteral(node)) {
+      return node.regex.pattern;
+    } else if (!isRegExpConstructorPattern(node)) {
+      return null;
+    } else if (isStringLiteral(node)) {
+      return node.value;
+    } else if (isSimpleTemplateLiteral(node)) {
+      return node.quasis[0].value.cooked;
+    } else if (isSimpleRawString(node)) {
+      return getSimpleRawStringValue(node);
+    } else {
+      return null;
+    }
+  }
+
+  function addUnicodeFlag(fixer: Rule.RuleFixer, node: estree.Node) {
+    if (isRegexLiteral(node)) {
+      return insertTextAfter(fixer, node, 'u');
+    } else if (!isRegExpConstructorPattern(node)) {
+      return null;
+    } else if (node.parent.arguments.length === 1) {
+      const token = sourceCode.getLastToken(node.parent, { skip: 1 });
+      return insertTextAfter(fixer, token, ', "u"');
+    } else if (isStringConstant(node.parent.arguments[1])) {
+      const [start, end] = node.parent.arguments[1].range ?? [];
+      return start && end ? fixer.insertTextAfterRange([start, end - 1], 'u') : null;
+    } else {
+      return null;
+    }
   }
 
   function checkModifiedEmojiCharacter(
@@ -166,6 +221,27 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     return reported;
   }
 
+  function isValidWithUnicodeFlag(pattern: string) {
+    try {
+      validator.validatePattern(pattern, undefined, undefined, true);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const sourceCode = context.getSourceCode();
+  const validator = new RegExpValidator();
+
+  // The order matters as surrogate pair check may trigger at the same time as zero-width-joiner.
+  const characterChecks = [
+    checkCombinedCharacter,
+    checkZeroWidthJoinerCharacter,
+    checkModifiedEmojiCharacter,
+    checkRegionalIndicatorCharacter,
+    checkSurrogatePairTailCharacter,
+  ];
+
   return {
     onCharacterClassEnter(ccNode) {
       for (const chars of characters(ccNode.elements)) {
@@ -173,7 +249,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       }
     },
   };
-});
+}, metadata);
 
 function isCombiningCharacter(codePoint: number) {
   return /^[\p{Mc}\p{Me}\p{Mn}]$/u.test(String.fromCodePoint(codePoint));
@@ -193,4 +269,37 @@ function isRegionalIndicator(code: number) {
 
 function isZeroWidthJoiner(code: number) {
   return code === 0x200d;
+}
+
+function isRegExpConstructorPattern(
+  node: estree.Node,
+): node is Rule.Node & { parent: estree.CallExpression } {
+  return (
+    hasParent(node) &&
+    isRegExpConstructor(node.parent) &&
+    isStringConstant(node.parent.arguments[0])
+  );
+}
+
+function isStringConstant(node: estree.Node | null | undefined) {
+  return (
+    node != null &&
+    (isStringLiteral(node) || isSimpleTemplateLiteral(node) || isSimpleRawString(node))
+  );
+}
+
+function isSimpleTemplateLiteral(node: estree.Node): node is estree.TemplateLiteral {
+  return isStaticTemplateLiteral(node) && node.quasis[0].value.cooked != null;
+}
+
+function hasParent(node: estree.Node): node is Rule.Node {
+  return 'parent' in node;
+}
+
+function insertTextAfter(
+  fixer: Rule.RuleFixer,
+  node: estree.Node | AST.Token | null,
+  text: string,
+) {
+  return node ? fixer.insertTextAfter(node, text) : null;
 }

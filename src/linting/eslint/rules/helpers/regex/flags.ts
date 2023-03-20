@@ -18,7 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
-import { isStaticTemplateLiteral, isStringLiteral } from '../ast';
+import {
+  getSimpleRawStringValue,
+  isSimpleRawString,
+  isStaticTemplateLiteral,
+  isStringLiteral,
+} from '../ast';
 
 export function getFlags(callExpr: estree.CallExpression): string | null {
   if (callExpr.arguments.length < 2) {
@@ -31,8 +36,14 @@ export function getFlags(callExpr: estree.CallExpression): string | null {
   }
   // Matches flags with basic template literals as in: new RegExp(pattern, `u`)
   // but not: new RegExp(pattern, `${flag}`)
+  // The cooked value should always be non-null in this case.
   if (isStaticTemplateLiteral(flags) && flags.quasis[0].value.cooked != null) {
     return flags.quasis[0].value.cooked;
+  }
+  // Matches flags with simple raw strings as in: new RegExp(pattern, String.raw`u`)
+  // but not: new RegExp(pattern, String.raw`${flag}`)
+  if (isSimpleRawString(flags)) {
+    return getSimpleRawStringValue(flags);
   }
   return null;
 }

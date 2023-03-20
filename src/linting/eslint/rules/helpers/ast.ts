@@ -587,6 +587,23 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
   );
 }
 
+// Test for raw expressions like: String.raw`c:\foo\bar.txt` that corresponds to 'c:\\foo\\bar.txt'
+export function isSimpleRawString(node: estree.Node): node is estree.TaggedTemplateExpression {
+  return (
+    node.type === 'TaggedTemplateExpression' &&
+    isDotNotation(node.tag) &&
+    isIdentifier(node.tag.object, 'String') &&
+    isIdentifier(node.tag.property, 'raw') &&
+    isStaticTemplateLiteral(node.quasi)
+  );
+}
+
+// In simple raw strings, the literal value is: node.quasi.quasis[0].value.raw
+// This function fails if isSimpleRawString() is not returning true for the node.
+export function getSimpleRawStringValue(node: estree.TaggedTemplateExpression) {
+  return node.quasi.quasis[0].value.raw;
+}
+
 export function isThisExpression(node: estree.Node): node is estree.ThisExpression {
   return node.type === 'ThisExpression';
 }

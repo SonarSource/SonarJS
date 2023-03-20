@@ -96,4 +96,5 @@ export const quickFixRules = new Set([
   'prefer-type-guard',
   'unnecessary-character-escapes',
   'unused-import',
+  'sonar-no-misleading-character-class',
 ]);

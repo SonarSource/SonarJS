@@ -22,8 +22,23 @@ import { rule } from 'linting/eslint/rules/sonar-no-misleading-character-class';
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2015 } });
 
 const combiningClass = c => `Move this Unicode combined character '${c}' outside of [...]`;
-const surrogatePair = c =>
-  `Move this Unicode surrogate pair '${c}' outside of [...] or use 'u' flag`;
+
+function surrogatePair(c, output?, start?: number, end?: number) {
+  const error = {
+    message: `Move this Unicode surrogate pair '${c}' outside of [...] or use 'u' flag`,
+  };
+  if (output) {
+    error['suggestions'] = [{ desc: "Add unicode 'u' flag to regex", output }];
+  }
+  if (start != null) {
+    error['column'] = start;
+  }
+  if (end != null) {
+    error['endColumn'] = end;
+  }
+  return [error];
+}
+
 const modifiedEmoji = c => `Move this Unicode modified Emoji '${c}' outside of [...]`;
 const regionalIndicator = c => `Move this Unicode regional indicator '${c}' outside of [...]`;
 const zwj = 'Move this Unicode joined character sequence outside of [...]';
@@ -44,37 +59,35 @@ ruleTester.run('', rule, {
     'var r = /[JP]/',
     'var r = /👨‍👩‍👦/',
 
-    // Ignore solo lead/tail surrogate.
     'var r = /[\\uD83D]/',
     'var r = /[\\uDC4D]/',
     'var r = /[\\uD83D]/u',
     'var r = /[\\uDC4D]/u',
 
-    // Ignore solo combining char.
     'var r = /[\\u0301]/',
     'var r = /[\\uFE0F]/',
     'var r = /[\\u0301]/u',
     'var r = /[\\uFE0F]/u',
 
-    // Coverage
     'var r = /[x\\S]/u',
     'var r = /[xa-z]/u',
 
-    // Ignore solo emoji modifier.
     'var r = /[\\u{1F3FB}]/u',
     'var r = /[\u{1F3FB}]/u',
 
-    // Ignore solo regional indicator symbol.
     'var r = /[🇯]/u',
     'var r = /[🇵]/u',
 
-    // Ignore solo ZWJ.
     'var r = /[\\u200D]/',
     'var r = /[\\u200D]/u',
 
     // don't report and don't crash on invalid regex
     "var r = new RegExp('[Á] [ ');",
     "var r = RegExp('{ [Á]', 'u');",
+
+    // new RegExp(`^\\[Á]$`).test("[Á]") -> true
+    'new RegExp(`^\\\\[Á]$`).test("[Á]")',
+
     {
       code: "var r = new globalThis.RegExp('[Á] [ ');",
       env: { es2020: true },
@@ -92,6 +105,23 @@ ruleTester.run('', rule, {
     {
       code: 'var r = /[Á]/',
       errors: [{ message: combiningClass('Á') }],
+    },
+    {
+      code: 'var r = new RegExp("[Á]")',
+      errors: [{ column: 23, endColumn: 24, message: combiningClass('Á') }],
+    },
+    {
+      code: 'var r = new RegExp(`[Á]`)',
+      errors: [{ column: 20, endColumn: 26, message: combiningClass('Á') }],
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[Á]`)',
+      errors: [{ column: 20, endColumn: 36, message: combiningClass('Á') }],
+    },
+    // Regexp is /\\[Á]/ corresponding to <backslash/><character-class range="Á"/>
+    {
+      code: 'var r = new RegExp(String.raw`\\\\[Á]`)',
+      errors: [{ column: 20, endColumn: 38, message: combiningClass('Á') }],
     },
     {
       code: 'var r = /[Á]/u',
@@ -141,29 +171,41 @@ ruleTester.run('', rule, {
     // RegExp Literals.
     {
       code: 'var r = /[👍]/',
-      errors: [{ message: surrogatePair('👍') }],
+      errors: surrogatePair('👍', 'var r = /[👍]/u', 12, 13),
     },
     {
       code: 'var r = /[\\uD83D\\uDC4D]/',
-      errors: [{ message: surrogatePair('\\uD83D\\uDC4D') }],
+      errors: surrogatePair('\\uD83D\\uDC4D', 'var r = /[\\uD83D\\uDC4D]/u'),
     },
     {
       code: 'var r = /(?<=[👍])/',
       parserOptions: { ecmaVersion: 9 },
-      errors: [{ message: surrogatePair('👍') }],
+      errors: surrogatePair('👍', 'var r = /(?<=[👍])/u'),
     },
     {
       code: 'var r = /(?<=[👍])/',
       parserOptions: { ecmaVersion: 9 },
-      errors: [{ message: surrogatePair('👍') }],
+      errors: surrogatePair('👍', 'var r = /(?<=[👍])/u'),
     },
     {
       code: 'var r = /[👶🏻]/',
-      errors: [{ message: surrogatePair('👶') }],
+      errors: surrogatePair('👶', 'var r = /[👶🏻]/u'),
     },
     {
       code: 'var r = /[👶🏻]/u',
-      errors: [{ message: modifiedEmoji('👶🏻') }],
+      errors: [{ column: 13, endColumn: 15, message: modifiedEmoji('👶🏻') }],
+    },
+    {
+      code: 'var r = new RegExp("[👶🏻]", "u")',
+      errors: [{ column: 26, endColumn: 27, message: modifiedEmoji('👶🏻') }],
+    },
+    {
+      code: 'var r = new RegExp(`[👶🏻]`, `u`)',
+      errors: [{ column: 20, endColumn: 28, message: modifiedEmoji('👶🏻') }],
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[👶🏻]`, String.raw`u`)',
+      errors: [{ column: 20, endColumn: 38, message: modifiedEmoji('👶🏻') }],
     },
     {
       code: 'var r = /[\\uD83D\\uDC76\\uD83C\\uDFFB]/u',
@@ -175,15 +217,27 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = /[🇯🇵]/',
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', 'var r = /[🇯🇵]/u'),
     },
     {
       code: 'var r = /[🇯🇵]/i',
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', 'var r = /[🇯🇵]/iu'),
     },
     {
       code: 'var r = /[🇯🇵]/u',
-      errors: [{ message: regionalIndicator('🇯🇵') }],
+      errors: [{ column: 13, endColumn: 15, message: regionalIndicator('🇯🇵') }],
+    },
+    {
+      code: 'var r = new RegExp("[🇯🇵]", "u")',
+      errors: [{ column: 26, endColumn: 27, message: regionalIndicator('🇯🇵') }],
+    },
+    {
+      code: 'var r = new RegExp(`[🇯🇵]`, `u`)',
+      errors: [{ column: 20, endColumn: 28, message: regionalIndicator('🇯🇵') }],
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[🇯🇵]`, `u`)',
+      errors: [{ column: 20, endColumn: 38, message: regionalIndicator('🇯🇵') }],
     },
     {
       code: 'var r = /[\\uD83C\\uDDEF\\uD83C\\uDDF5]/u',
@@ -195,11 +249,23 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = /[👨‍👩‍👦]/',
-      errors: [{ message: surrogatePair('👨') }],
+      errors: surrogatePair('👨', 'var r = /[👨‍👩‍👦]/u'),
     },
     {
       code: 'var r = /[👨‍👩‍👦]/u',
-      errors: [{ message: zwj }],
+      errors: [{ column: 11, endColumn: 13, message: zwj }],
+    },
+    {
+      code: 'var r = new RegExp("[👨‍👩‍👦]", "u")',
+      errors: [{ column: 22, endColumn: 25, message: zwj }],
+    },
+    {
+      code: 'var r = new RegExp(`[👨‍👩‍👦]`, `u`)',
+      errors: [{ column: 20, endColumn: 32, message: zwj }],
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[👨‍👩‍👦]`, String.raw`u`)',
+      errors: [{ column: 20, endColumn: 42, message: zwj }],
     },
     {
       code: 'var r = /[\\uD83D\\uDC68\\u200D\\uD83D\\uDC69\\u200D\\uD83D\\uDC66]/u',
@@ -212,30 +278,61 @@ ruleTester.run('', rule, {
 
     // RegExp constructors.
     {
-      code: String.raw`var r = new RegExp("[👍]", "")`,
-      errors: [{ message: surrogatePair('👍') }],
+      code: 'var r = new RegExp("[👍]")',
+      errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")', 24, 25),
     },
     {
-      code: "var r = new RegExp('[👍]', ``)",
-      errors: [{ message: surrogatePair('👍') }],
+      code: 'var r = new RegExp(`[👍]`)',
+      errors: surrogatePair('👍', 'var r = new RegExp(`[👍]`, "u")', 20, 26),
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[👍]`)',
+      errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, "u")', 20, 36),
+    },
+    {
+      code: 'var r = new RegExp("[👍]", "")',
+      errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")'),
+    },
+    {
+      code: 'var r = new RegExp(`[👍]`, ``)',
+      errors: surrogatePair('👍', 'var r = new RegExp(`[👍]`, `u`)'),
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[👍]`, String.raw``)',
+      errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, String.raw`u`)'),
+    },
+    {
+      code: 'var r = new RegExp("[👍]", "i")',
+      errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "iu")'),
+    },
+    {
+      code: 'var r = new RegExp(`[👍]`, `i`)',
+      errors: surrogatePair('👍', 'var r = new RegExp(`[👍]`, `iu`)'),
+    },
+    {
+      code: 'var r = new RegExp(String.raw`[👍]`, String.raw`i`)',
+      errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, String.raw`iu`)'),
     },
     {
       code: String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "")`,
-      errors: [{ message: surrogatePair('\\uD83D\\uDC4D') }],
+      errors: surrogatePair(
+        '\\uD83D\\uDC4D',
+        String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "u")`,
+      ),
     },
     {
       code: String.raw`var r = new RegExp("/(?<=[👍])", "")`,
       parserOptions: { ecmaVersion: 9 },
-      errors: [{ message: surrogatePair('👍') }],
+      errors: surrogatePair('👍', String.raw`var r = new RegExp("/(?<=[👍])", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("/(?<=[👍])", "")`,
       parserOptions: { ecmaVersion: 2018 },
-      errors: [{ message: surrogatePair('👍') }],
+      errors: surrogatePair('👍', String.raw`var r = new RegExp("/(?<=[👍])", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("[👶🏻]", "")`,
-      errors: [{ message: surrogatePair('👶') }],
+      errors: surrogatePair('👶', String.raw`var r = new RegExp("[👶🏻]", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("[👶🏻]", "u")`,
@@ -251,27 +348,27 @@ ruleTester.run('', rule, {
     },
     {
       code: String.raw`var r = new RegExp("[🇯🇵]", "")`,
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new RegExp("[🇯🇵]", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("[🇯🇵]", "i")`,
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new RegExp("[🇯🇵]", "iu")`),
     },
     {
       code: "var r = new RegExp('[🇯🇵]', `i`)",
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', "var r = new RegExp('[🇯🇵]', `iu`)"),
     },
     {
       code: String.raw`var r = new RegExp("[🇯🇵]")`,
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new RegExp("[🇯🇵]", "u")`),
     },
     {
       code: String.raw`var r = new RegExp(("[🇯🇵]"))`,
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new RegExp(("[🇯🇵]"), "u")`),
     },
     {
       code: String.raw`var r = new RegExp((("[🇯🇵]")))`,
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new RegExp((("[🇯🇵]")), "u")`),
     },
     {
       code: String.raw`var r = new RegExp("[🇯🇵]", "u")`,
@@ -287,7 +384,7 @@ ruleTester.run('', rule, {
     },
     {
       code: String.raw`var r = new RegExp("[👨‍👩‍👦]", "")`,
-      errors: [{ message: surrogatePair('👨') }],
+      errors: surrogatePair('👨', String.raw`var r = new RegExp("[👨‍👩‍👦]", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("[👨‍👩‍👦]", "u")`,
@@ -314,7 +411,7 @@ ruleTester.run('', rule, {
     {
       code: String.raw`var r = new globalThis.RegExp("[🇯🇵]", "")`,
       env: { es2020: true },
-      errors: [{ message: surrogatePair('🇯') }],
+      errors: surrogatePair('🇯', String.raw`var r = new globalThis.RegExp("[🇯🇵]", "u")`),
     },
     {
       code: String.raw`var r = new globalThis.RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
