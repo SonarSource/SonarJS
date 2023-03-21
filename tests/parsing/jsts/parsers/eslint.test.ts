@@ -45,7 +45,7 @@ describe('ESLint-based parsers', () => {
     const fileType = 'MAIN';
 
     const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as Language) as SourceCode;
+    const sourceCode = (await buildSourceCode(input, language as Language)) as SourceCode;
 
     expect(sourceCode).toBeDefined();
     expect(sourceCode.ast).toBeDefined();

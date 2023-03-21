@@ -49,6 +49,7 @@ interface PartialJsTsAnalysisInput extends AnalysisInput {
  */
 export interface TSConfigBasedAnalysisInput extends PartialJsTsAnalysisInput {
   tsConfigs: string[];
+  noProgram?: boolean;
 }
 
 /**

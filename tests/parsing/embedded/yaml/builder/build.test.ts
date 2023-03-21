@@ -72,7 +72,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix plain-based format locations', async () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
 
     const {
       body: [ifStmt],
@@ -141,7 +141,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-folded-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     const {
       body: [ifStmt],
     } = ast;
@@ -209,7 +209,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-literal-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     const {
       body: [ifStmt],
     } = ast;
@@ -277,7 +277,7 @@ describe('buildSourceCodes()', () => {
 
   it('should compose a synthetic file path', async () => {
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
-    const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(
+    const [firstExtendedSourceCode, secondExtendedSourceCode] = await buildSourceCodes(
       await embeddedInput({ filePath }),
       'yaml',
     );

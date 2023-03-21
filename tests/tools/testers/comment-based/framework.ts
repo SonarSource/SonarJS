@@ -49,12 +49,12 @@ interface ExpectationsResult {
  * @param usesSecondaryLocations A flag that indicates if the tested rule uses sonar-runtime parameter
  * @returns an array of ESLint test case errors
  */
-export function extractExpectations(
+export async function extractExpectations(
   fileContent: string,
   filePath: string,
   usesSecondaryLocations: boolean,
-): ExpectationsResult {
-  const expectedIssues = new FileIssues(fileContent, filePath).getExpectedIssues();
+): Promise<ExpectationsResult> {
+  const expectedIssues = await new FileIssues(fileContent, filePath).getExpectedIssues();
   const encodeMessageIfNeeded = usesSecondaryLocations ? toEncodedMessage : message => message;
   const result: ExpectationsResult = { errors: [], output: fileContent };
   expectedIssues.forEach(issue => {

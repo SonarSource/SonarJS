@@ -36,7 +36,7 @@ import { Linter } from 'eslint';
 export async function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
   const isVueFile = input.filePath.toLowerCase().endsWith('.vue');
 
-  if (getContext()?.shouldUseTypeScriptParserForJS !== false) {
+  if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescripteslint
       // debugLevel: true,
@@ -45,8 +45,14 @@ export async function buildSourceCode(input: JsTsAnalysisInput, language: Langua
       project: 'tsConfigs' in input ? input.tsConfigs : undefined,
       parser: isVueFile ? parsers.typescript.parser : undefined,
     };
-    if ('tsConfigs' in input && !options.programs) {
-      options.programs = [(await getProgramForFile(input.filePath, input.tsConfigs)).program];
+    if (
+      'tsConfigs' in input &&
+      !options.programs &&
+      !shouldUseWatchProgram(input.filePath) &&
+      input.noProgram !== true
+    ) {
+      const program = await getProgramForFile(input.filePath, input.tsConfigs);
+      options.programs = [program.program];
     }
 
     try {
@@ -94,4 +100,12 @@ export async function buildSourceCode(input: JsTsAnalysisInput, language: Langua
      */
     throw moduleError;
   }
+}
+
+function shouldUseWatchProgram(file: string): boolean {
+  return getContext()?.sonarlint || file.toLowerCase().endsWith('.vue');
+}
+
+function shouldUseTypescriptParser(language: Language): boolean {
+  return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }

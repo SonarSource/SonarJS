@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { buildParserOptions } from 'parsing/jsts';
-import { createProgram, getProgramById } from 'services/program';
+import { createAndSaveProgram, getProgramById } from 'services/program';
 import path from 'path';
 
 describe('buildParserOptions', () => {
@@ -75,7 +75,7 @@ describe('buildParserOptions', () => {
   it('should build parser options with TypeScript program', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'options', 'tsconfig.json');
 
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = await createAndSaveProgram(tsConfig);
     const program = getProgramById(programId);
 
     const filePath = '/tmp/dir';

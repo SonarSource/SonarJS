@@ -48,25 +48,11 @@ type ProgramResult = {
  *
  * It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
  */
-const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
+export const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
 /**
  * Cache to keep strong references to the latest used Programs to avoid GC
  */
 const LRUCache = new LRU<ProgramResult>();
-
-/**
- * A counter of created TypeScript's Program instances
- */
-let programCount = 0;
-
-/**
- * Computes the next identifier available for a TypeScript's Program.
- * @returns
- */
-function nextId() {
-  programCount++;
-  return programCount.toString();
-}
 
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
@@ -220,7 +206,6 @@ export async function createProgram(
   tsconfigContents?: string,
 ): Promise<ProgramResult> {
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
-
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
@@ -249,6 +234,20 @@ export async function createProgram(
  * It associates a program identifier to an instance of a TypeScript's Program.
  */
 const programs = new Map<string, ts.Program>();
+
+/**
+ * A counter of created TypeScript's Program instances
+ */
+let programCount = 0;
+
+/**
+ * Computes the next identifier available for a TypeScript's Program.
+ * @returns
+ */
+function nextId() {
+  programCount++;
+  return programCount.toString();
+}
 
 /**
  * Creates a TypeScript's Program instance and saves it in memory

@@ -212,12 +212,12 @@ describe('Comment-based Testing Framework', () => {
     expect(result).toMatchObject({ errors: [{ line: 1 }] });
   });
 
-  it('quickfix', () => {
+  it('quickfix', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // fix@qf {{description}}
 // edit@qf {{fixed.code();}}`;
-    expect(extractExpectations(code, '', false)).toMatchObject({
+    expect(await extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -235,43 +235,45 @@ fixed.code();// Noncompliant [[qf]]
     });
   });
 
-  it('wrong quickfix id', () => {
+  it('wrong quickfix id', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // fix@qf1 {{description}}`;
-    expect(() => extractExpectations(code, '', false)).toThrow(/Unexpected quickfix ID 'qf1'/);
+    await expect(() => extractExpectations(code, '', false)).rejects.toMatchObject({
+      message: expect.stringMatching(/Unexpected quickfix ID 'qf1'/),
+    });
   });
 
-  it('quickfix id already declared', () => {
+  it('quickfix id already declared', async () => {
     const code = `wrong.code();// Noncompliant [[qf, qf]]`;
-    expect(() => extractExpectations(code, '', false)).toThrow(
-      'QuickFix ID qf has already been declared',
-    );
+    await expect(() => extractExpectations(code, '', false)).rejects.toMatchObject({
+      message: 'QuickFix ID qf has already been declared',
+    });
   });
 
-  it('quickfix wrong end column', () => {
+  it('quickfix wrong end column', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=20]] {{fixed.code();}}`;
-    expect(() => extractExpectations(code, '', false)).toThrow(
-      /End column cannot be in \/\/ Noncompliant comment/,
-    );
+    await expect(() => extractExpectations(code, '', false)).rejects.toMatchObject({
+      message: expect.stringMatching(/End column cannot be in \/\/ Noncompliant comment/),
+    });
   });
 
-  it('quickfix end below start column', () => {
+  it('quickfix end below start column', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=2;sc=10]] {{fixed.code();}}`;
-    expect(() => extractExpectations(code, '', false)).toThrow(
-      /End column cannot be lower than start position/,
-    );
+    await expect(() => extractExpectations(code, '', false)).rejects.toMatchObject({
+      message: expect.stringMatching(/End column cannot be lower than start position/),
+    });
   });
 
-  it('quickfix with start and end column', () => {
+  it('quickfix with start and end column', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf]]
 // edit@qf [[ec=10;sc=6]] {{smelly.buggy.code}}`;
-    expect(extractExpectations(code, '', false)).toMatchObject({
+    expect(await extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -287,12 +289,12 @@ wrong.smelly.buggy.code();// Noncompliant [[qf]]
     });
   });
 
-  it('quickfix with 2 suggestions in same issue', () => {
+  it('quickfix with 2 suggestions in same issue', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf1,qf2=0]]
 // edit@qf1 [[ec=5]] {{fixed}}
 // edit@qf2 [[ec=5]] {{repaired}}`;
-    expect(extractExpectations(code, '', false)).toMatchObject({
+    expect(await extractExpectations(code, '', false)).toMatchObject({
       errors: [
         {
           line: 2,
@@ -315,7 +317,7 @@ repaired.code();// Noncompliant [[qf1,qf2=0]]
     });
   });
 
-  it('autofix with multiple edits', () => {
+  it('autofix with multiple edits', async () => {
     const code = `
 wrong.code();// Noncompliant [[qf!]]
 
@@ -331,7 +333,7 @@ bad.code();// Noncompliant [[qf2!]]
 // add@qf2@+1 {{super.code();}}
 // del@qf2@+2
 `;
-    expect(extractExpectations(code, '', false)).toMatchObject({
+    expect(await extractExpectations(code, '', false)).toMatchObject({
       output: `
 fixed.code();// Noncompliant [[qf!]]
 better.code();
