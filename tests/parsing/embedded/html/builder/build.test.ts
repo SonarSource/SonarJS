@@ -25,7 +25,7 @@ describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');
   it('should build source codes from an HTML file', async () => {
     const filePath = join(fixturesPath, 'multiple.html');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'html');
+    const sourceCodes = await buildSourceCodes(await embeddedInput({ filePath }), 'html');
     expect(sourceCodes).toHaveLength(2);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
     expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });

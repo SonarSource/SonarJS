@@ -52,7 +52,12 @@ describe('sanitizeTypeScriptESLintRule', () => {
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
-      const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
+      const sourceCode = (await parseTypeScriptSourceFile(
+        filePath,
+        tsConfigs,
+        'MAIN',
+        true,
+      )) as SourceCode;
       const rules = { [ruleId]: 'error' } as any;
 
       const messages = linter.verify(sourceCode, { rules });
