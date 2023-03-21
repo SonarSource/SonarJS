@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { setContext } from 'helpers';
+import { setContext, toUnixPath } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
+import { cachedPrograms } from 'services/program';
 
 describe('buildSourceCode', () => {
   beforeEach(() => {
@@ -131,7 +132,7 @@ describe('buildSourceCode', () => {
       bundles: [],
     });
 
-    expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
+    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
@@ -155,7 +156,9 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
-    expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(Error('bla'));
+    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
+      Error('Unexpected token (3:0)'),
+    );
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
@@ -224,7 +227,7 @@ describe('buildSourceCode', () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const analysisInput = await jsTsInput({ filePath, tsConfigs });
-    expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
+    await expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
       APIError.parsingError(`'}' expected.`, { line: 2 }),
     );
   });
@@ -248,13 +251,18 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building excluded TypeScript code from TSConfig', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
+    const tsConfig = path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json');
+    const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
 
-    const analysisInput = await jsTsInput({ filePath, tsConfigs });
-    expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
-      Error('TSConfig does not include this file.'),
-    );
+    const analysisInput = await jsTsInput({ filePath, tsConfigs: [tsConfig] });
+    await buildSourceCode(analysisInput, 'ts');
+
+    expect(cachedPrograms.has(tsConfig)).toBeTruthy();
+    expect(cachedPrograms.get(tsConfig).deref().files).not.toContain(filePath);
+
+    expect(cachedPrograms.has(fakeTsConfig)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig).deref().files).toContain(filePath);
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {
@@ -287,7 +295,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
+    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
       APIError.parsingError('Unexpected token (3:0)', { line: 7 }),
     );
   });
@@ -307,7 +315,9 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath });
-    expect(buildSourceCode(analysisInput, 'ts')).rejects;
+    await expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
+      Error('Expression expected.'),
+    );
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
     expect(console.log).toHaveBeenCalledWith(log);

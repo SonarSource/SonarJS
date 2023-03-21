@@ -62,9 +62,9 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
       ['.js', '.jsx', '.ts', '.tsx', '.vue'].includes(ext.toLowerCase()) &&
       rules.hasOwnProperty(rule)
     ) {
-      describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
+      describe(`Running comment-based tests for rule ${rule} ${ext}`, async () => {
         const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
-        const { errors, output } = extractExpectations(
+        const { errors, output } = await extractExpectations(
           code,
           filename,
           hasSonarRuntimeOption(rules[rule], rule),
@@ -84,14 +84,14 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module
  */
-export function parseForESLint(
+export async function parseForESLint(
   fileContent: string,
   options: { filePath: string },
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
   const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
-  const sourceCode = buildSourceCode(
+  const sourceCode = await buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),
   );

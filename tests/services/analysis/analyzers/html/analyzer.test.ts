@@ -41,7 +41,10 @@ describe('analyzeHTML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeEmbedded(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), 'html');
+    } = await analyzeEmbedded(
+      await jsTsInput({ filePath: join(fixturesPath, 'file.html') }),
+      'html',
+    );
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -55,7 +58,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       'html',
     );
@@ -88,7 +91,7 @@ describe('analyzeHTML', () => {
         fileTypeTarget: ['MAIN'],
       },
     ]);
-    const { issues } = analyzeEmbedded(
+    const { issues } = await analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
       'html',
     );
@@ -113,7 +116,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
       'html',
     );
@@ -136,7 +139,7 @@ describe('analyzeHTML', () => {
     initializeLinter([
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
       'html',
     );

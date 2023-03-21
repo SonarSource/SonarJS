@@ -36,7 +36,7 @@ describe('patchSourceCode', () => {
   it('should patch source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
     const text = await readFile(filePath);
-    const [patchedSourceCode] = buildSourceCodes(
+    const [patchedSourceCode] = await buildSourceCodes(
       {
         filePath,
         fileContent: text,
@@ -69,7 +69,7 @@ describe('patchSourceCode', () => {
 
     let filePath = `${fixture}.yaml`;
     let fileContent = await readFile(filePath);
-    const [patchedSourceCode] = buildSourceCodes(
+    const [patchedSourceCode] = await buildSourceCodes(
       { filePath, fileContent } as EmbeddedAnalysisInput,
       'yaml',
     );
@@ -78,7 +78,7 @@ describe('patchSourceCode', () => {
     filePath = `${fixture}.js`;
     fileContent = await readFile(filePath);
     const input = { filePath, fileContent } as JsTsAnalysisInput;
-    const referenceSourceCode = buildSourceCode(input, 'js');
+    const referenceSourceCode = await buildSourceCode(input, 'js');
     const referenceNodes = referenceSourceCode.ast[property];
 
     expect(patchedNodes).toEqual(referenceNodes);
@@ -91,7 +91,7 @@ describe('patchSourceCode', () => {
     let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
-      buildSourceCodes({ filePath, fileContent } as EmbeddedAnalysisInput, 'yaml');
+      await buildSourceCodes({ filePath, fileContent } as EmbeddedAnalysisInput, 'yaml');
     } catch (error) {
       patchedParsingError = error;
     }

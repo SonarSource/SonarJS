@@ -34,7 +34,6 @@ import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import { parsers } from 'parsing/jsts';
 import { LRU } from '../../helpers/lru';
 
 type ProgramResult = {
@@ -45,56 +44,15 @@ type ProgramResult = {
 };
 
 /**
- * Empty AST to be sent to Vue parser, as we just use it to provide us with the JS/TS code,
- * no need for it to make further actions with the AST result.
- */
-const emptySourceCode = {
-  ast: {
-    type: 'Program',
-    start: 0,
-    end: 0,
-    loc: {
-      start: {
-        line: 1,
-        column: 0,
-      },
-      end: {
-        line: 1,
-        column: 0,
-      },
-    },
-    range: [0, 0],
-    comments: [],
-    tokens: [],
-    sourceType: 'module',
-    body: [],
-  },
-};
-
-/**
  * A cache of created TypeScript's Program instances
  *
  * It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
  */
-const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
+export const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
 /**
  * Cache to keep strong references to the latest used Programs to avoid GC
  */
 const LRUCache = new LRU<ProgramResult>();
-
-/**
- * A counter of created TypeScript's Program instances
- */
-let programCount = 0;
-
-/**
- * Computes the next identifier available for a TypeScript's Program.
- * @returns
- */
-function nextId() {
-  programCount++;
-  return programCount.toString();
-}
 
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
@@ -250,26 +208,6 @@ export async function createProgram(
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
 
   programOptions.host = ts.createCompilerHost(programOptions.options);
-
-  const originalReadFile = programOptions.host.readFile;
-  // Patch readFile to be able to read only JS/TS from vue files
-  programOptions.host.readFile = fileName => {
-    const contents = originalReadFile(fileName);
-    if (contents && fileName.endsWith('.vue')) {
-      const codes: string[] = [];
-      parsers.vuejs.parse(contents, {
-        parser: {
-          parseForESLint: (code: string) => {
-            codes.push(code);
-            return emptySourceCode;
-          },
-        },
-      });
-      return codes.join('');
-    }
-    return contents;
-  };
-
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
@@ -298,6 +236,20 @@ export async function createProgram(
  * It associates a program identifier to an instance of a TypeScript's Program.
  */
 const programs = new Map<string, ts.Program>();
+
+/**
+ * A counter of created TypeScript's Program instances
+ */
+let programCount = 0;
+
+/**
+ * Computes the next identifier available for a TypeScript's Program.
+ * @returns
+ */
+function nextId() {
+  programCount++;
+  return programCount.toString();
+}
 
 /**
  * Creates a TypeScript's Program instance and saves it in memory

@@ -45,13 +45,13 @@ import { debug } from 'helpers';
  * @param language the language of the file containing the JS code
  * @returns the analysis output
  */
-export function analyzeEmbedded(
+export async function analyzeEmbedded(
   input: EmbeddedAnalysisInput,
   language: Language,
-): EmbeddedAnalysisOutput {
+): Promise<EmbeddedAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input, language);
+  const extendedSourceCodes = await buildSourceCodes(input, language);
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
