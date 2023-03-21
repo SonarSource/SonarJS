@@ -79,5 +79,25 @@ ruleTester.run('No control characters in regular expressions', rule, {
         },
       ],
     },
+    {
+      code: "var regex = new RegExp('\\x1f\\x1e')",
+      errors: 2,
+    },
+    {
+      code: "var regex = new RegExp('\\x1fFOO\\x00')",
+      errors: 2,
+    },
+    {
+      code: "var regex = new RegExp('FOO\\x1fFOO\\x1f')",
+      errors: 2,
+    },
+    {
+      code: "var regex = RegExp('\\x1f')",
+      errors: 1,
+    },
+    {
+      code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
+      errors: 1,
+    },
   ],
 });

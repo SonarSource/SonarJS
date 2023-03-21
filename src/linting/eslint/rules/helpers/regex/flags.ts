@@ -18,14 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
+import { Rule } from 'eslint';
+import { getVariableFromIdentifier } from '../reaching-definitions';
+import { getUniqueWriteReference, isStringLiteral } from '../ast';
 
-export function getFlags(callExpr: estree.CallExpression): string | null {
+export function getFlags(
+  callExpr: estree.CallExpression,
+  context?: Rule.RuleContext,
+): string | null {
   if (callExpr.arguments.length < 2) {
     return '';
   }
+
   const flags = callExpr.arguments[1];
   if (flags.type === 'Literal' && typeof flags.value === 'string') {
     return flags.value;
+  } else if (flags.type === 'Identifier' && context !== undefined) {
+    const variable = getVariableFromIdentifier(flags, context.getScope());
+    const ref = getUniqueWriteReference(variable);
+    if (ref !== undefined && isStringLiteral(ref)) {
+      return ref.value;
+    }
   }
   return null;
 }

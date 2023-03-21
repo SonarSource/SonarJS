@@ -27,7 +27,11 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: Character) => {
       const { value, raw } = character;
-      if (value >= 0x00 && value <= 0x1f && (raw.startsWith('\\x') || raw.startsWith('\\u'))) {
+      if (
+        value >= 0x00 &&
+        value <= 0x1f &&
+        (raw.codePointAt(0) === value || raw.startsWith('\\x') || raw.startsWith('\\u'))
+      ) {
         context.reportRegExpNode({
           message: `Remove this control character: ${character.raw}.`,
           node: context.node,
