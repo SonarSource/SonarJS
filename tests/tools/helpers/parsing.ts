@@ -24,16 +24,18 @@ export async function parseTypeScriptSourceFile(
   filePath: string,
   tsConfigs: string[],
   fileType: FileType = 'MAIN',
+  noProgram = false,
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType, noProgram }, 'ts');
 }
 
 export async function parseJavaScriptSourceFile(
   filePath: string,
   tsConfigs: string[] = [],
   fileType: FileType = 'MAIN',
+  noProgram = false,
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType, noProgram }, 'js');
 }

@@ -67,6 +67,7 @@ export async function buildSourceCodes(
       filePath: '',
       fileContent: code,
       fileType: 'MAIN',
+      noProgram: true,
     } as JsTsAnalysisInput;
     try {
       const sourceCode = await buildSourceCode(jsTsAnalysisInput, 'js');
