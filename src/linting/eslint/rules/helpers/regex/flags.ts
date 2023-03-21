@@ -34,6 +34,7 @@ export function getFlags(
   if (flags.type === 'Literal' && typeof flags.value === 'string') {
     return flags.value;
   } else if (flags.type === 'Identifier' && context !== undefined) {
+    // it's a variable, so we try to extract its value, but only if it's written once (const)
     const variable = getVariableFromIdentifier(flags, context.getScope());
     const ref = getUniqueWriteReference(variable);
     if (ref !== undefined && isStringLiteral(ref)) {

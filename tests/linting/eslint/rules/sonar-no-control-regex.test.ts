@@ -41,6 +41,12 @@ ruleTester.run('No control characters in regular expressions', rule, {
     {
       code: `/\\cA/`,
     },
+    {
+      code: String.raw`new RegExp('\t')`,
+    },
+    {
+      code: String.raw`new RegExp('\n')`,
+    },
   ],
   invalid: [
     {

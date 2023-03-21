@@ -23,6 +23,8 @@ import { Rule } from 'eslint';
 import { Character } from 'regexpp/ast';
 import { createRegExpRule } from './helpers/regex';
 
+const EXCEPTIONS = ['\t', '\n'];
+
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: Character) => {
@@ -30,7 +32,8 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       if (
         value >= 0x00 &&
         value <= 0x1f &&
-        (raw.codePointAt(0) === value || raw.startsWith('\\x') || raw.startsWith('\\u'))
+        (isSameInterpreted(raw, value) || raw.startsWith('\\x') || raw.startsWith('\\u')) &&
+        !EXCEPTIONS.includes(raw)
       ) {
         context.reportRegExpNode({
           message: `Remove this control character: ${character.raw}.`,
@@ -41,3 +44,11 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     },
   };
 });
+
+/**
+ * When the character has been interpreted, we need to compare its
+ * code point value.
+ */
+function isSameInterpreted(raw: string, value: number) {
+  return raw.codePointAt(0) === value;
+}
