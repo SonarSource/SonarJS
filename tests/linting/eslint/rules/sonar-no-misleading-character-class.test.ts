@@ -21,11 +21,12 @@ import { RuleTester } from 'eslint';
 import { rule } from 'linting/eslint/rules/sonar-no-misleading-character-class';
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2015 } });
 
-const combiningClass = c => `Move this Unicode combined character '${c}' outside of [...]`;
+const combiningClass = c =>
+  `Move this Unicode combined character '${c}' outside of the character class`;
 
 function surrogatePair(c, output?, start?: number, end?: number) {
   const error = {
-    message: `Move this Unicode surrogate pair '${c}' outside of [...] or use 'u' flag`,
+    message: `Move this Unicode surrogate pair '${c}' outside of the character class or use 'u' flag`,
   };
   if (output) {
     error['suggestions'] = [{ desc: "Add unicode 'u' flag to regex", output }];
@@ -39,9 +40,10 @@ function surrogatePair(c, output?, start?: number, end?: number) {
   return [error];
 }
 
-const modifiedEmoji = c => `Move this Unicode modified Emoji '${c}' outside of [...]`;
-const regionalIndicator = c => `Move this Unicode regional indicator '${c}' outside of [...]`;
-const zwj = 'Move this Unicode joined character sequence outside of [...]';
+const modifiedEmoji = c => `Move this Unicode modified Emoji '${c}' outside of the character class`;
+const regionalIndicator = c =>
+  `Move this Unicode regional indicator '${c}' outside of the character class`;
+const zwj = 'Move this Unicode joined character sequence outside of the character class';
 
 ruleTester.run('', rule, {
   valid: [

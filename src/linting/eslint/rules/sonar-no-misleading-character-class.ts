@@ -95,7 +95,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       !isCombiningCharacter(characters[index - 1].value)
     ) {
       const combinedChar = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode combined character '${combinedChar}' outside of [...]`;
+      const message = `Move this Unicode combined character '${combinedChar}' outside of the character class`;
       context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
       reported = true;
     }
@@ -110,7 +110,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     let reported = false;
     if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
       const surrogatePair = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of [...] or use 'u' flag`;
+      const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of the character class or use 'u' flag`;
       const pattern = getPatternFromNode(context.node, context)?.pattern;
       let suggest: Rule.ReportDescriptorOptions['suggest'];
 
@@ -170,7 +170,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       !isEmojiModifier(characters[index - 1].value)
     ) {
       const modifiedEmoji = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of [...]`;
+      const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of the character class`;
       context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
       reported = true;
     }
@@ -189,7 +189,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       isRegionalIndicator(characters[index - 1].value)
     ) {
       const regionalIndicator = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of [...]`;
+      const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of the character class`;
       context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
       reported = true;
     }
@@ -212,7 +212,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       // It's practically difficult to determine the full joined character sequence
       // as it may join more than 2 elements that consist of characters or modified Emojis
       // see: https://unicode.org/emoji/charts/emoji-zwj-sequences.html
-      const message = 'Move this Unicode joined character sequence outside of [...]';
+      const message = 'Move this Unicode joined character sequence outside of the character class';
       context.reportRegExpNode({ regexpNode: characters[index - 1], node: context.node, message });
       reported = true;
     }
