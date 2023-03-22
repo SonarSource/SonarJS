@@ -242,6 +242,7 @@ public final class CheckList {
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
       NoHookSetterInBodyCheck.class,
+      NoIgnoredExceptionsCheck.class,
       NoImportAssignCheck.class,
       NoInMisuseCheck.class,
       NoIncompleteAssertionsCheck.class,
