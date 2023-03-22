@@ -1,0 +1,54 @@
+<p>In JavaScript, a promise is a mechanism to perform tasks in an asynchronous way. To this end, the language provides the <code>Promise</code> object
+which represents the eventual completion or failure of an asynchronous operation and its resulting value. A promise can be created with the
+<code>Promise</code> constructor accepting an executor function as an argument, which has <code>resolve</code> and <code>reject</code> parameters that
+are invoked when the promises completes or fails.</p>
+<h2>Why is this an issue?</h2>
+<p>The executor function of a promise can also be an async function. However, this usually denotes a mistake:</p>
+<ul>
+  <li> If an async executor function throws an error, the error won’t cause the created Promise to reject and will be lost therefore. This could make
+  it difficult to debug and handle runtime errors. </li>
+  <li> If a Promise executor function is using <code>await</code>, this means that it’s not necessary to use the Promise constructor, or the scope of
+  the Promise constructor can be reduced. </li>
+</ul>
+<h2>How to fix it</h2>
+<p>Fixing the issue requires removing the <code>async</code> keyword from the Promise executor function and adapting the body of the executor
+accordingly.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+const p = new Promise(async (resolve, reject) =&gt; {
+  doSomething('Hey, there!', function(err, res) {
+    if (err) {
+      reject(err);
+      return;
+    }
+    await saveResult(res)
+    resolve(res);
+  });
+});
+
+await p;
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+const p = new Promise(async (resolve, reject) =&gt; {
+  doSomething('Hey, there!', function(err, res) {
+    if (err) {
+      reject(err);
+      return;
+    }
+    resolve(res);
+  });
+});
+
+const res = await p;
+await saveResult(res);
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">MDN Promise</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises">MDN Using promises</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">MDN Async function</a> </li>
+</ul>
+

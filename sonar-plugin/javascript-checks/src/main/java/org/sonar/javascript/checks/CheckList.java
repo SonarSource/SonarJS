@@ -225,6 +225,7 @@ public final class CheckList {
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
       NoArrayIndexKeyCheck.class,
+      NoAsyncPromiseExecutorCheck.class,
       NoClearTextProtocolsCheck.class,
       NoCodeAfterDoneCheck.class,
       NoControlRegexCheck.class,
