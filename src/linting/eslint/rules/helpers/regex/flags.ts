@@ -40,7 +40,8 @@ export function getFlags(
   // Matches flags in: new RegExp(pattern, 'u')
   if (isStringLiteral(flags)) {
     return flags.value;
-  } else if (flags.type === 'Identifier' && context !== undefined) {
+  }
+  if (flags.type === 'Identifier' && context !== undefined) {
     // it's a variable, so we try to extract its value, but only if it's written once (const)
     const variable = getVariableFromIdentifier(flags, context.getScope());
     const ref = getUniqueWriteReference(variable);
