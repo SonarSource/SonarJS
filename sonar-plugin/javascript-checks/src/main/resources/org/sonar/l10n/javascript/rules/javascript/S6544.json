@@ -1,17 +1,20 @@
 {
-  "title": "FIXME",
-  "type": "CODE_SMELL",
+  "title": "Promise executor functions should not be async",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "async",
+    "promise"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6544",
   "sqKey": "S6544",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
