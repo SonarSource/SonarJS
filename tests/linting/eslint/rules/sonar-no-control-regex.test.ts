@@ -53,7 +53,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\x00/`,
       errors: [
         {
-          message: 'Remove this control character: \\x00.',
+          message: 'Remove this control character.',
           line: 1,
           endLine: 1,
           column: 2,
@@ -65,7 +65,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\u001F/`,
       errors: [
         {
-          message: 'Remove this control character: \\u001F.',
+          message: 'Remove this control character.',
           line: 1,
           endLine: 1,
           column: 2,
@@ -77,7 +77,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\u{001F}/u`,
       errors: [
         {
-          message: 'Remove this control character: \\u{001F}.',
+          message: 'Remove this control character.',
           line: 1,
           endLine: 1,
           column: 2,
@@ -87,7 +87,22 @@ ruleTester.run('No control characters in regular expressions', rule, {
     },
     {
       code: "var regex = new RegExp('\\x1f\\x1e')",
-      errors: 2,
+      errors: [
+        {
+          message: String.raw`Remove this control character.`,
+          line: 1,
+          endLine: 1,
+          column: 25,
+          endColumn: 29,
+        },
+        {
+          message: String.raw`Remove this control character.`,
+          line: 1,
+          endLine: 1,
+          column: 29,
+          endColumn: 33,
+        },
+      ],
     },
     {
       code: "var regex = new RegExp('\\x1fFOO\\x00')",
