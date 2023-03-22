@@ -418,5 +418,17 @@ ruleTester.run('', rule, {
       env: { es2020: true },
       errors: [{ message: zwj }],
     },
+    {
+      code: 'var r = new RegExp("[" + "👍" + "]")',
+      errors: surrogatePair('👍', 'var r = new RegExp("[" + "👍" + "]", "u")'),
+    },
+    {
+      code: 'const p = "[" + "👍" + "]", r = new RegExp(p)',
+      errors: surrogatePair('👍', 'const p = "[" + "👍" + "]", r = new RegExp(p, "u")'),
+    },
+    {
+      code: 'const c = "👍", p = "[" + c + "]", r = new RegExp(p)',
+      errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
+    },
   ] as RuleTester.InvalidTestCase[],
 });

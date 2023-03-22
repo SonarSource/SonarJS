@@ -20,17 +20,23 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5868/javascript
 
 import { AST, Rule } from 'eslint';
+import { ancestorsChain, isRegexLiteral } from './helpers';
 import {
-  getSimpleRawStringValue,
-  isRegexLiteral,
-  isSimpleRawString,
-  isStaticTemplateLiteral,
-  isStringLiteral,
-} from './helpers';
-import { createRegExpRule, isRegExpConstructor } from './helpers/regex';
+  createRegExpRule,
+  getFlags,
+  getPatternFromNode,
+  isRegExpConstructor,
+} from './helpers/regex';
 import { RegExpValidator } from 'regexpp';
 import { Character, CharacterClassElement } from 'regexpp/ast';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+
+const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
+  'Literal',
+  'TemplateLiteral',
+  'TaggedTemplateExpression',
+];
 
 const metadata = {
   meta: {
@@ -105,7 +111,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
       const surrogatePair = characters[index - 1].raw + characters[index].raw;
       const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of [...] or use 'u' flag`;
-      const pattern = getPattern(context.node);
+      const pattern = getPatternFromNode(context.node, context)?.pattern;
       let suggest: Rule.ReportDescriptorOptions['suggest'];
 
       if (pattern && isValidWithUnicodeFlag(pattern)) {
@@ -128,36 +134,28 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     return reported;
   }
 
-  function getPattern(node: estree.Node): string | null | undefined {
-    if (isRegexLiteral(node)) {
-      return node.regex.pattern;
-    } else if (!isRegExpConstructorPattern(node)) {
-      return null;
-    } else if (isStringLiteral(node)) {
-      return node.value;
-    } else if (isSimpleTemplateLiteral(node)) {
-      return node.quasis[0].value.cooked;
-    } else if (isSimpleRawString(node)) {
-      return getSimpleRawStringValue(node);
-    } else {
-      return null;
-    }
-  }
-
   function addUnicodeFlag(fixer: Rule.RuleFixer, node: estree.Node) {
     if (isRegexLiteral(node)) {
       return insertTextAfter(fixer, node, 'u');
-    } else if (!isRegExpConstructorPattern(node)) {
-      return null;
-    } else if (node.parent.arguments.length === 1) {
-      const token = sourceCode.getLastToken(node.parent, { skip: 1 });
-      return insertTextAfter(fixer, token, ', "u"');
-    } else if (isStringConstant(node.parent.arguments[1])) {
-      const [start, end] = node.parent.arguments[1].range ?? [];
-      return start && end ? fixer.insertTextAfterRange([start, end - 1], 'u') : null;
-    } else {
+    }
+
+    const regExpConstructor = getRegExpConstructor(node);
+    if (!regExpConstructor) {
       return null;
     }
+
+    const args = regExpConstructor.arguments;
+    if (args.length === 1) {
+      const token = sourceCode.getLastToken(regExpConstructor, { skip: 1 });
+      return insertTextAfter(fixer, token, ', "u"');
+    }
+
+    if (args.length > 1 && args[1]?.range && hasModifiableFlags(regExpConstructor)) {
+      const [start, end] = args[1].range;
+      return fixer.insertTextAfterRange([start, end - 1], 'u');
+    }
+
+    return null;
   }
 
   function checkModifiedEmojiCharacter(
@@ -271,29 +269,20 @@ function isZeroWidthJoiner(code: number) {
   return code === 0x200d;
 }
 
-function isRegExpConstructorPattern(
-  node: estree.Node,
-): node is Rule.Node & { parent: estree.CallExpression } {
+function getRegExpConstructor(node: estree.Node) {
+  return ancestorsChain(node as TSESTree.Node, new Set(['CallExpression', 'NewExpression'])).find(
+    n => isRegExpConstructor(n as estree.Node),
+  ) as estree.CallExpression | estree.NewExpression | undefined;
+}
+
+function hasModifiableFlags(regExpConstructor: estree.CallExpression | estree.NewExpression) {
+  const args = regExpConstructor.arguments;
   return (
-    hasParent(node) &&
-    isRegExpConstructor(node.parent) &&
-    isStringConstant(node.parent.arguments[0])
+    typeof args[1]?.range?.[0] === 'number' &&
+    typeof args[1]?.range?.[1] === 'number' &&
+    getFlags(regExpConstructor) != null &&
+    MODIFIABLE_REGEXP_FLAGS_TYPES.includes(args[1].type)
   );
-}
-
-function isStringConstant(node: estree.Node | null | undefined) {
-  return (
-    node != null &&
-    (isStringLiteral(node) || isSimpleTemplateLiteral(node) || isSimpleRawString(node))
-  );
-}
-
-function isSimpleTemplateLiteral(node: estree.Node): node is estree.TemplateLiteral {
-  return isStaticTemplateLiteral(node) && node.quasis[0].value.cooked != null;
-}
-
-function hasParent(node: estree.Node): node is Rule.Node {
-  return 'parent' in node;
 }
 
 function insertTextAfter(

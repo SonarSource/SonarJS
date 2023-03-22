@@ -50,7 +50,7 @@ export function getParsedRegex(
   return null;
 }
 
-function getPatternFromNode(
+export function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): { pattern: string; flags: string } | null {
