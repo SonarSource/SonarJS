@@ -56,6 +56,8 @@ function getPatternFromNode(
     const patternOnly = getPatternFromNode(node.arguments[0], context);
     const flags = getFlags(node, context);
     if (patternOnly && flags !== null) {
+      // if we can't extract flags correctly, we skip this
+      // to avoid FPs
       return { pattern: patternOnly.pattern, flags };
     }
   } else if (isRegexLiteral(node)) {
