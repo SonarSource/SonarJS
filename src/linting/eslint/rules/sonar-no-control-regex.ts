@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         !EXCEPTIONS.includes(raw)
       ) {
         context.reportRegExpNode({
-          message: `Remove this control character: ${character.raw}.`,
+          message: `Remove this control character: \\${character.raw}.`,
           node: context.node,
           regexpNode: character,
         });
