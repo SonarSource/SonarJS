@@ -39,7 +39,7 @@ export function decorateNoEmptyInterface(rule: Rule.RuleModule): Rule.RuleModule
  * TypeScript provides a set of utility types to facilitate type transformations.
  * @see https://www.typescriptlang.org/docs/handbook/utility-types.html
  */
-const UtilityTypes = new Set([
+const UTILITY_TYPES = new Set([
   'Awaited',
   'Partial',
   'Required',
@@ -64,5 +64,5 @@ const UtilityTypes = new Set([
 ]);
 
 function isUtilityType(node: TSESTree.TSInterfaceHeritage) {
-  return node.expression.type === 'Identifier' && UtilityTypes.has(node.expression.name);
+  return node.expression.type === 'Identifier' && UTILITY_TYPES.has(node.expression.name);
 }
