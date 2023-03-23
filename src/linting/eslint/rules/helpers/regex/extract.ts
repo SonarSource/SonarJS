@@ -21,10 +21,12 @@ import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { Rule } from 'eslint';
 import {
+  getSimpleRawStringValue,
   getUniqueWriteUsage,
   isBinaryPlus,
   isIdentifier,
   isRegexLiteral,
+  isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
 } from 'linting/eslint/rules/helpers';
@@ -48,14 +50,16 @@ export function getParsedRegex(
   return null;
 }
 
-function getPatternFromNode(
+export function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): { pattern: string; flags: string } | null {
   if (isRegExpConstructor(node)) {
     const patternOnly = getPatternFromNode(node.arguments[0], context);
-    const flags = getFlags(node);
+    const flags = getFlags(node, context);
     if (patternOnly && flags !== null) {
+      // if we can't extract flags correctly, we skip this
+      // to avoid FPs
       return { pattern: patternOnly.pattern, flags };
     }
   } else if (isRegexLiteral(node)) {
@@ -64,6 +68,8 @@ function getPatternFromNode(
     return { pattern: node.value as string, flags: '' };
   } else if (isStaticTemplateLiteral(node)) {
     return { pattern: node.quasis[0].value.raw, flags: '' };
+  } else if (isSimpleRawString(node)) {
+    return { pattern: getSimpleRawStringValue(node), flags: '' };
   } else if (isIdentifier(node)) {
     const assignedExpression = getUniqueWriteUsage(context, node.name);
     if (

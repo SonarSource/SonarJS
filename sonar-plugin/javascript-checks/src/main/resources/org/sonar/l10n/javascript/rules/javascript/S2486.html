@@ -1,0 +1,29 @@
+<p>When exceptions occur, it is usually a bad idea to simply ignore them. Instead, it is better to handle them properly, or at least to log them.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function f() {
+  try {
+    doSomething();
+  } catch (err) {
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function f() {
+  try {
+    doSomething();
+  } catch (err) {
+    console.log(`Exception while doing something: ${err}`);
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/">OWASP Top 10 2021 Category A9</a> - Security Logging and
+  Monitoring Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring">OWASP Top 10 2017 Category A10</a> -
+  Insufficient Logging &amp; Monitoring </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/390">MITRE, CWE-390</a> - Detection of Error Condition Without Action </li>
+</ul>
+
