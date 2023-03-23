@@ -28,6 +28,7 @@ import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
 import { decorateNoEmptyFunction } from './no-empty-function-decorator';
+import { decorateNoEmptyInterface } from './no-empty-interface-decorator';
 import { decorateNoExtraSemi } from './no-extra-semi-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThisAlias } from './no-this-alias-decorator';
@@ -69,6 +70,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-duplicate-imports': decorateNoDuplicateImports,
   'no-empty': decorateNoEmpty,
   'no-empty-function': decorateNoEmptyFunction,
+  'no-empty-interface': decorateNoEmptyInterface,
   'no-extra-semi': decorateNoExtraSemi,
   'no-redeclare': decorateNoRedeclare,
   'no-this-alias': decorateNoThisAlias,
