@@ -125,6 +125,7 @@ ws_scan_task:
   whitesource_script:
     - source cirrus-env QA
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - source set_maven_build_version $BUILD_NUMBER
     - npm ci
     - source ws_scan.sh
   allow_failures: 'true'
