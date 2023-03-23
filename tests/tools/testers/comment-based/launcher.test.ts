@@ -39,15 +39,18 @@ import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode, Language } from 'parsing/jsts';
-import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
+const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+let currentSourceCode;
 
-function extractRuleOptions(testFiles, rule) {
+async function extractRuleOptions(testFiles, rule) {
   if (testFiles.includes(`${rule}.json`)) {
-    return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
+    return JSON.parse(
+      await fs.promises.readFile(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }),
+    );
   }
   return [];
 }
@@ -71,18 +74,38 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
         if (['invalid'].includes(title)) {
           describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
             beforeAll(async () => {
-              const code = fs
-                .readFileSync(filename, { encoding: 'utf8' })
-                .replace(/\r?\n|\r/g, '\n');
+              const code = (await fs.promises.readFile(filename, { encoding: 'utf8' })).replace(
+                /\r?\n|\r/g,
+                '\n',
+              );
               const { errors, output } = await extractExpectations(
                 code,
                 filename,
                 hasSonarRuntimeOption(rules[rule], rule),
               );
-              const options = extractRuleOptions(testFiles, rule);
+              const options = await extractRuleOptions(testFiles, rule);
               tests.invalid = [{ code, errors, filename, options, output }];
+
+              const sourceCode = await buildSourceCode(
+                { filePath: filename, fileContent: code, fileType: 'MAIN', tsConfigs },
+                languageFromFile(code, filename),
+              );
+
+              /**
+               * ESLint expects the parser services (including the type checker) to be available in a field
+               * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
+               * we need to extend the source code with this additional property so that the type checker
+               * can be retrieved from type-aware rules.
+               */
+              currentSourceCode = Object.create(sourceCode, {
+                services: { value: sourceCode.parserServices },
+              });
             });
-            test('', () => {
+            test(`Running comment-based tests for rule ${rule} ${ext}`, () => {
+              // @ts-ignore
+              RuleTester.it = (name, func) => {
+                func();
+              };
               testsFunc();
             });
           });
@@ -99,27 +122,8 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module
  */
-export async function parseForESLint(
-  fileContent: string,
-  options: { filePath: string },
-  fileType: FileType = 'MAIN',
-) {
-  const { filePath } = options;
-  const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
-  const sourceCode = await buildSourceCode(
-    { filePath, fileContent, fileType, tsConfigs },
-    languageFromFile(fileContent, filePath),
-  );
-
-  /**
-   * ESLint expects the parser services (including the type checker) to be available in a field
-   * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
-   * we need to extend the source code with this additional property so that the type checker
-   * can be retrieved from type-aware rules.
-   */
-  return Object.create(sourceCode, {
-    services: { value: sourceCode.parserServices },
-  });
+export function parseForESLint() {
+  return currentSourceCode;
 }
 
 /**
@@ -142,7 +146,7 @@ function languageFromFile(fileContent: string, filePath: string): Language {
 /**
  * Loading the above parseForESLint() function.
  */
-const ruleTester = new RuleTester({ parser: { parseForESLint } });
+const ruleTester = new RuleTester({ parser: __filename });
 const externalRules = decorateExternalRules({
   ...eslintRules,
   ...typescriptESLintRules,
