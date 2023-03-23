@@ -62,22 +62,35 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
       ['.js', '.jsx', '.ts', '.tsx', '.vue'].includes(ext.toLowerCase()) &&
       rules.hasOwnProperty(rule)
     ) {
-      describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
-        it(`Running comment-based tests for rule ${rule} ${ext}`, async () => {
-          const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
-          const { errors, output } = await extractExpectations(
-            code,
-            filename,
-            hasSonarRuntimeOption(rules[rule], rule),
-          );
-          const options = extractRuleOptions(testFiles, rule);
-          const tests = {
-            valid: [],
-            invalid: [{ code, errors, filename, options, output }],
-          };
-          ruleTester.run(filename, rules[rule], tests);
-        });
-      });
+      let tests = {
+        valid: [],
+        invalid: [],
+      };
+      // @ts-ignore
+      RuleTester.describe = (title, testsFunc) => {
+        if (['invalid'].includes(title)) {
+          describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
+            beforeAll(async () => {
+              const code = fs
+                .readFileSync(filename, { encoding: 'utf8' })
+                .replace(/\r?\n|\r/g, '\n');
+              const { errors, output } = await extractExpectations(
+                code,
+                filename,
+                hasSonarRuntimeOption(rules[rule], rule),
+              );
+              const options = extractRuleOptions(testFiles, rule);
+              tests.invalid = [{ code, errors, filename, options, output }];
+            });
+            test('', () => {
+              testsFunc();
+            });
+          });
+        } else {
+          testsFunc();
+        }
+      };
+      ruleTester.run(filename, rules[rule], tests);
     }
   }
 }
@@ -129,7 +142,7 @@ function languageFromFile(fileContent: string, filePath: string): Language {
 /**
  * Loading the above parseForESLint() function.
  */
-const ruleTester = new RuleTester({ parser: __filename });
+const ruleTester = new RuleTester({ parser: { parseForESLint } });
 const externalRules = decorateExternalRules({
   ...eslintRules,
   ...typescriptESLintRules,

@@ -99,7 +99,7 @@ describe('patchSourceCode', () => {
     filePath = `${fixture}.js`;
     fileContent = await readFile(filePath);
     const input = { filePath, fileContent } as JsTsAnalysisInput;
-    expect(() => buildSourceCode(input, 'js')).toThrow(patchedParsingError);
+    await expect(() => buildSourceCode(input, 'js')).rejects.toEqual(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {
