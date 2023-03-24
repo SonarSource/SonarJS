@@ -126,7 +126,9 @@ ws_scan_task:
     - source cirrus-env QA
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn clean install -DskipTests
+    - mvn clean
+    - npm run build-plugin
+    - mvn install -DskipTests
     - source ws_scan.sh
   allow_failures: 'true'
   always:
