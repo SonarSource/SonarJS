@@ -59,9 +59,6 @@
 'eigen:src/app/Components/ArtworkFilter/Filters/YearOptions.tsx':[
 21,
 ],
-'eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tsx':[
-7,
-],
 'eigen:src/app/Scenes/Onboarding/ForgotPassword.tsx':[
 20,
 ],

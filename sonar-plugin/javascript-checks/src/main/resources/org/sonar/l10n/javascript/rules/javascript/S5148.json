@@ -8,8 +8,7 @@
   },
   "tags": [
     "cwe",
-    "phishing",
-    "owasp-a6"
+    "phishing"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5148",

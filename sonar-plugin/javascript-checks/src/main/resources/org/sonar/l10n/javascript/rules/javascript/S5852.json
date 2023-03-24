@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "owasp-a1",
     "regex"
   ],
   "defaultSeverity": "Critical",

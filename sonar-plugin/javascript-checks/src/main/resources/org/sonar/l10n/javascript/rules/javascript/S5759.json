@@ -8,8 +8,7 @@
   },
   "tags": [
     "privacy",
-    "express.js",
-    "owasp-a3"
+    "express.js"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5759",

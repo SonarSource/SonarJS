@@ -8,8 +8,7 @@
   },
   "tags": [
     "bad-practice",
-    "user-experience",
-    "owasp-a3"
+    "user-experience"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-106",

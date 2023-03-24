@@ -11,8 +11,7 @@
     "error-handling",
     "debug",
     "user-experience",
-    "express.js",
-    "owasp-a3"
+    "express.js"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4507",
