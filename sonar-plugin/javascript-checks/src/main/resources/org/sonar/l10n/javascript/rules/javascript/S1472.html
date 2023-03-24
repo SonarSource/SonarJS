@@ -7,21 +7,29 @@ lead to errors and most likely <em>will</em> lead to questions for maintainers.<
 </ol>
 <p>The first option will be the one chosen by the JavaScript interpreter.</p>
 <p>By extension, and to improve readability, any kind of function call argument should not start on new line.</p>
+<p>Similarly, tagged templates allow for advanced forms of string interpolation by evaluating the tag as a function to call, passing the template
+literal elements as arguments. Therefore, the rule also verifies that template literals don’t start on a separate line.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var fn = function () {
+const fn = function () {
   //...
 }
 
 (function () { // Noncompliant
   //...
 })();
+
+const foo = function() {
+  return 'foo';
+}
+
+`bar`; // Noncompliant: foo is a string not a function
 </pre>
 <h2>Compliant Solution</h2>
 <p>Either</p>
 <pre>
 // define a function
-var fn = function () {
+const fn = function () {
   //...
 }; // &lt;-- semicolon added
 
@@ -29,6 +37,12 @@ var fn = function () {
 (function () {
   //...
 })();
+
+function foo() {  // &lt;-- Use a function declaration
+  return 'foo';
+}
+
+`bar`;
 </pre>
 <p>Or</p>
 <pre>
@@ -37,17 +51,9 @@ var fn = function () {
 }(function () { // &lt;-- start function call arguments on same line
   //...
 })();
-</pre>
-<p>Similarly, tagged templates allow for advanced forms of string interpolation by evaluating the tag as a function to call, passing the template
-literal elements as arguments. Therefore the rule also verifies that template literals don’t start on a separate line.</p>
-<h2>Noncompliant Code Example</h2>
-<pre>
-const foo = function() { /* ... */ }
-`bar` // Noncompliant
-</pre>
-<h2>Compliant Solution</h2>
-<pre>
-function foo() { /* ... */ }
-const s = foo`bar`;
+
+const foo = function() {
+  return 'foo';
+}`bar`; // &lt;-- start template literal on same line
 </pre>
 

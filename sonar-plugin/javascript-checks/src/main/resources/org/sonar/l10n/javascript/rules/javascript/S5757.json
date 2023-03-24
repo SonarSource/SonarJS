@@ -8,8 +8,7 @@
   },
   "tags": [
     "cwe",
-    "privacy",
-    "owasp-a3"
+    "privacy"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5757",

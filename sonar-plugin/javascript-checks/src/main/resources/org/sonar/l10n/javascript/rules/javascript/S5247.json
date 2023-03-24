@@ -7,8 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cwe",
-    "owasp-a7"
+    "cwe"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5247",

@@ -3,8 +3,7 @@
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
-    "cwe",
-    "owasp-a7"
+    "cwe"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6268",

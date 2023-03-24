@@ -4,7 +4,6 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a3",
     "owasp-m3"
   ],
   "defaultSeverity": "Critical",

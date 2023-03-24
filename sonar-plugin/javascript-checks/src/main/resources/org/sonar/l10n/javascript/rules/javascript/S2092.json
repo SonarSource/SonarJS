@@ -10,8 +10,7 @@
     "cwe",
     "privacy",
     "sans-top25-porous",
-    "express.js",
-    "owasp-a3"
+    "express.js"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2092",

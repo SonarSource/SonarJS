@@ -8,8 +8,7 @@
   },
   "tags": [
     "cwe",
-    "html5",
-    "owasp-a3"
+    "html5"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2819",

@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "owasp-a1",
     "sans-top25-insecure"
   ],
   "defaultSeverity": "Major",

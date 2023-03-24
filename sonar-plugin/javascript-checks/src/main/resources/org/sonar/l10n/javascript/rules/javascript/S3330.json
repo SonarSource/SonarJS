@@ -10,7 +10,6 @@
     "cwe",
     "sans-top25-insecure",
     "privacy",
-    "owasp-a7",
     "express.js"
   ],
   "defaultSeverity": "Minor",
