@@ -7,7 +7,7 @@ operator in a context where returning <code>undefined</code> is forbidden can le
 <h3>What is the potential impact?</h3>
 <p>Since optional chaining represents multiple execution branches, having an error thrown in such a context can be hard to debug.</p>
 <h2>How to fix it</h2>
-<p>You should provide fallbacks for when the optional chaining operator is used to avoid raising errors.</p>
+<p>You should provide fallbacks for when the optional chaining operator is used to avoid runtime errors.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre>

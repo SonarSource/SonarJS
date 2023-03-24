@@ -7,7 +7,6 @@
     "constantCost": "60min"
   },
   "tags": [
-    "owasp-a6",
     "express.js"
   ],
   "defaultSeverity": "Minor",

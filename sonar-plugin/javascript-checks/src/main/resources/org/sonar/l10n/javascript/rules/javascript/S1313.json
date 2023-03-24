@@ -6,9 +6,7 @@
     "func": "Constant\/Issue",
     "constantCost": "30min"
   },
-  "tags": [
-    "owasp-a3"
-  ],
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1313",
   "sqKey": "S1313",

@@ -9,7 +9,6 @@
   "tags": [
     "cwe",
     "sans-top25-insecure",
-    "owasp-a4",
     "express.js"
   ],
   "defaultSeverity": "Critical",

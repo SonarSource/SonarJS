@@ -7,8 +7,7 @@
     "constantCost": "15min"
   },
   "tags": [
-    "cwe",
-    "owasp-a1"
+    "cwe"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4036",

@@ -29,25 +29,25 @@ the intent behind the extra cast.</p>
 <p>The fix for this issue is straightforward. One just needs to remove the extra boolean cast.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 if (!!foo) {
     // ...
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 if (foo) {
     // ...
 }
 </pre>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 while (Boolean(foo)) {
     // ...
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 while (foo) {
     // ...
 }

@@ -7,8 +7,7 @@
     "constantCost": "60min"
   },
   "tags": [
-    "express.js",
-    "owasp-a3"
+    "express.js"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5730",
