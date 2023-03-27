@@ -39,18 +39,15 @@ import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode, Language } from 'parsing/jsts';
+import { FileType } from 'helpers';
 import { extractExpectations } from './framework';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
-const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
-let currentSourceCode;
 
-async function extractRuleOptions(testFiles, rule) {
+function extractRuleOptions(testFiles, rule) {
   if (testFiles.includes(`${rule}.json`)) {
-    return JSON.parse(
-      await fs.promises.readFile(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }),
-    );
+    return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
   }
   return [];
 }
@@ -65,55 +62,20 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
       ['.js', '.jsx', '.ts', '.tsx', '.vue'].includes(ext.toLowerCase()) &&
       rules.hasOwnProperty(rule)
     ) {
-      let tests = {
-        valid: [],
-        invalid: [],
-      };
-      // @ts-ignore
-      RuleTester.describe = (title, testsFunc) => {
-        if (['invalid'].includes(title)) {
-          describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
-            beforeAll(async () => {
-              const code = (await fs.promises.readFile(filename, { encoding: 'utf8' })).replace(
-                /\r?\n|\r/g,
-                '\n',
-              );
-              const { errors, output } = await extractExpectations(
-                code,
-                filename,
-                hasSonarRuntimeOption(rules[rule], rule),
-              );
-              const options = await extractRuleOptions(testFiles, rule);
-              tests.invalid = [{ code, errors, filename, options, output }];
-
-              const sourceCode = await buildSourceCode(
-                { filePath: filename, fileContent: code, fileType: 'MAIN', tsConfigs },
-                languageFromFile(code, filename),
-              );
-
-              /**
-               * ESLint expects the parser services (including the type checker) to be available in a field
-               * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
-               * we need to extend the source code with this additional property so that the type checker
-               * can be retrieved from type-aware rules.
-               */
-              currentSourceCode = Object.create(sourceCode, {
-                services: { value: sourceCode.parserServices },
-              });
-            });
-            test(`Running comment-based tests for rule ${rule} ${ext}`, () => {
-              // @ts-ignore
-              RuleTester.it = (name, func) => {
-                func();
-              };
-              testsFunc();
-            });
-          });
-        } else {
-          testsFunc();
-        }
-      };
-      ruleTester.run(filename, rules[rule], tests);
+      describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
+        const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
+        const { errors, output } = extractExpectations(
+          code,
+          filename,
+          hasSonarRuntimeOption(rules[rule], rule),
+        );
+        const options = extractRuleOptions(testFiles, rule);
+        const tests = {
+          valid: [],
+          invalid: [{ code, errors, filename, options, output }],
+        };
+        ruleTester.run(filename, rules[rule], tests);
+      });
     }
   }
 }
@@ -122,8 +84,27 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module
  */
-export function parseForESLint() {
-  return currentSourceCode;
+export function parseForESLint(
+  fileContent: string,
+  options: { filePath: string },
+  fileType: FileType = 'MAIN',
+) {
+  const { filePath } = options;
+  const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+  const sourceCode = buildSourceCode(
+    { filePath, fileContent, fileType, tsConfigs },
+    languageFromFile(fileContent, filePath),
+  );
+
+  /**
+   * ESLint expects the parser services (including the type checker) to be available in a field
+   * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
+   * we need to extend the source code with this additional property so that the type checker
+   * can be retrieved from type-aware rules.
+   */
+  return Object.create(sourceCode, {
+    services: { value: sourceCode.parserServices },
+  });
 }
 
 /**
