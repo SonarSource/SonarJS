@@ -38,7 +38,7 @@ describe('analyzeJSTS', () => {
   it('should fail on uninitialized linter', async () => {
     const input = {} as any;
     const language = 'js';
-    await expect(analyzeJSTS(input, language)).rejects.toEqual(
+    expect(() => analyzeJSTS(input, language)).toThrow(
       APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
     );
   });
@@ -55,12 +55,12 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
 
-    const { issues } = (await analyzeJSTS(
+    const { issues } = analyzeJSTS(
       await jsTsInput({ filePath, linterId: 'empty' }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -84,14 +84,11 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs }),
-      language,
-    )) as JsTsAnalysisOutput;
-    const { issues } = (await analyzeJSTS(
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(
       await jsTsInput({ filePath, tsConfigs, linterId: 'empty' }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -112,7 +109,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-dupe-keys',
@@ -132,10 +129,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue1],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue1).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -153,10 +147,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'main.js');
     const language = 'js';
 
-    const { issues } = (await analyzeJSTS(
-      await jsTsInput({ filePath }),
-      language,
-    )) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -177,10 +168,10 @@ describe('analyzeJSTS', () => {
 
     const language = 'js';
 
-    const { issues } = (await analyzeJSTS(
+    const { issues } = analyzeJSTS(
       await jsTsInput({ filePath, fileType }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -200,10 +191,10 @@ describe('analyzeJSTS', () => {
     const fileType = 'TEST';
     const language = 'js';
 
-    const { issues } = (await analyzeJSTS(
+    const { issues } = analyzeJSTS(
       await jsTsInput({ filePath, fileType }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(2);
     expect(issues.map(issue => issue.ruleId)).toEqual(
       expect.arrayContaining(['no-exclusive-tests', 'no-throw-literal']),
@@ -221,7 +212,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'object-shorthand',
@@ -240,7 +231,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-extra-semi',
@@ -260,10 +251,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, fileContent }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, fileContent }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-template',
@@ -283,10 +271,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-useless-intersection',
@@ -308,10 +293,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, programId }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-array-delete',
@@ -333,10 +315,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, programId }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -358,10 +337,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, programId }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.not.objectContaining({
         ruleId: 'strings-comparison',
@@ -404,10 +380,10 @@ describe('analyzeJSTS', () => {
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodeIssue],
-    } = (await analyzeJSTS(
+    } = analyzeJSTS(
       await jsTsInput({ filePath, programId: nodeProgram.programId }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
     expect(nodeIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -421,10 +397,10 @@ describe('analyzeJSTS', () => {
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodenextIssue],
-    } = (await analyzeJSTS(
+    } = analyzeJSTS(
       await jsTsInput({ filePath, programId: nodenextProgram.programId }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
     expect(nodenextIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -438,10 +414,10 @@ describe('analyzeJSTS', () => {
     expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [classicIssue],
-    } = (await analyzeJSTS(
+    } = analyzeJSTS(
       await jsTsInput({ filePath, programId: classicProgram.programId }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
     expect(classicIssue).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -467,10 +443,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = (await analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs }),
-      language,
-    )) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'different-types-comparison',
@@ -487,10 +460,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'issue.js');
     const language = 'js';
 
-    const { issues } = (await analyzeJSTS(
-      await jsTsInput({ filePath }),
-      language,
-    )) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issues).toEqual([
       {
         ruleId: 'no-octal',
@@ -516,7 +486,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ secondaryLocations }],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -539,7 +509,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ quickFixes }],
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -579,10 +549,10 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       await jsTsInput({ filePath }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -824,10 +794,10 @@ describe('analyzeJSTS', () => {
     const fileType = 'TEST';
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       await jsTsInput({ filePath, fileType }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -877,10 +847,10 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'metrics.js');
     const language = 'js';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = (await analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
       await jsTsInput({ filePath }),
       language,
-    )) as JsTsAnalysisOutput;
+    ) as JsTsAnalysisOutput;
 
     const extendedMetrics = { highlights, highlightedSymbols, metrics, cpdTokens };
     expect(extendedMetrics).toEqual({
@@ -903,7 +873,7 @@ describe('analyzeJSTS', () => {
 
     const {
       perf: { parseTime, analysisTime },
-    } = (await analyzeJSTS(await jsTsInput({ filePath }), language)) as JsTsAnalysisOutput;
+    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(parseTime).toBeGreaterThan(0);
     expect(analysisTime).toBeGreaterThan(0);
   });
@@ -915,7 +885,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
     const language = 'js';
     const analysisInput = await jsTsInput({ filePath });
-    await expect(async () => await analyzeJSTS(analysisInput, language)).rejects.toEqual(
+    expect(() => analyzeJSTS(analysisInput, language)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
@@ -939,7 +909,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issuesWithProject],
-    } = await analyzeJSTS(analysisWithProgram, 'js');
+    } = analyzeJSTS(analysisWithProgram, 'js');
     expect(issuesWithProject).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',

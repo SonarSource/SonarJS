@@ -38,10 +38,10 @@ export type Language = 'html' | 'yaml';
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export async function buildSourceCodes(
+export function buildSourceCodes(
   input: EmbeddedAnalysisInput,
   language: Language,
-): Promise<ExtendedSourceCode[]> {
+): ExtendedSourceCode[] {
   let embeddedJSs: EmbeddedJS[];
   if (language === 'html') {
     embeddedJSs = parseHTML(input.fileContent);
@@ -70,7 +70,7 @@ export async function buildSourceCodes(
       noProgram: true,
     } as JsTsAnalysisInput;
     try {
-      const sourceCode = await buildSourceCode(jsTsAnalysisInput, 'js');
+      const sourceCode = buildSourceCode(jsTsAnalysisInput, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
       // We use lodash.clone here to remove the effects of Object.preventExtensions()
       const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {

@@ -60,10 +60,7 @@ const LRUCache = new LRU<ProgramResult>();
  * @param tsconfigs The list of jsconfig/tsconfig files found in the project
  * @returns the retrieved TypeScript's Program
  */
-export async function getProgramForFile(
-  filePath: string,
-  tsconfigs: string[],
-): Promise<ProgramResult> {
+export function getProgramForFile(filePath: string, tsconfigs: string[]): ProgramResult {
   const normalizedPath = toUnixPath(filePath);
   for (const [tsconfig, programRef] of cachedPrograms) {
     const program = programRef.deref();
@@ -78,7 +75,7 @@ export async function getProgramForFile(
   }
   for (const tsconfig of tsconfigs) {
     if (!cachedPrograms.has(tsconfig)) {
-      const program = await createProgram(tsconfig);
+      const program = createProgram(tsconfig);
       cachedPrograms.set(tsconfig, new WeakRef(program));
       if (program.files.includes(normalizedPath)) {
         LRUCache.set(program);
@@ -94,7 +91,7 @@ export async function getProgramForFile(
     },
     files: [normalizedPath],
   };
-  const program = await createProgram(tsconfig, JSON.stringify(tsConfigContents));
+  const program = createProgram(tsconfig, JSON.stringify(tsConfigContents));
   cachedPrograms.set(tsconfig, new WeakRef(program));
   if (program.files.includes(normalizedPath)) {
     LRUCache.set(program);
@@ -201,17 +198,14 @@ export function createProgramOptions(
  *          'missingTsConfig' which is true when an extended tsconfig.json path
  *          was not found, which defaulted to default Typescript configuration
  */
-export async function createProgram(
-  tsConfig: string,
-  tsconfigContents?: string,
-): Promise<ProgramResult> {
+export function createProgram(tsConfig: string, tsconfigContents?: string): ProgramResult {
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
 
   for (const reference of inputProjectReferences) {
-    const sanitizedReference = await addTsConfigIfDirectory(reference.path);
+    const sanitizedReference = addTsConfigIfDirectory(reference.path);
     if (!sanitizedReference) {
       console.log(`WARN Skipping missing referenced tsconfig.json: ${reference.path}`);
     } else {
@@ -254,10 +248,8 @@ function nextId() {
  *
  * To be removed once Java part does not handle program creation
  */
-export async function createAndSaveProgram(
-  tsConfig: string,
-): Promise<ProgramResult & { programId: string }> {
-  const program = await createProgram(tsConfig);
+export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
+  const program = createProgram(tsConfig);
 
   const programId = nextId();
   programs.set(programId, program.program);

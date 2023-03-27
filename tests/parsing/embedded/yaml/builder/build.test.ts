@@ -27,21 +27,21 @@ describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
   it('should build source code from YAML lambda file', async () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
-    const sourceCodes = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
   it('should build source code from YAML serverless file', async () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
-    const sourceCodes = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
   it('should return YAML parsing errors on invalid YAML file', async () => {
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
-    await expect(() => buildSourceCodes(analysisInput, 'yaml')).rejects.toEqual(
+    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
@@ -50,7 +50,7 @@ describe('buildSourceCodes()', () => {
     const analysisInput = await embeddedInput({
       filePath: join(fixturesPath, 'invalid-plain-inline-js.yaml'),
     });
-    await expect(() => buildSourceCodes(analysisInput, 'yaml')).rejects.toEqual(
+    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
       APIError.parsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
     );
   });
@@ -59,20 +59,20 @@ describe('buildSourceCodes()', () => {
     const analysisInput = await embeddedInput({
       filePath: join(fixturesPath, 'invalid-block-inline-js.yaml'),
     });
-    await expect(() => buildSourceCodes(analysisInput, 'yaml')).rejects.toEqual(
+    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
       APIError.parsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
     );
   });
 
   it('it should not build a source code for an unsupported format', async () => {
     const filePath = join(fixturesPath, 'unsupported-format.yaml');
-    const sourceCodes = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     expect(sourceCodes).toHaveLength(0);
   });
 
   it('should fix plain-based format locations', async () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
 
     const {
       body: [ifStmt],
@@ -141,7 +141,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-folded-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     const {
       body: [ifStmt],
     } = ast;
@@ -209,7 +209,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-literal-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = await buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
     const {
       body: [ifStmt],
     } = ast;
@@ -277,7 +277,7 @@ describe('buildSourceCodes()', () => {
 
   it('should compose a synthetic file path', async () => {
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
-    const [firstExtendedSourceCode, secondExtendedSourceCode] = await buildSourceCodes(
+    const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(
       await embeddedInput({ filePath }),
       'yaml',
     );

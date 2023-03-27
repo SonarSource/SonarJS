@@ -72,14 +72,14 @@ describe('buildParserOptions', () => {
     );
   });
 
-  it('should build parser options with TypeScript program', async () => {
+  it('should build parser options with TypeScript program', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'options', 'tsconfig.json');
 
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const program = getProgramById(programId);
 
     const filePath = '/tmp/dir';
-    expect(await buildParserOptions({ filePath, programs: [program] })).toEqual(
+    expect(buildParserOptions({ filePath, programs: [program] })).toEqual(
       expect.objectContaining({
         programs: [program],
       }),

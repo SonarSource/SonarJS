@@ -20,13 +20,13 @@
 import { hrtime } from 'process';
 
 /**
- * Mesures the running time of a function
+ * Measures the running time of a function
  * @param f a function to run
  * @returns the returned value of the function and its running time
  */
-export async function measureDuration<T>(f: () => T): Promise<{ result: T; duration: number }> {
+export function measureDuration<T>(f: () => T): { result: T; duration: number } {
   const start = hrtime.bigint();
-  const result = await Promise.resolve().then(f);
+  const result = f();
   const duration = Math.round(Number(hrtime.bigint() - start) / 1_000);
   return { result, duration };
 }

@@ -21,11 +21,11 @@ import { hrtime } from 'process';
 import { measureDuration } from 'services/monitoring';
 
 describe('measureDuration', () => {
-  it('should measure the running time of a function', async () => {
+  it('should measure the running time of a function', () => {
     const spy = jest.spyOn(hrtime, 'bigint');
 
     const f = () => 'done';
-    const { result, duration } = await measureDuration(f);
+    const { result, duration } = measureDuration(f);
 
     expect(result).toEqual(f());
     expect(duration).toBeGreaterThanOrEqual(0);

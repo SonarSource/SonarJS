@@ -27,7 +27,7 @@ const rules = [{ key: 'block-no-empty', configurations: [] }];
 describe('analyzeCSS', () => {
   it('should analyze a css file', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.css');
-    expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
+    await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         {
           ruleId: 'block-no-empty',
@@ -41,7 +41,7 @@ describe('analyzeCSS', () => {
 
   it('should analyze css content', async () => {
     const fileContent = 'p {}';
-    expect(analyzeCSS(await input('/some/fake/path', fileContent, rules))).resolves.toEqual({
+    await expect(analyzeCSS(await input('/some/fake/path', fileContent, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -52,7 +52,7 @@ describe('analyzeCSS', () => {
 
   it('should analyze less syntax', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.less');
-    expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
+    await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
           ruleId: 'block-no-empty',
@@ -63,7 +63,7 @@ describe('analyzeCSS', () => {
 
   it('should return a parsing error in the form of an issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
-    expect(analyzeCSS(await input(filePath))).resolves.toEqual({
+    await expect(analyzeCSS(await input(filePath))).resolves.toEqual({
       issues: [
         {
           ruleId: 'CssSyntaxError',

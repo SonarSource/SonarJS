@@ -120,7 +120,7 @@ describe('router', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.ts');
     const fileType = 'MAIN';
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const data = { filePath, fileType, programId };
     const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
@@ -205,7 +205,7 @@ describe('router', () => {
 
   it('should route /delete-program requests', async () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const data = { programId };
     const response = (await request(server, '/delete-program', 'POST', data)) as string;
     expect(response).toEqual('OK!');

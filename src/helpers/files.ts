@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 /**
@@ -48,7 +48,7 @@ export type FileType = 'MAIN' | 'TEST';
  * @returns Promise which resolves with the content of the file
  */
 export async function readFile(filePath: string) {
-  const fileContent = await fs.readFile(filePath, { encoding: 'utf8' });
+  const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
 }
 
@@ -80,9 +80,9 @@ export function toUnixPath(path: string) {
  *
  * @param tsConfig
  */
-export async function addTsConfigIfDirectory(tsConfig: string) {
+export function addTsConfigIfDirectory(tsConfig: string) {
   try {
-    if ((await fs.lstat(tsConfig)).isDirectory()) {
+    if (fs.lstatSync(tsConfig).isDirectory()) {
       return path.join(tsConfig, 'tsconfig.json');
     }
 
