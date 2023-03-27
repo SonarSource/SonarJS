@@ -60,7 +60,7 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
 
   /**
    * 4. Rebuilds the SourceCode from the patched values because
-   *    it builds internal properties that are depending on them
+   *    it builds internal properties that depend on them
    */
   return new SourceCode({
     text: patchedSourceCode.text,

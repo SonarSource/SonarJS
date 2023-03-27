@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { buildSourceCode, Language } from 'parsing/jsts';
 import path from 'path';
 import { JsTsAnalysisInput } from 'services/analysis';
@@ -45,7 +44,7 @@ describe('ESLint-based parsers', () => {
     const fileType = 'MAIN';
 
     const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = (await buildSourceCode(input, language as Language)) as SourceCode;
+    const sourceCode = buildSourceCode(input, language as Language);
 
     expect(sourceCode).toBeDefined();
     expect(sourceCode.ast).toBeDefined();

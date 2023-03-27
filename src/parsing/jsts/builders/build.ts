@@ -33,12 +33,12 @@ import { Linter } from 'eslint';
  * @param language the language of the input
  * @returns the parsed source code
  */
-export async function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
+export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
   const isVueFile = input.filePath.toLowerCase().endsWith('.vue');
 
   if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
-      // enable logs for @typescripteslint
+      // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
       programs: 'programId' in input ? [getProgramById(input.programId)] : undefined,
@@ -51,7 +51,7 @@ export async function buildSourceCode(input: JsTsAnalysisInput, language: Langua
       !shouldUseWatchProgram(input.filePath) &&
       input.noProgram !== true
     ) {
-      const program = await getProgramForFile(input.filePath, input.tsConfigs);
+      const program = getProgramForFile(input.filePath, input.tsConfigs);
       options.programs = [program.program];
     }
 

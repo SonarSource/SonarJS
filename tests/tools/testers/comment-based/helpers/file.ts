@@ -39,10 +39,8 @@ export class FileIssues {
    * @param fileContent
    * @param filePath
    */
-  constructor(public fileContent: string, public filePath: string) {}
-
-  async getExpectedIssues(): Promise<LineIssues[]> {
-    const comments = await extractComments(this.fileContent, this.filePath);
+  constructor(fileContent: string, filePath: string) {
+    const comments = extractComments(fileContent, filePath);
     for (const comment of comments) {
       if (isNonCompliantLine(comment.value)) {
         extractLineIssues(this, comment);
@@ -52,6 +50,9 @@ export class FileIssues {
         extractQuickFixes(this.quickfixes, comment);
       }
     }
+  }
+
+  getExpectedIssues(): LineIssues[] {
     if (this.orphanSecondaryLocations.length !== 0) {
       throw new Error(
         this.orphanSecondaryLocations

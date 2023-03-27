@@ -23,16 +23,14 @@ import { createAndSaveProgram } from 'services/program';
 /**
  * Handles TypeScript Program creation requests
  */
-export default async function (
+export default function (
   request: express.Request,
   response: express.Response,
   next: express.NextFunction,
 ) {
   try {
     const { tsConfig } = request.body;
-    const { programId, files, projectReferences, missingTsConfig } = await createAndSaveProgram(
-      tsConfig,
-    );
+    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
     response.json({ programId, files, projectReferences, missingTsConfig });
   } catch (error) {
     next(error);

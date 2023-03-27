@@ -35,8 +35,8 @@ export interface Comment {
  * @param filePath
  * @returns
  */
-export async function extractComments(fileContent: string, filePath: string): Promise<Comment[]> {
-  const parsed = await buildSourceCode(
+export function extractComments(fileContent: string, filePath: string): Comment[] {
+  const parsed = buildSourceCode(
     { fileContent, filePath, fileType: null, tsConfigs: [], noProgram: true },
     null,
   );
