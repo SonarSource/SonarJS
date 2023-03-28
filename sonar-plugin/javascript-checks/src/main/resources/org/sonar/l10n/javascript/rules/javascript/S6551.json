@@ -1,0 +1,23 @@
+{
+  "title": "An object that doesn\u0027t implement .toString() shouldn\u0027t call toString() or be coerced to a string type",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "toString",
+    "string",
+    "object"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6551",
+  "sqKey": "S6551",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

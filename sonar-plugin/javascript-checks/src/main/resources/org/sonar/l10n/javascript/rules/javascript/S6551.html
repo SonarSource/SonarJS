@@ -1,0 +1,48 @@
+<p>When calling <code>toString()</code> or coercing into a string an object that doesn’t implement its own <code>toString</code> method, it returns
+<code>[object Object]</code> which is often not what was intended.</p>
+<h2>Why is this an issue?</h2>
+<p>Printing such an object will not express the information contained in the object, providing unexpected results.</p>
+<h2>How to fix it</h2>
+<p>You can simply define a <code>toString()</code> method for the object or class.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+class Foo {};
+const bar = new Foo();
+
+bar + '';
+`Foo: ${bar}`;
+bar.toString();
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+class Foo {
+  toString() {
+    return 'Foo';
+  }
+}
+const bar = new Foo();
+
+bar + '';
+`Foo: ${bar}`;
+bar.toString();
+</pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+const foo = {};
+foo + '';
+`Foo: ${foo}`;
+foo.toString();
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+const foo = {
+  toString: () =&gt; {
+    return 'Foo';
+  }
+}
+foo + '';
+`Foo: ${foo}`;
+foo.toString();
+</pre>
+
