@@ -41,12 +41,12 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      programs: 'programId' in input ? [getProgramById(input.programId)] : undefined,
-      project: 'tsConfigs' in input ? input.tsConfigs : undefined,
+      programs: input.programId && [getProgramById(input.programId)],
+      project: input.tsConfigs,
       parser: isVueFile ? parsers.typescript.parser : undefined,
     };
     if (
-      'tsConfigs' in input &&
+      input.tsConfigs &&
       !options.programs &&
       !shouldUseWatchProgram(input.filePath) &&
       input.createProgram === true

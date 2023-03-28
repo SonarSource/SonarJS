@@ -23,9 +23,9 @@ import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
-import { cachedPrograms } from 'services/program';
-import { TSConfigBasedAnalysisInput } from 'services/analysis';
+import { cachedPrograms, LRUCache } from 'services/program';
 
+jest.setTimeout(30000);
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -246,11 +246,11 @@ describe('buildSourceCode', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json');
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
 
-    const analysisInput = (await jsTsInput({
+    const analysisInput = await jsTsInput({
       filePath,
       tsConfigs: [tsConfig],
-    })) as TSConfigBasedAnalysisInput;
-    analysisInput.createProgram = true;
+      createProgram: true,
+    });
 
     buildSourceCode(analysisInput, 'ts');
 
@@ -259,6 +259,42 @@ describe('buildSourceCode', () => {
 
     expect(cachedPrograms.has(fakeTsConfig)).toBeTruthy();
     expect(cachedPrograms.get(fakeTsConfig).deref().files).toContain(filePath);
+  });
+
+  it('cache should only contain 2 elements', async () => {
+    const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
+    const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
+    const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));
+    const fakeTsConfig1 = `tsconfig-${toUnixPath(file1Path)}.json`;
+    const fakeTsConfig2 = `tsconfig-${toUnixPath(file2Path)}.json`;
+    const fakeTsConfig3 = `tsconfig-${toUnixPath(file3Path)}.json`;
+
+    buildSourceCode(await jsTsInput({ filePath: file1Path, createProgram: true }), 'js');
+    expect(cachedPrograms.has(fakeTsConfig1)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig1).deref().files).toContain(file1Path);
+
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).deref());
+
+    buildSourceCode(await jsTsInput({ filePath: file2Path, createProgram: true }), 'js');
+    expect(cachedPrograms.has(fakeTsConfig2)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig2).deref().files).toContain(file2Path);
+
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).deref());
+
+    buildSourceCode(await jsTsInput({ filePath: file3Path, createProgram: true }), 'js');
+    expect(cachedPrograms.has(fakeTsConfig3)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig3).deref().files).toContain(file3Path);
+
+    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig1).deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).deref());
+
+    if (global.gc) {
+      // @ts-ignore
+      global.gc(false);
+      expect(cachedPrograms.get(fakeTsConfig1).deref()).toBeUndefined();
+    }
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {

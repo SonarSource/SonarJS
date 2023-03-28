@@ -20,7 +20,7 @@
 import path from 'path';
 import { setContext, toUnixPath } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import { analyzeJSTS, JsTsAnalysisOutput, TSConfigBasedAnalysisInput } from 'services/analysis';
+import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
 import { createAndSaveProgram } from 'services/program';
 import { APIError } from 'errors';
 import { jsTsInput } from '../../../../tools';
@@ -905,8 +905,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'js_types', 'main.js');
 
-    const analysisWithProgram = (await jsTsInput({ filePath })) as TSConfigBasedAnalysisInput;
-    analysisWithProgram.createProgram = true;
+    const analysisWithProgram = await jsTsInput({ filePath, createProgram: true });
 
     const {
       issues: [issuesWithProject],
