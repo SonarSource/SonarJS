@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { setContext, toUnixPath } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
@@ -41,7 +40,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('VariableDeclaration');
   });
@@ -61,7 +60,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('VariableDeclaration');
     expect(console.log).not.toHaveBeenCalled();
@@ -69,13 +68,12 @@ describe('buildSourceCode', () => {
 
   it('should build JavaScript Vue.js source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'js.vue');
-    const sourceCode = await buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     const {
       ast: {
         body: [stmt],
       },
-    } = sourceCode as AST.ESLintExtendedProgram;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
@@ -86,7 +84,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
 
     expect(stmt.type).toEqual('TSTypeAliasDeclaration');
   });
@@ -94,13 +92,12 @@ describe('buildSourceCode', () => {
   it('should build TypeScript Vue.js source code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'ts.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
-    const sourceCode = await buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
-
     const {
       ast: {
         body: [stmt],
       },
-    } = sourceCode as AST.ESLintExtendedProgram;
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
+
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
@@ -116,7 +113,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
@@ -132,7 +129,7 @@ describe('buildSourceCode', () => {
       bundles: [],
     });
 
-    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
+    expect(() => buildSourceCode(analysisInput, 'js')).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
@@ -145,7 +142,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('FunctionDeclaration');
     expect(console.log).not.toHaveBeenCalled();
@@ -156,9 +153,7 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
-    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
-      Error('Unexpected token (3:0)'),
-    );
+    expect(() => buildSourceCode(analysisInput, 'js')).toThrow(Error('Unexpected token (3:0)'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
@@ -172,7 +167,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(sourceCode.ast.sourceType).toEqual('module');
   });
@@ -185,7 +180,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
@@ -202,7 +197,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = (await buildSourceCode(await jsTsInput({ filePath }), 'js')) as SourceCode;
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect((stmt as any).decorators).toHaveLength(1);
     expect((stmt as any).decorators[0].expression.name).toEqual('annotation');
@@ -213,13 +208,11 @@ describe('buildSourceCode', () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
-    const sourceCode = await buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
-
     const {
       ast: {
         body: [stmt],
       },
-    } = sourceCode as AST.ESLintExtendedProgram;
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
@@ -227,7 +220,7 @@ describe('buildSourceCode', () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const analysisInput = await jsTsInput({ filePath, tsConfigs });
-    await expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
+    expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(
       APIError.parsingError(`'}' expected.`, { line: 2 }),
     );
   });
@@ -235,10 +228,7 @@ describe('buildSourceCode', () => {
   it('should build TypeScript Vue.js code', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
-    const sourceCode = (await buildSourceCode(
-      await jsTsInput({ filePath, tsConfigs }),
-      'ts',
-    )) as AST.ESLintExtendedProgram;
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
 
     const {
       ast: {
@@ -256,7 +246,7 @@ describe('buildSourceCode', () => {
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
 
     const analysisInput = await jsTsInput({ filePath, tsConfigs: [tsConfig] });
-    await buildSourceCode(analysisInput, 'ts');
+    buildSourceCode(analysisInput, 'ts');
 
     expect(cachedPrograms.has(tsConfig)).toBeTruthy();
     expect(cachedPrograms.get(tsConfig).deref().files).not.toContain(filePath);
@@ -273,7 +263,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = await buildSourceCode(await jsTsInput({ filePath }), 'ts');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
 
     const {
       ast: {
@@ -295,17 +285,14 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    await expect(buildSourceCode(analysisInput, 'js')).rejects.toEqual(
+    expect(() => buildSourceCode(analysisInput, 'js')).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 7 }),
     );
   });
 
   it('should build Vue.js code with TypeScript ESLint parser', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'ts.vue');
-    const sourceCode = (await buildSourceCode(
-      await jsTsInput({ filePath }),
-      'ts',
-    )) as AST.ESLintExtendedProgram;
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
 
     expect(sourceCode.ast).toBeDefined();
   });
@@ -315,9 +302,7 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath });
-    await expect(buildSourceCode(analysisInput, 'ts')).rejects.toEqual(
-      Error('Expression expected.'),
-    );
+    expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(Error('Expression expected.'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
