@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { SourceCode } from 'eslint';
 import { computeMetrics } from 'linting/eslint';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('computeMetrics', () => {
   it('should compute metrics', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'compute.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const metrics = computeMetrics(sourceCode, true, 42);
     expect(metrics).toEqual({
       classes: 1,

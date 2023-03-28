@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, SourceCode } from 'eslint';
+import { Linter } from 'eslint';
 import path from 'path';
 import { rule as noLabelsRule } from 'linting/eslint/rules/no-labels';
 import { rule as noExclusiveTests } from 'linting/eslint/rules/no-exclusive-tests';
@@ -28,7 +28,7 @@ import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 describe('transformFixes', () => {
   it('should transform an ESLint core fix', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-extra-semi';
     const rules = { [ruleId]: 'error' } as any;
@@ -53,7 +53,7 @@ describe('transformFixes', () => {
 
   it('should transform a SonarJS suggestion', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-exclusive-tests';
     const rules = { [ruleId]: 'error' } as any;
@@ -80,7 +80,7 @@ describe('transformFixes', () => {
 
   it('should transform a fix from a decorated rule', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'decorated.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-empty-function';
     const rules = { [ruleId]: 'error' } as any;
@@ -107,7 +107,7 @@ describe('transformFixes', () => {
 
   it('should ignore an undeclared rule quick fix', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'undeclared.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'eqeqeq';
     const rules = { [ruleId]: 'error' } as any;
@@ -122,7 +122,7 @@ describe('transformFixes', () => {
 
   it('should not return quick fixes for a fixless rule', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'fixless.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-labels';
     const rules = { [ruleId]: 'error' } as any;

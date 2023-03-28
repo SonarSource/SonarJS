@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { visitAndCountIf } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../../tools';
@@ -25,7 +24,7 @@ import { parseJavaScriptSourceFile } from '../../../../../../tools';
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {
     const filePath = path.join(__dirname, './fixtures/counter.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath, [])) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
     expect(count).toEqual(3);
   });

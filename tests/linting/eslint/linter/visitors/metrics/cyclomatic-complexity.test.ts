@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { computeCyclomaticComplexity } from 'linting/eslint/linter/visitors/metrics/cyclomatic-complexity';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
@@ -35,7 +34,7 @@ describe('computeCyclomaticComplexity', () => {
     'should compute complexity for $fixture',
     async ({ fixture, expectedComplexity }) => {
       const filePath = path.join(__dirname, 'fixtures', 'cyclomatic-complexity', `${fixture}.js`);
-      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
     },
