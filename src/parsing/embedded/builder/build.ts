@@ -67,7 +67,6 @@ export function buildSourceCodes(
       filePath: '',
       fileContent: code,
       fileType: 'MAIN',
-      noProgram: true,
     } as JsTsAnalysisInput;
     try {
       const sourceCode = buildSourceCode(jsTsAnalysisInput, 'js');

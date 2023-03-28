@@ -207,7 +207,7 @@ describe('LinterWrapper', () => {
 
   it('should not report issues from sanitized rules', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'sanitized.ts');
-    const sourceCode = (await parseTypeScriptSourceFile(filePath, [], 'MAIN', true)) as SourceCode;
+    const sourceCode = (await parseTypeScriptSourceFile(filePath, [], 'MAIN')) as SourceCode;
 
     const rules = [
       { key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] },
