@@ -27,22 +27,17 @@ export async function jsTsInput({
   tsConfigs = [],
   programId = undefined,
   linterId = 'default',
+  createProgram = false,
 }): Promise<JsTsAnalysisInput> {
-  return programId
-    ? {
-        filePath,
-        fileContent: fileContent || (await readFile(filePath)),
-        fileType,
-        programId,
-        linterId,
-      }
-    : {
-        filePath,
-        fileContent: fileContent || (await readFile(filePath)),
-        fileType,
-        tsConfigs,
-        linterId,
-      };
+  return {
+    filePath,
+    fileContent: fileContent || (await readFile(filePath)),
+    fileType,
+    programId,
+    linterId,
+    tsConfigs,
+    createProgram,
+  };
 }
 
 export async function embeddedInput({

@@ -34,7 +34,7 @@ import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import { LRU } from '../../helpers/lru';
+import LRU from '../../helpers/lru';
 
 type ProgramResult = {
   files: string[];
@@ -52,7 +52,7 @@ export const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
 /**
  * Cache to keep strong references to the latest used Programs to avoid GC
  */
-const LRUCache = new LRU<ProgramResult>();
+export const LRUCache = new LRU<ProgramResult>();
 
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
