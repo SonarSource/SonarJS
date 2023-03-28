@@ -288,7 +288,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -310,7 +310,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig.json');
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -332,7 +332,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig_no_paths.json');
-    const { programId } = await createAndSaveProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -374,7 +374,7 @@ describe('analyzeJSTS', () => {
     const classicDependencyPath = path.join(__dirname, 'fixtures', 'module', 'string42.ts');
 
     const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
-    const nodeProgram = await createAndSaveProgram(nodeTsConfig);
+    const nodeProgram = createAndSaveProgram(nodeTsConfig);
     expect(nodeProgram.files).toContain(toUnixPath(nodeDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
@@ -391,7 +391,7 @@ describe('analyzeJSTS', () => {
     );
 
     const nodenextTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_nodenext.json');
-    const nodenextProgram = await createAndSaveProgram(nodenextTsConfig);
+    const nodenextProgram = createAndSaveProgram(nodenextTsConfig);
     expect(nodenextProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
     expect(nodenextProgram.files).toContain(toUnixPath(nodenextDependencyPath));
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
@@ -408,7 +408,7 @@ describe('analyzeJSTS', () => {
     );
 
     const classicTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_esnext.json');
-    const classicProgram = await createAndSaveProgram(classicTsConfig);
+    const classicProgram = createAndSaveProgram(classicTsConfig);
     expect(classicProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
     expect(classicProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
