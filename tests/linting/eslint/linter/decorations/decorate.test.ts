@@ -74,12 +74,7 @@ describe('decorateExternalRules', () => {
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
     const tsConfigs = [];
 
-    const sourceCode = (await parseTypeScriptSourceFile(
-      filePath,
-      tsConfigs,
-      'MAIN',
-      true,
-    )) as SourceCode;
+    const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs, 'MAIN')) as SourceCode;
     expect(sourceCode.parserServices.hasFullTypeInformation).toBeDefined();
     expect(sourceCode.parserServices.hasFullTypeInformation).toEqual(false);
 

@@ -56,7 +56,6 @@ describe('sanitizeTypeScriptESLintRule', () => {
         filePath,
         tsConfigs,
         'MAIN',
-        true,
       )) as SourceCode;
       const rules = { [ruleId]: 'error' } as any;
 

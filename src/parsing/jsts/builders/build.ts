@@ -49,7 +49,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
       'tsConfigs' in input &&
       !options.programs &&
       !shouldUseWatchProgram(input.filePath) &&
-      input.noProgram !== true
+      input.createProgram === true
     ) {
       const program = getProgramForFile(input.filePath, input.tsConfigs);
       options.programs = [program.program];

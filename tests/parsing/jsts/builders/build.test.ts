@@ -24,6 +24,7 @@ import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
 import { cachedPrograms } from 'services/program';
+import { TSConfigBasedAnalysisInput } from 'services/analysis';
 
 describe('buildSourceCode', () => {
   beforeEach(() => {
@@ -245,7 +246,12 @@ describe('buildSourceCode', () => {
     const tsConfig = path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json');
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
 
-    const analysisInput = await jsTsInput({ filePath, tsConfigs: [tsConfig] });
+    const analysisInput = (await jsTsInput({
+      filePath,
+      tsConfigs: [tsConfig],
+    })) as TSConfigBasedAnalysisInput;
+    analysisInput.createProgram = true;
+
     buildSourceCode(analysisInput, 'ts');
 
     expect(cachedPrograms.has(tsConfig)).toBeTruthy();
