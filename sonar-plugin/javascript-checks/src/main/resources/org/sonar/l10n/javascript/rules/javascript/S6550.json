@@ -1,0 +1,20 @@
+{
+  "title": "All enum members should be literals",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "enum"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6550",
+  "sqKey": "S6550",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

@@ -297,6 +297,7 @@ public final class CheckList {
       PostMessageCheck.class,
       PreferDefaultLastCheck.class,
       PreferForOfCheck.class,
+      PreferLiteralEnumMemberCheck.class,
       PreferNamespaceCheck.class,
       PreferObjectLiteralCheck.class,
       PreferPromiseShorthandCheck.class,
