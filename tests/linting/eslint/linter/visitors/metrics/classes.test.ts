@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { countClasses } from 'linting/eslint/linter/visitors/metrics/classes';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
@@ -25,7 +24,7 @@ import { parseJavaScriptSourceFile } from '../../../../../tools';
 describe('countClasses', () => {
   it('should count the number of classes', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'classes.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const classes = countClasses(sourceCode);
     expect(classes).toEqual(2);
   });

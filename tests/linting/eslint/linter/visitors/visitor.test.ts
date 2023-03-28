@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { childrenOf, visit } from 'linting/eslint/linter/visitors';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
@@ -26,7 +25,7 @@ describe('visitor', () => {
   describe('visit', () => {
     it('should traverse an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/tree.ts');
-      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
+      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
       const visited = [];
       visit(sourceCode, node => visited.push(node.type + ' ' + node.loc.start.line));
@@ -63,14 +62,14 @@ describe('visitor', () => {
   describe('childrenOf', () => {
     it('should return the child of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/child.ts');
-      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
+      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['IfStatement']);
     });
 
     it('should return the children of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/children.ts');
-      const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
+      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['WhileStatement', 'EmptyStatement']);
     });

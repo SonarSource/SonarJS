@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { findCommentLines } from 'linting/eslint/linter/visitors/metrics/comments';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
@@ -66,7 +65,7 @@ describe('findCommentLines', () => {
     'should find comment lines $given',
     async ({ fixture, ignoreHeader, expectedLines }) => {
       const filePath = path.join(__dirname, 'fixtures', 'comments', `${fixture}.js`);
-      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
     },

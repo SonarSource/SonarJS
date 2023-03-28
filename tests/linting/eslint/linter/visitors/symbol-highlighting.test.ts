@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, SourceCode } from 'eslint';
+import { Linter } from 'eslint';
 import { rule, SymbolHighlight } from 'linting/eslint/linter/visitors';
 import { Location } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
@@ -94,7 +94,7 @@ describe('symbol highlighting rule', () => {
 
 async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
   const filePath = path.join(__dirname, 'fixtures', 'symbol-highlighting', fixture);
-  const sourceCode = (await parseTypeScriptSourceFile(filePath, [])) as SourceCode;
+  const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';
   const rules = { [ruleId]: 'error' } as any;

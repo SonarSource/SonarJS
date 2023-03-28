@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { APIError } from 'errors';
-import { SourceCode } from 'eslint';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import path from 'path';
 import { JsTsAnalysisInput } from 'services/analysis';
@@ -43,7 +42,7 @@ describe('parseForESLint', () => {
 
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(fileContent, parser.parse, options) as SourceCode;
+      const sourceCode = parseForESLint(fileContent, parser.parse, options);
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
@@ -58,7 +57,7 @@ describe('parseForESLint', () => {
 
       const input = { fileContent, fileType } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(fileContent, parser.parse, options) as SourceCode;
+      const sourceCode = parseForESLint(fileContent, parser.parse, options);
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { SourceCode } from 'eslint';
 import { setContext } from 'helpers';
 import { initializeLinter, getLinter, LinterWrapper } from 'linting/eslint';
 import { parseJavaScriptSourceFile } from '../../../tools';
@@ -51,7 +50,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
       issues: [issue],
@@ -88,7 +87,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
       issues: [issue],

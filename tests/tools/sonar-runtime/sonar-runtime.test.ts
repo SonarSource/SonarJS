@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules } from 'linting/eslint';
-import { Linter, SourceCode } from 'eslint';
+import { Linter } from 'eslint';
 import {
   rule as noMissingSonarRuntimeRule,
   ruleId as noMissingSonarRuntimeRuleId,
@@ -68,7 +68,7 @@ describe('sonar-runtime', () => {
         );
       }
 
-      const ruleSourceCode = (await parseTypeScriptSourceFile(ruleFilePath, [])) as SourceCode;
+      const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
 
       const issues = linter.verify(ruleSourceCode, {
         rules: { [noMissingSonarRuntimeRuleId]: 'error' },
