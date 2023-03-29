@@ -5,4 +5,7 @@
 'jquery:src/css.js':[
 42,
 ],
+'jquery:src/selector.js':[
+1461,
+],
 }
