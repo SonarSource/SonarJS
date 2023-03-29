@@ -23,7 +23,7 @@ import { getContext, projectTSConfigs } from './context';
 import { readFileSync, toUnixPath } from './files';
 import * as console from 'console';
 
-export default function tsConfigLookup(dir?: string) {
+export function tsConfigLookup(dir?: string) {
   if (!dir) {
     dir = getContext().workDir;
   }
