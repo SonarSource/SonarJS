@@ -53,6 +53,20 @@ export async function readFile(filePath: string) {
 }
 
 /**
+ * Synchronous read of file contents from a file path
+ *
+ * The function gets rid of any Byte Order Marker (BOM)
+ * present in the file's header.
+ *
+ * @param filePath the path of a file
+ * @returns Promise which resolves with the content of the file
+ */
+export function readFileSync(filePath: string) {
+  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+  return stripBOM(fileContent);
+}
+
+/**
  * Removes any Byte Order Marker (BOM) from a string's head
  *
  * A string's head is nothing else but its first character.

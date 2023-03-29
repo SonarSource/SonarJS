@@ -19,6 +19,7 @@
  */
 import path from 'path';
 import {
+  cachedPrograms,
   createAndSaveProgram,
   createProgram,
   createProgramOptions,
@@ -31,6 +32,7 @@ import { toUnixPath } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { writeTSConfigFile } from 'services/program';
 import fs from 'fs';
+import tsConfigLookup from 'helpers/tsConfigLookup';
 
 describe('program', () => {
   it('should create a program', () => {
@@ -245,12 +247,16 @@ describe('program', () => {
   });
 
   it('getProgramFromFile creates Program using tsconfig.json', () => {
-    const fixtures = toUnixPath(path.join(__dirname, 'fixtures'));
-    const tsConfig = toUnixPath(path.join(fixtures, 'paths', 'tsconfig.json'));
-    const mainFile = toUnixPath(path.join(fixtures, 'paths', 'file.ts'));
-    const dependencyPath = toUnixPath(path.join(fixtures, 'paths', 'subfolder', 'index.ts'));
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'paths'));
+    tsConfigLookup(fixtures);
+    const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
+    const mainFile = toUnixPath(path.join(fixtures, 'file.ts'));
+    const dependencyPath = toUnixPath(path.join(fixtures, 'subfolder', 'index.ts'));
 
-    const program = getProgramForFile(mainFile, [tsConfig]);
-    expect(program.files).toContain(dependencyPath);
+    const program = getProgramForFile(mainFile);
+    expect(program).toBeDefined();
+    expect(cachedPrograms.get(tsConfig)).toBeDefined();
+    expect(cachedPrograms.get(tsConfig).files).toContain(dependencyPath);
+    expect(cachedPrograms.get(tsConfig).files).toContain(mainFile);
   });
 });

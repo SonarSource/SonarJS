@@ -22,6 +22,7 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
 import { getProgramById, getProgramForFile } from '../../../services/program';
 import { Linter } from 'eslint';
+import { updateTsConfigs } from '../../../helpers/tsConfigLookup';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -51,8 +52,9 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
       !shouldUseWatchProgram(input.filePath) &&
       input.createProgram === true
     ) {
-      const program = getProgramForFile(input.filePath, input.tsConfigs);
-      options.programs = [program.program];
+      updateTsConfigs(input.tsConfigs);
+      const program = getProgramForFile(input.filePath);
+      options.programs = [program];
     }
 
     try {

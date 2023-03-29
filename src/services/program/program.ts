@@ -30,17 +30,26 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import {
+  addTsConfigIfDirectory,
+  debug,
+  projectTSConfigs,
+  readFileSync,
+  toUnixPath,
+  TSConfig,
+} from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import LRU from '../../helpers/lru';
 
 type ProgramResult = {
+  tsConfig: TSConfig;
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
-  program: ts.Program;
+  program: WeakRef<ts.Program>;
+  cached?: boolean;
 };
 
 /**
@@ -48,54 +57,55 @@ type ProgramResult = {
  *
  * It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
  */
-export const cachedPrograms = new Map<string, WeakRef<ProgramResult>>();
+export const cachedPrograms = new Map<string, ProgramResult>();
 /**
  * Cache to keep strong references to the latest used Programs to avoid GC
  */
-export const LRUCache = new LRU<ProgramResult>();
-
+export const LRUCache = new LRU<ts.Program>();
+function* iterateTSConfigs(file: string) {
+  for (const tsConfig of projectTSConfigs.values()) {
+    yield tsConfig;
+  }
+  yield {
+    filename: `tsconfig-${file}.json`,
+    contents: JSON.stringify({
+      compilerOptions: {
+        allowJs: true,
+        noImplicitAny: true,
+      },
+      files: [file],
+    }),
+  };
+}
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
  * @param filePath The file to the sourceCode file to analyze
- * @param tsconfigs The list of jsconfig/tsconfig files found in the project
  * @returns the retrieved TypeScript's Program
  */
-export function getProgramForFile(filePath: string, tsconfigs: string[]): ProgramResult {
+export function getProgramForFile(filePath: string): ts.Program {
   const normalizedPath = toUnixPath(filePath);
-  for (const [tsconfig, programRef] of cachedPrograms) {
-    const program = programRef.deref();
-    if (program) {
-      if (program.files.includes(normalizedPath)) {
+  for (const [tsconfig, programResult] of cachedPrograms) {
+    if (programResult.files.includes(normalizedPath)) {
+      const program = programResult.program.deref();
+      const tsConfig = projectTSConfigs.get(tsconfig);
+      if (program && tsConfig && !tsConfig.reset) {
         LRUCache.set(program);
         return program;
-      }
-    } else {
-      cachedPrograms.delete(tsconfig);
-    }
-  }
-  for (const tsconfig of tsconfigs) {
-    if (!cachedPrograms.has(tsconfig)) {
-      const program = createProgram(tsconfig);
-      cachedPrograms.set(tsconfig, new WeakRef(program));
-      if (program.files.includes(normalizedPath)) {
-        LRUCache.set(program);
-        return program;
+      } else {
+        cachedPrograms.delete(tsconfig);
       }
     }
   }
-  const tsconfig = `tsconfig-${normalizedPath}.json`;
-  const tsConfigContents = {
-    compilerOptions: {
-      allowJs: true,
-      noImplicitAny: true,
-    },
-    files: [normalizedPath],
-  };
-  const program = createProgram(tsconfig, JSON.stringify(tsConfigContents));
-  cachedPrograms.set(tsconfig, new WeakRef(program));
-  if (program.files.includes(normalizedPath)) {
-    LRUCache.set(program);
-    return program;
+  for (const tsconfig of iterateTSConfigs(normalizedPath)) {
+    if (!cachedPrograms.has(tsconfig.filename)) {
+      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
+      cachedPrograms.set(tsconfig.filename, programResult);
+      if (programResult.files.includes(normalizedPath)) {
+        const program = programResult.program.deref()!;
+        LRUCache.set(program);
+        return program;
+      }
+    }
   }
   throw Error(`Could not create a program containing ${normalizedPath}`);
 }
@@ -199,9 +209,10 @@ export function createProgramOptions(
  *          was not found, which defaulted to default Typescript configuration
  */
 export function createProgram(tsConfig: string, tsconfigContents?: string): ProgramResult {
+  if (!tsconfigContents) {
+    tsconfigContents = readFileSync(tsConfig);
+  }
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
-
-  programOptions.host = ts.createCompilerHost(programOptions.options);
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
@@ -220,7 +231,11 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
     files,
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
-    program,
+    program: new WeakRef(program),
+    tsConfig: {
+      filename: tsConfig,
+      contents: tsconfigContents,
+    },
   };
 }
 
@@ -229,7 +244,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
  *
  * It associates a program identifier to an instance of a TypeScript's Program.
  */
-const programs = new Map<string, ts.Program>();
+const programs = new Map<string, WeakRef<ts.Program>>();
 
 /**
  * A counter of created TypeScript's Program instances
@@ -266,8 +281,9 @@ export function createAndSaveProgram(tsConfig: string): ProgramResult & { progra
  * @returns the retrieved TypeScript's Program
  */
 export function getProgramById(programId: string): ts.Program {
-  const program = programs.get(programId);
-  if (!program) {
+  const programRef = programs.get(programId);
+  const program = programRef?.deref();
+  if (!program || !programRef) {
     throw Error(`Failed to find program ${programId}`);
   }
   return program;
