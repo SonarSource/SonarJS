@@ -7,7 +7,6 @@
     "constantCost": "5min"
   },
   "tags": [
-    "toString",
     "string",
     "object"
   ],
@@ -17,7 +16,6 @@
   "scope": "All",
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ]
 }

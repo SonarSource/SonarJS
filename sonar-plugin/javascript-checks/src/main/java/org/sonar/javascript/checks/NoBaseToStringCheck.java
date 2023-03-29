@@ -25,7 +25,6 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
-@JavaScriptRule
 @Rule(key = "S6551")
 public class NoBaseToStringCheck implements EslintBasedCheck {
 
