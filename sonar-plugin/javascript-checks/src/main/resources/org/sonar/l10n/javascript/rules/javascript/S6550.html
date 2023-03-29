@@ -2,9 +2,9 @@
 <p>TypeScript allows all sorts of expressions to initialize enum members. However, as enums create their own scope, using identifiers can lead to
 unexpected results. The recommendation is thus to use only literal values when defining enum members.</p>
 <h3>What is the potential impact?</h3>
-<p>An enum member will hide any variable defined with the same name in an enclosing scope. In the code example below, the <code>day</code> member
+<p>An enum member will shadow any variable defined with the same name in an enclosing scope. In the code example below, the <code>day</code> member
 value should derive from the <code>hour</code> const variable. But it is computed using the enum <code>hour</code> member instead, leading to the
-value 24 instead of the expected 1440.</p>
+result 24 instead of the expected 1440.</p>
 <pre>
 const hour = 3600; // hour in seconds
 
