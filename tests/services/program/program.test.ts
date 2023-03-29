@@ -32,7 +32,7 @@ import { toUnixPath } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { writeTSConfigFile } from 'services/program';
 import fs from 'fs';
-import tsConfigLookup from 'helpers/tsConfigLookup';
+import { tsConfigLookup } from 'helpers/tsConfigLookup';
 
 describe('program', () => {
   it('should create a program', () => {
