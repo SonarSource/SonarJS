@@ -65,39 +65,45 @@ export const rule: Rule.RuleModule = {
       return context
         .getSourceCode()
         .getTokensBetween(left, right)
-        .find(token => token.value === '+')!.loc;
+        .find(token => token.value === '+' || token.value === '+=')!.loc;
+    }
+
+    function checkConcatenation(left: estree.Node, right: estree.Node) {
+      if (
+        isStringLiteral(left) ||
+        isStringLiteral(right) ||
+        isConcatenation(left) ||
+        isConcatenation(right)
+      ) {
+        return;
+      }
+
+      const leftType = getTypeFromTreeNode(left, services);
+      const rightType = getTypeFromTreeNode(right, services);
+      if (
+        isStringPlusNonString(leftType, rightType) ||
+        isStringPlusNonString(rightType, leftType)
+      ) {
+        context.report({
+          message: toEncodedMessage(
+            message,
+            [left, right],
+            [
+              `left operand has type ${checker.typeToString(leftType)}.`,
+              `right operand has type ${checker.typeToString(rightType)}.`,
+            ],
+          ),
+          loc: getOperatorLocation(left, right),
+        });
+      }
     }
 
     return {
-      'BinaryExpression[operator="+"]'(node: estree.Node) {
-        const { left, right } = node as estree.BinaryExpression;
-        if (
-          isStringLiteral(left) ||
-          isStringLiteral(right) ||
-          isConcatenation(left) ||
-          isConcatenation(right)
-        ) {
-          return;
-        }
-
-        const leftType = getTypeFromTreeNode(left, services);
-        const rightType = getTypeFromTreeNode(right, services);
-        if (
-          isStringPlusNonString(leftType, rightType) ||
-          isStringPlusNonString(rightType, leftType)
-        ) {
-          context.report({
-            message: toEncodedMessage(
-              message,
-              [left, right],
-              [
-                `left operand has type ${checker.typeToString(leftType)}.`,
-                `right operand has type ${checker.typeToString(rightType)}.`,
-              ],
-            ),
-            loc: getOperatorLocation(left, right),
-          });
-        }
+      'AssignmentExpression[operator="+="]'(node: estree.AssignmentExpression) {
+        checkConcatenation(node.left, node.right);
+      },
+      'BinaryExpression[operator="+"]'(node: estree.BinaryExpression) {
+        checkConcatenation(node.left, node.right);
       },
     };
   },

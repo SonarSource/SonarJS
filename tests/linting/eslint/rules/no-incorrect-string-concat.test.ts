@@ -85,6 +85,20 @@ ruleTesterTs.run('', rule, {
       const a = 1 + E.X;
       `,
     },
+    {
+      code: `
+      var str = "42";
+      var num = 1;
+      num *= str;
+      str *= num`,
+    },
+    {
+      code: `
+      var str1 = "42";
+      var str2 = "24";
+      str1 += str2;
+      `,
+    },
   ],
   invalid: [
     {
@@ -144,6 +158,25 @@ ruleTesterTs.run('', rule, {
       foo(obj + str);     // Noncompliant
       foo(obj.num + str); // Noncompliant
       foo(obj.str + str); // Compliant`,
+      errors: [
+        {
+          line: 7,
+        },
+        {
+          line: 8,
+        },
+      ],
+    },
+    {
+      code: `
+      var str = "42";
+      var obj = {
+        num: 1,
+        str: "42"
+      };
+      str += obj;
+      obj += str;
+      `,
       errors: [
         {
           line: 7,
