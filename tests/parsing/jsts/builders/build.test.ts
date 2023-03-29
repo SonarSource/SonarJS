@@ -243,7 +243,7 @@ describe('buildSourceCode', () => {
 
   it('should fail building excluded TypeScript code from TSConfig', async () => {
     const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
-    const tsConfig = path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json');
+    const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
 
     const analysisInput = await jsTsInput({
@@ -255,10 +255,10 @@ describe('buildSourceCode', () => {
     buildSourceCode(analysisInput, 'ts');
 
     expect(cachedPrograms.has(tsConfig)).toBeTruthy();
-    expect(cachedPrograms.get(tsConfig).deref().files).not.toContain(filePath);
+    expect(cachedPrograms.get(tsConfig).files).not.toContain(filePath);
 
     expect(cachedPrograms.has(fakeTsConfig)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig).deref().files).toContain(filePath);
+    expect(cachedPrograms.get(fakeTsConfig).files).toContain(filePath);
   });
 
   it('cache should only contain 2 elements', async () => {
@@ -271,29 +271,29 @@ describe('buildSourceCode', () => {
 
     buildSourceCode(await jsTsInput({ filePath: file1Path, createProgram: true }), 'js');
     expect(cachedPrograms.has(fakeTsConfig1)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig1).deref().files).toContain(file1Path);
+    expect(cachedPrograms.get(fakeTsConfig1).files).toContain(file1Path);
 
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
 
     buildSourceCode(await jsTsInput({ filePath: file2Path, createProgram: true }), 'js');
     expect(cachedPrograms.has(fakeTsConfig2)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig2).deref().files).toContain(file2Path);
+    expect(cachedPrograms.get(fakeTsConfig2).files).toContain(file2Path);
 
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
 
     buildSourceCode(await jsTsInput({ filePath: file3Path, createProgram: true }), 'js');
     expect(cachedPrograms.has(fakeTsConfig3)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig3).deref().files).toContain(file3Path);
+    expect(cachedPrograms.get(fakeTsConfig3).files).toContain(file3Path);
 
-    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig1).deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).deref());
+    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).program.deref());
 
     if (global.gc) {
       // @ts-ignore
       global.gc(false);
-      expect(cachedPrograms.get(fakeTsConfig1).deref()).toBeUndefined();
+      expect(cachedPrograms.get(fakeTsConfig1).program.deref()).toBeUndefined();
     }
   });
 

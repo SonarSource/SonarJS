@@ -12,6 +12,7 @@
  */
 
 const server = require('../lib/server');
+const tsConfigLookup = require('../lib/tsConfigLookup');
 const path = require('path');
 const context = require('../lib/helpers');
 
@@ -25,6 +26,8 @@ let bundles = [];
 if (process.argv[7]) {
   bundles = process.argv[7].split(path.delimiter);
 }
+
+tsConfigLookup();
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
 server.start(port, host);
