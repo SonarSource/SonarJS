@@ -59,6 +59,12 @@ export function isFunction(node: estree.Node, services: RequiredParserServices) 
   return type.symbol && (type.symbol.flags & ts.SymbolFlags.Function) !== 0;
 }
 
+export function isUnion(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  return type.isUnion();
+}
+
 export function isUndefinedOrNull(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));

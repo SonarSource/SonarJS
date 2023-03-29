@@ -19,30 +19,128 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S131/javascript
 
-import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { Rule, SourceCode } from 'eslint';
+import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
+import { interceptReport, mergeRules } from '../rules/decorators/helpers';
+import { isRequiredParserServices, isUnion } from './helpers';
 
-export const rule: Rule.RuleModule = {
+/**
+ * This rule raises issues on switch statements without a default branch if, and only if,
+ * the discriminant of the switch statement is not of union type. This exception is due to
+ * `switch-exhaustiveness-check` decorated below which checks the exhaustiveness of switch
+ * statements on TypeScript unions. Therefore, we avoid here raising multiple issues if the
+ * discriminant of the switch statement denotes a union, provided that type information is available.
+ */
+const switchWithoutDefaultRule: Rule.RuleModule = {
   meta: {
     messages: {
       switchDefault: `Add a "default" clause to this "switch" statement.`,
+      addDefault: 'Add a "default" branch.',
     },
   },
   create(context: Rule.RuleContext) {
+    const services = context.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     return {
-      SwitchStatement(node: estree.Node) {
-        const { cases } = node as estree.SwitchStatement;
+      SwitchStatement(node: estree.SwitchStatement) {
+        const { discriminant, cases } = node;
+        if (hasTypeInformation && isUnion(discriminant, services)) {
+          return;
+        }
         const defaultClause = cases.find(c => c.test === null);
         if (!defaultClause) {
-          const switchKeyword = context
-            .getSourceCode()
-            .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'switch')!;
+          const switchKeyword = getSwitchKeyword(node, context);
           context.report({
             messageId: 'switchDefault',
             loc: switchKeyword.loc,
+            suggest: [
+              {
+                messageId: 'addDefault',
+                fix(fixer: Rule.RuleFixer): Rule.Fix | null {
+                  return fixSwitch(fixer, node, context.getSourceCode());
+                },
+              },
+            ],
           });
         }
       },
     };
+  },
+};
+
+/**
+ * The rule `switch-exhaustiveness-check` is a TypeScript ESLint rule that uses type information.
+ * Therefore, we need to sanitize the rule in case TypeScript's type checker is missing when the
+ * rule is executed to prevent runtime errors. Furthermore, we need to decorate the rule so that
+ * it raises issues with the same message at the same location, that is, the `switch` keyword.
+ */
+const switchExhaustivenessRule = typeScriptESLintRules['switch-exhaustiveness-check'];
+const decoratedSwitchExhaustivenessRule: Rule.RuleModule = interceptReport(
+  sanitizeTypeScriptESLintRule(switchExhaustivenessRule),
+  function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+    const switchNode = (descriptor as any).node.parent as estree.Node;
+    const switchKeyword = getSwitchKeyword(switchNode, context);
+    context.report({ ...descriptor, loc: switchKeyword.loc });
+  },
+);
+
+function getSwitchKeyword(node: estree.Node, context: Rule.RuleContext) {
+  return context
+    .getSourceCode()
+    .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'switch')!;
+}
+
+function fixSwitch(
+  fixer: Rule.RuleFixer,
+  node: estree.SwitchStatement,
+  sourceCode: SourceCode,
+): Rule.Fix | null {
+  /** Either suggest a default branch after the last case while preserving contextual indentation */
+
+  const lastCase = node.cases.length > 0 ? node.cases[node.cases.length - 1] : null;
+
+  const caseIndent = lastCase
+    ? ' '.repeat(lastCase.loc?.start.column!)
+    : ' '.repeat(node.loc?.start.column!);
+  const code = "default: { throw new Error('Not implemented yet'); }";
+  const fixString = `${caseIndent}${code}`;
+
+  if (lastCase) {
+    return fixer.insertTextAfter(lastCase, `\n${fixString}`);
+  }
+
+  /* Or suggest a default branch with the same indentation level as the switch starting line */
+
+  const openingBrace = sourceCode.getTokenAfter(
+    node.discriminant,
+    token => token.type === 'Punctuator' && token.value === '{',
+  )!;
+
+  const closingBrace = sourceCode.getTokenAfter(
+    node.discriminant,
+    token => token.type === 'Punctuator' && token.value === '}',
+  )!;
+
+  return fixer.replaceTextRange(
+    [openingBrace.range[0], closingBrace.range[1]],
+    ['{', fixString, `${caseIndent}}`].join('\n'),
+  );
+}
+
+export const rule: Rule.RuleModule = {
+  meta: {
+    hasSuggestions: true,
+    messages: {
+      ...switchWithoutDefaultRule.meta?.messages,
+      ...decoratedSwitchExhaustivenessRule.meta?.messages,
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return mergeRules(
+      switchWithoutDefaultRule.create(context),
+      decoratedSwitchExhaustivenessRule.create(context),
+    );
   },
 };
