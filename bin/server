@@ -27,7 +27,7 @@ if (process.argv[7]) {
   bundles = process.argv[7].split(path.delimiter);
 }
 
-tsConfigLookup();
-
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
+
+tsConfigLookup();
 server.start(Number.parseInt(port), host).catch(() => {});
