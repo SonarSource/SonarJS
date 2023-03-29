@@ -1,6 +1,9 @@
 // https://typedoc.org/guides/options
 module.exports = {
-  entryPoints: ['../src/linting/eslint/rules/helpers/index.ts'],
+  entryPoints: [
+    '../src/linting/eslint/rules/helpers/index.ts',
+    '../src/linting/eslint/rules/decorators/helpers/index.ts',
+  ],
   name: 'SonarJS linter helper functions',
   out: './site',
   searchInComments: true,
