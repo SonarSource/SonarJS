@@ -73,7 +73,7 @@ export const rule: Rule.RuleModule = {
       const type = checker.getTypeAtLocation(tsNode);
       const constrained = checker.getBaseConstraintOfType(type);
 
-      return isArrayOrUnionOfArrayType(constrained ?? type) && !isArrayOfStringType(type);
+      return isArrayOrUnionOfArrayType(constrained ?? type);
     }
 
     function isArrayOrUnionOfArrayType(type: ts.Type): boolean {
@@ -84,15 +84,6 @@ export const rule: Rule.RuleModule = {
       }
 
       return true;
-    }
-
-    function isArrayOfStringType(type: ts.Type) {
-      const typeNode = checker.typeToTypeNode(type, undefined, undefined);
-      return (
-        typeNode &&
-        ts.isArrayTypeNode(typeNode) &&
-        typeNode.elementType.kind === ts.SyntaxKind.StringKeyword
-      );
     }
 
     // Internal TS API

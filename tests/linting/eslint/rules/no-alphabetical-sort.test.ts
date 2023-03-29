@@ -30,12 +30,6 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       `,
     },
     {
-      code: `
-      var arrayOfStrings = ["foo", "bar"];
-      arrayOfStrings.sort();
-      `,
-    },
-    {
       code: `unknownArrayType.sort();`,
     },
     {
@@ -148,35 +142,6 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       }
     `,
     },
-    // optional chain
-    {
-      code: `
-        function f(a: string[]) {
-          a?.sort();
-        }
-      `,
-    },
-    {
-      code: `
-        ['foo', 'bar', 'baz'].sort();
-      `,
-    },
-    {
-      code: `
-        function getString() {
-          return 'foo';
-        }
-        [getString(), getString()].sort();
-      `,
-    },
-    {
-      code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        [foo, bar, baz].sort();
-      `,
-    },
   ],
   invalid: [
     {
@@ -265,6 +230,46 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
         function f<T, U extends T[]>(a: U) {
           a.sort();
         }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      var arrayOfStrings = ["foo", "bar"];
+      arrayOfStrings.sort();
+      `,
+      errors: 1,
+    },
+    // optional chain
+    {
+      code: `
+        function f(a: string[]) {
+          a?.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        ['foo', 'bar', 'baz'].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function getString() {
+          return 'foo';
+        }
+        [getString(), getString()].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const foo = 'foo';
+        const bar = 'bar';
+        const baz = 'baz';
+        [foo, bar, baz].sort();
       `,
       errors: 1,
     },
