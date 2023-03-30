@@ -21,9 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import * as ts from 'typescript';
-import { isRequiredParserServices, sortLike } from './helpers';
+import {
+  getTypeFromTreeNode,
+  isArrayLikeType,
+  isRequiredParserServices,
+  sortLike,
+} from './helpers';
 
 const compareFunctionPlaceholder = '(a, b) => (a - b)';
 
@@ -42,14 +45,13 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    const checker = services.program.getTypeChecker();
     return {
       'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
         call: estree.CallExpression,
       ) => {
-        const { object, property } = call.callee as TSESTree.MemberExpression;
-        const text = context.getSourceCode().getText(property as estree.Node);
-        if (sortLike.includes(text) && isArrayNode(object)) {
+        const { object, property } = call.callee as estree.MemberExpression;
+        const text = context.getSourceCode().getText(property);
+        if (sortLike.includes(text) && isArrayLikeNode(object)) {
           const closingParenthesis = context
             .getSourceCode()
             .getLastToken(call, token => token.value === ')')!;
@@ -68,39 +70,9 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function isArrayNode(node: TSESTree.Node) {
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      const type = checker.getTypeAtLocation(tsNode);
-      const constrained = checker.getBaseConstraintOfType(type);
-
-      return isArrayOrUnionOfArrayType(constrained ?? type);
-    }
-
-    function isArrayOrUnionOfArrayType(type: ts.Type): boolean {
-      for (const part of getUnionTypes(type)) {
-        if (!isArrayType(part)) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    // Internal TS API
-    function isArrayType(type: ts.Type): type is ts.TypeReference {
-      return (
-        'isArrayType' in checker &&
-        typeof checker.isArrayType === 'function' &&
-        checker.isArrayType(type)
-      );
+    function isArrayLikeNode(node: estree.Node) {
+      const type = getTypeFromTreeNode(node, services);
+      return isArrayLikeType(type, services);
     }
   },
 };
-
-function getUnionTypes(type: ts.Type): ts.Type[] {
-  return isUnionType(type) ? type.types : [type];
-}
-
-function isUnionType(type: ts.Type): type is ts.UnionType {
-  return (type.flags & ts.TypeFlags.Union) !== 0;
-}

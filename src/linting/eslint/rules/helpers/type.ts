@@ -65,6 +65,10 @@ export function isUnion(node: estree.Node, services: RequiredParserServices) {
   return type.isUnion();
 }
 
+export function getUnionTypes(type: ts.Type): ts.Type[] {
+  return type.isUnion() ? type.types : [type];
+}
+
 export function isUndefinedOrNull(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
@@ -103,5 +107,31 @@ export function getSignatureFromCallee(node: estree.Node, services: RequiredPars
   const checker = services.program.getTypeChecker();
   return checker.getResolvedSignature(
     services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.CallLikeExpression,
+  );
+}
+
+export function isArrayLikeType(type: ts.Type, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const constrained = checker.getBaseConstraintOfType(type);
+  return isArrayOrUnionOfArrayType(constrained ?? type, services);
+}
+
+function isArrayOrUnionOfArrayType(type: ts.Type, services: RequiredParserServices): boolean {
+  for (const part of getUnionTypes(type)) {
+    if (!isArrayType(part, services)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// Internal TS API
+function isArrayType(type: ts.Type, services: RequiredParserServices): type is ts.TypeReference {
+  const checker = services.program.getTypeChecker();
+  return (
+    'isArrayType' in checker &&
+    typeof checker.isArrayType === 'function' &&
+    checker.isArrayType(type)
   );
 }

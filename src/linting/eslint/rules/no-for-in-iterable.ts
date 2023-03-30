@@ -22,7 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
-import { getTypeFromTreeNode, isRequiredParserServices } from './helpers';
+import {
+  getTypeFromTreeNode,
+  isStringType,
+  isArrayLikeType,
+  isRequiredParserServices,
+} from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -35,7 +40,6 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    const checker = services.program.getTypeChecker();
     return {
       ForInStatement: (node: estree.Node) => {
         const type = getTypeFromTreeNode((node as estree.ForInStatement).right, services);
@@ -51,31 +55,7 @@ export const rule: Rule.RuleModule = {
     };
 
     function isIterable(type: ts.Type) {
-      return isCollection(type) || isString(type) || isArrayLikeType(type);
-    }
-
-    function isArrayLikeType(type: ts.Type) {
-      const constrained = checker.getBaseConstraintOfType(type);
-      return isArrayOrUnionOfArrayType(constrained ?? type);
-    }
-
-    function isArrayOrUnionOfArrayType(type: ts.Type): boolean {
-      for (const part of getUnionTypes(type)) {
-        if (!isArrayType(part)) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    // Internal TS API
-    function isArrayType(type: ts.Type): type is ts.TypeReference {
-      return (
-        'isArrayType' in checker &&
-        typeof checker.isArrayType === 'function' &&
-        checker.isArrayType(type)
-      );
+      return isCollection(type) || isStringType(type) || isArrayLikeType(type, services);
     }
   },
 };
@@ -100,19 +80,4 @@ function isCollection(type: ts.Type) {
       'Map',
     ].includes(type.symbol.name)
   );
-}
-
-function isString(type: ts.Type) {
-  return (
-    (type.symbol !== undefined && type.symbol.name === 'String') ||
-    (type.flags & ts.TypeFlags.StringLike) !== 0
-  );
-}
-
-function getUnionTypes(type: ts.Type): ts.Type[] {
-  return isUnionType(type) ? type.types : [type];
-}
-
-function isUnionType(type: ts.Type): type is ts.UnionType {
-  return (type.flags & ts.TypeFlags.Union) !== 0;
 }
