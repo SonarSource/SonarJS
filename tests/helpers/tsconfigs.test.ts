@@ -18,7 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { projectTSConfigs, setContext, toUnixPath, tsConfigLookup, updateTsConfigs } from 'helpers';
+import {
+  emptyTSConfigsCache,
+  projectTSConfigs,
+  setContext,
+  toUnixPath,
+  tsConfigLookup,
+  updateTsConfigs,
+} from 'helpers';
 import path from 'path';
 import console from 'console';
 
@@ -30,11 +37,17 @@ describe('TSConfigs', () => {
     bundles: [],
   });
 
-  it('should get context', () => {
-    expect(() => tsConfigLookup()).toThrow();
+  it('should not find any tsconfig without context or parameter', () => {
+    console.log = jest.fn();
+    tsConfigLookup();
+    expect(console.log).toHaveBeenCalledWith(
+      `ERROR Could not access working directory ${undefined}`,
+    );
+    expect(projectTSConfigs.size).toBe(0);
   });
 
   it('should find and update tsconfig.json files', async () => {
+    emptyTSConfigsCache();
     console.log = jest.fn();
     const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
     setContext(initialCtx(dir));
@@ -46,7 +59,8 @@ describe('TSConfigs', () => {
       ['subfolder', 'JSCONFIG.DEV.JSON'],
     ];
 
-    expect(() => tsConfigLookup()).not.toThrow();
+    tsConfigLookup();
+
     expect(projectTSConfigs).toEqual(
       new Map(
         tsconfigs.map(tsconfig => {
@@ -67,5 +81,24 @@ describe('TSConfigs', () => {
       reset: true,
     });
     expect(console.log).toHaveBeenCalledWith(`ERROR: Could not read new tsconfig ${fakeTsConfig}`);
+  });
+
+  it('should update tsconfig.json files with new found ones', async () => {
+    emptyTSConfigsCache();
+    const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
+    const tsconfig = toUnixPath(path.join(dir, 'tsconfig.json'));
+    const nonExistingTsconfig = toUnixPath(path.join(dir, 'non-existing-tsconfig.json'));
+
+    projectTSConfigs.set(nonExistingTsconfig, { filename: nonExistingTsconfig, contents: '' });
+
+    console.log = jest.fn();
+    setContext(initialCtx(dir));
+    updateTsConfigs([tsconfig]);
+
+    expect(projectTSConfigs).toEqual(new Map([[tsconfig, { filename: tsconfig, contents: '' }]]));
+
+    expect(console.log).toHaveBeenCalledWith(
+      `ERROR: tsconfig is no longer accessible ${nonExistingTsconfig}`,
+    );
   });
 });

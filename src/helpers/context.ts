@@ -35,6 +35,11 @@ export interface TSConfig {
   reset?: boolean;
   justAdded?: boolean;
 }
+
+export function emptyTSConfigsCache() {
+  projectTSConfigs.clear();
+}
+
 export interface Context {
   workDir: string;
   shouldUseTypeScriptParserForJS: boolean;
