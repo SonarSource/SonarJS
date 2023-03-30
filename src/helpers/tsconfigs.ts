@@ -25,7 +25,7 @@ import * as console from 'console';
 
 export function tsConfigLookup(dir?: string) {
   if (!dir) {
-    dir = getContext().workDir;
+    dir = getContext()?.workDir;
   }
   if (!fs.existsSync(dir)) {
     console.log(`ERROR Could not access working directory ${dir}`);
@@ -69,7 +69,7 @@ export function updateTsConfigs(tsconfigs: string[]) {
   }
   for (const tsconfig of projectTSConfigs.values()) {
     if (tsconfig.justAdded) {
-      tsconfig.justAdded = false;
+      delete tsconfig.justAdded;
     } else {
       try {
         const contents = readFileSync(tsconfig.filename);
@@ -77,7 +77,7 @@ export function updateTsConfigs(tsconfigs: string[]) {
         tsconfig.contents = contents;
       } catch (e) {
         projectTSConfigs.delete(tsconfig.filename);
-        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig}`);
+        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
       }
     }
   }
