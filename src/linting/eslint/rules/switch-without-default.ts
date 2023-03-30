@@ -74,7 +74,7 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
  * The rule `switch-exhaustiveness-check` is a TypeScript ESLint rule that uses type information.
  * Therefore, we need to sanitize the rule in case TypeScript's type checker is missing when the
  * rule is executed to prevent runtime errors. Furthermore, we need to decorate the rule so that
- * it raises issues with the same message at the same location, that is, the `switch` keyword.
+ * it raises issues at the same location, that is, the `switch` keyword.
  */
 const switchExhaustivenessRule = typeScriptESLintRules['switch-exhaustiveness-check'];
 const decoratedSwitchExhaustivenessRule: Rule.RuleModule = interceptReport(
