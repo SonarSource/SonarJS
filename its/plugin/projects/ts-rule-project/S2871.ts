@@ -9,13 +9,13 @@ function getArrayOfNumbers(): number[] {}
 getArrayOfNumbers().sort(); // Noncompliant
 
 var arrayOfStrings = ["foo", "bar"];
-arrayOfStrings.sort();
+arrayOfStrings.sort(); // Noncompliant
 
 var arrayOfObjects = [{a: 2}, {a: 4}];
-arrayOfObjects.sort();
+arrayOfObjects.sort(); // Noncompliant
 
 unknownArrayType.sort();
 
 interface MyCustomNumber extends Number {}
 const arrayOfCustomNumbers: MyCustomNumber[];
-arrayOfCustomNumbers.sort();
+arrayOfCustomNumbers.sort(); // Noncompliant
