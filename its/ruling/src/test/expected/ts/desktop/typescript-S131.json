@@ -6,7 +6,6 @@
 487,
 ],
 'desktop:app/src/lib/ci-checks/ci-checks.ts':[
-127,
 277,
 291,
 304,
@@ -17,9 +16,6 @@
 'desktop:app/src/lib/git/diff-index.ts':[
 59,
 ],
-'desktop:app/src/lib/git/status.ts':[
-141,
-],
 'desktop:app/src/lib/markdown-filters/issue-link-filter.ts':[
 152,
 ],
@@ -28,9 +24,6 @@
 ],
 'desktop:app/src/lib/parse-pac-string.ts':[
 109,
-],
-'desktop:app/src/lib/stores/notifications-store.ts':[
-108,
 ],
 'desktop:app/src/main-process/squirrel-updater.ts':[
 22,
@@ -54,17 +47,10 @@
 532,
 561,
 ],
-'desktop:app/src/ui/dispatcher/error-handlers.ts':[
-308,
-],
 'desktop:app/src/ui/history/commit-summary.tsx':[
 441,
 ],
 'desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx':[
 218,
-],
-'desktop:app/src/ui/notifications/pull-request-review-helpers.ts':[
-12,
-31,
 ],
 }

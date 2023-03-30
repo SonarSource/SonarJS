@@ -8,12 +8,6 @@
 'console:src/reducers/databrowser/ui.ts':[
 25,
 ],
-'console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx':[
-31,
-],
-'console:src/views/RelationsPopup/RelationPopup.tsx':[
-613,
-],
 'console:src/views/models/DatabrowserView/Cell.tsx':[
 226,
 ],
