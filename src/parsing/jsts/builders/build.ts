@@ -22,7 +22,7 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
 import { getProgramById, getProgramForFile } from '../../../services/program';
 import { Linter } from 'eslint';
-import { updateTsConfigs } from '../../../helpers/tsConfigLookup';
+import { updateTsConfigs } from '../../../helpers/tsconfigs';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
