@@ -30,7 +30,7 @@ import { isRequiredParserServices, isUnion } from './helpers';
  * This rule raises issues on switch statements without a default branch if, and only if,
  * the discriminant of the switch statement is not of union type. This exception is due to
  * `switch-exhaustiveness-check` decorated below which checks the exhaustiveness of switch
- * statements on TypeScript unions. Therefore, we avoid here raising multiple issues if the
+ * statements on TypeScript unions and enums. Therefore, we avoid here raising multiple issues if the
  * discriminant of the switch statement denotes a union, provided that type information is available.
  */
 const switchWithoutDefaultRule: Rule.RuleModule = {
