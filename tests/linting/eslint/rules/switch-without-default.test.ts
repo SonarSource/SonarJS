@@ -114,6 +114,24 @@ typeAwareRuleTester.run('"switch" statements should have "default" clauses', rul
         }
       `,
     },
+    {
+      code: `
+      enum Direction {
+        Up,
+        Down
+      }
+
+      let dir: Direction;
+      switch (dir) {
+        case Direction.Up:
+          doSomething();
+          break;
+        case Direction.Down:
+          doSomethingElse();
+          break;
+      }
+      `,
+    },
   ],
   invalid: [
     {
