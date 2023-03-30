@@ -73,6 +73,7 @@ export const quickFixRules = new Set([
   'no-unnecessary-type-assertion',
   'prefer-namespace-keyword',
   'prefer-readonly',
+  'prefer-string-starts-ends-with',
   'no-non-null-assertion',
 
   // decorated @typescript-eslint plugin
