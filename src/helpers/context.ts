@@ -33,6 +33,7 @@ export interface TSConfig {
   filename: string;
   contents: string;
   reset?: boolean;
+  justAdded?: boolean;
 }
 export interface Context {
   workDir: string;
