@@ -37,6 +37,44 @@ switch (param) {
     break;
 }
 </pre>
+<h2>Exceptions</h2>
+<p>The rule ignores <code>switch</code> statements where the discriminant is a TypeScript union and there is a <code>case</code> branch for each
+constituent.</p>
+<pre>
+type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
+let season: Season;
+switch (season) {
+  case 'Spring':
+    wakeUp();
+    break;
+  case 'Summer':
+    getOut();
+    break;
+  case 'Fall':
+    saveFood();
+    break;
+  case 'Winter':
+    sleep();
+    break;
+}
+</pre>
+<p>The same applies for TypeScript enums.</p>
+<pre>
+enum Direction {
+  Up,
+  Down
+}
+
+let dir: Direction;
+switch (dir) {
+  case Direction.Up:
+    getUp();
+    break;
+  case Direction.Down:
+    getDown();
+    break;
+}
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/478">MITRE, CWE-478</a> - Missing Default Case in Switch Statement </li>

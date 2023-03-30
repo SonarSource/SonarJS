@@ -21,11 +21,15 @@ import { rule } from 'linting/eslint/rules/switch-without-default';
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
 
-const tests = {
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018 },
+});
+ruleTester.run('"switch" statements should have "default" clauses', rule, {
   valid: [
     {
       code: `
-        switch (param) {
+        switch (x) {
           case 0:
             break;
           default:
@@ -36,7 +40,7 @@ const tests = {
   invalid: [
     {
       code: `
-        switch (param) {
+        switch (x) {
           case 0:
             break;
         }`,
@@ -47,14 +51,121 @@ const tests = {
           endLine: 2,
           column: 9,
           endColumn: 15,
+          suggestions: [
+            {
+              messageId: 'addDefault',
+              output: `
+        switch (x) {
+          case 0:
+            break;
+          default: { throw new Error('Not implemented yet'); }
+        }`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+        switch (x) {
+        }`,
+      errors: [
+        {
+          line: 2,
+          suggestions: [
+            {
+              output: `
+        switch (x) {
+        default: { throw new Error('Not implemented yet'); }
+        }`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+        type  T = 'foo' | 'bar'; // False negative due to missing type information
+        const x = 'foo' as T;
+        switch (x) {
+          case 'foo':
+            break;
+          case 'bar':
+            break;
+        }
+      `,
+      errors: [{ line: 4 }],
+    },
+  ],
+});
+
+const typeAwareRuleTester = new TypeScriptRuleTester();
+typeAwareRuleTester.run('"switch" statements should have "default" clauses', rule, {
+  valid: [
+    {
+      code: `
+        type  T = 'foo' | 'bar';
+        const x = 'foo' as T;
+        switch (x) {
+          case 'foo':
+            break;
+          case 'bar':
+            break;
+        }
+      `,
+    },
+    {
+      code: `
+      enum Direction {
+        Up,
+        Down
+      }
+
+      let dir: Direction;
+      switch (dir) {
+        case Direction.Up:
+          doSomething();
+          break;
+        case Direction.Down:
+          doSomethingElse();
+          break;
+      }
+      `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+        type  T = 'foo' | 'bar';
+        const x = 'foo' as T;
+        switch (x) {
+          case 'foo':
+            break;
+        }
+      `,
+      errors: [
+        {
+          message: `Switch is not exhaustive. Cases not matched: "bar"`,
+          line: 4,
+          endLine: 4,
+          column: 9,
+          endColumn: 15,
+          suggestions: [
+            {
+              messageId: 'addMissingCases',
+              output: `
+        type  T = 'foo' | 'bar';
+        const x = 'foo' as T;
+        switch (x) {
+          case 'foo':
+            break;
+          case "bar": { throw new Error('Not implemented yet: "bar" case') }
+        }
+      `,
+            },
+          ],
         },
       ],
     },
   ],
-};
-
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const ruleTesterTs = new TypeScriptRuleTester();
-
-ruleTesterJs.run('"switch" statements should have "default" clauses [js]', rule, tests);
-ruleTesterTs.run('"switch" statements should have "default" clauses [ts]', rule, tests);
+});
