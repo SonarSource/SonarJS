@@ -24,6 +24,7 @@ import { decorateBraceStyle } from './brace-style-decorator';
 import { decorateDefaultParamLast } from './default-param-last-decorator';
 import { decorateJsxKey } from './jsx-key-decorator';
 import { decorateJsxNoConstructedContextValues } from './jsx-no-constructed-context-values';
+import { decorateNoBaseToString } from './no-base-to-string-decorator';
 import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
@@ -66,6 +67,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'default-param-last': decorateDefaultParamLast,
   'jsx-key': decorateJsxKey,
   'jsx-no-constructed-context-values': decorateJsxNoConstructedContextValues,
+  'no-base-to-string': decorateNoBaseToString,
   'no-dupe-keys': decorateNoDupeKeys,
   'no-duplicate-imports': decorateNoDuplicateImports,
   'no-empty': decorateNoEmpty,
