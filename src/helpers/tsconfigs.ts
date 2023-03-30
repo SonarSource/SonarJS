@@ -34,11 +34,11 @@ export function tsConfigLookup(dir?: string) {
 
   const files = fs.readdirSync(dir);
   for (const file of files) {
-    const filename = path.posix.join(dir, file);
+    const filename = toUnixPath(path.join(dir, file));
     const stats = fs.lstatSync(filename);
-    if (file === 'node_modules' && stats.isDirectory()) {
+    if (file !== 'node_modules' && stats.isDirectory()) {
       tsConfigLookup(filename);
-    } else if (filename.match(/[tj]sconfig.*\.json/)) {
+    } else if (filename.match(/[tj]sconfig.*\.json/i)) {
       const contents = fs.readFileSync(filename, 'utf-8');
       projectTSConfigs.set(filename, {
         filename,
@@ -49,22 +49,33 @@ export function tsConfigLookup(dir?: string) {
 }
 
 export function updateTsConfigs(tsconfigs: string[]) {
+  if (!getContext().sonarlint) {
+    return;
+  }
+  for (const tsconfig of projectTSConfigs.values()) {
+    try {
+      const contents = readFileSync(tsconfig.filename);
+      if (tsconfig.contents !== contents) {
+        tsconfig.contents = contents;
+        tsconfig.reset = true;
+      }
+    } catch (e) {
+      projectTSConfigs.delete(tsconfig.filename);
+      console.log(`ERROR: tsconfig is no longer accessible ${tsconfig}`);
+    }
+  }
   for (const tsconfig of tsconfigs) {
     const normalizedTsConfig = toUnixPath(tsconfig);
-    try {
-      const contents = readFileSync(normalizedTsConfig);
-      const existingTsConfig = projectTSConfigs.get(tsconfig);
-      if (existingTsConfig && existingTsConfig.contents !== contents) {
-        existingTsConfig.contents = contents;
-        existingTsConfig.reset = true;
-      } else {
+    if (!projectTSConfigs.has(normalizedTsConfig)) {
+      try {
+        const contents = readFileSync(normalizedTsConfig);
         projectTSConfigs.set(normalizedTsConfig, {
           filename: normalizedTsConfig,
           contents,
         });
+      } catch (e) {
+        console.log(`ERROR: Could not read new tsconfig ${tsconfig}`);
       }
-    } catch (e) {
-      console.log(`ERROR: Could not read tsconfig ${tsconfig}`);
     }
   }
 }
