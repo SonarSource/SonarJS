@@ -42,7 +42,7 @@ switch (param) {
 constituent.</p>
 <pre>
 type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
-let season = ...;
+let season: Season;
 switch (season) {
   case 'Spring':
     wakeUp();
@@ -55,6 +55,23 @@ switch (season) {
     break;
   case 'Winter':
     sleep();
+    break;
+}
+</pre>
+<p>The same applies for TypeScript enums.</p>
+<pre>
+enum Direction {
+  Up,
+  Down
+}
+
+let dir: Direction;
+switch (dir) {
+  case Direction.Up:
+    getUp();
+    break;
+  case Direction.Down:
+    getDown();
     break;
 }
 </pre>
