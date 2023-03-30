@@ -8,7 +8,4 @@
 'ag-grid:src/ts/gridApi.ts':[
 660,
 ],
-'ag-grid:src/ts/utils.ts':[
-318,
-],
 }
