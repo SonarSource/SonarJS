@@ -49,21 +49,6 @@ export function tsConfigLookup(dir?: string) {
 }
 
 export function updateTsConfigs(tsconfigs: string[]) {
-  if (!getContext().sonarlint) {
-    return;
-  }
-  for (const tsconfig of projectTSConfigs.values()) {
-    try {
-      const contents = readFileSync(tsconfig.filename);
-      if (tsconfig.contents !== contents) {
-        tsconfig.contents = contents;
-        tsconfig.reset = true;
-      }
-    } catch (e) {
-      projectTSConfigs.delete(tsconfig.filename);
-      console.log(`ERROR: tsconfig is no longer accessible ${tsconfig}`);
-    }
-  }
   for (const tsconfig of tsconfigs) {
     const normalizedTsConfig = toUnixPath(tsconfig);
     if (!projectTSConfigs.has(normalizedTsConfig)) {
@@ -72,9 +57,27 @@ export function updateTsConfigs(tsconfigs: string[]) {
         projectTSConfigs.set(normalizedTsConfig, {
           filename: normalizedTsConfig,
           contents,
+          justAdded: true,
         });
       } catch (e) {
         console.log(`ERROR: Could not read new tsconfig ${tsconfig}`);
+      }
+    }
+  }
+  if (!getContext().sonarlint) {
+    return;
+  }
+  for (const tsconfig of projectTSConfigs.values()) {
+    if (tsconfig.justAdded) {
+      tsconfig.justAdded = false;
+    } else {
+      try {
+        const contents = readFileSync(tsconfig.filename);
+        tsconfig.reset = tsconfig.contents !== contents;
+        tsconfig.contents = contents;
+      } catch (e) {
+        projectTSConfigs.delete(tsconfig.filename);
+        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig}`);
       }
     }
   }
