@@ -39,6 +39,6 @@ export function decorateNoBaseToString(rule: Rule.RuleModule): Rule.RuleModule {
 
 function isGenericType(node: TSESTree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
-  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
   return type.isTypeParameter();
 }
