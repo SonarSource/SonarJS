@@ -19,16 +19,15 @@
  */
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
-import { isRequiredParserServices, RequiredParserServices } from '../helpers';
+import { getTypeFromTreeNode, RequiredParserServices } from '../helpers';
 import { interceptReport } from './helpers';
+import * as estree from 'estree';
 
 export function decorateNoBaseToString(rule: Rule.RuleModule): Rule.RuleModule {
-  // maybe call sanitizeTSrule()
   return interceptReport(rule, (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
       const services = context.parserServices;
-      const hasTypeInformation = isRequiredParserServices(services);
-      if (hasTypeInformation && isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
+      if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
         // we skip
       } else {
         context.report(reportDescriptor);
@@ -38,7 +37,6 @@ export function decorateNoBaseToString(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 function isGenericType(node: TSESTree.Node, services: RequiredParserServices) {
-  const checker = services.program.getTypeChecker();
-  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
+  const type = getTypeFromTreeNode(node as estree.Node, services);
   return type.isTypeParameter();
 }
