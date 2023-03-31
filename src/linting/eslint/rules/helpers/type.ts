@@ -110,6 +110,12 @@ export function getSignatureFromCallee(node: estree.Node, services: RequiredPars
   );
 }
 
+/**
+ * This function checks if a type may correspond to an array type. Beyond simple array types, it will also
+ * consider the union of array types and generic types extending an array type.
+ * @param type A type to check
+ * @param services The services used to get access to the TypeScript type checker
+ */
 export function isArrayLikeType(type: ts.Type, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const constrained = checker.getBaseConstraintOfType(type);
