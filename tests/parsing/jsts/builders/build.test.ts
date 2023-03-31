@@ -25,6 +25,22 @@ import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
 import { cachedPrograms, LRUCache } from 'services/program';
 
+// registry needs to be available globally, otherwise may never execute
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry#notes_on_cleanup_callbacks
+
+let registry: FinalizationRegistry<any>;
+function awaitCleanUp(reference) {
+  let cleanedUp;
+  const cleanUpPromise = new Promise(resolve => {
+    cleanedUp = resolve;
+  });
+  registry = new FinalizationRegistry(() => {
+    cleanedUp();
+  });
+  registry.register(reference, undefined);
+  return cleanUpPromise;
+}
+
 jest.setTimeout(30000);
 describe('buildSourceCode', () => {
   beforeEach(() => {
@@ -261,7 +277,7 @@ describe('buildSourceCode', () => {
     expect(cachedPrograms.get(fakeTsConfig).files).toContain(filePath);
   });
 
-  it('cache should only contain 2 elements', async () => {
+  it('cache should only contain 2 elements and GC should clean up old programs', async () => {
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
     const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));
@@ -290,11 +306,8 @@ describe('buildSourceCode', () => {
     expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
     expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).program.deref());
 
-    if (global.gc) {
-      // @ts-ignore
-      global.gc(false);
-      expect(cachedPrograms.get(fakeTsConfig1).program.deref()).toBeUndefined();
-    }
+    await awaitCleanUp(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(cachedPrograms.get(fakeTsConfig1).program.deref()).toBeUndefined();
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {
