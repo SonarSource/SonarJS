@@ -30,6 +30,11 @@ export function decoratePreferStringStartsEndsWithDecorator(
 ): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, descriptor) => {
+    /**
+     * Because TypeScript ESLint's rule provides a different message id for the
+     * methods String#startsWith and String#endsWith, we reuse that very same
+     * identifier as the message id of the fix transformed into a suggestion.
+     */
     const { fix, messageId } = descriptor as { fix: Rule.ReportFixer; messageId: string };
     const suggest: Rule.SuggestionReportDescriptor[] = [
       {
