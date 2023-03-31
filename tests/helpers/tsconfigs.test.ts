@@ -18,18 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  emptyTSConfigsCache,
-  projectTSConfigs,
-  setContext,
-  toUnixPath,
-  tsConfigLookup,
-  updateTsConfigs,
-} from 'helpers';
+import { projectTSConfigs, setContext, toUnixPath, tsConfigLookup, updateTsConfigs } from 'helpers';
 import path from 'path';
 import console from 'console';
 
 describe('TSConfigs', () => {
+  beforeEach(() => {
+    projectTSConfigs.clear();
+  });
   const initialCtx = path => ({
     workDir: path,
     shouldUseTypeScriptParserForJS: false,
@@ -47,7 +43,6 @@ describe('TSConfigs', () => {
   });
 
   it('should find and update tsconfig.json files', async () => {
-    emptyTSConfigsCache();
     console.log = jest.fn();
     const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
     setContext(initialCtx(dir));
@@ -84,7 +79,6 @@ describe('TSConfigs', () => {
   });
 
   it('should update tsconfig.json files with new found ones', async () => {
-    emptyTSConfigsCache();
     const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
     const tsconfig = toUnixPath(path.join(dir, 'tsconfig.json'));
     const nonExistingTsconfig = toUnixPath(path.join(dir, 'non-existing-tsconfig.json'));
