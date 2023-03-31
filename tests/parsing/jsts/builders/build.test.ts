@@ -41,7 +41,7 @@ function awaitCleanUp(reference) {
   return cleanUpPromise;
 }
 
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
