@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// https://sonarsource.github.io/rspec/#/rspec/S6551/javascript
+
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { isRequiredParserServices, RequiredParserServices } from '../helpers';
