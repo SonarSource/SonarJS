@@ -1,18 +1,19 @@
 <p>When calling <code>toString()</code> or coercing into a string an object that doesn’t implement its own <code>toString</code> method, it returns
 <code>[object Object]</code> which is often not what was intended.</p>
 <h2>Why is this an issue?</h2>
-<p>Printing such an object will not express the information contained in the object, providing unexpected results.</p>
+<p>When using an object in a string context, a developer wants to get the string representation of the state of an object, so obtaining <code>[object
+Object]</code> is probably not the intended behaviour and might even denote a bug.</p>
 <h2>How to fix it</h2>
 <p>You can simply define a <code>toString()</code> method for the object or class.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 class Foo {};
-const bar = new Foo();
+const foo = new Foo();
 
-bar + '';
-`Foo: ${bar}`;
-bar.toString();
+foo + ''; // Noncompliant - evaluates to "[object Object]"
+`Foo: ${foo}`; // Noncompliant - evaluates to "Foo: [object Object]"
+foo.toString(); // Noncompliant - evaluates to "[object Object]"
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
@@ -21,18 +22,18 @@ class Foo {
     return 'Foo';
   }
 }
-const bar = new Foo();
+const foo = new Foo();
 
-bar + '';
-`Foo: ${bar}`;
-bar.toString();
+foo + '';
+`Foo: ${foo}`;
+foo.toString();
 </pre>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 const foo = {};
-foo + '';
-`Foo: ${foo}`;
-foo.toString();
+foo + ''; // Noncompliant - evaluates to "[object Object]"
+`Foo: ${foo}`; // Noncompliant - evaluates to "Foo: [object Object]"
+foo.toString(); // Noncompliant - evaluates to "[object Object]"
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
@@ -45,4 +46,8 @@ foo + '';
 `Foo: ${foo}`;
 foo.toString();
 </pre>
+<h2>Resources</h2>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString">MDN Object.toString()</a> </li>
+</ul>
 

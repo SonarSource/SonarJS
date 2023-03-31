@@ -1,5 +1,5 @@
 {
-  "title": "An object that doesn\u0027t implement .toString() shouldn\u0027t call toString() or be coerced to a string type",
+  "title": "Objects and classes converted or coerced to strings should define a \"toString()\" method",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
