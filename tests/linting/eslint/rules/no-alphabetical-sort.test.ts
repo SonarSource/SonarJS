@@ -30,32 +30,117 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       `,
     },
     {
-      code: `
-      var arrayOfStrings = ["foo", "bar"];
-      arrayOfStrings.sort();
-      `,
-    },
-    {
-      code: `
-      var arrayOfObjects = [{a: 2}, {a: 4}];
-      arrayOfObjects.sort();
-      `,
-    },
-    {
       code: `unknownArrayType.sort();`,
-    },
-    {
-      code: `
-      interface MyCustomNumber extends Number {}
-      const arrayOfCustomNumbers: MyCustomNumber[];
-      arrayOfCustomNumbers.sort();
-      `,
     },
     {
       code: `
       var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
       arrayOfNumbers.custom_sort();
       `,
+    },
+    {
+      code: `
+      function f(a: any[]) {
+        a.sort(undefined);
+      }
+    `,
+    },
+    {
+      code: `
+      function f(a: any[]) {
+        a.sort((a, b) => a - b);
+      }
+    `,
+    },
+    {
+      code: `
+      function f(a: Array<string>) {
+        a.sort(undefined);
+      }
+    `,
+    },
+    {
+      code: `
+      function f(a: Array<number>) {
+        a.sort((a, b) => a - b);
+      }
+    `,
+    },
+    {
+      code: `
+      function f(a: { sort(): void }) {
+        a.sort();
+      }
+    `,
+    },
+    {
+      code: `
+      class A {
+        sort(): void {}
+      }
+      function f(a: A) {
+        a.sort();
+      }
+    `,
+    },
+    {
+      code: `
+      interface A {
+        sort(): void;
+      }
+      function f(a: A) {
+        a.sort();
+      }
+    `,
+    },
+    {
+      code: `
+      interface A {
+        sort(): void;
+      }
+      function f<T extends A>(a: T) {
+        a.sort();
+      }
+    `,
+    },
+    {
+      code: `
+      function f(a: any) {
+        a.sort();
+      }
+    `,
+    },
+    {
+      code: `
+      namespace UserDefined {
+        interface Array {
+          sort(): void;
+        }
+        function f(a: Array) {
+          a.sort();
+        }
+      }
+    `,
+    },
+    // optional chain
+    {
+      code: `
+      function f(a: any[]) {
+        a?.sort((a, b) => a - b);
+      }
+    `,
+    },
+    {
+      code: `
+      namespace UserDefined {
+        interface Array {
+          sort(): void;
+        }
+        function f(a: Array) {
+          a?.sort();
+        }
+      }
+    `,
     },
   ],
   invalid: [
@@ -100,6 +185,93 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
           ],
         },
       ],
+    },
+    {
+      code: `
+      var arrayOfObjects = [{a: 2}, {a: 4}];
+      arrayOfObjects.sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      interface MyCustomNumber extends Number {}
+      const arrayOfCustomNumbers: MyCustomNumber[];
+      arrayOfCustomNumbers.sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function f(a: Array<any>) {
+          a.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function f(a: number[] | string[]) {
+          a.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function f<T extends number[]>(a: T) {
+          a.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function f<T, U extends T[]>(a: U) {
+          a.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      var arrayOfStrings = ["foo", "bar"];
+      arrayOfStrings.sort();
+      `,
+      errors: 1,
+    },
+    // optional chain
+    {
+      code: `
+        function f(a: string[]) {
+          a?.sort();
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        ['foo', 'bar', 'baz'].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function getString() {
+          return 'foo';
+        }
+        [getString(), getString()].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const foo = 'foo';
+        const bar = 'bar';
+        const baz = 'baz';
+        [foo, bar, baz].sort();
+      `,
+      errors: 1,
     },
   ],
 });

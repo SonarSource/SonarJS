@@ -1,0 +1,19 @@
+{
+  "title": "Ends of strings should be checked with \"startsWith()\" and \"endsWith()\"",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6557",
+  "sqKey": "S6557",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

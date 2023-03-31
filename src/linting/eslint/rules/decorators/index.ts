@@ -38,6 +38,7 @@ import { decorateNoUnstableNestedComponents } from './no-unstable-nested-compone
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
+import { decoratePreferStringStartsEndsWithDecorator } from './prefer-string-starts-ends-with-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
@@ -81,6 +82,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-var': decorateNoVar,
   'object-shorthand': decorateObjectShorthand,
   'prefer-for-of': decoratePreferForOf,
+  'prefer-string-starts-ends-with': decoratePreferStringStartsEndsWithDecorator,
   'prefer-template': decoratePreferTemplate,
   semi: decorateSemi,
   'use-isnan': decorateUseIsNan,

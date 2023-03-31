@@ -303,6 +303,7 @@ public final class CheckList {
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
       PreferRegexLiteralsCheck.class,
+      PreferStringStartsEndsWithCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
