@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as ts from 'typescript';
-import { isRequiredParserServices, sortLike, RequiredParserServices } from './helpers';
+import { isRequiredParserServices, sortLike } from './helpers';
 
 const compareFunctionPlaceholder = '(a, b) => (a - b)';
 
@@ -41,47 +41,66 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
+
+    const checker = services.program.getTypeChecker();
     return {
-      CallExpression: (node: estree.Node) => {
-        const call = node as TSESTree.CallExpression;
-        const callee = call.callee;
-        if (call.arguments.length === 0 && callee.type === 'MemberExpression') {
-          const { object, property } = callee;
-          const text = context.getSourceCode().getText(property as estree.Node);
-          if (sortLike.includes(text)) {
-            const arrayElementType = arrayElementTypeOf(object, services);
-            if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
-              const closingParenthesis = context
-                .getSourceCode()
-                .getLastToken(node, token => token.value === ')')!;
-              context.report({
-                messageId: 'provideCompareFunction',
-                node: property as estree.Node,
-                suggest: [
-                  {
-                    messageId: 'suggestCompareFunction',
-                    fix: fixer =>
-                      fixer.insertTextBefore(closingParenthesis, compareFunctionPlaceholder),
-                  },
-                ],
-              });
-            }
-          }
+      'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
+        call: estree.CallExpression,
+      ) => {
+        const { object, property } = call.callee as TSESTree.MemberExpression;
+        const text = context.getSourceCode().getText(property as estree.Node);
+        if (sortLike.includes(text) && isArrayNode(object)) {
+          const closingParenthesis = context
+            .getSourceCode()
+            .getLastToken(call, token => token.value === ')')!;
+          context.report({
+            messageId: 'provideCompareFunction',
+            node: property as estree.Node,
+            suggest: [
+              {
+                messageId: 'suggestCompareFunction',
+                fix: fixer =>
+                  fixer.insertTextBefore(closingParenthesis, compareFunctionPlaceholder),
+              },
+            ],
+          });
         }
       },
     };
+
+    function isArrayNode(node: TSESTree.Node) {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      const type = checker.getTypeAtLocation(tsNode);
+      const constrained = checker.getBaseConstraintOfType(type);
+
+      return isArrayOrUnionOfArrayType(constrained ?? type);
+    }
+
+    function isArrayOrUnionOfArrayType(type: ts.Type): boolean {
+      for (const part of getUnionTypes(type)) {
+        if (!isArrayType(part)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Internal TS API
+    function isArrayType(type: ts.Type): type is ts.TypeReference {
+      return (
+        'isArrayType' in checker &&
+        typeof checker.isArrayType === 'function' &&
+        checker.isArrayType(type)
+      );
+    }
   },
 };
 
-function arrayElementTypeOf(node: TSESTree.Node, services: RequiredParserServices) {
-  const { typeToTypeNode, getTypeAtLocation } = services.program.getTypeChecker();
-  const typeNode = typeToTypeNode(
-    getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node)),
-    undefined,
-    undefined,
-  );
-  if (typeNode && ts.isArrayTypeNode(typeNode)) {
-    return typeNode.elementType;
-  }
-  return undefined;
+function getUnionTypes(type: ts.Type): ts.Type[] {
+  return isUnionType(type) ? type.types : [type];
+}
+
+function isUnionType(type: ts.Type): type is ts.UnionType {
+  return (type.flags & ts.TypeFlags.Union) !== 0;
 }
