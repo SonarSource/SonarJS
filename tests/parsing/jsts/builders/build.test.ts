@@ -24,22 +24,7 @@ import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
 import { cachedPrograms, LRUCache } from 'services/program';
-
-// registry needs to be available globally, otherwise may never execute
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry#notes_on_cleanup_callbacks
-
-let registry: FinalizationRegistry<any>;
-function awaitCleanUp(reference) {
-  let cleanedUp;
-  const cleanUpPromise = new Promise(resolve => {
-    cleanedUp = resolve;
-  });
-  registry = new FinalizationRegistry(() => {
-    cleanedUp();
-  });
-  registry.register(reference, undefined);
-  return cleanUpPromise;
-}
+import { awaitCleanUp } from '../../../tools/helpers/wait-gc';
 
 jest.setTimeout(60000);
 describe('buildSourceCode', () => {
