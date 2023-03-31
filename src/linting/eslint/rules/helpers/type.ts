@@ -148,6 +148,31 @@ function isArrayOrUnionOfArrayType(type: ts.Type, services: RequiredParserServic
   return true;
 }
 
+export function isStringArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isStringType);
+}
+
+export function isNumberArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isNumberType);
+}
+
+export function isBigIntArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isBigIntType);
+}
+
+function isArrayElementTypeMatching(
+  type: ts.Type,
+  services: RequiredParserServices,
+  predicate: (type: ts.Type) => boolean,
+) {
+  const checker = services.program.getTypeChecker();
+  if (!isArrayType(type, services)) {
+    return false;
+  }
+  const [elementType] = checker.getTypeArguments(type);
+  return elementType && predicate(elementType);
+}
+
 // Internal TS API
 function isArrayType(type: ts.Type, services: RequiredParserServices): type is ts.TypeReference {
   const checker = services.program.getTypeChecker();
