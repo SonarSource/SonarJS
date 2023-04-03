@@ -190,11 +190,62 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       ],
     },
     {
+      code: '[Number("1"), Number("2"), Number("10")].sort();',
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add a comparator function to sort in ascending order',
+              output: '[Number("1"), Number("2"), Number("10")].sort((a, b) => (a - b));',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: '[Number("1"), 2, Number("10")].sort();',
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add a comparator function to sort in ascending order',
+              output: '[Number("1"), 2, Number("10")].sort((a, b) => (a - b));',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: '["1", 2, "10"].sort();',
+      errors: [{ suggestions: [] }],
+    },
+    {
+      code: `[80n, 3n, 9n, 34n, 23n, 5n, 1n].sort();`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add a comparator function to sort in ascending order',
+              output: `[80n, 3n, 9n, 34n, 23n, 5n, 1n].sort((a, b) => {
+  if (a < b) {
+    return -1;
+  } else if (a > b) {
+    return 1;
+  } else {
+    return 0;
+  }
+});`,
+            },
+          ],
+        },
+      ],
+    },
+    {
       code: `
       var arrayOfObjects = [{a: 2}, {a: 4}];
       arrayOfObjects.sort();
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
       code: `
@@ -202,7 +253,7 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       const arrayOfCustomNumbers: MyCustomNumber[];
       arrayOfCustomNumbers.sort();
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
       code: `
@@ -210,7 +261,7 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
           a.sort();
         }
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
       code: `
@@ -218,7 +269,7 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
           a.sort();
         }
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
       code: `
@@ -226,7 +277,7 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
           a.sort();
         }
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
       code: `
@@ -234,14 +285,24 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
           a.sort();
         }
       `,
-      errors: 1,
+      errors: [{ suggestions: [] }],
     },
     {
-      code: `
-      var arrayOfStrings = ["foo", "bar"];
-      arrayOfStrings.sort();
-      `,
-      errors: 1,
+      code: 'const array = ["foo", "bar"]; array.sort();',
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add a comparator function to sort in ascending lexicographic order',
+              output: 'const array = ["foo", "bar"]; array.sort((a, b) => (a < b));',
+            },
+            {
+              desc: 'Add a comparator function to sort in ascending language-sensitive order',
+              output: 'const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));',
+            },
+          ],
+        },
+      ],
     },
     // optional chain
     {
