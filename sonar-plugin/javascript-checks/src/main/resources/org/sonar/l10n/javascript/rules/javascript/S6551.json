@@ -1,0 +1,22 @@
+{
+  "title": "Objects and classes converted or coerced to strings should define a \"toString()\" method",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "string",
+    "object"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6551",
+  "sqKey": "S6551",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
