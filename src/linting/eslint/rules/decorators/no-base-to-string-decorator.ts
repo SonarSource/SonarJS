@@ -21,9 +21,8 @@
 
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
-import { getTypeFromTreeNode, RequiredParserServices } from '../helpers';
+import { isGenericType } from '../helpers';
 import { interceptReport } from './helpers';
-import * as estree from 'estree';
 
 export function decorateNoBaseToString(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
@@ -36,9 +35,4 @@ export function decorateNoBaseToString(rule: Rule.RuleModule): Rule.RuleModule {
       }
     }
   });
-}
-
-function isGenericType(node: TSESTree.Node, services: RequiredParserServices) {
-  const type = getTypeFromTreeNode(node as estree.Node, services);
-  return type.isTypeParameter();
 }

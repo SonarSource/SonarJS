@@ -84,6 +84,22 @@ export function isAny(type: ts.Type) {
   return type.flags === ts.TypeFlags.Any;
 }
 
+/**
+ * Checks if a node has a generic type like:
+ *
+ * function foo<T> (bar: T) {
+ *    bar // is generic
+ * }
+ *
+ * @param node TSESTree.Node
+ * @param services RuleContext.parserServices
+ * @returns
+ */
+export function isGenericType(node: TSESTree.Node, services: RequiredParserServices) {
+  const type = getTypeFromTreeNode(node as estree.Node, services);
+  return type.isTypeParameter();
+}
+
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
