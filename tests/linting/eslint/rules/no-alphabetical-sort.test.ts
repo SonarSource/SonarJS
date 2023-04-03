@@ -142,6 +142,9 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
       }
     `,
     },
+    {
+      code: `Array.prototype.sort.apply([1, 2, 10])`,
+    },
   ],
   invalid: [
     {
