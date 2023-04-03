@@ -29,6 +29,13 @@ ruleTesterJs.run('"for in" should not be used with iterables [js]', rule, {
         const array = [1, 2, 3];
         for (let value in array) console.log(value); // not reported if type information is missing`,
     },
+    {
+      code: `
+        for (const x of [3, 4, 5]) {
+          console.log(x);
+        }
+    `,
+    },
   ],
   invalid: [],
 });
@@ -85,6 +92,53 @@ ruleTesterTs.run('"for in" should not be used with iterables [ts]', rule, {
       code: `
         const string = new String('Hello');
         for (let value in string) console.log(value);`,
+      errors: 1,
+    },
+    {
+      code: `
+for (const x in [3, 4, 5]) {
+  console.log(x);
+}
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const z = [3, 4, 5];
+for (const x in z) {
+  console.log(x);
+}
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const fn = (arr: number[]) => {
+  for (const x in arr) {
+    console.log(x);
+  }
+};
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const fn = (arr: number[] | string[]) => {
+  for (const x in arr) {
+    console.log(x);
+  }
+};
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+const fn = <T extends any[]>(arr: T) => {
+  for (const x in arr) {
+    console.log(x);
+  }
+};
+      `,
       errors: 1,
     },
   ],

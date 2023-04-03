@@ -22,7 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
-import { getTypeFromTreeNode, isRequiredParserServices } from './helpers';
+import {
+  getTypeFromTreeNode,
+  isStringType,
+  isArrayLikeType,
+  isRequiredParserServices,
+} from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -48,12 +53,12 @@ export const rule: Rule.RuleModule = {
         }
       },
     };
+
+    function isIterable(type: ts.Type) {
+      return isCollection(type) || isStringType(type) || isArrayLikeType(type, services);
+    }
   },
 };
-
-function isIterable(type: ts.Type) {
-  return isCollection(type) || isString(type);
-}
 
 function isCollection(type: ts.Type) {
   return (
@@ -74,12 +79,5 @@ function isCollection(type: ts.Type) {
       'Set',
       'Map',
     ].includes(type.symbol.name)
-  );
-}
-
-function isString(type: ts.Type) {
-  return (
-    (type.symbol !== undefined && type.symbol.name === 'String') ||
-    (type.flags & ts.TypeFlags.StringLike) !== 0
   );
 }
