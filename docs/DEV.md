@@ -281,6 +281,7 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 - Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
 - Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
 - Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
+- Decorate a rule covered by ESLint: [PR](https://github.com/SonarSource/SonarJS/pull/3514)
 
 ## Misc
 
