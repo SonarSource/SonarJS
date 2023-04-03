@@ -60,8 +60,8 @@
     <junit.version>5.8.1</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
-    <sonar.version>9.6.1.59531</sonar.version>
-    <sonar.api.version>9.10.0.269</sonar.api.version>
+    <sonar.version>9.9.0.65466</sonar.version>
+    <sonar.api.version>9.14.0.375</sonar.api.version>
     <sonar-orchestrator.version>3.40.0.183</sonar-orchestrator.version>
     <sonarlint.version>8.10.0.56343</sonarlint.version>
     <gson.version>2.8.9</gson.version>
