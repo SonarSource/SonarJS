@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
     };
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
-      let suggestions: Rule.SuggestionReportDescriptor[] = [];
+      const suggestions: Rule.SuggestionReportDescriptor[] = [];
       if (isNumberArray(type, services)) {
         suggestions.push({
           messageId: 'suggestNumericOrder',
