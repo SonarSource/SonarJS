@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import ts from 'typescript';
 import * as estree from 'estree';
-import { CallExpression } from 'estree';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
@@ -70,7 +69,7 @@ export const rule: Rule.RuleModule = {
 
     return {
       'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
-        call: CallExpression,
+        call: estree.CallExpression,
       ) => {
         const { object, property: node } = call.callee as estree.MemberExpression;
         const text = sourceCode.getText(node);
@@ -83,7 +82,7 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function getSuggestions(call: CallExpression, type: ts.Type) {
+    function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       let suggestions: Rule.SuggestionReportDescriptor[] = [];
       if (isNumberArray(type, services)) {
         suggestions.push({
@@ -108,7 +107,7 @@ export const rule: Rule.RuleModule = {
       return suggestions;
     }
 
-    function fixer(call: CallExpression, ...placeholder: string[]): Rule.ReportFixer {
+    function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {
       const closingParenthesis = sourceCode.getLastToken(call, token => token.value === ')')!;
       const indent = ' '.repeat(call.loc?.start.column!);
       const text = placeholder.join(`\n${indent}`);
