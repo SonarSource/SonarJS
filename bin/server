@@ -12,7 +12,7 @@
  */
 
 const server = require('../lib/server');
-const tsConfigLookup = require('../lib/helpers/tsConfigLookup').tsConfigLookup;
+const tsConfigLookup = require('../lib/helpers/tsconfigs').tsConfigLookup;
 const path = require('path');
 const context = require('../lib/helpers/context');
 
