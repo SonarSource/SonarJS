@@ -75,6 +75,7 @@ export const quickFixRules = new Set([
   'prefer-readonly',
   'prefer-string-starts-ends-with',
   'no-non-null-assertion',
+  'no-confusing-non-null-assertion',
 
   // decorated @typescript-eslint plugin
   'prefer-for-of',
