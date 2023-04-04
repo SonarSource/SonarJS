@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { getVariableFromScope, isTypeAlias } from './helpers';
+import { isTypeAlias } from './helpers';
 
 const COMMON_NODE_TYPES = new Set([
   'TSAnyKeyword',
