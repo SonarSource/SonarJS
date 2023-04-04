@@ -236,6 +236,7 @@ public final class CheckList {
       NoElementOverwriteCheck.class,
       NoEmptyAfterReluctantCheck.class,
       NoEmptyAlternativesCheck.class,
+      NoEmptyClassCheck.class,
       NoEmptyCollectionCheck.class,
       NoEmptyGroupCheck.class,
       NoEmptyInterfaceCheck.class,
