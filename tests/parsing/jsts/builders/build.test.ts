@@ -23,10 +23,7 @@ import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
-import { cachedPrograms, LRUCache } from 'services/program';
-import { awaitCleanUp } from '../../../tools/helpers/wait-gc';
-
-jest.setTimeout(60000);
+import { cachedPrograms } from 'services/program';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -242,7 +239,7 @@ describe('buildSourceCode', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should fail building excluded TypeScript code from TSConfig', async () => {
+  it('should create a program for excluded TypeScript file in another tsconfig.json', async () => {
     const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
     const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
@@ -260,39 +257,6 @@ describe('buildSourceCode', () => {
 
     expect(cachedPrograms.has(fakeTsConfig)).toBeTruthy();
     expect(cachedPrograms.get(fakeTsConfig).files).toContain(filePath);
-  });
-
-  it('cache should only contain 2 elements and GC should clean up old programs', async () => {
-    const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
-    const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
-    const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));
-    const fakeTsConfig1 = `tsconfig-${toUnixPath(file1Path)}.json`;
-    const fakeTsConfig2 = `tsconfig-${toUnixPath(file2Path)}.json`;
-    const fakeTsConfig3 = `tsconfig-${toUnixPath(file3Path)}.json`;
-
-    buildSourceCode(await jsTsInput({ filePath: file1Path, createProgram: true }), 'js');
-    expect(cachedPrograms.has(fakeTsConfig1)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig1).files).toContain(file1Path);
-
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-
-    buildSourceCode(await jsTsInput({ filePath: file2Path, createProgram: true }), 'js');
-    expect(cachedPrograms.has(fakeTsConfig2)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig2).files).toContain(file2Path);
-
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
-
-    buildSourceCode(await jsTsInput({ filePath: file3Path, createProgram: true }), 'js');
-    expect(cachedPrograms.has(fakeTsConfig3)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig3).files).toContain(file3Path);
-
-    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).program.deref());
-
-    await awaitCleanUp(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(cachedPrograms.get(fakeTsConfig1).program.deref()).toBeUndefined();
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {

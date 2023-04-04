@@ -80,16 +80,17 @@ function* iterateTSConfigs(file: string) {
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
  * @param filePath The file to the sourceCode file to analyze
+ * @param cache the LRU cache object to use as cache
  * @returns the retrieved TypeScript's Program
  */
-export function getProgramForFile(filePath: string): ts.Program {
+export function getProgramForFile(filePath: string, cache = LRUCache): ts.Program {
   const normalizedPath = toUnixPath(filePath);
   for (const [tsconfig, programResult] of cachedPrograms) {
     if (programResult.files.includes(normalizedPath)) {
       const program = programResult.program.deref();
       const tsConfig = projectTSConfigs.get(tsconfig);
       if (program && tsConfig && !tsConfig.reset) {
-        LRUCache.set(program);
+        cache.set(program);
         return program;
       } else {
         cachedPrograms.delete(tsconfig);
@@ -102,7 +103,7 @@ export function getProgramForFile(filePath: string): ts.Program {
       cachedPrograms.set(tsconfig.filename, programResult);
       if (programResult.files.includes(normalizedPath)) {
         const program = programResult.program.deref()!;
-        LRUCache.set(program);
+        cache.set(program);
         return program;
       }
     }

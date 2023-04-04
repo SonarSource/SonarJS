@@ -33,6 +33,10 @@ import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { writeTSConfigFile } from 'services/program';
 import fs from 'fs';
 import { tsConfigLookup } from 'helpers/tsconfigs';
+import LRU from 'helpers/lru';
+import { awaitCleanUp } from '../../tools/helpers/wait-gc';
+
+jest.setTimeout(60000);
 
 describe('program', () => {
   it('should create a program', () => {
@@ -258,5 +262,49 @@ describe('program', () => {
     expect(cachedPrograms.get(tsConfig)).toBeDefined();
     expect(cachedPrograms.get(tsConfig).files).toContain(dependencyPath);
     expect(cachedPrograms.get(tsConfig).files).toContain(mainFile);
+  });
+
+  it('cache should only contain 2 elements and GC should clean up old programs', async () => {
+    const LRUCache = new LRU<ts.Program>();
+    const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
+    const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
+    const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));
+    const fakeTsConfig1 = `tsconfig-${toUnixPath(file1Path)}.json`;
+    const fakeTsConfig2 = `tsconfig-${toUnixPath(file2Path)}.json`;
+    const fakeTsConfig3 = `tsconfig-${toUnixPath(file3Path)}.json`;
+
+    getProgramForFile(file1Path, LRUCache);
+    expect(cachedPrograms.has(fakeTsConfig1)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig1).files).toContain(file1Path);
+
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
+
+    getProgramForFile(file2Path, LRUCache);
+    expect(cachedPrograms.has(fakeTsConfig2)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig2).files).toContain(file2Path);
+
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig2).program.deref())).toEqual(1);
+
+    getProgramForFile(file1Path, LRUCache);
+
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(1);
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig2).program.deref())).toEqual(0);
+
+    getProgramForFile(file3Path, LRUCache);
+    expect(cachedPrograms.has(fakeTsConfig3)).toBeTruthy();
+    expect(cachedPrograms.get(fakeTsConfig3).files).toContain(file3Path);
+
+    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).program.deref());
+    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig3).program.deref())).toEqual(1);
+
+    await awaitCleanUp(cachedPrograms.get(fakeTsConfig2).program.deref());
+    expect(cachedPrograms.get(fakeTsConfig2).program.deref()).toBeUndefined();
   });
 });
