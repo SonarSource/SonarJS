@@ -112,7 +112,7 @@ This script:
 
 5. If possible, implement quick fixes for the rule:
    - Add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`
-   - If it's an ESLint fix (and not a suggestion), add a message for the quick fix in `src/linting/eslint/linter/quickfixes/rules.ts`
+   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `src/linting/eslint/linter/quickfixes/messages.ts`.
    - Add a code fixture that should provide a quickfix in `tests/linting/eslint/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
 
 ## Testing a rule
