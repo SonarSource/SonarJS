@@ -45,6 +45,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs?: string[];
   programId?: string;
   createProgram?: boolean;
+  forceUpdateTSConfigs?: boolean;
 }
 
 /**

@@ -37,31 +37,16 @@ import {
   readFileSync,
   toUnixPath,
   TSConfig,
+  ProgramResult,
 } from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import LRU from '../../helpers/lru';
 
-type ProgramResult = {
-  tsConfig: TSConfig;
-  files: string[];
-  projectReferences: string[];
-  missingTsConfig: boolean;
-  program: WeakRef<ts.Program>;
-  fallbackProgram?: boolean;
-};
+import { ProgramCache } from 'helpers/cache';
 
-/**
- * A cache of created TypeScript's Program instances
- *
- * It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
- */
-export const cachedPrograms = new Map<string, ProgramResult>();
-/**
- * Cache to keep strong references to the latest used Programs to avoid GC
- */
-export const LRUCache = new LRU<ts.Program>();
+export const defaultCache = new ProgramCache();
+
 function* iterateTSConfigs(file: string): Generator<TSConfig> {
   for (const tsConfig of projectTSConfigs.values()) {
     yield tsConfig;
@@ -84,33 +69,33 @@ function* iterateTSConfigs(file: string): Generator<TSConfig> {
  * @param cache the LRU cache object to use as cache
  * @returns the retrieved TypeScript's Program
  */
-export function getProgramForFile(filePath: string, cache = LRUCache): ts.Program {
+export function getProgramForFile(filePath: string, cache = defaultCache): ts.Program {
   const normalizedPath = toUnixPath(filePath);
-  for (const [tsconfig, programResult] of cachedPrograms) {
+  for (const [tsconfig, programResult] of cache.programs) {
     const tsConfig = projectTSConfigs.get(tsconfig);
     if (
       programResult.files.includes(normalizedPath) &&
-      (programResult.fallbackProgram || (tsConfig && !tsConfig.reset))
+      (programResult.fallbackProgram || tsConfig)
     ) {
       const program = programResult.program.deref();
       if (program) {
-        cache.set(program);
+        cache.lru.set(program);
         return program;
       } else {
-        cachedPrograms.delete(tsconfig);
+        cache.programs.delete(tsconfig);
       }
     }
   }
   for (const tsconfig of iterateTSConfigs(normalizedPath)) {
-    if (!cachedPrograms.has(tsconfig.filename)) {
+    if (!cache.programs.has(tsconfig.filename)) {
       const programResult = createProgram(tsconfig.filename, tsconfig.contents);
       if (tsconfig.fallbackTSConfig) {
         programResult.fallbackProgram = true;
       }
-      cachedPrograms.set(tsconfig.filename, programResult);
+      cache.programs.set(tsconfig.filename, programResult);
       if (programResult.files.includes(normalizedPath)) {
         const program = programResult.program.deref()!;
-        cache.set(program);
+        cache.lru.set(program);
         return program;
       }
     }

@@ -66,15 +66,19 @@ describe('TSConfigs', () => {
     );
 
     const tsconfig = projectTSConfigs.values().next().value;
-    const fakeTsConfig = toUnixPath(path.join(dir, 'fakeTsConfig.json'));
+    //overwrite cached contents
     tsconfig.contents = 'fake contents';
 
+    const fakeTsConfig = toUnixPath(path.join(dir, 'fakeTsConfig.json'));
+
     updateTsConfigs([fakeTsConfig]);
+
+    //cached contents should be back to actual file contents
     expect(projectTSConfigs.get(tsconfig.filename)).toEqual({
       filename: tsconfig.filename,
       contents: '',
-      reset: true,
     });
+    //fake tsconfig could not be found
     expect(console.log).toHaveBeenCalledWith(`ERROR: Could not read new tsconfig ${fakeTsConfig}`);
   });
 

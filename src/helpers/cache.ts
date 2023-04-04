@@ -17,35 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, readFile } from 'helpers';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
+import { LRU } from './lru';
+import ts from 'typescript';
+import { TSConfig } from './tsconfigs';
 
-export async function jsTsInput({
-  filePath = '',
-  fileContent = undefined,
-  fileType = 'MAIN' as FileType,
-  tsConfigs = [],
-  programId = undefined,
-  linterId = 'default',
-  createProgram = false,
-  forceUpdateTSConfigs = false,
-}): Promise<JsTsAnalysisInput> {
-  return {
-    filePath,
-    fileContent: fileContent || (await readFile(filePath)),
-    fileType,
-    programId,
-    linterId,
-    tsConfigs,
-    createProgram,
-    forceUpdateTSConfigs,
-  };
-}
+export type ProgramResult = {
+  tsConfig: TSConfig;
+  files: string[];
+  projectReferences: string[];
+  missingTsConfig: boolean;
+  program: WeakRef<ts.Program>;
+  fallbackProgram?: boolean;
+};
 
-export async function embeddedInput({
-  filePath = '',
-  fileContent = undefined,
-  linterId = 'default',
-}): Promise<EmbeddedAnalysisInput> {
-  return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
+/**
+ * A cache of created TypeScript's Program instances
+ *
+ * @param programs It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
+ * @param lru Cache to keep strong references to the latest used Programs to avoid GC
+ */
+export class ProgramCache {
+  public programs: Map<string, ProgramResult>;
+  public lru: LRU<ts.Program>;
+  constructor() {
+    this.programs = new Map<string, ProgramResult>();
+    this.lru = new LRU<ts.Program>();
+  }
+  clear() {
+    this.programs.clear();
+    this.lru.clear();
+  }
 }

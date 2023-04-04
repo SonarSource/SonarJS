@@ -25,18 +25,7 @@
  * @param shouldUseTypeScriptParserForJS a flag for parsing JavaScript code with TypeScript ESLint parser
  * @param sonarlint a flag for indicating whether the bridge is used in SonarLint context
  * @param bundles a set of rule bundles to load
- * @param tsConfigs list of tsConfigs found in the working directory
  */
-export type TSConfigs = Map<string, TSConfig>;
-export const projectTSConfigs: TSConfigs = new Map<string, TSConfig>();
-export interface TSConfig {
-  filename: string;
-  contents: string;
-  reset?: boolean;
-  justAdded?: boolean;
-  fallbackTSConfig?: boolean;
-}
-
 export interface Context {
   workDir: string;
   shouldUseTypeScriptParserForJS: boolean;

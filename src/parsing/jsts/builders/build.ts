@@ -52,7 +52,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
       !shouldUseWatchProgram(input.filePath) &&
       input.createProgram === true
     ) {
-      updateTsConfigs(input.tsConfigs);
+      updateTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
       const program = getProgramForFile(input.filePath);
       options.programs = [program];
     }

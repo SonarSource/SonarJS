@@ -19,7 +19,6 @@
  */
 import path from 'path';
 import {
-  cachedPrograms,
   createAndSaveProgram,
   createProgram,
   createProgramOptions,
@@ -28,13 +27,13 @@ import {
   getProgramForFile,
   isRootNodeModules,
 } from 'services/program';
-import { toUnixPath } from 'helpers';
+import { ProgramCache, projectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { writeTSConfigFile } from 'services/program';
 import fs from 'fs';
 import { tsConfigLookup } from 'helpers/tsconfigs';
-import LRU from 'helpers/lru';
 import { awaitCleanUp } from '../../tools/helpers/wait-gc';
+import { defaultCache } from 'services/program';
 
 jest.setTimeout(60000);
 
@@ -259,13 +258,13 @@ describe('program', () => {
 
     const program = getProgramForFile(mainFile);
     expect(program).toBeDefined();
-    expect(cachedPrograms.get(tsConfig)).toBeDefined();
-    expect(cachedPrograms.get(tsConfig).files).toContain(dependencyPath);
-    expect(cachedPrograms.get(tsConfig).files).toContain(mainFile);
+    expect(defaultCache.programs.get(tsConfig)).toBeDefined();
+    expect(defaultCache.programs.get(tsConfig).files).toContain(dependencyPath);
+    expect(defaultCache.programs.get(tsConfig).files).toContain(mainFile);
   });
 
   it('cache should only contain 2 elements and GC should clean up old programs', async () => {
-    const LRUCache = new LRU<ts.Program>();
+    const cache = new ProgramCache();
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
     const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));
@@ -273,38 +272,69 @@ describe('program', () => {
     const fakeTsConfig2 = `tsconfig-${toUnixPath(file2Path)}.json`;
     const fakeTsConfig3 = `tsconfig-${toUnixPath(file3Path)}.json`;
 
-    getProgramForFile(file1Path, LRUCache);
-    expect(cachedPrograms.has(fakeTsConfig1)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig1).files).toContain(file1Path);
+    getProgramForFile(file1Path, cache);
+    expect(cache.programs.has(fakeTsConfig1)).toBeTruthy();
+    expect(cache.programs.get(fakeTsConfig1).files).toContain(file1Path);
 
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
 
-    getProgramForFile(file2Path, LRUCache);
-    expect(cachedPrograms.has(fakeTsConfig2)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig2).files).toContain(file2Path);
+    getProgramForFile(file2Path, cache);
+    expect(cache.programs.has(fakeTsConfig2)).toBeTruthy();
+    expect(cache.programs.get(fakeTsConfig2).files).toContain(file2Path);
 
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig2).program.deref())).toEqual(1);
+    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig2).program.deref());
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig2).program.deref())).toEqual(1);
 
-    getProgramForFile(file1Path, LRUCache);
+    getProgramForFile(file1Path, cache);
 
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(1);
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig2).program.deref())).toEqual(0);
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(1);
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig2).program.deref())).toEqual(0);
 
-    getProgramForFile(file3Path, LRUCache);
-    expect(cachedPrograms.has(fakeTsConfig3)).toBeTruthy();
-    expect(cachedPrograms.get(fakeTsConfig3).files).toContain(file3Path);
+    getProgramForFile(file3Path, cache);
+    expect(cache.programs.has(fakeTsConfig3)).toBeTruthy();
+    expect(cache.programs.get(fakeTsConfig3).files).toContain(file3Path);
 
-    expect(LRUCache.get()).not.toContain(cachedPrograms.get(fakeTsConfig2).program.deref());
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig1).program.deref());
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig1).program.deref())).toEqual(0);
-    expect(LRUCache.get()).toContain(cachedPrograms.get(fakeTsConfig3).program.deref());
-    expect(LRUCache.get().indexOf(cachedPrograms.get(fakeTsConfig3).program.deref())).toEqual(1);
+    expect(cache.lru.get()).not.toContain(cache.programs.get(fakeTsConfig2).program.deref());
+    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig3).program.deref());
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig3).program.deref())).toEqual(1);
 
-    await awaitCleanUp(cachedPrograms.get(fakeTsConfig2).program.deref());
-    expect(cachedPrograms.get(fakeTsConfig2).program.deref()).toBeUndefined();
+    await awaitCleanUp(cache.programs.get(fakeTsConfig2).program.deref());
+    expect(cache.programs.get(fakeTsConfig2).program.deref()).toBeUndefined();
+  });
+
+  it('changing tsconfig contents should trigger program creation', () => {
+    const cache = new ProgramCache();
+    const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
+    const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
+    const tsconfigPath = 'tsconfig.json';
+    const tsconfig: TSConfig = {
+      filename: 'tsconfig.json',
+      contents: JSON.stringify({
+        files: [file1Path],
+      }),
+    };
+    projectTSConfigs.set(tsconfigPath, tsconfig);
+
+    getProgramForFile(file1Path, cache);
+    expect(cache.programs.get(tsconfigPath)).toBeDefined();
+    expect(cache.programs.get(tsconfigPath).files).toContain(file1Path);
+    expect(cache.programs.get(tsconfigPath).files).not.toContain(file2Path);
+    expect(cache.lru.get().length).toEqual(1);
+
+    tsconfig.contents = JSON.stringify({
+      files: [file1Path, file2Path],
+    });
+    cache.clear();
+
+    getProgramForFile(file1Path, cache);
+    expect(cache.programs.get(tsconfigPath)).toBeDefined();
+    expect(cache.programs.get(tsconfigPath).files).toContain(file1Path);
+    expect(cache.programs.get(tsconfigPath).files).toContain(file2Path);
+    expect(cache.lru.get().length).toEqual(1);
   });
 });

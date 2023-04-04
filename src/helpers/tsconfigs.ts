@@ -19,9 +19,18 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { getContext, projectTSConfigs } from './context';
+import { getContext } from './context';
 import { readFileSync, toUnixPath } from './files';
 import * as console from 'console';
+import { defaultCache } from 'services/program';
+
+export type TSConfigs = Map<string, TSConfig>;
+export const projectTSConfigs: TSConfigs = new Map<string, TSConfig>();
+export interface TSConfig {
+  filename: string;
+  contents: string;
+  fallbackTSConfig?: boolean;
+}
 
 export function tsConfigLookup(dir?: string) {
   if (!dir) {
@@ -48,7 +57,23 @@ export function tsConfigLookup(dir?: string) {
   }
 }
 
-export function updateTsConfigs(tsconfigs: string[]) {
+export function updateTsConfigs(tsconfigs: string[], force = false) {
+  if (!getContext().sonarlint && !force) {
+    return;
+  }
+  let reset = false;
+  for (const tsconfig of projectTSConfigs.values()) {
+    try {
+      const contents = readFileSync(tsconfig.filename);
+      if (tsconfig.contents !== contents) {
+        reset = true;
+      }
+      tsconfig.contents = contents;
+    } catch (e) {
+      projectTSConfigs.delete(tsconfig.filename);
+      console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
+    }
+  }
   for (const tsconfig of tsconfigs) {
     const normalizedTsConfig = toUnixPath(tsconfig);
     if (!projectTSConfigs.has(normalizedTsConfig)) {
@@ -57,28 +82,14 @@ export function updateTsConfigs(tsconfigs: string[]) {
         projectTSConfigs.set(normalizedTsConfig, {
           filename: normalizedTsConfig,
           contents,
-          justAdded: true,
         });
+        reset = true;
       } catch (e) {
         console.log(`ERROR: Could not read new tsconfig ${tsconfig}`);
       }
     }
   }
-  if (!getContext().sonarlint) {
-    return;
-  }
-  for (const tsconfig of projectTSConfigs.values()) {
-    if (tsconfig.justAdded) {
-      delete tsconfig.justAdded;
-    } else {
-      try {
-        const contents = readFileSync(tsconfig.filename);
-        tsconfig.reset = tsconfig.contents !== contents;
-        tsconfig.contents = contents;
-      } catch (e) {
-        projectTSConfigs.delete(tsconfig.filename);
-        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
-      }
-    }
+  if (reset) {
+    defaultCache.clear();
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default class LRU<T> {
+export class LRU<T> {
   private readonly max: number;
   private readonly cache: T[];
   constructor(max = 2) {
@@ -38,5 +38,9 @@ export default class LRU<T> {
     if (this.cache.length > this.max) {
       this.cache.shift();
     }
+  }
+
+  clear() {
+    this.cache.length = 0;
   }
 }
