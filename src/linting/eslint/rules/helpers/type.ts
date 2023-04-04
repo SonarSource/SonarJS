@@ -67,6 +67,12 @@ export function isUnion(node: estree.Node, services: RequiredParserServices) {
   return type.isUnion();
 }
 
+/**
+ * Returns an array of the union types if the provided type is a union.
+ * Otherwise, returns an array containing the provided type as its unique element.
+ * @param type A TypeScript type.
+ * @return An array of types. It's never empty.
+ */
 export function getUnionTypes(type: ts.Type): ts.Type[] {
   return type.isUnion() ? type.types : [type];
 }
@@ -148,6 +154,46 @@ function isArrayOrUnionOfArrayType(type: ts.Type, services: RequiredParserServic
   }
 
   return true;
+}
+
+/**
+ * Test if the provided type is an array of strings.
+ * @param type A TypeScript type.
+ * @param services The services used to get access to the TypeScript type checker
+ */
+export function isStringArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isStringType);
+}
+
+/**
+ * Test if the provided type is an array of numbers.
+ * @param type A TypeScript type.
+ * @param services The services used to get access to the TypeScript type checker
+ */
+export function isNumberArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isNumberType);
+}
+
+/**
+ * Test if the provided type is an array of big integers.
+ * @param type A TypeScript type.
+ * @param services The services used to get access to the TypeScript type checker
+ */
+export function isBigIntArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isBigIntType);
+}
+
+function isArrayElementTypeMatching(
+  type: ts.Type,
+  services: RequiredParserServices,
+  predicate: (type: ts.Type) => boolean,
+) {
+  const checker = services.program.getTypeChecker();
+  if (!isArrayType(type, services)) {
+    return false;
+  }
+  const [elementType] = checker.getTypeArguments(type);
+  return elementType && predicate(elementType);
 }
 
 // Internal TS API
