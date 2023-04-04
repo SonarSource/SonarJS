@@ -2,7 +2,7 @@
 <p>TypeScript provides the <code>type</code> mechanism to create a type alias, that is, a new name to refer to an existing type. It is a nice feature
 to improve code readability and can be used as documentation. However, aliasing a primitive type, another alias or everyday types like
 <code>any</code> or <code>unknown</code> is useless and goes against the idea of readable code. As a result, a reader needs to go through the mental
-exercise of remembering the underlying type behind the alias and lose track of the code’s primary purpose.</p>
+exercise of remembering the underlying type behind the alias and loses track of the code’s primary purpose.</p>
 <p>Common types come with relevant names and should be used as they are.</p>
 <h2>How to fix it</h2>
 <p>The type alias should be removed, and all the occurrences of the alias should be replaced with the type it referred to.</p>
