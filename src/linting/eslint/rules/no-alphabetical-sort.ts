@@ -20,15 +20,32 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
 import { Rule } from 'eslint';
+import ts from 'typescript';
 import * as estree from 'estree';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
+  isBigIntArray,
+  isNumberArray,
   isRequiredParserServices,
+  isStringArray,
   sortLike,
 } from './helpers';
 
-const compareFunctionPlaceholder = '(a, b) => (a - b)';
+const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
+const compareBigIntFunctionPlaceholder = [
+  '(a, b) => {',
+  '  if (a < b) {',
+  '    return -1;',
+  '  } else if (a > b) {',
+  '    return 1;',
+  '  } else {',
+  '    return 0;',
+  '  }',
+  '}',
+];
+const defaultOrderPlaceholder = '(a, b) => (a < b)';
+const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -36,10 +53,15 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
-      suggestCompareFunction: 'Add a comparator function to sort in ascending order',
+      suggestNumericOrder: 'Add a comparator function to sort in ascending order',
+      suggestLexicographicOrder:
+        'Add a comparator function to sort in ascending lexicographic order',
+      suggestLanguageSensitiveOrder:
+        'Add a comparator function to sort in ascending language-sensitive order',
     },
   },
   create(context: Rule.RuleContext) {
+    const sourceCode = context.getSourceCode();
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
@@ -49,30 +71,47 @@ export const rule: Rule.RuleModule = {
       'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
         call: estree.CallExpression,
       ) => {
-        const { object, property } = call.callee as estree.MemberExpression;
-        const text = context.getSourceCode().getText(property);
-        if (sortLike.includes(text) && isArrayLikeNode(object)) {
-          const closingParenthesis = context
-            .getSourceCode()
-            .getLastToken(call, token => token.value === ')')!;
-          context.report({
-            messageId: 'provideCompareFunction',
-            node: property as estree.Node,
-            suggest: [
-              {
-                messageId: 'suggestCompareFunction',
-                fix: fixer =>
-                  fixer.insertTextBefore(closingParenthesis, compareFunctionPlaceholder),
-              },
-            ],
-          });
+        const { object, property: node } = call.callee as estree.MemberExpression;
+        const text = sourceCode.getText(node);
+        const type = getTypeFromTreeNode(object, services);
+
+        if (sortLike.includes(text) && isArrayLikeType(type, services)) {
+          const suggest = getSuggestions(call, type);
+          context.report({ node, suggest, messageId: 'provideCompareFunction' });
         }
       },
     };
 
-    function isArrayLikeNode(node: estree.Node) {
-      const type = getTypeFromTreeNode(node, services);
-      return isArrayLikeType(type, services);
+    function getSuggestions(call: estree.CallExpression, type: ts.Type) {
+      const suggestions: Rule.SuggestionReportDescriptor[] = [];
+      if (isNumberArray(type, services)) {
+        suggestions.push({
+          messageId: 'suggestNumericOrder',
+          fix: fixer(call, compareNumberFunctionPlaceholder),
+        });
+      } else if (isBigIntArray(type, services)) {
+        suggestions.push({
+          messageId: 'suggestNumericOrder',
+          fix: fixer(call, ...compareBigIntFunctionPlaceholder),
+        });
+      } else if (isStringArray(type, services)) {
+        suggestions.push({
+          messageId: 'suggestLexicographicOrder',
+          fix: fixer(call, defaultOrderPlaceholder),
+        });
+        suggestions.push({
+          messageId: 'suggestLanguageSensitiveOrder',
+          fix: fixer(call, languageSensitiveOrderPlaceholder),
+        });
+      }
+      return suggestions;
+    }
+
+    function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {
+      const closingParenthesis = sourceCode.getLastToken(call, token => token.value === ')')!;
+      const indent = ' '.repeat(call.loc?.start.column!);
+      const text = placeholder.join(`\n${indent}`);
+      return fixer => fixer.insertTextBefore(closingParenthesis, text);
     }
   },
 };
