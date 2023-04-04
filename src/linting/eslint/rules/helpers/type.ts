@@ -21,6 +21,8 @@ import * as estree from 'estree';
 import ts from 'typescript';
 import { TSESTree, TSESLint } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import { getVariableFromScope } from './ast';
+import { Rule } from 'eslint';
 
 export type RuleContext = TSESLint.RuleContext<string, string[]>;
 
@@ -156,4 +158,22 @@ function isArrayType(type: ts.Type, services: RequiredParserServices): type is t
     typeof checker.isArrayType === 'function' &&
     checker.isArrayType(type)
   );
+}
+
+/**
+ * Checks whether a TypeScript type node denotes a type alias.
+ * @param node a type node to check
+ * @param context the rule context
+ */
+export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) {
+  if (
+    node.type !== 'TSTypeReference' ||
+    node.typeName.type !== 'Identifier' ||
+    node.typeParameters
+  ) {
+    return false;
+  }
+  const scope = context.getScope();
+  const variable = getVariableFromScope(scope, node.typeName.name);
+  return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
 }

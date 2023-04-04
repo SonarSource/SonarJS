@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { getVariableFromScope } from './helpers';
+import { getVariableFromScope, isTypeAlias } from './helpers';
 
 const COMMON_NODE_TYPES = new Set([
   'TSAnyKeyword',
@@ -46,22 +46,10 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    function isAliasType(node: TSESTree.TypeNode) {
-      if (
-        node.type !== 'TSTypeReference' ||
-        node.typeName.type !== 'Identifier' ||
-        node.typeParameters
-      ) {
-        return false;
-      }
-      const scope = context.getScope();
-      const variable = getVariableFromScope(scope, node.typeName.name);
-      return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
-    }
     return {
       TSTypeAliasDeclaration(node: estree.Node) {
         const { id, typeAnnotation } = node as unknown as TSESTree.TSTypeAliasDeclaration;
-        if (COMMON_NODE_TYPES.has(typeAnnotation.type) || isAliasType(typeAnnotation)) {
+        if (COMMON_NODE_TYPES.has(typeAnnotation.type) || isTypeAlias(typeAnnotation, context)) {
           const sourceCode = context.getSourceCode();
           const tpe = sourceCode.getTokens(typeAnnotation as unknown as estree.Node)[0];
           context.report({
