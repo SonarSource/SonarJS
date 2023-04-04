@@ -1,0 +1,21 @@
+{
+  "title": "No confusing non-null assertions",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "clumsy",
+    "confusing"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6568",
+  "sqKey": "S6568",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

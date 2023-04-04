@@ -229,6 +229,7 @@ public final class CheckList {
       NoBaseToStringCheck.class,
       NoClearTextProtocolsCheck.class,
       NoCodeAfterDoneCheck.class,
+      NoConfusingNonNullAssertionCheck.class,
       NoControlRegexCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
