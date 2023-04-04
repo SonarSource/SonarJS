@@ -34,6 +34,7 @@ export interface TSConfig {
   contents: string;
   reset?: boolean;
   justAdded?: boolean;
+  fallbackTSConfig?: boolean;
 }
 
 export interface Context {

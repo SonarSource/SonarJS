@@ -49,7 +49,7 @@ type ProgramResult = {
   projectReferences: string[];
   missingTsConfig: boolean;
   program: WeakRef<ts.Program>;
-  cached?: boolean;
+  fallbackProgram?: boolean;
 };
 
 /**
@@ -62,7 +62,7 @@ export const cachedPrograms = new Map<string, ProgramResult>();
  * Cache to keep strong references to the latest used Programs to avoid GC
  */
 export const LRUCache = new LRU<ts.Program>();
-function* iterateTSConfigs(file: string) {
+function* iterateTSConfigs(file: string): Generator<TSConfig> {
   for (const tsConfig of projectTSConfigs.values()) {
     yield tsConfig;
   }
@@ -75,6 +75,7 @@ function* iterateTSConfigs(file: string) {
       },
       files: [file],
     }),
+    fallbackTSConfig: true,
   };
 }
 /**
@@ -86,10 +87,13 @@ function* iterateTSConfigs(file: string) {
 export function getProgramForFile(filePath: string, cache = LRUCache): ts.Program {
   const normalizedPath = toUnixPath(filePath);
   for (const [tsconfig, programResult] of cachedPrograms) {
-    if (programResult.files.includes(normalizedPath)) {
+    const tsConfig = projectTSConfigs.get(tsconfig);
+    if (
+      programResult.files.includes(normalizedPath) &&
+      (programResult.fallbackProgram || (tsConfig && !tsConfig.reset))
+    ) {
       const program = programResult.program.deref();
-      const tsConfig = projectTSConfigs.get(tsconfig);
-      if (program && tsConfig && !tsConfig.reset) {
+      if (program) {
         cache.set(program);
         return program;
       } else {
@@ -100,6 +104,9 @@ export function getProgramForFile(filePath: string, cache = LRUCache): ts.Progra
   for (const tsconfig of iterateTSConfigs(normalizedPath)) {
     if (!cachedPrograms.has(tsconfig.filename)) {
       const programResult = createProgram(tsconfig.filename, tsconfig.contents);
+      if (tsconfig.fallbackTSConfig) {
+        programResult.fallbackProgram = true;
+      }
       cachedPrograms.set(tsconfig.filename, programResult);
       if (programResult.files.includes(normalizedPath)) {
         const program = programResult.program.deref()!;
