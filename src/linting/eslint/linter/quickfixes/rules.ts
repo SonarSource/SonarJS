@@ -72,7 +72,7 @@ export const quickFixRules = new Set([
   'no-non-null-assertion',
   'no-unnecessary-type-arguments',
   'no-unnecessary-type-assertion',
-  //'no-unnecessary-type-constraint',
+  'no-unnecessary-type-constraint',
   'prefer-namespace-keyword',
   'prefer-readonly',
   'prefer-string-starts-ends-with',
