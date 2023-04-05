@@ -50,8 +50,8 @@ export const quickFixRules = new Set([
   // decorated eslint core
   'no-dupe-keys',
   'no-duplicate-imports',
-  'no-empty',
   'no-empty-function',
+  'no-empty',
   'no-throw-literal',
   'no-unreachable',
   'use-isnan',
@@ -66,16 +66,17 @@ export const quickFixRules = new Set([
   'prefer-while',
 
   // @typescript-eslint plugin
+  'no-confusing-non-null-assertion',
   'no-empty-interface',
   'no-explicit-any',
   'no-inferrable-types',
+  'no-non-null-assertion',
   'no-unnecessary-type-arguments',
   'no-unnecessary-type-assertion',
+  'no-unnecessary-type-constraint',
   'prefer-namespace-keyword',
   'prefer-readonly',
   'prefer-string-starts-ends-with',
-  'no-non-null-assertion',
-  'no-confusing-non-null-assertion',
 
   // decorated @typescript-eslint plugin
   'prefer-for-of',
@@ -97,8 +98,8 @@ export const quickFixRules = new Set([
   'no-unused-function-argument',
   'prefer-promise-shorthand',
   'prefer-type-guard',
-  'unnecessary-character-escapes',
-  'unused-import',
   'sonar-no-misleading-character-class',
   'switch-without-default',
+  'unnecessary-character-escapes',
+  'unused-import',
 ]);
