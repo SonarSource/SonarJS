@@ -1,0 +1,18 @@
+{
+  "title": "Enum member values should be either all initialized or none",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6572",
+  "sqKey": "S6572",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

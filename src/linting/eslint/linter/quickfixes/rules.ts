@@ -79,6 +79,7 @@ export const quickFixRules = new Set([
   'prefer-string-starts-ends-with',
 
   // decorated @typescript-eslint plugin
+  'prefer-enum-initializers',
   'prefer-for-of',
 
   // sonarjs

@@ -38,6 +38,7 @@ import { decorateNoUnreachable } from './no-unreachable-decorator';
 import { decorateNoUnstableNestedComponents } from './no-unstable-nested-components';
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
+import { decoratePreferEnumInitializers } from './prefer-enum-initializers-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferStringStartsEndsWithDecorator } from './prefer-string-starts-ends-with-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
@@ -83,6 +84,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-unused-expressions': decorateNoUnusedExpressions,
   'no-var': decorateNoVar,
   'object-shorthand': decorateObjectShorthand,
+  'prefer-enum-initializers': decoratePreferEnumInitializers,
   'prefer-for-of': decoratePreferForOf,
   'prefer-string-starts-ends-with': decoratePreferStringStartsEndsWithDecorator,
   'prefer-template': decoratePreferTemplate,
