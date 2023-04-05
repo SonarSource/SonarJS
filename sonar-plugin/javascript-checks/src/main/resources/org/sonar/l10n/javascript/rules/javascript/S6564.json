@@ -1,0 +1,18 @@
+{
+  "title": "Redundant type aliases should not be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6564",
+  "sqKey": "S6564",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

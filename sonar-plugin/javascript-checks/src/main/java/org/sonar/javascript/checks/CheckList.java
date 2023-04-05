@@ -315,6 +315,7 @@ public final class CheckList {
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
       RedundantAssignmentCheck.class,
+      RedundantTypeAliasesCheck.class,
       ReferenceErrorCheck.class,
       RegexComplexityCheck.class,
       RegularExprCheck.class,
