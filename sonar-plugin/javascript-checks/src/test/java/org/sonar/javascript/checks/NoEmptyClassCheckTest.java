@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2022 SonarSource SA
+ * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S2094/javascript
+package org.sonar.javascript.checks;
 
-import { Rule } from 'eslint';
-import { isRequiredParserServices } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
-import * as estree from 'estree';
+import static org.assertj.core.api.Assertions.assertThat;
 
-const message = `TODO: add message`;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
-  create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+class NoEmptyClassCheckTest {
 
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {};
-  },
-};
+  @Test
+  void config() {
+    String configAsString = new Gson().toJson(new NoEmptyClassCheck().configurations());
+    assertThat(configAsString)
+      .isEqualTo(
+        "[{\"allowConstructorOnly\":false,\"allowEmpty\":false,\"allowStaticOnly\":true,\"allowWithDecorator\":false}]"
+      );
+  }
+}

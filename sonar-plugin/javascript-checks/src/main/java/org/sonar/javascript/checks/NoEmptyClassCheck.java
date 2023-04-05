@@ -31,6 +31,18 @@ public class NoEmptyClassCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-empty-class";
+    return "no-extraneous-class";
+  }
+
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
+  }
+
+  private static class Config {
+
+    boolean allowConstructorOnly = false;
+    boolean allowEmpty = false;
+    boolean allowStaticOnly = false;
+    boolean allowWithDecorator = false;
   }
 }
