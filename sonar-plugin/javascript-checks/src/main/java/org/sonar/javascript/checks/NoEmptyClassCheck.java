@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
@@ -42,7 +44,7 @@ public class NoEmptyClassCheck implements EslintBasedCheck {
 
     boolean allowConstructorOnly = false;
     boolean allowEmpty = false;
-    boolean allowStaticOnly = false;
+    boolean allowStaticOnly = true;
     boolean allowWithDecorator = false;
   }
 }
