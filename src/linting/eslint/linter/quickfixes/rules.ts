@@ -66,6 +66,7 @@ export const quickFixRules = new Set([
   'prefer-while',
 
   // @typescript-eslint plugin
+  'no-confusing-non-null-assertion',
   'no-empty-interface',
   'no-explicit-any',
   'no-inferrable-types',
