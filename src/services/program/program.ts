@@ -60,7 +60,7 @@ function* iterateTSConfigs(file: string): Generator<TSConfig> {
       },
       files: [file],
     }),
-    fallbackTSConfig: true,
+    isFallbackTSConfig: true,
   };
 }
 /**
@@ -75,7 +75,7 @@ export function getProgramForFile(filePath: string, cache = defaultCache): ts.Pr
     const tsConfig = projectTSConfigs.get(tsconfig);
     if (
       programResult.files.includes(normalizedPath) &&
-      (programResult.fallbackProgram || tsConfig)
+      (programResult.isFallbackProgram || tsConfig)
     ) {
       const program = programResult.program.deref();
       if (program) {
@@ -89,8 +89,8 @@ export function getProgramForFile(filePath: string, cache = defaultCache): ts.Pr
   for (const tsconfig of iterateTSConfigs(normalizedPath)) {
     if (!cache.programs.has(tsconfig.filename)) {
       const programResult = createProgram(tsconfig.filename, tsconfig.contents);
-      if (tsconfig.fallbackTSConfig) {
-        programResult.fallbackProgram = true;
+      if (tsconfig.isFallbackTSConfig) {
+        programResult.isFallbackProgram = true;
       }
       cache.programs.set(tsconfig.filename, programResult);
       if (programResult.files.includes(normalizedPath)) {

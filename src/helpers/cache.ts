@@ -27,7 +27,7 @@ export type ProgramResult = {
   projectReferences: string[];
   missingTsConfig: boolean;
   program: WeakRef<ts.Program>;
-  fallbackProgram?: boolean;
+  isFallbackProgram?: boolean;
 };
 
 /**

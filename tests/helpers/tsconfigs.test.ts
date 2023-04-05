@@ -26,8 +26,8 @@ describe('TSConfigs', () => {
   beforeEach(() => {
     projectTSConfigs.clear();
   });
-  const initialCtx = path => ({
-    workDir: path,
+  const initialCtx = workDir => ({
+    workDir,
     shouldUseTypeScriptParserForJS: false,
     sonarlint: true,
     bundles: [],

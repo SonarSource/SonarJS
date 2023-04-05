@@ -305,6 +305,10 @@ describe('program', () => {
 
     await awaitCleanUp(cache.programs.get(fakeTsConfig2).program.deref());
     expect(cache.programs.get(fakeTsConfig2).program.deref()).toBeUndefined();
+
+    getProgramForFile(file1Path, cache);
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(1);
+    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig3).program.deref())).toEqual(0);
   });
 
   it('changing tsconfig contents should trigger program creation', () => {

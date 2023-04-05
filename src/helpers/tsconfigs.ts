@@ -29,9 +29,12 @@ export const projectTSConfigs: TSConfigs = new Map<string, TSConfig>();
 export interface TSConfig {
   filename: string;
   contents: string;
-  fallbackTSConfig?: boolean;
+  isFallbackTSConfig?: boolean;
 }
 
+function fileIsTSConfig(filename: string): boolean {
+  return !!filename.match(/[tj]sconfig.*\.json/i);
+}
 export function tsConfigLookup(dir?: string) {
   if (!dir) {
     dir = getContext()?.workDir;
@@ -47,7 +50,7 @@ export function tsConfigLookup(dir?: string) {
     const stats = fs.lstatSync(filename);
     if (file !== 'node_modules' && stats.isDirectory()) {
       tsConfigLookup(filename);
-    } else if (filename.match(/[tj]sconfig.*\.json/i)) {
+    } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
       const contents = fs.readFileSync(filename, 'utf-8');
       projectTSConfigs.set(filename, {
         filename,
