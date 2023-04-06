@@ -23,7 +23,7 @@ import { TypeScriptRuleTester } from '../../../tools';
 const ruleTester = new TypeScriptRuleTester();
 const rule = typescriptESLintRules['prefer-return-this-type'];
 
-ruleTester.run(`Rule should provide suggestion with proper message`, rule, {
+ruleTester.run(`Rule should provide a quickfix suggestion with the proper message`, rule, {
   valid: [
     {
       code: `
