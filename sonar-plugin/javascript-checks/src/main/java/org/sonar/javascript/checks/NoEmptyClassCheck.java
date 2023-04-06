@@ -36,6 +36,7 @@ public class NoEmptyClassCheck implements EslintBasedCheck {
     return "no-extraneous-class";
   }
 
+  @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
