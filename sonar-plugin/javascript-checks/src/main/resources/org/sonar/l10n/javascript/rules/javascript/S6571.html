@@ -1,0 +1,40 @@
+<p>In unions and intersections, redundant types should not be used.</p>
+<h2>Why is this an issue?</h2>
+<p>When creating a union or intersection of types in TypeScript, it is possible for certain constituents to clash with one another. For instance, if
+the type <code>any</code> is included in a union, it takes precedence over all other constituents and causes the union to become the most generic
+type, which is <code>any</code>. Similarly, if a type that is more restrictive than another type, like <code>1</code> for <code>number</code>, is
+included in an intersection, it will take precedence over the other type and override it.</p>
+<p>On the other hand, some types do not have any impact when they are included in a union or intersection, like <code>never</code> in a union or
+<code>unknown</code> in an intersection.</p>
+<p>Eliminating any superfluous or overridden types from a union or intersection type can simplify the code and enhance its readability. Moreover, it
+will provide a clearer representation of the actual values that a variable is capable of holding.</p>
+<h2>How to fix it</h2>
+<p>The redundant and overridden types should be removed.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+type UnionWithAny = any | 'redundant'; // Noncompliant
+type UnionWithNever = never | 'override'; // Noncompliant
+type UnionWithLiteral = number | 1; // Noncompliant
+
+type IntersectionWithAny = any &amp; 'redundant'; // Noncompliant
+type IntersectionWithUnknown = string &amp; unknown; // Noncompliant
+type IntersectionWithLiteral = string &amp; 'override'; // Noncompliant
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+type UnionWithAny = any;
+type UnionWithNever = never;
+type UnionWithLiteral = number;
+
+type IntersectionWithAny = any;
+type IntersectionWithUnknown = string;
+type IntersectionWithLiteral = 'override';
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types">Union Types</a> </li>
+  <li> <a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types">Intersection Types</a> </li>
+</ul>
+

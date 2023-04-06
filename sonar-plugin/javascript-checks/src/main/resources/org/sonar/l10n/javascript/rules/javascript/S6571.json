@@ -1,0 +1,20 @@
+{
+  "title": "In unions and intersections, redundant types should not be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "redundant"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6571",
+  "sqKey": "S6571",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

@@ -44,6 +44,7 @@ import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 import { decorateNoVar } from './no-var-decorator';
+import { decorateNoRedundantTypeConstituents } from './no-redundant-type-constituents';
 
 /**
  * A decorator of an ESLint rule
@@ -76,6 +77,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-empty-interface': decorateNoEmptyInterface,
   'no-extra-semi': decorateNoExtraSemi,
   'no-redeclare': decorateNoRedeclare,
+  'no-redundant-type-constituents': decorateNoRedundantTypeConstituents,
   'no-this-alias': decorateNoThisAlias,
   'no-throw-literal': decorateNoThrowLiteral,
   'no-unreachable': decorateNoUnreachable,
