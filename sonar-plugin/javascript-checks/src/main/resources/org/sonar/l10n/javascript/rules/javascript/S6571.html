@@ -1,13 +1,17 @@
 <p>In unions and intersections, redundant types should not be used.</p>
 <h2>Why is this an issue?</h2>
-<p>When creating a union or intersection of types in TypeScript, it is possible for certain constituents to clash with one another. For instance, if
-the type <code>any</code> is included in a union, it takes precedence over all other constituents and causes the union to become the most generic
-type, which is <code>any</code>. Similarly, if a type that is more restrictive than another type, like <code>1</code> for <code>number</code>, is
-included in an intersection, it will take precedence over the other type and override it.</p>
-<p>On the other hand, some types do not have any impact when they are included in a union or intersection, like <code>never</code> in a union or
-<code>unknown</code> in an intersection.</p>
-<p>Eliminating any superfluous or overridden types from a union or intersection type can simplify the code and enhance its readability. Moreover, it
-will provide a clearer representation of the actual values that a variable is capable of holding.</p>
+<p>When defining a union or intersection in TypeScript, it is possible to mistakenly include type constituents that encompass other constituents, that
+don’t have any effect, or that are more restrictive. For instance,</p>
+<ul>
+  <li> The type <code>something</code> in <code>any | something</code> is redundant because <code>any</code> covers all possible types, whatever
+  <code>something</code> is. </li>
+  <li> The types <code>never</code> in unions like <code>never | something</code> or <code>unknown</code> in intersections like <code>unknown &amp;
+  something</code> are effectless. </li>
+  <li> More restrictive types in intersections like the literal type <code>1</code> in <code>1 &amp; number</code> reduce the set of possible values
+  to specific ones. </li>
+</ul>
+<p>Eliminating redundant types from a union or intersection type simplifies the code and enhances its readability. Moreover, it provides a clearer
+representation of the actual values that a variable can hold.</p>
 <h2>How to fix it</h2>
 <p>The redundant and overridden types should be removed.</p>
 <h3>Code examples</h3>

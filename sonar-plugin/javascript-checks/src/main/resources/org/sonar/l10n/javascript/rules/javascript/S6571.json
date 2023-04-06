@@ -1,5 +1,5 @@
 {
-  "title": "In unions and intersections, redundant types should not be used",
+  "title": "Type constituents of unions and intersections should not be redundant",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
