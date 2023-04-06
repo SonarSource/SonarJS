@@ -13,9 +13,9 @@
   "ruleSpecification": "RSPEC-2094",
   "sqKey": "S2094",
   "scope": "All",
-  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ]
+  ],
+  "quickfix": "infeasible"
 }
