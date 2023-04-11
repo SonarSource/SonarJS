@@ -1,0 +1,22 @@
+<h2>Why is this an issue?</h2>
+<p>TypeScript allows assigning values to enum members. However, it does not enforce uniqueness between the values of such members. As a result,
+assigning the same value to different members is possible.</p>
+<p>The rule raises issues on duplicate values because they are misleading and can lead to bugs that are hard to track down.</p>
+<h2>How to fix it</h2>
+<p>Assign a unique value per each enum member.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+enum E {
+  X = 0,
+  Y = 0,
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+enum E {
+  X = 0,
+  Y = 1,
+}
+</pre>
+

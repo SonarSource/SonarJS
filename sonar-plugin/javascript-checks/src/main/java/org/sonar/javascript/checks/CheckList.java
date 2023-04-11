@@ -231,6 +231,7 @@ public final class CheckList {
       NoCodeAfterDoneCheck.class,
       NoConfusingNonNullAssertionCheck.class,
       NoControlRegexCheck.class,
+      NoDuplicateEnumValuesCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
