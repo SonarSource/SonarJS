@@ -266,6 +266,7 @@ public final class CheckList {
       NoOsCommandsFromPathCheck.class,
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
+      NoRedundantTypeConstituentsCheck.class,
       NoReferrerPolicyCheck.class,
       NoRegexSpacesCheck.class,
       NoReturnAwaitCheck.class,
