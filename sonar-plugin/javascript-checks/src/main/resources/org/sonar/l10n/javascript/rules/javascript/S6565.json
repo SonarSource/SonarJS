@@ -1,0 +1,20 @@
+{
+  "title": "Prefer the return type \"this\" in fluent interfaces",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "api-design"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6565",
+  "sqKey": "S6565",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}
