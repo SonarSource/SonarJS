@@ -301,6 +301,7 @@ public final class CheckList {
       ParsingErrorCheck.class,
       PostMessageCheck.class,
       PreferDefaultLastCheck.class,
+      PreferEnumInitializersCheck.class,
       PreferForOfCheck.class,
       PreferLiteralEnumMemberCheck.class,
       PreferNamespaceCheck.class,
