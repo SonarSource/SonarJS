@@ -1,0 +1,11 @@
+{
+'rxjs:src/observable/FromEventPatternObservable.ts':[
+102,
+],
+'rxjs:src/observable/combineLatest.ts':[
+139,
+],
+'rxjs:src/util/isPromise.ts':[
+1,
+],
+}
