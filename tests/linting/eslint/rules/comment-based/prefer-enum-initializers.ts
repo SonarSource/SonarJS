@@ -14,3 +14,10 @@ enum Truthiness {
     Falsy = 0,
     Truthy
 }
+
+enum Key {
+    Up = 1,
+    Down, // Noncompliant
+    Left, // Noncompliant
+    Right = 42
+}

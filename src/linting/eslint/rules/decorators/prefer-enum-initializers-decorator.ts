@@ -48,8 +48,10 @@ function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {
 
 function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {
   const firstMember = enumDecl.members[0];
+  const membersRest = enumDecl.members.slice(1);
   return (
     firstMember.initializer?.type === 'Literal' &&
-    isNumberLiteral(firstMember.initializer as estree.Node)
+    isNumberLiteral(firstMember.initializer as estree.Node) &&
+    membersRest.every(m => m.initializer === undefined)
   );
 }
