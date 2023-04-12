@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2022 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,13 +24,13 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
+@JavaScriptRule
 @Rule(key = "S6544")
-public class NoAsyncPromiseExecutorCheck implements EslintBasedCheck {
+public class NoUnexpectedPromiseCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-async-promise-executor";
+    return "no-unexpected-promise";
   }
 }
