@@ -1,0 +1,31 @@
+<h2>Why is this an issue?</h2>
+<p>Optional chaining allows to safely access nested properties or methods of an object without having to check for the existence of each intermediate
+property manually. It provides a concise and safe way to access nested properties or methods without having to write complex and error-prone
+<code>null</code>/<code>undefined</code> checks.</p>
+<p>This rule flags logical operations that can be safely replaced with the <code>?.</code> optional chaining operator.</p>
+<h2>How to fix it</h2>
+<p>Replace with <code>?.</code> optional chaining the logical expression that checks for <code>null</code>/<code>undefined</code> before accessing the
+property of an object.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre>
+function foo(param) {
+    if (param &amp;&amp; param.value) {
+        bar(param.value);
+    }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+function foo(param) {
+    if (param?.value) {
+        bar(param.value);
+    }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining">MDN Optional chaining</a> </li>
+</ul>
+
