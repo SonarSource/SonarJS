@@ -67,9 +67,14 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    return mergeRules(
-      decoratedNoAsyncPromiseExecutorRule.create(context),
-      decoratedNoMisusedPromisesRule.create(context),
-    );
+    return {
+      'Program:exit': () => {
+        flaggedNodeStarts.clear();
+      },
+      ...mergeRules(
+        decoratedNoAsyncPromiseExecutorRule.create(context),
+        decoratedNoMisusedPromisesRule.create(context),
+      ),
+    };
   },
 };
