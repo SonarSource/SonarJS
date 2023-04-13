@@ -27,10 +27,10 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6544")
-public class NoUnexpectedPromiseCheck implements EslintBasedCheck {
+public class NoMisusedPromisesCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-unexpected-promise";
+    return "no-misused-promises";
   }
 }
