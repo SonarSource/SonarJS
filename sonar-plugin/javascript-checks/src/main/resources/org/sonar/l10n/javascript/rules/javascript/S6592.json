@@ -1,0 +1,21 @@
+{
+  "title": "Use async when returning a promise",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "async",
+    "promise"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6592",
+  "sqKey": "S6592",
+  "scope": "All",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]
+}

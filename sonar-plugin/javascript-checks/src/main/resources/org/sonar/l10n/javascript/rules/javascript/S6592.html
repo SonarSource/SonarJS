@@ -1,0 +1,19 @@
+<p>Functions that return a promise should be marked with the <code>async</code> keyword</p>
+<h2>Why is this an issue?</h2>
+<p>JavaScript supports both promises and async/await to handle asynchronous code. This many ways of doing something can confuse people.</p>
+<h2>How to fix it</h2>
+<p>Marking functions that return a promise with the <code>async</code> keyword serves as documentation that improves code readability.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function foo(param) {
+  return Promise.resolve(param);
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+async function foo(param) {
+  return Promise.resolve(param);
+}
+</pre>
+

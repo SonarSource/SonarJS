@@ -317,6 +317,7 @@ public final class CheckList {
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
       ProductionDebugCheck.class,
+      PromiseFunctionAsyncCheck.class,
       PseudoRandomCheck.class,
       PubliclyWritableDirectoriesCheck.class,
       ReassignedParameterCheck.class,
