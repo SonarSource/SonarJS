@@ -43,7 +43,8 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
-      flaggedNodeStarts.set(descriptor.node.range?.[0], true);
+      const start = descriptor.node.range?.[0];
+      flaggedNodeStarts.set(start, true);
     }
     context.report(descriptor);
   },
