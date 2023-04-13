@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { eslintRules } from 'linting/eslint/rules/core';
 import { interceptReport, mergeRules } from '../rules/decorators/helpers';
+import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
 
 /**
  * We ignore issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -35,7 +36,9 @@ import { interceptReport, mergeRules } from '../rules/decorators/helpers';
  */
 const flaggedNodeStarts = new Map();
 
-const noMisusedPromisesRule = typeScriptESLintRules['no-misused-promises'];
+const noMisusedPromisesRule = sanitizeTypeScriptESLintRule(
+  typeScriptESLintRules['no-misused-promises'],
+);
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
