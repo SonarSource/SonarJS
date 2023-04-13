@@ -74,6 +74,7 @@ export const quickFixRules = new Set([
   'no-unnecessary-type-arguments',
   'no-unnecessary-type-assertion',
   'no-unnecessary-type-constraint',
+  'prefer-as-const',
   'prefer-namespace-keyword',
   'prefer-readonly',
   'prefer-return-this-type',

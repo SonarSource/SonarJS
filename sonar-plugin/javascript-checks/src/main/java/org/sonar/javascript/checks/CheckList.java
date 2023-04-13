@@ -301,6 +301,7 @@ public final class CheckList {
       ParseIntCallWithoutBaseCheck.class,
       ParsingErrorCheck.class,
       PostMessageCheck.class,
+      PreferAsConstCheck.class,
       PreferDefaultLastCheck.class,
       PreferEnumInitializersCheck.class,
       PreferForOfCheck.class,

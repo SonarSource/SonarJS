@@ -32,6 +32,7 @@ const quickFixMessages = new Map<string, string>([
   ['no-trailing-spaces', 'Remove trailing space'],
   ['no-var', "Replace 'var' with 'let'"],
   ['object-shorthand', 'Use shorthand property'],
+  ['prefer-as-const', "Replace with 'as const'"],
   ['prefer-const', "Replace with 'const'"],
   ['prefer-return-this-type', "Replace return type with 'this'"],
   ['prefer-template', 'Replace with template string literal'],
