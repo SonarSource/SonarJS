@@ -26,7 +26,7 @@ import { interceptReport, mergeRules } from '../rules/decorators/helpers';
 import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
 
 /**
- * We ignore issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
+ * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
  * The current logic relies on the fact that the listener of 'no-misused-promises' runs first because
  * it is alphabetically "smaller", which is how we set them up in mergeRules.
  */
