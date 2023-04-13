@@ -24,6 +24,7 @@ import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { eslintRules } from 'linting/eslint/rules/core';
 import { interceptReport, mergeRules } from '../rules/decorators/helpers';
 import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**
  * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -43,7 +44,7 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
-      const start = descriptor.node.range?.[0];
+      const start = (descriptor.node as TSESTree.Node).range[0];
       flaggedNodeStarts.set(start, true);
     }
     context.report(descriptor);
@@ -55,7 +56,7 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   noAsyncPromiseExecutorRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
-      const start = descriptor.node.range?.[0];
+      const start = (descriptor.node as TSESTree.Node).range[0];
       if (!flaggedNodeStarts.get(start)) {
         context.report(descriptor);
       }
@@ -66,8 +67,8 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      ...decoratedNoMisusedPromisesRule.meta?.messages,
-      ...decoratedNoAsyncPromiseExecutorRule.meta?.messages,
+      ...decoratedNoMisusedPromisesRule.meta!.messages,
+      ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
     },
   },
   create(context: Rule.RuleContext) {
