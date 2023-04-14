@@ -260,6 +260,7 @@ public final class CheckList {
       NoMisleadingArrayReverseCheck.class,
       NoMisusedNewCheck.class,
       NoMixedContentCheck.class,
+      NoMixedEnumsCheck.class,
       NoNestedSwitchCheck.class,
       NoNestedTemplateLiteralsCheck.class,
       NoNonNullAssertionCheck.class,
