@@ -1,0 +1,18 @@
+{
+  "title": "Enum members should not mix value types",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6583",
+  "sqKey": "S6583",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}
