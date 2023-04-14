@@ -235,7 +235,15 @@
             <include>src/**/*.ts</include>
             <include>src/**/*.tsx</include>
             <include>tests/**/*.ts</include>
+            <include>profiling/**/*.ts</include>
+            <include>profiling/**/*.js</include>
+            <include>tools/resources/rule.template_java</include>
+            <include>tools/resources/rule.template_ts</include>
           </includes>
+          <mapping>
+            <template_java>JAVADOC_STYLE</template_java>
+            <template_ts>JAVADOC_STYLE</template_ts>
+          </mapping>
           <excludes>
             <exclude>tests/**/fixtures/**/*</exclude>
             <exclude>tests/linting/**/comment-based/**/*</exclude>
