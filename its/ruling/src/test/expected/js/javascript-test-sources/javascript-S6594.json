@@ -10,10 +10,16 @@
 ],
 'javascript-test-sources:src/ace/src/edit_session.js':[
 713,
+733,
+736,
+750,
+755,
 773,
 ],
 'javascript-test-sources:src/ace/src/editor.js':[
 1695,
+1714,
+1716,
 ],
 'javascript-test-sources:src/ace/src/ext/beautify.js':[
 148,
@@ -35,6 +41,7 @@
 709,
 ],
 'javascript-test-sources:src/ace/src/test/all_browser.js':[
+130,
 130,
 ],
 'javascript-test-sources:src/ace/src/test/asyncjs/test.js':[

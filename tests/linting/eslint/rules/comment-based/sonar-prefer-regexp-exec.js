@@ -1,4 +1,4 @@
-'foo'.match(42);
+'foo'.match(42); // Noncompliant {{Use the "RegExp.exec()" method instead.}}
 'foo'.match(/bar/g);
 foo.match(/foo/);
 
