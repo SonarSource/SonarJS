@@ -102,6 +102,7 @@ export const quickFixRules = new Set([
   'prefer-promise-shorthand',
   'prefer-type-guard',
   'sonar-no-misleading-character-class',
+  'sonar-prefer-regexp-exec',
   'switch-without-default',
   'unnecessary-character-escapes',
   'unused-import',

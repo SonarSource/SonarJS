@@ -218,6 +218,7 @@ import { rule as sonarNoMisleadingCharacterClass } from './sonar-no-misleading-c
 import { rule as sonarNoRegexSpaces } from './sonar-no-regex-spaces';
 import { rule as sonarNoUnusedClassComponentMethods } from './sonar-no-unused-class-component-methods';
 import { rule as sonarNoUnusedVars } from './sonar-no-unused-vars';
+import { rule as sonarPreferRegexpExec } from './sonar-prefer-regexp-exec';
 import { rule as sqlQueries } from './sql-queries';
 import { rule as standardInput } from './standard-input';
 import { rule as statefulRegex } from './stateful-regex';
@@ -454,6 +455,7 @@ rules['sonar-no-misleading-character-class'] = sonarNoMisleadingCharacterClass;
 rules['sonar-no-regex-spaces'] = sonarNoRegexSpaces;
 rules['sonar-no-unused-class-component-methods'] = sonarNoUnusedClassComponentMethods;
 rules['sonar-no-unused-vars'] = sonarNoUnusedVars;
+rules['sonar-prefer-regexp-exec'] = sonarPreferRegexpExec;
 rules['sql-queries'] = sqlQueries;
 rules['standard-input'] = standardInput;
 rules['stateful-regex'] = statefulRegex;
