@@ -26,8 +26,10 @@ import { getParsedRegex } from './helpers/regex';
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
       useExec: 'Use the "RegExp.exec()" method instead.',
+      suggestExec: 'Replace with "RegExp.exec()"',
     },
   },
   create(context: Rule.RuleContext) {
@@ -50,6 +52,17 @@ export const rule: Rule.RuleModule = {
           context.report({
             node: property,
             messageId: 'useExec',
+            suggest: [
+              {
+                messageId: 'suggestExec',
+                fix(fixer) {
+                  const strText = context.getSourceCode().getText(object);
+                  const regText = context.getSourceCode().getText(callExpr.arguments[0]);
+                  const code = `RegExp(${regText}).exec(${strText})`;
+                  return fixer.replaceText(callExpr, code);
+                },
+              },
+            ],
           });
         },
     };

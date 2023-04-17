@@ -6,12 +6,14 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "regex"
+  ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6594",
   "sqKey": "S6594",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
