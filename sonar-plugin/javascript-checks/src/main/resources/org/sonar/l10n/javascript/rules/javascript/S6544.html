@@ -1,49 +1,94 @@
-<p>In JavaScript, a promise is a mechanism to perform tasks in an asynchronous way. To this end, the language provides the <code>Promise</code> object
-which represents the eventual completion or failure of an asynchronous operation and its resulting value. A promise can be created with the
-<code>Promise</code> constructor accepting an executor function as an argument, which has <code>resolve</code> and <code>reject</code> parameters that
-are invoked when the promises completes or fails.</p>
+<p>Promises need to be resolved or awaited to return the expected value, otherwise, they return the promise object.</p>
+<p>This rule forbids returning promises where another type is expected such as in: - conditionals - void returns - spread operators</p>
 <h2>Why is this an issue?</h2>
+<p>Forgetting to await a promise is a frequent mistake. There are places where it makes no sense to use a promise, but the developer forgets to
+resolve it.</p>
+<h3>What is the potential impact?</h3>
+<p>Using a promise instead of its resolved value can have unexpected results leading to bugs.</p>
+<ul>
+  <li> In conditionals, it will always return a truthy value. </li>
+  <li> In places where the expected type is void, returning a promise is often a mistake. </li>
+  <li> Using the spread operator on a promise will raise an exception. </li>
+</ul>
 <p>The executor function of a promise can also be an async function. However, this usually denotes a mistake:</p>
 <ul>
-  <li> If an async executor function throws an error, the error won’t cause the created Promise to reject and will be lost therefore. This could make
+  <li> If an async executor function throws an error, the error won’t cause the created promise to reject and will be lost. Therefore, this could make
   it difficult to debug and handle runtime errors. </li>
-  <li> If a Promise executor function is using <code>await</code>, this means that it’s not necessary to use the Promise constructor, or the scope of
-  the Promise constructor can be reduced. </li>
+  <li> If a promise executor function is using <code>await</code>, this means that it’s not necessary to use the <code>Promise</code> constructor, or
+  the scope of the Promise constructor can be reduced. </li>
 </ul>
 <h2>How to fix it</h2>
-<p>Fixing the issue requires removing the <code>async</code> keyword from the Promise executor function and adapting the body of the executor
+<p>If you mistook the promise with its resolved value, await the promise so it gets resolved correctly. Otherwise, you might need to adapt your code
 accordingly.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const promise = new Promise((resolve, reject) =&gt; {
+  // ...
+  resolve(false)
+});
+if (promise) {
+  // ...
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const promise = new Promise((resolve, reject) =&gt; {
+  // ...
+  resolve(false)
+});
+if (await promise) {
+  // ...
+}
+</pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 const p = new Promise(async (resolve, reject) =&gt; {
-  doSomething('Hey, there!', function(err, res) {
-    if (err) {
-      reject(err);
+  doSomething('Hey, there!', function(error, result) {
+    if (error) {
+      reject(error);
       return;
     }
-    await saveResult(res)
-    resolve(res);
+    await saveResult(result)
+    resolve(result);
   });
 });
 
 await p;
 </pre>
 <h4>Compliant solution</h4>
-<pre>
-const p = new Promise(async (resolve, reject) =&gt; {
-  doSomething('Hey, there!', function(err, res) {
-    if (err) {
-      reject(err);
+<pre data-diff-id="2" data-diff-type="compliant">
+const p = new Promise((resolve, reject) =&gt; {
+  doSomething('Hey, there!', function(error, result) {
+    if (error) {
+      reject(error);
       return;
     }
-    resolve(res);
+    resolve(result);
   });
 });
 
-const res = await p;
-await saveResult(res);
+const result = await p;
+await saveResult(result);
 </pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+apiCalls.forEach(async (apiCall) =&gt; {
+  await apiCall.send();
+});
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="3" data-diff-type="compliant">
+for (const apiCall of apiCalls) {
+  await apiCall.send();
+}
+</pre>
+<h3>How does this work?</h3>
+<p>In JavaScript, a promise is a mechanism to perform tasks asynchronously. To this end, the language provides the <code>Promise</code> object which
+represents the eventual completion or failure of an asynchronous operation and its resulting value. A promise can be created with the
+<code>Promise</code> constructor accepting an executor function as an argument, which has <code>resolve</code> and <code>reject</code> parameters that
+are invoked when the promise completes or fails.</p>
+<p>The logic of the promise is executed when it is called, however, its result is obtained only when the promise is resolved or awaited.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
