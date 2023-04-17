@@ -38,12 +38,14 @@ import { decorateNoUnreachable } from './no-unreachable-decorator';
 import { decorateNoUnstableNestedComponents } from './no-unstable-nested-components';
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
+import { decoratePreferEnumInitializers } from './prefer-enum-initializers-decorator';
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferStringStartsEndsWithDecorator } from './prefer-string-starts-ends-with-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 import { decorateNoVar } from './no-var-decorator';
+import { decorateNoRedundantTypeConstituents } from './no-redundant-type-constituents';
 
 /**
  * A decorator of an ESLint rule
@@ -76,6 +78,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-empty-interface': decorateNoEmptyInterface,
   'no-extra-semi': decorateNoExtraSemi,
   'no-redeclare': decorateNoRedeclare,
+  'no-redundant-type-constituents': decorateNoRedundantTypeConstituents,
   'no-this-alias': decorateNoThisAlias,
   'no-throw-literal': decorateNoThrowLiteral,
   'no-unreachable': decorateNoUnreachable,
@@ -83,6 +86,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-unused-expressions': decorateNoUnusedExpressions,
   'no-var': decorateNoVar,
   'object-shorthand': decorateObjectShorthand,
+  'prefer-enum-initializers': decoratePreferEnumInitializers,
   'prefer-for-of': decoratePreferForOf,
   'prefer-string-starts-ends-with': decoratePreferStringStartsEndsWithDecorator,
   'prefer-template': decoratePreferTemplate,

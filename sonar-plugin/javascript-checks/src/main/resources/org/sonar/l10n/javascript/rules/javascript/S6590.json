@@ -1,0 +1,20 @@
+{
+  "title": "\"as const\" assertions should be preferred",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "assertion"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6590",
+  "sqKey": "S6590",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

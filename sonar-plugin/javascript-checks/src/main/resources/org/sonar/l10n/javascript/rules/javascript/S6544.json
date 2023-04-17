@@ -1,5 +1,5 @@
 {
-  "title": "Promise executor functions should not be async",
+  "title": "Promises should not be misused",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,8 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "async",
-    "promise"
+    "promises",
+    "async"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6544",
