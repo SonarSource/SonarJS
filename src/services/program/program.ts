@@ -237,7 +237,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
  *
  * It associates a program identifier to an instance of a TypeScript's Program.
  */
-const programs = new Map<string, WeakRef<ts.Program>>();
+const programs = new Map<string, ts.Program>();
 
 /**
  * A counter of created TypeScript's Program instances
@@ -262,7 +262,7 @@ export function createAndSaveProgram(tsConfig: string): ProgramResult & { progra
   const program = createProgram(tsConfig);
 
   const programId = nextId();
-  programs.set(programId, program.program);
+  programs.set(programId, program.program.deref()!);
   debug(`program from ${tsConfig} with id ${programId} is created`);
   return { ...program, programId };
 }
@@ -274,9 +274,8 @@ export function createAndSaveProgram(tsConfig: string): ProgramResult & { progra
  * @returns the retrieved TypeScript's Program
  */
 export function getProgramById(programId: string): ts.Program {
-  const programRef = programs.get(programId);
-  const program = programRef?.deref();
-  if (!program || !programRef) {
+  const program = programs.get(programId);
+  if (!program) {
     throw Error(`Failed to find program ${programId}`);
   }
   return program;
