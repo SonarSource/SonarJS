@@ -24,13 +24,13 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
+@JavaScriptRule
 @Rule(key = "S6544")
-public class NoAsyncPromiseExecutorCheck implements EslintBasedCheck {
+public class NoMisusedPromisesCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-async-promise-executor";
+    return "no-misused-promises";
   }
 }

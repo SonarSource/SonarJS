@@ -1,4 +1,4 @@
-/**
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -24,14 +24,13 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@TypeScriptRule
 @JavaScriptRule
-@Rule(key = "___RULE_KEY___")
-public class ___JAVA_RULE_CLASS_NAME___ implements EslintBasedCheck {
+@TypeScriptRule
+@Rule(key = "S6594")
+public class PreferRegexpExecCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "___RULE_NAME_DASH___";
+    return "sonar-prefer-regexp-exec";
   }
-
 }
