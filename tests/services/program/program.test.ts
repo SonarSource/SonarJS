@@ -264,7 +264,7 @@ describe('program', () => {
   });
 
   it('cache should only contain 2 elements and GC should clean up old programs', async () => {
-    const cache = new ProgramCache();
+    const cache = new ProgramCache(2);
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
     const file3Path = toUnixPath(path.join(__dirname, 'fixtures', 'file3.js'));

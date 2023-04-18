@@ -39,9 +39,9 @@ export type ProgramResult = {
 export class ProgramCache {
   public programs: Map<string, ProgramResult>;
   public lru: LRU<ts.Program>;
-  constructor() {
+  constructor(max = 1) {
     this.programs = new Map<string, ProgramResult>();
-    this.lru = new LRU<ts.Program>();
+    this.lru = new LRU<ts.Program>(max);
   }
   clear() {
     this.programs.clear();
