@@ -14,5 +14,8 @@
   "ruleSpecification": "RSPEC-6593",
   "sqKey": "S6593",
   "scope": "All",
-  "quickfix": "unknown"
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
 }
