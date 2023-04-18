@@ -1,0 +1,18 @@
+{
+  "title": "No misleading void type",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type",
+    "void"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6593",
+  "sqKey": "S6593",
+  "scope": "All",
+  "quickfix": "unknown"
+}
