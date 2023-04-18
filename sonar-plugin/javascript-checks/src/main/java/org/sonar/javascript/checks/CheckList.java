@@ -253,6 +253,7 @@ public final class CheckList {
       NoIncompleteAssertionsCheck.class,
       NoInferrableTypesCheck.class,
       NoInvalidAwaitCheck.class,
+      NoInvalidVoidTypeCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoLossOfPrecisionCheck.class,
       NoMagicNumbersCheck.class,
