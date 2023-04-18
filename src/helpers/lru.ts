@@ -20,7 +20,7 @@
 export class LRU<T> {
   private readonly max: number;
   private readonly cache: T[];
-  constructor(max = 1) {
+  constructor(max = 2) {
     this.max = max;
     this.cache = [];
   }
