@@ -1,0 +1,13 @@
+{
+'Joust:ts/state/GameStateTrackerPlugin.ts':[
+13,
+24,
+],
+'Joust:ts/state/plugins/CoinDetector.ts':[
+13,
+],
+'Joust:ts/state/plugins/Timer.ts':[
+26,
+42,
+],
+}
