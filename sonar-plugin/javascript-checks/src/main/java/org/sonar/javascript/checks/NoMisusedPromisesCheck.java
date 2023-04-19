@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
@@ -28,6 +30,16 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @Rule(key = "S6544")
 public class NoMisusedPromisesCheck implements EslintBasedCheck {
+
+  private static class Config {
+
+    boolean ignoreIIFE = true;
+  }
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
+  }
 
   @Override
   public String eslintKey() {
