@@ -33,46 +33,46 @@ import ts from 'typescript';
 import {
   addTsConfigIfDirectory,
   debug,
-  projectTSConfigs,
   readFileSync,
   toUnixPath,
-  TSConfig,
   ProgramResult,
+  ProjectTSConfigs,
 } from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 
 import { ProgramCache } from 'helpers/cache';
+import { JsTsAnalysisInput } from 'services/analysis';
 
-export const defaultCache = new ProgramCache();
+export const programCache = new ProgramCache();
+const projectTSConfigs = new ProjectTSConfigs();
 
-function* iterateTSConfigs(file: string): Generator<TSConfig> {
-  for (const tsConfig of projectTSConfigs.values()) {
-    yield tsConfig;
-  }
-  yield {
-    filename: `tsconfig-${file}.json`,
-    contents: JSON.stringify({
-      compilerOptions: {
-        allowJs: true,
-        noImplicitAny: true,
-      },
-      files: [file],
-    }),
-    isFallbackTSConfig: true,
-  };
-}
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
- * @param filePath The file to the sourceCode file to analyze
+ * @param input JS/TS Analysis input request
  * @param cache the LRU cache object to use as cache
  * @returns the retrieved TypeScript's Program
  */
-export function getProgramForFile(filePath: string, cache = defaultCache): ts.Program {
-  const normalizedPath = toUnixPath(filePath);
+export function getProgramForFile(
+  input: JsTsAnalysisInput,
+  cache = programCache,
+  tsconfigs = projectTSConfigs,
+): ts.Program {
+  let newTsConfigs = false;
+  if (input.tsConfigs) {
+    newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
+  }
+
+  // if at least a tsconfig changed, removed cache of programs, as files
+  // could now belong to another program
+  if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
+    programCache.clear();
+  }
+
+  const normalizedPath = toUnixPath(input.filePath);
   for (const [tsconfig, programResult] of cache.programs) {
-    const tsConfig = projectTSConfigs.get(tsconfig);
+    const tsConfig = tsconfigs.get(tsconfig);
     if (
       programResult.files.includes(normalizedPath) &&
       (programResult.isFallbackProgram || tsConfig)
@@ -86,7 +86,7 @@ export function getProgramForFile(filePath: string, cache = defaultCache): ts.Pr
       }
     }
   }
-  for (const tsconfig of iterateTSConfigs(normalizedPath)) {
+  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
     if (!cache.programs.has(tsconfig.filename)) {
       const programResult = createProgram(tsconfig.filename, tsconfig.contents);
       if (tsconfig.isFallbackTSConfig) {

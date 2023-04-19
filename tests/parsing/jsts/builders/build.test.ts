@@ -23,7 +23,7 @@ import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
-import { defaultCache } from 'services/program';
+import { programCache } from 'services/program';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -253,11 +253,11 @@ describe('buildSourceCode', () => {
 
     buildSourceCode(analysisInput, 'ts');
 
-    expect(defaultCache.programs.has(tsConfig)).toBeTruthy();
-    expect(defaultCache.programs.get(tsConfig).files).not.toContain(filePath);
+    expect(programCache.programs.has(tsConfig)).toBeTruthy();
+    expect(programCache.programs.get(tsConfig).files).not.toContain(filePath);
 
-    expect(defaultCache.programs.has(fakeTsConfig)).toBeTruthy();
-    expect(defaultCache.programs.get(fakeTsConfig).files).toContain(filePath);
+    expect(programCache.programs.has(fakeTsConfig)).toBeTruthy();
+    expect(programCache.programs.get(fakeTsConfig).files).toContain(filePath);
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {

@@ -18,14 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { projectTSConfigs, setContext, toUnixPath, tsConfigLookup, updateTsConfigs } from 'helpers';
+import { ProjectTSConfigs, setContext, toUnixPath } from 'helpers';
 import path from 'path';
-import console from 'console';
 
 describe('TSConfigs', () => {
-  beforeEach(() => {
-    projectTSConfigs.clear();
-  });
   const initialCtx = workDir => ({
     workDir,
     shouldUseTypeScriptParserForJS: false,
@@ -35,17 +31,18 @@ describe('TSConfigs', () => {
 
   it('should not find any tsconfig without context or parameter', () => {
     console.log = jest.fn();
-    tsConfigLookup();
+    const tsconfigs = new ProjectTSConfigs();
     expect(console.log).toHaveBeenCalledWith(
       `ERROR Could not access working directory ${undefined}`,
     );
-    expect(projectTSConfigs.size).toBe(0);
+    expect(tsconfigs.db.size).toBe(0);
   });
 
   it('should find and update tsconfig.json files', async () => {
     console.log = jest.fn();
     const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
     setContext(initialCtx(dir));
+    const projectTSConfigs = new ProjectTSConfigs();
     const tsconfigs = [
       ['tsconfig.json'],
       ['tsconfig.base.json'],
@@ -54,9 +51,7 @@ describe('TSConfigs', () => {
       ['subfolder', 'JSCONFIG.DEV.JSON'],
     ];
 
-    tsConfigLookup();
-
-    expect(projectTSConfigs).toEqual(
+    expect(projectTSConfigs.db).toEqual(
       new Map(
         tsconfigs.map(tsconfig => {
           const filename = toUnixPath(path.join(dir, ...tsconfig));
@@ -65,21 +60,22 @@ describe('TSConfigs', () => {
       ),
     );
 
-    const tsconfig = projectTSConfigs.values().next().value;
+    const tsconfig = projectTSConfigs.db.values().next().value;
     //overwrite cached contents
     tsconfig.contents = 'fake contents';
 
     const fakeTsConfig = toUnixPath(path.join(dir, 'fakeTsConfig.json'));
 
-    updateTsConfigs([fakeTsConfig]);
+    //fake tsconfig could not be found
+    projectTSConfigs.upsertTsConfigs([fakeTsConfig]);
+    expect(console.log).toHaveBeenCalledWith(`ERROR: Could not read tsconfig ${fakeTsConfig}`);
 
     //cached contents should be back to actual file contents
+    projectTSConfigs.reloadTsConfigs();
     expect(projectTSConfigs.get(tsconfig.filename)).toEqual({
       filename: tsconfig.filename,
       contents: '',
     });
-    //fake tsconfig could not be found
-    expect(console.log).toHaveBeenCalledWith(`ERROR: Could not read new tsconfig ${fakeTsConfig}`);
   });
 
   it('should update tsconfig.json files with new found ones', async () => {
@@ -87,16 +83,24 @@ describe('TSConfigs', () => {
     const tsconfig = toUnixPath(path.join(dir, 'tsconfig.json'));
     const nonExistingTsconfig = toUnixPath(path.join(dir, 'non-existing-tsconfig.json'));
 
-    projectTSConfigs.set(nonExistingTsconfig, { filename: nonExistingTsconfig, contents: '' });
+    setContext(initialCtx(dir));
+    const tsconfigs = new ProjectTSConfigs(undefined, false);
+    tsconfigs.db.set(nonExistingTsconfig, { filename: nonExistingTsconfig, contents: '' });
 
     console.log = jest.fn();
-    setContext(initialCtx(dir));
-    updateTsConfigs([tsconfig]);
+    tsconfigs.upsertTsConfigs([tsconfig]);
 
-    expect(projectTSConfigs).toEqual(new Map([[tsconfig, { filename: tsconfig, contents: '' }]]));
+    expect(tsconfigs.db).toEqual(
+      new Map([
+        [nonExistingTsconfig, { filename: nonExistingTsconfig, contents: '' }],
+        [tsconfig, { filename: tsconfig, contents: '' }],
+      ]),
+    );
 
+    tsconfigs.reloadTsConfigs();
     expect(console.log).toHaveBeenCalledWith(
       `ERROR: tsconfig is no longer accessible ${nonExistingTsconfig}`,
     );
+    expect(tsconfigs.db).toEqual(new Map([[tsconfig, { filename: tsconfig, contents: '' }]]));
   });
 });

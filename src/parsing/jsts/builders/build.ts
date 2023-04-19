@@ -22,7 +22,6 @@ import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
 import { getProgramById, getProgramForFile } from 'services/program';
 import { Linter } from 'eslint';
-import { updateTsConfigs } from 'helpers/tsconfigs';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -47,13 +46,11 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
     if (
-      input.tsConfigs &&
       !options.programs &&
       !shouldUseWatchProgram(input.filePath) &&
       input.createProgram === true
     ) {
-      updateTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
-      const program = getProgramForFile(input.filePath);
+      const program = getProgramForFile(input);
       options.programs = [program];
     }
 

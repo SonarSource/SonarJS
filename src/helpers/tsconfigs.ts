@@ -21,78 +21,135 @@ import fs from 'fs';
 import path from 'path';
 import { getContext } from './context';
 import { readFileSync, toUnixPath } from './files';
-import * as console from 'console';
-import { defaultCache } from 'services/program';
-
-export type TSConfigs = Map<string, TSConfig>;
-export const projectTSConfigs: TSConfigs = new Map<string, TSConfig>();
 export interface TSConfig {
   filename: string;
   contents: string;
   isFallbackTSConfig?: boolean;
 }
 
-function fileIsTSConfig(filename: string): boolean {
-  return !!filename.match(/[tj]sconfig.*\.json/i);
-}
-export function tsConfigLookup(dir?: string) {
-  if (!dir) {
-    dir = getContext()?.workDir;
-  }
-  if (!fs.existsSync(dir)) {
-    console.log(`ERROR Could not access working directory ${dir}`);
-    return;
-  }
-
-  const files = fs.readdirSync(dir);
-  for (const file of files) {
-    const filename = toUnixPath(path.join(dir, file));
-    const stats = fs.lstatSync(filename);
-    if (file !== 'node_modules' && stats.isDirectory()) {
-      tsConfigLookup(filename);
-    } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
-      const contents = fs.readFileSync(filename, 'utf-8');
-      projectTSConfigs.set(filename, {
-        filename,
-        contents,
-      });
+export class ProjectTSConfigs {
+  public db: Map<string, TSConfig>;
+  constructor(private readonly dir = getContext()?.workDir, launchLookup = true) {
+    this.db = new Map<string, TSConfig>();
+    if (launchLookup) {
+      this.tsConfigLookup();
     }
   }
-}
+  get(tsconfig: string) {
+    return this.db.get(tsconfig);
+  }
 
-export function updateTsConfigs(tsconfigs: string[], force = false) {
-  if (!getContext().sonarlint && !force) {
-    return;
-  }
-  let reset = false;
-  for (const tsconfig of projectTSConfigs.values()) {
-    try {
-      const contents = readFileSync(tsconfig.filename);
-      if (tsconfig.contents !== contents) {
-        reset = true;
-      }
-      tsconfig.contents = contents;
-    } catch (e) {
-      projectTSConfigs.delete(tsconfig.filename);
-      console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
+  /**
+   * Iterate over saved tsConfig returning a fake tsconfig
+   * as a fallback for the given file
+   *
+   * @param file the JS/TS file for which the tsconfig needs to be found
+   */
+  *iterateTSConfigs(file: string): Generator<TSConfig> {
+    for (const tsConfig of this.db.values()) {
+      yield tsConfig;
     }
+    yield {
+      filename: `tsconfig-${file}.json`,
+      contents: JSON.stringify({
+        compilerOptions: {
+          allowJs: true,
+          noImplicitAny: true,
+        },
+        files: [file],
+      }),
+      isFallbackTSConfig: true,
+    };
   }
-  for (const tsconfig of tsconfigs) {
-    const normalizedTsConfig = toUnixPath(tsconfig);
-    if (!projectTSConfigs.has(normalizedTsConfig)) {
-      try {
-        const contents = readFileSync(normalizedTsConfig);
-        projectTSConfigs.set(normalizedTsConfig, {
-          filename: normalizedTsConfig,
+
+  /**
+   * Look for tsconfig files in a given path and its child paths.
+   * node_modules is ignored
+   *
+   * @param dir parent folder where the search starts
+   */
+  tsConfigLookup(dir = this.dir) {
+    if (!fs.existsSync(dir)) {
+      console.log(`ERROR Could not access working directory ${dir}`);
+      return;
+    }
+
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      const filename = toUnixPath(path.join(dir, file));
+      const stats = fs.lstatSync(filename);
+      if (file !== 'node_modules' && stats.isDirectory()) {
+        this.tsConfigLookup(filename);
+      } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
+        const contents = fs.readFileSync(filename, 'utf-8');
+        this.db.set(filename, {
+          filename,
           contents,
         });
-        reset = true;
-      } catch (e) {
-        console.log(`ERROR: Could not read new tsconfig ${tsconfig}`);
       }
     }
   }
-  if (reset) {
-    defaultCache.clear();
+
+  /**
+   * Check for any changes in the list of known tsconfigs
+   *
+   * @param force the check will be bypassed if we are not on SonarLint, unless force is `true`
+   */
+  reloadTsConfigs(force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    // check for changes in known tsconfigs
+    for (const tsconfig of this.db.values()) {
+      try {
+        const contents = readFileSync(tsconfig.filename);
+        if (tsconfig.contents !== contents) {
+          changes = true;
+        }
+        tsconfig.contents = contents;
+      } catch (e) {
+        this.db.delete(tsconfig.filename);
+        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
+      }
+    }
+    return changes;
   }
+
+  /**
+   * Check a list of tsconfig paths and add their contents
+   * to the internal list of tsconfigs.
+   *
+   * @param tsconfigs list of new or changed TSConfigs
+   * @param force force the update of tsconfigs if we are not on SonarLint
+   * @return true if there are changes, thus cache may need to be invalidated
+   */
+  upsertTsConfigs(tsconfigs: string[], force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    for (const tsconfig of tsconfigs) {
+      const normalizedTsConfig = toUnixPath(tsconfig);
+      if (!this.db.has(normalizedTsConfig)) {
+        try {
+          const contents = readFileSync(normalizedTsConfig);
+          this.db.set(normalizedTsConfig, {
+            filename: normalizedTsConfig,
+            contents,
+          });
+          changes = true;
+        } catch (e) {
+          console.log(`ERROR: Could not read tsconfig ${tsconfig}`);
+        }
+      }
+    }
+    return changes;
+  }
+}
+
+function fileIsTSConfig(filename: string): boolean {
+  return !!filename.match(/[tj]sconfig.*\.json/i);
 }
