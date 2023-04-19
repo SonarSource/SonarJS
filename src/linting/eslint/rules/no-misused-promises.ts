@@ -51,6 +51,10 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   },
 );
 
+const noFloatingPromisesRule = sanitizeTypeScriptESLintRule(
+  typeScriptESLintRules['no-floating-promises'],
+);
+
 const noAsyncPromiseExecutorRule = eslintRules['no-async-promise-executor'];
 const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   noAsyncPromiseExecutorRule,
@@ -69,7 +73,9 @@ export const rule: Rule.RuleModule = {
     messages: {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
+      ...noFloatingPromisesRule.meta!.messages,
     },
+    hasSuggestions: true,
   },
   create(context: Rule.RuleContext) {
     return {
@@ -79,6 +85,7 @@ export const rule: Rule.RuleModule = {
       ...mergeRules(
         decoratedNoAsyncPromiseExecutorRule.create(context),
         decoratedNoMisusedPromisesRule.create(context),
+        noFloatingPromisesRule.create(context),
       ),
     };
   },
