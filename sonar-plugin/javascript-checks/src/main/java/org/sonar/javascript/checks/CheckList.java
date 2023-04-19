@@ -306,6 +306,7 @@ public final class CheckList {
       PreferDefaultLastCheck.class,
       PreferEnumInitializersCheck.class,
       PreferForOfCheck.class,
+      PreferFunctionTypeCheck.class,
       PreferLiteralEnumMemberCheck.class,
       PreferNamespaceCheck.class,
       PreferObjectLiteralCheck.class,
