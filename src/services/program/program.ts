@@ -72,8 +72,8 @@ export function getProgramForFile(
   }
 
   const normalizedPath = toUnixPath(input.filePath);
-  for (const [tsconfig, programResult] of cache.programs) {
-    const tsConfig = tsconfigs.get(tsconfig);
+  for (const [tsConfigPath, programResult] of cache.programs) {
+    const tsConfig = tsconfigs.get(tsConfigPath);
     if (
       programResult.files.includes(normalizedPath) &&
       (programResult.isFallbackProgram || tsConfig)
@@ -83,7 +83,7 @@ export function getProgramForFile(
         cache.lru.set(program);
         return program;
       } else {
-        cache.programs.delete(tsconfig);
+        cache.programs.delete(tsConfigPath);
       }
     }
   }

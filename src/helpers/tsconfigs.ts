@@ -46,23 +46,12 @@ export class ProjectTSConfigs {
    * @param file the JS/TS file for which the tsconfig needs to be found
    */
   *iterateTSConfigs(file: string): Generator<TSConfig, void, undefined> {
-    const fileDepth = file.split('/').length;
     yield* [...this.db.values()].sort((tsconfig1, tsconfig2) => {
-      const relativeDepth1 = tsconfig1.filename.split('/').length - fileDepth;
-      const relativeDepth2 = tsconfig2.filename.split('/').length - fileDepth;
-      if (relativeDepth1 === relativeDepth2) {
-        if (path.basename(tsconfig1.filename).toLowerCase() === 'tsconfig.json') {
-          return -1;
-        }
-        if (path.basename(tsconfig2.filename).toLowerCase() === 'tsconfig.json') {
-          return 1;
-        }
+      const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
+      if (tsconfig === undefined) {
         return 0;
-      } else if (relativeDepth1 > relativeDepth2) {
-        return relativeDepth1 <= 0 ? -1 : 1;
-      } else {
-        return relativeDepth2 <= 0 ? 1 : -1;
       }
+      return tsconfig === tsconfig1 ? -1 : 1;
     });
     yield {
       filename: `tsconfig-${file}.json`,
@@ -167,4 +156,52 @@ export class ProjectTSConfigs {
 
 function fileIsTSConfig(filename: string): boolean {
   return !!filename.match(/[tj]sconfig.*\.json/i);
+}
+
+/**
+ * Given a file and two TSConfig, chose the better choice mostly
+ * based on its path compared with source file. On equal path conditions,
+ * tsconfig.json name has preference
+ *
+ * @param file source file for which we need a tsconfig
+ * @param tsconfig1 first TSConfig instance we want to compare
+ * @param tsconfig2 second TSConfig instance we want to compare
+ */
+function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSConfig) {
+  const fileDirs = path.dirname(file).split('/');
+  const tsconfig1Dirs = path.dirname(tsconfig1.filename).split('/');
+  const tsconfig2Dirs = path.dirname(tsconfig2.filename).split('/');
+  let relativeDepth1 = -fileDirs.length;
+  let relativeDepth2 = -fileDirs.length;
+  for (let i = 0; i < fileDirs.length; i++) {
+    if (tsconfig1Dirs.length > i && fileDirs[i] === tsconfig1Dirs[i]) {
+      relativeDepth1++;
+    }
+    if (tsconfig2Dirs.length > i && fileDirs[i] === tsconfig2Dirs[i]) {
+      relativeDepth2++;
+    }
+  }
+  if (relativeDepth1 === 0 && tsconfig1Dirs.length > fileDirs.length) {
+    relativeDepth1 = tsconfig1Dirs.length - fileDirs.length;
+  }
+  if (relativeDepth2 === 0 && tsconfig2Dirs.length > fileDirs.length) {
+    relativeDepth2 = tsconfig2Dirs.length - fileDirs.length;
+  }
+
+  if (relativeDepth1 === relativeDepth2) {
+    if (tsconfig1Dirs.length > tsconfig2Dirs.length) {
+      return tsconfig2;
+    } else if (tsconfig1Dirs.length < tsconfig2Dirs.length) {
+      return tsconfig1;
+    }
+    if (path.basename(tsconfig1.filename).toLowerCase() === 'tsconfig.json') {
+      return tsconfig1;
+    } else if (path.basename(tsconfig2.filename).toLowerCase() === 'tsconfig.json') {
+      return tsconfig2;
+    }
+  } else if (relativeDepth1 > relativeDepth2) {
+    return relativeDepth1 <= 0 ? tsconfig1 : tsconfig2;
+  } else {
+    return relativeDepth2 <= 0 ? tsconfig2 : tsconfig1;
+  }
 }

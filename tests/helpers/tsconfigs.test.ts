@@ -112,6 +112,7 @@ describe('TSConfigs', () => {
     const tsconfig3 = toUnixPath(path.join(dir, 'foo', 'tsconfig2.json'));
     const tsconfig4 = toUnixPath(path.join(dir, 'tsconfig.json'));
     const tsconfig5 = toUnixPath(path.join(dir, 'foo', 'tsconfig.json'));
+    const tsconfig6 = toUnixPath(path.join(dir, 'foo2', 'tsconfig.json'));
 
     const tsconfigs = new ProjectTSConfigs(undefined, false);
     tsconfigs.db.set(tsconfig1, { filename: tsconfig1, contents: '' });
@@ -119,11 +120,13 @@ describe('TSConfigs', () => {
     tsconfigs.db.set(tsconfig3, { filename: tsconfig3, contents: '' });
     tsconfigs.db.set(tsconfig4, { filename: tsconfig4, contents: '' });
     tsconfigs.db.set(tsconfig5, { filename: tsconfig5, contents: '' });
+    tsconfigs.db.set(tsconfig6, { filename: tsconfig6, contents: '' });
 
     expect([...tsconfigs.iterateTSConfigs(file)]).toEqual([
       { filename: tsconfig5, contents: '' },
       { filename: tsconfig3, contents: '' },
       { filename: tsconfig4, contents: '' },
+      { filename: tsconfig6, contents: '' },
       { filename: tsconfig1, contents: '' },
       { filename: tsconfig2, contents: '' },
       {
