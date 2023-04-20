@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
@@ -36,13 +39,9 @@ abstract class AbstractAnalysis {
   final AnalysisProcessor analysisProcessor;
   SensorContext context;
   ContextUtils contextUtils;
-  AbstractChecks checks;
+  JsTsChecks checks;
   ProgressReport progressReport;
   AnalysisMode analysisMode;
-
-  // eventually it would be possible to remove this field, it's only needed because we analyze JS and TS in two different sensors
-  // to avoid the files to be analyzed by both sensors. With single sensor we won't have this problem
-  protected String language;
 
   AbstractAnalysis(
     EslintBridgeServer eslintBridgeServer,
@@ -54,17 +53,17 @@ abstract class AbstractAnalysis {
     this.analysisProcessor = analysisProcessor;
   }
 
-  void initialize(
-    SensorContext context,
-    AbstractChecks checks,
-    AnalysisMode analysisMode,
-    String language
-  ) {
+  protected static String inputFileLanguage(InputFile file) {
+    return JavaScriptFilePredicate.isTypeScriptFile(file)
+      ? TypeScriptLanguage.KEY
+      : JavaScriptLanguage.KEY;
+  }
+
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode) {
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = analysisMode;
-    this.language = language;
   }
 
   abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;

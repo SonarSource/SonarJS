@@ -39,14 +39,12 @@ import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.HtmlSensor;
-import org.sonar.plugins.javascript.eslint.JavaScriptChecks;
-import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
+import org.sonar.plugins.javascript.eslint.JsTsChecks;
+import org.sonar.plugins.javascript.eslint.JsTsSensor;
 import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
 import org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker;
-import org.sonar.plugins.javascript.eslint.TypeScriptChecks;
-import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -141,13 +139,11 @@ public class JavaScriptPlugin implements Plugin {
       EslintBridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
-      JavaScriptEslintBasedSensor.class,
-      TypeScriptSensor.class,
+      JsTsSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,
       RulesBundles.class,
-      JavaScriptChecks.class,
-      TypeScriptChecks.class,
+      JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       Monitoring.class,
       AnalysisWithProgram.class,

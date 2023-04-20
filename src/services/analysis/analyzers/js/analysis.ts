@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType } from 'helpers';
+import { FileType, JsTsLanguage } from 'helpers';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from 'linting/eslint';
 import { AnalysisInput, AnalysisOutput } from 'services/analysis';
 import { Perf } from 'services/monitoring';
@@ -32,6 +32,7 @@ import { Perf } from 'services/monitoring';
  */
 interface PartialJsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
+  language?: JsTsLanguage;
   ignoreHeaderComments?: boolean;
 }
 

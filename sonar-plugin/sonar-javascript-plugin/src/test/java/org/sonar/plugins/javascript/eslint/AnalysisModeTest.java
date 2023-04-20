@@ -38,6 +38,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 class AnalysisModeTest {
 
@@ -142,7 +143,7 @@ class AnalysisModeTest {
   private static List<EslintRule> rules(String... keys) {
     return Arrays
       .stream(keys)
-      .map(key -> new EslintRule(key, emptyList(), emptyList()))
+      .map(key -> new EslintRule(key, emptyList(), emptyList(), JavaScriptLanguage.KEY))
       .collect(toList());
   }
 

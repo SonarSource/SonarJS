@@ -81,10 +81,12 @@ public interface EslintBridgeServer extends Startable {
     final List<String> tsConfigs;
     final String programId;
     final String linterId;
+    final String language;
 
     JsAnalysisRequest(
       String filePath,
       String fileType,
+      String language,
       @Nullable String fileContent,
       boolean ignoreHeaderComments,
       @Nullable List<String> tsConfigs,
@@ -93,6 +95,7 @@ public interface EslintBridgeServer extends Startable {
     ) {
       this.filePath = filePath;
       this.fileType = fileType;
+      this.language = language;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;

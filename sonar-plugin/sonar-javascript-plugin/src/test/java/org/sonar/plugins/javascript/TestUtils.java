@@ -20,6 +20,10 @@
 package org.sonar.plugins.javascript;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -77,11 +81,15 @@ public class TestUtils {
   }
 
   public static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
+    return checkFactory(
+      Arrays.stream(ruleKeys).map(k -> RuleKey.of(repositoryKey, k)).collect(Collectors.toList())
+    );
+  }
+
+  public static CheckFactory checkFactory(List<RuleKey> ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (String ruleKey : ruleKeys) {
-      builder.addRule(
-        new NewActiveRule.Builder().setRuleKey(RuleKey.of(repositoryKey, ruleKey)).build()
-      );
+    for (var ruleKey : ruleKeys) {
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(ruleKey).build());
     }
     return new CheckFactory(builder.build());
   }

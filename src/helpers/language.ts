@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /**
- * A discriminator between JavaScript and TypeScript analysis inputs
+ * A discriminator between JavaScript and TypeScript languages. This is used
+ * in rule configuration and analysis input.
  *
  * Analyzing JavaScript and TypeScript code is rather transparent and
  * indistinguishable since we use ESLint-based APIs not only to parse
  * but also to analyze source code. However, there are minor parsing
  * details that require a clear distinction between the two.
  */
-export type Language = 'js' | 'ts';
+export type JsTsLanguage = 'js' | 'ts';

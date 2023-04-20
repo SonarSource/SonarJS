@@ -268,7 +268,7 @@ class YamlSensorTest {
       .doesNotContain("Processing cache analysis of file: " + file.uri());
   }
 
-  private static JavaScriptChecks checks(String... ruleKeys) {
+  private static JsTsChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       builder.addRule(
@@ -277,7 +277,7 @@ class YamlSensorTest {
           .build()
       );
     }
-    return new JavaScriptChecks(new CheckFactory(builder.build()));
+    return new JsTsChecks(new CheckFactory(builder.build()));
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

@@ -118,16 +118,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     var fs = context.fileSystem();
     var counter = 0;
     for (var file : program.files) {
-      var inputFile = fs.inputFile(
-        fs
-          .predicates()
-          .and(
-            fs.predicates().hasAbsolutePath(file),
-            // we need to check the language, because project might contain files which were already analyzed with JS sensor
-            // this should be removed once we unify the two sensors
-            fs.predicates().hasLanguage(language)
-          )
-      );
+      var inputFile = fs.inputFile(fs.predicates().hasAbsolutePath(file));
       if (inputFile == null) {
         LOG.debug("File not part of the project: '{}'", file);
         continue;
@@ -165,6 +156,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         var request = new EslintBridgeServer.JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
+          inputFileLanguage(file),
           fileContent,
           contextUtils.ignoreHeaderComments(),
           null,

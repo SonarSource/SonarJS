@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
@@ -182,15 +184,7 @@ class EslintBridgeServerImplTest {
       .create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      null,
-      true,
-      null,
-      null,
-      DEFAULT_LINTER_ID
-    );
+    JsAnalysisRequest request = createRequest(inputFile);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -201,7 +195,12 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context, emptyList());
 
     List<EslintRule> rules = Collections.singletonList(
-      new EslintRule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN))
+      new EslintRule(
+        "key",
+        singletonList("config"),
+        Collections.singletonList(InputFile.Type.MAIN),
+        JavaScriptLanguage.KEY
+      )
     );
     eslintBridgeServer.initLinter(
       rules,
@@ -212,7 +211,7 @@ class EslintBridgeServerImplTest {
     eslintBridgeServer.stop();
     assertThat(logTester.logs())
       .contains(
-        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}"
+        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[]}"
       );
   }
 
@@ -233,6 +232,7 @@ class EslintBridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
+      JavaScriptLanguage.KEY,
       null,
       true,
       singletonList(tsConfig.absolutePath()),
@@ -252,16 +252,22 @@ class EslintBridgeServerImplTest {
       .create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
       .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(
+    var request = createRequest(inputFile);
+    assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
+  }
+
+  @NotNull
+  private static JsAnalysisRequest createRequest(DefaultInputFile inputFile) {
+    return new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
+      JavaScriptLanguage.KEY,
       null,
       true,
       null,
       null,
       DEFAULT_LINTER_ID
     );
-    assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
   }
 
   @Test
@@ -282,6 +288,7 @@ class EslintBridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       "/absolute/path/file.ts",
       "MAIN",
+      JavaScriptLanguage.KEY,
       null,
       true,
       null,
@@ -470,6 +477,7 @@ class EslintBridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
+      JavaScriptLanguage.KEY,
       null,
       true,
       null,
@@ -574,7 +582,8 @@ class EslintBridgeServerImplTest {
     EslintRule rule = new EslintRule(
       "key",
       emptyList(),
-      Collections.singletonList(InputFile.Type.MAIN)
+      Collections.singletonList(InputFile.Type.MAIN),
+      JavaScriptLanguage.KEY
     );
     assertThat(rule).hasToString("key");
   }

@@ -1,4 +1,4 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
+  "extends": "__missing__/tsconfig.json",
   "include": ["src/bar"]
 }

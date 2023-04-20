@@ -19,9 +19,8 @@
  */
 import path from 'path';
 import { SourceCode } from 'eslint';
-import { setContext } from 'helpers';
+import { JsTsLanguage, setContext } from 'helpers';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
-import { Language } from 'parsing/jsts';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools';
 import { fileReadable } from '../../../tools/helpers/files';
 
@@ -276,6 +275,7 @@ describe('LinterWrapper', () => {
   it('should not report on globals provided by environnments configuration', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'env.js');
     const fileType = 'MAIN';
+    const language: JsTsLanguage = 'js';
 
     const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
@@ -286,14 +286,15 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     const { issues } = linter.lint(sourceCode, filePath);
-
-    expect(linter.config[fileType].env['browser']).toEqual(true);
+    const config = linter.getConfig({ language, fileType });
+    expect(config.env['browser']).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
   it('should not report on globals provided by globals configuration', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'global.js');
     const fileType = 'MAIN';
+    const language: JsTsLanguage = 'js';
 
     const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
 
@@ -305,7 +306,7 @@ describe('LinterWrapper', () => {
     const linter = new LinterWrapper({ inputRules: rules, globals });
     const { issues } = linter.lint(sourceCode, filePath);
 
-    expect(linter.config[fileType].globals['angular']).toEqual(true);
+    expect(linter.getConfig({ language, fileType }).globals['angular']).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
@@ -334,7 +335,7 @@ describe('LinterWrapper', () => {
     `should provide quick fixes from enabled fixable rule '%s'`,
     async ruleId => {
       const fixtures = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes');
-      let language: Language;
+      let language: JsTsLanguage;
       if (await fileReadable(path.join(fixtures, `${ruleId}.js`))) {
         language = 'js';
       } else if (await fileReadable(path.join(fixtures, `${ruleId}.ts`))) {

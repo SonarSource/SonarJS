@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { FileType, getContext } from 'helpers';
-import { hasSonarRuntimeOption, SONAR_RUNTIME, hasSonarContextOption } from '../parameters';
+import { FileType, getContext, JsTsLanguage } from 'helpers';
+import { hasSonarContextOption, hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters';
 
 /**
  * An input rule configuration for linting
@@ -37,7 +37,8 @@ import { hasSonarRuntimeOption, SONAR_RUNTIME, hasSonarContextOption } from '../
 export interface RuleConfig {
   key: string;
   configurations: any[];
-  fileTypeTarget: FileType[];
+  fileTypeTarget: FileType[] | FileType;
+  language?: JsTsLanguage;
 }
 
 /**
