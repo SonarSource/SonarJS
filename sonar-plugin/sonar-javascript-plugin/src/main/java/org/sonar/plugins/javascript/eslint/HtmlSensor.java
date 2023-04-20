@@ -31,6 +31,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
@@ -42,12 +43,12 @@ public class HtmlSensor extends AbstractEslintSensor {
   public static final String LANGUAGE = "web";
 
   private static final Logger LOG = Loggers.get(HtmlSensor.class);
-  private final JavaScriptChecks checks;
+  private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
 
   public HtmlSensor(
-    JavaScriptChecks checks,
+    JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
@@ -128,6 +129,7 @@ public class HtmlSensor extends AbstractEslintSensor {
       var jsAnalysisRequest = new JsAnalysisRequest(
         file.absolutePath(),
         file.type().toString(),
+        JavaScriptLanguage.KEY,
         fileContent,
         contextUtils.ignoreHeaderComments(),
         null,

@@ -144,6 +144,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         var request = new EslintBridgeServer.JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
+          inputFileLanguage(file),
           fileContent,
           contextUtils.ignoreHeaderComments(),
           tsConfigs,
@@ -170,6 +171,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   }
 
   private boolean isJavaScript(InputFile file) {
-    return JavaScriptLanguage.KEY.equals(file.language());
+    return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
   }
 }

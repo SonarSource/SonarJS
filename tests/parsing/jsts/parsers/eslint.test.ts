@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { buildSourceCode, Language } from 'parsing/jsts';
+import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
 import { JsTsAnalysisInput } from 'services/analysis';
-import { readFile } from 'helpers';
+import { JsTsLanguage, readFile } from 'helpers';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -45,7 +45,7 @@ describe('ESLint-based parsers', () => {
     const fileType = 'MAIN';
 
     const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as Language) as SourceCode;
+    const sourceCode = buildSourceCode(input, language as JsTsLanguage) as SourceCode;
 
     expect(sourceCode).toBeDefined();
     expect(sourceCode.ast).toBeDefined();

@@ -163,10 +163,9 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    // we don't support analysis without tsconfig when using ts.Program
-    assertThat(issuesList).isEmpty();
+    assertThat(issuesList).extracting(Issue::getRule).containsExactly("typescript:S4325");
     assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
-      .isEmpty();
+      .hasSize(1);
   }
 
   /**

@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
+import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
+import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
 import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
@@ -65,7 +68,7 @@ public class AnalysisProcessor {
   private SensorContext context;
   private ContextUtils contextUtils;
   private InputFile file;
-  private AbstractChecks checks;
+  private JsTsChecks checks;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
@@ -79,7 +82,7 @@ public class AnalysisProcessor {
 
   void processResponse(
     SensorContext context,
-    AbstractChecks checks,
+    JsTsChecks checks,
     InputFile file,
     AnalysisResponse response
   ) {
@@ -290,10 +293,17 @@ public class AnalysisProcessor {
       }
     }
 
-    RuleKey ruleKey = checks.ruleKeyByEslintKey(issue.ruleId);
+    var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
     }
+  }
+
+  private RuleKey findRuleKey(Issue issue) {
+    return checks.ruleKeyByEslintKey(
+      issue.ruleId,
+      isTypeScriptFile(file) ? TYPESCRIPT : JAVASCRIPT
+    );
   }
 
   private boolean isSqQuickFixCompatible() {

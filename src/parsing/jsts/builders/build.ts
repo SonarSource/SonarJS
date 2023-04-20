@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getContext } from 'helpers';
+import { getContext, JsTsLanguage } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildJs } from './build-js';
 import { buildTs } from './build-ts';
 import { buildVue } from './build-vue';
-import { Language } from 'parsing/jsts';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -34,7 +33,7 @@ import { Language } from 'parsing/jsts';
  * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
+export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const isVueFile = input.filePath.endsWith('.vue');
 
   if (language === 'ts') {

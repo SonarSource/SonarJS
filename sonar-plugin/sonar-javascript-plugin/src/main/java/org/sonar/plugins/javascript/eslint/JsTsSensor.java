@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,16 +35,17 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
-public class TypeScriptSensor extends AbstractEslintSensor {
+public class JsTsSensor extends AbstractEslintSensor {
 
-  private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
+  private static final Logger LOG = Loggers.get(JsTsSensor.class);
   private final TempFolder tempFolder;
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
-  private final TypeScriptChecks checks;
+  private final JsTsChecks checks;
+  private final JavaScriptProjectChecker javaScriptProjectChecker;
 
-  public TypeScriptSensor(
-    TypeScriptChecks typeScriptChecks,
+  public JsTsSensor(
+    JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
@@ -51,25 +53,47 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
+    this(
+      checks,
+      eslintBridgeServer,
+      analysisWarnings,
+      tempFolder,
+      monitoring,
+      null,
+      analysisWithProgram,
+      analysisWithWatchProgram
+    );
+  }
+
+  public JsTsSensor(
+    JsTsChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    TempFolder tempFolder,
+    Monitoring monitoring,
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram
+  ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
-    checks = typeScriptChecks;
+    this.checks = checks;
+    this.javaScriptProjectChecker = javaScriptProjectChecker;
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      // JavaScriptLanguage.KEY is required for Vue single file components, bc .vue is considered as JS language
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .name("TypeScript analysis");
+      .name("JavaScript/TypeScript analysis");
   }
 
   @Override
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate allFilesPredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
+    FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
     return StreamSupport
       .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
       .collect(Collectors.toList());
@@ -80,21 +104,26 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
 
-    List<String> tsConfigs;
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+    var tsConfigs = TsConfigProvider.getTsConfigs(
+      contextUtils,
+      javaScriptProjectChecker,
+      this::createTsConfigFile
+    );
     AbstractAnalysis analysis;
     if (shouldAnalyzeWithProgram(inputFiles)) {
-      tsConfigs = new TsConfigProvider().tsconfigs(context);
       analysis = analysisWithProgram;
     } else {
-      // we keep the TsConfigProvider with tempFolder to create tsconfig for vue analysis, this should be removed in
-      // next refactoring
-      tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
       analysis = analysisWithWatchProgram;
     }
     if (tsConfigs.isEmpty()) {
       LOG.info("No tsconfig.json file found");
     }
-    analysis.initialize(context, checks, analysisMode, TypeScriptLanguage.KEY);
+    analysis.initialize(context, checks, analysisMode);
     analysis.analyzeFiles(inputFiles, tsConfigs);
+  }
+
+  private String createTsConfigFile(String content) throws IOException {
+    return eslintBridgeServer.createTsConfigFile(content).filename;
   }
 }

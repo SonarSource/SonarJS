@@ -19,17 +19,17 @@
  */
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { debug, getContext } from 'helpers';
+import { debug, getContext, JsTsLanguage } from 'helpers';
 import {
   computeMetrics,
   findNoSonarLines,
   getCpdTokens,
-  getSyntaxHighlighting,
   getLinter,
-  SymbolHighlight,
+  getSyntaxHighlighting,
   LinterWrapper,
+  SymbolHighlight,
 } from 'linting/eslint';
-import { buildSourceCode, Language } from 'parsing/jsts';
+import { buildSourceCode } from 'parsing/jsts';
 import { measureDuration } from 'services/monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
@@ -49,7 +49,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(input: JsTsAnalysisInput, language: Language): JsTsAnalysisOutput {
+export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
   const building = () => buildSourceCode(input, language);
@@ -77,11 +77,12 @@ function analyzeFile(
   sourceCode: SourceCode,
 ): JsTsAnalysisOutput {
   try {
-    const { filePath, fileType } = input;
+    const { filePath, fileType, language } = input;
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
       sourceCode,
       filePath,
       fileType,
+      language,
     );
     const extendedMetrics = computeExtendedMetrics(
       input,

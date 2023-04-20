@@ -38,8 +38,8 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
-import { buildSourceCode, Language } from 'parsing/jsts';
-import { FileType } from 'helpers';
+import { buildSourceCode } from 'parsing/jsts';
+import { FileType, JsTsLanguage } from 'helpers';
 import { extractExpectations } from './framework';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
@@ -110,7 +110,7 @@ export function parseForESLint(
 /**
  * Returns the source code's language based on the file content and path.
  */
-function languageFromFile(fileContent: string, filePath: string): Language {
+function languageFromFile(fileContent: string, filePath: string): JsTsLanguage {
   // Keep this regex aligned with the one in JavaScriptFilePredicate.java to have the same flow
   const hasScriptTagWithLangTs = /<script[^>]+lang=['"]ts['"][^>]*>/;
   const { ext } = path.parse(filePath);
