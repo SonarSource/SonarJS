@@ -47,8 +47,10 @@ const decoratedNoFloatingPromisesRule = interceptReport(
       const equivalentNode = (
         (descriptor.node as TSESTree.ExpressionStatement)?.expression as TSESTree.NewExpression
       )?.arguments?.[0];
-      const start = (equivalentNode as TSESTree.Node).range[0];
-      flaggedNodeStarts.set(start, true);
+      if (equivalentNode) {
+        const start = (equivalentNode as TSESTree.Node).range[0];
+        flaggedNodeStarts.set(start, true);
+      }
     }
     context.report(descriptor);
   },
