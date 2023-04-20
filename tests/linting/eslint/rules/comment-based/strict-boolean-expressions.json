@@ -1,0 +1,13 @@
+[
+    {
+        "allowString": false,
+        "allowNumber": false,
+        "allowNullableObject": true,
+        "allowNullableBoolean": true,
+        "allowNullableString": true,
+        "allowNullableNumber": true,
+        "allowNullableEnum": true,
+        "allowAny": true,
+        "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": true
+    }
+]

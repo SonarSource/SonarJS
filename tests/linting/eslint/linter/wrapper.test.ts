@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import fs from 'fs';
 import path from 'path';
 import { SourceCode } from 'eslint';
-import { setContext } from 'helpers';
-import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
+import { readFile, setContext } from 'helpers';
+import { CustomRule, LinterWrapper, RuleConfig, quickFixRules } from 'linting/eslint';
 import { Language } from 'parsing/jsts';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools';
 import { fileReadable } from '../../../tools/helpers/files';
@@ -347,12 +348,20 @@ describe('LinterWrapper', () => {
       const filePath = path.join(fixtures, `${ruleId}.${language}`);
       let sourceCode: SourceCode;
       if (language === 'js') {
-        sourceCode = (await parseJavaScriptSourceFile(filePath, [tsConfig])) as SourceCode;
+        sourceCode = await parseJavaScriptSourceFile(filePath, [tsConfig]);
       } else {
-        sourceCode = (await parseTypeScriptSourceFile(filePath, [tsConfig])) as SourceCode;
+        sourceCode = await parseTypeScriptSourceFile(filePath, [tsConfig]);
       }
 
-      const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+      const ruleConfig = [];
+      const ruleConfigPath = path.join(fixtures, `${ruleId}.json`);
+      if (fs.existsSync(ruleConfigPath)) {
+        ruleConfig.push(JSON.parse(await readFile(ruleConfigPath)));
+      }
+
+      const rules = [
+        { key: ruleId, configurations: ruleConfig, fileTypeTarget: ['MAIN'] },
+      ] as RuleConfig[];
       const linter = new LinterWrapper({ inputRules: rules });
       const {
         issues: [issue],
