@@ -37,6 +37,23 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
  */
 const flaggedNodeStarts = new Map();
 
+const noFloatingPromisesRule = sanitizeTypeScriptESLintRule(
+  typeScriptESLintRules['no-floating-promises'],
+);
+const decoratedNoFloatingPromisesRule = interceptReport(
+  noFloatingPromisesRule,
+  (context, descriptor) => {
+    if ('node' in descriptor) {
+      const equivalentNode = (
+        (descriptor.node as TSESTree.ExpressionStatement)?.expression as TSESTree.NewExpression
+      )?.arguments?.[0];
+      const start = (equivalentNode as TSESTree.Node).range[0];
+      flaggedNodeStarts.set(start, true);
+    }
+    context.report(descriptor);
+  },
+);
+
 const noMisusedPromisesRule = sanitizeTypeScriptESLintRule(
   typeScriptESLintRules['no-misused-promises'],
 );
@@ -45,14 +62,12 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   (context, descriptor) => {
     if ('node' in descriptor) {
       const start = (descriptor.node as TSESTree.Node).range[0];
-      flaggedNodeStarts.set(start, true);
+      if (!flaggedNodeStarts.get(start)) {
+        flaggedNodeStarts.set(start, true);
+        context.report(descriptor);
+      }
     }
-    context.report(descriptor);
   },
-);
-
-const noFloatingPromisesRule = sanitizeTypeScriptESLintRule(
-  typeScriptESLintRules['no-floating-promises'],
 );
 
 const noAsyncPromiseExecutorRule = eslintRules['no-async-promise-executor'];
@@ -85,7 +100,7 @@ export const rule: Rule.RuleModule = {
       ...mergeRules(
         decoratedNoAsyncPromiseExecutorRule.create(context),
         decoratedNoMisusedPromisesRule.create(context),
-        noFloatingPromisesRule.create(context),
+        decoratedNoFloatingPromisesRule.create(context),
       ),
     };
   },
