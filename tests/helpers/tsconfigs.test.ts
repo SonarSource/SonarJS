@@ -103,4 +103,40 @@ describe('TSConfigs', () => {
     );
     expect(tsconfigs.db).toEqual(new Map([[tsconfig, { filename: tsconfig, contents: '' }]]));
   });
+
+  it('should return tsconfig.json files properly sorted', async () => {
+    const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
+    const file = toUnixPath(path.join(dir, 'foo', 'file.js'));
+    const tsconfig1 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig1.json'));
+    const tsconfig2 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig2.json'));
+    const tsconfig3 = toUnixPath(path.join(dir, 'foo', 'tsconfig2.json'));
+    const tsconfig4 = toUnixPath(path.join(dir, 'tsconfig.json'));
+    const tsconfig5 = toUnixPath(path.join(dir, 'foo', 'tsconfig.json'));
+
+    const tsconfigs = new ProjectTSConfigs(undefined, false);
+    tsconfigs.db.set(tsconfig1, { filename: tsconfig1, contents: '' });
+    tsconfigs.db.set(tsconfig2, { filename: tsconfig2, contents: '' });
+    tsconfigs.db.set(tsconfig3, { filename: tsconfig3, contents: '' });
+    tsconfigs.db.set(tsconfig4, { filename: tsconfig4, contents: '' });
+    tsconfigs.db.set(tsconfig5, { filename: tsconfig5, contents: '' });
+
+    expect([...tsconfigs.iterateTSConfigs(file)]).toEqual([
+      { filename: tsconfig5, contents: '' },
+      { filename: tsconfig3, contents: '' },
+      { filename: tsconfig4, contents: '' },
+      { filename: tsconfig1, contents: '' },
+      { filename: tsconfig2, contents: '' },
+      {
+        filename: `tsconfig-${file}.json`,
+        contents: JSON.stringify({
+          compilerOptions: {
+            allowJs: true,
+            noImplicitAny: true,
+          },
+          files: [file],
+        }),
+        isFallbackTSConfig: true,
+      },
+    ]);
+  });
 });

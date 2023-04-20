@@ -45,10 +45,25 @@ export class ProjectTSConfigs {
    *
    * @param file the JS/TS file for which the tsconfig needs to be found
    */
-  *iterateTSConfigs(file: string): Generator<TSConfig> {
-    for (const tsConfig of this.db.values()) {
-      yield tsConfig;
-    }
+  *iterateTSConfigs(file: string): Generator<TSConfig, void, undefined> {
+    const fileDepth = file.split('/').length;
+    yield* [...this.db.values()].sort((tsconfig1, tsconfig2) => {
+      const relativeDepth1 = tsconfig1.filename.split('/').length - fileDepth;
+      const relativeDepth2 = tsconfig2.filename.split('/').length - fileDepth;
+      if (relativeDepth1 === relativeDepth2) {
+        if (path.basename(tsconfig1.filename).toLowerCase() === 'tsconfig.json') {
+          return -1;
+        }
+        if (path.basename(tsconfig2.filename).toLowerCase() === 'tsconfig.json') {
+          return 1;
+        }
+        return 0;
+      } else if (relativeDepth1 > relativeDepth2) {
+        return relativeDepth1 <= 0 ? -1 : 1;
+      } else {
+        return relativeDepth2 <= 0 ? 1 : -1;
+      }
+    });
     yield {
       filename: `tsconfig-${file}.json`,
       contents: JSON.stringify({

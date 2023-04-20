@@ -52,6 +52,7 @@ const projectTSConfigs = new ProjectTSConfigs();
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
  * @param input JS/TS Analysis input request
  * @param cache the LRU cache object to use as cache
+ * @param tsconfigs the TSConfigs DB instance to use
  * @returns the retrieved TypeScript's Program
  */
 export function getProgramForFile(
