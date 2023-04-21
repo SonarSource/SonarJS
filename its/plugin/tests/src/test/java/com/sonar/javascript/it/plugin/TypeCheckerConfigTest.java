@@ -66,7 +66,7 @@ class TypeCheckerConfigTest {
       .assertThat(orchestrator.executeBuild(scanner))
       .logsOnce("Found 1 tsconfig.json file(s)")
       .logsOnce(
-        "INFO: Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)"
+        "INFO: Files were not part of any tsconfig.json:  1 file(s), they will be analyzed without type information"
       );
 
     assertThat(getIssues(key))

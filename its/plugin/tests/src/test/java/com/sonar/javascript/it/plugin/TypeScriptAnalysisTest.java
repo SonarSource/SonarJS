@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
@@ -96,7 +97,11 @@ class TypeScriptAnalysisTest {
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
-    List<Issue> issuesList = getIssues(projectKey);
+    var file = projectKey + ":fileUsedInCustomTsConfig.ts";
+    var issuesList = getIssues(projectKey)
+      .stream()
+      .filter(i -> file.equals(i.getComponent()))
+      .collect(Collectors.toList());
     assertThat(issuesList).hasSize(1);
     Issue issue = issuesList.get(0);
     assertThat(issue.getLine()).isEqualTo(2);
@@ -217,11 +222,16 @@ class TypeScriptAnalysisTest {
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList)
       .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
-      .containsExactly(tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts"));
+      .containsExactlyInAnyOrder(
+        tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts"),
+        tuple(2, "typescript:S3923", "tsproject-extended:dir/file.excluded.ts")
+      );
 
     assertThat(
       result.getLogsLines(l ->
-        l.contains("Skipped 1 file(s) because they were not part of any tsconfig.json")
+        l.contains(
+          "INFO: Files were not part of any tsconfig.json:  1 file(s), they will be analyzed without type information"
+        )
       )
     )
       .hasSize(1);

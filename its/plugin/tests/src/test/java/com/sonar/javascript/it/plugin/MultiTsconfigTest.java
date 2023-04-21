@@ -62,7 +62,10 @@ class MultiTsconfigTest {
         tuple(4, "multi-tsconfig-test-project:src/bar/main.ts"),
         tuple(3, "multi-tsconfig-test-project:src/dir1/main.ts"),
         tuple(3, "multi-tsconfig-test-project:src/dir2/main.ts"),
-        tuple(3, "multi-tsconfig-test-project:src/foo/main.ts")
+        tuple(3, "multi-tsconfig-test-project:src/foo/main.ts"),
+        // following are detected because we analyze files not included in tsconfig
+        tuple(4, "multi-tsconfig-test-project:src/bar/excluded/main.ts"),
+        tuple(4, "multi-tsconfig-test-project:src/excluded/main.ts")
       );
   }
 }
