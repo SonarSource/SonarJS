@@ -92,7 +92,7 @@ export const rule: Rule.RuleModule = {
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
       ...noFloatingPromisesRule.meta!.messages,
       // we don't want to suggest to use the void operator
-      floatingVoid: noFloatingPromisesRule.meta!.messages.floating,
+      floatingVoid: noFloatingPromisesRule.meta!.messages!.floating,
     },
     hasSuggestions: true,
   },
