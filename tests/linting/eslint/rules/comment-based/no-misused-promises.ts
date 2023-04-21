@@ -21,3 +21,7 @@ new Promise(async (resolve) => { // Noncompliant {{Promise returned in function 
   }
 })();
 
+if (Promise.resolve(42)) { // Noncompliant {{Expected non-Promise value in a boolean conditional.}}
+  console.log('yolo')
+}
+
