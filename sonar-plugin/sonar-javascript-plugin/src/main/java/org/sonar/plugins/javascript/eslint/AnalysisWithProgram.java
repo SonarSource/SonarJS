@@ -26,6 +26,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
@@ -98,10 +99,13 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       skippedFiles.removeAll(analyzedFiles);
       if (!skippedFiles.isEmpty()) {
         LOG.info(
-          "Skipped {} file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)",
+          "Files were not part of any tsconfig.json:  {} file(s), they will be analyzed without type information",
           skippedFiles.size()
         );
-        skippedFiles.forEach(f -> LOG.debug("File not part of any tsconfig.json: {}", f));
+        for (InputFile f : skippedFiles) {
+          LOG.debug("File not part of any tsconfig.json: {}", f);
+          analyze(f, null);
+        }
       }
       success = true;
     } finally {
@@ -137,7 +141,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     LOG.info("Analyzed {} file(s) with current program", counter);
   }
 
-  private void analyze(InputFile file, TsProgram tsProgram) throws IOException {
+  private void analyze(InputFile file, @Nullable TsProgram tsProgram) throws IOException {
     if (context.isCancelled()) {
       throw new CancellationException(
         "Analysis interrupted because the SensorContext is in cancelled state"
@@ -153,16 +157,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         progressReport.nextFile(file.absolutePath());
         monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var request = new EslintBridgeServer.JsAnalysisRequest(
-          file.absolutePath(),
-          file.type().toString(),
-          inputFileLanguage(file),
-          fileContent,
-          contextUtils.ignoreHeaderComments(),
-          null,
-          tsProgram.programId,
-          analysisMode.getLinterIdFor(file)
-        );
+        var request = getJsAnalysisRequest(file, tsProgram, fileContent);
         var response = eslintBridgeServer.analyzeWithProgram(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
@@ -178,5 +173,22 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
+  }
+
+  private EslintBridgeServer.JsAnalysisRequest getJsAnalysisRequest(
+    InputFile file,
+    @Nullable TsProgram tsProgram,
+    @Nullable String fileContent
+  ) {
+    return new EslintBridgeServer.JsAnalysisRequest(
+      file.absolutePath(),
+      file.type().toString(),
+      inputFileLanguage(file),
+      fileContent,
+      contextUtils.ignoreHeaderComments(),
+      null,
+      tsProgram != null ? tsProgram.programId : null,
+      analysisMode.getLinterIdFor(file)
+    );
   }
 }
