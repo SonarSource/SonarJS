@@ -45,7 +45,7 @@ const decoratedNoFloatingPromisesRule = interceptReport(
   (context, descriptor) => {
     if ('node' in descriptor) {
       const equivalentNode = (
-        (descriptor.node as TSESTree.ExpressionStatement)?.expression as TSESTree.NewExpression
+        (descriptor.node as TSESTree.ExpressionStatement).expression as TSESTree.NewExpression
       )?.arguments?.[0];
       if (equivalentNode) {
         const start = (equivalentNode as TSESTree.Node).range[0];
