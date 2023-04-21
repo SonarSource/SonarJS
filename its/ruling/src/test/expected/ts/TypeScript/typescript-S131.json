@@ -1,4 +1,10 @@
 {
+'TypeScript:Gulpfile.ts':[
+1008,
+],
+'TypeScript:scripts/buildProtocol.ts':[
+73,
+],
 'TypeScript:scripts/tslint/booleanTriviaRule.ts':[
 34,
 51,
@@ -8,6 +14,10 @@
 ],
 'TypeScript:scripts/tslint/noIncrementDecrementRule.ts':[
 16,
+],
+'TypeScript:scripts/word2md.ts':[
+250,
+296,
 ],
 'TypeScript:src/compiler/binder.ts':[
 247,

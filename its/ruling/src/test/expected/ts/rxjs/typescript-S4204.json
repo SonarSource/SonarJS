@@ -6,6 +6,9 @@
 'rxjs:src/InnerSubscriber.ts':[
 20,
 ],
+'rxjs:src/MiscJSDoc.ts':[
+190,
+],
 'rxjs:src/Notification.ts':[
 21,
 30,
@@ -366,6 +369,10 @@
 374,
 375,
 399,
+],
+'rxjs:src/observable/dom/MiscJSDoc.ts':[
+19,
+61,
 ],
 'rxjs:src/observable/dom/WebSocketSubject.ts':[
 109,

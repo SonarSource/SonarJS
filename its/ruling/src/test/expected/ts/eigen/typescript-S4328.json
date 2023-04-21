@@ -1354,6 +1354,9 @@
 1,
 2,
 ],
+'eigen:src/app/Scenes/MyProfile/__mocks__/LoggedInUserInfo.tsx':[
+1,
+],
 'eigen:src/app/Scenes/MyProfile/__tests__/MyProfileEditForm.tests.tsx':[
 2,
 ],

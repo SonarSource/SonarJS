@@ -1,4 +1,13 @@
 {
+'TypeScript:Gulpfile.ts':[
+386,
+],
+'TypeScript:scripts/errorCheck.ts':[
+62,
+],
+'TypeScript:scripts/word2md.ts':[
+180,
+],
 'TypeScript:src/compiler/sourcemap.ts':[
 98,
 ],

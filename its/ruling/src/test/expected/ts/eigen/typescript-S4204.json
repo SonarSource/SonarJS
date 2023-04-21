@@ -1,4 +1,10 @@
 {
+'eigen:dangerRules/useWebPs.tests.ts':[
+3,
+],
+'eigen:metaphysics-queries-freshness-tests/test-freshness.ts':[
+103,
+],
 'eigen:scripts/changelog/generatePlatformChangelog.tests.ts':[
 31,
 39,

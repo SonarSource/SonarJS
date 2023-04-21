@@ -214,6 +214,9 @@
 12,
 13,
 ],
+'moose:shared/constants/CastDeviceType.ts':[
+3,
+],
 'moose:shared/constants/CastEvents.ts':[
 10,
 ],
