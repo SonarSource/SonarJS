@@ -461,10 +461,10 @@ class JsTsSensorTest {
     Path baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
     SensorContextTester context = createSensorContext(baseDir);
 
-    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
-    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
-    DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
-    inputFileFromResource(context, baseDir, "noconfig.ts");
+    var file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
+    var file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
+    var file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
+    var noconfig = inputFileFromResource(context, baseDir, "noconfig.ts");
 
     String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
 
@@ -492,10 +492,15 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
-    verify(eslintBridgeServerMock, times(3)).analyzeWithProgram(captor.capture());
+    verify(eslintBridgeServerMock, times(4)).analyzeWithProgram(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
-      .containsExactlyInAnyOrder(file1.absolutePath(), file2.absolutePath(), file3.absolutePath());
+      .containsExactlyInAnyOrder(
+        file1.absolutePath(),
+        file2.absolutePath(),
+        file3.absolutePath(),
+        noconfig.absolutePath()
+      );
 
     verify(eslintBridgeServerMock, times(3)).deleteProgram(any());
 

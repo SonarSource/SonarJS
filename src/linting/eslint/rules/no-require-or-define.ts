@@ -21,7 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices, RequiredParserServices, isFunction, isString } from './helpers';
+import * as helpers from './helpers';
+import { isStringLiteral } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -31,9 +32,6 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
     return {
       'CallExpression[callee.type="Identifier"]': (node: estree.Node) => {
         if (context.getScope().type !== 'module' && context.getScope().type !== 'global') {
@@ -58,10 +56,20 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+function isString(
+  node: estree.SpreadElement | estree.Expression,
+  services?: helpers.RequiredParserServices,
+): boolean {
+  return (
+    (helpers.isRequiredParserServices(services) && helpers.isString(node, services)) ||
+    isStringLiteral(node)
+  );
+}
+
 function isCommonJsImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
-  services: RequiredParserServices,
+  services: helpers.RequiredParserServices,
 ): boolean {
   return (
     callExpression.arguments.length === 1 &&
@@ -73,7 +81,7 @@ function isCommonJsImport(
 function isAmdImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
-  services: RequiredParserServices,
+  services?: helpers.RequiredParserServices,
 ): boolean {
   if (identifier.name !== 'require' && identifier.name !== 'define') {
     return false;
@@ -81,5 +89,8 @@ function isAmdImport(
   if (callExpression.arguments.length !== 2 && callExpression.arguments.length !== 3) {
     return false;
   }
-  return isFunction(callExpression.arguments[callExpression.arguments.length - 1], services);
+  return (
+    helpers.isRequiredParserServices(services) &&
+    helpers.isFunction(callExpression.arguments[callExpression.arguments.length - 1], services)
+  );
 }
