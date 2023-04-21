@@ -98,6 +98,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
       if (!skippedFiles.isEmpty()) {
+        // Temporarily we will analyze skipped programs without program,
+        // when this logic moves to Node we will have full analysis also for skipped files
         LOG.info(
           "Files were not part of any tsconfig.json:  {} file(s), they will be analyzed without type information",
           skippedFiles.size()

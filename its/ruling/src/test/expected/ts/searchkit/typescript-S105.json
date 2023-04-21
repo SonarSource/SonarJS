@@ -5,4 +5,7 @@
 'searchkit:examples/indexer/mrp-products/config.ts':[
 5,
 ],
+'searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/__tests__/index.test.tsx':[
+107,
+],
 }
