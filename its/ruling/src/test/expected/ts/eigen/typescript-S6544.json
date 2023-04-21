@@ -1,7 +1,4 @@
 {
-'eigen:dangerfile.ts':[
-144,
-],
 'eigen:src/app/App.tsx':[
 99,
 ],
@@ -65,9 +62,6 @@
 ],
 'eigen:src/app/Components/Lists/ShowItemRow.tsx':[
 39,
-],
-'eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx':[
-41,
 ],
 'eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx':[
 61,
@@ -138,9 +132,6 @@
 ],
 'eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx':[
 23,
-],
-'eigen:src/app/Scenes/Artwork/Components/CommercialButtons/LocationAutocomplete.tsx':[
-31,
 ],
 'eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx':[
 117,
@@ -355,9 +346,6 @@
 ],
 'eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateBanner.tsx':[
 58,
-],
-'eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/MyCollectionArtworkHeader.tsx':[
-51,
 ],
 'eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/MyCollectionArtworkSubmissionStatus.tsx':[
 25,
