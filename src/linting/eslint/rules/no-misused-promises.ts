@@ -85,14 +85,19 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   },
 );
 
+// we don't want to suggest to use the void operator
+const noFloatingPromisesMessages = noFloatingPromisesRule.meta!.messages as {
+  floatingVoid: string;
+  floating: string;
+};
+noFloatingPromisesMessages.floatingVoid = noFloatingPromisesMessages.floating;
+
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
-      ...noFloatingPromisesRule.meta!.messages,
-      // we don't want to suggest to use the void operator
-      floatingVoid: noFloatingPromisesRule.meta!.messages!.floating,
+      ...noFloatingPromisesMessages,
     },
     hasSuggestions: true,
   },
