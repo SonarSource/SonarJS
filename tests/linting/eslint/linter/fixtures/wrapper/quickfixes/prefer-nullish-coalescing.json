@@ -1,0 +1,5 @@
+{
+    "ignoreConditionalTests": false,
+    "ignoreTernaryTests": false,
+    "ignoreMixedLogicalExpressions": false
+}

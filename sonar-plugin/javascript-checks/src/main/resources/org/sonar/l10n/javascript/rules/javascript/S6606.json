@@ -1,0 +1,21 @@
+{
+  "title": "Nullish coalescing should be preferred",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2020",
+    "nullish-coalescing"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6606",
+  "sqKey": "S6606",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

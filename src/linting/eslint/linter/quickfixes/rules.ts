@@ -77,6 +77,7 @@ export const quickFixRules = new Set([
   'prefer-as-const',
   'prefer-function-type',
   'prefer-namespace-keyword',
+  'prefer-nullish-coalescing',
   'prefer-readonly',
   'prefer-return-this-type',
   'prefer-string-starts-ends-with',
