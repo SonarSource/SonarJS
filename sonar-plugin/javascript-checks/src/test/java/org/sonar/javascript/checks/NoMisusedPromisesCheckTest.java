@@ -19,30 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6544")
-public class NoMisusedPromisesCheck implements EslintBasedCheck {
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-  private static class Config {
+class NoMisusedPromisesCheckTest {
 
-    boolean ignoreIIFE = true;
-  }
+  @Test
+  void config() {
+    NoMisusedPromisesCheck check = new NoMisusedPromisesCheck();
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  @Override
-  public String eslintKey() {
-    return "no-misused-promises";
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"ignoreIIFE\":true}]");
   }
 }

@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-6544",
   "sqKey": "S6544",
   "scope": "All",
-  "quickfix": "infeasible",
+  "quickfix": "partial",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
