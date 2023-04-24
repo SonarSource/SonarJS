@@ -80,6 +80,7 @@ export const quickFixRules = new Set([
   'prefer-readonly',
   'prefer-return-this-type',
   'prefer-string-starts-ends-with',
+  'strict-boolean-expressions',
 
   // decorated @typescript-eslint plugin
   'prefer-enum-initializers',

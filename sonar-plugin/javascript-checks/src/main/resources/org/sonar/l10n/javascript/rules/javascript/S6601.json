@@ -1,0 +1,21 @@
+{
+  "title": "Boolean expressions should be safe",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "boolean",
+    "type-coercion"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6601",
+  "sqKey": "S6601",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ]
+}

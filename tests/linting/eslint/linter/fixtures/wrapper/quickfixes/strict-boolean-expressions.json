@@ -1,0 +1,4 @@
+{
+    "allowString": false,
+    "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": true
+}

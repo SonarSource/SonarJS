@@ -43,6 +43,7 @@ import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferStringStartsEndsWithDecorator } from './prefer-string-starts-ends-with-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
+import { decorateStrictBooleanExpressions } from './strict-boolean-expressions-decorator';
 import { decorateUseIsNan } from './use-isnan-decorator';
 import { decorateNoVar } from './no-var-decorator';
 import { decorateNoRedundantTypeConstituents } from './no-redundant-type-constituents';
@@ -91,5 +92,6 @@ export const decorators: Record<string, RuleDecorator> = {
   'prefer-string-starts-ends-with': decoratePreferStringStartsEndsWithDecorator,
   'prefer-template': decoratePreferTemplate,
   semi: decorateSemi,
+  'strict-boolean-expressions': decorateStrictBooleanExpressions,
   'use-isnan': decorateUseIsNan,
 };
