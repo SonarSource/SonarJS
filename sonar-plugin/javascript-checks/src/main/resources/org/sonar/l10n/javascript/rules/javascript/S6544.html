@@ -1,8 +1,12 @@
-<p>Promises need to be resolved or awaited to return the expected value, otherwise, they return the promise object.</p>
-<p>This rule forbids returning promises where another type is expected such as in: - conditionals - void returns - spread operators</p>
 <h2>Why is this an issue?</h2>
-<p>Forgetting to await a promise is a frequent mistake. There are places where it makes no sense to use a promise, but the developer forgets to
-resolve it.</p>
+<p>Promises need to be resolved or awaited to return the expected value, otherwise, they return the promise object.</p>
+<p><span>Unresolved promises</span></p>
+<p>Forgetting to await a promise is a frequent mistake. There are places where the use of a promise object is confusing or unclear because the
+developer forgot to resolve it.</p>
+<p>This rule forbids returning promises where another type is expected such as in: * conditionals * void returns * spread operators</p>
+<p><span>Missing error handling</span></p>
+<p>Promises that aren’t resolved will finish running at an unexpected time. When they do not contain error handling and they raise an exception, the
+associated call stack will be wrong.</p>
 <h3>What is the potential impact?</h3>
 <p>Using a promise instead of its resolved value can have unexpected results leading to bugs.</p>
 <ul>
@@ -17,12 +21,24 @@ resolve it.</p>
   <li> If a promise executor function is using <code>await</code>, this means that it’s not necessary to use the <code>Promise</code> constructor, or
   the scope of the Promise constructor can be reduced. </li>
 </ul>
+<h4>Exceptions</h4>
+<p>This rule can be ignored for promises that you know will always resolve like timers.</p>
+<pre>
+await new Promise(resolve =&gt; time.setTimeout(1000));
+</pre>
 <h2>How to fix it</h2>
-<p>If you mistook the promise with its resolved value, await the promise so it gets resolved correctly. Otherwise, you might need to adapt your code
-accordingly.</p>
+<p>If you mistakenly treated a promise as its resolved value, you can ensure it is properly resolved by using await or resolve on the promise. In some
+cases, you may need to use an "immediately invoked function expression" (IIFE):</p>
+<pre>
+(async foo() {
+  await bar();
+})()
+</pre>
+<p>If you forgot to handle the promise rejection, you should handle it either with <code>.catch(error ⇒ {/<strong>…​</strong>/})</code> or
+<code>.then(result ⇒ {}, error ⇒ {})</code>.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre>
 const promise = new Promise((resolve, reject) =&gt; {
   // ...
   resolve(false)
@@ -32,7 +48,7 @@ if (promise) {
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre>
 const promise = new Promise((resolve, reject) =&gt; {
   // ...
   resolve(false)
@@ -42,7 +58,7 @@ if (await promise) {
 }
 </pre>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="2" data-diff-type="noncompliant">
+<pre>
 const p = new Promise(async (resolve, reject) =&gt; {
   doSomething('Hey, there!', function(error, result) {
     if (error) {
@@ -57,7 +73,7 @@ const p = new Promise(async (resolve, reject) =&gt; {
 await p;
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="2" data-diff-type="compliant">
+<pre>
 const p = new Promise((resolve, reject) =&gt; {
   doSomething('Hey, there!', function(error, result) {
     if (error) {
@@ -72,16 +88,33 @@ const result = await p;
 await saveResult(result);
 </pre>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="3" data-diff-type="noncompliant">
+<pre>
 apiCalls.forEach(async (apiCall) =&gt; {
   await apiCall.send();
 });
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="3" data-diff-type="compliant">
+<pre>
 for (const apiCall of apiCalls) {
   await apiCall.send();
 }
+</pre>
+<h4>Noncompliant code example</h4>
+<pre>
+fetch('https://api.com/entries')
+  .then(result =&gt; {
+    // ...
+  });
+</pre>
+<h4>Compliant solution</h4>
+<pre>
+fetch('https://api.com/entries')
+  .then(result =&gt; {
+    // ...
+  })
+  .catch(error =&gt; {
+    // ...
+  });
 </pre>
 <h3>How does this work?</h3>
 <p>In JavaScript, a promise is a mechanism to perform tasks asynchronously. To this end, the language provides the <code>Promise</code> object which
@@ -95,5 +128,6 @@ are invoked when the promise completes or fails.</p>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">MDN Promise</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises">MDN Using promises</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">MDN Async function</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/IIFE">MDN IIFE</a> </li>
 </ul>
 
