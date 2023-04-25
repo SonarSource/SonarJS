@@ -12,7 +12,7 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 - [340 JS rules](https://rules.sonarsource.com/javascript) and [340+ TS rules](https://rules.sonarsource.com/typescript)
 - [25 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
-- React JSX, Flow and Vue support for JavaScript and TypeScript
+- React JSX, Flow, Vue, and AWS YAML support for JavaScript and TypeScript
 - CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
 - Metrics (complexity, number of lines etc.)
 - Import of test coverage reports
