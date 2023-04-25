@@ -1,5 +1,6 @@
 {
-    "ignoreConditionalTests": false,
+    "ignoreConditionalTests": true,
     "ignoreTernaryTests": false,
-    "ignoreMixedLogicalExpressions": false
+    "ignoreMixedLogicalExpressions": true,
+    "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": true
 }
