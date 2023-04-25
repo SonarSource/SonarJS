@@ -9,8 +9,8 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- ~280 rules for [JavaScript](https://rules.sonarsource.com/javascript) and [TypeScript](https://rules.sonarsource.com/typescript)
-- ~30 rules for [CSS](https://rules.sonarsource.com/css)
+- [340 JS rules](https://rules.sonarsource.com/javascript) and [340+ TS rules](https://rules.sonarsource.com/typescript)
+- [25 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow and Vue support for JavaScript and TypeScript
 - CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
