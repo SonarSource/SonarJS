@@ -101,10 +101,10 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         // Temporarily we will analyze skipped programs without program,
         // when this logic moves to Node we will have full analysis also for skipped files
         LOG.info(
-          "Files were not part of any tsconfig.json:  {} file(s), they will be analyzed without type information",
+          "Found {} file(s) not part of any tsconfig.json: they will be analyzed without type information",
           skippedFiles.size()
         );
-        for (InputFile f : skippedFiles) {
+        for (var f : skippedFiles) {
           LOG.debug("File not part of any tsconfig.json: {}", f);
           analyze(f, null);
         }

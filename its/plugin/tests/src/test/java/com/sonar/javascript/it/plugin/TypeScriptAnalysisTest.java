@@ -230,7 +230,7 @@ class TypeScriptAnalysisTest {
     assertThat(
       result.getLogsLines(l ->
         l.contains(
-          "INFO: Files were not part of any tsconfig.json:  1 file(s), they will be analyzed without type information"
+          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
         )
       )
     )

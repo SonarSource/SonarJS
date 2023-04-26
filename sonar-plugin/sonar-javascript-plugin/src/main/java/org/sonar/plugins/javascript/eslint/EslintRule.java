@@ -46,7 +46,7 @@ class EslintRule {
     this.fileTypeTarget =
       fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
     this.configurations = configurations;
-    // unfortunately we can't check this using types, so it's enforce at runtime
+    // unfortunately we can't check this using types, so it's enforced at runtime
     if (!JavaScriptLanguage.KEY.equals(language) && !TypeScriptLanguage.KEY.equals(language)) {
       throw new IllegalArgumentException("Invalid language " + language);
     }

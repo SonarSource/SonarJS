@@ -67,7 +67,6 @@ public class JsTsChecks {
   ) {
     this.checkFactory = checkFactory;
     this.customRuleRepositories = customRuleRepositories;
-    // we need to add JS checks last, so they overwrite any TS checks with same eslint key in eslintKeyToRuleKey map
     doAddChecks(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
     addCustomChecks(Language.TYPESCRIPT);
     doAddChecks(Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());

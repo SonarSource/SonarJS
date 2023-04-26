@@ -26,7 +26,7 @@ ruleTesterJs.run('No require or define import [js]', rule, {
   valid: [],
   invalid: [
     {
-      code: `const circle = require('./circle.js'); // not reported without type information`,
+      code: `const circle = require('./circle.js');`,
       errors: 1,
     },
   ],
