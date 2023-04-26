@@ -88,7 +88,7 @@
     "tmp": "0.2.1",
     "typescript": "4.9.4",
     "vue-eslint-parser": "9.1.1",
-    "yaml": "2.1.1"
+    "yaml": "2.2.2"
   },
   "bundledDependencies": [
     "@typescript-eslint/eslint-plugin",
