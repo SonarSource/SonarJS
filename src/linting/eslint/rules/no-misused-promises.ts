@@ -62,6 +62,9 @@ const noMisusedPromisesRule = sanitizeTypeScriptESLintRule(
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
+    if ('messageId' in descriptor && descriptor.messageId === 'voidReturnProperty') {
+      // ignore: we consider it a FP
+    }
     if ('node' in descriptor) {
       const start = (descriptor.node as TSESTree.Node).range[0];
       if (!flaggedNodeStarts.get(start)) {
