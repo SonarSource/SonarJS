@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
 
-  static final String PROGRESS_REPORT_TITLE = "Progress of TypeScript analysis";
+  static final String PROGRESS_REPORT_TITLE = "Progress of JavaScript/TypeScript analysis";
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
 
   final EslintBridgeServer eslintBridgeServer;

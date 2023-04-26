@@ -101,42 +101,4 @@ public class JavaScriptFilePredicate {
   public static boolean isTypeScriptFile(InputFile file) {
     return (TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
   }
-
-  public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
-    return fs
-      .predicates()
-      .and(
-        fs
-          .predicates()
-          .or(
-            fs
-              .predicates()
-              .and(
-                fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
-                fs.predicates().not(fs.predicates().hasExtension("vue"))
-              ),
-            fs
-              .predicates()
-              .and(fs.predicates().hasExtension("vue"), fs.predicates().not(hasScriptTagWithLangTS))
-          )
-      );
-  }
-
-  public static FilePredicate getTypeScriptPredicate(FileSystem fs) {
-    return fs
-      .predicates()
-      .and(
-        fs
-          .predicates()
-          .or(
-            fs
-              .predicates()
-              .and(
-                fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
-                fs.predicates().not(fs.predicates().hasExtension("vue"))
-              ),
-            fs.predicates().and(fs.predicates().hasExtension("vue"), hasScriptTagWithLangTS)
-          )
-      );
-  }
 }
