@@ -20,6 +20,7 @@ function apply(f: () =&gt; string): string {
   return f();
 }
 </pre>
+<h4>Noncompliant code example</h4>
 <pre>
 interface Foo {
   (): number;
@@ -30,6 +31,7 @@ interface Foo {
 type Foo = () =&gt; number;
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li> <a href="https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions">TypeScript Function Type Expressions</a>
   </li>
