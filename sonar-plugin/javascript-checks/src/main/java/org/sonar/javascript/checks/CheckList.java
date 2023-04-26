@@ -350,7 +350,6 @@ public final class CheckList {
       SqlQueriesCheck.class,
       StandardInputCheck.class,
       StatefulRegexCheck.class,
-      StrictBooleanExpressionsCheck.class,
       StrictModeCheck.class,
       StrictTransportSecurityCheck.class,
       StringConcatenatedWithNonStringCheck.class,
