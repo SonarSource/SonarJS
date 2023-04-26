@@ -46,6 +46,6 @@ public class NoEmptyClassCheck implements EslintBasedCheck {
     boolean allowConstructorOnly = false;
     boolean allowEmpty = false;
     boolean allowStaticOnly = true;
-    boolean allowWithDecorator = false;
+    boolean allowWithDecorator = true;
   }
 }
