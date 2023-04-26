@@ -23,3 +23,8 @@ type H = 0 & number; // Noncompliant
 type I = ZERO & number; // Noncompliant
 type J = '' & string; // Noncompliant
 type K = 0n & bigint; // Noncompliant
+
+const x: unknown | string = '42'; // Noncompliant
+
+type hidden = unknown;
+const y: hidden | string = '42'; // Compliant - FP

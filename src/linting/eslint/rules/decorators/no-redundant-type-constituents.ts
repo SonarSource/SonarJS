@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// https://sonarsource.github.io/rspec/#/rspec/S6571/javascript
+
 import { Rule } from 'eslint';
 import { interceptReport } from './helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
@@ -36,7 +38,11 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
 }
 
 // We ignore issues where typeName is 'any' but not raised for the 'any' keyword as they are due to unresolved types.
+// The same exception applies for the 'unknown' type.
 function exemptionCondition(node: TSESTree.Node, descriptor: Rule.ReportDescriptor) {
   const data = descriptor.data;
-  return data?.['typeName'] === 'any' && node.type !== 'TSAnyKeyword';
+  return (
+    (data?.['typeName'] === 'any' && node.type !== 'TSAnyKeyword') ||
+    (data?.['typeName'] === 'unknown' && node.type !== 'TSUnknownKeyword')
+  );
 }
