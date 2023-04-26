@@ -31,7 +31,7 @@ class NoEmptyClassCheckTest {
     String configAsString = new Gson().toJson(new NoEmptyClassCheck().configurations());
     assertThat(configAsString)
       .isEqualTo(
-        "[{\"allowConstructorOnly\":false,\"allowEmpty\":false,\"allowStaticOnly\":true,\"allowWithDecorator\":false}]"
+        "[{\"allowConstructorOnly\":false,\"allowEmpty\":false,\"allowStaticOnly\":true,\"allowWithDecorator\":true}]"
       );
   }
 }
