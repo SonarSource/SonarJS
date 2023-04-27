@@ -30,6 +30,7 @@ import {
   isRequiredParserServices,
   isStringArray,
   sortLike,
+  copyingSortLike,
 } from './helpers';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
@@ -75,7 +76,7 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
         const type = getTypeFromTreeNode(object, services);
 
-        if (sortLike.includes(text) && isArrayLikeType(type, services)) {
+        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
           const suggest = getSuggestions(call, type);
           context.report({ node, suggest, messageId: 'provideCompareFunction' });
         }
