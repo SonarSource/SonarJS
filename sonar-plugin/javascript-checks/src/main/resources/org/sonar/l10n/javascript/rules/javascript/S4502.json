@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "sans-top25-insecure",
     "express.js"
   ],
   "defaultSeverity": "Critical",

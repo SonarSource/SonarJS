@@ -7,8 +7,7 @@
     "constantCost": "30min"
   },
   "tags": [
-    "cwe",
-    "sans-top25-porous"
+    "cwe"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2068",

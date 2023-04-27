@@ -1,10 +1,15 @@
 <h2>Why is this an issue?</h2>
 <p>Promises need to be resolved or awaited to return the expected value, otherwise, they return the promise object.</p>
-<p><span>Unresolved promises</span></p>
+<p><span><strong>Unresolved promises:</strong></span></p>
 <p>Forgetting to await a promise is a frequent mistake. There are places where the use of a promise object is confusing or unclear because the
 developer forgot to resolve it.</p>
-<p>This rule forbids returning promises where another type is expected such as in: * conditionals * void returns * spread operators</p>
-<p><span>Missing error handling</span></p>
+<p>This rule forbids returning promises where another type is expected such as in:</p>
+<ul>
+  <li> conditionals </li>
+  <li> void returns </li>
+  <li> spread operators </li>
+</ul>
+<p><span><strong>Missing error handling:</strong></span></p>
 <p>Promises that aren’t resolved will finish running at an unexpected time. When they do not contain error handling and they raise an exception, the
 associated call stack will be wrong.</p>
 <h3>What is the potential impact?</h3>
@@ -38,7 +43,7 @@ cases, you may need to use an "immediately invoked function expression" (IIFE):<
 <code>.then(result ⇒ {}, error ⇒ {})</code>.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 const promise = new Promise((resolve, reject) =&gt; {
   // ...
   resolve(false)
@@ -48,7 +53,7 @@ if (promise) {
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 const promise = new Promise((resolve, reject) =&gt; {
   // ...
   resolve(false)
@@ -58,7 +63,7 @@ if (await promise) {
 }
 </pre>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 const p = new Promise(async (resolve, reject) =&gt; {
   doSomething('Hey, there!', function(error, result) {
     if (error) {
@@ -73,7 +78,7 @@ const p = new Promise(async (resolve, reject) =&gt; {
 await p;
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 const p = new Promise((resolve, reject) =&gt; {
   doSomething('Hey, there!', function(error, result) {
     if (error) {
@@ -88,26 +93,26 @@ const result = await p;
 await saveResult(result);
 </pre>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 apiCalls.forEach(async (apiCall) =&gt; {
   await apiCall.send();
 });
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="3" data-diff-type="compliant">
 for (const apiCall of apiCalls) {
   await apiCall.send();
 }
 </pre>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
 fetch('https://api.com/entries')
   .then(result =&gt; {
     // ...
   });
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="4" data-diff-type="compliant">
 fetch('https://api.com/entries')
   .then(result =&gt; {
     // ...

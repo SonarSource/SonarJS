@@ -1,5 +1,5 @@
 {
-  "title": "No confusing non-null assertions",
+  "title": "Non-null assertions should not be used misleadingly",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

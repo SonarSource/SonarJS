@@ -7,8 +7,7 @@
     "constantCost": "10min"
   },
   "tags": [
-    "cwe",
-    "owasp-m5"
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2245",
