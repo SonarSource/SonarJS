@@ -4,9 +4,7 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "spring",
-    "sans-top25-porous",
-    "owasp-m5"
+    "spring"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4790",

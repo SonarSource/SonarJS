@@ -4,7 +4,6 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "sans-top25-porous",
     "express.js"
   ],
   "defaultSeverity": "Minor",

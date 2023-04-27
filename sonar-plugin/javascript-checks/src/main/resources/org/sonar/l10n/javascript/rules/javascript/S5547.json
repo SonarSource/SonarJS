@@ -8,9 +8,7 @@
   },
   "tags": [
     "cwe",
-    "privacy",
-    "sans-top25-porous",
-    "owasp-m5"
+    "privacy"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5547",

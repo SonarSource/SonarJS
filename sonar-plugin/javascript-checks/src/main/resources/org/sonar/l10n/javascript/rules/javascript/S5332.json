@@ -3,8 +3,7 @@
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
-    "cwe",
-    "owasp-m3"
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5332",

@@ -9,25 +9,25 @@ logical <code>||</code> expressions or testing against <code>null</code> or <cod
 <p>Rewrite the logical expression <code>||</code> using <code>??</code> on the unchecked operands.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function either(x: number | undefined, y: number) {
   return x || y;
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 function either(x: number | undefined, y: number) {
   return x ?? y;
 }
 </pre>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 function either(x: number | undefined, y: number) {
   return x !== undefined ? x : y;
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 function either(x: number | undefined, y: number) {
   return x ?? y;
 }
