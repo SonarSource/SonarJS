@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { RuleTester } from 'eslint';
+import { rule } from 'linting/eslint/rules/sonar-prefer-optional-chain';
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S6582")
-public class PreferOptionalChainCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "prefer-optional-chain";
-  }
-}
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+ruleTester.run('Sanitized prefer-optional-chain should not raise a runtime error', rule, {
+  valid: [
+    {
+      code: `foo && foo.a;`,
+    },
+  ],
+  invalid: [],
+});
