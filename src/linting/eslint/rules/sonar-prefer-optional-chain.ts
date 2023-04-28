@@ -33,7 +33,7 @@ const preferOptionalChainRule = typeScriptESLintRules['prefer-optional-chain'];
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
  * injected context is missing some helper functions allowing to convert between
  * TypeScript ESLint and TypeScript ASTs. Contrary to rules requiring type checking,
- * there is no way to determine programmatically if a rule requirses such service.
+ * there is no way to determine programmatically if a rule requires such a service.
  *
  * This is the case for the rule 'prefer-optional-chain', for which we need to provide
  * a custom sanitization in case the parser services miss these helpers.
