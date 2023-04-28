@@ -35,9 +35,10 @@ await new Promise(resolve =&gt; time.setTimeout(1000));
 <p>If you mistakenly treated a promise as its resolved value, you can ensure it is properly resolved by using await or resolve on the promise. In some
 cases, you may need to use an "immediately invoked function expression" (IIFE):</p>
 <pre>
-(async foo() {
-  await bar();
-})()
+(async function foo() {
+  const result = await bar();
+  // work with result
+})();
 </pre>
 <p>If you forgot to handle the promise rejection, you should handle it either with <code>.catch(error ⇒ {/<strong>…​</strong>/})</code> or
 <code>.then(result ⇒ {}, error ⇒ {})</code>.</p>
