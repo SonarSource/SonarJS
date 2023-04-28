@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 class EslintRule {
 
@@ -32,12 +34,23 @@ class EslintRule {
   final String key;
   final List<String> fileTypeTarget;
   final List<Object> configurations;
+  final String language;
 
-  EslintRule(String key, List<Object> configurations, List<InputFile.Type> fileTypeTarget) {
+  EslintRule(
+    String key,
+    List<Object> configurations,
+    List<InputFile.Type> fileTypeTarget,
+    String language
+  ) {
     this.key = key;
     this.fileTypeTarget =
       fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
     this.configurations = configurations;
+    // unfortunately we can't check this using types, so it's enforced at runtime
+    if (!JavaScriptLanguage.KEY.equals(language) && !TypeScriptLanguage.KEY.equals(language)) {
+      throw new IllegalArgumentException("Invalid language " + language);
+    }
+    this.language = language;
   }
 
   @Override

@@ -23,12 +23,13 @@ import { rule } from 'linting/eslint/rules/no-require-or-define';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('No require or define import [js]', rule, {
-  valid: [
+  valid: [],
+  invalid: [
     {
-      code: `const circle = require('./circle.js'); // not reported without type information`,
+      code: `const circle = require('./circle.js');`,
+      errors: 1,
     },
   ],
-  invalid: [],
 });
 
 const ruleTesterTs = new TypeScriptRuleTester();

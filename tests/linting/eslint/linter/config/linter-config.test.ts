@@ -32,7 +32,7 @@ describe('createLinterConfig', () => {
   });
 
   it('should enable environments', () => {
-    const { env } = createLinterConfig([], new Map(), ['node', 'jquery'], []);
+    const { env } = createLinterConfig([], new Map(), ['node', 'jquery']);
     expect(env).toEqual(
       expect.objectContaining({
         node: true,
@@ -57,7 +57,7 @@ describe('createLinterConfig', () => {
       ['foo', { module: 42 } as any as Rule.RuleModule],
       ['bar', { module: 24 } as any as Rule.RuleModule],
     ]);
-    const { rules } = createLinterConfig(inputRules, linterRules, [], []);
+    const { rules } = createLinterConfig(inputRules, linterRules);
     expect(rules).toEqual(
       expect.objectContaining({
         foo: ['error'],
@@ -66,7 +66,7 @@ describe('createLinterConfig', () => {
   });
 
   it('should enable internal custom rules by default', () => {
-    const { rules } = createLinterConfig([], new Map(), [], []);
+    const { rules } = createLinterConfig([], new Map());
     expect(rules).toEqual({
       'internal-cognitive-complexity': ['error', 'metric'],
       'internal-symbol-highlighting': ['error'],
@@ -80,7 +80,7 @@ describe('createLinterConfig', () => {
       sonarlint: true,
       bundles: [],
     });
-    const { rules } = createLinterConfig([], new Map(), [], []);
+    const { rules } = createLinterConfig([], new Map());
     expect(rules).toEqual({});
   });
 });

@@ -9,8 +9,7 @@
   "tags": [
     "cwe",
     "privacy",
-    "ssl",
-    "owasp-m3"
+    "ssl"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4830",

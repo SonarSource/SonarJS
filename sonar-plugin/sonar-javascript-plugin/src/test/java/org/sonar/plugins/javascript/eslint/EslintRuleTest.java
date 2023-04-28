@@ -22,12 +22,15 @@ package org.sonar.plugins.javascript.eslint;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.eslint.EslintRule.containsRuleWithKey;
 import static org.sonar.plugins.javascript.eslint.EslintRule.findFirstRuleWithKey;
 
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 class EslintRuleTest {
 
@@ -50,10 +53,18 @@ class EslintRuleTest {
     assertThat(rules("key1")).extracting(EslintRule::toString).contains("key1");
   }
 
+  @Test
+  void should_throw_when_invalid_lang() {
+    assertThatThrownBy(() ->
+        new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "invalid")
+      )
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
   private static List<EslintRule> rules(String... keys) {
     return Arrays
       .stream(keys)
-      .map(key -> new EslintRule(key, emptyList(), emptyList()))
+      .map(key -> new EslintRule(key, emptyList(), emptyList(), JavaScriptLanguage.KEY))
       .collect(toList());
   }
 }

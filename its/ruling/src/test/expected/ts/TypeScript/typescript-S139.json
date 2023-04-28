@@ -1,4 +1,14 @@
 {
+'TypeScript:Gulpfile.ts':[
+989,
+],
+'TypeScript:scripts/bisect-test.ts':[
+53,
+],
+'TypeScript:scripts/processDiagnosticMessages.ts':[
+53,
+55,
+],
 'TypeScript:scripts/tslint/typeOperatorSpacingRule.ts':[
 23,
 ],

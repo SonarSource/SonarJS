@@ -8,7 +8,7 @@ exercise of remembering the underlying type behind the alias and loses track of 
 <p>The type alias should be removed, and all the occurrences of the alias should be replaced with the type it referred to.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 type MyString  = string;
 type MyBoolean = boolean;
 
@@ -17,7 +17,7 @@ function isPalindrom(s: MyString): MyBoolean {
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 function isPalindrom(s: string): boolean {
     return s === s.split('').reverse().join('');
 }

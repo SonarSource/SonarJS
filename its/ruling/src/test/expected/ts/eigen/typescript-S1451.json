@@ -1,5 +1,11 @@
 {
+'eigen:dangerRules/useWebPs.tests.ts':[
+0,
+],
 'eigen:dangerfile.ts':[
+0,
+],
+'eigen:metaphysics-queries-freshness-tests/test-freshness.ts':[
 0,
 ],
 'eigen:scripts/algolia-example-galleries-near-me.ts':[
@@ -2825,6 +2831,9 @@
 'eigen:src/app/Scenes/MyProfile/MyProfileSettings.tsx':[
 0,
 ],
+'eigen:src/app/Scenes/MyProfile/__mocks__/LoggedInUserInfo.tsx':[
+0,
+],
 'eigen:src/app/Scenes/MyProfile/__tests__/MyProfileEditForm.tests.tsx':[
 0,
 ],
@@ -4511,6 +4520,9 @@
 'eigen:src/palette/elements/BorderBox/index.tsx':[
 0,
 ],
+'eigen:src/palette/elements/Box/Box.test.tsx':[
+0,
+],
 'eigen:src/palette/elements/Box/Box.tsx':[
 0,
 ],
@@ -4566,6 +4578,9 @@
 0,
 ],
 'eigen:src/palette/elements/Checkbox/index.tsx':[
+0,
+],
+'eigen:src/palette/elements/Collapse/Collapse.test.tsx':[
 0,
 ],
 'eigen:src/palette/elements/Collapse/Collapse.tsx':[
@@ -4665,6 +4680,9 @@
 0,
 ],
 'eigen:src/palette/elements/Input/index.tsx':[
+0,
+],
+'eigen:src/palette/elements/Join/Join.test.tsx':[
 0,
 ],
 'eigen:src/palette/elements/Join/Join.tsx':[

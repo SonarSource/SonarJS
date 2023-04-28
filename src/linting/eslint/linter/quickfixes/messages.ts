@@ -45,6 +45,7 @@ const quickFixMessages = new Map<string, string>([
   ['no-inferrable-types', 'Remove type declaration'],
   ['no-unnecessary-type-arguments', 'Remove type argument'],
   ['no-unnecessary-type-assertion', 'Remove type assertion'],
+  ['prefer-function-type', 'Replace with a function type'],
   ['prefer-namespace-keyword', "Replace with 'namespace' keyword"],
   ['prefer-readonly', "Add 'readonly'"],
   ['no-non-null-assertion', "Replace with optional chaining '.?'"],

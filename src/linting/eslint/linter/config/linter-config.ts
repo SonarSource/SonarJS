@@ -42,8 +42,8 @@ import { extendRuleConfig, RuleConfig } from './rule-config';
 export function createLinterConfig(
   inputRules: RuleConfig[],
   linterRules: Map<string, Rule.RuleModule>,
-  environments: string[],
-  globs: string[],
+  environments: string[] = [],
+  globs: string[] = [],
 ) {
   const env = createEnv(environments);
   const globals = createGlobals(globs);

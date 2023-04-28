@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,11 +117,15 @@ class JavaScriptFilePredicateTest {
     fs.add(createInputFile(baseDir, "j.jsx"));
     fs.add(createInputFile(baseDir, "k.tsx"));
 
-    FilePredicate predicate = JavaScriptFilePredicate.getJavaScriptPredicate(fs);
-    List<File> files = new ArrayList<>();
-    fs.files(predicate).forEach(files::add);
+    FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
+    var files = new ArrayList<InputFile>();
+    fs.inputFiles(predicate).forEach(files::add);
 
-    List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
+    List<String> filenames = files
+      .stream()
+      .filter(f -> !isTypeScriptFile(f))
+      .map(InputFile::filename)
+      .collect(Collectors.toList());
     assertThat(filenames)
       .containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
   }
@@ -189,11 +194,15 @@ class JavaScriptFilePredicateTest {
     fs.add(createInputFile(baseDir, "i.jsx"));
     fs.add(createInputFile(baseDir, "j.tsx"));
 
-    FilePredicate predicate = JavaScriptFilePredicate.getTypeScriptPredicate(fs);
-    List<File> files = new ArrayList<>();
-    fs.files(predicate).forEach(files::add);
+    FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
+    var files = new ArrayList<InputFile>();
+    fs.inputFiles(predicate).forEach(files::add);
 
-    List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
+    List<String> filenames = files
+      .stream()
+      .filter(JavaScriptFilePredicate::isTypeScriptFile)
+      .map(InputFile::filename)
+      .collect(Collectors.toList());
     assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
   }
 
@@ -238,15 +247,54 @@ class JavaScriptFilePredicateTest {
       );
   }
 
-  private static final InputFile createInputFile(Path baseDir, String relativePath) {
+  @Test
+  void testIsTypeScriptFile() {
+    var tsFile = TestInputFileBuilder
+      .create("", "file.ts")
+      .setLanguage(TypeScriptLanguage.KEY)
+      .build();
+    assertThat(isTypeScriptFile(tsFile)).isTrue();
+    var jsFile = TestInputFileBuilder
+      .create("", "file.js")
+      .setLanguage(JavaScriptLanguage.KEY)
+      .build();
+    assertThat(isTypeScriptFile(jsFile)).isFalse();
+    var vueFile = TestInputFileBuilder
+      .create("", "file.vue")
+      .setLanguage(JavaScriptLanguage.KEY)
+      .build();
+    assertThat(isTypeScriptFile(vueFile)).isFalse();
+    var tsVueFile = TestInputFileBuilder
+      .create("", "file.vue")
+      .setLanguage(JavaScriptLanguage.KEY)
+      .setContents("<script lang='ts'>")
+      .build();
+    assertThat(isTypeScriptFile(tsVueFile)).isTrue();
+  }
+
+  @Test
+  void testJsTsPredicate() {
+    var fs = new DefaultFileSystem(baseDir);
+    var tsFile = TestInputFileBuilder
+      .create("", "file.ts")
+      .setLanguage(TypeScriptLanguage.KEY)
+      .build();
+    var jsFile = TestInputFileBuilder
+      .create("", "file.js")
+      .setLanguage(JavaScriptLanguage.KEY)
+      .build();
+    var f = TestInputFileBuilder.create("", "file.cpp").setLanguage("c").build();
+    var predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
+    assertThat(predicate.apply(jsFile)).isTrue();
+    assertThat(predicate.apply(tsFile)).isTrue();
+    assertThat(predicate.apply(f)).isFalse();
+  }
+
+  private static InputFile createInputFile(Path baseDir, String relativePath) {
     return createInputFile(baseDir, relativePath, "");
   }
 
-  private static final InputFile createInputFile(
-    Path baseDir,
-    String relativePath,
-    String content
-  ) {
+  private static InputFile createInputFile(Path baseDir, String relativePath, String content) {
     InputFile file = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir)
       .setType(Type.MAIN)
@@ -257,7 +305,7 @@ class JavaScriptFilePredicateTest {
     return file;
   }
 
-  private static final String getLanguage(String path) {
+  private static String getLanguage(String path) {
     String fileExtension = path.substring(path.indexOf("."));
     if (JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(fileExtension)) {
       return JavaScriptLanguage.KEY;

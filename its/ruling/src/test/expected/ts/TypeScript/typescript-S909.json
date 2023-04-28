@@ -1,4 +1,17 @@
 {
+'TypeScript:Gulpfile.ts':[
+240,
+],
+'TypeScript:scripts/authors.ts':[
+43,
+],
+'TypeScript:scripts/errorCheck.ts':[
+67,
+],
+'TypeScript:scripts/processDiagnosticMessages.ts':[
+174,
+189,
+],
 'TypeScript:src/compiler/binder.ts':[
 1663,
 1683,

@@ -1,4 +1,10 @@
 {
+'TypeScript:scripts/authors.ts':[
+0,
+],
+'TypeScript:scripts/errorCheck.ts':[
+0,
+],
 'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
 0,
 ],
@@ -33,6 +39,9 @@
 0,
 ],
 'TypeScript:src/harness/harness.ts':[
+0,
+],
+'TypeScript:src/harness/instrumenter.ts':[
 0,
 ],
 'TypeScript:src/harness/typeWriter.ts':[

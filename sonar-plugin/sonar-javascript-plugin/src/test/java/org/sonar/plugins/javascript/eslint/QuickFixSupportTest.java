@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -56,19 +57,21 @@ class QuickFixSupportTest {
 
   SonarLintInputFile inputFile;
   SensorStorage sensorStorage;
-  JavaScriptChecks checks;
+  JsTsChecks checks;
   DefaultActiveRules activeRules;
   AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   void setUp() {
-    inputFile = new SonarLintInputFile(mock(ClientInputFile.class), i -> null);
+    var mock = mock(ClientInputFile.class);
+    when(mock.relativePath()).thenReturn("file.js");
+    inputFile = new SonarLintInputFile(mock, i -> null);
     inputFile.setType(InputFile.Type.MAIN);
     var activeRule = new NewActiveRule.Builder()
       .setRuleKey(RuleKey.of("javascript", "S1116"))
       .build();
     activeRules = new ActiveRulesBuilder().addRule(activeRule).build();
-    checks = new JavaScriptChecks(new CheckFactory(activeRules));
+    checks = new JsTsChecks(new CheckFactory(activeRules));
     analysisProcessor =
       new AnalysisProcessor(
         mock(NoSonarFilter.class),

@@ -1,6 +1,15 @@
 {
+'TypeScript:scripts/bisect-test.ts':[
+56,
+],
+'TypeScript:scripts/configureNightly.ts':[
+73,
+],
 'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
 161,
+],
+'TypeScript:scripts/processDiagnosticMessages.ts':[
+244,
 ],
 'TypeScript:src/compiler/commandLineParser.ts':[
 1707,

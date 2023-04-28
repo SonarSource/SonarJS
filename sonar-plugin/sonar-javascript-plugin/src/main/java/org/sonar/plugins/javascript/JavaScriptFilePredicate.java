@@ -20,11 +20,13 @@
 package org.sonar.plugins.javascript;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.eslint.YamlSensor;
 
 public class JavaScriptFilePredicate {
@@ -85,41 +87,18 @@ public class JavaScriptFilePredicate {
       );
   }
 
-  public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
-    return fs
-      .predicates()
-      .and(
-        fs
-          .predicates()
-          .or(
-            fs
-              .predicates()
-              .and(
-                fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
-                fs.predicates().not(fs.predicates().hasExtension("vue"))
-              ),
-            fs
-              .predicates()
-              .and(fs.predicates().hasExtension("vue"), fs.predicates().not(hasScriptTagWithLangTS))
-          )
-      );
+  public static FilePredicate getJsTsPredicate(FileSystem fs) {
+    return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
   }
 
-  public static FilePredicate getTypeScriptPredicate(FileSystem fs) {
-    return fs
-      .predicates()
-      .and(
-        fs
-          .predicates()
-          .or(
-            fs
-              .predicates()
-              .and(
-                fs.predicates().hasLanguage(TypeScriptLanguage.KEY),
-                fs.predicates().not(fs.predicates().hasExtension("vue"))
-              ),
-            fs.predicates().and(fs.predicates().hasExtension("vue"), hasScriptTagWithLangTS)
-          )
-      );
+  private static boolean isVueTsFile(InputFile file) {
+    return (
+      file.filename().toLowerCase(Locale.ROOT).endsWith(".vue") &&
+      hasScriptTagWithLangTS.apply(file)
+    );
+  }
+
+  public static boolean isTypeScriptFile(InputFile file) {
+    return (TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
   }
 }

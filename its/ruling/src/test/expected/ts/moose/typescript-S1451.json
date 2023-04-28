@@ -212,6 +212,9 @@
 'moose:sample/results.ts':[
 0,
 ],
+'moose:shared/constants/CastDeviceType.ts':[
+0,
+],
 'moose:shared/constants/CastEvents.ts':[
 0,
 ],

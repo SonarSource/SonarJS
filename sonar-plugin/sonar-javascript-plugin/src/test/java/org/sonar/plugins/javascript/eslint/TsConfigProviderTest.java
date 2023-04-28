@@ -81,12 +81,22 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
         tsconfig1.toAbsolutePath().toString(),
         tsconfig2.toAbsolutePath().toString()
       );
+  }
+
+  String tsConfigFileCreator(String content) throws IOException {
+    var path = tempFolder.newFile().toPath();
+    Files.writeString(path, content);
+    return path.toString();
   }
 
   @Test
@@ -99,7 +109,11 @@ class TsConfigProviderTest {
     );
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
     assertThat(logger.logs(LoggerLevel.INFO))
@@ -118,7 +132,11 @@ class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, absolutePath));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
 
@@ -139,7 +157,11 @@ class TsConfigProviderTest {
         )
     );
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
         baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
@@ -172,7 +194,11 @@ class TsConfigProviderTest {
         )
     );
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
         baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
@@ -190,7 +216,11 @@ class TsConfigProviderTest {
       new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS_ALIAS, "tsconfig.json")
     );
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
     assertThat(logger.logs(LoggerLevel.INFO))
       .contains(
@@ -205,7 +235,11 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    List<String> tsconfigs = TsConfigProvider.getTsConfigs(
+      new ContextUtils(ctx),
+      null,
+      this::tsConfigFileCreator
+    );
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(
       Files.readAllBytes(Paths.get(tsconfigs.get(0))),

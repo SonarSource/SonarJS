@@ -22,15 +22,9 @@ export function bar()  {
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-class Foo {
+class Foo { // Noncompliant
   static bar() {
     // ...
-  }
-}
-
-class DoAndLog {
-  constructor () {
-    console.log('I\'m done!');
   }
 }
 </pre>
@@ -39,7 +33,17 @@ class DoAndLog {
 export function bar() {
   // ...
 }
-
+</pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+class DoAndLog { // Noncompliant
+  constructor () {
+    console.log('I\'m done!');
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
 function doAndLog() {
   console.log('I\'m done!');
 }

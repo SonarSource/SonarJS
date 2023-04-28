@@ -1,4 +1,8 @@
 {
+'rxjs:src/MiscJSDoc.ts':[
+180,
+190,
+],
 'rxjs:src/Observer.ts':[
 33,
 ],
@@ -19,6 +23,9 @@
 ],
 'rxjs:src/observable/dom/AjaxObservable.ts':[
 92,
+],
+'rxjs:src/observable/dom/MiscJSDoc.ts':[
+66,
 ],
 'rxjs:src/operator/audit.ts':[
 107,

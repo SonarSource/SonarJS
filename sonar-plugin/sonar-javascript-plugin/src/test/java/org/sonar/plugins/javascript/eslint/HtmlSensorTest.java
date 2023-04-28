@@ -21,7 +21,10 @@ package org.sonar.plugins.javascript.eslint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -286,7 +289,7 @@ class HtmlSensorTest {
       .doesNotContain("Processing cache analysis of file: " + file.uri());
   }
 
-  private static JavaScriptChecks checks(String... ruleKeys) {
+  private static JsTsChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       builder.addRule(
@@ -295,7 +298,7 @@ class HtmlSensorTest {
           .build()
       );
     }
-    return new JavaScriptChecks(new CheckFactory(builder.build()));
+    return new JsTsChecks(new CheckFactory(builder.build()));
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

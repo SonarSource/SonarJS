@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true
+    "allowJs": true,
+    "strictNullChecks": true
   },
   "include": ["./*.ts", "./*.js"]
 }

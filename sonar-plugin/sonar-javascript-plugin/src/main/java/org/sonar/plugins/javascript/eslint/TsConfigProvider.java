@@ -26,8 +26,6 @@ import static java.util.stream.Collectors.toList;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -45,7 +43,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
@@ -67,28 +64,29 @@ class TsConfigProvider {
 
   private final List<Provider> providers;
 
-  /**
-   * Relying on (in order of priority)
-   * 1. Property sonar.typescript.tsconfigPath(s)
-   * 2. Looking up file system
-   * 3. Creating a tmp tsconfig.json listing all files
-   */
-  TsConfigProvider(TempFolder folder) {
-    providers =
-      Arrays.asList(
-        new PropertyTsConfigProvider(),
-        new LookupTsConfigProvider(),
-        new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate)
-      );
+  private TsConfigProvider(List<Provider> providers) {
+    this.providers = providers;
   }
 
   /**
    * Relying on (in order of priority)
    * 1. Property sonar.typescript.tsconfigPath(s)
    * 2. Looking up file system
+   * 3. Creating a tmp tsconfig.json listing all files
    */
-  TsConfigProvider() {
-    providers = List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider());
+  static List<String> getTsConfigs(
+    ContextUtils contextUtils,
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    TsConfigFileCreator tsConfigFileCreator
+  ) throws IOException {
+    var defaultProvider = contextUtils.isSonarLint()
+      ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
+      : new DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+
+    var provider = new TsConfigProvider(
+      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(), defaultProvider)
+    );
+    return provider.tsconfigs(contextUtils.context());
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -245,12 +243,15 @@ class TsConfigProvider {
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
 
-    private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
+    private final TsConfigFileCreator tsConfigFileCreator;
 
-    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
+    DefaultTsConfigProvider(
+      TsConfigFileCreator tsConfigFileCreator,
+      Function<FileSystem, FilePredicate> filePredicate
+    ) {
       super(SonarProduct.SONARQUBE);
-      this.folder = folder;
+      this.tsConfigFileCreator = tsConfigFileCreator;
       this.filePredicateProvider = filePredicate;
     }
 
@@ -267,9 +268,7 @@ class TsConfigProvider {
 
     private File writeToJsonFile(TsConfig tsConfig) throws IOException {
       String json = new Gson().toJson(tsConfig);
-      File tsconfigFile = folder.newFile();
-      Files.write(tsconfigFile.toPath(), json.getBytes(StandardCharsets.UTF_8));
-      return tsconfigFile;
+      return Path.of(tsConfigFileCreator.createTsConfigFile(json)).toFile();
     }
   }
 

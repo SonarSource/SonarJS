@@ -74,13 +74,7 @@ class ExternalTSConfigDependencyTest {
 
     File lastTsConfigPath = new File(
       rootDrive,
-      "node_modules" +
-      File.separator +
-      "@tsconfig" +
-      File.separator +
-      "node14" +
-      File.separator +
-      "tsconfig.json"
+      "node_modules" + File.separator + "__missing__" + File.separator + "tsconfig.json"
     );
 
     assertThat(

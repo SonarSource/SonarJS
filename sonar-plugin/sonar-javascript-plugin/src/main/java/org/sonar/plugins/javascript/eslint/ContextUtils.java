@@ -55,4 +55,8 @@ class ContextUtils {
   boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
+
+  SensorContext context() {
+    return context;
+  }
 }

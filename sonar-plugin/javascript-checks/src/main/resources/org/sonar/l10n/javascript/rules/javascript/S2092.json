@@ -9,7 +9,6 @@
   "tags": [
     "cwe",
     "privacy",
-    "sans-top25-porous",
     "express.js"
   ],
   "defaultSeverity": "Minor",

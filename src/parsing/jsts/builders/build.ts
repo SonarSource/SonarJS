@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext } from 'helpers';
+import { debug, getContext, JsTsLanguage } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
-import { buildParserOptions, parseForESLint, Language, parsers } from 'parsing/jsts';
+import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
 import { getProgramById, getProgramForFile } from 'services/program';
 import { Linter } from 'eslint';
 
@@ -33,7 +33,7 @@ import { Linter } from 'eslint';
  * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: Language) {
+export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
 
   if (shouldUseTypescriptParser(language)) {
@@ -105,7 +105,7 @@ function shouldUseWatchProgram(file: string): boolean {
   return getContext()?.sonarlint || isVueFile(file);
 }
 
-function shouldUseTypescriptParser(language: Language): boolean {
+function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
   return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 

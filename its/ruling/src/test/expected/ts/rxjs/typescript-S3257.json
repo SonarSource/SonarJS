@@ -6,6 +6,9 @@
 'rxjs:src/InnerSubscriber.ts':[
 10,
 ],
+'rxjs:src/MiscJSDoc.ts':[
+173,
+],
 'rxjs:src/Observable.ts':[
 28,
 ],
@@ -45,6 +48,17 @@
 ],
 'rxjs:src/observable/dom/AjaxObservable.ts':[
 185,
+],
+'rxjs:src/observable/dom/MiscJSDoc.ts':[
+15,
+23,
+27,
+31,
+39,
+43,
+47,
+51,
+72,
 ],
 'rxjs:src/operator/audit.ts':[
 72,
