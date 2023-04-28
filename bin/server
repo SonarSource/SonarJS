@@ -13,7 +13,7 @@
 
 const server = require('../lib/server');
 const path = require('path');
-const context = require('../lib/helpers');
+const context = require('../lib/helpers/context');
 
 const port = process.argv[2];
 const host = process.argv[3];
@@ -27,4 +27,4 @@ if (process.argv[7]) {
 }
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
-server.start(port, host);
+server.start(Number.parseInt(port), host).catch(() => {});

@@ -30,44 +30,78 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfDirectory, debug, toUnixPath } from 'helpers';
+import {
+  addTsConfigIfDirectory,
+  debug,
+  readFileSync,
+  toUnixPath,
+  ProgramResult,
+  ProjectTSConfigs,
+} from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 
-/**
- * A cache of created TypeScript's Program instances
- *
- * It associates a program identifier to an instance of a TypeScript's Program.
- */
-const programs = new Map<string, ts.Program>();
+import { ProgramCache } from 'helpers/cache';
+import { JsTsAnalysisInput } from 'services/analysis';
+
+export const programCache = new ProgramCache();
+const projectTSConfigs = new ProjectTSConfigs();
 
 /**
- * A counter of created TypeScript's Program instances
- */
-let programCount = 0;
-
-/**
- * Computes the next identifier available for a TypeScript's Program.
- * @returns
- */
-function nextId() {
-  programCount++;
-  return programCount.toString();
-}
-
-/**
- * Gets an existing TypeScript's Program by its identifier
- * @param programId the identifier of the TypeScript's Program to retrieve
- * @throws a runtime error if there is no such program
+ * Creates or gets the proper existing TypeScript's Program containing a given source file.
+ * @param input JS/TS Analysis input request
+ * @param cache the LRU cache object to use as cache
+ * @param tsconfigs the TSConfigs DB instance to use
  * @returns the retrieved TypeScript's Program
  */
-export function getProgramById(programId: string): ts.Program {
-  const program = programs.get(programId);
-  if (!program) {
-    throw Error(`Failed to find program ${programId}`);
+export function getProgramForFile(
+  input: JsTsAnalysisInput,
+  cache = programCache,
+  tsconfigs = projectTSConfigs,
+): ts.Program {
+  let newTsConfigs = false;
+  if (input.tsConfigs) {
+    newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
   }
-  return program;
+
+  // if at least a tsconfig changed, removed cache of programs, as files
+  // could now belong to another program
+  if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
+    programCache.clear();
+  }
+
+  const normalizedPath = toUnixPath(input.filePath);
+  for (const [tsConfigPath, programResult] of cache.programs) {
+    const tsConfig = tsconfigs.get(tsConfigPath);
+    if (
+      programResult.files.includes(normalizedPath) &&
+      (programResult.isFallbackProgram || tsConfig)
+    ) {
+      const program = programResult.program.deref();
+      if (program) {
+        cache.lru.set(program);
+        return program;
+      } else {
+        cache.programs.delete(tsConfigPath);
+      }
+    }
+  }
+  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
+    if (!cache.programs.has(tsconfig.filename)) {
+      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
+      if (tsconfig.isFallbackTSConfig) {
+        programResult.isFallbackProgram = true;
+      }
+      cache.programs.set(tsconfig.filename, programResult);
+      if (programResult.files.includes(normalizedPath)) {
+        const program = programResult.program.deref()!;
+        cache.lru.set(program);
+        return program;
+      }
+    }
+  }
+  throw Error(`Could not create a program containing ${normalizedPath}`);
 }
 
 /**
@@ -77,16 +111,16 @@ export function getProgramById(programId: string): ts.Program {
  * by invoking TypeScript compiler.
  *
  * @param tsConfig TSConfig to parse
- * @param configHost parsing configuration
+ * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
  * @returns the resolved TSConfig files
  */
 export function createProgramOptions(
   tsConfig: string,
-  configHost?: ts.ParseConfigHost,
+  tsconfigContents?: string,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
-  const parseConfigHost: ts.ParseConfigHost = configHost || {
+  const parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
@@ -98,6 +132,9 @@ export function createProgramOptions(
       return ts.sys.fileExists(file);
     },
     readFile: file => {
+      if (file === tsConfig && tsconfigContents) {
+        return tsconfigContents;
+      }
       const fileContents = ts.sys.readFile(file);
       // When Typescript search for tsconfig which does not exist, return empty configuration
       // only when the check is for the last location at the root node_modules
@@ -159,25 +196,23 @@ export function createProgramOptions(
  * files considered by the TSConfig as well as any project references.
  *
  * @param tsConfig the TSConfig input to create a program for
+ * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
  * @returns the identifier of the created TypeScript's Program along with the
- *          resolved files, project references and a boolean 'missingTsConfig'
- *          which is true when an extended tsconfig.json path was not found,
- *          which defaulted to default Typescript configuration
+ *          program itself, the resolved files, project references and a boolean
+ *          'missingTsConfig' which is true when an extended tsconfig.json path
+ *          was not found, which defaulted to default Typescript configuration
  */
-export async function createProgram(tsConfig: string): Promise<{
-  programId: string;
-  files: string[];
-  projectReferences: string[];
-  missingTsConfig: boolean;
-}> {
-  const programOptions = createProgramOptions(tsConfig);
-
+export function createProgram(tsConfig: string, tsconfigContents?: string): ProgramResult {
+  if (!tsconfigContents) {
+    tsconfigContents = readFileSync(tsConfig);
+  }
+  const programOptions = createProgramOptions(tsConfig, tsconfigContents);
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
 
   for (const reference of inputProjectReferences) {
-    const sanitizedReference = await addTsConfigIfDirectory(reference.path);
+    const sanitizedReference = addTsConfigIfDirectory(reference.path);
     if (!sanitizedReference) {
       console.log(`WARN Skipping missing referenced tsconfig.json: ${reference.path}`);
     } else {
@@ -186,16 +221,65 @@ export async function createProgram(tsConfig: string): Promise<{
   }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
 
-  const programId = nextId();
-  programs.set(programId, program);
-  debug(`program from ${tsConfig} with id ${programId} is created`);
-
   return {
-    programId,
     files,
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
+    program: new WeakRef(program),
+    tsConfig: {
+      filename: tsConfig,
+      contents: tsconfigContents,
+    },
   };
+}
+
+/**
+ * A cache of created TypeScript's Program instances
+ *
+ * It associates a program identifier to an instance of a TypeScript's Program.
+ */
+const programs = new Map<string, ts.Program>();
+
+/**
+ * A counter of created TypeScript's Program instances
+ */
+let programCount = 0;
+
+/**
+ * Computes the next identifier available for a TypeScript's Program.
+ * @returns
+ */
+function nextId() {
+  programCount++;
+  return programCount.toString();
+}
+
+/**
+ * Creates a TypeScript's Program instance and saves it in memory
+ *
+ * To be removed once Java part does not handle program creation
+ */
+export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
+  const program = createProgram(tsConfig);
+
+  const programId = nextId();
+  programs.set(programId, program.program.deref()!);
+  debug(`program from ${tsConfig} with id ${programId} is created`);
+  return { ...program, programId };
+}
+
+/**
+ * Gets an existing TypeScript's Program by its identifier
+ * @param programId the identifier of the TypeScript's Program to retrieve
+ * @throws a runtime error if there is no such program
+ * @returns the retrieved TypeScript's Program
+ */
+export function getProgramById(programId: string): ts.Program {
+  const program = programs.get(programId);
+  if (!program) {
+    throw Error(`Failed to find program ${programId}`);
+  }
+  return program;
 }
 
 /**

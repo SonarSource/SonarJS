@@ -17,15 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visitAndCountIf } from 'linting/eslint/linter/visitors/metrics/helpers';
-import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../tools';
+export class LRU<T> {
+  private readonly max: number;
+  private readonly cache: T[];
+  constructor(max = 2) {
+    this.max = max;
+    this.cache = [];
+  }
 
-describe('visitAndCountIf', () => {
-  it('should count matching nodes', async () => {
-    const filePath = path.join(__dirname, './fixtures/counter.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath, []);
-    const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
-    expect(count).toEqual(3);
-  });
-});
+  get() {
+    return this.cache;
+  }
+
+  set(item: T) {
+    const index = this.cache.indexOf(item);
+    if (index >= 0) {
+      this.cache.splice(index, 1);
+    }
+    this.cache.push(item);
+    if (this.cache.length > this.max) {
+      this.cache.shift();
+    }
+  }
+
+  clear() {
+    this.cache.length = 0;
+  }
+}

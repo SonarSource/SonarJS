@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { createProgram } from 'services/program';
+import { createAndSaveProgram } from 'services/program';
 
 /**
  * Handles TypeScript Program creation requests
  */
-export default async function (
+export default function (
   request: express.Request,
   response: express.Response,
   next: express.NextFunction,
 ) {
   try {
     const { tsConfig } = request.body;
-    response.json(await createProgram(tsConfig));
+    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
+    response.json({ programId, files, projectReferences, missingTsConfig });
   } catch (error) {
     next(error);
   }

@@ -25,7 +25,7 @@ import { parseJavaScriptSourceFile } from '../../../../tools';
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-extra-semi';
     const config = { rules: { [ruleId]: 'error' } } as Linter.Config;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Linter, SourceCode } from 'eslint';
+import { Linter } from 'eslint';
 import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
@@ -36,7 +36,7 @@ describe('decorateExternalRules', () => {
       linter.defineRules(decoratedExternalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'enforce-trailing-comma.js');
-      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
 
       const rules = { [ruleId]: 'error' } as any;
 
@@ -54,7 +54,7 @@ describe('decorateExternalRules', () => {
     linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'no-throw-literal.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-throw-literal';
     const rules = { [ruleId]: 'error' } as any;
@@ -74,7 +74,7 @@ describe('decorateExternalRules', () => {
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
     const tsConfigs = [];
 
-    const sourceCode = (await parseTypeScriptSourceFile(filePath, tsConfigs)) as SourceCode;
+    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
     expect(sourceCode.parserServices.hasFullTypeInformation).toBeDefined();
     expect(sourceCode.parserServices.hasFullTypeInformation).toEqual(false);
 
@@ -92,7 +92,7 @@ describe('decorateExternalRules', () => {
       linter.defineRules(decorate ? decoratedExternalRules : externalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'internal-decorator.js');
-      const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
 
       const ruleId = 'accessor-pairs';
       const rules = { [ruleId]: 'error' } as any;

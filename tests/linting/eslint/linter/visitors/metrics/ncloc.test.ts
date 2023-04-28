@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { findNcloc } from 'linting/eslint/linter/visitors/metrics/ncloc';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
@@ -25,14 +24,14 @@ import { parseJavaScriptSourceFile } from '../../../../../tools';
 describe('findNcloc', () => {
   it('should find the line numbers of code', async () => {
     const filePath = path.join(__dirname, 'fixtures/ncloc.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });
 
   it('should find the line numbers of code in Vue.js', async () => {
     const filePath = path.join(__dirname, 'fixtures/ncloc.vue');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([
       1, 2, 3, 7, 8, 9, 11, 12, 13, 14, 18, 19, 20, 21, 22, 24, 25, 30, 31, 32,

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { findNoSonarLines } from 'linting/eslint/linter/visitors';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
@@ -25,7 +24,7 @@ import { parseJavaScriptSourceFile } from '../../../../../tools';
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'nosonar.js');
-    const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const { nosonarLines } = findNoSonarLines(sourceCode);
     expect(nosonarLines).toEqual([1, 2, 3]);
   });

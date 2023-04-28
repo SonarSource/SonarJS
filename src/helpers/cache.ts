@@ -17,15 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visitAndCountIf } from 'linting/eslint/linter/visitors/metrics/helpers';
-import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../tools';
+import { LRU } from './lru';
+import ts from 'typescript';
+import { TSConfig } from './tsconfigs';
 
-describe('visitAndCountIf', () => {
-  it('should count matching nodes', async () => {
-    const filePath = path.join(__dirname, './fixtures/counter.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath, []);
-    const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
-    expect(count).toEqual(3);
-  });
-});
+export type ProgramResult = {
+  tsConfig: TSConfig;
+  files: string[];
+  projectReferences: string[];
+  missingTsConfig: boolean;
+  program: WeakRef<ts.Program>;
+  isFallbackProgram?: boolean;
+};
+
+/**
+ * A cache of created TypeScript's Program instances
+ *
+ * @param programs It associates a program identifier (usually a tsconfig) to an instance of a TypeScript's Program.
+ * @param lru Cache to keep strong references to the latest used Programs to avoid GC
+ */
+export class ProgramCache {
+  public programs: Map<string, ProgramResult>;
+  public lru: LRU<ts.Program>;
+  constructor(max = 2) {
+    this.programs = new Map<string, ProgramResult>();
+    this.lru = new LRU<ts.Program>(max);
+  }
+  clear() {
+    this.programs.clear();
+    this.lru.clear();
+  }
+}

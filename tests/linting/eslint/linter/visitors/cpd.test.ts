@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
 import { CpdToken, getCpdTokens } from 'linting/eslint/linter/visitors';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
@@ -84,7 +83,7 @@ describe('getCpdTokens', () => {
 
 async function tokens(filename: string): Promise<CpdToken[]> {
   const filePath = path.join(__dirname, 'fixtures', 'cpd', filename);
-  const sourceCode = (await parseJavaScriptSourceFile(filePath)) as SourceCode;
+  const sourceCode = await parseJavaScriptSourceFile(filePath);
   return getCpdTokens(sourceCode).cpdTokens;
 }
 

@@ -21,7 +21,7 @@ import path from 'path';
 import { setContext, toUnixPath } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
 import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
-import { createProgram } from 'services/program';
+import { createAndSaveProgram } from 'services/program';
 import { APIError } from 'errors';
 import { jsTsInput } from '../../../../tools';
 
@@ -71,7 +71,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze TypeScript code', async () => {
+  it('should analyze TypeScript code with the given linter', async () => {
     const rules = [
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -288,7 +288,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -310,7 +310,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig.json');
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -332,7 +332,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig_no_paths.json');
-    const { programId } = await createProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
     const {
@@ -374,7 +374,7 @@ describe('analyzeJSTS', () => {
     const classicDependencyPath = path.join(__dirname, 'fixtures', 'module', 'string42.ts');
 
     const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
-    const nodeProgram = await createProgram(nodeTsConfig);
+    const nodeProgram = createAndSaveProgram(nodeTsConfig);
     expect(nodeProgram.files).toContain(toUnixPath(nodeDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
@@ -391,7 +391,7 @@ describe('analyzeJSTS', () => {
     );
 
     const nodenextTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_nodenext.json');
-    const nodenextProgram = await createProgram(nodenextTsConfig);
+    const nodenextProgram = createAndSaveProgram(nodenextTsConfig);
     expect(nodenextProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
     expect(nodenextProgram.files).toContain(toUnixPath(nodenextDependencyPath));
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
@@ -408,7 +408,7 @@ describe('analyzeJSTS', () => {
     );
 
     const classicTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_esnext.json');
-    const classicProgram = await createProgram(classicTsConfig);
+    const classicProgram = createAndSaveProgram(classicTsConfig);
     expect(classicProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
     expect(classicProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
@@ -890,7 +890,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should find issues requiring typing in JavaScript with jsconfig.json', async () => {
+  it('should find issues requiring typing in JavaScript', async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -903,31 +903,14 @@ describe('analyzeJSTS', () => {
     ] as RuleConfig[];
     initializeLinter(rules);
 
-    const filePath = path.join(__dirname, 'fixtures', 'jsconfig', 'src', 'main.js');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json')];
+    const filePath = path.join(__dirname, 'fixtures', 'js_types', 'main.js');
 
-    const analysisWithoutProgram = await jsTsInput({ filePath });
-    const { issues: issuesWithoutProgram } = analyzeJSTS(analysisWithoutProgram, 'js');
-    expect(issuesWithoutProgram).toHaveLength(0);
+    const analysisWithProgram = await jsTsInput({ filePath, createProgram: true });
 
-    const analysisWithProject = await jsTsInput({ filePath, tsConfigs });
     const {
       issues: [issuesWithProject],
-    } = analyzeJSTS(analysisWithProject, 'js');
-    expect(issuesWithProject).toEqual(
-      expect.objectContaining({
-        ruleId: 'strings-comparison',
-        line: 4,
-      }),
-    );
-
-    const jsConfig = path.join(__dirname, 'fixtures', 'jsconfig', 'jsconfig.json');
-    const { programId } = await createProgram(jsConfig);
-    const analysisWithProgram = await jsTsInput({ filePath, programId });
-    const {
-      issues: [issueWithProgram],
     } = analyzeJSTS(analysisWithProgram, 'js');
-    expect(issueWithProgram).toEqual(
+    expect(issuesWithProject).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
         line: 4,
