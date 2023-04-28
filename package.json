@@ -125,6 +125,9 @@
     "typescript",
     "yaml"
   ],
+  "overrides": {
+    "yaml": "2.2.2"
+  },
   "prettier": {
     "printWidth": 100,
     "trailingComma": "all",
