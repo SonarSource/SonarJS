@@ -521,10 +521,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder,
-      monitoring,
-      analysisWithProgram,
-      analysisWithWatchProgram
+      monitoring
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -541,10 +538,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder,
-      monitoring,
-      analysisWithProgram,
-      analysisWithWatchProgram
+      monitoring
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
@@ -615,15 +609,7 @@ class JavaScriptEslintBasedSensorTest {
           )
       );
     createInputFile(context);
-    new JsTsSensor(
-      checks(ESLINT_BASED_RULE),
-      eslintBridgeServerMock,
-      null,
-      tempFolder,
-      monitoring,
-      analysisWithProgram,
-      analysisWithWatchProgram
-    )
+    new JsTsSensor(checks(ESLINT_BASED_RULE), eslintBridgeServerMock, null, monitoring)
       .execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
@@ -806,11 +792,9 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       eslintBridgeServerMock,
       new AnalysisWarningsWrapper(),
-      tempFolder,
       monitoring,
       javaScriptProjectChecker,
-      analysisWithProgram,
-      analysisWithWatchProgram
+      analysisProcessor
     );
   }
 

@@ -791,24 +791,8 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder,
-      monitoring,
-      analysisWithProgram(),
-      analysisWithWatchProgram()
+      monitoring
     );
-  }
-
-  private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(
-      eslintBridgeServerMock,
-      monitoring,
-      processAnalysis,
-      analysisWarnings
-    );
-  }
-
-  private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(eslintBridgeServerMock, monitoring, processAnalysis);
   }
 
   private AnalysisResponse createResponse() {
