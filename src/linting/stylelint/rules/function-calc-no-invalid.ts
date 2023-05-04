@@ -129,4 +129,4 @@ export const rule = stylelint.createPlugin(
     messages,
     ruleName,
   }),
-);
+) as { ruleName: string; rule: stylelint.Rule };

@@ -1,8 +1,8 @@
 $i: 1;
 
 .parent {
-    width: $i/1.3+px; // FP (issue-160)
-    height: $i/1.3+0px; // FP (issue-160)
+    width: $i/1.3+px;
+    height: $i/1.3+0px;
 
     height: $i/1.3*1px; // this is OK and no issue is raised, recommended workaround
 }
@@ -16,3 +16,5 @@ $ee-icons: (
       4gee-resumptive     : "\e069",
       4gee-streaming      : "\e068",
 )
+
+a { width: 42pixels; } // Noncompliant
