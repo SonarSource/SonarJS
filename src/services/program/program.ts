@@ -46,7 +46,14 @@ import { ProgramCache } from 'helpers/cache';
 import { JsTsAnalysisInput } from 'services/analysis';
 
 export const programCache = new ProgramCache();
-const projectTSConfigs = new ProjectTSConfigs();
+let projectTSConfigs: ProjectTSConfigs;
+
+function getDefaultTSConfigs() {
+  if (!projectTSConfigs) {
+    projectTSConfigs = new ProjectTSConfigs();
+  }
+  return projectTSConfigs;
+}
 
 /**
  * Creates or gets the proper existing TypeScript's Program containing a given source file.
@@ -58,8 +65,11 @@ const projectTSConfigs = new ProjectTSConfigs();
 export function getProgramForFile(
   input: JsTsAnalysisInput,
   cache = programCache,
-  tsconfigs = projectTSConfigs,
+  tsconfigs?: ProjectTSConfigs,
 ): ts.Program {
+  if (!tsconfigs) {
+    tsconfigs = getDefaultTSConfigs();
+  }
   let newTsConfigs = false;
   if (input.tsConfigs) {
     newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
