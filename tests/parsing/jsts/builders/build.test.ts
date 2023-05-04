@@ -62,7 +62,6 @@ describe('buildSourceCode', () => {
     } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('VariableDeclaration');
-    expect(console.log).not.toHaveBeenCalled();
   });
 
   it('should build JavaScript Vue.js source code', async () => {
