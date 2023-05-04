@@ -67,7 +67,7 @@ class JavaScriptRulingTest {
   public static final Orchestrator orchestrator = Orchestrator
     .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[9.9]"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(
       FileLocation.byWildcardMavenFilename(
         new File("../../sonar-plugin/sonar-javascript-plugin/target"),
@@ -256,6 +256,7 @@ class JavaScriptRulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
+      .setDebugLogs(true)
       .setProperty(
         "sonar.lits.dump.old",
         FileLocation
