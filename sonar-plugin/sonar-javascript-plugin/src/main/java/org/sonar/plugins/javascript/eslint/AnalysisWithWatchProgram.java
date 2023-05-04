@@ -73,15 +73,12 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           TsConfigFile tsConfigFile = entry.getKey();
           List<InputFile> files = entry.getValue();
           if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
-            LOG.info("Skipping {} files with no tsconfig.json", files.size());
-            LOG.debug(
-              "Skipped files: " +
-              files.stream().map(InputFile::toString).collect(Collectors.joining("\n"))
-            );
-            continue;
+            LOG.info("Analyzing {} files without tsconfig", files.size());
+            analyzeTsConfig(null, files);
+          } else {
+            LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
+            analyzeTsConfig(tsConfigFile, files);
           }
-          LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
-          analyzeTsConfig(tsConfigFile, files);
           // Clear Watch Program Cache. Useful only for SonarQube with Vue files. To be removed when only in SonarLint. Test Out of memory
           eslintBridgeServer.newTsConfig();
         }

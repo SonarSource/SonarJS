@@ -293,13 +293,16 @@ class JsTsSensorTest {
     createInputFile(context);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(1);
+    assertThat(issues).hasSize(2);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().textRange()).isNull(); // file level issueCheckListTest.testTypeScriptChecks
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
-    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(context.allAnalysisErrors()).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failed to analyze file [dir/file.ts]: Parse error message");
+      .contains(
+        "Failed to analyze file [dir/file.ts]: Parse error message",
+        "Failed to analyze file [file.vue]: Parse error message"
+      );
   }
 
   @Test
@@ -356,8 +359,8 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
-    verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isEqualTo(content);
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
   }
 
   @Test
@@ -396,7 +399,7 @@ class JsTsSensorTest {
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
     DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
     DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
-    inputFileFromResource(context, baseDir, "noconfig.ts");
+    var noconfig = inputFileFromResource(context, baseDir, "noconfig.ts");
 
     String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
     when(eslintBridgeServerMock.loadTsConfig(tsconfig1))
@@ -410,11 +413,16 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
-    verify(eslintBridgeServerMock, times(3)).analyzeTypeScript(captor.capture());
+    verify(eslintBridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
-      .containsExactlyInAnyOrder(file1.absolutePath(), file2.absolutePath(), file3.absolutePath());
-    verify(eslintBridgeServerMock, times(3)).newTsConfig();
+      .containsExactlyInAnyOrder(
+        file1.absolutePath(),
+        file2.absolutePath(),
+        file3.absolutePath(),
+        noconfig.absolutePath()
+      );
+    verify(eslintBridgeServerMock, times(4)).newTsConfig();
   }
 
   @Test
