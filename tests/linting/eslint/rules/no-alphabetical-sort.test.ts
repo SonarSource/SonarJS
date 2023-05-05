@@ -347,45 +347,45 @@ ruleTester.run(
     valid: [
       {
         code: `
-      var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
-      arrayOfNumbers.toSorted((n, m) => n - m);
+      const arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
+      const sortedArrayOfNumbers = arrayOfNumbers.toSorted((n, m) => n - m);
       `,
       },
       {
-        code: `unknownArrayType.toSorted();`,
+        code: `const sorted = unknownArrayType.toSorted();`,
       },
       {
         code: `
       function f(a: any[]) {
-        a.toSorted(undefined);
+        return a.toSorted(undefined);
       }
     `,
       },
       {
         code: `
       function f(a: any[]) {
-        a.toSorted((a, b) => a - b);
+        return a.toSorted((a, b) => a - b);
       }
     `,
       },
       {
         code: `
       function f(a: Array<string>) {
-        a.toSorted(undefined);
+        return a.toSorted(undefined);
       }
     `,
       },
       {
         code: `
       function f(a: Array<number>) {
-        a.toSorted((a, b) => a - b);
+        return a.toSorted((a, b) => a - b);
       }
     `,
       },
       {
         code: `
       function f(a: { toSorted(): void }) {
-        a.toSorted();
+        return a.toSorted();
       }
     `,
       },
@@ -395,7 +395,7 @@ ruleTester.run(
         toSorted(): void {}
       }
       function f(a: A) {
-        a.toSorted();
+        return a.toSorted();
       }
     `,
       },
@@ -405,7 +405,7 @@ ruleTester.run(
         toSorted(): void;
       }
       function f(a: A) {
-        a.toSorted();
+        return a.toSorted();
       }
     `,
       },
@@ -415,14 +415,14 @@ ruleTester.run(
         toSorted(): void;
       }
       function f<T extends A>(a: T) {
-        a.toSorted();
+        return a.toSorted();
       }
     `,
       },
       {
         code: `
       function f(a: any) {
-        a.toSorted();
+        return a.toSorted();
       }
     `,
       },
@@ -433,7 +433,7 @@ ruleTester.run(
           toSorted(): void;
         }
         function f(a: Array) {
-          a.toSorted();
+          return a.toSorted();
         }
       }
     `,
@@ -442,7 +442,7 @@ ruleTester.run(
       {
         code: `
       function f(a: any[]) {
-        a?.toSorted((a, b) => a - b);
+        return a?.toSorted((a, b) => a - b);
       }
     `,
       },
@@ -453,104 +453,107 @@ ruleTester.run(
           toSorted(): void;
         }
         function f(a: Array) {
-          a?.toSorted();
+          return a?.toSorted();
         }
       }
     `,
       },
       {
-        code: `Array.prototype.toSorted.apply([1, 2, 10])`,
+        code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
       },
     ],
     invalid: [
       {
         code: `
       var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
-      arrayOfNumbers.toSorted();
+      const sortedArrayOfNumbers = arrayOfNumbers.toSorted();
       `,
         errors: [
           {
             message: `Provide a compare function to avoid sorting elements alphabetically.`,
             line: 3,
-            column: 22,
+            column: 51,
             endLine: 3,
-            endColumn: 30,
+            endColumn: 59,
           },
         ],
       },
       {
         code: `
       var emptyArrayOfNumbers: number[] = [];
-      emptyArrayOfNumbers.toSorted();
+      const sortedEmptyArrayOfNumbers = emptyArrayOfNumbers.toSorted();
       `,
         errors: 1,
       },
       {
         code: `
       function getArrayOfNumbers(): number[] {}
-      getArrayOfNumbers().toSorted();
+      const sortedArrayOfNumbers = getArrayOfNumbers().toSorted();
       `,
         errors: 1,
       },
       {
-        code: `[80, 3, 9, 34, 23, 5, 1].toSorted();`,
+        code: `const sortedArrayOfNumbers = [80, 3, 9, 34, 23, 5, 1].toSorted();`,
         errors: [
           {
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending order',
-                output: '[80, 3, 9, 34, 23, 5, 1].toSorted((a, b) => (a - b));',
+                output:
+                  'const sortedArrayOfNumbers = [80, 3, 9, 34, 23, 5, 1].toSorted((a, b) => (a - b));',
               },
             ],
           },
         ],
       },
       {
-        code: '[Number("1"), Number("2"), Number("10")].toSorted();',
+        code: 'const sortedArrayOfNumbers = [Number("1"), Number("2"), Number("10")].toSorted();',
         errors: [
           {
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending order',
-                output: '[Number("1"), Number("2"), Number("10")].toSorted((a, b) => (a - b));',
+                output:
+                  'const sortedArrayOfNumbers = [Number("1"), Number("2"), Number("10")].toSorted((a, b) => (a - b));',
               },
             ],
           },
         ],
       },
       {
-        code: '[Number("1"), 2, Number("10")].toSorted();',
+        code: 'const sortedArrayOfNumbers = [Number("1"), 2, Number("10")].toSorted();',
         errors: [
           {
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending order',
-                output: '[Number("1"), 2, Number("10")].toSorted((a, b) => (a - b));',
+                output:
+                  'const sortedArrayOfNumbers = [Number("1"), 2, Number("10")].toSorted((a, b) => (a - b));',
               },
             ],
           },
         ],
       },
       {
-        code: '["1", 2, "10"].toSorted();',
+        code: 'const sortedArrayOfNumbers = ["1", 2, "10"].toSorted();',
         errors: [{ suggestions: [] }],
       },
       {
-        code: `[80n, 3n, 9n, 34n, 23n, 5n, 1n].toSorted();`,
+        code: `const sortedArrayOfNumbers = [80n, 3n, 9n, 34n, 23n, 5n, 1n].toSorted();`,
         errors: [
           {
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending order',
-                output: `[80n, 3n, 9n, 34n, 23n, 5n, 1n].toSorted((a, b) => {
-  if (a < b) {
-    return -1;
-  } else if (a > b) {
-    return 1;
-  } else {
-    return 0;
-  }
-});`,
+                output: `const sortedArrayOfNumbers = [80n, 3n, 9n, 34n, 23n, 5n, 1n].toSorted((a, b) => {
+                               if (a < b) {
+                                 return -1;
+                               } else if (a > b) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             });`,
               },
             ],
           },
@@ -559,7 +562,7 @@ ruleTester.run(
       {
         code: `
       var arrayOfObjects = [{a: 2}, {a: 4}];
-      arrayOfObjects.toSorted();
+      const sortedArrayOfObject = arrayOfObjects.toSorted();
       `,
         errors: [{ suggestions: [] }],
       },
@@ -567,14 +570,14 @@ ruleTester.run(
         code: `
       interface MyCustomNumber extends Number {}
       const arrayOfCustomNumbers: MyCustomNumber[];
-      arrayOfCustomNumbers.toSorted();
+      const sortedArrayOfObject = arrayOfCustomNumbers.toSorted();
       `,
         errors: [{ suggestions: [] }],
       },
       {
         code: `
         function f(a: Array<any>) {
-          a.toSorted();
+          return a.toSorted();
         }
       `,
         errors: [{ suggestions: [] }],
@@ -582,7 +585,7 @@ ruleTester.run(
       {
         code: `
         function f(a: number[] | string[]) {
-          a.toSorted();
+          return a.toSorted();
         }
       `,
         errors: [{ suggestions: [] }],
@@ -590,7 +593,7 @@ ruleTester.run(
       {
         code: `
         function f<T extends number[]>(a: T) {
-          a.toSorted();
+          return a.toSorted();
         }
       `,
         errors: [{ suggestions: [] }],
@@ -598,24 +601,25 @@ ruleTester.run(
       {
         code: `
         function f<T, U extends T[]>(a: U) {
-          a.toSorted();
+          return a.toSorted();
         }
       `,
         errors: [{ suggestions: [] }],
       },
       {
-        code: 'const array = ["foo", "bar"]; array.toSorted();',
+        code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
         errors: [
           {
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending lexicographic order',
-                output: 'const array = ["foo", "bar"]; array.toSorted((a, b) => (a < b));',
+                output:
+                  'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => (a < b));',
               },
               {
                 desc: 'Add a comparator function to sort in ascending language-sensitive order',
                 output:
-                  'const array = ["foo", "bar"]; array.toSorted((a, b) => a.localeCompare(b));',
+                  'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => a.localeCompare(b));',
               },
             ],
           },
@@ -625,14 +629,14 @@ ruleTester.run(
       {
         code: `
         function f(a: string[]) {
-          a?.toSorted();
+          return a?.toSorted();
         }
       `,
         errors: 1,
       },
       {
         code: `
-        ['foo', 'bar', 'baz'].toSorted();
+        const sorted = ['foo', 'bar', 'baz'].toSorted();
       `,
         errors: 1,
       },
@@ -641,7 +645,7 @@ ruleTester.run(
         function getString() {
           return 'foo';
         }
-        [getString(), getString()].toSorted();
+        const sorted = [getString(), getString()].toSorted();
       `,
         errors: 1,
       },
@@ -650,7 +654,7 @@ ruleTester.run(
         const foo = 'foo';
         const bar = 'bar';
         const baz = 'baz';
-        [foo, bar, baz].toSorted();
+        const sorted = [foo, bar, baz].toSorted();
       `,
         errors: 1,
       },
