@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import stylelint from 'stylelint';
+import * as stylelint from 'stylelint';
 
 /**
  * A Stylelint rule configuration
@@ -31,6 +31,16 @@ export interface RuleConfig {
 }
 
 /**
+ * Stylelint's rule configuration
+ *
+ * Note that Stylelint defines its own `ConfigRules` type, which is
+ * no longer exposed in its public API.
+ */
+type ConfigRules = {
+  [ruleName: string]: stylelint.ConfigRuleSettings<any, Object>;
+};
+
+/**
  * Creates a Stylelint configuration
  *
  * Creating a Stylelint configuration implies enabling along with specific rule
@@ -40,7 +50,7 @@ export interface RuleConfig {
  * @returns the created Stylelint configuration
  */
 export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
-  const configRules: stylelint.ConfigRules = {};
+  const configRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
     if (configurations.length === 0) {
       configRules[key] = true;
