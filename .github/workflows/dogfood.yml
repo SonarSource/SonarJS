@@ -15,7 +15,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       id: dogfood
-      uses: SonarSource/gh-action_dogfood_merge@master
+      uses: SonarSource/gh-action_dogfood_merge@1.0.1
       with:
         dogfood-branch: 'dogfood-on-peach'
     # Use the output from the `dogfood` step
