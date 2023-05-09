@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>React components describe an independent and reusable piece of UI. To define it one can declare a function (functional component) or a class (class
 component). When implementing a class component, a <code>render</code> method is required to return the DOM structure, typically with JSX syntax.</p>
 <p>When writing the render method in a component it is easy to forget to return the JSX content, which means the component will render nothing. Thus
 having a <code>render</code> method without a single <code>return</code> statement is usually a mistake. If it’s required that the component renders
 to nothing, the method should return <code>null</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const React = require('react');
 class App extends React.Component {
@@ -12,7 +13,7 @@ class App extends React.Component {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const React = require('react');
 class App extends React.Component {
@@ -21,7 +22,7 @@ class App extends React.Component {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/react-component.html#render">render()</a> - React API Reference </li>
 </ul>

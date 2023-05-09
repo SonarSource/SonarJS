@@ -1,6 +1,8 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>The use of parentheses, even those not required to enforce a desired order of operations, can clarify the intent behind a piece of code. But
 redundant pairs of parentheses could be misleading, and should be removed.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let x = (y / 2 + 1);   //Compliant even if those parenthesis are useless for the compiler
 
@@ -10,7 +12,7 @@ if (a &amp;&amp; ((x+y &gt; 0))) {  // Noncompliant
 
 return ((x + 1));  // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let x = (y / 2 + 1);
 
@@ -20,6 +22,4 @@ if (a &amp;&amp; (x+y &gt; 0)) {
 
 return (x + 1);
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

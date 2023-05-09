@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Having the import of the same file twice, makes one of them useless. Leaving them in reduces the code’s readability, since their presence can be
 confusing.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 @import 'a.css';
 @import 'a.css'; // Noncompliant
@@ -8,6 +9,6 @@ confusing.</p>
 @import url("a.css");
 @import url("a.css"); // Noncompliant
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule ignores <code>@import</code> in <code>less</code> files.</p>
 

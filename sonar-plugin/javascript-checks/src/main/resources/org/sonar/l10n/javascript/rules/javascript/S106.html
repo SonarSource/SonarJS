@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>Debug statements are always useful during development. But include them in production code - particularly in code that runs client-side - and you
 run the risk of inadvertently exposing sensitive information, slowing down the browser, or even erroring-out the site for some users.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 console.log(password_entered); // Noncompliant
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/">OWASP Top 10 2021 Category A9</a> - Security Logging and
   Monitoring Failures </li>

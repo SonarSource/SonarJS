@@ -1,5 +1,6 @@
+<h2>Why is this an issue?</h2>
 <p>It is highly suspicious when a value is saved for a key or index and then unconditionally overwritten. Such replacements are likely in error.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
  fruits[1] = "banana";
  fruits[1] = "apple";  // Noncompliant - value on index 1 is overwritten

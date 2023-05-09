@@ -1,15 +1,16 @@
+<h2>Why is this an issue?</h2>
 <p>Alternation is used to match a single regular expression out of several possible regular expressions. If one of the alternatives is empty it would
 match any input, which is most probably a mistake.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 /Jack|Peter|/.test('John'); // Noncompliant - returns 'true'
 /Jack||Peter/.test('John'); // Noncompliant - returns 'true'
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 /Jack|Peter/.test('John'); // returns 'false'
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>One could use an empty alternation to make a regular expression group optional. Rule will not report on such cases.</p>
 <pre>
 /mandatory(-optional|)/.test('mandatory'); // returns 'true'

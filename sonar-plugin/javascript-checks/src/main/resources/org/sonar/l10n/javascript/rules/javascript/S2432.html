@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Functions declared with the <code>set</code> keyword will automatically return the values they were passed. Thus any value explicitly returned from
 a setter will be ignored, and explicitly returning a value is an error.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var person = {
   // ...
@@ -10,7 +11,7 @@ var person = {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var person = {
   // ...

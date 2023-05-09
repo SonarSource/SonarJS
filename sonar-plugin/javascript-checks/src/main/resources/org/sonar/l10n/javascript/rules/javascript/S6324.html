@@ -1,11 +1,12 @@
+<h2>Why is this an issue?</h2>
 <p>Entries in the ASCII table below code 32 are known as control characters or non-printing characters. As they are not common in JavaScript strings,
 using these invisible characters in regular expressions is most likely a mistake.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const pattern1 = /\x1a/;
 const pattern2 = new RegExp('\x1a');
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const pattern1 = /\x20/;
 const pattern2 = new RegExp('\x20');

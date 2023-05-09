@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>One can use logical AND (<code>&amp;&amp;</code>) operator to conditionally render in React (aka short-circuit evaluation). <code>myCondition
 &amp;&amp; &lt;MyElement /&gt;</code> will return <code>&lt;MyElement /&gt;</code> if <code>myCondition</code> is <code>true</code> and
 <code>false</code> otherwise. As React renders boolean values to nothing, when condition is <code>false</code>, nothing will be rendered as intended.
@@ -8,7 +9,7 @@ result.</p>
 <code>''</code>, or <code>NaN</code>.</p>
 <p>Note that along with short-circuit evaluation, in order to achieve conditional rendering it’s possible to use ternary operator (<code>myCondition ?
 &lt;MyElement /&gt; : null</code>), which is less error-prone in this case as both return values are explicit.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function Profile(props) {
   return &lt;div&gt;
@@ -17,7 +18,7 @@ function Profile(props) {
   &lt;/div&gt;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function Profile(props) {
   return &lt;div&gt;
@@ -35,7 +36,7 @@ function Profile(props) {
   &lt;/div&gt;;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/conditional-rendering.html">Conditional Rendering</a> - conditional rendering in React </li>
 </ul>

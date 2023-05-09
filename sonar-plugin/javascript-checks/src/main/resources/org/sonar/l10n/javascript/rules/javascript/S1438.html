@@ -1,6 +1,8 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>In JavaScript, the semicolon (<code>;</code>) is optional as a statement separator, but omitting semicolons can be confusing, and lead to
 unexpected results because a semicolon is implicitly inserted at the end of each line.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function fun() {
   return  // Noncompliant. ';' implicitly inserted at end of line
@@ -8,13 +10,11 @@ function fun() {
 }
 print(fun());  // prints "undefined", not "5"
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function fun() {
   return 5;
 }
 print(fun());
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

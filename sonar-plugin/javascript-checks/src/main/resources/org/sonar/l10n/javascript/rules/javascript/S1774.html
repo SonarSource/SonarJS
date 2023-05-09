@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>While the ternary operator is pleasingly compact, its use can make code more difficult to read. It should therefore be avoided in favor of the more
 verbose <code>if</code>/<code>else</code> structure.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(a) {
   var b = (a === 'A') ? 'is A' : 'is not A'; // Noncompliant
   // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo(a) {
   var b;

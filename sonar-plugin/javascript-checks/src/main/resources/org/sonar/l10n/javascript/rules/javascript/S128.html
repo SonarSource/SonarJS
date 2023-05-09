@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>When the execution is not explicitly terminated at the end of a switch case, it continues to execute the statements of the following case. While
 this is sometimes intentional, it often is a mistake which leads to unexpected behavior.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 switch (myVariable) {
   case 1:
@@ -13,7 +14,7 @@ switch (myVariable) {
     break;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 switch (myVariable) {
   case 1:
@@ -27,7 +28,7 @@ switch (myVariable) {
     break;
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule is relaxed in the following cases:</p>
 <pre>
 switch (myVariable) {
@@ -48,7 +49,7 @@ switch (myVariable) {
     doSomethingElse();
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/484">MITRE, CWE-484</a> - Omitted Break Statement in Switch </li>
 </ul>

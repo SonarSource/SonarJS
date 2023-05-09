@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>Mixing up the order of operations will almost always yield unexpected results.</p>
 <p>Similarly, mis-applied negation will also yield bad results. For instance consider the difference between <code>!key in dict</code> and <code>!(key
 in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a string and inverts the
 result. <code>!obj instanceof SomeClass</code> has the same problem.</p>
 <p>This rule raises an issue when the left operand of an <code>in</code> or <code>instanceof</code> operator is negated.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (!"prop" in myObj) {  // Noncompliant;  "in" operator is checking property "false"
   doTheThing();  // this block will be never executed
@@ -13,7 +14,7 @@ if (!foo instanceof MyClass) {  // Noncompliant; "!foo" returns a boolean, which
   doTheOtherThing();  // this block is never executed
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (!("prop" in myObj)) {
   doTheThing();

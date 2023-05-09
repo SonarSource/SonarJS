@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>The TypeScript type system offers a basic support for composite types:</p>
 <ul>
   <li> <em>Union Types</em> represent a value that can be one of the several types. They are constructed using a vertical bar (<code>|</code>) like
@@ -8,7 +9,7 @@
 </ul>
 <p>Duplicating types when defining a union or interaction type makes the code less readable. Moreover duplicated types might be a simple mistake and
 another type should be used instead.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function padLeft(value: string, padding: string | number | string) { // Noncompliant; 'string' type is used twice in a union type declaration
   // ...
@@ -18,7 +19,7 @@ function extend(p : Person) : Person &amp; Person &amp; Loggable { // Noncomplia
  // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function padLeft(value: string, padding: string | number | boolean) {
   // ...

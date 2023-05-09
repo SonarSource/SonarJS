@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>With regular expressions syntax, it’s possible to express the same thing in many ways. For example, to match a two-digit number, one could write
 <code>[0-9]{2,2}</code> or <code>\d{2}</code>. Latter is not only shorter in terms of expression length, but also easier to read and thus to maintain.
 This rule recommends to replace some bulky quantifiers and character classes with more concise equivalents:</p>
@@ -9,12 +10,12 @@ This rule recommends to replace some bulky quantifiers and character classes wit
   <li> <code>x?</code> for <code>x{0,1}</code>, <code>x*</code> for <code>x{0,}</code>, <code>x+</code> for <code>x{1,}</code>, <code>x{N}</code> for
   <code>x{N,N}</code> </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 /a{1,}/; // Noncompliant, '{1,}' quantifier is the same as '+'
 /[A-Za-z0-9_]/; // Noncompliant, '\w' is equivalent
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 /a+/;
 /\w/;

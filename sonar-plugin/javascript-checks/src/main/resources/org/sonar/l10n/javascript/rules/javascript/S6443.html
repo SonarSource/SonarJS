@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>React components have a built-in <code>state</code> data. This data is used to store component property values. When <code>state</code> changes,
 the component is re-rendered. For functional components to manage <code>state</code>, React provides the <code>useState</code> hook, which returns the
 state value and a setter function to update its value.</p>
 <p>When the setter function is called with the state variable as a parameter, nothing will happen. This can happen by mistake when attempting to reset
 a default value or invert a boolean, among others.</p>
 <p>This rule raises an issue when calling the setter function with the state variable provided by the same <code>useState</code> React hook.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 import { useState } from "react";
 
@@ -19,7 +20,7 @@ function ShowLanguage() {
     );
 };
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 import { useState } from "react";
 

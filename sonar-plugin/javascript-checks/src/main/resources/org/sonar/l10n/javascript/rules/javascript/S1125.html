@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Boolean literals should be avoided in comparison expressions <code>==</code> and <code>!=</code> to improve code readability.</p>
 <p>This rule also reports on redundant boolean operations.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let someValue = "0";
 // ...
@@ -9,7 +10,7 @@ if (someValue == true) { /* ... */ }
 if (someBooleanValue != true) { /* ... */ }
 doSomething(!false);
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (someValue &amp;&amp; someValue != "0") { /* ... */ }
 if (!someBooleanValue) { /* ... */ }

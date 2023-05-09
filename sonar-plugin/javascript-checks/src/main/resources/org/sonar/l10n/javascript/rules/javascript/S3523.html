@@ -1,22 +1,22 @@
+<p>This rule is deprecated; use {rule:javascript:S1523} instead.</p>
+<h2>Why is this an issue?</h2>
 <p>In addition to being obtuse from a syntax perspective, function constructors are also dangerous: their execution evaluates the constructor’s string
 arguments similar to the way <code>eval</code> works, which could expose your program to random, unintended code which can be both slow and a security
 risk.</p>
 <p>In general it is better to avoid it altogether, particularly when used to parse JSON data. You should use ECMAScript 5’s built-in JSON functions or
 a dedicated library.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var obj =  new Function("return " + data)();  // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var obj = JSON.parse(data);
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>Function calls where the argument is a string literal (e.g. <code>(Function('return this'))()</code>) are ignored.</p>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> OWASP Top 10 2017 Category A1 - Injection </li>
 </ul>
-<h2>Deprecated</h2>
-<p>This rule is deprecated; use {rule:javascript:S1523} instead.</p>
 

@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Jump statements, such as <code>return</code>, <code>break</code> and <code>continue</code> let you change the default flow of program execution,
 but jump statements that direct the control flow to the original direction are just a waste of keystrokes.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function redundantJump(x) {
   if (x == 1) {
@@ -9,7 +10,7 @@ function redundantJump(x) {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function redundantJump(x) {
   if (x == 1) {
@@ -17,7 +18,7 @@ function redundantJump(x) {
   }
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p><code>break</code> and <code>return</code> inside <code>switch</code> statement are ignored, because they are often used for consistency.
 <code>continue</code> with label is also ignored, because label is usually used for clarity. Also a jump statement being a single statement in a block
 is ignored.</p>

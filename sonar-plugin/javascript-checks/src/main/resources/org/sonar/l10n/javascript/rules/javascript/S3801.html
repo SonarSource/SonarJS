@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Unlike strongly typed languages, JavaScript does not enforce a return type on a function. This means that different paths through a function can
 return different types of values, which can be very confusing to the user and significantly harder to maintain.</p>
 <p>In particular a function, in JavaScript, will return <code>undefined</code> in any of the following cases:</p>
@@ -6,7 +7,7 @@ return different types of values, which can be very confusing to the user and si
   <li> It executes a <code>return</code> with no value. </li>
 </ul>
 <p>This rule verifies that return values are either always or never specified for each path through a function.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(a) { // Noncompliant, function exits without "return"
   if (a == 1) {
@@ -14,7 +15,7 @@ function foo(a) { // Noncompliant, function exits without "return"
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo(a) {
   if (a == 1) {

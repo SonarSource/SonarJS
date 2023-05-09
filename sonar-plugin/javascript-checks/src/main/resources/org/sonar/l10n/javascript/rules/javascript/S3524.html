@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>Shared coding conventions allow teams to collaborate effectively. This rule raises an issue when the use of parentheses with an arrow function does
 not conform to the configured requirements.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>With the configured defaults forbidding parentheses</p>
 <pre>
 var foo = (a) =&gt; { /* ... */ };  // Noncompliant; remove parens from arg
 var bar = (a, b) =&gt; { return 0; };  // Noncompliant; remove curly braces from body
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var foo = a =&gt; { /* ... */ };
 var bar = (a, b) =&gt; 0;

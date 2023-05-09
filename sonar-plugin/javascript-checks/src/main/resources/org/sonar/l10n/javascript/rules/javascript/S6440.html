@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>From React documentation:</p>
 <blockquote>
    Always use Hooks at the top level of your React function, before any early returns. By following this rule, you ensure that Hooks are called in the
@@ -9,7 +10,7 @@
 not called inside loops, conditions, or nested functions.</p>
 <p>Also this rule ensures that the Hooks are called only from React function components or custom Hooks so that the stateful logic of a component is
 clearly visible from its source code.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
@@ -27,7 +28,7 @@ function getName() {
   return name;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
@@ -41,7 +42,7 @@ function Profile() {
   return &lt;div&gt;{ name }&lt;/div&gt;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/hooks-rules.html">Rules of Hooks</a> - React documentation </li>
 </ul>

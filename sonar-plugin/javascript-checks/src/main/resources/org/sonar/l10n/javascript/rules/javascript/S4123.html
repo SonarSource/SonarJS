@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>It is possible to use <code>await</code> on values which are not <code>Promise</code>s, but it’s useless and misleading. The point of
 <code>await</code> is to pause execution until the <code>Promise</code>'s asynchronous code has run to completion. With anything other than a
 <code>Promise</code>, there’s nothing to wait for.</p>
 <p>This rule raises an issue when an <code>await</code>ed value is guaranteed not to be a <code>Promise</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let x = 42;
 await x; // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let x = new Promise(resolve =&gt; resolve(42));
 await x;

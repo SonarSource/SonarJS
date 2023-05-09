@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>JavaScript variable scope can be particularly difficult to understand and get right. The situation gets even worse when you consider the
 <em>accidental</em> creation of global variables, which is what happens when you declare a variable inside a function or the <code>for</code> clause
 of a for-loop without using the <code>let</code>, <code>const</code> or <code>var</code> keywords.</p>
 <p><code>let</code> and <code>const</code> were introduced in ECMAScript 2015, and are now the preferred keywords for variable declaration.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function f(){
   i = 1;         // Noncompliant; i is global
@@ -12,7 +13,7 @@ function f(){
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function f(){
   var i = 1;
