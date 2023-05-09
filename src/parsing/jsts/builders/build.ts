@@ -48,10 +48,14 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
     if (
       !options.programs &&
       !shouldUseWatchProgram(input.filePath) &&
-      input.createProgram === true
+      input.createProgram !== false
     ) {
-      const program = getProgramForFile(input);
-      options.programs = [program];
+      try {
+        const program = getProgramForFile(input);
+        options.programs = [program];
+      } catch (error) {
+        debug(`Failed to create program for ${input.filePath}: ${error.message}`);
+      }
     }
 
     try {

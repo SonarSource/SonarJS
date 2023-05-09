@@ -237,7 +237,8 @@ class EslintBridgeServerImplTest {
       true,
       singletonList(tsConfig.absolutePath()),
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -266,7 +267,8 @@ class EslintBridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
   }
 
@@ -293,7 +295,8 @@ class EslintBridgeServerImplTest {
       true,
       null,
       programCreated.programId,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
 
@@ -482,7 +485,8 @@ class EslintBridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request))
       .isInstanceOf(IllegalStateException.class);

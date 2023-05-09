@@ -160,7 +160,8 @@ public class YamlSensor extends AbstractEslintSensor {
           contextUtils.ignoreHeaderComments(),
           null,
           null,
-          analysisMode.getLinterIdFor(file)
+          analysisMode.getLinterIdFor(file),
+          false
         );
         var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
         analysisProcessor.processResponse(context, checks, file, response);

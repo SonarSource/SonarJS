@@ -166,7 +166,8 @@ public class JsTsSensor extends AbstractEslintSensor {
       contextUtils.ignoreHeaderComments(),
       null,
       null,
-      analysisMode.getLinterIdFor(file)
+      analysisMode.getLinterIdFor(file),
+      true
     );
   }
 }

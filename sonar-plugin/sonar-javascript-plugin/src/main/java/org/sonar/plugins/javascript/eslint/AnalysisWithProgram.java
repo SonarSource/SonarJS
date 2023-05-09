@@ -190,7 +190,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       contextUtils.ignoreHeaderComments(),
       null,
       tsProgram != null ? tsProgram.programId : null,
-      analysisMode.getLinterIdFor(file)
+      analysisMode.getLinterIdFor(file),
+      false
     );
   }
 }

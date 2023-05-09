@@ -134,7 +134,8 @@ public class HtmlSensor extends AbstractEslintSensor {
         contextUtils.ignoreHeaderComments(),
         null,
         null,
-        analysisMode.getLinterIdFor(file)
+        analysisMode.getLinterIdFor(file),
+        false
       );
       var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
