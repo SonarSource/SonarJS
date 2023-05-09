@@ -38,6 +38,7 @@ export const writingMethods = [
 ];
 
 export const sortLike = ['sort', '"sort"', "'sort'"];
+export const copyingSortLike = ['toSorted', '"toSorted"', "'toSorted'"];
 
 export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
   const acc: B[] = [];
