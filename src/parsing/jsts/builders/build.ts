@@ -20,7 +20,7 @@
 import { debug, getContext, JsTsLanguage } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
-import { getProgramById, getProgramForFile } from 'services/program';
+import { getProgramForFile } from 'services/program';
 import { Linter } from 'eslint';
 
 /**
@@ -30,32 +30,27 @@ import { Linter } from 'eslint';
  * the file extension, and some contextual information.
  *
  * @param input the JavaScript / TypeScript analysis input
- * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function buildSourceCode(input: JsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
 
-  if (shouldUseTypescriptParser(language)) {
+  if (shouldUseTypescriptParser(input.language)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      programs: input.programId && [getProgramById(input.programId)],
-      project: input.tsConfigs,
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
-    if (
-      !options.programs &&
-      !shouldUseWatchProgram(input.filePath) &&
-      input.createProgram !== false
-    ) {
+    if (shouldCreateProgram(input)) {
       try {
         const program = getProgramForFile(input);
         options.programs = [program];
       } catch (error) {
         debug(`Failed to create program for ${input.filePath}: ${error.message}`);
       }
+    } else {
+      options.project = input.tsConfigs;
     }
 
     try {
@@ -66,7 +61,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       );
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
-      if (language === 'ts') {
+      if (input.language === 'ts') {
         throw error;
       }
     }
@@ -105,11 +100,11 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
   }
 }
 
-function shouldUseWatchProgram(file: string): boolean {
-  return getContext()?.sonarlint || isVueFile(file);
+export function shouldCreateProgram(input: JsTsAnalysisInput): boolean {
+  return !getContext()?.sonarlint && !isVueFile(input.filePath) && input.createProgram === true;
 }
 
-function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
+export function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
   return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 

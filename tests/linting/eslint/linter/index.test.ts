@@ -20,7 +20,8 @@
 import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, getLinter, LinterWrapper } from 'linting/eslint';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../tools';
 
 describe('initializeLinter', () => {
   beforeEach(() => {
@@ -50,7 +51,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const {
       issues: [issue],
@@ -87,7 +88,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const {
       issues: [issue],

@@ -32,7 +32,6 @@ import path from 'path';
 import ts from 'typescript';
 import {
   addTsConfigIfDirectory,
-  debug,
   readFileSync,
   toUnixPath,
   ProgramResult,
@@ -47,6 +46,10 @@ import { JsTsAnalysisInput } from 'services/analysis';
 
 export const programCache = new ProgramCache();
 let projectTSConfigs: ProjectTSConfigs;
+
+export function setDefaultTSConfigs(tsConfigs: ProjectTSConfigs) {
+  projectTSConfigs = tsConfigs;
+}
 
 function getDefaultTSConfigs() {
   if (!projectTSConfigs) {
@@ -243,63 +246,6 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   };
 }
 
-/**
- * A cache of created TypeScript's Program instances
- *
- * It associates a program identifier to an instance of a TypeScript's Program.
- */
-const programs = new Map<string, ts.Program>();
-
-/**
- * A counter of created TypeScript's Program instances
- */
-let programCount = 0;
-
-/**
- * Computes the next identifier available for a TypeScript's Program.
- * @returns
- */
-function nextId() {
-  programCount++;
-  return programCount.toString();
-}
-
-/**
- * Creates a TypeScript's Program instance and saves it in memory
- *
- * To be removed once Java part does not handle program creation
- */
-export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
-  const program = createProgram(tsConfig);
-
-  const programId = nextId();
-  programs.set(programId, program.program.deref()!);
-  debug(`program from ${tsConfig} with id ${programId} is created`);
-  return { ...program, programId };
-}
-
-/**
- * Gets an existing TypeScript's Program by its identifier
- * @param programId the identifier of the TypeScript's Program to retrieve
- * @throws a runtime error if there is no such program
- * @returns the retrieved TypeScript's Program
- */
-export function getProgramById(programId: string): ts.Program {
-  const program = programs.get(programId);
-  if (!program) {
-    throw Error(`Failed to find program ${programId}`);
-  }
-  return program;
-}
-
-/**
- * Deletes an existing TypeScript's Program by its identifier
- * @param programId the identifier of the TypeScript's Program to delete
- */
-export function deleteProgram(programId: string): void {
-  programs.delete(programId);
-}
-
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
   const text =
     typeof diagnostic.messageText === 'string'
@@ -353,6 +299,7 @@ tmp.setGracefulCleanup();
  * @param tsConfig TSConfig to write
  * @returns the resolved TSConfig file path
  */
+// TODO: Not used, keeping for possible future SonarLint specific program creation
 export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
   const filename = await promisify(tmp.file)();
   await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');

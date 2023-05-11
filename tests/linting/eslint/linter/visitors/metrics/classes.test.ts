@@ -19,12 +19,13 @@
  */
 import { countClasses } from 'linting/eslint/linter/visitors/metrics/classes';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../tools';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../../tools';
 
 describe('countClasses', () => {
   it('should count the number of classes', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'classes.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
     const classes = countClasses(sourceCode);
     expect(classes).toEqual(2);
   });

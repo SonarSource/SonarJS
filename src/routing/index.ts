@@ -18,33 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import onAnalyzeCss from './on-analyze-css';
-import onAnalyzeHtml from './on-analyze-html';
-import onAnalyzeJs from './on-analyze-js';
-import onAnalyzeTs from './on-analyze-ts';
-import onAnalyzeYaml from './on-analyze-yaml';
-import onCreateProgram from './on-create-program';
-import onDeleteProgram from './on-delete-program';
 import onInitLinter from './on-init-linter';
-import onNewTSConfig from './on-new-tsconfig';
 import onStatus from './on-status';
-import onTSConfigFiles from './on-tsconfig-files';
-import onCreateTSConfigFile from './on-create-tsconfig-file';
+import onAnalyzeJsTs from './on-analyze-jsts';
+import onAnalyzeCss from './on-analyze-css';
+import onAnalyzeYaml from './on-analyze-yaml';
+import onAnalyzeHtml from './on-analyze-html';
 
 const router = express.Router();
 
-router.post('/analyze-css', onAnalyzeCss);
-router.post('/analyze-js', onAnalyzeJs);
-router.post('/analyze-html', onAnalyzeHtml);
-router.post('/analyze-ts', onAnalyzeTs);
-router.post('/analyze-with-program', onAnalyzeTs);
-router.post('/analyze-yaml', onAnalyzeYaml);
-router.post('/create-program', onCreateProgram);
-router.post('/delete-program', onDeleteProgram);
 router.post('/init-linter', onInitLinter);
-router.post('/new-tsconfig', onNewTSConfig);
 router.get('/status', onStatus);
-router.post('/tsconfig-files', onTSConfigFiles);
-router.post('/create-tsconfig-file', onCreateTSConfigFile);
+router.post('/analyze-js', onAnalyzeJsTs('js'));
+router.post('/analyze-ts', onAnalyzeJsTs('ts'));
+router.post('/analyze-css', onAnalyzeCss);
+router.post('/analyze-yaml', onAnalyzeYaml);
+router.post('/analyze-html', onAnalyzeHtml);
 
 export default router;

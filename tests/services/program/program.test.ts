@@ -19,11 +19,8 @@
  */
 import path from 'path';
 import {
-  createAndSaveProgram,
   createProgram,
   createProgramOptions,
-  deleteProgram,
-  getProgramById,
   getProgramForFile,
   isRootNodeModules,
 } from 'services/program';
@@ -42,9 +39,8 @@ describe('program', () => {
     const reference = path.join(fixtures, 'reference');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-    const { programId, files, projectReferences } = createAndSaveProgram(tsConfig);
+    const { files, projectReferences } = createProgram(tsConfig);
 
-    expect(programId).toBeDefined();
     expect(files).toEqual(
       expect.arrayContaining([
         toUnixPath(path.join(fixtures, 'file.ts')),
@@ -58,9 +54,8 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
 
-    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
+    const { files, projectReferences, missingTsConfig } = createProgram(tsConfig);
 
-    expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
     expect(missingTsConfig).toBe(false);
@@ -82,9 +77,8 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
+    const { files, projectReferences, missingTsConfig } = createProgram(tsConfig);
 
-    expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
     expect(missingTsConfig).toBe(true);
@@ -157,33 +151,6 @@ describe('program', () => {
     searchedFiles.forEach((file, index) => {
       expect(configHost.fileExists).toHaveBeenNthCalledWith(index + 1, toUnixPath(file));
     });
-  });
-
-  it('should find an existing program', () => {
-    const fixtures = path.join(__dirname, 'fixtures');
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId, files } = createAndSaveProgram(tsConfig);
-
-    const program = getProgramById(programId);
-
-    expect(program.getCompilerOptions().configFilePath).toEqual(toUnixPath(tsConfig));
-    expect(program.getRootFileNames()).toEqual(
-      files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
-    );
-  });
-
-  it('should fail finding a non-existing program', () => {
-    const programId = '$#&/()=?!£@~+°';
-    expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
-  });
-
-  it('should delete a program', () => {
-    const fixtures = path.join(__dirname, 'fixtures');
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
-
-    deleteProgram(programId);
-    expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
   });
 
   it('should return files', () => {

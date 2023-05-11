@@ -35,16 +35,17 @@ import { Perf } from 'services/monitoring';
  * data structure used by TypeScript ESLint parser for performance reasons.
  *
  * @param fileType the file type to select the proper linting configuration
+ * @param language the file language ('js' or 'ts')
  * @param ignoreHeaderComments a flag used by some rules to ignore header comments
  * @param tsConfigs a list of TSConfigs
- * @param programId the identifier of a TypeScript Program's instance
+ * @param createProgram force creation of a program
+ * @param forceUpdateTSConfigs force reload of tsconfigs on file system
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
-  language?: JsTsLanguage;
+  language: JsTsLanguage;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
-  programId?: string;
   createProgram?: boolean;
   forceUpdateTSConfigs?: boolean;
 }

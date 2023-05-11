@@ -47,7 +47,9 @@ const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-bas
 
 function extractRuleOptions(testFiles, rule) {
   if (testFiles.includes(`${rule}.json`)) {
-    return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
+    return JSON.parse(
+      fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }),
+    ).filter(item => typeof item !== 'string' || !item.endsWith('createProgram'));
   }
   return [];
 }
@@ -90,11 +92,22 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
-  const sourceCode = buildSourceCode(
-    { filePath, fileContent, fileType, tsConfigs },
-    languageFromFile(fileContent, filePath),
+  let createProgram = false;
+  const optionsFile = path.join(
+    path.dirname(filePath),
+    path.basename(filePath, path.extname(filePath)) + '.json',
   );
+  try {
+    const options = JSON.parse(fs.readFileSync(optionsFile, { encoding: 'utf8' }));
+    createProgram = options.includes(`${path.extname(filePath)}.createProgram`);
+  } catch {}
+  const sourceCode = buildSourceCode({
+    filePath,
+    fileContent,
+    fileType,
+    language: languageFromFile(fileContent, filePath),
+    createProgram,
+  });
 
   /**
    * ESLint expects the parser services (including the type checker) to be available in a field

@@ -19,8 +19,7 @@
  */
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
-import { JsTsLanguage, readFile } from 'helpers';
+import { jsTsInput } from '../../../tools';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -40,11 +39,10 @@ const cases = [
 describe('ESLint-based parsers', () => {
   test.each(cases)('should parse $syntax syntax', async ({ fixture, language }) => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint', fixture);
-    const fileContent = await readFile(filePath);
-    const fileType = 'MAIN';
 
-    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+    const sourceCode = buildSourceCode(
+      await jsTsInput({ filePath, language, createProgram: false }),
+    );
 
     expect(sourceCode).toBeDefined();
     expect(sourceCode.ast).toBeDefined();

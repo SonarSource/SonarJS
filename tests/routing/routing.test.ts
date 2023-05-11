@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from 'helpers';
+import { setContext } from 'helpers';
 import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
 import { start } from 'server';
-import { createAndSaveProgram } from 'services/program';
 import { promisify } from 'util';
 import { request } from '../tools';
-import * as fs from 'fs';
 
 describe('router', () => {
   const port = 0;
@@ -96,33 +94,8 @@ describe('router', () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.ts');
     const fileType = 'MAIN';
     const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const data = { filePath, fileType, tsConfigs: [tsConfig] };
+    const data = { filePath, fileType, tsConfigs: [tsConfig], createProgram: true };
     const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'no-duplicate-in-composite',
-        line: 1,
-        column: 28,
-        endLine: 1,
-        endColumn: 35,
-        message: `Remove this duplicated type or replace with another one.`,
-      }),
-    );
-  });
-
-  it('should route /analyze-with-program requests', async () => {
-    initializeLinter([
-      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.ts');
-    const fileType = 'MAIN';
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
-    const data = { filePath, fileType, programId };
-    const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -184,93 +157,14 @@ describe('router', () => {
     });
   });
 
-  it('should route /create-program requests', async () => {
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const programId = Number(JSON.parse(response).programId);
-    expect(programId).toBeDefined();
-    expect(programId).toBeGreaterThan(0);
-  });
-
-  it('should forward /create-program failures', async () => {
-    console.error = jest.fn();
-    const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
-    const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
-    expect(error).toBeDefined();
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it('should route /delete-program requests', async () => {
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
-    const data = { programId };
-    const response = (await request(server, '/delete-program', 'POST', data)) as string;
-    expect(response).toEqual('OK!');
-  });
-
   it('should route /init-linter requests', async () => {
     const data = { rules: [], environments: [], globals: [] };
     const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK!');
   });
 
-  it('should route /new-tsconfig requests', async () => {
-    /**
-     * There is no easy way to test that a module was unloaded, because jest is modifying require calls for tests
-     * @see https://github.com/facebook/jest/issues/6725
-     */
-    const data = {};
-    const response = await request(server, '/new-tsconfig', 'POST', data);
-    expect(response).toEqual('OK!');
-  });
-
   it('should route /status requests', async () => {
     const response = await request(server, '/status', 'GET');
     expect(response).toEqual('OK!');
-  });
-
-  it('should route /tsconfig-files requests', async () => {
-    const file = toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'));
-
-    const tsconfig1 = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const response1 = (await request(server, '/tsconfig-files', 'POST', {
-      tsconfig: tsconfig1,
-    })) as string;
-    expect(JSON.parse(response1)).toEqual({
-      files: [file],
-      projectReferences: [],
-    });
-
-    const tsconfig2 = path.join(__dirname, 'fixtures', 'tsconfig-references.json');
-    const response2 = (await request(server, '/tsconfig-files', 'POST', {
-      tsconfig: tsconfig2,
-    })) as string;
-    expect(JSON.parse(response2)).toEqual({
-      files: [file],
-      projectReferences: [toUnixPath(tsconfig1)],
-    });
-  });
-
-  it('should forward /tsconfig-files failures', async () => {
-    console.error = jest.fn();
-    const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
-    const data = { tsConfig };
-    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
-    expect(error).toEqual('Debug Failure.');
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it('should write tsconfig.json file', async () => {
-    const response = (await request(server, '/create-tsconfig-file', 'POST', {
-      include: ['/path/to/project/**/*'],
-    })) as string;
-    const json = JSON.parse(response);
-    expect(json).toBeTruthy();
-    expect(json.filename).toBeTruthy();
-    expect(fs.existsSync(json.filename)).toBe(true);
   });
 });

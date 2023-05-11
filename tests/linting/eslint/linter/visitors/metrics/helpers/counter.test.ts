@@ -19,12 +19,13 @@
  */
 import { visitAndCountIf } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../../../tools';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../../../tools';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {
     const filePath = path.join(__dirname, './fixtures/counter.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath, []);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
     const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
     expect(count).toEqual(3);
   });
