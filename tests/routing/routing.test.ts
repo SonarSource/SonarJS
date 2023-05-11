@@ -89,7 +89,12 @@ describe('router', () => {
 
   it('should route /analyze-ts requests', async () => {
     initializeLinter([
-      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'no-duplicate-in-composite',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'ts',
+      },
     ]);
     const filePath = path.join(__dirname, 'fixtures', 'file.ts');
     const fileType = 'MAIN';

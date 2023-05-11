@@ -68,17 +68,16 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze TypeScript code with the given linter', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
     initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-    const language = 'ts';
 
-    const input = await jsTsInput({ filePath, tsConfigs, language });
+    const input = await jsTsInput({ filePath, language });
     const { issues: issues1 } = analyzeJSTS(input);
 
     input.linterId = 'empty';
@@ -112,18 +111,18 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze Vue.js code with type checks', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
-    const language = 'ts';
 
     const {
       issues: [issue1],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language, createProgram: false }));
     expect(issue1).toEqual(
       expect.objectContaining({
         ruleId: 'strings-comparison',
@@ -241,14 +240,14 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze using TSConfig', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'tsconfig.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-    const language = 'ts';
 
     const {
       issues: [issue],
@@ -261,14 +260,14 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze using TypeScript program', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];
-    const language = 'ts';
 
     const {
       issues: [issue],
@@ -281,15 +280,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should succeed with types using tsconfig with path aliases', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig.json');
-    const language = 'ts';
 
     const {
       issues: [issue],
@@ -302,15 +301,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should fail with types using tsconfig without paths aliases', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
 
     const tsConfig = path.join(__dirname, 'fixtures', 'paths', 'tsconfig_no_paths.json');
-    const language = 'ts';
 
     const {
       issues: [issue],
@@ -323,12 +322,11 @@ describe('analyzeJSTS', () => {
   });
 
   it('different tsconfig module resolution affects files included in program', async () => {
+    const language = 'ts';
     const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'], language },
     ] as RuleConfig[];
     initializeLinter(rules);
-
-    const language = 'ts';
 
     const filePath = path.join(__dirname, 'fixtures', 'module', 'file.ts');
 

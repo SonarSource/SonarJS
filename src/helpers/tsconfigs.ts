@@ -84,7 +84,7 @@ export class ProjectTSConfigs {
       const stats = fs.lstatSync(filename);
       if (file !== 'node_modules' && stats.isDirectory()) {
         this.tsConfigLookup(filename);
-      } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
+      } else if (fileIsTSConfig(file) && !stats.isDirectory()) {
         const contents = fs.readFileSync(filename, 'utf-8');
         this.db.set(filename, {
           filename,
@@ -155,7 +155,7 @@ export class ProjectTSConfigs {
 }
 
 function fileIsTSConfig(filename: string): boolean {
-  return !!filename.match(/[tj]sconfig[^\/]\.json/i);
+  return !!filename.match(/[tj]sconfig.*\.json/i);
 }
 
 /**
