@@ -1,4 +1,10 @@
 {
+'TypeScript:scripts/configureNightly.ts':[
+40,
+],
+'TypeScript:scripts/word2md.ts':[
+288,
+],
 'TypeScript:src/compiler/comments.ts':[
 422,
 423,
