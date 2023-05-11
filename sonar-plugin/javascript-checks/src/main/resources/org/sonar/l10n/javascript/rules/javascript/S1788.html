@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>The ability to define default values for function parameters can make a function easier to use. Default parameter values allow callers to specify
 as many or as few arguments as they want while getting the same functionality and minimizing boilerplate, wrapper code.</p>
 <p>But all function parameters with default values should be declared after the function parameters without default values. Otherwise, it makes it
 impossible for callers to take advantage of defaults; they must re-specify the defaulted values or pass <code>undefined</code> in order to "get to"
 the non-default parameters.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function multiply(a = 1, b) {  // Noncompliant
   return a*b;
@@ -11,7 +12,7 @@ function multiply(a = 1, b) {  // Noncompliant
 
 var x = multiply(42);  // returns NaN as b is undefined
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function multiply(b, a = 1) {
   return a*b;
@@ -19,7 +20,7 @@ function multiply(b, a = 1) {
 
 var x = multiply(42);  // returns 42 as expected
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>When writing Redux reducers, there is a convention to use default argument syntax to provide initial state (first argument), while action (second
 argument) is mandatory. A reducer may be called with <code>undefined</code> as the state value when the application is being initialized.</p>
 <pre>
@@ -31,7 +32,7 @@ export default function appReducer(state = initialState, action) {
   }
 }
 </pre>
-<h3>See</h3>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://redux.js.org/tutorials/fundamentals/part-3-state-actions-reducers#writing-reducers">Writing Reducers</a> - Redux documentation
   </li>

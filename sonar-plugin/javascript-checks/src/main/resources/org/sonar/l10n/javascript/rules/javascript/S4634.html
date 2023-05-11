@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>When a <code>Promise</code> needs to only "resolve" or "reject", it’s more efficient and readable to use the methods specially created for such use
 cases: <code>Promise.resolve(value)</code> and <code>Promise.reject(error)</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let fulfilledPromise = new Promise(resolve =&gt; resolve(42));
 let rejectedPromise = new Promise(function(resolve, reject) {
   reject('fail');
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let fulfilledPromise = Promise.resolve(42);
 let rejectedPromise = Promise.reject('fail');

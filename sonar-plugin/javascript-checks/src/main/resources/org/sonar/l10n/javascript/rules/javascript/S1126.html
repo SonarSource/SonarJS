@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Return of boolean literal statements wrapped into <code>if-then-else</code> flow should be simplified.</p>
 <p>Note that if the result of the expression is not a boolean but for instance an integer, then double negation should be used for proper
 conversion.</p>
@@ -15,7 +16,7 @@ if (expression) {
 }
 return false;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 return expression;
 </pre>

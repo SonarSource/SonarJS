@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>A test case without assertions ensures only that no exceptions are thrown. Beyond basic runnability, it ensures nothing about the behavior of the
 code under test.</p>
 <p>This rule raises an exception when the assertion library <code>chai</code> is imported but no assertion is used in a test.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const expect = require('chai').expect;
 
@@ -11,7 +12,7 @@ describe("No assertion", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const expect = require('chai').expect;
 

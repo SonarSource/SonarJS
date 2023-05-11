@@ -1,21 +1,22 @@
+<h2>Why is this an issue?</h2>
 <p>If none of the font names defined in a <code>font</code> or <code>font-family</code> declaration are available on the browser of the user, the
 browser will display the text using its default font. It’s recommended to always define a generic font family for each declaration of
 <code>font</code> or <code>font-family</code> to get a less degraded situation than relying on the default browser font. All browsers should implement
 a list of generic font matching these families: <code>Serif</code>, <code>Sans-serif</code>, <code>cursive</code>, <code>fantasy</code>,
 <code>Monospace</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 a {
   font-family: Helvetica, Arial, Verdana, Tahoma; /* Noncompliant; there is no generic font family in the list */
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 a {
   font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://www.w3.org/TR/CSS2/fonts.html#generic-font-families">CSS Specification</a> - Generic font families </li>
 </ul>

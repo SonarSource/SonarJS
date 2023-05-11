@@ -1,15 +1,16 @@
+<h2>Why is this an issue?</h2>
 <p>The comma operator takes two expressions, executes them from left to right and returns the result of the second one. Use of this operator is
 generally detrimental to the readability and reliability of code, and the same effect can be achieved by other means.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 i = a += 2, a + b;  // What's the value of i ?
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 a +=  2;
 i = a + b;
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>Use of comma operator is tolerated:</p>
 <ul>
   <li> in initialization and increment expressions of <code>for</code> loops. </li>

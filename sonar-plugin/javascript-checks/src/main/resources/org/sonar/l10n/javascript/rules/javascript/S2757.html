@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>The use of operators pairs (<code>=+</code>, <code>=-</code> or <code>=!</code>) where the reversed, single operator was meant (<code>+=</code>,
 <code>-=</code> or <code>!=</code>) will compile and run, but not produce the expected results.</p>
 <p>This rule raises an issue when <code>=+</code>, <code>=-</code> and <code>=!</code> are used without any space between the two operators and when
 there is at least one whitespace after.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let target =-5;
 let num = 3;
@@ -10,7 +11,7 @@ let num = 3;
 target =- num;  // Noncompliant; target = -3. Is that really what's meant?
 target =+ num; // Noncompliant; target = 3
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let target = -5;
 let num = 3;

@@ -1,15 +1,16 @@
+<h2>Why is this an issue?</h2>
 <p>The W3C specifications say comments should be defined using <code>/* ... */</code>. The use of <code>//</code> is not supported on all browsers and
 can lead to unexpected results.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 // some comment
 a { color: pink; }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 /* some comment */
 a { color: pink; }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule ignores single line comments in <code>less</code> and <code>scss</code> files.</p>
 

@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>Most of the time a block of code is empty when a piece of code is really missing. So such empty block must be either filled or removed.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 for (var i = 0; i &lt; length; i++) {}  // Empty on purpose or missing piece of code ?
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>When a block contains a comment, this block is not considered to be empty. Moreover <code>catch</code> blocks are ignored.</p>
 

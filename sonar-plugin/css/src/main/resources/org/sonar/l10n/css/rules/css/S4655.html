@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p><code>!important</code> within keyframes declarations is completely ignored in some browsers and therefore it should not be used to be consistent
 among all browsers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 @keyframes kf {
   from { margin-top: 50px; }
@@ -8,7 +9,7 @@ among all browsers.</p>
   to   { margin-top: 100px; }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 @keyframes kf {
   from { margin-top: 50px; }
@@ -16,7 +17,7 @@ among all browsers.</p>
   to   { margin-top: 100px; }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes#!important_in_a_keyframe">Mozilla Web Technology for Developers</a> -
   <code>!important</code> in a keyframe </li>

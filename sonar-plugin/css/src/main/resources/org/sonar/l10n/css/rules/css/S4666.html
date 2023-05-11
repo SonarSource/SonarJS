@@ -1,16 +1,17 @@
+<h2>Why is this an issue?</h2>
 <p>Duplication of selectors might indicate a copy-paste mistake. The rule detects the following kinds of duplications:</p>
 <ul>
   <li> within a list of selectors in a single rule set </li>
   <li> for duplicated selectors in different rule sets within a single stylesheet. </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 .foo, .bar, .foo { ... }  /* Noncompliant */
 
 .class1 { ... }
 .class1 { ... }  /* Noncompliant */
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 .foo, .bar { ... }
 

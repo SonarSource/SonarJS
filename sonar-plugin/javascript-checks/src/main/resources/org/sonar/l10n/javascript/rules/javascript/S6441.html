@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>This rule reports the methods of React component classes which are neither used nor React lifecycle methods. Note that this rule checks only the
 scope of a component class, which means that issues will be raised on the methods that are only used outside of the class.</p>
 <p>Methods that are never executed are dead code: unnecessary, inoperative code that should be removed. Cleaning out dead code decreases the size of
 the maintained codebase, making it easier to understand the program and preventing bugs from being introduced.</p>
 <p>React encourages data-driven components. To modify a child component, re-render it with new <code>props</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 class Profile extends React.Component {
   render(props) {
@@ -15,7 +16,7 @@ class Profile extends React.Component {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 class Profile extends React.Component {
   render(props) {
@@ -27,7 +28,7 @@ class Profile extends React.Component {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/components-and-props.html">Components and Props</a> - React Documentation </li>
 </ul>

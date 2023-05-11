@@ -1,14 +1,15 @@
+<h2>Why is this an issue?</h2>
 <p>Many of JavaScript’s <code>Array</code> methods return an altered version of the array while leaving the source array intact. <code>reverse</code>
 and <code>sort</code> do not fall into this category. Instead, they alter the source array <em>in addition to</em> returning the altered version,
 which is likely not what was intended.</p>
 <p>This rule raises an issue when the return values of these methods are assigned, which could lead maintainers to overlook the fact that the original
 value is altered.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var b = a.reverse(); // Noncompliant
 var d = c.sort(); // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var b = [...a].reverse();  // de-structure and create a new array, so reverse doesn't impact 'a'
 a.reverse();

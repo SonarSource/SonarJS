@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>By convention, a file that exports only one class, function, or constant should be named for that class, function or constant. Anything else may
 confuse maintainers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 // file path: myclass.js  -- Noncompliant
 class MyClass {
@@ -8,7 +9,7 @@ class MyClass {
 }
 export default MyClass;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 // file path: MyClass.js
 class MyClass {
@@ -16,7 +17,7 @@ class MyClass {
 }
 export default MyClass;
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>Case, dots ( <code>.</code> ), underscores ( <code>_</code> ) and dashes (<code>-</code>) are ignored from the name comparison. Postfixes in
 filenames like <code>.dev</code> in <code>my.class.dev.js</code> are also ignored.</p>
 

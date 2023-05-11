@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They form the JavaScript standard built-in
 objects and are available in all environments. They include identifiers like:</p>
 <ul>
@@ -10,7 +11,7 @@ objects and are available in all environments. They include identifiers like:</p
 </ul>
 <p>These words should not be bound or assigned, because doing so would overwrite the original definitions of these identifiers. What’s more, assigning
 or binding some of these names will generate an error in JavaScript strict mode code.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 eval = 17; // Noncompliant
 arguments++; // Noncompliant
@@ -28,7 +29,7 @@ function fun() {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 result = 17;
 args++;

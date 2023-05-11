@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>in</code> operator tests whether the specified property is in the specified object.</p>
 <p>If the right operand is a of primitive type (i.e., not an object) the <code>in</code> operator raises a <code>TypeError</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var x = "Foo";
 "length" in x; // Noncompliant: TypeError
 0 in x;        // Noncompliant: TypeError
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var x = new String("Foo");
 "length" in x;    // true

@@ -1,16 +1,17 @@
+<h2>Why is this an issue?</h2>
 <p>Variables can be declared with or without types. Variables declared without a type will be implicitly typed if the declaration includes an
 initialization, and the compiler then type-checks every usage of typed variables. On the other hand, a variable declared with the <code>any</code>
 type explicitly instructs the compiler not to do any type-checking, which is risky.</p>
 <p>The <code>unknown</code> type should be preferred over the <code>any</code> type if it’s not possible to have a better typing. <code>any</code>
 fully disables type-checking allowing to do anything with the variable, while <code>unknown</code> requires to narrow the type before doing something
 specific.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let a = 42;  // implicitly typed to number
 let b: number = 42;  // explicitly typed to number
 let c: any = 42;  // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let a = 42;
 let b: number = 42;

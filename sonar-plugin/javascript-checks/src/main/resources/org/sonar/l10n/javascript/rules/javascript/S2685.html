@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Both <code>arguments.caller</code> and <code>arguments.callee</code> make quite a few optimizations impossible so they were deprecated in latest
 versions of JavaScript. In fact, EcmaScript 5 forbids the use of both in <code>strict</code> mode, according to the docs:</p>
 <blockquote>
@@ -5,7 +6,7 @@ versions of JavaScript. In fact, EcmaScript 5 forbids the use of both in <code>s
   exception on access.</p>
 </blockquote>
 <p>The same restriction applies to the function’s <code>caller</code> and <code>arguments</code> properties in <code>strict</code> mode.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function whoCalled() {
    if (arguments.caller == null)   //Noncompliant

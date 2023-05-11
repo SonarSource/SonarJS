@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Providing values like an object to a React <code>Context</code> will provoke additional re-renders as React doesn’t know the object is the same.
 This can significantly impact performance since the whole component tree will be re-rendered each time. Wrapping the value in a <code>useMemo</code>
 hook will avoid additional render passes.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function Component() {
   return (
@@ -11,7 +12,7 @@ function Component() {
   );
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function Component() {
   const foo = useMemo(() =&gt; ({foo: 'bar'}), []);
@@ -22,7 +23,7 @@ function Component() {
   );
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/context.html#caveats">Context Caveats</a> - React documentation </li>
 </ul>

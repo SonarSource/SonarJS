@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p><code>readonly</code> properties can only be assigned in a class constructor or at the point of declaration. If a class has a property that’s not
 marked <code>readonly</code> but is only set in the constructor, it could cause confusion about the property’s intended use. To avoid confusion, such
 properties should be marked <code>readonly</code> to make their intended use explicit, and to prevent future maintainers from inadvertently changing
 their use.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 class Person {
   private _birthYear: number;  // Noncompliant
@@ -11,7 +12,7 @@ class Person {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 class Person {
   private readonly _birthYear: number;

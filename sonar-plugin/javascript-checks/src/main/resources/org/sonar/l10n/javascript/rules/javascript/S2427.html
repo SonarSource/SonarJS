@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>parseInt</code> function has two versions, one that takes a base value as a second argument, and one that does not. Unfortunately using
 the single-arg version can result in unexpected results on older browsers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 parseInt("010");  // Noncompliant; pre-2013 browsers may return 8
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 parseInt("010", 10);
 </pre>

@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>React expects a unique identifier <code>key</code> in list components to optimize rendering. Missing keys will negatively impact performance and
 can bring your application to a halt when there are enough elements. Avoid <code>Array</code> indexes since they are not stable. Instead, use a unique
 attribute like an ID or a combination of attributes.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function Blog(props) {
   return (
@@ -15,7 +16,7 @@ function Blog(props) {
   );
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function Blog(props) {
   return (
@@ -29,7 +30,7 @@ function Blog(props) {
   );
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
   <li> {rule:javascript:S6479} </li>

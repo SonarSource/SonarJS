@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>React expects a unique identifier for performance optimizations. An array index is not a stable identifier most of the time. This results in
 unnecessary renders when the array items change index following some mutation. When components have state, this might also provoke bugs that are hard
 to diagnose.</p>
 <p>We recommend using an explicit identifier to avoid misuse and accidental re-renders. If there is no unique attribute available, consider
 concatenating existing properties - hashing them if necessary - or creating a dedicated unique identifier.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
@@ -11,7 +12,7 @@ function generateButtons(props) {
   });
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
@@ -19,7 +20,7 @@ function generateButtons(props) {
   });
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
   <li> {rule:javascript:S6477} </li>

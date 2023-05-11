@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>An intersection type combines multiple types into one. This allows you to add together existing types to get a single type that has all the
 features you need. However an intersection with a type without members doesn’t change the resulting type. In the opposite the usage of
 <code>any</code> or <code>never</code> as part of an intersection will always results in <code>any</code> or <code>never</code> respectively. This is
 almost certainly an error.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(p: MyType &amp; null) { // Noncompliant
  // ...
@@ -12,7 +13,7 @@ function bar(p: MyType &amp; any) { // Noncompliant
  // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo(p: MyType | null) {
  // ...

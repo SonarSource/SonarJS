@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Regular expressions with the global flag turned on can be a source of tricky bugs for uninformed users, and should therefore be used with caution.
 Such regular expressions are stateful, that is, they maintain an internal state through the <code>lastIndex</code> property, which is updated and used
 as starting point on every call to <code>RegExp.prototype.test()</code> and <code>RegExp.prototype.exec()</code>, even when testing a different
@@ -8,7 +9,7 @@ string. The <code>lastIndex</code> property is eventually reset when these funct
   <li> a regular expression is defined within a loop condition while used with <code>RegExp.prototype.exec()</code> </li>
   <li> a regular expression turns on both global <code>g</code> and sticky <code>y</code> flags </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const datePattern = /\d{4}-\d{2}-\d{2}/g;
 datePattern.test('2020-08-06');
@@ -22,7 +23,7 @@ while ((result = /foo*/g.exec(str)) !== null) { // Noncompliant: a regex is defi
 const stickyPattern = /abc/gy; // Noncompliant: a regex defined as both sticky and global ignores the global flag
 stickyPattern.test(/* ... */);
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const datePattern = /\d{4}-\d{2}-\d{2}/;
 datePattern.test('2020-08-06');

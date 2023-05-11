@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>The comma operator (<code>,</code>) evaluates its operands, from left to right, and returns the second one. That’s useful in some situations, but
 just wrong in a <code>switch</code> <code>case</code>. You may think you’re compactly handling multiple values in the case, but only the last one in
 the comma-list will ever be handled. The rest will fall through to the default.</p>
 <p>Similarly the logical OR operator (<code>||</code>) will not work in a <code>switch</code> <code>case</code>, only the first argument will be
 considered at execution time.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 switch (a) {
   case 1,2:  // Noncompliant; only 2 is ever handled by this case
@@ -16,7 +17,7 @@ switch (a) {
     console.log('Neener, neener!');  // this happens when a==1 or a == 4
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 switch (a) {
   case 1:
@@ -31,7 +32,7 @@ switch (a) {
     console.log('Neener, neener!');
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>The <code>switch (true)</code> pattern is a common programming practice to match against expressions rather than literals. Expressions in the
 <code>case</code> clauses act as guards, i.e., they must evaluate to <code>true</code> if the execution is to continue in the branch.</p>
 <pre>

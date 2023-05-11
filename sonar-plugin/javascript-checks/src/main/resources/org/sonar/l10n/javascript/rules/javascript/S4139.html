@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>If you have an iterable, such as an array, set, or list, your best option for looping through its values is the <code>for of</code> syntax. Use
 <code>for in</code> and you’ll iterate the properties, rather than the values.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const arr = [4, 3, 2, 1];
 
@@ -8,7 +9,7 @@ for (let value in arr) {  // Noncompliant
   console.log(value);  // logs 0, 1, 2, 3
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const arr = [4, 3, 2, 1];
 

@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>This rule raises an issue when an insecure TLS protocol version (i.e. a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2", or "DTLSv1.3") is
 used or allowed.</p>
 <p>It is recommended to enforce TLS 1.2 as the minimum protocol version and to disallow older versions like TLS 1.0. Failure to do so could open the
@@ -6,7 +7,7 @@ less secure version.</p>
 <p>In most cases, using the default system configuration is not compliant. Indeed, an application might get deployed on a wide range of systems with
 different configurations. While using a system’s default value might be safe on modern up-to-date systems, this might not be the case on older
 systems. It is therefore recommended to explicitly set a safe configuration in every case.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p><code>secureProtocol</code>, <code>minVersion</code>/<code>maxVersion</code> and <code>secureOptions</code> should not be set to use weak TLS
 protocols (TLSv1.1 and lower):</p>
 <pre>
@@ -60,7 +61,7 @@ new os.CfnDomain(this, 'Example', {
   },
 }); // NonCompliant by default
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>Set either <code>secureProtocol</code> or <code>secureOptions</code> or <code>minVersion</code> to use secure protocols only (TLSv1.2 and
 higher):</p>
 <pre>
@@ -114,7 +115,7 @@ new os.CfnDomain(this, 'Example', {
   },
 });
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
   <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and

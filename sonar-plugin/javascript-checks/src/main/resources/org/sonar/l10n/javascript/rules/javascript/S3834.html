@@ -1,11 +1,12 @@
+<h2>Why is this an issue?</h2>
 <p><code>Symbol</code> is a primitive type introduced in ECMAScript2015. Its instances are mainly used as unique property keys.</p>
 <p>An instance can only be created by using <code>Symbol</code> as a function. Using <code>Symbol</code> with the <code>new</code> operator will raise
 a <code>TypeError</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const sym = new Symbol("foo");   // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const sym = Symbol("foo");
 </pre>

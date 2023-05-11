@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>When a non-existent variable is referenced a <code>ReferenceError</code> is raised.</p>
 <p>Due to the dynamic nature of JavaScript this can happen in a number of scenarios:</p>
 <ul>
@@ -10,7 +11,7 @@
 </ul>
 <p>This rule does not raise issues on global variables which are defined with <code>sonar.javascript.globals</code> and
 <code>sonar.javascript.environments</code> properties.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var john = {
   firstName: "john",
@@ -18,7 +19,7 @@ var john = {
 }
 john.show();
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var john = {
   firstName: "john",

@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>These minimum restrictions should be applied when handling file uploads:</p>
 <ul>
   <li> the file upload folder to restrict untrusted files to a specific folder. </li>
@@ -5,7 +6,7 @@
 </ul>
 <p>Also the size of the uploaded file should be limited to prevent denial of service attacks. This requirement is covered by the rule
 {rule:javascript:S5693}.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p><a href="https://www.npmjs.com/package/formidable">formidable</a> module:</p>
 <pre>
 const Formidable = require('formidable');
@@ -30,7 +31,7 @@ let diskupload = multer({
   storage: diskStorage,
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p><a href="https://www.npmjs.com/package/formidable">formidable</a> module:</p>
 <pre>
 const Formidable = require('formidable');
@@ -57,7 +58,7 @@ let diskupload = multer({
   storage: diskStorage,
 });
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/434">MITRE, CWE-434</a> - Unrestricted Upload of File with Dangerous Type </li>

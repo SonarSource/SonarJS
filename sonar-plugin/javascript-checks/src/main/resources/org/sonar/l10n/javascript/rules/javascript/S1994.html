@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>It can be extremely confusing when a <code>for</code> loop’s counter is incremented outside of its increment clause. In such cases, the increment
 should be moved to the loop’s increment clause if at all possible.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 for (i = 0; i &lt; 10; j++) { // Noncompliant
   // ...
   i++;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 for (i = 0; i &lt; 10; i++, j++) {
   // ...

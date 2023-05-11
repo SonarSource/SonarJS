@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Variables that are declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared
 outside the block.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function doSomething(a, b) {
   if (a &gt; b) {
@@ -20,7 +21,7 @@ function doSomething(a, b) {
   return a + b;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function doSomething(a, b) {
   var x;

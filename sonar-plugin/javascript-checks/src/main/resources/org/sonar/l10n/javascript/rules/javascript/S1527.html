@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>The following words may be used as keywords in future evolutions of the language, so using them as identifiers should be avoided to allow an easier
 adoption of those potential future versions:</p>
 <ul>
@@ -22,12 +23,12 @@ adoption of those potential future versions:</p>
 <p>Use of these words as identifiers would produce an error in JavaScript <code>strict</code> mode code.</p>
 <p>This list includes also the keywords that have been adopted by the latest versions of ECMAScript. They are kept to support legacy JavaScript
 codebases.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var package = document.getElementsByName("foo"); // Noncompliant
 var someData = { package: true };                 // Compliant, as it is not used as an identifier here
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var elements = document.getElementsByName("foo"); // Compliant
 </pre>

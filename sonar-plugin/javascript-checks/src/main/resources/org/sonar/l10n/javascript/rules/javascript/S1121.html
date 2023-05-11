@@ -1,21 +1,22 @@
+<h2>Why is this an issue?</h2>
 <p>Assignments within sub-expressions are hard to spot and therefore make the code less readable. Ideally, sub-expressions should not have
 side-effects.</p>
 <p>Moreover, using chained assignment in declarations is also dangerous because one may accidentally create global variables, e.g. in <code>let x = y
 = 1;</code>, if <code>y</code> is not declared, it will be hoisted as global.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (val = value() &amp;&amp; check()) { // Noncompliant
   // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 val = value();
 if (val &amp;&amp; check()) {
   // ...
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>The rule does not raise issues for the following patterns:</p>
 <ul>
   <li> chained assignments: <code>a = b = c = 0;</code> </li>
@@ -25,7 +26,7 @@ if (val &amp;&amp; check()) {
   <li> conditional assignment idiom: <code>a || (a = 0)</code> </li>
   <li> assignments in (do-)while conditions: <code>while (a = 0);</code> </li>
 </ul>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/481">MITRE, CWE-481</a> - Assigning instead of Comparing </li>
 </ul>
