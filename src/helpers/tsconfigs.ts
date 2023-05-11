@@ -21,6 +21,8 @@ import fs from 'fs';
 import path from 'path';
 import { getContext } from './context';
 import { readFileSync, toUnixPath } from './files';
+import { debug } from './debug';
+
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -29,9 +31,9 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(private readonly dir = getContext()?.workDir, launchLookup = true) {
+  constructor(private readonly dir?: string, launchLookup = true) {
     this.db = new Map<string, TSConfig>();
-    if (launchLookup) {
+    if (dir && launchLookup) {
       this.tsConfigLookup();
     }
   }
@@ -73,11 +75,11 @@ export class ProjectTSConfigs {
    * @param dir parent folder where the search starts
    */
   tsConfigLookup(dir = this.dir) {
-    if (!fs.existsSync(dir)) {
-      console.log(`ERROR Could not access working directory ${dir}`);
+    if (!dir || !fs.existsSync(dir)) {
+      console.log(`ERROR Could not access project directory ${dir}`);
       return;
     }
-
+    debug(`Looking for tsconfig files in ${dir}`);
     const files = fs.readdirSync(dir);
     for (const file of files) {
       const filename = toUnixPath(path.join(dir, file));
@@ -85,6 +87,7 @@ export class ProjectTSConfigs {
       if (file !== 'node_modules' && stats.isDirectory()) {
         this.tsConfigLookup(filename);
       } else if (fileIsTSConfig(file) && !stats.isDirectory()) {
+        debug(`tsconfig found: ${filename}`);
         const contents = fs.readFileSync(filename, 'utf-8');
         this.db.set(filename, {
           filename,

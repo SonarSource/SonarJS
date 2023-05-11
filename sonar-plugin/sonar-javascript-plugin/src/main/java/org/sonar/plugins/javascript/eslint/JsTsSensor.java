@@ -167,7 +167,8 @@ public class JsTsSensor extends AbstractEslintSensor {
       null,
       null,
       analysisMode.getLinterIdFor(file),
-      true
+      true,
+      context.fileSystem().baseDir().getAbsolutePath()
     );
   }
 }

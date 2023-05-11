@@ -83,6 +83,7 @@ public interface EslintBridgeServer extends Startable {
     final String linterId;
     final String language;
     final boolean createProgram;
+    final String baseDir;
 
     JsAnalysisRequest(
       String filePath,
@@ -93,7 +94,8 @@ public interface EslintBridgeServer extends Startable {
       @Nullable List<String> tsConfigs,
       @Nullable String programId,
       String linterId,
-      boolean createProgram
+      boolean createProgram,
+      String baseDir
     ) {
       this.filePath = filePath;
       this.fileType = fileType;
@@ -104,6 +106,7 @@ public interface EslintBridgeServer extends Startable {
       this.programId = programId;
       this.linterId = linterId;
       this.createProgram = createProgram;
+      this.baseDir = baseDir;
     }
   }
 

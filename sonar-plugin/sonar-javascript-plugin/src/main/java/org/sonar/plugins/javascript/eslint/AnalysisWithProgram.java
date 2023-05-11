@@ -191,7 +191,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       null,
       tsProgram != null ? tsProgram.programId : null,
       analysisMode.getLinterIdFor(file),
-      false
+      false,
+      context.fileSystem().baseDir().getAbsolutePath()
     );
   }
 }

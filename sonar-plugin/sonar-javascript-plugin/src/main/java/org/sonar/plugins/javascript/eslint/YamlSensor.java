@@ -161,7 +161,8 @@ public class YamlSensor extends AbstractEslintSensor {
           null,
           null,
           analysisMode.getLinterIdFor(file),
-          false
+          false,
+          context.fileSystem().baseDir().getAbsolutePath()
         );
         var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
         analysisProcessor.processResponse(context, checks, file, response);

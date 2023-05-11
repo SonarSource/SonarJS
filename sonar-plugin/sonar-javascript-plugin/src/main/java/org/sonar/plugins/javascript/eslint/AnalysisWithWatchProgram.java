@@ -146,7 +146,8 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           tsConfigs,
           null,
           analysisMode.getLinterIdFor(file),
-          false
+          false,
+          context.fileSystem().baseDir().getAbsolutePath()
         );
         var response = isJavaScript(file)
           ? eslintBridgeServer.analyzeJavaScript(request)

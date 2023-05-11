@@ -32,10 +32,10 @@ import path from 'path';
 import ts from 'typescript';
 import {
   addTsConfigIfDirectory,
-  readFileSync,
-  toUnixPath,
   ProgramResult,
   ProjectTSConfigs,
+  readFileSync,
+  toUnixPath,
 } from 'helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
@@ -45,17 +45,20 @@ import { ProgramCache } from 'helpers/cache';
 import { JsTsAnalysisInput } from 'services/analysis';
 
 export const programCache = new ProgramCache();
-let projectTSConfigs: ProjectTSConfigs;
+let projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<string, ProjectTSConfigs>();
 
 export function setDefaultTSConfigs(tsConfigs: ProjectTSConfigs) {
-  projectTSConfigs = tsConfigs;
+  // used only in tests?
+  projectTSConfigsByBaseDir.set('', tsConfigs);
 }
 
-function getDefaultTSConfigs() {
-  if (!projectTSConfigs) {
-    projectTSConfigs = new ProjectTSConfigs();
+function getDefaultTSConfigs(baseDir = '') {
+  let tsConfigs = projectTSConfigsByBaseDir.get(baseDir);
+  if (!tsConfigs) {
+    tsConfigs = new ProjectTSConfigs(baseDir);
+    projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
   }
-  return projectTSConfigs;
+  return tsConfigs;
 }
 
 /**
@@ -71,7 +74,7 @@ export function getProgramForFile(
   tsconfigs?: ProjectTSConfigs,
 ): ts.Program {
   if (!tsconfigs) {
-    tsconfigs = getDefaultTSConfigs();
+    tsconfigs = getDefaultTSConfigs(input.baseDir);
   }
   let newTsConfigs = false;
   if (input.tsConfigs) {
