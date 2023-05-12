@@ -22,27 +22,27 @@ import { ProjectTSConfigs, setContext, toUnixPath } from 'helpers';
 import path from 'path';
 
 describe('TSConfigs', () => {
-  const initialCtx = workDir => ({
-    workDir,
+  const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
+  setContext({
+    workDir: '/tmp/dir',
     shouldUseTypeScriptParserForJS: false,
     sonarlint: true,
     bundles: [],
   });
 
-  it('should not find any tsconfig without context or parameter', () => {
+  it('should not find any tsconfig without dir parameter', () => {
     console.log = jest.fn();
     const tsconfigs = new ProjectTSConfigs();
+    tsconfigs.tsConfigLookup();
     expect(console.log).toHaveBeenCalledWith(
-      `ERROR Could not access working directory ${undefined}`,
+      `ERROR Could not access project directory ${undefined}`,
     );
     expect(tsconfigs.db.size).toBe(0);
   });
 
   it('should find and update tsconfig.json files', async () => {
     console.log = jest.fn();
-    const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
-    setContext(initialCtx(dir));
-    const projectTSConfigs = new ProjectTSConfigs();
+    const projectTSConfigs = new ProjectTSConfigs(dir);
     const tsconfigs = [
       ['tsconfig.json'],
       ['tsconfig.base.json'],
@@ -83,7 +83,6 @@ describe('TSConfigs', () => {
     const tsconfig = toUnixPath(path.join(dir, 'tsconfig.json'));
     const nonExistingTsconfig = toUnixPath(path.join(dir, 'non-existing-tsconfig.json'));
 
-    setContext(initialCtx(dir));
     const tsconfigs = new ProjectTSConfigs(undefined, false);
     tsconfigs.db.set(nonExistingTsconfig, { filename: nonExistingTsconfig, contents: '' });
 

@@ -20,37 +20,30 @@
 package org.sonar.plugins.javascript.eslint;
 
 import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
-import static org.sonar.plugins.javascript.eslint.AbstractAnalysis.inputFileLanguage;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class JsTsSensor extends AbstractEslintSensor {
 
-  static final String PROGRESS_REPORT_TITLE = "Progress of JavaScript/TypeScript analysis";
-  static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
-
   private static final Logger LOG = Loggers.get(JsTsSensor.class);
   private final JsTsChecks checks;
-  private final JavaScriptProjectChecker javaScriptProjectChecker;
-  private AnalysisProcessor analysisProcessor;
+  private final AnalysisProcessor analysisProcessor;
+  private AnalysisMode analysisMode;
+  private List<EslintRule> rules;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -58,7 +51,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring
   ) {
-    this(checks, eslintBridgeServer, analysisWarnings, monitoring, null, null);
+    this(checks, eslintBridgeServer, analysisWarnings, monitoring, null);
   }
 
   public JsTsSensor(
@@ -66,13 +59,12 @@ public class JsTsSensor extends AbstractEslintSensor {
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
     AnalysisProcessor analysisProcessor
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
-    this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.analysisProcessor = analysisProcessor;
+    this.rules = checks.eslintRules();
   }
 
   @Override
@@ -80,6 +72,11 @@ public class JsTsSensor extends AbstractEslintSensor {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("JavaScript/TypeScript analysis");
+  }
+
+  @Override
+  protected String getProgressReportTitle() {
+    return "Progress of JavaScript/TypeScript analysis";
   }
 
   @Override
@@ -91,52 +88,28 @@ public class JsTsSensor extends AbstractEslintSensor {
       .collect(Collectors.toList());
   }
 
-  @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
-    var progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
-    progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-    var success = false;
-    try {
-      for (var file : inputFiles) {
-        analyzeFile(analysisMode, progressReport, file);
-      }
-      success = true;
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
-    }
+  protected void initLinter() throws IOException {
+    this.analysisMode = AnalysisMode.getMode(context, this.rules);
+    eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
-  private void analyzeFile(
-    AnalysisMode analysisMode,
-    ProgressReport progressReport,
-    InputFile file
-  ) throws IOException {
-    if (context.isCancelled()) {
-      throw new CancellationException(
-        "Analysis interrupted because the SensorContext is in cancelled state"
-      );
-    }
-    if (!eslintBridgeServer.isAlive()) {
-      throw new IllegalStateException("eslint-bridge server is not answering");
-    }
+  protected void analyze(InputFile file) throws IOException {
     monitoring.startFile(file);
-    progressReport.nextFile(file.absolutePath());
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
-      LOG.debug("Analyzing file: " + file.uri());
-      var request = getRequest(analysisMode, file);
-      var response = getResponse(file, request);
-      analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeAnalysisToCache(
-        CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
-        file
-      );
+      try {
+        LOG.debug("Analyzing file: " + file.uri());
+        var request = getRequest(file);
+        var response = getResponse(file, request);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
+      } catch (IOException | RuntimeException e) {
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
+        throw new IllegalStateException("Failure during analysis of " + file.uri(), e);
+      }
     } else {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
@@ -153,10 +126,7 @@ public class JsTsSensor extends AbstractEslintSensor {
       : eslintBridgeServer.analyzeJavaScript(request);
   }
 
-  private EslintBridgeServer.JsAnalysisRequest getRequest(
-    AnalysisMode analysisMode,
-    InputFile file
-  ) throws IOException {
+  private EslintBridgeServer.JsAnalysisRequest getRequest(InputFile file) throws IOException {
     var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
     return new EslintBridgeServer.JsAnalysisRequest(
       file.absolutePath(),
@@ -170,5 +140,11 @@ public class JsTsSensor extends AbstractEslintSensor {
       true,
       context.fileSystem().baseDir().getAbsolutePath()
     );
+  }
+
+  protected static String inputFileLanguage(InputFile file) {
+    return JavaScriptFilePredicate.isTypeScriptFile(file)
+      ? TypeScriptLanguage.KEY
+      : JavaScriptLanguage.KEY;
   }
 }

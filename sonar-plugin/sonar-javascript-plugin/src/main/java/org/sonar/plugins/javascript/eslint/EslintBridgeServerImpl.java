@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 
 import com.google.gson.Gson;
@@ -44,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
@@ -334,11 +332,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException {
-    return response(request(GSON.toJson(request), "analyze-with-program"), request.filePath);
-  }
-
-  @Override
   public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath);
@@ -410,74 +403,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (IOException e) {
       return false;
     }
-  }
-
-  @Override
-  public boolean newTsConfig() {
-    try {
-      var response = request("", "new-tsconfig");
-      return "OK!".equals(response);
-    } catch (IOException e) {
-      LOG.error("Failed to post new-tsconfig", e);
-    }
-    return false;
-  }
-
-  TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
-    String result = null;
-    try {
-      TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files");
-      return GSON.fromJson(result, TsConfigResponse.class);
-    } catch (IOException e) {
-      LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
-    } catch (JsonSyntaxException e) {
-      LOG.error(
-        "Failed to parse response when requesting files for tsconfig: " +
-        tsconfigAbsolutePath +
-        ": \n-----\n" +
-        result +
-        "\n-----\n"
-      );
-    }
-    return new TsConfigResponse(emptyList(), emptyList(), result, null);
-  }
-
-  @Override
-  public TsConfigFile loadTsConfig(String filename) {
-    EslintBridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
-    if (tsConfigResponse.error != null) {
-      LOG.error(tsConfigResponse.error);
-    }
-    LOG.debug("tsconfig {} files {}", filename, tsConfigResponse.files);
-    return new TsConfigFile(
-      filename,
-      emptyListIfNull(tsConfigResponse.files),
-      emptyListIfNull(tsConfigResponse.projectReferences)
-    );
-  }
-
-  @Override
-  public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
-    var response = request(GSON.toJson(tsProgramRequest), "create-program");
-    return GSON.fromJson(response, TsProgram.class);
-  }
-
-  @Override
-  public boolean deleteProgram(TsProgram tsProgram) throws IOException {
-    var programToDelete = new TsProgram(tsProgram.programId, null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program");
-    return "OK!".equals(response);
-  }
-
-  @Override
-  public TsConfigFile createTsConfigFile(String content) throws IOException {
-    var response = request(content, "create-tsconfig-file");
-    return GSON.fromJson(response, TsConfigFile.class);
-  }
-
-  private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
-    return list == null ? emptyList() : list;
   }
 
   @Override
