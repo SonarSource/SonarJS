@@ -34,6 +34,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 
@@ -89,7 +90,7 @@ public class JsTsSensor extends AbstractEslintSensor {
       .collect(Collectors.toList());
   }
 
-  protected void initLinter() throws IOException {
+  protected void prepareAnalysis() throws IOException {
     this.analysisMode = AnalysisMode.getMode(context, this.rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
@@ -101,8 +102,16 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: " + file.uri());
-        var request = getRequest(file);
-        var response = getResponse(file, request);
+        var request = getJsTsRequest(
+          file,
+          inputFileLanguage(file),
+          tsconfigs,
+          analysisMode.getLinterIdFor(file),
+          true
+        );
+        var response = isTypeScriptFile(file)
+          ? eslintBridgeServer.analyzeTypeScript(request)
+          : eslintBridgeServer.analyzeJavaScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
@@ -117,30 +126,6 @@ public class JsTsSensor extends AbstractEslintSensor {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
-  }
-
-  private EslintBridgeServer.AnalysisResponse getResponse(
-    InputFile file,
-    EslintBridgeServer.JsAnalysisRequest request
-  ) throws IOException {
-    return isTypeScriptFile(file)
-      ? eslintBridgeServer.analyzeTypeScript(request)
-      : eslintBridgeServer.analyzeJavaScript(request);
-  }
-
-  private EslintBridgeServer.JsAnalysisRequest getRequest(InputFile file) throws IOException {
-    var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-    return new EslintBridgeServer.JsAnalysisRequest(
-      file.absolutePath(),
-      file.type().toString(),
-      inputFileLanguage(file),
-      fileContent,
-      contextUtils.ignoreHeaderComments(),
-      tsconfigs,
-      analysisMode.getLinterIdFor(file),
-      true,
-      context.fileSystem().baseDir().getAbsolutePath()
-    );
   }
 
   protected static String inputFileLanguage(InputFile file) {

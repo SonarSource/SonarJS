@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -112,7 +113,7 @@ public abstract class AbstractEslintSensor implements Sensor {
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
     var success = false;
     try {
-      initLinter();
+      prepareAnalysis();
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException(
@@ -135,13 +136,34 @@ public abstract class AbstractEslintSensor implements Sensor {
     }
   }
 
+  protected EslintBridgeServer.JsAnalysisRequest getJsTsRequest(
+    InputFile file,
+    String language,
+    @Nullable List<String> tsconfigs,
+    String linterId,
+    boolean createProgram
+  ) throws IOException {
+    var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+    return new EslintBridgeServer.JsAnalysisRequest(
+      file.absolutePath(),
+      file.type().toString(),
+      language,
+      fileContent,
+      contextUtils.ignoreHeaderComments(),
+      tsconfigs,
+      linterId,
+      createProgram,
+      context.fileSystem().baseDir().getAbsolutePath()
+    );
+  }
+
   protected void logErrorOrWarn(String msg, Throwable e) {
     LOG.error(msg, e);
   }
 
   protected abstract String getProgressReportTitle() throws IOException;
 
-  protected abstract void initLinter() throws IOException;
+  protected abstract void prepareAnalysis() throws IOException;
 
   protected abstract void analyze(InputFile file) throws IOException;
 

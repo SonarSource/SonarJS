@@ -177,7 +177,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void initLinter() throws IOException {
+  protected void prepareAnalysis() throws IOException {
     // No need to init linter for CSS
   }
 

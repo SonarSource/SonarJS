@@ -85,7 +85,7 @@ public class HtmlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  protected void initLinter() throws IOException {
+  protected void prepareAnalysis() throws IOException {
     this.analysisMode = AnalysisMode.getMode(context, this.rules);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
@@ -95,19 +95,14 @@ public class HtmlSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var jsAnalysisRequest = new JsAnalysisRequest(
-          file.absolutePath(),
-          file.type().toString(),
+        var request = getJsTsRequest(
+          file,
           JavaScriptLanguage.KEY,
-          fileContent,
-          contextUtils.ignoreHeaderComments(),
           null,
           analysisMode.getLinterIdFor(file),
-          false,
-          context.fileSystem().baseDir().getAbsolutePath()
+          false
         );
-        var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
+        var response = eslintBridgeServer.analyzeHtml(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
