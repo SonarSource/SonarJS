@@ -29,8 +29,7 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.*;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -138,7 +137,6 @@ public abstract class AbstractEslintSensor implements Sensor {
 
   protected EslintBridgeServer.JsAnalysisRequest getJsTsRequest(
     InputFile file,
-    String language,
     @Nullable List<String> tsconfigs,
     String linterId,
     boolean createProgram
@@ -147,7 +145,9 @@ public abstract class AbstractEslintSensor implements Sensor {
     return new EslintBridgeServer.JsAnalysisRequest(
       file.absolutePath(),
       file.type().toString(),
-      language,
+      JavaScriptFilePredicate.isTypeScriptFile(file)
+        ? TypeScriptLanguage.KEY
+        : JavaScriptLanguage.KEY,
       fileContent,
       contextUtils.ignoreHeaderComments(),
       tsconfigs,

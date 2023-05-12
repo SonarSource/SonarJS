@@ -31,8 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 
@@ -45,7 +43,6 @@ public class YamlSensor extends AbstractEslintSensor {
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
-  private List<EslintRule> rules;
 
   public YamlSensor(
     JsTsChecks checks,
@@ -59,7 +56,6 @@ public class YamlSensor extends AbstractEslintSensor {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
-    this.rules = checks.eslintRules();
   }
 
   @Override
@@ -85,7 +81,8 @@ public class YamlSensor extends AbstractEslintSensor {
   }
 
   protected void prepareAnalysis() throws IOException {
-    this.analysisMode = AnalysisMode.getMode(context, this.rules);
+    var rules = checks.eslintRules();
+    analysisMode = AnalysisMode.getMode(context, rules);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
@@ -96,13 +93,7 @@ public class YamlSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        var request = getJsTsRequest(
-          file,
-          JavaScriptLanguage.KEY,
-          null,
-          analysisMode.getLinterIdFor(file),
-          false
-        );
+        var request = getJsTsRequest(file, null, analysisMode.getLinterIdFor(file), false);
         var response = eslintBridgeServer.analyzeYaml(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(

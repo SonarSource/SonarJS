@@ -34,7 +34,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 
@@ -44,7 +43,6 @@ public class JsTsSensor extends AbstractEslintSensor {
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
-  private List<EslintRule> rules;
   private List<String> tsconfigs;
 
   public JsTsSensor(
@@ -66,7 +64,6 @@ public class JsTsSensor extends AbstractEslintSensor {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = analysisProcessor;
-    this.rules = checks.eslintRules();
   }
 
   @Override
@@ -91,7 +88,8 @@ public class JsTsSensor extends AbstractEslintSensor {
   }
 
   protected void prepareAnalysis() throws IOException {
-    this.analysisMode = AnalysisMode.getMode(context, this.rules);
+    var rules = checks.eslintRules();
+    analysisMode = AnalysisMode.getMode(context, rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
@@ -102,13 +100,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: " + file.uri());
-        var request = getJsTsRequest(
-          file,
-          inputFileLanguage(file),
-          tsconfigs,
-          analysisMode.getLinterIdFor(file),
-          true
-        );
+        var request = getJsTsRequest(file, tsconfigs, analysisMode.getLinterIdFor(file), true);
         var response = isTypeScriptFile(file)
           ? eslintBridgeServer.analyzeTypeScript(request)
           : eslintBridgeServer.analyzeJavaScript(request);
@@ -126,11 +118,5 @@ public class JsTsSensor extends AbstractEslintSensor {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
-  }
-
-  protected static String inputFileLanguage(InputFile file) {
-    return JavaScriptFilePredicate.isTypeScriptFile(file)
-      ? TypeScriptLanguage.KEY
-      : JavaScriptLanguage.KEY;
   }
 }
