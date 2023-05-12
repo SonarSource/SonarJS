@@ -67,7 +67,6 @@ public interface EslintBridgeServer extends Startable {
     final String fileType;
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
-    final String programId;
     final String linterId;
     final String language;
     final boolean createProgram;
@@ -80,7 +79,6 @@ public interface EslintBridgeServer extends Startable {
       @Nullable String fileContent,
       boolean ignoreHeaderComments,
       @Nullable List<String> tsConfigs,
-      @Nullable String programId,
       String linterId,
       boolean createProgram,
       String baseDir
@@ -91,7 +89,6 @@ public interface EslintBridgeServer extends Startable {
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
-      this.programId = programId;
       this.linterId = linterId;
       this.createProgram = createProgram;
       this.baseDir = baseDir;
@@ -267,25 +264,5 @@ public interface EslintBridgeServer extends Startable {
 
     int parseTime;
     int analysisTime;
-  }
-
-  class TsConfigResponse {
-
-    final List<String> files;
-    final List<String> projectReferences;
-    final String error;
-    final ParsingErrorCode errorCode;
-
-    TsConfigResponse(
-      List<String> files,
-      List<String> projectReferences,
-      @Nullable String error,
-      @Nullable ParsingErrorCode errorCode
-    ) {
-      this.files = files;
-      this.projectReferences = projectReferences;
-      this.error = error;
-      this.errorCode = errorCode;
-    }
   }
 }

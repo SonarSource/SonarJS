@@ -104,7 +104,6 @@ public class YamlSensor extends AbstractEslintSensor {
           fileContent,
           contextUtils.ignoreHeaderComments(),
           null,
-          null,
           analysisMode.getLinterIdFor(file),
           false,
           context.fileSystem().baseDir().getAbsolutePath()

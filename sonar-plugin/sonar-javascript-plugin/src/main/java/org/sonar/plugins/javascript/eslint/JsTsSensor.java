@@ -44,6 +44,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
   private List<EslintRule> rules;
+  private List<String> tsconfigs;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -90,6 +91,7 @@ public class JsTsSensor extends AbstractEslintSensor {
 
   protected void initLinter() throws IOException {
     this.analysisMode = AnalysisMode.getMode(context, this.rules);
+    tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
@@ -134,8 +136,7 @@ public class JsTsSensor extends AbstractEslintSensor {
       inputFileLanguage(file),
       fileContent,
       contextUtils.ignoreHeaderComments(),
-      null,
-      null,
+      tsconfigs,
       analysisMode.getLinterIdFor(file),
       true,
       context.fileSystem().baseDir().getAbsolutePath()

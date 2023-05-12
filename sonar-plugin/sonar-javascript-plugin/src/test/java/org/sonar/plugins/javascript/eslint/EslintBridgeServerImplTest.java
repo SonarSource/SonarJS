@@ -233,7 +233,6 @@ class EslintBridgeServerImplTest {
       null,
       true,
       singletonList(tsConfig.absolutePath()),
-      null,
       DEFAULT_LINTER_ID,
       false,
       context.fileSystem().baseDir().getAbsolutePath()
@@ -263,7 +262,6 @@ class EslintBridgeServerImplTest {
       JavaScriptLanguage.KEY,
       null,
       true,
-      null,
       null,
       DEFAULT_LINTER_ID,
       false,
@@ -425,7 +423,6 @@ class EslintBridgeServerImplTest {
       JavaScriptLanguage.KEY,
       null,
       true,
-      null,
       null,
       DEFAULT_LINTER_ID,
       false,

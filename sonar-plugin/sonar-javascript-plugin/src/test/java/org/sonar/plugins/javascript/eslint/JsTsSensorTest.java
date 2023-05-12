@@ -28,10 +28,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,13 +58,11 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -100,8 +96,6 @@ class JsTsSensorTest {
   @TempDir
   Path tempDir;
 
-  TempFolder tempFolder;
-
   @TempDir
   Path workDir;
 
@@ -114,7 +108,6 @@ class JsTsSensorTest {
 
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
-    tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
@@ -310,29 +303,6 @@ class JsTsSensorTest {
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
-  }
-
-  private String absolutePath(Path baseDir, String relativePath) {
-    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
-  }
-
-  private DefaultInputFile inputFileFromResource(
-    SensorContextTester context,
-    Path baseDir,
-    String file
-  ) throws IOException {
-    Path filePath = baseDir.resolve(file);
-    DefaultInputFile inputFile = new TestInputFileBuilder(
-      "projectKey",
-      baseDir.toFile(),
-      filePath.toFile()
-    )
-      .setContents(Files.readString(filePath))
-      .setCharset(StandardCharsets.UTF_8)
-      .setLanguage("ts")
-      .build();
-    context.fileSystem().add(inputFile);
-    return inputFile;
   }
 
   @Test

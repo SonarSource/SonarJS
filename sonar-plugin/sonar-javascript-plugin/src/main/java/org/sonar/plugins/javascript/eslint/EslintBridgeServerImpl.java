@@ -454,15 +454,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  static class TsConfigRequest {
-
-    final String tsconfig;
-
-    TsConfigRequest(String tsconfig) {
-      this.tsconfig = tsconfig;
-    }
-  }
-
   static class InitLinterRequest {
 
     String linterId;

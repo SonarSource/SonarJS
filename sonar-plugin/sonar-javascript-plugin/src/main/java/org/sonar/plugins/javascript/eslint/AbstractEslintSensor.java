@@ -46,7 +46,6 @@ public abstract class AbstractEslintSensor implements Sensor {
 
   protected SensorContext context;
   protected ContextUtils contextUtils;
-  private AnalysisMode analysisMode;
 
   protected AbstractEslintSensor(
     EslintBridgeServer eslintBridgeServer,
