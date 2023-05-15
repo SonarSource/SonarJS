@@ -32,6 +32,7 @@ import path from 'path';
 import ts from 'typescript';
 import {
   addTsConfigIfDirectory,
+  debug,
   ProgramResult,
   ProjectTSConfigs,
   readFileSync,
@@ -88,31 +89,47 @@ export function getProgramForFile(
   }
 
   const normalizedPath = toUnixPath(input.filePath);
-  for (const [tsConfigPath, programResult] of cache.programs) {
-    const tsConfig = tsconfigs.get(tsConfigPath);
-    if (
-      programResult.files.includes(normalizedPath) &&
-      (programResult.isFallbackProgram || tsConfig)
-    ) {
-      const program = programResult.program.deref();
-      if (program) {
-        cache.lru.set(program);
-        return program;
-      } else {
-        cache.programs.delete(tsConfigPath);
-      }
-    }
-  }
   for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
-    if (!cache.programs.has(tsconfig.filename)) {
-      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
-      if (tsconfig.isFallbackTSConfig) {
-        programResult.isFallbackProgram = true;
+    if (!tsconfig.isFallbackTSConfig) {
+      // looping through actual tsconfigs in fs
+      let programResult = cache.programs.get(tsconfig.filename);
+
+      if (
+        !programResult ||
+        (programResult.files.includes(normalizedPath) && !programResult.program.deref())
+      ) {
+        programResult = createProgram(tsconfig.filename, tsconfig.contents);
+        cache.programs.set(tsconfig.filename, programResult);
       }
+      if (programResult.files.includes(normalizedPath)) {
+        const program = programResult.program.deref()!;
+        cache.lru.set(program);
+        debug(`Analyzing ${input.filePath} using tsconfig ${tsconfig.filename}`);
+        return program;
+      }
+    } else {
+      // last item in loop is a fallback tsConfig
+      //we first check existing fallback programs
+      for (const [tsConfigPath, programResult] of cache.programs) {
+        if (programResult.files.includes(normalizedPath) && programResult.isFallbackProgram) {
+          const program = programResult.program.deref();
+          if (program) {
+            cache.lru.set(program);
+            debug(`Analyzing file ${input.filePath} using tsconfig ${tsConfigPath}`);
+            return program;
+          } else {
+            cache.programs.delete(tsConfigPath);
+          }
+        }
+      }
+      // no existing fallback program contained our file, creating a fallback program with our file
+      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
+      programResult.isFallbackProgram = true;
       cache.programs.set(tsconfig.filename, programResult);
       if (programResult.files.includes(normalizedPath)) {
         const program = programResult.program.deref()!;
         cache.lru.set(program);
+        debug(`Analyzing file ${input.filePath} using tsconfig ${tsconfig.filename}`);
         return program;
       }
     }

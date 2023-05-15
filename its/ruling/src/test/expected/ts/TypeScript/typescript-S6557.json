@@ -9,6 +9,10 @@
 'TypeScript:scripts/ior.ts':[
 57,
 ],
+'TypeScript:scripts/tslint/booleanTriviaRule.ts':[
+31,
+48,
+],
 'TypeScript:src/compiler/core.ts':[
 1691,
 1700,

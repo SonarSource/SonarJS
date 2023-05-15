@@ -1,4 +1,7 @@
 {
+'TypeScript:scripts/tslint/booleanTriviaRule.ts':[
+70,
+],
 'TypeScript:src/compiler/binder.ts':[
 185,
 ],

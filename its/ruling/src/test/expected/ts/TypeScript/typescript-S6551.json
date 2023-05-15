@@ -1,4 +1,7 @@
 {
+'TypeScript:scripts/createBenchmark.ts':[
+122,
+],
 'TypeScript:src/compiler/checker.ts':[
 14043,
 ],
@@ -6,6 +9,8 @@
 272,
 401,
 565,
+1056,
+1056,
 2867,
 ],
 'TypeScript:src/services/formatting/ruleDescriptor.ts':[
