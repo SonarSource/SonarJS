@@ -1,6 +1,5 @@
 {
 'TypeScript:Gulpfile.ts':[
-768,
 876,
 ],
 'TypeScript:scripts/authors.ts':[
@@ -82,7 +81,6 @@
 59,
 ],
 'TypeScript:src/harness/harness.ts':[
-75,
 993,
 1002,
 1004,
@@ -94,10 +92,6 @@
 'TypeScript:src/harness/harnessLanguageService.ts':[
 447,
 772,
-],
-'TypeScript:src/harness/instrumenter.ts':[
-41,
-41,
 ],
 'TypeScript:src/harness/projectsRunner.ts':[
 104,
@@ -121,10 +115,6 @@
 ],
 'TypeScript:src/server/project.ts':[
 476,
-],
-'TypeScript:src/server/server.ts':[
-210,
-694,
 ],
 'TypeScript:src/server/session.ts':[
 698,

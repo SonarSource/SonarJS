@@ -1,8 +1,4 @@
 {
-'TypeScript:scripts/tslint/noIncrementDecrementRule.ts':[
-31,
-50,
-],
 'TypeScript:src/compiler/binder.ts':[
 236,
 298,
