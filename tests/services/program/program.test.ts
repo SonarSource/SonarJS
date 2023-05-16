@@ -263,6 +263,7 @@ describe('program', () => {
     expect(cache.programs.get(tsConfig).files).toContain(mainFile);
   });
 
+  // skipping due to indeterminism. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry#avoid_where_possible
   it.skip('cache should only contain 2 elements and GC should clean up old programs', async () => {
     const cache = new ProgramCache(2);
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
