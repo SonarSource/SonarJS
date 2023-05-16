@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
 
 /**
  * Tests different TypeScript project structures to verify SonarJS ability to run typed rules (like S3003 'strings-comparison').
@@ -49,6 +49,7 @@ class TypeCheckerConfigTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
   private static final String PROJECT_ROOT = "typechecker-config";
+  private static final String TSCONFIG_FOUND = "DEBUG: tsconfig found:";
 
   /**
    * Tests a project having a main tsconfig.json and an additional tsconfig.es6.json files extending the main file to target a different
@@ -64,27 +65,11 @@ class TypeCheckerConfigTest {
 
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 1 tsconfig.json file(s)")
-      .logsOnce(
-        "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
-      );
+      .logsTimes(2, TSCONFIG_FOUND)
+      .logsOnce("INFO: 3/3 source files have been analyzed");
 
     assertThat(getIssues(key))
-      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
-      .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
-    // Missing issues for main.es6.ts
-
-    var configuredBuild = scanner.setProperty(
-      "sonar.typescript.tsconfigPaths",
-      "tsconfig.json,tsconfig.es6.json"
-    );
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(configuredBuild))
-      .logsOnce("Found 2 TSConfig file(s)")
-      .doesNotLog("INFO: Skipped");
-
-    assertThat(getIssues(key))
-      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .extracting(Issue::getLine, Issue::getComponent)
       .containsExactlyInAnyOrder(
         tuple(4, key + ":src/main.ts"),
         tuple(4, key + ":src/main.es6.ts")
@@ -102,12 +87,11 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 2 tsconfig.json file(s)");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner)).logsTimes(2, TSCONFIG_FOUND);
 
-    assertThat(getIssues(key)).isEmpty();
-    // Missing issues for main.ts
+    assertThat(getIssues(key))
+      .extracting(Issue::getRule, Issue::getLine, Issue::getComponent)
+      .containsExactlyInAnyOrder(tuple("typescript:S3003", 4, key + ":src/main.ts"));
 
     var configuredBuild = scanner.setProperty(
       "sonar.typescript.tsconfigPaths",
@@ -118,7 +102,7 @@ class TypeCheckerConfigTest {
       .logsOnce("Found 1 TSConfig file(s)");
 
     assertThat(getIssues(key))
-      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .extracting(Issue::getLine, Issue::getComponent)
       .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
   }
 
@@ -135,7 +119,9 @@ class TypeCheckerConfigTest {
 
     var buildResult = orchestrator.executeBuild(scanner);
     BuildResultAssert.assertThat(buildResult).logsOnce("INFO: 2/2 source files have been analyzed");
-    assertThat(getIssues(key)).isEmpty(); // False negative
+    assertThat(getIssues(key))
+      .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
+      .contains(tuple("javascript:S3003", "typechecker-config-jsconfig:src/main.js", 4));
 
     var configuredBuild = scanner.setProperty(
       "sonar.typescript.tsconfigPaths",
@@ -144,7 +130,9 @@ class TypeCheckerConfigTest {
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(configuredBuild))
       .logsOnce("INFO: 2/2 source files have been analyzed");
-    assertThat(getIssues(key)).isEmpty(); // False negative
+    assertThat(getIssues(key))
+      .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
+      .contains(tuple("javascript:S3003", "typechecker-config-jsconfig:src/main.js", 4));
   }
 
   @ParameterizedTest
@@ -153,11 +141,9 @@ class TypeCheckerConfigTest {
     var scanner = getSonarScanner(project.getName());
     var buildResult = orchestrator.executeBuild(scanner);
 
-    BuildResultAssert
-      .assertThat(buildResult)
-      .logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
+    BuildResultAssert.assertThat(buildResult).logsTimes(project.getExpectedFound(), TSCONFIG_FOUND);
     assertThat(getIssues(project.getKey()))
-      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .extracting(Issue::getLine, Issue::getComponent)
       .containsExactlyInAnyOrder(project.getIssues());
   }
 
@@ -178,6 +164,7 @@ class TypeCheckerConfigTest {
       .setProjectKey(key)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(projectDir);
   }
 
@@ -189,13 +176,13 @@ class TypeCheckerConfigTest {
      * Test a project with a base tsconfig.base.json and a main tsconfig.json extending the base file located in the parent folder.
      * The analyzer will detect the main tsconfig.json and TypeScript will read automatically the base file.
      */
-    EXTEND_BASE_FROM_FOLDER("extend-base-from-folder", 1, "src/main.ts"),
+    EXTEND_BASE_FROM_FOLDER("extend-base-from-folder", 2, "src/main.ts"),
 
     /**
      * Test a project with a base tsconfig.base.json and main tsconfig.json extending the base file located in the same folder.
      * The analyzer will detect the main tsconfig.json and TypeScript will read automatically the base file.
      */
-    SHARED_BASE("shared-base", 1, "src/main.ts"),
+    SHARED_BASE("shared-base", 2, "src/main.ts"),
 
     /**
      * Test a project with subprojects having their own main tsconfig.json files.
@@ -212,7 +199,7 @@ class TypeCheckerConfigTest {
      * <a href="https://www.typescriptlang.org/docs/handbook/project-references.html#overall-structure">
      * TypeScript Project References</a> guide.
      */
-    SOLUTION_TSCONFIG("solution-tsconfig", 3, "library/index.ts");
+    SOLUTION_TSCONFIG("solution-tsconfig", 4, "library/index.ts");
 
     private static final int ISSUE_LINE = 4;
 
