@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, JsTsLanguage } from 'helpers';
+import { debug, getContext, getWildcardTSConfig, JsTsLanguage } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
-import { getProgramForFile } from 'services/program';
+import { getDefaultTSConfigs, getProgramForFile } from 'services/program';
 import { Linter } from 'eslint';
 
 /**
@@ -50,7 +50,13 @@ export function buildSourceCode(input: JsTsAnalysisInput) {
         debug(`Failed to create program for ${input.filePath}: ${error.message}`);
       }
     } else {
-      options.project = input.tsConfigs;
+      options.project = input.tsConfigs ? [...input.tsConfigs] : [];
+      if (input.useFoundTSConfigs === true) {
+        options.project.push(...getDefaultTSConfigs(input.baseDir).db.keys());
+      }
+      if (input.createWildcardTSConfig === true) {
+        options.project.push(getWildcardTSConfig(input.baseDir));
+      }
     }
 
     try {

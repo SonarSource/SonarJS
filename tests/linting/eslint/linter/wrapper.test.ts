@@ -27,7 +27,6 @@ import { jsTsInput } from '../../../tools';
 describe('LinterWrapper', () => {
   beforeAll(() => {
     setContext({
-      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
@@ -144,6 +143,12 @@ describe('LinterWrapper', () => {
   });
 
   it('should report issues from custom rules', async () => {
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'custom-rule.js');
     const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 

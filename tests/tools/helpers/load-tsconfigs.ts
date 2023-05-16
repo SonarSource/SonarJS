@@ -22,7 +22,7 @@ import path from 'path';
 import { setDefaultTSConfigs } from 'services/program';
 
 export async function loadTsconfigs(tsConfigs) {
-  const projectTSConfigs = new ProjectTSConfigs(undefined, false);
+  const projectTSConfigs = new ProjectTSConfigs();
   for (const tsConfigPath of tsConfigs) {
     const contents = JSON.parse(await readFile(tsConfigPath));
     if (!contents.include && !contents.files) {

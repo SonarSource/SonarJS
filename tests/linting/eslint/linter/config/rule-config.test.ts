@@ -37,7 +37,6 @@ describe('extendRuleConfig', () => {
 
   it('should include the context', () => {
     const ctx = {
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
@@ -57,7 +56,6 @@ describe('extendRuleConfig', () => {
 
   it('should include the context and `sonar-runtime`', () => {
     const ctx = {
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

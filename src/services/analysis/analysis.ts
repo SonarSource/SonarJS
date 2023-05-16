@@ -38,7 +38,6 @@ export type Analysis = (input: AnalysisInput) => Promise<AnalysisOutput>;
  * @param fileContent the content of the file to analyze
  */
 export interface AnalysisInput {
-  baseDir?: string;
   filePath: string;
   fileContent: string;
   linterId?: string;

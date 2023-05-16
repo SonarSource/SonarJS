@@ -38,22 +38,22 @@ import {
   readFileSync,
   toUnixPath,
 } from 'helpers';
-import tmp from 'tmp';
-import { promisify } from 'util';
-import fs from 'fs/promises';
 
 import { ProgramCache } from 'helpers/cache';
 import { JsTsAnalysisInput } from 'services/analysis';
 
 export const programCache = new ProgramCache();
-let projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<string, ProjectTSConfigs>();
+const projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<
+  string,
+  ProjectTSConfigs
+>();
 
 export function setDefaultTSConfigs(tsConfigs: ProjectTSConfigs) {
-  // used only in tests?
+  // used only in tests
   projectTSConfigsByBaseDir.set('', tsConfigs);
 }
 
-function getDefaultTSConfigs(baseDir = '') {
+export function getDefaultTSConfigs(baseDir: string) {
   let tsConfigs = projectTSConfigsByBaseDir.get(baseDir);
   if (!tsConfigs) {
     tsConfigs = new ProjectTSConfigs(baseDir);
@@ -77,19 +77,17 @@ export function getProgramForFile(
   if (!tsconfigs) {
     tsconfigs = getDefaultTSConfigs(input.baseDir);
   }
-  let newTsConfigs = false;
-  if (input.tsConfigs) {
-    newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
-  }
-
-  // if at least a tsconfig changed, removed cache of programs, as files
-  // could now belong to another program
-  if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
-    programCache.clear();
+  if (input.forceUpdateTSConfigs) {
+    // if at least a tsconfig changed, removed cache of programs, as files
+    // could now belong to another program
+    const newTsConfigs = tsconfigs.tsConfigLookup(input.baseDir);
+    if (newTsConfigs) {
+      programCache.clear();
+    }
   }
 
   const normalizedPath = toUnixPath(input.filePath);
-  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
+  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath, input.tsConfigs)) {
     if (!tsconfig.isFallbackTSConfig) {
       // looping through actual tsconfigs in fs
       let programResult = cache.programs.get(tsconfig.filename);
@@ -303,25 +301,4 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
-}
-
-/**
- * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
- */
-tmp.setGracefulCleanup();
-
-/**
- * Create the TSConfig file and returns its path.
- *
- * The file is written in a temporary location in the file system
- * and is marked to be removed after Node.js process terminates.
- *
- * @param tsConfig TSConfig to write
- * @returns the resolved TSConfig file path
- */
-// TODO: Not used, keeping for possible future SonarLint specific program creation
-export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
-  const filename = await promisify(tmp.file)();
-  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
-  return { filename };
 }

@@ -19,6 +19,7 @@
  */
 import fs from 'fs';
 import path from 'path';
+import tmp from 'tmp';
 
 /**
  * Byte Order Marker
@@ -104,4 +105,24 @@ export function addTsConfigIfDirectory(tsConfig: string) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+tmp.setGracefulCleanup();
+
+/**
+ * Create the tmp file and returns its path.
+ *
+ * The file is written in a temporary location in the file system
+ * and is marked to be removed after Node.js process terminates.
+ *
+ * @param contents contents to write
+ * @returns the resolved file path
+ */
+export function writeTmpFile(contents: string): string {
+  const { name: filename } = tmp.fileSync();
+  fs.writeFileSync(filename, contents, 'utf-8');
+  return filename;
 }

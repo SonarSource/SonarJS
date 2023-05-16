@@ -33,7 +33,6 @@ describe('router', () => {
 
   beforeEach(async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

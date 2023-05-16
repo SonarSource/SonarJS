@@ -30,7 +30,6 @@ describe('initializeLinter', () => {
 
   it('should initialize the linter wrapper', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: [],
@@ -67,7 +66,6 @@ describe('initializeLinter', () => {
 
   it('should load rule bundles', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: ['custom-rule-bundle'],

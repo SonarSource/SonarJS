@@ -26,8 +26,6 @@ import {
 } from 'services/program';
 import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
-import { writeTSConfigFile } from 'services/program';
-import fs from 'fs';
 import { awaitCleanUp } from '../../tools/helpers/wait-gc';
 import { jsTsInput } from '../../tools';
 
@@ -204,17 +202,6 @@ describe('program', () => {
     );
   });
 
-  it('should write tsconfig file', async () => {
-    const { filename } = await writeTSConfigFile({
-      compilerOptions: { allowJs: true, noImplicitAny: true },
-      include: ['/path/to/project/**/*'],
-    });
-    const content = fs.readFileSync(filename, { encoding: 'utf-8' });
-    expect(content).toBe(
-      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
-    );
-  });
-
   it('getProgramFromFile creates Program using tsconfig.json', async () => {
     const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'paths'));
     const cache = new ProgramCache(2);
@@ -280,7 +267,7 @@ describe('program', () => {
 
   it('changing tsconfig contents should trigger program creation', async () => {
     const cache = new ProgramCache();
-    const tsconfigs = new ProjectTSConfigs(undefined, false);
+    const tsconfigs = new ProjectTSConfigs();
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
     const tsconfigPath = 'tsconfig.json';

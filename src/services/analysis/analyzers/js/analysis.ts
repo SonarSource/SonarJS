@@ -44,10 +44,13 @@ import { Perf } from 'services/monitoring';
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
   language: JsTsLanguage;
+  baseDir: string;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
   createProgram?: boolean;
   forceUpdateTSConfigs?: boolean;
+  createWildcardTSConfig?: boolean;
+  useFoundTSConfigs?: boolean;
 }
 
 /**

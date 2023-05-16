@@ -39,7 +39,7 @@ import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
 import { buildSourceCode } from 'parsing/jsts';
-import { FileType, JsTsLanguage } from 'helpers';
+import { FileType, JsTsLanguage, toUnixPath } from 'helpers';
 import { extractExpectations } from './framework';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
 
@@ -104,6 +104,7 @@ export function parseForESLint(
   const sourceCode = buildSourceCode({
     filePath,
     fileContent,
+    baseDir: path.posix.dirname(toUnixPath(filePath)),
     fileType,
     language: languageFromFile(fileContent, filePath),
     createProgram,

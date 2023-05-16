@@ -20,6 +20,8 @@
 import { buildSourceCode } from 'parsing/jsts';
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
+import { toUnixPath } from 'helpers';
+import path from 'path';
 
 export interface Comment {
   value: string;
@@ -39,6 +41,7 @@ export function extractComments(fileContent: string, filePath: string): Comment[
   const parsed = buildSourceCode({
     fileContent,
     filePath,
+    baseDir: path.posix.dirname(toUnixPath(filePath)),
     fileType: null,
     tsConfigs: [],
     language: null,

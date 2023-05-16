@@ -28,7 +28,6 @@ import { createProgram } from 'services/program';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     setContext({
-      workDir: toUnixPath(path.join(__dirname, 'fixtures')),
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
@@ -787,7 +786,6 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics in SonarLint context', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: true,
       bundles: [],

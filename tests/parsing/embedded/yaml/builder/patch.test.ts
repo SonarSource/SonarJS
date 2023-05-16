@@ -27,7 +27,6 @@ import { jsTsInput } from '../../../../tools';
 describe('patchSourceCode', () => {
   beforeAll(() => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

@@ -26,7 +26,6 @@ import { setContext } from 'helpers';
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: ['custom-rule-bundle'],

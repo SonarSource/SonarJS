@@ -24,7 +24,6 @@ import { createLinterConfig, RuleConfig } from 'linting/eslint';
 describe('createLinterConfig', () => {
   beforeEach(() => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: [],
@@ -75,7 +74,6 @@ describe('createLinterConfig', () => {
 
   it('should not enable internal custom rules in SonarLint context', () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: true,
       bundles: [],
