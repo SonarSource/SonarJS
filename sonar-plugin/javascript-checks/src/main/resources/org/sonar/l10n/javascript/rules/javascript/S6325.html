@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Regular expression literals should be preferred over the <code>RegExp</code> constructor calls when the pattern is a literal. Simply using a
 regular expression literal is more concise and easier to read and does not require escaping like a string literal does.</p>
 <p>Using the <code>RegExp</code> constructor is suitable when the pattern is computed dynamically, e.g. when it is provided by the user.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 new RegExp(/foo/);
 new RegExp('bar');
@@ -9,7 +10,7 @@ new RegExp('baz', 'i');
 new RegExp("\\d+");
 new RegExp(`qux|quuz`);
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 /foo/;
 /bar/;

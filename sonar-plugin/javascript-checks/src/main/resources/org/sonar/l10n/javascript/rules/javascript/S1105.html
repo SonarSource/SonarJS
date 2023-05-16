@@ -1,3 +1,5 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the brace-style is not respecting the convention
 setup in parameter:</p>
 <ul>
@@ -5,7 +7,7 @@ setup in parameter:</p>
   <li> <a href="https://en.wikipedia.org/wiki/Indentation_style#Allman_style">allman</a> </li>
   <li> <a href="https://en.wikipedia.org/wiki/Indentation_style#Variant:_Stroustrup">stroustrup</a> </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>Using the parameter default (1tbs):</p>
 <pre>
 if (condition)
@@ -16,7 +18,7 @@ else {
   doSomethingElse();
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (condition) {                                   //Compliant
   doSomething();
@@ -24,7 +26,7 @@ if (condition) {                                   //Compliant
   doSomethingElse();
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <ul>
   <li> Object literals appearing as arguments can start on their own line. </li>
 </ul>
@@ -41,6 +43,4 @@ functionWithObject(
 <pre>
 if(condition) {doSomething();}                       //Compliant
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

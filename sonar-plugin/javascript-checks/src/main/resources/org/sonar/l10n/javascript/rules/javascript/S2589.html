@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>If a boolean expression doesn’t change the evaluation of the condition, then it is entirely unnecessary, and can be removed. If it is gratuitous
 because it does not match the programmer’s intent, then it’s a bug and the expression should be fixed.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (a) {
   if (a) { // Noncompliant
@@ -8,7 +9,7 @@ if (a) {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (a) {
   if (b) {
@@ -21,7 +22,7 @@ if (a) {
   doSomething();
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/571">MITRE, CWE-571</a> - Expression is Always True </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/570">MITRE, CWE-570</a> - Expression is Always False </li>

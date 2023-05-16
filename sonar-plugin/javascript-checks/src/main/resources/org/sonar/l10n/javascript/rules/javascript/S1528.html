@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Array literals should always be preferred to Array constructors.</p>
 <p>Array constructors are error-prone due to the way their arguments are interpreted. If more than one argument is used, the array length will be
 equal to the number of arguments. However, using a single argument will have one of three consequences:</p>
@@ -23,7 +24,7 @@ let arr = new Array("3");  // ["3"]
 contain anything, so no callbacks will be applied to the array elements.</p>
 <p>For these reasons, if someone changes the code to pass 1 argument instead of 2 arguments, the array might not have the expected length. To avoid
 these kinds of weird cases, always use the more readable array literal initialization format.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let myArray = new Array(x1, x2, x3);   // Noncompliant. Results in 3-element array.
 let emptyArray = new Array();          // Noncompliant. Results in 0-element array.
@@ -34,7 +35,7 @@ let arr = new Array(3); // Noncompliant; empty array of length 3
 arr.foreach((x) =&gt; alert("Hello " + x)); // callback is not executed because there's nothing in arr
 let anotherArr = arr.map(() =&gt; 42); // anotherArr is also empty because callback didn't execute
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let myArray = [x1, x2, x3];
 let emptyArray = [];

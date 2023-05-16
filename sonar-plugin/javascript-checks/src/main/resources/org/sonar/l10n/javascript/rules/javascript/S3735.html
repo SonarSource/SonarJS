@@ -1,14 +1,15 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>void</code> operator evaluates its argument and unconditionally returns <code>undefined</code>. It can be useful in pre-ECMAScript 5
 environments, where <code>undefined</code> could be reassigned, but generally, its use makes code harder to understand.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 void doSomething();
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 doSomething();
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>No issue is raised when <code>void 0</code> is used in place of <code>undefined</code>.</p>
 <pre>
 if (parameter === void 0) {...}

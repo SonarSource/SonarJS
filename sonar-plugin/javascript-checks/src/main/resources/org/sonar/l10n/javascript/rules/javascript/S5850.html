@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>In regular expressions, anchors <code>^</code> and <code>$</code> have higher precedence than the <code>|</code> operator. So in a regular
 expression like <code>^alt1|alt2|alt3$</code>, <code>alt1</code> would be anchored to the beginning, <code>alt3</code> to the end and
 <code>alt2</code> wouldn’t be anchored at all. Usually the intended behavior is that all alternatives are anchored at both ends. To achieve this, a
@@ -5,11 +6,11 @@ non-capturing group should be used around the alternatives.</p>
 <p>In cases where it is intended that the anchors only apply to one alternative each, adding (non-capturing) groups around the anchors and the parts
 that they apply to will make it explicit which parts are anchored and avoid readers misunderstanding the precedence or changing it because they
 mistakenly assume the precedence was not intended.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 ^a|b|c$
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 ^(?:a|b|c)$
 </pre>

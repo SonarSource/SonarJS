@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>done</code> callback is used to inform Mocha when an asynchronous test ends. Exceptions thrown after <code>done</code> (with or without
 parameters) is called are not handled in a consistent manner. Sometimes they will be correctly handled, but they might as well be assigned to a
 different test, no test at all, or even be completely ignored. Even when it works as expected this will be a source of confusion for other developers.
 Thus no code should be executed after <code>done</code> is called.</p>
 <p>This rule raises an issue when some code is executed after a call to <code>done</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const expect = require("chai").expect;
 const fs = require("fs");
@@ -47,7 +48,7 @@ describe("Code is executed after Done", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const expect = require("chai").expect;
 const fs = require("fs");

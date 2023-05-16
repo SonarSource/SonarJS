@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks.</p>
 <p>The certificate chain validation includes these steps:</p>
 <ul>
@@ -7,7 +8,7 @@
 </ul>
 <p>It’s not recommended to reinvent the wheel by implementing custom certificate chain validation.</p>
 <p>TLS libraries provide built-in certificate validation functions that should be used.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>There is no way to disable certificate verification in tls, https and request modules but it is possible to not reject request when verification
 fails.</p>
 <p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
@@ -47,7 +48,7 @@ let socket = request.get({
     rejectUnauthorized: false ; // Noncompliant
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
 <pre>
 let options = {
@@ -82,7 +83,7 @@ let socket = request.get({
     secureProtocol: 'TLSv1_2_method' // Compliant
 }); // Compliant: by default rejectUnauthorized  is set to true
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
   <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>

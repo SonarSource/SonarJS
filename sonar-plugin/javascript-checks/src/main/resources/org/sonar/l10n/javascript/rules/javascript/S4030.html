@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>When a collection is populated but its contents are never used, then it is surely some kind of mistake. Either refactoring has rendered the
 collection moot, or an access is missing.</p>
 <p>This rule raises an issue when no methods are called on a collection other than those that add or remove values.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function getLength(a, b, c) {
   const strings = [];  // Noncompliant
@@ -12,7 +13,7 @@ function getLength(a, b, c) {
   return a.length + b.length + c.length;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function getLength(a, b, c) {
   return a.length + b.length + c.length;

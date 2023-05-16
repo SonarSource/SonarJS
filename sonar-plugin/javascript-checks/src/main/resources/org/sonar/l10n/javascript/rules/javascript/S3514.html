@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>ECMAScript 2015 introduced the ability to extract and assign multiple data points from an object or array simultaneously. This is called
 "destructuring", and it allows you to condense boilerplate code so you can concentrate on logic.</p>
 <p>This rule raises an issue when multiple pieces of data are extracted out of the same object or array and assigned to variables.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo (obj1, obj2, array) {
   var a = obj1.a;  // Noncompliant
@@ -13,7 +14,7 @@ function foo (obj1, obj2, array) {
   var one = array[1];
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo (obj1, obj2, array) {
   var {a, b} = obj1;

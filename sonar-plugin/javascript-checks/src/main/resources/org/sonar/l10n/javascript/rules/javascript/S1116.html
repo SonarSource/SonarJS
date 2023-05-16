@@ -1,24 +1,26 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>Extra semicolons (<code>;</code>) are usually introduced by mistake, for example because:</p>
 <ul>
   <li> It was meant to be replaced by an actual statement, but this was forgotten. </li>
   <li> There was a typo which lead the semicolon to be doubled, i.e. <code>;;</code>. </li>
   <li> There was a misunderstanding about where semicolons are required or useful. </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var x = 1;; // Noncompliant
 
 function foo() {
 };  // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var x = 1;
 
 function foo() {
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule does not apply when the semicolon is after a line break and before <code>(</code> or <code>[</code> as it is often used in semicolon-less
 style.</p>
 <pre>
@@ -32,6 +34,4 @@ var a = 1
 var b = 2 * a
 ;(a + b).toString()
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

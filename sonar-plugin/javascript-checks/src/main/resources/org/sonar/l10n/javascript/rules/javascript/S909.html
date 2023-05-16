@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p><code>continue</code> is an unstructured control flow statement. It makes code less testable, less readable and less maintainable. Structured
 control flow statements such as <code>if</code> should be used instead.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
   for (i = 0; i &lt; 10; i++) {
     if (i == 5) {
@@ -9,7 +10,7 @@ control flow statements such as <code>if</code> should be used instead.</p>
     alert("i = " + i);
   }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
   for (i = 0; i &lt; 10; i++) {
     if (i != 5) {  /* Compliant */

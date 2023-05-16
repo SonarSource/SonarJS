@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Getters and setters provide a way to enforce encapsulation by providing <code>public</code> methods that give controlled access to
 <code>private</code> fields. However in classes with multiple fields it is not unusual that copy and paste is used to quickly create the needed
 getters and setters, which can result in the wrong field being accessed by a getter or setter.</p>
@@ -6,7 +7,7 @@ getters and setters, which can result in the wrong field being accessed by a get
   <li> A setter does not update the field with the corresponding name. </li>
   <li> A getter does not access the field with the corresponding name. </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 class A {
   #x: number = 0;
@@ -43,7 +44,7 @@ Object.defineProperty(o, 'x', {
   }
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 class A {
   #x: number = 0;

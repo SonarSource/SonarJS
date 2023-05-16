@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Constructor functions, which create new object instances, must only be called with <code>new</code>. Non-constructor functions must not. Mixing
 these two usages could lead to unexpected results at runtime.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function getNum() {
   return 5;

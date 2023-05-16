@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>There’s no reason to import modules you don’t use; and every reason not to: doing so needlessly increases the load.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 import A from 'a';      // Noncompliant, A isn't used
 import { B1 } from 'b';
 
 console.log(B1);
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 import { B1 } from 'b';
 

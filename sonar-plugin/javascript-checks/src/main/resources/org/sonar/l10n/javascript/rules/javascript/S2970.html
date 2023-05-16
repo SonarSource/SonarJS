@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>It is very easy to write incomplete assertions when using some test frameworks. This rule enforces complete Chai assertions in the following
 cases:</p>
 <ul>
@@ -9,7 +10,7 @@ cases:</p>
   <li> when an <code>expect</code> or <code>should</code> assertion function, such as <code>.throw</code>, is not called. </li>
 </ul>
 <p>In such cases, what is intended to be a test doesn’t actually verify anything</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const assert = require('chai').assert;
 const expect = require('chai').expect;
@@ -27,7 +28,7 @@ describe("incomplete assertions", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const assert = require('chai').assert;
 const expect = require('chai').expect;

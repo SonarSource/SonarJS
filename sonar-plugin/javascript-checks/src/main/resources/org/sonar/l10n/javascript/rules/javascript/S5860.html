@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Why use named groups only to never use any of them later on in the code?</p>
 <p>This rule raises issues every time named groups are:</p>
 <ul>
@@ -5,7 +6,7 @@
   <li> defined but called elsewhere in the code by their number instead; </li>
   <li> referenced while not defined. </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const date = "01/02";
 
@@ -28,7 +29,7 @@ if (scoreMatched !== null) {
   checkScore(score);
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const date = "01/02";
 

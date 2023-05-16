@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>delete</code> operator can be used to remove a property from any object. Arrays are objects, so the <code>delete</code> operator can be
 used here too, but if it is, a hole will be left in the array because the indexes/keys won’t be shifted to reflect the deletion.</p>
 <p>The proper method for removing an element at a certain index would be:</p>
@@ -6,14 +7,14 @@ used here too, but if it is, a hole will be left in the array because the indexe
   <li> <code>Array.prototype.pop</code> - add/remove elements from the end of the array </li>
   <li> <code>Array.prototype.shift</code> - add/remove elements from the beginning of the array </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var myArray = ['a', 'b', 'c', 'd'];
 
 delete myArray[2];  // Noncompliant. myArray =&gt; ['a', 'b', undefined, 'd']
 console.log(myArray[2]); // expected value was 'd' but output is undefined
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var myArray = ['a', 'b', 'c', 'd'];
 

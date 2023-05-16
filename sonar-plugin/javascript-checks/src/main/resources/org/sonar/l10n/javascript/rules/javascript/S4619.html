@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>The <code>in</code> operator used on an array is valid but the code will likely not have the expected behavior. The <code>in</code> operator deals
 with the indexes of the array, not with the values.</p>
 <p>If checking for an array slot is indeed desired, using <code>hasOwnProperty</code> makes the code intention clearer.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function func1() {
     let arr = ["a", "b", "c"];
@@ -25,7 +26,7 @@ function func2() {
     }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function func() {
     let arr = ["a", "b", "c"];

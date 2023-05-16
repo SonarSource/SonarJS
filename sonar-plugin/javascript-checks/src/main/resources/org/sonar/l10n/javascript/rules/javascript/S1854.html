@@ -1,17 +1,18 @@
+<h2>Why is this an issue?</h2>
 <p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value
 only to then overwrite it or throw it away, could indicate a serious error in the code. Even if it’s not an error, it is at best a waste of resources.
 Therefore all calculated values should be used.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 i = a + b; // Noncompliant; calculation result not used before value is overwritten
 i = compute();
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 i = a + b;
 i += compute();
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <ul>
   <li> This rule ignores initializations to -1, 0, 1, <code>undefined</code>, [], {}, <code>true</code>, <code>false</code> and <code>""</code>. </li>
   <li> Variables that start with an underscore (e.g. '<code>_unused</code>') are ignored. </li>
@@ -26,7 +27,7 @@ doSomething(rest);
 let [x1, x2, x3] = arr;    // but 'x1' is noncompliant, as omitting syntax can be used: "let [, x2, x3] = arr;"
 doSomething(x2, x3);
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/563">MITRE, CWE-563</a> - Assignment to Variable without Use ('Unused Variable') </li>
 </ul>

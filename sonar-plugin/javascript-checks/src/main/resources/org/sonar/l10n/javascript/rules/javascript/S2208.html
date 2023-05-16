@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>On the principle that clearer code is better code, you should explicitly <code>import</code> the things you want to use in a module. Using
 <code>import *</code> imports everything in the module, and runs the risk of confusing maintainers. Similarly, <code>export * from "module";</code>
 imports and then re-exports everything in the module, and runs the risk of confusing not just maintainers but also users of the module.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 import * as Imported from "aModule";  // Noncompliant
 </pre>

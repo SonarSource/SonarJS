@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Labels are not commonly used, and many developers do not understand how they work. Moreover, their usage makes the control flow harder to follow,
 which reduces the code’s readability.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 myLabel: {
   let x = doSomething();
@@ -10,7 +11,7 @@ myLabel: {
   doSomethingElse();
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let x = doSomething();
 if (x &lt;= 0) {

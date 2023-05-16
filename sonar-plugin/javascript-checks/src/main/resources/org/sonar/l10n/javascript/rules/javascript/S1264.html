@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>When only the condition expression is defined in a <code>for</code> loop, and the initialization and increment expressions are missing, a
 <code>while</code> loop should be used instead to increase readability.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 for (;condition;) { /*...*/ }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 while (condition) { /*...*/ }
 </pre>

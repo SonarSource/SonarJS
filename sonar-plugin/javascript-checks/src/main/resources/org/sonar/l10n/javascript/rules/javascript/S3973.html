@@ -1,7 +1,9 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>In the absence of enclosing curly braces, the line immediately after a conditional is the one that is conditionally executed. By both convention
 and good practice, such lines are indented. In the absence of both curly braces and indentation the intent of the original programmer is entirely
 unclear and perhaps not actually what is executed. Additionally, such code is highly likely to be confusing to maintainers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (condition)  // Noncompliant
 doTheThing();
@@ -11,7 +13,7 @@ somethingElseEntirely();
 
 foo();
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (condition)
   doTheThing();
@@ -21,6 +23,4 @@ somethingElseEntirely();
 
 foo();
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

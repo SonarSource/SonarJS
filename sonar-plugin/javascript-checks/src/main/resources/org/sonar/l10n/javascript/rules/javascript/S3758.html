@@ -1,9 +1,10 @@
+<h2>Why is this an issue?</h2>
 <p>In a Zen-like manner, <code>NaN</code> isn’t equal to anything, even itself. So comparisons (<code>&gt;, &lt;, &gt;=, &lt;=</code>) where one
 operand is <code>NaN</code> or evaluates to <code>NaN</code> always return <code>false</code>. Specifically, <code>undefined</code> and objects that
 cannot be converted to numbers evaluate to <code>NaN</code> when used in numerical comparisons.</p>
 <p>This rule raises an issue when there is at least one path through the code where one of the operands to a comparison is <code>NaN</code>,
 <code>undefined</code> or an <code>Object</code> which cannot be converted to a number.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var x;  // x is currently "undefined"
 if (someCondition()) {
@@ -19,7 +20,7 @@ if (obj &gt; 24) { // Noncompliant
   doSomething();
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var x;
 if (someCondition()) {

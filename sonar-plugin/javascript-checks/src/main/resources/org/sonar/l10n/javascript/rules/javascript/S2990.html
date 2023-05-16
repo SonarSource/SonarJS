@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>When the keyword <code>this</code> is used outside of an object, it refers to the global <code>this</code> object, which is the same thing as the
 <code>window</code> object in a standard web page. Such uses could be confusing to maintainers. Instead, simply drop the <code>this</code>, or replace
 it with <code>window</code>; it will have the same effect and be more readable.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 this.foo = 1;   // Noncompliant
 console.log(this.foo); // Noncompliant
@@ -16,7 +17,7 @@ MyObj.func1 = function() {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 foo = 1;
 console.log(foo);

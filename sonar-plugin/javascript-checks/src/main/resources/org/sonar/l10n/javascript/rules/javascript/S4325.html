@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>The TypeScript compiler automatically casts a variable to the relevant type inside conditionals where it is possible to infer the type (because
 <code>typeof</code>, <code>instanceof</code>, etc was used). This compiler feature makes casts and not-<code>null</code> assertions unnecessary.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function getName(x?: string | UserName) {
   if (x) {
@@ -14,7 +15,7 @@ function getName(x?: string | UserName) {
   return "NoName";
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function getName(x?: string | UserName) {
   if (x) {

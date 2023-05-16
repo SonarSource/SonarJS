@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>Associative arrays allow you to store values in an array with either numeric or named indexes. But creating and populating an object is just as
 easy as an array, and more reliable if you need named members.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let arr = [];
 arr[0] = 'a';
 arr['name'] = 'bob';  // Noncompliant
 arr[1] = 'foo';
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let obj = {
   name: 'bob',

@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>Code is clearest when each statement has its own line. Nonetheless, it is a common pattern to combine on the same line an <code>if</code> and its
 resulting <em>then</em> statement. However, when an <code>if</code> is placed on the same line as the closing <code>}</code> from a preceding
 <em>then</em>, <em>else</em> or <em>else if</em> part, it is either an error - <code>else</code> is missing - or the invitation to a future error as
 maintainers fail to understand that the two statements are unconnected.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (condition1) {
   // ...
@@ -10,7 +11,7 @@ if (condition1) {
   //...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (condition1) {
   // ...

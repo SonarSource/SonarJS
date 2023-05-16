@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Arrays in JavaScript have several methods for filtering, mapping, or folding that require a callback. Not having a return statement in such a
 callback function is most likely a mistake, because processing of the array uses the return value of the callback. If there is no return, callback
 will implicitly return <code>undefined</code>, which will likely fail.</p>
@@ -14,14 +15,14 @@ will implicitly return <code>undefined</code>, which will likely fail.</p>
   <li> <code>Array.prototype.some</code> </li>
   <li> <code>Array.prototype.sort</code> </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let arr = ["a", "b", "c"];
 let merged = arr.reduce(function(a, b) {
   a.concat(b);
 }); // Noncompliant: No return statement, will result in TypeError
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let arr = ["a", "b", "c"];
 let merged = arr.reduce(function(a, b) {

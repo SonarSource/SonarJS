@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p><code>NaN</code> is not equal to anything, even itself. Testing for equality or inequality against <code>NaN</code> will yield predictable results,
 but probably not the ones you want.</p>
 <p>Instead, the best way to see whether a variable is equal to <code>NaN</code> is to use <code>Number.isNaN()</code>, since ES2015, or (perhaps
 counter-intuitively) to compare it to itself. Since <code>NaN !== NaN</code>, when <code>a !== a</code>, you know it must equal <code>NaN</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var a = NaN;
 
@@ -13,7 +14,7 @@ if (a !== NaN) { // Noncompliant; always true
   console.log("a is not NaN"); // this statement is not necessarily true
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (Number.isNaN(a)) {
   console.log("a is not a number");

@@ -1,11 +1,12 @@
+<h2>Why is this an issue?</h2>
 <p>Unused parameters are misleading. Whatever the values passed to such parameters, the behavior will be the same.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function doSomething(a, b) { // "a" is unused
   return compute(b);
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function doSomething(b) {
   return compute(b);
@@ -17,7 +18,7 @@ function doSomething(_a, b) {
   return compute(b);
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>When <code>arguments</code> is used in the function body, no parameter is reported as unused.</p>
 <pre>
 function doSomething(a, b, c) {

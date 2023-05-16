@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Assigning <code>this</code> to a local variable is a way to reference parent context inside inner functions. In TypeScript when using arrow
 functions this happens automatically.</p>
 <p>This rule raises an issue when <code>this</code> is assigned to a local variable.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function Foo() {
   let that = this;  // Noncompliant
@@ -12,7 +13,7 @@ function Foo() {
   }, 1000);
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function Foo() {
   this.val = 0;
@@ -22,7 +23,7 @@ function Foo() {
   }, 1000);
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule ignores <code>this</code> used for destructuring.</p>
 <pre>
 const { foo, bar } = this;

@@ -1,19 +1,20 @@
+<h2>Why is this an issue?</h2>
 <p>A long parameter list can indicate that a new structure should be created to wrap the numerous parameters or that the function is doing too many
 things.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>With a maximum number of 4 parameters:</p>
 <pre>
 function doSomething(param1, param2, param3, param4, param5) {
 ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function doSomething(param1, param2, param3, param4) {
 ...
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>The rule ignores constructors where parameters are <strong>all</strong> parameter properties:</p>
 <pre>
 class C {

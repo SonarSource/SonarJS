@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>The requirement for a final <code>default</code> clause is defensive programming. The clause should either take appropriate action, or contain a
 suitable comment as to why no action is taken.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 switch (param) {  //missing default clause
   case 0:
@@ -23,7 +24,7 @@ switch (param) {
     break;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 switch (param) {
   case 0:
@@ -37,7 +38,7 @@ switch (param) {
     break;
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>The rule ignores <code>switch</code> statements where the discriminant is a TypeScript union and there is a <code>case</code> branch for each
 constituent.</p>
 <pre>
@@ -75,7 +76,7 @@ switch (dir) {
     break;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/478">MITRE, CWE-478</a> - Missing Default Case in Switch Statement </li>
 </ul>

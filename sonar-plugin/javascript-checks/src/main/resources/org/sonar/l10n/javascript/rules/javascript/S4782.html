@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>In TypeScript there are several ways to declare a property with <code>undefined</code> value: adding <code>| undefined</code> in the property type
 or using optional property syntax (<code>?</code> after its name). Use <code>| undefined</code> syntax when you want to be explicit that an object has
 that property, in that case TypeScript compiler will not allow omitting it:</p>
@@ -23,7 +24,7 @@ let John = { name: "John", pet: "Benji" }; // will compile
 </pre>
 <p>Using <code>| undefined</code> for optional property is redundant, it can be omitted without change to the actual type. Still if you want to force
 the property in the object consider using only <code>| undefined</code> without <code>?</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 interface Person {
   name: string;
@@ -31,7 +32,7 @@ interface Person {
   pet?: Animal | undefined; // Noncompliant, "undefined" should be removed
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 interface Person {
   name: string;

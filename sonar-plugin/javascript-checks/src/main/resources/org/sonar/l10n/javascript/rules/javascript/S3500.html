@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Variables declared with <code>const</code> cannot be modified. Unfortunately, attempts to do so don’t always raise an error; in a non-ES2015
 environment, such an attempt might simply be ignored.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const pi = "yes, please";
 pi = 3.14;  // Noncompliant
