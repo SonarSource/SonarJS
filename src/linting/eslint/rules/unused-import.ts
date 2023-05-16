@@ -138,6 +138,13 @@ export const rule: Rule.RuleModule = {
               vueIdentifiers.add(toPascalCase(rawName));
             }
           },
+          VDirectiveKey: (node: AST.VDirectiveKey) => {
+            const {
+              name: { name },
+            } = node;
+            vueIdentifiers.add(toCamelCase(name));
+            vueIdentifiers.add(toPascalCase(name));
+          },
           Identifier: (node: AST.ESLintIdentifier) => {
             vueIdentifiers.add(node.name);
           },
@@ -157,6 +164,11 @@ function startsWithUpper(str: string) {
 
 function isKebabCase(str: string) {
   return str.includes('-');
+}
+
+function toCamelCase(str: string) {
+  const pascalized = toPascalCase(str);
+  return pascalized[0].toLowerCase() + pascalized.slice(1);
 }
 
 function toPascalCase(str: string) {
