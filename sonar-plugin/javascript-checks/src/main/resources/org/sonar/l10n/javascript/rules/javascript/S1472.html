@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Because semicolons at the ends of statements are optional, starting function call arguments on a separate line makes the code confusing. It could
 lead to errors and most likely <em>will</em> lead to questions for maintainers.</p>
 <p>What was the initial intent of the developer?</p>
@@ -9,7 +10,7 @@ lead to errors and most likely <em>will</em> lead to questions for maintainers.<
 <p>By extension, and to improve readability, any kind of function call argument should not start on new line.</p>
 <p>Similarly, tagged templates allow for advanced forms of string interpolation by evaluating the tag as a function to call, passing the template
 literal elements as arguments. Therefore, the rule also verifies that template literals don’t start on a separate line.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const fn = function () {
   //...
@@ -25,7 +26,7 @@ const foo = function() {
 
 `bar`; // Noncompliant: foo is a string not a function
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>Either</p>
 <pre>
 // define a function

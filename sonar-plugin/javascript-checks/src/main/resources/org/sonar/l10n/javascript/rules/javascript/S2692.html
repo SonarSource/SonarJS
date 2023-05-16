@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Most checks against an <code>indexOf</code> call against an array compare it with -1 because 0 is a valid index. Any checks which look for values
 &gt;0 ignore the first element, which is likely a bug. If you’re merely checking the presence of the element, consider using <code>includes</code>
 instead. Before using&nbsp;<code>includes</code> method make sure that your browser version is supporting it.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var color = "blue";
 var name = "ishmael";
@@ -12,7 +13,7 @@ if (arr.indexOf("blue") &gt; 0) { // Noncompliant
   // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var color = "blue";
 var name = "ishmael";
@@ -26,7 +27,7 @@ if (arr.includes("blue")) {
   // ...
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes">Array.prototype.includes()</a>
 documentation at MDN</p>
 

@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>You can easily call a JavaScript function with more arguments than the function needs, but the extra arguments will be just ignored by function
 execution.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function say(a, b) {
   print(a + " " + b);
@@ -8,7 +9,7 @@ function say(a, b) {
 
 say("hello", "world", "!"); // Noncompliant; last argument is not used
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>No issue is reported when <code>arguments</code> is used in the body of the function being called.</p>
 <pre>
 function doSomething(a, b) {
@@ -17,7 +18,7 @@ function doSomething(a, b) {
 
 doSomething(1, 2, 3) // Compliant
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/628">MITRE, CWE-628</a> - Function Call with Incorrectly Specified Arguments </li>
 </ul>

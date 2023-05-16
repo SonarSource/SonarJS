@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>Nested <code>switch</code> structures are difficult to understand because you can easily confuse the cases of an inner <code>switch</code> as
 belonging to an outer statement. Therefore nested <code>switch</code> statements should be avoided.</p>
 <p>Specifically, you should structure your code to avoid the need for nested <code>switch</code> statements, but if you cannot, then consider moving
 the inner <code>switch</code> to another function.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(n, m) {
   switch (n) {
@@ -17,7 +18,7 @@ function foo(n, m) {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo(n, m) {
   switch (n) {

@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>This rule checks that a declaration doesn’t use a name that is already in use. Indeed, it is possible to use the same symbol multiple times as
 either a variable or a function, but doing so is likely to confuse maintainers. Further it’s possible that such reassignments are made in error, with
 the developer not realizing that the value of the variable is overwritten by the new assignment.</p>
 <p>This rule also applies to function parameters.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var a = 'foo';
 function a() {}   // Noncompliant
@@ -26,7 +27,7 @@ function fun() {  // Noncompliant
 
 fun(); // prints "bar"
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var a = 'foo';
 function otherName() {}

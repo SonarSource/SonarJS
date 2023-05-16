@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>The purpose of a <code>finally</code> block is to ensure the cleanup of objects (e.g. closing the file), it is executed after <code>try</code> and
 <code>catch</code> blocks under any circumstances. Having a <code>return</code> or a thrown exception in a <code>finally</code> block suppresses the
 propagation of any unhandled exception which was thrown in the <code>try</code> or <code>catch</code> block or overwrite the returned value.</p>
 <p>This rule will report on all usages of jump statements (<code>return</code>, <code>break</code>, <code>throw</code>, and <code>continue</code>)
 from a <code>finally</code> block. Even if it’s guaranteed that no unhandled exception can happen in <code>try</code> or <code>catch</code> blocks,
 it’s not recommended to use any jump statements inside the <code>finally</code> to have the logic there limited to the "cleanup".</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 async function foo() {
     let result, connection;
@@ -19,7 +20,7 @@ async function foo() {
     }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 async function foo() {
     let result, connection;
@@ -34,7 +35,7 @@ async function foo() {
     return result;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/584">MITRE, CWE-584</a> - Return Inside Finally Block </li>
 </ul>

@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.</p>
 <p>On the other hand, constants can be referenced from many places, but only need to be updated in a single place.</p>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>To prevent generating some false-positives, literals having less than 10 characters are excluded as well as literals matching <code>/^\w*$/</code>.
 String literals inside import/export statements and JSX attributes are also ignored. The same goes for statement-like string literals, e.g. <code>'use
 strict';</code>.</p>

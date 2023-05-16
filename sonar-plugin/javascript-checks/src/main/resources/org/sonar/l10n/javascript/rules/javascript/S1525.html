@@ -1,7 +1,9 @@
+<p>This rule is deprecated; use {rule:javascript:S4507} instead.</p>
+<h2>Why is this an issue?</h2>
 <p>The debugger statement can be placed anywhere in procedures to suspend execution. Using the debugger statement is similar to setting a breakpoint
 in the code. By definition such statement must absolutely be removed from the source code to prevent any unexpected behavior or added vulnerability to
 attacks in production.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 for (i = 1; i&lt;5; i++) {
   // Print i to the Output window.
@@ -10,19 +12,17 @@ for (i = 1; i&lt;5; i++) {
   debugger;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 for (i = 1; i&lt;5; i++) {
   // Print i to the Output window.
   Debug.write("loop index is " + i);
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
   Exposure </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/489">MITRE, CWE-489</a> - Active Debug Code </li>
 </ul>
-<h2>Deprecated</h2>
-<p>This rule is deprecated; use {rule:javascript:S4507} instead.</p>
 

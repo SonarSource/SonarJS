@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>Template strings allow developers to embed variables or expressions in strings using template literals, instead of string concatenation. This is
 done by using expressions like <code>${variable} </code> in a string between two back-ticks (<code>`</code>). However, when used in a regular string
 literal (between double or single quotes) the template will not be evaluated and will be used as a literal, which is probably not what was
 intended.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 console.log("Today is ${date}"); // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 console.log(`Today is ${date}`);
 </pre>

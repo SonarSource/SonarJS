@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Character classes in regular expressions are a convenient way to match one of several possible characters by listing the allowed characters or
 ranges of characters. If the same character is listed twice in the same character class or if the character class contains overlapping ranges, this
 has no effect.</p>
@@ -6,12 +7,12 @@ intended or that the author misunderstood how character classes work and wanted 
 mistake is trying to use a range like <code>[0-99]</code> to match numbers of up to two digits, when in fact it is equivalent to <code>[0-9]</code>.
 Another common cause is forgetting to escape the <code>-</code> character, creating an unintended range that overlaps with other characters in the
 character class.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 /[0-99]/ // Noncompliant, this won't actually match strings with two digits
 /[0-9.-_]/ // Noncompliant, .-_ is a range that already contains 0-9 (as well as various other characters such as capital letters)
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 /[0-9]{1,2}/
 /[0-9.\-_]/

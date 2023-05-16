@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>ECMAScript 2015 introduced the <code>let</code> and <code>const</code> keywords for block-scope variable declaration. Using <code>const</code>
 creates a read-only (constant) variable.</p>
 <p>The distinction between the variable types created by <code>var</code> and by <code>let</code> is significant, and a switch to <code>let</code>
@@ -6,12 +7,12 @@ will help alleviate many of the variable scope issues which have caused confusio
 refactoring may be required by the switch from <code>var</code> to <code>let</code>, and you should be aware that they raise <code>SyntaxError</code>s
 in pre-ECMAScript 2015 environments.</p>
 <p>This rule raises an issue when <code>var</code> is used instead of <code>const</code> or <code>let</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var color = "blue";
 var size = 4;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const color = "blue";
 let size = 4;

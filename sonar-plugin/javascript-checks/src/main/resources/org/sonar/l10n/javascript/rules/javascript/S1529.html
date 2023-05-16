@@ -1,14 +1,15 @@
+<h2>Why is this an issue?</h2>
 <p>The bitwise operators <code>&amp;</code>, <code>|</code> can be mistaken for the boolean operators <code>&amp;&amp;</code> and <code>||</code>.</p>
 <p>This rule raises an issue when <code>&amp;</code> or <code>|</code> is used in a boolean context.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (a &amp; b) { ... } // Noncompliant; &amp; used in error
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 if (a &amp;&amp; b) { ... }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>When a file contains other bitwise operations, (<code>^</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;&gt;</code>, <code>&gt;&gt;</code>,
 <code>~</code>, <code>&amp;=</code>, <code>^=</code>, <code>|=</code>, <code>&lt;&lt;=</code>, <code>&gt;&gt;=</code>, <code>&gt;&gt;&gt;=</code> and
 <code>&amp;</code> or <code>|</code> used with a numeric literal as the right operand) all issues in the file are ignored, because it is evidence that

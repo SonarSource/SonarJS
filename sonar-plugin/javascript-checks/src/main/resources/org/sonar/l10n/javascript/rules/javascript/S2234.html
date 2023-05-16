@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>When the names of arguments in a function call match the names of the function parameters, it contributes to clearer, more readable code. However,
 when the names match, but are passed in a different order than the function parameters, it indicates a mistake in the parameter order which will
 likely lead to unexpected results.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function divide(divisor, dividend) {
   return divisor/dividend;
@@ -15,7 +16,7 @@ function doTheThing() {
   //...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function divide(divisor, dividend) {
   return divisor/dividend;
@@ -29,7 +30,7 @@ function doTheThing() {
   //...
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>Swapped arguments that are compared beforehand in an enclosing <code>if</code>-statement are ignored:</p>
 <pre>
 function divide(divisor, dividend) {

@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Overly complicated regular expressions are hard to read and to maintain and can easily cause hard-to-find bugs. If a regex is too complicated, you
 should consider replacing it or parts of it with regular code or splitting it apart into multiple patterns at least.</p>
 <p>The complexity of a regular expression is determined as follows:</p>
@@ -15,14 +16,14 @@ level by one for its arguments:</p>
 </ul>
 <p>If a regular expression is split among multiple variables, the complexity is calculated for each variable individually, not for the whole regular
 expression.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const datePattern = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
 if (dateString.match(datePattern)) {
     handleDate(dateString);
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const datePattern = /^\d{1,2}([-/.])\d{1,2}\1\d{1,4}$/;
 if (dateString.match(datePattern)) {

@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>An exception (including <code>reject</code>) thrown by a promise will not be caught by a nesting <code>try</code> block, due to the asynchronous
 nature of execution. Instead, use <code>catch</code> method of <code>Promise</code> or wrap it inside <code>await</code> expression.</p>
 <p>This rule reports <code>try-catch</code> statements containing nothing else but call(s) to a function returning a <code>Promise</code> (thus it’s
 less likely that <code>catch</code> is intended to catch something else than <code>Promise</code> rejection).</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function runPromise() {
   return Promise.reject("rejection reason");
@@ -16,7 +17,7 @@ function foo() {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo() {
   runPromise().catch(e =&gt; console.log("Failed to run promise", e));

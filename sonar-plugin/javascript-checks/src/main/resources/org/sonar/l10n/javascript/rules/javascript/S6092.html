@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Each assertion should test one condition and have only one reason to fail or succeed. If an assertion success depends on multiple conditions it
 becomes difficult to understand if the test passed for the right reason. It also makes debugging more difficult when the test fails.</p>
 <p>This rule raises an issue when the following Chai assertions are found:</p>
@@ -28,7 +29,7 @@ becomes difficult to understand if the test passed for the right reason. It also
   assertions succeed when the target either is not a <code>number</code>, or is one of <code>Nan</code>, positive <code>Infinity</code>, negative
   <code>Infinity</code>. </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const expect = require('chai').expect;
 
@@ -68,7 +69,7 @@ describe("uncertain assertions", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const expect = require('chai').expect;
 

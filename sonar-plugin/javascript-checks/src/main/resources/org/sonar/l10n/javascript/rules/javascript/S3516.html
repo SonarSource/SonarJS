@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>When a function is designed to return an invariant value, it may be poor design, but it shouldn’t adversely affect the outcome of your program.
 However, when it happens on all paths through the logic, it is likely a mistake.</p>
 <p>This rule raises an issue when a function contains several <code>return</code> statements that all return the same value.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(a) {  // Noncompliant
   let b = 12;

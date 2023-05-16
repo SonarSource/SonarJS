@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>ECMAScript 2015 added the ability to use template literals instead of concatenation. Since their use is clearer and more concise, they are
 preferred in environments that support ECMAScript 2015.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function sayHello(name) {
   console.log("hello " + name);  // Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function sayHello(name) {
   console.log(`hello ${name}`);

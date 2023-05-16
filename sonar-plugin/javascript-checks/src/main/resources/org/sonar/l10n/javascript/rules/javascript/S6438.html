@@ -1,16 +1,17 @@
+<h2>Why is this an issue?</h2>
 <p>JSX is a special JavaScript syntax allowing to easily write HTML together with JavaScript when using React framework. Adding comments inside JSX
 might be tricky as JSX code is neither a plain HTML nor JavaScript. It’s not allowed to use HTML comment syntax (<code>&lt;!-- …​ --&gt;</code>), it
 will make the parsing fail. And using JavaScript style comments, single or multiline, will create an additional text node in the browser, which is
 probably not expected. To avoid that use JavaScript multiline comments enclosed in the curly braces. Note that JavaScript comments are also allowed
 next to the attributes (<code>&lt;div /* comment */&gt;</code>).</p>
 <p>However if the additional text node is intentional, prefer using a JavaScript string literal containing that comment.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 &lt;div&gt;
   // nothing here
 &lt;/div&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 &lt;div&gt;
   { /* nothing here */ }

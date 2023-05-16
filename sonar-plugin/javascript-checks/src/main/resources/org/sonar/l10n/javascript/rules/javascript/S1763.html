@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Jump statements (<code>return</code>, <code>break</code> and <code>continue</code>) and <code>throw</code> expressions move control flow out of the
 current code block. So any statements that come after a jump are dead code.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function fun(a) {
   var i = 10;
@@ -8,14 +9,14 @@ function fun(a) {
   i++;             // Noncompliant; this is never executed
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function fun(int a) {
   var i = 10;
   return i + a;
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/561">MITRE, CWE-561</a> - Dead Code </li>
 </ul>

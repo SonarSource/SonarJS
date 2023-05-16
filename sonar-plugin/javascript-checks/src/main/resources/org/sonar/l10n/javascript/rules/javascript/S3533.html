@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Before ECMAScript 2015, module management had to be ad-hoc or provided by 3rd-party libraries such as Node.js, Webpack, or RequireJS. Fortunately,
 ES2015, provides language-standard mechanisms for module management, <code>import</code> and <code>export</code>, and older usages should be
 converted.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 // circle.js
 exports.area = function (r) {
@@ -16,7 +17,7 @@ define(["./cart", "./horse"], function(cart, horse) {  // Noncompliant
 // bar.js
 const circle = require('./circle.js');  // Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 // circle.js
 let area = function (r) {

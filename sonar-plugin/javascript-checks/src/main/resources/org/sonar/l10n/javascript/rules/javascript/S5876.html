@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Session fixation attacks occur when an attacker can force a legitimate user to use a session ID that he knows. To avoid fixation attacks, it’s a
 good practice to generate a new session each time a user authenticates and delete/invalidate the existing session (the one possibly known by the
 attacker).</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>For <a href="http://www.passportjs.org/">Passport.js</a>:</p>
 <pre>
 app.post('/login',
@@ -11,7 +12,7 @@ app.post('/login',
     res.redirect('/');
   });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>For <a href="http://www.passportjs.org/">Passport.js</a>:</p>
 <pre>
 app.post('/login',
@@ -24,7 +25,7 @@ app.post('/login',
     });
   });
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
   Authentication Failures </li>

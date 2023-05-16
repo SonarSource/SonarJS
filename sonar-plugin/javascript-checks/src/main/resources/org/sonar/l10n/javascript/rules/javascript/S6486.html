@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>React expects a unique identifier for performance optimizations. Using generated values like <code>Math.random()</code> or <code>Date.now()</code>
 is discouraged as it would force a re-render every time and might also provoke bugs if values collide.</p>
 <p>Instead, use a unique attribute like an ID or a combination of attributes.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
@@ -9,7 +10,7 @@ function generateButtons(props) {
   });
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function generateButtons(props) {
   return props.buttons.map((button, index) =&gt; {
@@ -17,7 +18,7 @@ function generateButtons(props) {
   });
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
   <li> {rule:javascript:S6477} </li>

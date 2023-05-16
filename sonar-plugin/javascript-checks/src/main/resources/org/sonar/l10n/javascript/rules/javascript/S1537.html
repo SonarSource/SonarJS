@@ -1,19 +1,19 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>Most browsers parse and discard a meaningless, trailing comma. Unfortunately, that’s not the case for Internet Explorer below version 9, which
 throws a meaningless error. Therefore trailing commas should be eliminated.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var settings = {
     'foo'  : oof,
     'bar' : rab,    // Noncompliant - trailing comma
 };
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var settings = {
     'foo'  : oof,
     'bar' : rab
 };
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

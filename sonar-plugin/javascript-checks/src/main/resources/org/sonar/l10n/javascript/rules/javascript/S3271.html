@@ -1,19 +1,19 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<h2>Why is this an issue?</h2>
 <p>Session storage and local storage are HTML 5 features which allow developers to easily store megabytes of data client-side, as opposed to the 4Kb
 cookies can accommodate. While useful to speed applications up on the client side, it can be dangerous to store sensitive information this way because
 the data is not encrypted by default and any script on the page may access it.</p>
 <p>This rule raises an issue when the <code>localStorage</code> and <code>sessionStorage</code> API’s are used.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 localStorage.setItem("login", login); // Noncompliant
 sessionStorage.setItem("sessionId", sessionId); // Noncompliant
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
   Exposure </li>
   <li> <a href="https://dl.packetstormsecurity.net/papers/attack/HTML5AttackVectors_RafayBaloch_UPDATED.pdf">Packet Storm Security</a> - HTML 5 Modern
   Day Attack And Defence Vectors </li>
 </ul>
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>
 

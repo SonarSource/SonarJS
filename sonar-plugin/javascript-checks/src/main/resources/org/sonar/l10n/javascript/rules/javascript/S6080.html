@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>Starting from Mocha v3.0.0, calling <code>this.timeout(X)</code> with <code>X</code> greater than the <a
 href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#Maximum_delay_value">maximum delay value</a>
 (2,147,483,647 ms) <a href="https://mochajs.org/#hook-level">will cause the timeout to be disabled</a>. This might not be what the developer intended.
 If the goal is really to disable the timeout, <code>this.timeout(0)</code> should be used instead.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 describe("testing this.timeout", function() {
   it("unexpectedly disables the timeout", function(done) {
@@ -10,7 +11,7 @@ describe("testing this.timeout", function() {
   });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 describe("testing this.timeout", function() {
   it("doesn't disable the timeout", function(done) {
@@ -26,7 +27,7 @@ describe("testing this.timeout", function() {
   });
 });
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://mochajs.org/#hook-level">Mocha documentation</a> </li>
 </ul>

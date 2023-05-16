@@ -1,13 +1,14 @@
+<h2>Why is this an issue?</h2>
 <p>When a variable is assigned an <code>undefined</code> or <code>null</code> value, it has no properties. Trying to access properties of such a
 variable anyway results in a <code>TypeError</code>, causing abrupt termination of the script if the error is not caught in a <code>catch</code>
 block. But instead of <code>catch</code>-ing this condition, it is best to avoid it altogether.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 if (x === undefined) {
   console.log(x.bar); // Noncompliant; TypeError will be thrown
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/476">MITRE, CWE-476</a> - NULL Pointer Dereference </li>
 </ul>

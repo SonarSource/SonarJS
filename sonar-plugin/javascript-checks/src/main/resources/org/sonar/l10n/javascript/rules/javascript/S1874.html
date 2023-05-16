@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Once deprecated, classes, and interfaces, and their members should be avoided, rather than used, inherited or extended. Deprecation is a warning
 that the class or interface has been superseded, and will eventually be removed. The deprecation period allows you to make a smooth transition away
 from the aging, soon-to-be-retired technology.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 export interface LanguageService {
   /**
@@ -12,7 +13,7 @@ export interface LanguageService {
 
 const syntacticClassifications = getLanguageService().getSyntacticClassifications(file, span); // Noncompliant
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/477">MITRE, CWE-477</a> - Use of Obsolete Functions </li>
 </ul>

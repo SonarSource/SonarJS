@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Comparing dissimilar types using the strict equality operators <code>===</code> and <code>!==</code> will always return the same value,
 respectively <code>false</code> and <code>true</code>, because no type conversion is done before the comparison. Thus, such comparisons can only be
 bugs.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var a = 8;
 var b = "8";
@@ -10,7 +11,7 @@ if (a === b) {  // Noncompliant; always false
   // ...
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var a = 8;
 var b = "8";

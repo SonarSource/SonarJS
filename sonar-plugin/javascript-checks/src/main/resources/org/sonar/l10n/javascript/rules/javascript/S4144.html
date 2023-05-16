@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>When two functions have the same implementation, either it was a mistake - something else was intended - or the duplication was intentional, but
 may be confusing to maintainers. In the latter case, the code should be refactored.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function calculateCode() {
   doTheThing();
@@ -14,7 +15,7 @@ function getName() {  // Noncompliant
   return code;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function calculateCode() {
   doTheThing();
@@ -26,7 +27,7 @@ function getName() {
   return calculateCode();
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <ul>
   <li> Functions with fewer than 3 lines are ignored. </li>
   <li> This rule does not apply to function expressions and arrow functions because they don’t have explicit names and are often used in a way where

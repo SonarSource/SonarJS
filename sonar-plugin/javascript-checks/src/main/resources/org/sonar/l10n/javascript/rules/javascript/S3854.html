@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>There are situations where <code>super()</code> must be invoked and situations where <code>super()</code> cannot be invoked.</p>
 <p>The basic rule is: a constructor in a non-derived class cannot invoke <code>super()</code>; a constructor in a derived class must invoke
 <code>super()</code>.</p>
@@ -8,11 +9,8 @@
   <li> <code>super()</code> can only be invoked in a constructor - not in any other method. </li>
   <li> <code>super()</code> cannot be invoked multiple times in the same constructor. </li>
 </ul>
-<h3>Known Limitations</h3>
-<ul>
-  <li> False negatives: some issues are not raised if the base class is not defined in the same file as the current class. </li>
-</ul>
-<h2>Noncompliant Code Example</h2>
+<p>Some issues are not raised if the base class is not defined in the same file as the current class. This is a known limitation for this rule.</p>
+<h3>Noncompliant code example</h3>
 <pre>
 class Dog extends Animal {
   constructor(name) {
@@ -23,7 +21,7 @@ class Dog extends Animal {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 class Dog extends Animal {
   constructor(name) {

@@ -1,12 +1,13 @@
+<h2>Why is this an issue?</h2>
 <p>Any statement (other than a null statement, which means a statement containing only a semicolon <code>;</code>) which has no side effect and does
 not result in a change of control flow will normally indicate a programming error, and therefore should be refactored.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 a == 1; // Noncompliant; was assignment intended?
 var msg = "Hello, "
   "World!"; // Noncompliant; have we forgotten '+' operator on previous line?
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/482">MITRE, CWE-482</a> - Comparing instead of Assigning </li>
 </ul>

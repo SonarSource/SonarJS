@@ -1,14 +1,15 @@
+<h2>Why is this an issue?</h2>
 <p>Just because you <em>can</em> do something, doesn’t mean you should, and that’s the case with nested ternary operations. Nesting ternary operators
 results in the kind of code that may seem clear as day when you write it, but six months later will leave maintainers (or worse - future you)
 scratching their heads and cursing.</p>
 <p>Instead, err on the side of clarity, and use another line to express the nested operation as a separate statement.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function getReadableStatus(job) {
   return job.isRunning() ? "Running" : job.hasErrors() ? "Failed" : "Succeeded ";  // Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function getReadableStatus(job) {
   if (job.isRunning()) {
@@ -17,7 +18,7 @@ function getReadableStatus(job) {
   return job.hasErrors() ? "Failed" : "Succeeded";
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>This rule does not apply in JSX expressions to support conditional rendering and conditional attributes.</p>
 <pre>
 return (

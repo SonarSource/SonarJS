@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>It is not good enough to test if an exception is raised, without checking which exception it is. Such tests will not be able to differentiate the
 expected exception from an unexpected one. They should instead validate the exception message and/or type.</p>
 <p>This rule raises an issue in the following cases:</p>
@@ -10,7 +11,7 @@ expected exception from an unexpected one. They should instead validate the exce
   <li> When Chai assertions are used to test if a function does not throw an exception of type <code>Error</code> without checking the message. </li>
 </ul>
 <p>Rule doesn’t raise an issue when assertion is negated using <code>not</code>, it such case the exception doesn’t need to be specific.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const expect = require("chai").expect;
 const fs = require("fs");
@@ -37,7 +38,7 @@ describe("exceptions are not tested properly", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const expect = require("chai").expect;
 const { AssertionError } = require('chai');

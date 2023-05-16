@@ -9,9 +9,6 @@ developer forgot to resolve it.</p>
   <li> void returns </li>
   <li> spread operators </li>
 </ul>
-<p><span><strong>Missing error handling:</strong></span></p>
-<p>Promises that aren’t resolved will finish running at an unexpected time. When they do not contain error handling and they raise an exception, the
-associated call stack will be wrong.</p>
 <h3>What is the potential impact?</h3>
 <p>Using a promise instead of its resolved value can have unexpected results leading to bugs.</p>
 <ul>
@@ -26,7 +23,7 @@ associated call stack will be wrong.</p>
   <li> If a promise executor function is using <code>await</code>, this means that it’s not necessary to use the <code>Promise</code> constructor, or
   the scope of the Promise constructor can be reduced. </li>
 </ul>
-<h4>Exceptions</h4>
+<h3>Exceptions</h3>
 <p>This rule can be ignored for promises that you know will always resolve like timers.</p>
 <pre>
 await new Promise(resolve =&gt; time.setTimeout(1000));
@@ -40,8 +37,6 @@ cases, you may need to use an "immediately invoked function expression" (IIFE):<
   // work with result
 })();
 </pre>
-<p>If you forgot to handle the promise rejection, you should handle it either with <code>.catch(error ⇒ {/<strong>…​</strong>/})</code> or
-<code>.then(result ⇒ {}, error ⇒ {})</code>.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -104,23 +99,6 @@ apiCalls.forEach(async (apiCall) =&gt; {
 for (const apiCall of apiCalls) {
   await apiCall.send();
 }
-</pre>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-fetch('https://api.com/entries')
-  .then(result =&gt; {
-    // ...
-  });
-</pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="4" data-diff-type="compliant">
-fetch('https://api.com/entries')
-  .then(result =&gt; {
-    // ...
-  })
-  .catch(error =&gt; {
-    // ...
-  });
 </pre>
 <h3>How does this work?</h3>
 <p>In JavaScript, a promise is a mechanism to perform tasks asynchronously. To this end, the language provides the <code>Promise</code> object which

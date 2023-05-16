@@ -1,7 +1,8 @@
+<h2>Why is this an issue?</h2>
 <p>Many assertions compare two objects or properties of these objects. Passing twice the same argument is likely to be a bug due to developer’s
 carelessness.</p>
 <p>This rule raises an issue when a Chai assertion is given twice the same argument.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const assert = require('chai').assert;
 
@@ -13,7 +14,7 @@ describe("test the same object", function() {
     });
 });
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const assert = require('chai').assert;
 

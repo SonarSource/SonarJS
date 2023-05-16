@@ -1,14 +1,15 @@
+<h2>Why is this an issue?</h2>
 <p>The use of wrapper objects for primitive types is gratuitous, confusing and dangerous. If you use a wrapper object constructor for type conversion,
 just remove the <code>new</code> keyword, and you’ll get a primitive value automatically. If you use a wrapper object as a way to add properties to a
 primitive, you should re-think the design. Such uses are considered bad practice, and should be refactored.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let x = new Number("0");
 if (x) {
   alert('hi');  // Shows 'hi'.
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let x = Number("0");
 if (x) {

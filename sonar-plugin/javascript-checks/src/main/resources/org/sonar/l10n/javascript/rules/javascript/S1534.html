@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>JavaScript allows duplicate member names in classes and object literals, but only the last instance of a duplicated name determines the actual
 value that will be used for it. Therefore, changing values of other occurrences of a duplicated name will have no effect and may cause
 misunderstandings and bugs.</p>
 <p>Defining a <code>class</code> with a duplicated <code>constructor</code> will generate an error.</p>
 <p>Before ECMAScript 2015, using duplicate names will generate an error in JavaScript strict mode code.</p>
 <p>This rule will also report on duplicate properties in JSX.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 let data = {
   "key": "value",
@@ -24,7 +25,7 @@ function MyComponent(props) {
   &lt;/div&gt;;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 let data = {
   "key": "value",

@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Having default value for optional boolean parameters makes the logic of function when missing that parameter more evident. When providing a default
 value is not possible, it is better to split the function into two with a clear responsibility separation.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function countPositiveNumbers(arr: number[], countZero?: boolean) { // Noncompliant, default value for 'countZero' should be defined
   // ...
@@ -14,7 +15,7 @@ function toggleProperty(property: string, value?: boolean) { // Noncompliant, a 
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function countPositiveNumbers(arr: number[], countZero = false) {
   // ...

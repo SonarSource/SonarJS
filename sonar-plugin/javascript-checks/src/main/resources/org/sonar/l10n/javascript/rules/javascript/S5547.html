@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p><a href="https://en.wikipedia.org/wiki/Strong_cryptography">Strong cipher algorithms</a> are cryptographic systems resistant to cryptanalysis, they
 are not vulnerable to well-known attacks like brute force attacks for example.</p>
 <p>A general recommendation is to only use cipher algorithms intensively tested and promoted by the cryptographic community.</p>
 <p>More specifically for block cipher, it’s not recommended to use algorithm with a block size inferior than 128 bits.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p><a href="https://nodejs.org/api/crypto.html">crypto</a> built-in module:</p>
 <pre>
 crypto.createCipheriv("DES", key, iv); // Noncompliant: DES / 3DES is unsecure
@@ -12,12 +13,12 @@ crypto.createCipheriv("RC2", key, iv); // Noncompliant: RC2 is vulnerable to a r
 crypto.createCipheriv("RC4", key, "");// Noncompliant: RC4 is vulnerable to several attacks
 crypto.createCipheriv("BF", key, iv);// Noncompliant: Blowfish use a 64-bit block size makes it vulnerable to birthday attacks
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p><a href="https://nodejs.org/api/crypto.html">crypto</a> built-in module:</p>
 <pre>
 crypto.createCipheriv("AES-256-GCM", key, iv);
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
   <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data

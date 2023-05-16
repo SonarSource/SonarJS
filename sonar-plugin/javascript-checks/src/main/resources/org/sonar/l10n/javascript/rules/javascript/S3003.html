@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>The use of comparison operators (<code>&lt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&gt;</code>) with strings is not likely to yield
 the expected results. Make sure the intention was to compare strings and not numbers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 var appleNumber = "123";
 var orangeNumber = "45";
@@ -8,7 +9,7 @@ if (appleNumber &lt; orangeNumber) {  // Noncompliant, this condition is true
   alert("There are more oranges");
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 var appleNumber = "123";
 var orangeNumber = "45";
@@ -16,7 +17,7 @@ if (Number(appleNumber) &lt; Number(orangeNumber)) {
   alert("There are more oranges");
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>The rule ignores string comparisons occurring in the callback of a sort invocation, e.g.:</p>
 <pre>
 const fruits = ['orange', 'apple', 'banana'];

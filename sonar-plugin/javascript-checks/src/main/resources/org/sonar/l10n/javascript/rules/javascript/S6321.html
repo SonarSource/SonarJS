@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Cloud platforms such as AWS, Azure, or GCP support virtual firewalls that can be used to restrict access to services by controlling inbound and
 outbound traffic.<br> Any firewall rule allowing traffic from all IP addresses to standard network ports on which administration services
 traditionally listen, such as 22 for SSH, can expose these services to exploits and unauthorized access.</p>
@@ -5,7 +6,7 @@ traditionally listen, such as 22 for SSH, can expose these services to exploits 
 <p>It’s recommended to restrict access to remote administration services to only trusted IP addresses. In practice, trusted IP addresses are those
 held by system administrators or those of <a href="https://aws.amazon.com/quickstart/architecture/linux-bastion/?nc1=h_ls">bastion-like</a>
 servers.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ec2.Instance.html">aws-cdk-lib.aws_ec2.Instance</a> and other constructs
 that support a <code>connections</code> attribute:</p>
 <pre>
@@ -73,7 +74,7 @@ new ec2.CfnSecurityGroupIngress( // Noncompliant
         groupId: securityGroup.attrGroupId
 })
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ec2.Instance.html">aws-cdk-lib.aws_ec2.Instance</a> and other constructs
 that support a <code>connections</code> attribute:</p>
 <pre>
@@ -140,7 +141,7 @@ new ec2.CfnSecurityGroupIngress(
     }
 )
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control

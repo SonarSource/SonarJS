@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Unlike strongly typed languages, JavaScript does not enforce a return type on a function. This means that different paths through a function can
 return different types of values, which can be very confusing to the user and significantly harder to maintain.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 function foo(a) {  // Noncompliant
   if (a === 1) {
@@ -9,7 +10,7 @@ function foo(a) {  // Noncompliant
   return 3;
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 function foo(a) {
   if (a === 1) {
@@ -18,7 +19,7 @@ function foo(a) {
   return false;
 }
 </pre>
-<h2>Exceptions</h2>
+<h3>Exceptions</h3>
 <p>Functions returning <code>this</code> are ignored.</p>
 <pre>
 function foo() {

@@ -1,15 +1,16 @@
+<h2>Why is this an issue?</h2>
 <p>If the first parameter of <code>String.replace</code> is a regular expression, a special syntax can be used in the replacement string to reference
 capturing groups. Use <code>$n</code> to reference the group by number and <code>$&lt;Name&gt;</code> to reference the group by name. Because
 replacements strings in <code>String.replace</code> are interpreted at runtime, nothing prevents you to reference nonexisting group, with nonexisting
 index or bad name, then the resulting string will be wrong. This rule statically validates that all referenced groups exist when replacing with
 <code>String.replace</code> or <code>String.replaceAll</code> methods.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 const str = 'James Bond';
 console.log(str.replace(/(\w+)\s(\w+)/, '$1, $0 $1')); // Noncompliant, index is 1-based, '$0' does not exist, prints 'James, $0 James'
 console.log(str.replace(/(?&lt;firstName&gt;\w+)\s(?&lt;lastName&gt;\w+)/, '$&lt;surname&gt;, $&lt;firstName&gt; $&lt;surname&gt;')); // Noncompliant &nbsp;'$&lt;surname&gt;' does not exist, prints ', James '
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 const str = 'James Bond';
 console.log(str.replace(/(\w+)\s(\w+)/, '$2, $1 $2'));
