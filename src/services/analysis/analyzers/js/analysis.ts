@@ -51,6 +51,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   forceUpdateTSConfigs?: boolean;
   createWildcardTSConfig?: boolean;
   useFoundTSConfigs?: boolean;
+  limitToBaseDir?: boolean;
 }
 
 /**

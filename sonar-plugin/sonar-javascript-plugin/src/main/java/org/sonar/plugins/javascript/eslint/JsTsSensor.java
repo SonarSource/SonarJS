@@ -44,6 +44,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
   private List<String> tsconfigs;
+  private boolean limitToBaseDir = false;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -91,6 +92,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     var rules = checks.eslintRules();
     analysisMode = AnalysisMode.getMode(context, rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
+    limitToBaseDir = contextUtils.limitDepsToBaseDir();
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
@@ -100,7 +102,13 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: " + file.uri());
-        var request = getJsTsRequest(file, tsconfigs, analysisMode.getLinterIdFor(file), true);
+        var request = getJsTsRequest(
+          file,
+          tsconfigs,
+          analysisMode.getLinterIdFor(file),
+          true,
+          limitToBaseDir
+        );
         var response = isTypeScriptFile(file)
           ? eslintBridgeServer.analyzeTypeScript(request)
           : eslintBridgeServer.analyzeJavaScript(request);

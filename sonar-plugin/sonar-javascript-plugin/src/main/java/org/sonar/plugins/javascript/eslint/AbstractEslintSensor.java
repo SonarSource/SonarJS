@@ -139,7 +139,8 @@ public abstract class AbstractEslintSensor implements Sensor {
     InputFile file,
     @Nullable List<String> tsconfigs,
     String linterId,
-    boolean createProgram
+    boolean createProgram,
+    boolean limitToBaseDir
   ) throws IOException {
     var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
     return new EslintBridgeServer.JsAnalysisRequest(
@@ -153,7 +154,8 @@ public abstract class AbstractEslintSensor implements Sensor {
       tsconfigs,
       linterId,
       createProgram,
-      context.fileSystem().baseDir().getAbsolutePath()
+      context.fileSystem().baseDir().getAbsolutePath(),
+      limitToBaseDir
     );
   }
 

@@ -235,7 +235,8 @@ class EslintBridgeServerImplTest {
       singletonList(tsConfig.absolutePath()),
       DEFAULT_LINTER_ID,
       false,
-      context.fileSystem().baseDir().getAbsolutePath()
+      context.fileSystem().baseDir().getAbsolutePath(),
+      false
     );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -265,7 +266,8 @@ class EslintBridgeServerImplTest {
       null,
       DEFAULT_LINTER_ID,
       false,
-      "baseDir"
+      "baseDir",
+      false
     );
   }
 
@@ -426,7 +428,8 @@ class EslintBridgeServerImplTest {
       null,
       DEFAULT_LINTER_ID,
       false,
-      "baseDir"
+      "baseDir",
+      false
     );
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request))
       .isInstanceOf(IllegalStateException.class);
