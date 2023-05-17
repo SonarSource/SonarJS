@@ -119,21 +119,24 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
         `,
       errors: [
         {
-          message: 'Move this array "reverse" operation to a separate statement.',
+          message:
+            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
           line: 4,
           endLine: 4,
           column: 19,
           endColumn: 30,
         },
         {
-          message: 'Move this array "sort" operation to a separate statement.',
+          message:
+            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
           line: 5,
           endLine: 5,
           column: 20,
           endColumn: 28,
         },
         {
-          message: 'Move this array "reverse" operation to a separate statement.',
+          message:
+            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
           line: 6,
           endLine: 6,
           column: 13,
@@ -151,16 +154,20 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
         `,
       errors: [
         {
-          message: 'Move this array "sort" operation to a separate statement.',
+          message:
+            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
         },
         {
-          message: 'Move this array "sort" operation to a separate statement.',
+          message:
+            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
         },
         {
-          message: 'Move this array "reverse" operation to a separate statement.',
+          message:
+            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
         },
         {
-          message: 'Move this array "reverse" operation to a separate statement.',
+          message:
+            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
         },
       ],
     },
@@ -218,6 +225,40 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
           return a.length > 0 && a.reverse();
         }`,
       errors: 1,
+    },
+    {
+      code: `
+const x = ["foo", "bar", "baz"];
+const y = x.sort();`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "toSorted" method',
+              output: `
+const x = ["foo", "bar", "baz"];
+const y = x.toSorted();`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+const x = [true, false];
+const y = x['reverse']();`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "toReversed" method',
+              output: `
+const x = [true, false];
+const y = x['toReversed']();`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

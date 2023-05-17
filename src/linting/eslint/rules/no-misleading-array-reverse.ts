@@ -36,8 +36,11 @@ const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
   meta: {
+    hasSuggestions: true,
     messages: {
-      moveMethod: 'Move this array "{{method}}" operation to a separate statement.',
+      moveMethod:
+        'Move this array "{{method}}" operation to a separate statement or replace it with "{{suggestedMethod}}".',
+      suggestMethod: 'Replace with "{{suggestedMethod}}" method',
     },
   },
   create(context: Rule.RuleContext) {
@@ -46,8 +49,8 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      CallExpression(node: estree.Node) {
-        const callee = (node as estree.CallExpression).callee;
+      CallExpression(node: estree.CallExpression) {
+        const { callee } = node;
         if (callee.type === 'MemberExpression') {
           const propertyText = context.getSourceCode().getText(callee.property);
           if (isArrayMutatingCall(callee, services, propertyText)) {
@@ -58,12 +61,27 @@ export const rule: Rule.RuleModule = {
               !isInSelfAssignment(mutatedArray, node) &&
               isForbiddenOperation(node)
             ) {
+              const method = formatMethod(propertyText);
+              const suggestedMethod = method === 'sort' ? 'toSorted' : 'toReversed';
               context.report({
                 messageId: 'moveMethod',
                 data: {
-                  method: formatMethod(propertyText),
+                  method,
+                  suggestedMethod,
                 },
                 node,
+                suggest: [
+                  {
+                    messageId: 'suggestMethod',
+                    data: {
+                      suggestedMethod,
+                    },
+                    fix: fixer => {
+                      const fixedPropertyText = propertyText.replace(method, suggestedMethod);
+                      return fixer.replaceText(callee.property, fixedPropertyText);
+                    },
+                  },
+                ],
               });
             }
           }

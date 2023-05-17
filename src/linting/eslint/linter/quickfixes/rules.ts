@@ -95,6 +95,7 @@ export const quickFixRules = new Set([
   'no-exclusive-tests',
   'no-global-this',
   'no-in-misuse',
+  'no-misleading-array-reverse',
   'no-primitive-wrappers',
   'no-redundant-optional',
   'no-redundant-parentheses',
