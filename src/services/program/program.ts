@@ -48,9 +48,9 @@ const projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<
   ProjectTSConfigs
 >();
 
-export function setDefaultTSConfigs(tsConfigs: ProjectTSConfigs) {
+export function setDefaultTSConfigs(baseDir: string, tsConfigs: ProjectTSConfigs) {
   // used only in tests
-  projectTSConfigsByBaseDir.set('', tsConfigs);
+  projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
 }
 
 export function getDefaultTSConfigs(baseDir: string) {

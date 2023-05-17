@@ -43,7 +43,7 @@ export async function jsTsInput(input: any): Promise<JsTsAnalysisInput> {
   }
   const newInput = { ...defaultInput, ...input };
   if (shouldUseTypescriptParser(newInput.language) && shouldCreateProgram(newInput)) {
-    await loadTsconfigs(newInput.tsConfigs);
+    await loadTsconfigs(input.baseDir, newInput.tsConfigs);
   }
   if (!newInput.fileContent) {
     newInput.fileContent = await readFile(newInput.filePath);

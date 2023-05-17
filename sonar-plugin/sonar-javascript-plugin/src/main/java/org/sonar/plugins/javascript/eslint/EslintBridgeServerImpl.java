@@ -338,13 +338,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeYaml(EmbeddedAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-yaml"), request.filePath);
   }
 
   @Override
-  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeHtml(EmbeddedAnalysisRequest request) throws IOException {
     var json = GSON.toJson(request);
     return response(request(json, "analyze-html"), request.filePath);
   }

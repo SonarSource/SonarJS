@@ -50,9 +50,9 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeYaml(EmbeddedAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeHtml(EmbeddedAnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -92,6 +92,19 @@ public interface EslintBridgeServer extends Startable {
       this.linterId = linterId;
       this.createProgram = createProgram;
       this.baseDir = baseDir;
+    }
+  }
+
+  class EmbeddedAnalysisRequest {
+
+    final String filePath;
+    final String fileContent;
+    final String linterId;
+
+    EmbeddedAnalysisRequest(String filePath, @Nullable String fileContent, String linterId) {
+      this.filePath = filePath;
+      this.fileContent = fileContent;
+      this.linterId = linterId;
     }
   }
 

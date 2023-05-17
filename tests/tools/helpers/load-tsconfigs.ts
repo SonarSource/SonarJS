@@ -21,7 +21,7 @@ import { ProjectTSConfigs, readFile, toUnixPath, TSConfig } from 'helpers';
 import path from 'path';
 import { setDefaultTSConfigs } from 'services/program';
 
-export async function loadTsconfigs(tsConfigs) {
+export async function loadTsconfigs(baseDir, tsConfigs) {
   const projectTSConfigs = new ProjectTSConfigs();
   for (const tsConfigPath of tsConfigs) {
     const contents = JSON.parse(await readFile(tsConfigPath));
@@ -34,5 +34,5 @@ export async function loadTsconfigs(tsConfigs) {
     };
     projectTSConfigs.db.set(toUnixPath(tsConfigPath), tsconfig);
   }
-  setDefaultTSConfigs(projectTSConfigs);
+  setDefaultTSConfigs(baseDir, projectTSConfigs);
 }

@@ -23,17 +23,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -137,28 +133,6 @@ public abstract class AbstractEslintSensor implements Sensor {
         progressReport.cancel();
       }
     }
-  }
-
-  protected EslintBridgeServer.JsAnalysisRequest getJsTsRequest(
-    InputFile file,
-    @Nullable List<String> tsconfigs,
-    String linterId,
-    boolean createProgram
-  ) throws IOException {
-    var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-    return new EslintBridgeServer.JsAnalysisRequest(
-      file.absolutePath(),
-      file.type().toString(),
-      JavaScriptFilePredicate.isTypeScriptFile(file)
-        ? TypeScriptLanguage.KEY
-        : JavaScriptLanguage.KEY,
-      fileContent,
-      contextUtils.ignoreHeaderComments(),
-      tsconfigs,
-      linterId,
-      createProgram,
-      context.fileSystem().baseDir().getAbsolutePath()
-    );
   }
 
   protected void logErrorOrWarn(String msg, Throwable e) {

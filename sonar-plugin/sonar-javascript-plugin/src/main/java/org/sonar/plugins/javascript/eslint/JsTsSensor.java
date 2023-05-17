@@ -100,7 +100,20 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: " + file.uri());
-        var request = getJsTsRequest(file, tsconfigs, analysisMode.getLinterIdFor(file), true);
+        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var request = new EslintBridgeServer.JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          JavaScriptFilePredicate.isTypeScriptFile(file)
+            ? TypeScriptLanguage.KEY
+            : JavaScriptLanguage.KEY,
+          fileContent,
+          contextUtils.ignoreHeaderComments(),
+          tsconfigs,
+          analysisMode.getLinterIdFor(file),
+          true,
+          context.fileSystem().baseDir().getAbsolutePath()
+        );
         var response = isTypeScriptFile(file)
           ? eslintBridgeServer.analyzeTypeScript(request)
           : eslintBridgeServer.analyzeJavaScript(request);

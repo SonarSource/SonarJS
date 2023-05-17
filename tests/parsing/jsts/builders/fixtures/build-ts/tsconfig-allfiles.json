@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "allowJs": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.vue"
+  ]
+}
