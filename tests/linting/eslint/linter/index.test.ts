@@ -20,7 +20,8 @@
 import path from 'path';
 import { setContext } from 'helpers';
 import { initializeLinter, getLinter, LinterWrapper } from 'linting/eslint';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../tools';
 
 describe('initializeLinter', () => {
   beforeEach(() => {
@@ -29,7 +30,6 @@ describe('initializeLinter', () => {
 
   it('should initialize the linter wrapper', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: [],
@@ -50,7 +50,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const {
       issues: [issue],
@@ -66,7 +66,6 @@ describe('initializeLinter', () => {
 
   it('should load rule bundles', async () => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: ['custom-rule-bundle'],
@@ -87,7 +86,7 @@ describe('initializeLinter', () => {
     );
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const {
       issues: [issue],

@@ -48,8 +48,6 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException;
-
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
@@ -62,16 +60,6 @@ public interface EslintBridgeServer extends Startable {
 
   boolean isAlive();
 
-  boolean newTsConfig();
-
-  TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
-
-  TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;
-
-  boolean deleteProgram(TsProgram tsProgram) throws IOException;
-
-  TsConfigFile createTsConfigFile(String content) throws IOException;
-
   class JsAnalysisRequest {
 
     final String filePath;
@@ -79,9 +67,10 @@ public interface EslintBridgeServer extends Startable {
     final String fileType;
     final boolean ignoreHeaderComments;
     final List<String> tsConfigs;
-    final String programId;
     final String linterId;
     final String language;
+    final boolean createProgram;
+    final String baseDir;
 
     JsAnalysisRequest(
       String filePath,
@@ -90,8 +79,9 @@ public interface EslintBridgeServer extends Startable {
       @Nullable String fileContent,
       boolean ignoreHeaderComments,
       @Nullable List<String> tsConfigs,
-      @Nullable String programId,
-      String linterId
+      String linterId,
+      boolean createProgram,
+      String baseDir
     ) {
       this.filePath = filePath;
       this.fileType = fileType;
@@ -99,8 +89,9 @@ public interface EslintBridgeServer extends Startable {
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
-      this.programId = programId;
       this.linterId = linterId;
+      this.createProgram = createProgram;
+      this.baseDir = baseDir;
     }
   }
 
@@ -273,93 +264,5 @@ public interface EslintBridgeServer extends Startable {
 
     int parseTime;
     int analysisTime;
-  }
-
-  class TsConfigResponse {
-
-    final List<String> files;
-    final List<String> projectReferences;
-    final String error;
-    final ParsingErrorCode errorCode;
-
-    TsConfigResponse(
-      List<String> files,
-      List<String> projectReferences,
-      @Nullable String error,
-      @Nullable ParsingErrorCode errorCode
-    ) {
-      this.files = files;
-      this.projectReferences = projectReferences;
-      this.error = error;
-      this.errorCode = errorCode;
-    }
-  }
-
-  class TsProgram {
-
-    final String programId;
-    final List<String> files;
-    final List<String> projectReferences;
-    final String error;
-    final boolean missingTsConfig;
-
-    TsProgram(
-      @Nullable String programId,
-      @Nullable List<String> files,
-      @Nullable List<String> projectReferences,
-      boolean missingTsConfig,
-      @Nullable String error
-    ) {
-      this.programId = programId;
-      this.files = files;
-      this.projectReferences = projectReferences;
-      this.missingTsConfig = missingTsConfig;
-      this.error = error;
-    }
-
-    TsProgram(String programId, List<String> files, List<String> projectReferences) {
-      this(programId, files, projectReferences, false, null);
-    }
-
-    TsProgram(
-      String programId,
-      List<String> files,
-      List<String> projectReferences,
-      boolean missingTsConfig
-    ) {
-      this(programId, files, projectReferences, missingTsConfig, null);
-    }
-
-    TsProgram(String error) {
-      this(null, null, null, false, error);
-    }
-
-    @Override
-    public String toString() {
-      if (error == null) {
-        return (
-          "TsProgram{" +
-          "programId='" +
-          programId +
-          '\'' +
-          ", files=" +
-          files +
-          ", projectReferences=" +
-          projectReferences +
-          '}'
-        );
-      } else {
-        return "TsProgram{ error='" + error + "'}";
-      }
-    }
-  }
-
-  class TsProgramRequest {
-
-    final String tsConfig;
-
-    public TsProgramRequest(String tsConfig) {
-      this.tsConfig = tsConfig;
-    }
   }
 }

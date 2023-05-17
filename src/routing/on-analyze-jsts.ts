@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import express from 'express';
-import { createAndSaveProgram } from 'services/program';
+import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
+import { JsTsLanguage } from 'helpers';
 
 /**
- * Handles TypeScript Program creation requests
+ * Handles JavaScript analysis requests
  */
-export default function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { tsConfig } = request.body;
-    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
-    response.json({ programId, files, projectReferences, missingTsConfig });
-  } catch (error) {
-    next(error);
-  }
-}
+export default (language: JsTsLanguage) => {
+  return runner(input => {
+    const jsTsInput = input as JsTsAnalysisInput;
+    jsTsInput.language = language;
+    return Promise.resolve(analyzeJSTS(jsTsInput));
+  });
+};

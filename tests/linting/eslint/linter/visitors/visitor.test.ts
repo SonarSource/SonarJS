@@ -19,13 +19,16 @@
  */
 import { childrenOf, visit } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../tools';
 
 describe('visitor', () => {
   describe('visit', () => {
     it('should traverse an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/tree.ts');
-      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
+      const sourceCode = buildSourceCode(
+        await jsTsInput({ filePath, language: 'ts', createProgram: false }),
+      );
 
       const visited = [];
       visit(sourceCode, node => visited.push(node.type + ' ' + node.loc.start.line));
@@ -62,14 +65,18 @@ describe('visitor', () => {
   describe('childrenOf', () => {
     it('should return the child of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/child.ts');
-      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
+      const sourceCode = buildSourceCode(
+        await jsTsInput({ filePath, language: 'ts', createProgram: false }),
+      );
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['IfStatement']);
     });
 
     it('should return the children of an ESLint node', async () => {
       const filePath = path.join(__dirname, './fixtures/visitor/children.ts');
-      const sourceCode = await parseTypeScriptSourceFile(filePath, []);
+      const sourceCode = buildSourceCode(
+        await jsTsInput({ filePath, language: 'ts', createProgram: false }),
+      );
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['WhileStatement', 'EmptyStatement']);
     });

@@ -23,9 +23,10 @@ import {
   rule as noMissingSonarRuntimeRule,
   ruleId as noMissingSonarRuntimeRuleId,
 } from './rule/no-missing-sonar-runtime';
-import { parseTypeScriptSourceFile } from '../helpers';
 import path from 'path';
 import { fileReadable } from '../helpers/files';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../helpers';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.
@@ -56,19 +57,15 @@ describe('sonar-runtime', () => {
     linter.defineRule(noMissingSonarRuntimeRuleId, noMissingSonarRuntimeRule);
 
     Object.keys(rules).forEach(async rule => {
-      const ruleFilePath = path.join(
-        __dirname,
-        '/../../../src/linting/eslint/rules/',
-        `${rule}.ts`,
-      );
-      if (!(await fileReadable(ruleFilePath))) {
+      const filePath = path.join(__dirname, '/../../../src/linting/eslint/rules/', `${rule}.ts`);
+      if (!(await fileReadable(filePath))) {
         throw new Error(
-          `The file '${ruleFilePath}' corresponding to rule name '${rule}' is missing. ` +
+          `The file '${filePath}' corresponding to rule name '${rule}' is missing. ` +
             'A mismatch between the rule id and its corresponding file name?',
         );
       }
 
-      const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
+      const ruleSourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
       const issues = linter.verify(ruleSourceCode, {
         rules: { [noMissingSonarRuntimeRuleId]: 'error' },

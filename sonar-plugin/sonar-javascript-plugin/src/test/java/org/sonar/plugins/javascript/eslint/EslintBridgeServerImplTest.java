@@ -33,7 +33,6 @@ import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,8 +65,6 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -236,8 +233,9 @@ class EslintBridgeServerImplTest {
       null,
       true,
       singletonList(tsConfig.absolutePath()),
-      null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false,
+      context.fileSystem().baseDir().getAbsolutePath()
     );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -265,65 +263,10 @@ class EslintBridgeServerImplTest {
       null,
       true,
       null,
-      null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false,
+      "baseDir"
     );
-  }
-
-  @Test
-  void should_get_answer_from_server_for_program_based_requests() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-
-    TsProgram programCreated = eslintBridgeServer.createProgram(
-      new TsProgramRequest("/absolute/path/tsconfig.json")
-    );
-
-    // values from 'startServer.js'
-    assertThat(programCreated.programId).isEqualTo("42");
-    assertThat(programCreated.projectReferences).isEmpty();
-    assertThat(programCreated.files.size()).isEqualTo(3);
-
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      "/absolute/path/file.ts",
-      "MAIN",
-      JavaScriptLanguage.KEY,
-      null,
-      true,
-      null,
-      programCreated.programId,
-      DEFAULT_LINTER_ID
-    );
-    assertThat(eslintBridgeServer.analyzeWithProgram(request).issues).isEmpty();
-
-    assertThat(eslintBridgeServer.deleteProgram(programCreated)).isTrue();
-  }
-
-  @Test
-  void should_create_tsconfig_files() throws IOException {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-
-    var tsConfig = eslintBridgeServer.createTsConfigFile(
-      "{\"include\":[\"/path/to/project/**/*\"]}"
-    );
-    assertThat(tsConfig.filename).isEqualTo("/path/to/tsconfig.json");
-  }
-
-  @Test
-  void should_not_fail_when_error_during_create_program() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-
-    TsProgram programCreated = eslintBridgeServer.createProgram(
-      new TsProgramRequest("/absolute/path/invalid.json")
-    );
-
-    assertThat(programCreated.programId).isNull();
-    assertThat(programCreated.error).isEqualTo("failed to create program");
   }
 
   @Test
@@ -481,8 +424,9 @@ class EslintBridgeServerImplTest {
       null,
       true,
       null,
-      null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false,
+      "baseDir"
     );
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request))
       .isInstanceOf(IllegalStateException.class);
@@ -502,71 +446,19 @@ class EslintBridgeServerImplTest {
   }
 
   @Test
-  void should_reload_tsconfig() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-    assertThat(eslintBridgeServer.newTsConfig()).isTrue();
-  }
-
-  @Test
-  void should_return_files_for_tsconfig() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-    String tsconfig = "path/to/tsconfig.json";
-    EslintBridgeServerImpl.TsConfigResponse tsConfigResponse = eslintBridgeServer.tsConfigFiles(
-      tsconfig
-    );
-    assertThat(tsConfigResponse.files)
-      .contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
-    assertThat(tsConfigResponse.error).isNull();
-
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
-    assertThat(tsConfigFile.filename).isEqualTo(tsconfig);
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_bad_response() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-    EslintBridgeServerImpl.TsConfigResponse response = eslintBridgeServer.tsConfigFiles(
-      "path/to/tsconfig.json"
-    );
-    assertThat(response.files).isEmpty();
-    assertThat(response.error).isEqualTo("Invalid response");
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_no_response() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_on_error() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("tsConfigError.js");
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context, emptyList());
-
-    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.files).isEmpty();
-    assertThat(logTester.logs(ERROR)).contains("Other error");
-  }
-
-  @Test
   void log_error_when_timeout() throws Exception {
     eslintBridgeServer = createEslintBridgeServer("timeout.js");
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("any.ts"))
+    assertThatThrownBy(() ->
+        eslintBridgeServer.initLinter(
+          Collections.emptyList(),
+          Collections.emptyList(),
+          Collections.emptyList(),
+          AnalysisMode.DEFAULT
+        )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("eslint-bridge is unresponsive");
     assertThat(logTester.logs(ERROR))
@@ -645,22 +537,6 @@ class EslintBridgeServerImplTest {
     worker.join();
     long timeToInterrupt = System.currentTimeMillis() - start;
     assertThat(timeToInterrupt).isLessThan(20);
-  }
-
-  @Test
-  void test_tsProgram_toString() {
-    TsProgram tsProgram = new TsProgram(
-      "42",
-      singletonList("path/file.ts"),
-      singletonList("path/tsconfig.json")
-    );
-    assertThat(tsProgram)
-      .hasToString(
-        "TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}"
-      );
-
-    TsProgram tsProgramError = new TsProgram("failed to create program");
-    assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
   }
 
   @Test

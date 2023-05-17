@@ -21,12 +21,12 @@ import path from 'path';
 import { readFile, setContext } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
+import { EmbeddedAnalysisInput } from 'services/analysis';
+import { jsTsInput } from '../../../../tools';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
     setContext({
-      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
@@ -76,9 +76,8 @@ describe('patchSourceCode', () => {
     const patchedNodes = patchedSourceCode.ast[property];
 
     filePath = `${fixture}.js`;
-    fileContent = await readFile(filePath);
-    const input = { filePath, fileContent } as JsTsAnalysisInput;
-    const referenceSourceCode = buildSourceCode(input, 'js');
+    const input = await jsTsInput({ filePath, createProgram: false });
+    const referenceSourceCode = buildSourceCode(input);
     const referenceNodes = referenceSourceCode.ast[property];
 
     expect(patchedNodes).toEqual(referenceNodes);
@@ -97,9 +96,8 @@ describe('patchSourceCode', () => {
     }
 
     filePath = `${fixture}.js`;
-    fileContent = await readFile(filePath);
-    const input = { filePath, fileContent } as JsTsAnalysisInput;
-    expect(() => buildSourceCode(input, 'js')).toThrow(patchedParsingError);
+    const input = await jsTsInput({ filePath, createProgram: false });
+    expect(() => buildSourceCode(input)).toThrow(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {

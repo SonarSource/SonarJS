@@ -19,8 +19,9 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { getContext } from './context';
-import { readFileSync, toUnixPath } from './files';
+import { toUnixPath, writeTmpFile } from './files';
+import { debug } from './debug';
+
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -29,10 +30,10 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(private readonly dir = getContext()?.workDir, launchLookup = true) {
+  constructor(dir?: string) {
     this.db = new Map<string, TSConfig>();
-    if (launchLookup) {
-      this.tsConfigLookup();
+    if (dir) {
+      this.tsConfigLookup(dir);
     }
   }
   get(tsconfig: string) {
@@ -44,24 +45,40 @@ export class ProjectTSConfigs {
    * as a fallback for the given file
    *
    * @param file the JS/TS file for which the tsconfig needs to be found
+   * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
    */
-  *iterateTSConfigs(file: string): Generator<TSConfig, void, undefined> {
-    yield* [...this.db.values()].sort((tsconfig1, tsconfig2) => {
-      const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
-      if (tsconfig === undefined) {
-        return 0;
-      }
-      return tsconfig === tsconfig1 ? -1 : 1;
-    });
+  *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
+    const normalizedInputTSConfigs = (tsconfigs ?? []).map(filename => toUnixPath(filename));
+    yield* normalizedInputTSConfigs
+      .map(tsConfigPath => {
+        try {
+          if (!this.db.has(tsConfigPath)) {
+            const contents = fs.readFileSync(tsConfigPath, 'utf-8');
+            this.db.set(tsConfigPath, {
+              filename: tsConfigPath,
+              contents,
+            });
+          }
+          return this.db.get(tsConfigPath)!;
+        } catch (e) {
+          console.log(`ERROR Could not read ${file}`);
+        }
+      })
+      .filter(isDefined);
+    yield* [...this.db.values()]
+      .filter(tsconfig => {
+        return !normalizedInputTSConfigs.includes(tsconfig.filename);
+      })
+      .sort((tsconfig1, tsconfig2) => {
+        const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
+        if (tsconfig === undefined) {
+          return 0;
+        }
+        return tsconfig === tsconfig1 ? -1 : 1;
+      });
     yield {
       filename: `tsconfig-${file}.json`,
-      contents: JSON.stringify({
-        compilerOptions: {
-          allowJs: true,
-          noImplicitAny: true,
-        },
-        files: [file],
-      }),
+      contents: generateTSConfig([file]),
       isFallbackTSConfig: true,
     };
   }
@@ -72,82 +89,31 @@ export class ProjectTSConfigs {
    *
    * @param dir parent folder where the search starts
    */
-  tsConfigLookup(dir = this.dir) {
-    if (!fs.existsSync(dir)) {
-      console.log(`ERROR Could not access working directory ${dir}`);
-      return;
+  tsConfigLookup(dir: string) {
+    let changes = false;
+    if (!dir || !fs.existsSync(dir)) {
+      console.log(`ERROR Could not access project directory ${dir}`);
+      throw Error(`Could not access project directory ${dir}`);
     }
-
-    const files = fs.readdirSync(dir);
+    debug(`Looking for tsconfig files in ${dir}`);
+    const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
-      const filename = toUnixPath(path.join(dir, file));
-      const stats = fs.lstatSync(filename);
-      if (file !== 'node_modules' && stats.isDirectory()) {
-        this.tsConfigLookup(filename);
-      } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
+      const filename = toUnixPath(path.join(dir, file.name));
+      if (file.name !== 'node_modules' && file.isDirectory()) {
+        if (this.tsConfigLookup(filename)) {
+          changes = true;
+        }
+      } else if (fileIsTSConfig(file.name) && !file.isDirectory()) {
+        debug(`tsconfig found: ${filename}`);
         const contents = fs.readFileSync(filename, 'utf-8');
+        const existingTsConfig = this.db.get(filename);
+        if (!existingTsConfig || existingTsConfig.contents !== contents) {
+          changes = true;
+        }
         this.db.set(filename, {
           filename,
           contents,
         });
-      }
-    }
-  }
-
-  /**
-   * Check for any changes in the list of known tsconfigs
-   *
-   * @param force the check will be bypassed if we are not on SonarLint, unless force is `true`
-   */
-  reloadTsConfigs(force = false) {
-    // No need to rescan if we are not on sonarlint, unless we force it
-    if (!getContext()?.sonarlint && !force) {
-      return false;
-    }
-    let changes = false;
-    // check for changes in known tsconfigs
-    for (const tsconfig of this.db.values()) {
-      try {
-        const contents = readFileSync(tsconfig.filename);
-        if (tsconfig.contents !== contents) {
-          changes = true;
-        }
-        tsconfig.contents = contents;
-      } catch (e) {
-        this.db.delete(tsconfig.filename);
-        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
-      }
-    }
-    return changes;
-  }
-
-  /**
-   * Check a list of tsconfig paths and add their contents
-   * to the internal list of tsconfigs.
-   *
-   * @param tsconfigs list of new or changed TSConfigs
-   * @param force force the update of tsconfigs if we are not on SonarLint
-   * @return true if there are changes, thus cache may need to be invalidated
-   */
-  upsertTsConfigs(tsconfigs: string[], force = false) {
-    // No need to rescan if we are not on sonarlint, unless we force it
-    if (!getContext()?.sonarlint && !force) {
-      return false;
-    }
-    let changes = false;
-    for (const tsconfig of tsconfigs) {
-      const normalizedTsConfig = toUnixPath(tsconfig);
-      if (!this.db.has(normalizedTsConfig)) {
-        try {
-          const contents = readFileSync(normalizedTsConfig);
-          this.db.set(normalizedTsConfig, {
-            filename: normalizedTsConfig,
-            contents,
-          });
-          changes = true;
-        } catch (e) {
-          console.log(`ERROR: Could not read tsconfig ${tsconfig}`);
-        }
       }
     }
     return changes;
@@ -204,4 +170,35 @@ function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSCon
   } else {
     return relativeDepth2 <= 0 ? tsconfig2 : tsconfig1;
   }
+}
+
+function generateTSConfig(files?: string[], include?: string[]) {
+  const tsConfig = {
+    compilerOptions: {
+      allowJs: true,
+      noImplicitAny: true,
+    },
+  } as any;
+  if (files?.length) {
+    tsConfig.files = files;
+  }
+  if (include?.length) {
+    tsConfig.include = include;
+  }
+  return JSON.stringify(tsConfig);
+}
+
+const wildcardTSConfigByBaseDir: Map<string, string> = new Map<string, string>();
+
+export function getWildcardTSConfig(baseDir = '') {
+  let tsConfig = wildcardTSConfigByBaseDir.get(baseDir);
+  if (!tsConfig) {
+    tsConfig = writeTmpFile(generateTSConfig(undefined, [`${toUnixPath(baseDir)}/**/*`]));
+    wildcardTSConfigByBaseDir.set(baseDir, tsConfig);
+  }
+  return tsConfig;
+}
+
+function isDefined<T>(argument: T | undefined): argument is T {
+  return argument !== undefined;
 }

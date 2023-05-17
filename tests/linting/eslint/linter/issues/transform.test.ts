@@ -19,15 +19,16 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
 import { transformMessages } from 'linting/eslint/linter/issues';
 import { rule as noDuplicateInComposite } from 'linting/eslint/rules/no-duplicate-in-composite';
 import { rule as noUnusedFunctionArgument } from 'linting/eslint/rules/no-unused-function-argument';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../tools';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'message.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const ruleId = 'no-var';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -50,7 +51,7 @@ describe('transformMessages', () => {
 
   it('should normalize ESLint locations', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'location.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const ruleId = 'no-unused-function-argument';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -74,7 +75,7 @@ describe('transformMessages', () => {
 
   it('should transform ESLint fixes', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'fix.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const ruleId = 'no-extra-semi';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -107,8 +108,9 @@ describe('transformMessages', () => {
 
   it('should decode secondary locations', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
-    const tsConfigs = [];
-    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
+    const sourceCode = buildSourceCode(
+      await jsTsInput({ filePath, language: 'ts', createProgram: false }),
+    );
 
     const ruleId = 'no-duplicate-in-composite';
     const config = { rules: { [ruleId]: 'error' } } as any;
@@ -135,8 +137,9 @@ describe('transformMessages', () => {
 
   it('should remove ucfg issues', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
-    const tsConfigs = [];
-    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
+    const sourceCode = buildSourceCode(
+      await jsTsInput({ filePath, language: 'ts', createProgram: false }),
+    );
 
     const linter = new Linter();
     const messages = [

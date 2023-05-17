@@ -19,7 +19,8 @@
  */
 import { CpdToken, getCpdTokens } from 'linting/eslint/linter/visitors';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../tools';
 
 describe('getCpdTokens', () => {
   it('should find all tokens', async () => {
@@ -83,7 +84,7 @@ describe('getCpdTokens', () => {
 
 async function tokens(filename: string): Promise<CpdToken[]> {
   const filePath = path.join(__dirname, 'fixtures', 'cpd', filename);
-  const sourceCode = await parseJavaScriptSourceFile(filePath);
+  const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
   return getCpdTokens(sourceCode).cpdTokens;
 }
 

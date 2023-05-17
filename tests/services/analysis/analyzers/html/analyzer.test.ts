@@ -28,7 +28,6 @@ describe('analyzeHTML', () => {
 
   beforeAll(() => {
     setContext({
-      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

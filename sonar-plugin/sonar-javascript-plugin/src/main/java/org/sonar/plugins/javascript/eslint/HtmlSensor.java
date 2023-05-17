@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -30,18 +29,12 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
-import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class HtmlSensor extends AbstractEslintSensor {
 
   public static final String LANGUAGE = "web";
-
   private static final Logger LOG = Loggers.get(HtmlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
@@ -67,42 +60,8 @@ public class HtmlSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
-    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    var success = false;
-    try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(
-        AnalysisMode.getHtmlFileRules(checks.eslintRules()),
-        environments,
-        globals,
-        analysisMode
-      );
-      for (var inputFile : inputFiles) {
-        if (context.isCancelled()) {
-          throw new CancellationException(
-            "Analysis interrupted because the SensorContext is in cancelled state"
-          );
-        }
-        if (eslintBridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired()) {
-            analyze(inputFile, cacheStrategy);
-          }
-        } else {
-          throw new IllegalStateException("eslint-bridge server is not answering");
-        }
-      }
-      success = true;
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
-    }
+  protected String getProgressReportTitle() {
+    return "Progress of JS on YAML files analysis";
   }
 
   @Override
@@ -122,29 +81,28 @@ public class HtmlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
-    try {
-      LOG.debug("Analyzing file: {}", file.uri());
-      var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-      var jsAnalysisRequest = new JsAnalysisRequest(
-        file.absolutePath(),
-        file.type().toString(),
-        JavaScriptLanguage.KEY,
-        fileContent,
-        contextUtils.ignoreHeaderComments(),
-        null,
-        null,
-        analysisMode.getLinterIdFor(file)
-      );
-      var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
-      analysisProcessor.processResponse(context, checks, file, response);
-      cacheStrategy.writeAnalysisToCache(
-        CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
-        file
-      );
-    } catch (IOException e) {
-      LOG.error("Failed to get response while analyzing " + file.uri(), e);
-      throw e;
+  protected void prepareAnalysis() throws IOException {
+    var rules = AnalysisMode.getHtmlFileRules(checks.eslintRules());
+    analysisMode = AnalysisMode.getMode(context, rules);
+    eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
+  }
+
+  protected void analyze(InputFile file) throws IOException {
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: {}", file.uri());
+        var request = getJsTsRequest(file, null, analysisMode.getLinterIdFor(file), false);
+        var response = eslintBridgeServer.analyzeHtml(request);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
+        throw e;
+      }
     }
   }
 }

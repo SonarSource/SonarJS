@@ -31,7 +31,6 @@ describe('analyzeYAML', () => {
 
   beforeAll(() => {
     setContext({
-      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

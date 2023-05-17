@@ -22,21 +22,26 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public abstract class AbstractEslintSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
-
+  static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
   protected final EslintBridgeServer eslintBridgeServer;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
@@ -106,25 +111,65 @@ public abstract class AbstractEslintSensor implements Sensor {
     }
   }
 
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var progressReport = new ProgressReport(getProgressReportTitle(), PROGRESS_REPORT_PERIOD);
+    progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+    var success = false;
+    try {
+      prepareAnalysis();
+      for (var inputFile : inputFiles) {
+        if (context.isCancelled()) {
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
+        }
+        if (!eslintBridgeServer.isAlive()) {
+          throw new IllegalStateException("eslint-bridge server is not answering");
+        }
+        progressReport.nextFile(inputFile.absolutePath());
+        analyze(inputFile);
+      }
+      success = true;
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+    }
+  }
+
+  protected EslintBridgeServer.JsAnalysisRequest getJsTsRequest(
+    InputFile file,
+    @Nullable List<String> tsconfigs,
+    String linterId,
+    boolean createProgram
+  ) throws IOException {
+    var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+    return new EslintBridgeServer.JsAnalysisRequest(
+      file.absolutePath(),
+      file.type().toString(),
+      JavaScriptFilePredicate.isTypeScriptFile(file)
+        ? TypeScriptLanguage.KEY
+        : JavaScriptLanguage.KEY,
+      fileContent,
+      contextUtils.ignoreHeaderComments(),
+      tsconfigs,
+      linterId,
+      createProgram,
+      context.fileSystem().baseDir().getAbsolutePath()
+    );
+  }
+
   protected void logErrorOrWarn(String msg, Throwable e) {
     LOG.error(msg, e);
   }
 
-  protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+  protected abstract String getProgressReportTitle() throws IOException;
+
+  protected abstract void prepareAnalysis() throws IOException;
+
+  protected abstract void analyze(InputFile file) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
-
-  protected boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
-    if (contextUtils.isSonarLint()) {
-      LOG.debug("Will use AnalysisWithWatchProgram because we are in SonarLint context");
-      return false;
-    }
-    var vueFile = inputFiles.stream().filter(f -> f.filename().endsWith(".vue")).findAny();
-    if (vueFile.isPresent()) {
-      LOG.debug("Will use AnalysisWithWatchProgram because we have vue file");
-      return false;
-    }
-    LOG.debug("Will use AnalysisWithProgram");
-    return true;
-  }
 }

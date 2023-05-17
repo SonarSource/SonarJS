@@ -19,7 +19,7 @@
  */
 import { APIError } from 'errors';
 import { SourceCode } from 'eslint';
-import { debug, getContext, JsTsLanguage } from 'helpers';
+import { debug, getContext } from 'helpers';
 import {
   computeMetrics,
   findNoSonarLines,
@@ -46,13 +46,12 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
  * The analysis requires that global linter wrapper is initialized.
  *
  * @param input the JavaScript / TypeScript analysis input to analyze
- * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
+export function analyzeJSTS(input: JsTsAnalysisInput): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const building = () => buildSourceCode(input, language);
+  const building = () => buildSourceCode(input);
   const { result: built, duration: parseTime } = measureDuration(building);
   const analysis = () => analyzeFile(linter, input, built);
   const { result: output, duration: analysisTime } = measureDuration(analysis);

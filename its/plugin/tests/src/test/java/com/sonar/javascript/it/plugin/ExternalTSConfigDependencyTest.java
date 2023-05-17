@@ -58,13 +58,7 @@ class ExternalTSConfigDependencyTest {
     assertThat(getIssues(PROJECT))
       .extracting(Issue::getLine, Issue::getComponent)
       .containsExactlyInAnyOrder(tuple(4, "external-tsconfig-dependency-project:src/bar/main.ts"));
-    assertThat(
-      buildResult.getLogsLines(l ->
-        l.equals(
-          "WARN: At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
-        )
-      )
-    )
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("WARN: Could not find tsconfig.json: ")))
       .hasSize(1);
 
     File rootDrive = PROJECT_DIR;

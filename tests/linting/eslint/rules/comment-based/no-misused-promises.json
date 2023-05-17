@@ -1,3 +1,1 @@
-[{
-  "ignoreIIFE": true
-}]
+[{"ignoreIIFE": true}, ".ts.createProgram"]

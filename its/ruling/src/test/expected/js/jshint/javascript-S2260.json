@@ -15,13 +15,10 @@
 2,
 ],
 'jshint:tests/unit/fixtures/es6-template-literal-tagged.js':[
-24,
+23,
 ],
 'jshint:tests/unit/fixtures/es6-template-literal.js':[
-22,
-],
-'jshint:tests/unit/fixtures/identifiers.js':[
-6,
+14,
 ],
 'jshint:tests/unit/fixtures/ignoreDelimiters.js':[
 3,

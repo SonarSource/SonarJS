@@ -20,12 +20,13 @@
 import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from 'linting/eslint/linter/issues';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools';
+import { buildSourceCode } from 'parsing/jsts';
+import { jsTsInput } from '../../../../tools';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
 
     const ruleId = 'no-extra-semi';
     const config = { rules: { [ruleId]: 'error' } } as Linter.Config;

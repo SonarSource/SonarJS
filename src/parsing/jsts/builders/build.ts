@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, JsTsLanguage } from 'helpers';
+import { debug, getContext, getWildcardTSConfig, JsTsLanguage } from 'helpers';
 import { JsTsAnalysisInput } from 'services/analysis';
 import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
-import { getProgramById, getProgramForFile } from 'services/program';
+import { getDefaultTSConfigs, getProgramForFile } from 'services/program';
 import { Linter } from 'eslint';
 
 /**
@@ -30,28 +30,33 @@ import { Linter } from 'eslint';
  * the file extension, and some contextual information.
  *
  * @param input the JavaScript / TypeScript analysis input
- * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function buildSourceCode(input: JsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
 
-  if (shouldUseTypescriptParser(language)) {
+  if (shouldUseTypescriptParser(input.language)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      programs: input.programId && [getProgramById(input.programId)],
-      project: input.tsConfigs,
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
-    if (
-      !options.programs &&
-      !shouldUseWatchProgram(input.filePath) &&
-      input.createProgram === true
-    ) {
-      const program = getProgramForFile(input);
-      options.programs = [program];
+    if (shouldCreateProgram(input)) {
+      try {
+        const program = getProgramForFile(input);
+        options.programs = [program];
+      } catch (error) {
+        debug(`Failed to create program for ${input.filePath}: ${error.message}`);
+      }
+    } else {
+      options.project = input.tsConfigs ? [...input.tsConfigs] : [];
+      if (input.useFoundTSConfigs === true) {
+        options.project.push(...getDefaultTSConfigs(input.baseDir).db.keys());
+      }
+      if (input.createWildcardTSConfig === true) {
+        options.project.push(getWildcardTSConfig(input.baseDir));
+      }
     }
 
     try {
@@ -62,7 +67,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       );
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
-      if (language === 'ts') {
+      if (input.language === 'ts') {
         throw error;
       }
     }
@@ -101,11 +106,11 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
   }
 }
 
-function shouldUseWatchProgram(file: string): boolean {
-  return getContext()?.sonarlint || isVueFile(file);
+export function shouldCreateProgram(input: JsTsAnalysisInput): boolean {
+  return !getContext()?.sonarlint && !isVueFile(input.filePath) && input.createProgram === true;
 }
 
-function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
+export function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
   return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 

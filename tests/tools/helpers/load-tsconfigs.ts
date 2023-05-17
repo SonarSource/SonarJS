@@ -17,9 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { runner, analyzeJSTS, JsTsAnalysisInput } from 'services/analysis';
+import { ProjectTSConfigs, readFile, toUnixPath, TSConfig } from 'helpers';
+import path from 'path';
+import { setDefaultTSConfigs } from 'services/program';
 
-/**
- * Handles TypeScript analysis requests
- */
-export default runner(input => Promise.resolve(analyzeJSTS(input as JsTsAnalysisInput, 'ts')));
+export async function loadTsconfigs(tsConfigs) {
+  const projectTSConfigs = new ProjectTSConfigs();
+  for (const tsConfigPath of tsConfigs) {
+    const contents = JSON.parse(await readFile(tsConfigPath));
+    if (!contents.include && !contents.files) {
+      contents.include = [`${path.posix.dirname(toUnixPath(tsConfigPath))}/**/*`];
+    }
+    const tsconfig: TSConfig = {
+      filename: toUnixPath(tsConfigPath),
+      contents: JSON.stringify(contents),
+    };
+    projectTSConfigs.db.set(toUnixPath(tsConfigPath), tsconfig);
+  }
+  setDefaultTSConfigs(projectTSConfigs);
+}

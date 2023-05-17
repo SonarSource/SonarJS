@@ -69,8 +69,4 @@ class StreamConsumer {
       executorService.shutdownNow();
     }
   }
-
-  boolean isShutdown() {
-    return executorService.isShutdown();
-  }
 }

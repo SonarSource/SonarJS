@@ -2,4 +2,7 @@
 'vuetify:packages/docs/src/composables/codepen.ts':[
 16,
 ],
+'vuetify:packages/docs/src/plugins/pwa.ts':[
+8,
+],
 }

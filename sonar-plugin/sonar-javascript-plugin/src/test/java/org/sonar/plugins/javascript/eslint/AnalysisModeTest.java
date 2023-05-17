@@ -147,10 +147,6 @@ class AnalysisModeTest {
       .collect(toList());
   }
 
-  private static List<InputFile> changedFileList(int count) {
-    return fileList(changedFiles(count));
-  }
-
   @SafeVarargs
   private static List<InputFile> fileList(Stream<InputFile>... streams) {
     return Arrays.stream(streams).flatMap(identity()).collect(toList());
