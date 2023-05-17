@@ -158,18 +158,15 @@ class SonarLintTest {
 
   @Test
   void should_analyze_js_with_typed_rules() throws IOException {
-    String fileName;
-    String content;
-    List<Issue> issues;
-
-    fileName = "file.js";
-    content =
-      Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
-    issues = analyze(fileName, content);
+    var fileName = "file.js";
+    var content = Files.readString(
+      TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName)
+    );
+    var issues = analyze(fileName, content);
     assertThat(issues)
       .extracting(Issue::getRuleKey)
       // TODO fix typed rules in SonarLint
-      .contains(/* "javascript:S2870" , */"javascript:S3504");
+      .containsExactlyInAnyOrder(/* "javascript:S2870" , */"javascript:S3504");
 
     fileName = "file.vue";
     content =
@@ -178,7 +175,7 @@ class SonarLintTest {
     assertThat(issues)
       .extracting(Issue::getRuleKey)
       // TODO fix typed rules in SonarLint
-      .contains(/* "javascript:S2870", */"javascript:S3504");
+      .containsExactlyInAnyOrder(/* "javascript:S2870", */"javascript:S3504");
   }
 
   @Test
