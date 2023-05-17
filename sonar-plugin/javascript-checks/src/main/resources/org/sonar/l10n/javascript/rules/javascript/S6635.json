@@ -7,11 +7,11 @@
     "constantCost": "5min"
   },
   "tags": [],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6635",
   "sqKey": "S6635",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

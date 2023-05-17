@@ -1,6 +1,6 @@
-<p>Constructors should not return values</p>
+<p>Constructors should not return values.</p>
 <h2>Why is this an issue?</h2>
-<p>Javascript allows returning a value from the class constructor. This obscure feature is rarely used and is more likely a bug than the author’s
+<p>JavaScript allows returning a value from a class constructor. This obscure feature is rarely used and is more likely a bug than the developer’s
 intention.</p>
 <h2>How to fix it</h2>
 <p>Do not return anything from the constructor.</p>
@@ -8,7 +8,7 @@ intention.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 class TextMessage {
-    constructor(msg){
+    constructor(msg) {
         this.text = msg;
         return msg; // Noncompliant
     }
@@ -17,15 +17,15 @@ class TextMessage {
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 class TextMsg1 {
-    constructor(msg){
+    constructor(msg) {
         this.text = msg;
     }
 }
 
 
 class TextMsg2 {
-    constructor(msg){
-        if (!msg){
+    constructor(msg) {
+        if (!msg) {
             return; // ok to return nothing for flow control
         }
         this.text = msg;
