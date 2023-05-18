@@ -67,8 +67,25 @@ export function buildSourceCode(input: JsTsAnalysisInput) {
       );
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
-      if (input.language === 'ts') {
+      if (input.language === 'ts' && !options.project) {
         throw error;
+      }
+    }
+
+    if (options.project) {
+      //try without any project
+      delete options.project;
+      try {
+        return parseForESLint(
+          input.fileContent,
+          vueFile ? parsers.vuejs.parse : parsers.typescript.parse,
+          buildParserOptions(options, false),
+        );
+      } catch (error) {
+        debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
+        if (input.language === 'ts') {
+          throw error;
+        }
       }
     }
   }

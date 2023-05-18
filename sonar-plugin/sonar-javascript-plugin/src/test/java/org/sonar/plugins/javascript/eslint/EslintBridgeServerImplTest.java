@@ -250,7 +250,11 @@ class EslintBridgeServerImplTest {
       .create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
       .build();
-    var request = createRequest(inputFile);
+    var request = new EslintBridgeServer.EmbeddedAnalysisRequest(
+      inputFile.absolutePath(),
+      null,
+      DEFAULT_LINTER_ID
+    );
     assertThat(eslintBridgeServer.analyzeYaml(request).issues).isEmpty();
   }
 

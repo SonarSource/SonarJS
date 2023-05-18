@@ -188,13 +188,14 @@ function generateTSConfig(files?: string[], include?: string[]) {
   return JSON.stringify(tsConfig);
 }
 
-const wildcardTSConfigByBaseDir: Map<string, string> = new Map<string, string>();
+export const wildcardTSConfigByBaseDir: Map<string, string> = new Map<string, string>();
 
 export function getWildcardTSConfig(baseDir = '') {
-  let tsConfig = wildcardTSConfigByBaseDir.get(baseDir);
+  const normalizedBaseDir = toUnixPath(baseDir);
+  let tsConfig = wildcardTSConfigByBaseDir.get(normalizedBaseDir);
   if (!tsConfig) {
-    tsConfig = writeTmpFile(generateTSConfig(undefined, [`${toUnixPath(baseDir)}/**/*`]));
-    wildcardTSConfigByBaseDir.set(baseDir, tsConfig);
+    tsConfig = writeTmpFile(generateTSConfig(undefined, [`${toUnixPath(normalizedBaseDir)}/**/*`]));
+    wildcardTSConfigByBaseDir.set(normalizedBaseDir, tsConfig);
   }
   return tsConfig;
 }

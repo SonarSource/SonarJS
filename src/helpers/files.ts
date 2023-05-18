@@ -124,5 +124,5 @@ tmp.setGracefulCleanup();
 export function writeTmpFile(contents: string): string {
   const { name: filename } = tmp.fileSync();
   fs.writeFileSync(filename, contents, 'utf-8');
-  return filename;
+  return toUnixPath(filename);
 }

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from 'helpers';
+import { ProjectTSConfigs, setContext, toUnixPath, wildcardTSConfigByBaseDir } from 'helpers';
 import { buildSourceCode } from 'parsing/jsts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
-import { programCache } from 'services/program';
+import { programCache, setDefaultTSConfigs } from 'services/program';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -244,7 +244,7 @@ describe('buildSourceCode', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should create a program for excluded TypeScript file in another tsconfig.json', async () => {
+  it('should create a fallback program for excluded TypeScript file in another tsconfig.json', async () => {
     const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
     const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
     const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
@@ -253,10 +253,10 @@ describe('buildSourceCode', () => {
       filePath,
       tsConfigs: [tsConfig],
       createProgram: true,
-      forceUpdateTSConfigs: true,
       language: 'ts',
     });
 
+    programCache.clear();
     buildSourceCode(analysisInput);
 
     expect(programCache.programs.has(tsConfig)).toBeTruthy();
@@ -264,6 +264,87 @@ describe('buildSourceCode', () => {
 
     expect(programCache.programs.has(fakeTsConfig)).toBeTruthy();
     expect(programCache.programs.get(fakeTsConfig).files).toContain(filePath);
+  });
+
+  it('should use wildcard tsconfig', async () => {
+    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'file.ts'));
+
+    setContext({
+      sonarlint: true,
+      shouldUseTypeScriptParserForJS: true,
+      bundles: [],
+    });
+
+    const analysisInput = await jsTsInput({
+      filePath,
+      language: 'ts',
+      createWildcardTSConfig: true,
+    });
+
+    expect(() => {
+      const parserServices = buildSourceCode(analysisInput).parserServices;
+      expect(parserServices.hasFullTypeInformation).toBeTruthy();
+      //We compare in lowercase because typescript-eslint normalizes to lowercase in case-insensitive fs
+      expect(parserServices.program.getCompilerOptions().configFilePath.toLowerCase()).toEqual(
+        wildcardTSConfigByBaseDir.get(analysisInput.baseDir).toLowerCase(),
+      );
+    }).not.toThrow();
+
+    analysisInput.createWildcardTSConfig = false;
+    expect(buildSourceCode(analysisInput).parserServices.hasFullTypeInformation).toBeFalsy();
+  });
+
+  it('should not fail if the provided tsconfig does not include the file, but instead should skip typechecking', async () => {
+    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
+    const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
+
+    setContext({
+      sonarlint: true,
+      shouldUseTypeScriptParserForJS: true,
+      bundles: [],
+    });
+
+    const analysisInput = await jsTsInput({
+      filePath,
+      tsConfigs: [tsConfig],
+      language: 'ts',
+    });
+
+    expect(() => {
+      expect(buildSourceCode(analysisInput).parserServices.hasFullTypeInformation).toBeFalsy();
+    }).not.toThrow();
+  });
+
+  it('should not fail if the provided tsconfig does not include the file but we allow to lookup for other tsconfigs which include the file', async () => {
+    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
+    const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
+    const tsConfigToBeDiscovered = toUnixPath(
+      path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig-allfiles.json'),
+    );
+
+    setContext({
+      sonarlint: true,
+      shouldUseTypeScriptParserForJS: true,
+      bundles: [],
+    });
+
+    const analysisInput = await jsTsInput({
+      filePath,
+      tsConfigs: [tsConfig],
+      language: 'ts',
+      useFoundTSConfigs: true,
+    });
+
+    setDefaultTSConfigs(analysisInput.baseDir, new ProjectTSConfigs(analysisInput.baseDir));
+
+    expect(() => {
+      const parserServices = buildSourceCode(analysisInput).parserServices;
+      expect(parserServices.hasFullTypeInformation).toBeTruthy();
+      //We compare in lowercase because typescript-eslint normalizes to lowercase in case-insensitive fs
+      expect(parserServices.program.getCompilerOptions().configFilePath.toLowerCase()).toEqual(
+        tsConfigToBeDiscovered.toLowerCase(),
+      );
+    }).not.toThrow();
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {

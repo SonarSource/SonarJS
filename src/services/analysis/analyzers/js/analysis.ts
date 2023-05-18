@@ -40,6 +40,10 @@ import { Perf } from 'services/monitoring';
  * @param tsConfigs a list of TSConfigs
  * @param createProgram force creation of a program
  * @param forceUpdateTSConfigs force reload of tsconfigs on file system
+ * @param createWildcardTSConfig used for sonarLint (or vue), when true we will create a tsconfig
+ *        including all files from basedir and pass it to typescript-eslint as project
+ * @param useFoundTSConfigs used for sonarLint (or vue). When true, all tsconfigs found in the
+ *        fs will be passed to typescript-eslint as project.
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;

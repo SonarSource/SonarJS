@@ -93,7 +93,11 @@ public class YamlSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        var request = getJsTsRequest(file, null, analysisMode.getLinterIdFor(file), false);
+        var request = new EslintBridgeServer.EmbeddedAnalysisRequest(
+          file.absolutePath(),
+          contextUtils.shouldSendFileContent(file) ? file.contents() : null,
+          analysisMode.getLinterIdFor(file)
+        );
         var response = eslintBridgeServer.analyzeYaml(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
