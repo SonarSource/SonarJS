@@ -6,14 +6,17 @@ which is likely not what was intended.</p>
 value is altered.</p>
 <h3>Noncompliant code example</h3>
 <pre>
-var b = a.reverse(); // Noncompliant
-var d = c.sort(); // Noncompliant
+const reversed = a.reverse(); // Noncompliant
+const sorted = b.sort(); // Noncompliant
 </pre>
 <h3>Compliant solution</h3>
 <pre>
-var b = [...a].reverse();  // de-structure and create a new array, so reverse doesn't impact 'a'
-a.reverse();
+const reversed = [...a].reverse();  // spread the contents of 'a' into a new array, so reverse doesn't impact 'a'
+const reversed2 = a.toReversed(); // ES2023 method that copies and reverses the array
+a.reverse(); // reverse the array in place
 
-c.sort(); // this sorts array in place
+const sorted = [...b].sort(); // spread the contents of 'b' into a new array, so sort doesn't impact 'b'
+const sorted2 = b.toSorted(); // ES2023 method that copies and sorts the array
+b.sort(); // sort the array in place
 </pre>
 
