@@ -260,5 +260,22 @@ const y = x['toReversed']();`,
         },
       ],
     },
+    {
+      code: `
+const x = ["foo", "bar", "baz"];
+const y = x.sort((a, b) => true);`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "toSorted" method',
+              output: `
+const x = ["foo", "bar", "baz"];
+const y = x.toSorted((a, b) => true);`,
+            },
+          ],
+        },
+      ],
+    },
   ],
 });
