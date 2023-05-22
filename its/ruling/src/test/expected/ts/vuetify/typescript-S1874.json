@@ -1,4 +1,15 @@
 {
+'vuetify:packages/docs/src/App.vue':[
+61,
+64,
+],
+'vuetify:packages/docs/src/components/app/Markup.vue':[
+128,
+129,
+],
+'vuetify:packages/docs/src/components/app/Toc.vue':[
+143,
+],
 'vuetify:packages/docs/src/util/helpers.ts':[
 10,
 11,
