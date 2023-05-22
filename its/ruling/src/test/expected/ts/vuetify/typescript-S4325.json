@@ -1,4 +1,11 @@
 {
+'vuetify:packages/docs/src/App.vue':[
+85,
+120,
+],
+'vuetify:packages/docs/src/components/app/list/List.vue':[
+89,
+],
 'vuetify:packages/vuetify/cypress/support/mount.ts':[
 32,
 ],

@@ -70,6 +70,9 @@ public interface EslintBridgeServer extends Startable {
     final String linterId;
     final String language;
     final boolean createProgram;
+    final boolean createWildcardTSConfig;
+    final boolean useFoundTSConfigs;
+
     final String baseDir;
 
     JsAnalysisRequest(
@@ -81,6 +84,8 @@ public interface EslintBridgeServer extends Startable {
       @Nullable List<String> tsConfigs,
       String linterId,
       boolean createProgram,
+      boolean useFoundTSConfigs,
+      boolean createWildcardTSConfig,
       String baseDir
     ) {
       this.filePath = filePath;
@@ -91,6 +96,8 @@ public interface EslintBridgeServer extends Startable {
       this.tsConfigs = tsConfigs;
       this.linterId = linterId;
       this.createProgram = createProgram;
+      this.useFoundTSConfigs = useFoundTSConfigs;
+      this.createWildcardTSConfig = createWildcardTSConfig;
       this.baseDir = baseDir;
     }
   }

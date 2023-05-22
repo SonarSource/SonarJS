@@ -235,6 +235,8 @@ class EslintBridgeServerImplTest {
       singletonList(tsConfig.absolutePath()),
       DEFAULT_LINTER_ID,
       false,
+      true,
+      true,
       context.fileSystem().baseDir().getAbsolutePath()
     );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
@@ -268,6 +270,8 @@ class EslintBridgeServerImplTest {
       true,
       null,
       DEFAULT_LINTER_ID,
+      false,
+      false,
       false,
       "baseDir"
     );
@@ -429,6 +433,8 @@ class EslintBridgeServerImplTest {
       true,
       null,
       DEFAULT_LINTER_ID,
+      false,
+      false,
       false,
       "baseDir"
     );

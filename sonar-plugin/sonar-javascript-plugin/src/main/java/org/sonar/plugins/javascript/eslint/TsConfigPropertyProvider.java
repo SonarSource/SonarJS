@@ -23,6 +23,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,14 +65,14 @@ class TsConfigPropertyProvider {
     for (String pattern : patterns) {
       LOG.debug("Using '{}' to resolve TSConfig file(s)", pattern);
 
-      /** Resolving a TSConfig file based on a path */
-      Path tsconfig = getFilePath(baseDir, pattern);
+      /* Resolving a TSConfig file based on a path */
+      Path tsconfig = getFilePath(context, baseDir, pattern);
       if (tsconfig != null) {
         tsconfigs.add(tsconfig.toString());
         continue;
       }
 
-      /** Resolving TSConfig files based on pattern matching */
+      /* Resolving TSConfig files based on pattern matching */
       FileProvider fileProvider = new FileProvider(baseDir, pattern);
       List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
       if (!matchingTsconfigs.isEmpty()) {
@@ -84,16 +85,27 @@ class TsConfigPropertyProvider {
     return tsconfigs;
   }
 
-  private static Path getFilePath(File baseDir, String path) {
+  private static Path getFilePath(SensorContext context, File baseDir, String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
       file = new File(baseDir, path);
     }
 
-    if (!file.isFile()) {
-      return null;
+    // check context for tests, where files do not exist in FS
+    var contextHasPath = false;
+    try {
+      contextHasPath =
+        context
+          .fileSystem()
+          .hasFiles(context.fileSystem().predicates().hasAbsolutePath(file.getAbsolutePath()));
+    } catch (InvalidPathException ignored) {
+      //ignore exception due most probably to pattern instead of actual path
     }
 
-    return file.toPath();
+    if (file.isFile() || contextHasPath) {
+      return file.toPath();
+    }
+
+    return null;
   }
 }
