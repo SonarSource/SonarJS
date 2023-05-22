@@ -165,8 +165,7 @@ class SonarLintTest {
     var issues = analyze(fileName, content);
     assertThat(issues)
       .extracting(Issue::getRuleKey)
-      // TODO fix typed rules in SonarLint
-      .containsExactlyInAnyOrder(/* "javascript:S2870" , */"javascript:S3504");
+      .containsExactlyInAnyOrder("javascript:S2870", "javascript:S3504");
 
     fileName = "file.vue";
     content =
@@ -174,8 +173,7 @@ class SonarLintTest {
     issues = analyze(fileName, content);
     assertThat(issues)
       .extracting(Issue::getRuleKey)
-      // TODO fix typed rules in SonarLint
-      .containsExactlyInAnyOrder(/* "javascript:S2870", */"javascript:S3504");
+      .containsExactlyInAnyOrder("javascript:S2870", "javascript:S3504");
   }
 
   @Test

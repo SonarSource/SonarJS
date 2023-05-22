@@ -428,6 +428,7 @@ class JsTsSensorTest {
       eslintBridgeServerMock,
       analysisWarnings,
       monitoring,
+      null,
       processAnalysis
     );
   }

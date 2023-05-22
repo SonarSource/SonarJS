@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -42,27 +43,23 @@ public class JsTsSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(JsTsSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
+  private final JavaScriptProjectChecker javaScriptProjectChecker;
   private AnalysisMode analysisMode;
   private List<String> tsconfigs;
-
-  public JsTsSensor(
-    JsTsChecks checks,
-    EslintBridgeServer eslintBridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
-    Monitoring monitoring
-  ) {
-    this(checks, eslintBridgeServer, analysisWarnings, monitoring, null);
-  }
+  private boolean useFoundTSConfigs = false;
+  private boolean createWildcardTSConfig = false;
 
   public JsTsSensor(
     JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
     AnalysisProcessor analysisProcessor
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
+    this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.analysisProcessor = analysisProcessor;
   }
 
@@ -91,6 +88,13 @@ public class JsTsSensor extends AbstractEslintSensor {
     var rules = checks.eslintRules();
     analysisMode = AnalysisMode.getMode(context, rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
+    if (tsconfigs.isEmpty()) {
+      useFoundTSConfigs = true;
+      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+      if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
+        createWildcardTSConfig = true;
+      }
+    }
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
@@ -112,6 +116,8 @@ public class JsTsSensor extends AbstractEslintSensor {
           tsconfigs,
           analysisMode.getLinterIdFor(file),
           true,
+          useFoundTSConfigs,
+          createWildcardTSConfig,
           context.fileSystem().baseDir().getAbsolutePath()
         );
         var response = isTypeScriptFile(file)
