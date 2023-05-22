@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.jupiter.api.BeforeEach;
@@ -420,6 +421,40 @@ class JsTsSensorTest {
     assertThat(context.cpdTokens(file.key())).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .contains("Processing cache analysis of file: " + file.uri());
+  }
+
+  @Test
+  void should_use_provided_tsconfigs() throws Exception {
+    var tsconfigPath = "dir/tsconfig.json";
+    setSonarLintRuntime(context);
+    MapSettings settings = new MapSettings()
+      .setProperty("sonar.typescript.tsconfigPath", tsconfigPath);
+    context.setSettings(settings);
+    createInputFile(context);
+
+    DefaultInputFile inputFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve(tsconfigPath).toFile()
+    )
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("{}")
+      .build();
+    context.fileSystem().add(inputFile);
+    context
+      .fileSystem()
+      .inputFiles()
+      .forEach(file -> {
+        System.out.println(file);
+      });
+
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue()).extracting(c -> c.useFoundTSConfigs).isEqualTo(false);
+    assertThat(captor.getValue())
+      .extracting(c -> c.tsConfigs)
+      .isEqualTo(Arrays.asList(inputFile.file().getAbsolutePath()));
   }
 
   private JsTsSensor createSensor() {

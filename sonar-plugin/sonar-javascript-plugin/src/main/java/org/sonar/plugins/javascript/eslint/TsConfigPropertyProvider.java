@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -65,7 +66,7 @@ class TsConfigPropertyProvider {
       LOG.debug("Using '{}' to resolve TSConfig file(s)", pattern);
 
       /** Resolving a TSConfig file based on a path */
-      Path tsconfig = getFilePath(baseDir, pattern);
+      Path tsconfig = getFilePath(context, baseDir, pattern);
       if (tsconfig != null) {
         tsconfigs.add(tsconfig.toString());
         continue;
@@ -84,16 +85,21 @@ class TsConfigPropertyProvider {
     return tsconfigs;
   }
 
-  private static Path getFilePath(File baseDir, String path) {
+  private static Path getFilePath(SensorContext context, File baseDir, String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
       file = new File(baseDir, path);
     }
 
-    if (!file.isFile()) {
-      return null;
+    if (
+      file.isFile() ||
+      context
+        .fileSystem()
+        .hasFiles(context.fileSystem().predicates().hasAbsolutePath(file.getAbsolutePath()))
+    ) {
+      return file.toPath();
     }
 
-    return file.toPath();
+    return null;
   }
 }
