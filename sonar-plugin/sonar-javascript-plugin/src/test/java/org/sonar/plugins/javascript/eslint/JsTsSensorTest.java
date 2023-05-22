@@ -344,7 +344,8 @@ class JsTsSensorTest {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
-    assertThatThrownBy(() -> createSensor(context).execute(context))
+    JsTsSensor sensor = createSensor(context);
+    assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
     assertThat(logTester.logs(LoggerLevel.ERROR))

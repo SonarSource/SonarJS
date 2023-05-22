@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -66,14 +65,14 @@ class TsConfigPropertyProvider {
     for (String pattern : patterns) {
       LOG.debug("Using '{}' to resolve TSConfig file(s)", pattern);
 
-      /** Resolving a TSConfig file based on a path */
+      /* Resolving a TSConfig file based on a path */
       Path tsconfig = getFilePath(context, baseDir, pattern);
       if (tsconfig != null) {
         tsconfigs.add(tsconfig.toString());
         continue;
       }
 
-      /** Resolving TSConfig files based on pattern matching */
+      /* Resolving TSConfig files based on pattern matching */
       FileProvider fileProvider = new FileProvider(baseDir, pattern);
       List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
       if (!matchingTsconfigs.isEmpty()) {
@@ -92,13 +91,16 @@ class TsConfigPropertyProvider {
       file = new File(baseDir, path);
     }
 
-    var contextHasPath = false; // used for tests, where files do not exist in FS
+    // check context for tests, where files do not exist in FS
+    var contextHasPath = false;
     try {
       contextHasPath =
         context
           .fileSystem()
           .hasFiles(context.fileSystem().predicates().hasAbsolutePath(file.getAbsolutePath()));
-    } catch (InvalidPathException ignored) {}
+    } catch (InvalidPathException ignored) {
+      //ignore exception due most probably to pattern instead of actual path
+    }
 
     if (file.isFile() || contextHasPath) {
       return file.toPath();
