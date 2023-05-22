@@ -23,6 +23,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,12 +92,15 @@ class TsConfigPropertyProvider {
       file = new File(baseDir, path);
     }
 
-    if (
-      file.isFile() ||
-      context
-        .fileSystem()
-        .hasFiles(context.fileSystem().predicates().hasAbsolutePath(file.getAbsolutePath()))
-    ) {
+    var contextHasPath = false; // used for tests, where files do not exist in FS
+    try {
+      contextHasPath =
+        context
+          .fileSystem()
+          .hasFiles(context.fileSystem().predicates().hasAbsolutePath(file.getAbsolutePath()));
+    } catch (InvalidPathException ignored) {}
+
+    if (file.isFile() || contextHasPath) {
       return file.toPath();
     }
 
