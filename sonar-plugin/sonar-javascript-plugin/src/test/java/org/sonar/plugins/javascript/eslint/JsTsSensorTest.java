@@ -41,6 +41,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -50,6 +51,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -127,7 +129,7 @@ class JsTsSensorTest {
   void should_have_descriptor() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
-    createSensor().describe(descriptor);
+    createSensor(context).describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("JavaScript/TypeScript analysis");
     assertThat(descriptor.languages()).containsOnly("js", "ts");
   }
@@ -137,7 +139,7 @@ class JsTsSensorTest {
     AnalysisResponse expectedResponse = createResponse();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
 
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     DefaultInputFile inputFile = createInputFile(context);
     createVueInputFile();
 
@@ -194,7 +196,7 @@ class JsTsSensorTest {
     createVueInputFile();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
 
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
@@ -231,7 +233,7 @@ class JsTsSensorTest {
           )
       );
     createInputFile(context);
-    createSensor().execute(context);
+    createSensor(context).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
@@ -251,7 +253,7 @@ class JsTsSensorTest {
           .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
       );
     createInputFile(context);
-    createSensor().execute(context);
+    createSensor(context).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(2);
     Issue issue = issues.iterator().next();
@@ -271,7 +273,7 @@ class JsTsSensorTest {
     setSonarLintRuntime(ctx);
     createInputFile(ctx);
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(ctx);
+    createSensor(ctx).execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent)
       .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
@@ -282,7 +284,7 @@ class JsTsSensorTest {
     var ctx = createSensorContext(baseDir);
     createInputFile(ctx);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
-    createSensor().execute(ctx);
+    createSensor(ctx).execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent).isNull();
@@ -301,15 +303,15 @@ class JsTsSensorTest {
     ctx.fileSystem().add(inputFile);
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(ctx);
+    createSensor(ctx).execute(ctx);
     verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
   }
 
   @Test
   void should_stop_when_no_input_files() throws Exception {
-    SensorContextTester context = createSensorContext(tempDir);
-    createSensor().execute(context);
+    SensorContextTester ctx = createSensorContext(tempDir);
+    createSensor(ctx).execute(ctx);
     assertThat(logTester.logs())
       .contains(
         "No input files found for analysis",
@@ -321,7 +323,7 @@ class JsTsSensorTest {
   @Test
   void should_fail_fast() throws Exception {
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
@@ -342,7 +344,7 @@ class JsTsSensorTest {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
-    assertThatThrownBy(() -> createSensor().execute(context))
+    assertThatThrownBy(() -> createSensor(context).execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
     assertThat(logTester.logs(LoggerLevel.ERROR))
@@ -352,7 +354,7 @@ class JsTsSensorTest {
   @Test
   void stop_analysis_if_server_is_not_responding() throws Exception {
     when(eslintBridgeServerMock.isAlive()).thenReturn(false);
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     createVueInputFile();
     createInputFile(context);
     sensor.execute(context);
@@ -365,7 +367,7 @@ class JsTsSensorTest {
 
   @Test
   void stop_analysis_if_cancelled() throws Exception {
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     createInputFile(context);
     setSonarLintRuntime(context);
     context.setCancelled(true);
@@ -380,7 +382,7 @@ class JsTsSensorTest {
   void log_debug_analyzed_filename_with_tsconfig() throws Exception {
     AnalysisResponse expectedResponse = createResponse();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSensor(context);
     DefaultInputFile inputFile = createInputFile(context);
     // having a vue file makes TypeScriptSensor#shouldAnalyzeWithProgram() return false, which leads to the path that executes TypeScript#analyze()
     createVueInputFile();
@@ -396,7 +398,7 @@ class JsTsSensorTest {
     var file = TestUtils
       .createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path)
       .setStatus(InputFile.Status.SAME);
-    var sensor = createSensor();
+    var sensor = createSensor(context);
 
     createVueInputFile(context);
 
@@ -414,7 +416,7 @@ class JsTsSensorTest {
     var file = TestUtils
       .createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path)
       .setStatus(InputFile.Status.SAME);
-    var sensor = createSensor();
+    var sensor = createSensor(context);
 
     sensor.execute(context);
 
@@ -449,7 +451,7 @@ class JsTsSensorTest {
       });
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(context);
+    createSensor(context).execute(context);
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getValue()).extracting(c -> c.useFoundTSConfigs).isEqualTo(false);
     assertThat(captor.getValue())
@@ -457,13 +459,15 @@ class JsTsSensorTest {
       .isEqualTo(Arrays.asList(inputFile.file().getAbsolutePath()));
   }
 
-  private JsTsSensor createSensor() {
+  private JsTsSensor createSensor(SensorContext ctx) {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       eslintBridgeServerMock,
       analysisWarnings,
       monitoring,
-      null,
+      ctx.runtime().getProduct() == SonarProduct.SONARLINT
+        ? new SonarLintJavaScriptProjectChecker()
+        : null,
       processAnalysis
     );
   }
