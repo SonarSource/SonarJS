@@ -265,7 +265,7 @@ export function createProgram(
     const originalFileExists = programOptions.host.fileExists;
     // Ignore files outside the topDir
     programOptions.host.fileExists = fileName => {
-      if (!fileName.startsWith(topDir)) {
+      if (path.isAbsolute(fileName) && !fileName.startsWith(topDir)) {
         return false;
       }
       return originalFileExists(fileName);
@@ -331,9 +331,10 @@ function isLastTsConfigCheck(file: string, topDir?: string) {
   return path.basename(file) === 'tsconfig.json' && isRootNodeModules(file, topDir);
 }
 export function isRootNodeModules(file: string, topDir?: string) {
-  const root =
-    topDir || (process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/');
+  if (!topDir) {
+    topDir = path.parse(file).root;
+  }
   const normalizedFile = toUnixPath(file);
-  const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
+  const topNodeModules = toUnixPath(path.resolve(path.join(topDir, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
 }
