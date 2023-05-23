@@ -40,7 +40,7 @@ The "Ruling Test" is an integration test which launches the analysis of a large 
 
 ```sh
 cd its/ruling
-set SONARJS_LIMIT_DEPS_RESOLUTION=1
+export SONARJS_LIMIT_DEPS_RESOLUTION=1
 mvn verify -Dtest=JavaScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=TypeScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
