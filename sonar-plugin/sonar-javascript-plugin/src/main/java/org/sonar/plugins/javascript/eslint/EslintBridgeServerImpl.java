@@ -68,6 +68,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
+  private static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
+    "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
 
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
@@ -136,6 +138,20 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     isAlive();
   }
 
+  void serverHasStarted() {
+    status = Status.STARTED;
+    if (heartbeatFuture == null) {
+      LOG.trace("Starting heartbeat service");
+      heartbeatFuture =
+        heartbeatService.scheduleAtFixedRate(
+          this::heartbeat,
+          HEARTBEAT_INTERVAL_SECONDS,
+          HEARTBEAT_INTERVAL_SECONDS,
+          TimeUnit.SECONDS
+        );
+    }
+  }
+
   int getTimeoutSeconds() {
     return timeoutSeconds;
   }
@@ -169,17 +185,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       status = Status.FAILED;
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     } else {
-      status = Status.STARTED;
-      if (heartbeatFuture == null) {
-        LOG.trace("Starting heartbeat service");
-        heartbeatFuture =
-          heartbeatService.scheduleAtFixedRate(
-            this::heartbeat,
-            HEARTBEAT_INTERVAL_SECONDS,
-            HEARTBEAT_INTERVAL_SECONDS,
-            TimeUnit.SECONDS
-          );
-      }
+      serverHasStarted();
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
@@ -261,6 +267,23 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       // required for SonarLint context to avoid restarting already failed server
       throw new ServerAlreadyFailedException();
     }
+    // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
+    if (nodePortIsProvided()) {
+      try {
+        port = nodeAlreadyRunningPort();
+        if (port <= 0 || port >= 65535) {
+          LOG.warn(
+            "Provided port for existing Node.js process is not valid (should be in the 1 to 65535 range)."
+          );
+        } else {
+          serverHasStarted();
+          LOG.warn("Will use existing Node.js process in port " + port);
+        }
+      } catch (NumberFormatException nfe) {
+        LOG.warn("Provided port for existing Node.js process is not valid.");
+      }
+    }
+
     try {
       if (isAlive()) {
         LOG.debug("eslint-bridge server is up, no need to start.");
@@ -390,7 +413,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   public boolean isAlive() {
-    if (nodeCommand == null) {
+    if (nodeCommand == null && status != Status.STARTED) {
       return false;
     }
     var request = HttpRequest.newBuilder(url("status")).GET().build();
@@ -452,6 +475,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (URISyntaxException e) {
       throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
     }
+  }
+
+  boolean nodePortIsProvided() {
+    return System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT) != null;
+  }
+
+  int nodeAlreadyRunningPort() throws NumberFormatException {
+    return Integer.parseInt(System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT));
   }
 
   static class InitLinterRequest {

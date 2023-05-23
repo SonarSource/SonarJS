@@ -24,12 +24,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
-import static org.sonar.api.utils.log.LoggerLevel.INFO;
-import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.mockito.Mockito.*;
+import static org.sonar.api.utils.log.LoggerLevel.*;
 import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
 
 import java.io.File;
@@ -377,6 +373,21 @@ class EslintBridgeServerImplTest {
     logTester.clear();
     eslintBridgeServer.startServerLazily(context);
     assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
+  }
+
+  @Test
+  void test_use_existing_node() throws Exception {
+    String useExisting = "Will use existing Node.js process in port 60000";
+    String alreadyStarted = "eslint-bridge server is up, no need to start.";
+
+    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    EslintBridgeServerImpl eslintBridgeServerMock = spy(eslintBridgeServer);
+    doReturn(true).when(eslintBridgeServerMock).nodePortIsProvided();
+    doReturn(true).when(eslintBridgeServerMock).isAlive();
+    doReturn(60000).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
+    eslintBridgeServerMock.startServerLazily(context);
+    assertThat(logTester.logs(WARN)).contains(useExisting);
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
   }
 
