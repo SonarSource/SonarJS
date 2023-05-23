@@ -11,7 +11,7 @@
   "ruleSpecification": "RSPEC-6637",
   "sqKey": "S6637",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
