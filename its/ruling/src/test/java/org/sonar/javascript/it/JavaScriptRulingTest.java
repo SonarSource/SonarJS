@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -116,7 +115,6 @@ class JavaScriptRulingTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    cleanRootNodeModules();
     orchestrator.start();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
@@ -177,20 +175,6 @@ class JavaScriptRulingTest {
 
     // install scanner before jobs to avoid race condition when unzipping in parallel
     installScanner();
-  }
-
-  private static void cleanRootNodeModules() throws IOException {
-    var nodeModules = Path.of("../../node_modules");
-    if (Files.exists(nodeModules)) {
-      var start = System.currentTimeMillis();
-      LOG.info("Cleaning node_modules");
-      try (var dirStream = Files.walk(nodeModules)) {
-        dirStream
-          .sorted(Comparator.reverseOrder())
-          .forEachOrdered(JavaScriptRulingTest::deleteUnchecked);
-      }
-      LOG.info("Done cleaning node_modules in {}ms", System.currentTimeMillis() - start);
-    }
   }
 
   private static void deleteUnchecked(Path path) {
@@ -276,7 +260,8 @@ class JavaScriptRulingTest {
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.internal.analysis.failFast", "true");
+      .setProperty("sonar.internal.analysis.failFast", "true")
+      .setProperty("sonar.typescript.limitDepsResolution", "true");
 
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");

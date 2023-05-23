@@ -297,4 +297,24 @@ describe('program', () => {
     expect(cache.programs.get(tsconfigPath).files).toContain(file2Path);
     expect(cache.lru.get().length).toEqual(1);
   });
+
+  it('should not find top dependencies if we limit lookup', async () => {
+    const cacheLimitingResolution = new ProgramCache();
+    const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'));
+    getProgramForFile(
+      await jsTsInput({ filePath: file1Path, limitToBaseDir: true }),
+      cacheLimitingResolution,
+      new ProjectTSConfigs(),
+    );
+
+    const cacheUnlimitedResolution = new ProgramCache();
+    getProgramForFile(
+      await jsTsInput({ filePath: file1Path }),
+      cacheUnlimitedResolution,
+      new ProjectTSConfigs(),
+    );
+    expect(cacheUnlimitedResolution.programs.values().next().value.files.length).toBeGreaterThan(
+      cacheLimitingResolution.programs.values().next().value.files.length,
+    );
+  });
 });
