@@ -55,11 +55,4 @@ class ContextUtils {
   boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
-
-  boolean limitDepsToBaseDir() {
-    return context
-      .config()
-      .getBoolean(JavaScriptPlugin.LIMIT_DEPS_RESOLUTION_TO_BASEDIR)
-      .orElse(false);
-  }
 }

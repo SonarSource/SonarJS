@@ -237,8 +237,7 @@ class EslintBridgeServerImplTest {
       false,
       true,
       true,
-      context.fileSystem().baseDir().getAbsolutePath(),
-      false
+      context.fileSystem().baseDir().getAbsolutePath()
     );
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -274,8 +273,7 @@ class EslintBridgeServerImplTest {
       false,
       false,
       false,
-      "baseDir",
-      false
+      "baseDir"
     );
   }
 
@@ -438,8 +436,7 @@ class EslintBridgeServerImplTest {
       false,
       false,
       false,
-      "baseDir",
-      false
+      "baseDir"
     );
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request))
       .isInstanceOf(IllegalStateException.class);

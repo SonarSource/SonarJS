@@ -44,8 +44,6 @@ import { Perf } from 'services/monitoring';
  *        including all files from basedir and pass it to typescript-eslint as project
  * @param useFoundTSConfigs used for sonarLint (or vue). When true, all tsconfigs found in the
  *        fs will be passed to typescript-eslint as project.
- * @param limitToBaseDir limit Typescript dependencies lookup to baseDir, i.e. it will not find
- *        node_modules folders in parent directories (used for ruling tests)
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
@@ -57,7 +55,6 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   forceUpdateTSConfigs?: boolean;
   createWildcardTSConfig?: boolean;
   useFoundTSConfigs?: boolean;
-  limitToBaseDir?: boolean;
 }
 
 /**

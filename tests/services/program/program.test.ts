@@ -301,18 +301,13 @@ describe('program', () => {
   it('should not find top dependencies if we limit lookup', async () => {
     const cacheLimitingResolution = new ProgramCache();
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'));
-    getProgramForFile(
-      await jsTsInput({ filePath: file1Path, limitToBaseDir: true }),
-      cacheLimitingResolution,
-      new ProjectTSConfigs(),
-    );
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '1';
+    const input = await jsTsInput({ filePath: file1Path });
+    getProgramForFile(input, cacheLimitingResolution, new ProjectTSConfigs());
 
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '0';
     const cacheUnlimitedResolution = new ProgramCache();
-    getProgramForFile(
-      await jsTsInput({ filePath: file1Path }),
-      cacheUnlimitedResolution,
-      new ProjectTSConfigs(),
-    );
+    getProgramForFile(input, cacheUnlimitedResolution, new ProjectTSConfigs());
     expect(cacheUnlimitedResolution.programs.values().next().value.files.length).toBeGreaterThan(
       cacheLimitingResolution.programs.values().next().value.files.length,
     );

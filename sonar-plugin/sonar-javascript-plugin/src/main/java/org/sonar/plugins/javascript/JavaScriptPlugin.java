@@ -122,8 +122,6 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
   public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
-  public static final String LIMIT_DEPS_RESOLUTION_TO_BASEDIR =
-    "sonar.typescript.limitDepsResolution";
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 

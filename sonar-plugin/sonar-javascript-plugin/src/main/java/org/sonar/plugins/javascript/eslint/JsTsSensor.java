@@ -48,7 +48,6 @@ public class JsTsSensor extends AbstractEslintSensor {
   private List<String> tsconfigs;
   private boolean useFoundTSConfigs = false;
   private boolean createWildcardTSConfig = false;
-  private boolean limitToBaseDir = false;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -97,7 +96,6 @@ public class JsTsSensor extends AbstractEslintSensor {
       }
     }
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
-    limitToBaseDir = contextUtils.limitDepsToBaseDir();
   }
 
   protected void analyze(InputFile file) throws IOException {
@@ -120,8 +118,7 @@ public class JsTsSensor extends AbstractEslintSensor {
           true,
           useFoundTSConfigs,
           createWildcardTSConfig,
-          context.fileSystem().baseDir().getAbsolutePath(),
-          limitToBaseDir
+          context.fileSystem().baseDir().getAbsolutePath()
         );
         var response = isTypeScriptFile(file)
           ? eslintBridgeServer.analyzeTypeScript(request)

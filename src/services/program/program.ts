@@ -74,6 +74,8 @@ export function getProgramForFile(
   cache = programCache,
   tsconfigs?: ProjectTSConfigs,
 ): ts.Program {
+  const topDir =
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] === '1' ? toUnixPath(input.baseDir) : undefined;
   if (!tsconfigs) {
     tsconfigs = getDefaultTSConfigs(input.baseDir);
   }
@@ -97,11 +99,7 @@ export function getProgramForFile(
           !programResult ||
           (programResult.files.includes(normalizedPath) && !programResult.program.deref())
         ) {
-          programResult = createProgram(
-            tsconfig.filename,
-            tsconfig.contents,
-            input.limitToBaseDir ? toUnixPath(input.baseDir) : undefined,
-          );
+          programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
           cache.programs.set(tsconfig.filename, programResult);
         }
         if (programResult.files.includes(normalizedPath)) {
@@ -126,11 +124,7 @@ export function getProgramForFile(
           }
         }
         // no existing fallback program contained our file, creating a fallback program with our file
-        const programResult = createProgram(
-          tsconfig.filename,
-          tsconfig.contents,
-          input.limitToBaseDir ? toUnixPath(input.baseDir) : undefined,
-        );
+        const programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
         programResult.isFallbackProgram = true;
         cache.programs.set(tsconfig.filename, programResult);
         if (programResult.files.includes(normalizedPath)) {
