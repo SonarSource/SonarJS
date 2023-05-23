@@ -272,7 +272,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       try {
         port = nodeAlreadyRunningPort();
         if (port <= 0 || port >= 65535) {
-          LOG.warn(
+          LOG.error(
             "Provided port for existing Node.js process is not valid (should be in the 1 to 65535 range)."
           );
         } else {
@@ -280,7 +280,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
           LOG.warn("Will use existing Node.js process in port " + port);
         }
       } catch (NumberFormatException nfe) {
-        LOG.warn("Provided port for existing Node.js process is not valid.");
+        LOG.error("Provided port for existing Node.js process is not valid.");
       }
     }
 
