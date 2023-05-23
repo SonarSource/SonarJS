@@ -33,6 +33,7 @@ export const quickFixRules = new Set([
   // eslint core
   'comma-dangle',
   'eol-last',
+  'no-extra-bind',
   'no-extra-boolean-cast',
   'no-extra-semi',
   'no-return-await',
