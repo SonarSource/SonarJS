@@ -71,6 +71,27 @@ describe('program', () => {
     );
   });
 
+  it('should not fail creating a program when all found tsconfigs are invalid', async () => {
+    console.log = jest.fn();
+    const fixtures = path.join(__dirname, 'fixtures', 'no_valid_tsconfigs');
+    const filePath = path.join(fixtures, 'file.ts');
+
+    const tsConfigs = new ProjectTSConfigs(fixtures);
+    const input = await jsTsInput({ filePath: filePath, language: 'ts' });
+    const program = getProgramForFile(input, new ProgramCache(), tsConfigs);
+
+    Array.from(tsConfigs.db.values()).forEach(tsconfig =>
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringMatching(`ERROR: Failed create program with tsconfig ${tsconfig.filename}}`),
+      ),
+    );
+
+    // program should have been created with fallback tsconfig
+    expect((program.getCompilerOptions().configFilePath as string).toLowerCase()).toEqual(
+      `tsconfig-${toUnixPath(filePath)}.json`.toLowerCase(),
+    );
+  });
+
   it('should still create a program when extended tsconfig does not exist', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');

@@ -135,7 +135,7 @@ export function getProgramForFile(
         }
       }
     } catch (e) {
-      debug(
+      console.log(
         `ERROR: Failed create program with tsconfig ${tsconfig.filename}}. Error: ${e.message}`,
       );
     }

@@ -44,8 +44,6 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript source code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
-
     setContext({
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
