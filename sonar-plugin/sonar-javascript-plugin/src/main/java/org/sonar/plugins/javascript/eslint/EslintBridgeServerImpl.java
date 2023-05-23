@@ -268,10 +268,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new ServerAlreadyFailedException();
     }
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
-    if (nodePortIsProvided()) {
+    if (port == 0 && nodePortIsProvided()) {
       try {
         port = nodeAlreadyRunningPort();
         if (port <= 0 || port >= 65535) {
+          port = 0;
           LOG.error(
             "Provided port for existing Node.js process is not valid (should be in the 1 to 65535 range)."
           );

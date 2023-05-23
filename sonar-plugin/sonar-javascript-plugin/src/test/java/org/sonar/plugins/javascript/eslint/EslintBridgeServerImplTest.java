@@ -21,8 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 import static org.sonar.api.utils.log.LoggerLevel.*;
@@ -388,18 +387,22 @@ class EslintBridgeServerImplTest {
     EslintBridgeServerImpl eslintBridgeServerMock = spy(eslintBridgeServer);
     doReturn(true).when(eslintBridgeServerMock).nodePortIsProvided();
     doReturn(true).when(eslintBridgeServerMock).isAlive();
-    doReturn(60000).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
-    eslintBridgeServerMock.startServerLazily(context);
-    assertThat(logTester.logs(WARN)).contains(useExisting);
-    assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
-
     doReturn(70000).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
+    eslintBridgeServerMock.startServerLazily(context);
+    assertThat(logTester.logs(ERROR)).contains(wrongPortRange);
+
+    doReturn(0).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(ERROR)).contains(wrongPortRange);
 
     doThrow(NumberFormatException.class).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
+
+    doReturn(60000).when(eslintBridgeServerMock).nodeAlreadyRunningPort();
+    eslintBridgeServerMock.startServerLazily(context);
+    assertThat(logTester.logs(WARN)).contains(useExisting);
+    assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
   }
 
   @Test
