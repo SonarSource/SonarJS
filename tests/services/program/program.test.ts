@@ -71,6 +71,27 @@ describe('program', () => {
     );
   });
 
+  it('should not fail creating a program when all found tsconfigs are invalid', async () => {
+    console.log = jest.fn();
+    const fixtures = path.join(__dirname, 'fixtures', 'no_valid_tsconfigs');
+    const filePath = path.join(fixtures, 'file.ts');
+
+    const tsConfigs = new ProjectTSConfigs(fixtures);
+    const input = await jsTsInput({ filePath: filePath, language: 'ts' });
+    const program = getProgramForFile(input, new ProgramCache(), tsConfigs);
+
+    Array.from(tsConfigs.db.values()).forEach(tsconfig =>
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringMatching(`ERROR: Failed create program with tsconfig ${tsconfig.filename}}`),
+      ),
+    );
+
+    // program should have been created with fallback tsconfig
+    expect((program.getCompilerOptions().configFilePath as string).toLowerCase()).toEqual(
+      `tsconfig-${toUnixPath(filePath)}.json`.toLowerCase(),
+    );
+  });
+
   it('should still create a program when extended tsconfig does not exist', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
@@ -296,5 +317,22 @@ describe('program', () => {
     expect(cache.programs.get(tsconfigPath).files).toContain(file1Path);
     expect(cache.programs.get(tsconfigPath).files).toContain(file2Path);
     expect(cache.lru.get().length).toEqual(1);
+  });
+
+  it('should not find top dependencies if we limit lookup', async () => {
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'paths'));
+    const tsconfigs = new ProjectTSConfigs(fixtures);
+    const cacheLimitingResolution = new ProgramCache();
+    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'paths', 'file.ts'));
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '1';
+    const input = await jsTsInput({ filePath: filePath });
+    getProgramForFile(input, cacheLimitingResolution, tsconfigs);
+
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '0';
+    const cacheUnlimitedResolution = new ProgramCache();
+    getProgramForFile(input, cacheUnlimitedResolution, tsconfigs);
+    expect(cacheUnlimitedResolution.programs.values().next().value.files.length).toBeGreaterThan(
+      cacheLimitingResolution.programs.values().next().value.files.length,
+    );
   });
 });

@@ -36,10 +36,11 @@ mvn clean install
 
 ### Ruling Tests
 
-The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files).
+The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files). You need to set the environment variable `SONARJS_LIMIT_DEPS_RESOLUTION` to `1` in order to avoid your dev environment affect the expected results of the tests. By having `node_modules` of the project installed, Typescript type-checking will behave differently compared to a clean setup, where the expected results of the tests were created.
 
 ```sh
 cd its/ruling
+export SONARJS_LIMIT_DEPS_RESOLUTION=1
 mvn verify -Dtest=JavaScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=TypeScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
