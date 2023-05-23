@@ -244,6 +244,7 @@ public final class CheckList {
       NoEmptyGroupCheck.class,
       NoEmptyInterfaceCheck.class,
       NoExclusiveTestsCheck.class,
+      NoExtraBindCheck.class,
       NoExtraBooleanCastCheck.class,
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
