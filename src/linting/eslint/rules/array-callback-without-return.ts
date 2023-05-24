@@ -30,6 +30,8 @@ import {
   isRequiredParserServices,
   isMemberExpression,
   RuleContext,
+  isIdentifier,
+  isStringLiteral,
 } from './helpers';
 
 const message = `Add a "return" statement to this callback.`;
@@ -76,11 +78,13 @@ export const rule: Rule.RuleModule = {
         const args = callExpression.arguments;
         const memberExpression = callExpression.callee as estree.MemberExpression;
         const { property, object } = memberExpression;
-        if (memberExpression.computed || property.type !== 'Identifier' || args.length === 0) {
+        const propName = extractPropName(property, memberExpression.computed);
+        if (propName === null || args.length === 0) {
           return;
         }
+
         if (
-          methodsWithCallback.includes(property.name) &&
+          methodsWithCallback.includes(propName) &&
           (isArray(object, services) || isTypedArray(object, services)) &&
           hasCallBackWithoutReturn(args[0], services)
         ) {
@@ -102,6 +106,18 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function extractPropName(property: estree.Node, isComputed: boolean) {
+  // we want arr.some(), not arr[some]()
+  if (isIdentifier(property) && !isComputed) {
+    return property.name;
+    // we want arr["some"]
+  } else if (isStringLiteral(property)) {
+    return property.value;
+  } else {
+    return null;
+  }
+}
 
 function getNodeToReport(node: estree.Node, parent: estree.Node, context: Rule.RuleContext) {
   if (

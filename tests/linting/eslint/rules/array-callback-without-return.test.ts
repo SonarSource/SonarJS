@@ -367,6 +367,19 @@ typeScriptRuleTester.run(
           },
         ],
       },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray["every"](x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
+          },
+        ],
+      },
     ],
   },
 );
