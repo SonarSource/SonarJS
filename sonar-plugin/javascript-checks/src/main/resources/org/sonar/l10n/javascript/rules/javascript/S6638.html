@@ -1,0 +1,14 @@
+<p>Disallow expressions where the operation doesn’t affect the value</p>
+<h2>Why is this an issue?</h2>
+<p>FIXME: remove the unused optional headers (that are commented out)</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const value1 = +x == null;
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const value1 = x == null;
+</pre>
+
