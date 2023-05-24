@@ -269,9 +269,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new ServerAlreadyFailedException();
     }
     try {
-      port = nodeAlreadyRunningPort();
+      int providedPort = nodeAlreadyRunningPort();
       // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
-      if (port != 0) {
+      if (providedPort != 0) {
+        port = providedPort;
         serverHasStarted();
         LOG.info("Will use existing Node.js process in port " + port);
       }
@@ -438,6 +439,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       nodeCommand.waitFor();
       nodeCommand = null;
     }
+    port = 0;
+    status = Status.NOT_STARTED;
   }
 
   /**

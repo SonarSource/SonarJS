@@ -391,28 +391,31 @@ class EslintBridgeServerImplTest {
 
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     var eslintBridgeServerMock = spy(eslintBridgeServer);
-    doReturn(true).when(eslintBridgeServerMock).isAlive();
     doReturn("70000")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
+    eslintBridgeServerMock.clean();
 
     doReturn("0")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
+    eslintBridgeServerMock.clean();
 
     doReturn("a")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
+    eslintBridgeServerMock.clean();
 
     doReturn("60000")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
+    doReturn(true).when(eslintBridgeServerMock).isAlive();
     eslintBridgeServerMock.startServerLazily(context);
     assertThat(logTester.logs(INFO)).contains(useExisting);
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
