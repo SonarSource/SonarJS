@@ -21,10 +21,17 @@ package org.sonar.plugins.javascript.eslint;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.*;
-import static org.sonar.api.utils.log.LoggerLevel.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.ERROR;
+import static org.sonar.api.utils.log.LoggerLevel.INFO;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.plugins.javascript.eslint.AnalysisMode.DEFAULT_LINTER_ID;
 
 import java.io.File;
