@@ -37,12 +37,16 @@ const methodsWithCallback = [
   'every',
   'filter',
   'find',
+  'findLast',
   'findIndex',
+  'findLastIndex',
   'map',
+  'flatMap',
   'reduce',
   'reduceRight',
   'some',
   'sort',
+  'toSorted',
 ];
 
 function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParserServices) {

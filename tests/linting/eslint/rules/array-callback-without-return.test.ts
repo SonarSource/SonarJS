@@ -67,7 +67,7 @@ typeScriptRuleTester.run(
       Array.from(a);
       Array.from(a, b);
       Array.from(a, function(){return 42;});
-      
+
       Array.isArray(function(){});
       Array.isArray(a, function(){});`,
       },
@@ -154,9 +154,9 @@ typeScriptRuleTester.run(
       var callbackProvider = function() {
         return function() {};
       };
-    
+
       myArray.map(callbackProvider);  // OK
-    
+
       myArray.map(callbackProvider());`,
         errors: [{ line: 10 }],
       },
@@ -169,6 +169,58 @@ typeScriptRuleTester.run(
             endLine: 2,
             column: 24,
             endColumn: 26,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.findLast(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.findLastIndex(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 31,
+            endColumn: 33,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.toSorted(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.flatMap(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 25,
+            endColumn: 27,
           },
         ],
       },
