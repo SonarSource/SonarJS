@@ -100,6 +100,12 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
                 }
             }`,
     },
+    {
+      code: `
+      const colors = ['red', 'blue', 'green'];
+      colors.splice(1);
+      `,
+    },
   ],
   invalid: [
     {
@@ -272,6 +278,23 @@ const y = x.sort((a, b) => true);`,
               output: `
 const x = ["foo", "bar", "baz"];
 const y = x.toSorted((a, b) => true);`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+const colors  = ['red', 'blue', 'green'];
+const spliced = colors.splice(1);`,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Replace with "toSpliced" method',
+              output: `
+const colors  = ['red', 'blue', 'green'];
+const spliced = colors.toSpliced(1);`,
             },
           ],
         },
