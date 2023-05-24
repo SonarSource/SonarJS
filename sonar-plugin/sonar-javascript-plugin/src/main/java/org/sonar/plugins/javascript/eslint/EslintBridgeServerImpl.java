@@ -268,18 +268,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       // required for SonarLint context to avoid restarting already failed server
       throw new ServerAlreadyFailedException();
     }
-    try {
-      var providedPort = nodeAlreadyRunningPort();
-      // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
-      if (providedPort != 0) {
-        port = providedPort;
-        serverHasStarted();
-        LOG.info("Will use existing Node.js process in port " + port);
-      }
-    } catch (IllegalStateException e) {
-      LOG.error(
-        "Provided port for existing Node.js process is not valid (should be in the 1 to 65535 range). Starting a new Node.js process..."
-      );
+    var providedPort = nodeAlreadyRunningPort();
+    // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
+    if (providedPort != 0) {
+      port = providedPort;
+      serverHasStarted();
+      LOG.info("Will use existing Node.js process in port " + port);
     }
 
     try {
@@ -477,20 +471,23 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  int nodeAlreadyRunningPort() throws IllegalStateException {
+  int nodeAlreadyRunningPort() {
     try {
       int port = Optional
         .ofNullable(getenv(SONARJS_EXISTING_NODE_PROCESS_PORT))
         .map(Integer::parseInt)
         .orElse(0);
       if (port < 0 || port > 65535) {
-        throw new NumberFormatException(
+        throw new IllegalStateException(
           "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range"
         );
       }
       return port;
     } catch (NumberFormatException nfe) {
-      throw new IllegalStateException(nfe);
+      throw new IllegalStateException(
+        "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: " +
+        nfe.getMessage()
+      );
     }
   }
 

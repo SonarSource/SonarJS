@@ -24,6 +24,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -384,33 +385,37 @@ class EslintBridgeServerImplTest {
 
   @Test
   void test_use_existing_node() throws Exception {
+    String starting = "Starting Node.js process to start eslint-bridge server at port";
     var useExisting = "Will use existing Node.js process in port 60000";
     var alreadyStarted = "eslint-bridge server is up, no need to start.";
     var wrongPortValue =
-      "Provided port for existing Node.js process is not valid (should be in the 1 to 65535 range).";
+      "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range";
 
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     var eslintBridgeServerMock = spy(eslintBridgeServer);
     doReturn("70000")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
-    eslintBridgeServerMock.startServerLazily(context);
-    assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
-    eslintBridgeServerMock.clean();
+    assertThatThrownBy(() -> eslintBridgeServerMock.startServerLazily(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(wrongPortValue);
+    assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
 
     doReturn("0")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     eslintBridgeServerMock.startServerLazily(context);
-    assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
     eslintBridgeServerMock.clean();
 
     doReturn("a")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
-    eslintBridgeServerMock.startServerLazily(context);
-    assertThat(logTester.logs(ERROR)).contains(wrongPortValue);
-    eslintBridgeServerMock.clean();
+    assertThatThrownBy(() -> eslintBridgeServerMock.startServerLazily(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(
+        "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: For input string: \"a\""
+      );
 
     doReturn("60000")
       .when(eslintBridgeServerMock)
