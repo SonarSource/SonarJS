@@ -65,7 +65,7 @@ function replaceWithLiteralFix(
   newExpression: estree.NewExpression,
   context: Rule.RuleContext,
 ): Rule.ReportFixer {
-  let argText = newExpression.arguments
+  const argText = newExpression.arguments
     .map((arg: estree.Node) => context.getSourceCode().getText(arg))
     .join(', ');
   return fixer => fixer.replaceText(newExpression, `[${argText}]`);
@@ -75,6 +75,6 @@ function replaceWithArrayFromFix(
   newExpression: estree.NewExpression,
   context: Rule.RuleContext,
 ): Rule.ReportFixer {
-  let argText = context.getSourceCode().getText(newExpression.arguments[0]);
+  const argText = context.getSourceCode().getText(newExpression.arguments[0]);
   return fixer => fixer.replaceText(newExpression, `Array.from({length: ${argText}})`);
 }
