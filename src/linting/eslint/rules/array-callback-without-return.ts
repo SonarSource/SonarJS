@@ -25,6 +25,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import {
   isArray,
+  isTypedArray,
   RequiredParserServices,
   isRequiredParserServices,
   isMemberExpression,
@@ -80,7 +81,7 @@ export const rule: Rule.RuleModule = {
         }
         if (
           methodsWithCallback.includes(property.name) &&
-          isArray(object, services) &&
+          (isArray(object, services) || isTypedArray(object, services)) &&
           hasCallBackWithoutReturn(args[0], services)
         ) {
           context.report({
