@@ -388,8 +388,10 @@ class EslintBridgeServerImplTest {
     String starting = "Starting Node.js process to start eslint-bridge server at port";
     var useExisting = "Will use existing Node.js process in port 60000";
     var alreadyStarted = "eslint-bridge server is up, no need to start.";
-    var wrongPortValue =
+    var wrongPortRange =
       "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range";
+    var wrongPortValue =
+      "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: For input string: \"a\"";
 
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     var eslintBridgeServerMock = spy(eslintBridgeServer);
@@ -398,24 +400,27 @@ class EslintBridgeServerImplTest {
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     assertThatThrownBy(() -> eslintBridgeServerMock.startServerLazily(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(wrongPortValue);
+      .hasMessage(wrongPortRange);
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
-
-    doReturn("0")
-      .when(eslintBridgeServerMock)
-      .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
-    eslintBridgeServerMock.startServerLazily(context);
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
-    eslintBridgeServerMock.clean();
+    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
 
     doReturn("a")
       .when(eslintBridgeServerMock)
       .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
     assertThatThrownBy(() -> eslintBridgeServerMock.startServerLazily(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(
-        "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: For input string: \"a\""
-      );
+      .hasMessage(wrongPortValue);
+    assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
+    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
+
+    //Port 0 will be considered as not set, and a new node process will be started on a random port
+    doReturn("0")
+      .when(eslintBridgeServerMock)
+      .getenv(EslintBridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT);
+    eslintBridgeServerMock.startServerLazily(context);
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
+    eslintBridgeServerMock.clean();
 
     doReturn("60000")
       .when(eslintBridgeServerMock)
