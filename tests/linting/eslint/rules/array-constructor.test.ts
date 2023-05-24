@@ -64,6 +64,14 @@ const testCases = {
           endLine: 2,
           column: 21,
           endColumn: 42,
+          suggestions: [
+            {
+              desc: 'Replace with a literal',
+              output: `
+            var a = [x1, x2, x3];
+            `,
+            },
+          ],
         },
       ],
     },
@@ -78,6 +86,14 @@ const testCases = {
           endLine: 2,
           column: 23,
           endColumn: 41,
+          suggestions: [
+            {
+              desc: 'Replace with "Array.from()"',
+              output: `
+            myArray = Array.from({length: foo + 2}).join('#');
+            `,
+            },
+          ],
         },
       ],
     },
@@ -92,6 +108,14 @@ const testCases = {
           endLine: 2,
           column: 23,
           endColumn: 36,
+          suggestions: [
+            {
+              desc: 'Replace with "Array.from()"',
+              output: `
+            myArray = Array.from({length: 42}).join('#');
+            `,
+            },
+          ],
         },
       ],
     },
