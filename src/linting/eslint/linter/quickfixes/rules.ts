@@ -87,6 +87,7 @@ export const quickFixRules = new Set([
   'prefer-for-of',
 
   // sonarjs
+  'array-constructor',
   'different-types-comparison',
   'inverted-assertion-arguments',
   'no-alphabetical-sort',

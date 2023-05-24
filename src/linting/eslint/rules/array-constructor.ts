@@ -22,11 +22,20 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    hasSuggestions: true,
+  },
   create(context: Rule.RuleContext) {
     function checkNewExpression(node: estree.Node) {
       const newExpression = node as estree.NewExpression;
       if (newExpression.callee.type === 'Identifier' && newExpression.callee.name === 'Array') {
         let message = 'Use either a literal or "Array.from()" instead of the "Array" constructor.';
+        let suggest: Rule.SuggestionReportDescriptor[] = [
+          {
+            desc: 'Replace with a literal',
+            fix: replaceWithLiteralFix(newExpression, context),
+          },
+        ];
         if (
           newExpression.arguments.length === 1 &&
           newExpression.arguments[0].type === 'Literal' &&
@@ -34,7 +43,15 @@ export const rule: Rule.RuleModule = {
         ) {
           message = 'Use "Array.from()" instead of the "Array" constructor.';
         }
-        context.report({ node, message });
+        if (newExpression.arguments.length === 1) {
+          suggest = [
+            {
+              desc: 'Replace with "Array.from()"',
+              fix: replaceWithArrayFromFix(newExpression, context),
+            },
+          ];
+        }
+        context.report({ node, message, suggest });
       }
     }
 
@@ -43,3 +60,21 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function replaceWithLiteralFix(
+  newExpression: estree.NewExpression,
+  context: Rule.RuleContext,
+): Rule.ReportFixer {
+  let argText = newExpression.arguments
+    .map((arg: estree.Node) => context.getSourceCode().getText(arg))
+    .join(', ');
+  return fixer => fixer.replaceText(newExpression, `[${argText}]`);
+}
+
+function replaceWithArrayFromFix(
+  newExpression: estree.NewExpression,
+  context: Rule.RuleContext,
+): Rule.ReportFixer {
+  let argText = context.getSourceCode().getText(newExpression.arguments[0]);
+  return fixer => fixer.replaceText(newExpression, `Array.from({length: ${argText}})`);
+}
