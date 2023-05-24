@@ -32,7 +32,11 @@ import {
   localAncestorsChain,
 } from './helpers';
 
-const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
+const reverseLike = ['reverse', "'reverse'", '"reverse"'];
+
+const spliceLike = ['splice', "'splice'", '"splice"'];
+
+const arrayMutatingMethods = [...reverseLike, ...sortLike, ...spliceLike];
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -62,7 +66,18 @@ export const rule: Rule.RuleModule = {
               isForbiddenOperation(node)
             ) {
               const method = formatMethod(propertyText);
-              const suggestedMethod = method === 'sort' ? 'toSorted' : 'toReversed';
+              let suggestedMethod = '';
+              switch (method) {
+                case 'sort':
+                  suggestedMethod = 'toSorted';
+                  break;
+                case 'reverse':
+                  suggestedMethod = 'toReversed';
+                  break;
+                case 'splice': // splice
+                  suggestedMethod = 'toSpliced';
+                  break;
+              }
               context.report({
                 messageId: 'moveMethod',
                 data: {

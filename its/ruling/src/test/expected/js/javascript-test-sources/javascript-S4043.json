@@ -5,4 +5,7 @@
 'javascript-test-sources:src/ace/src/keyboard/emacs.js':[
 568,
 ],
+'javascript-test-sources:src/ace/src/snippets.js':[
+931,
+],
 }
