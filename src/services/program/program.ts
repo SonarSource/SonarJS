@@ -313,15 +313,24 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
 }
 
 /**
- * Typescript resolution will always search for extended tsconfigs in these 4 paths (in order):
+ * Typescript resolution will always start searching by first looking for package.json files
+ * starting in $TSCONFIG_PATH/package.json and on each parent until root folder.
+ * 1 - $TSCONFIG_PATH/package.json
+ * 2 - $TSCONFIG_PATH/../package.json
+ * 3 - $TSCONFIG_PATH/../../package.json
+ * ...
+ * N - /package.json
+ *
+ * Then, Typescript resolution will always search for extended tsconfigs in these 5 paths (in order):
  *
  * 1 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/package.json
  * 2 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/../package.json
  * 3 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE
- * 4 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
+ * 4 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE.json
+ * 5 - $TSCONFIG_PATH/node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
  *
  * If not found in all 4, $TSCONFIG_PATH will be assigned to its parent and the same search will be performed,
- * until $TSCONFIG_PATH is the system root. Meaning, the very last search Typescript will perform is (4) when
+ * until $TSCONFIG_PATH is the system root. Meaning, the very last search Typescript will perform is (5) when
  * TSCONFIG_PATH === '/':
  *
  * /node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
@@ -337,6 +346,10 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
+}
+
+export function isRoot(file: string) {
+  return toUnixPath(file) === toUnixPath(path.parse(file).root);
 }
 
 /**

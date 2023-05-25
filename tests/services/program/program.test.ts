@@ -26,6 +26,7 @@ import {
   getProgramById,
   getProgramForFile,
   isRootNodeModules,
+  isRoot,
 } from 'services/program';
 import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
@@ -124,19 +125,31 @@ describe('program', () => {
     const configHost = {
       useCaseSensitiveFileNames: true,
       readDirectory: ts.sys.readDirectory,
-      fileExists: jest.fn((_file: string) => false),
+      fileExists: jest.fn((_file: string) => {
+        console.log(_file);
+        return false;
+      }),
       readFile: ts.sys.readFile,
     };
 
     const tsConfigMissing = path.join(__dirname, 'fixtures', 'tsconfig_missing.json');
     const searchedFiles = [];
-    let nodeModulesFolder = path.join(__dirname, 'fixtures');
     let searchFolder;
+
+    let nodeModulesFolder = path.join(__dirname, 'fixtures');
+    do {
+      searchFolder = nodeModulesFolder;
+      searchedFiles.push(path.join(searchFolder, 'package.json'));
+      nodeModulesFolder = path.dirname(nodeModulesFolder);
+    } while (!isRoot(searchFolder));
+
+    nodeModulesFolder = path.join(__dirname, 'fixtures');
     do {
       searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'package.json'));
       searchedFiles.push(path.join(searchFolder, 'package.json'));
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json'));
+      searchedFiles.push(path.join(searchFolder, 'tsconfig.json.json'));
       searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'tsconfig.json'));
       nodeModulesFolder = path.dirname(nodeModulesFolder);
     } while (!isRootNodeModules(searchFolder));
