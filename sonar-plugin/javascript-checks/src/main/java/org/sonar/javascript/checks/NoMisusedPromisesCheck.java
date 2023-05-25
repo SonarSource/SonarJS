@@ -34,6 +34,12 @@ public class NoMisusedPromisesCheck implements EslintBasedCheck {
   private static class Config {
 
     boolean ignoreIIFE = true;
+    ChecksVoidReturn checksVoidReturn = new ChecksVoidReturn();
+
+    private static class ChecksVoidReturn {
+
+      boolean attributes = false;
+    }
   }
 
   @Override
