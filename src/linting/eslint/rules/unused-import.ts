@@ -26,6 +26,97 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices, removeNodeWithLeadingWhitespaces } from './helpers';
 
 const EXCLUDED_IMPORTS = ['React'];
+const JSDOC_TAGS = [
+  '@abstract',
+  '@access',
+  '@alias',
+  '@arg',
+  '@argument',
+  '@async',
+  '@augments',
+  '@author',
+  '@borrows',
+  '@callback',
+  '@class',
+  '@classdesc',
+  '@const',
+  '@constant',
+  '@constructor',
+  '@constructs',
+  '@copyright',
+  '@default',
+  '@defaultvalue',
+  '@deprecated',
+  '@desc',
+  '@description',
+  '@emits',
+  '@enum',
+  '@event',
+  '@example',
+  '@exception',
+  '@exports',
+  '@extends',
+  '@external',
+  '@file',
+  '@fileoverview',
+  '@fires',
+  '@func',
+  '@function',
+  '@generator',
+  '@global',
+  '@hideconstructor',
+  '@host',
+  '@ignore',
+  '@implements',
+  '@inheritdoc',
+  '@inner',
+  '@instance',
+  '@interface',
+  '@kind',
+  '@lends',
+  '@license',
+  '@link',
+  '@linkcode',
+  '@linkplain',
+  '@listens',
+  '@member',
+  '@memberof',
+  '@method',
+  '@mixes',
+  '@mixin',
+  '@module',
+  '@name',
+  '@namespace',
+  '@override',
+  '@overview',
+  '@package',
+  '@param',
+  '@private',
+  '@prop',
+  '@property',
+  '@protected',
+  '@public',
+  '@readonly',
+  '@requires',
+  '@return',
+  '@returns',
+  '@see',
+  '@since',
+  '@static',
+  '@summary',
+  '@this',
+  '@throws',
+  '@todo',
+  '@tutorial',
+  '@type',
+  '@typedef',
+  '@var',
+  '@variation',
+  '@version',
+  '@virtual',
+  '@yield',
+  '@yields',
+];
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -59,21 +150,6 @@ export const rule: Rule.RuleModule = {
       return variable.name === 'jsx' && isJsxPragmaSet;
     }
 
-    function getJsxFactories() {
-      const factories = new Set<string>();
-      const parserServices = context.parserServices;
-      if (isRequiredParserServices(parserServices)) {
-        const compilerOptions = parserServices.program.getCompilerOptions();
-        if (compilerOptions.jsxFactory) {
-          factories.add(compilerOptions.jsxFactory);
-        }
-        if (compilerOptions.jsxFragmentFactory) {
-          factories.add(compilerOptions.jsxFragmentFactory);
-        }
-      }
-      return factories;
-    }
-
     const ruleListener = {
       ImportDeclaration: (node: estree.Node) => {
         const variables = context.getDeclaredVariables(node);
@@ -100,18 +176,17 @@ export const rule: Rule.RuleModule = {
           );
         },
       'Program:exit': () => {
-        const jsxFactories = getJsxFactories();
-        const jsxIdentifiers = context
-          .getSourceCode()
-          .ast.tokens.filter(token => token.type === 'JSXIdentifier')
-          .map(token => token.value);
+        const jsxFactories = getJsxFactories(context);
+        const jsxIdentifiers = getJsxIdentifiers(context);
+        const jsDocComments = getJsDocComments(context);
         unusedImports
           .filter(
             ({ id: unused }) =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
               !vueIdentifiers.has(unused.name) &&
-              !jsxFactories.has(unused.name),
+              !jsxFactories.has(unused.name) &&
+              !jsDocComments.some(comment => comment.value.includes(unused.name)),
           )
           .forEach(unused =>
             context.report({
@@ -226,4 +301,35 @@ function getSuggestion(
       return fixer.removeRange(range);
     },
   };
+}
+
+function getJsxFactories(context: Rule.RuleContext) {
+  const factories = new Set<string>();
+  const parserServices = context.parserServices;
+  if (isRequiredParserServices(parserServices)) {
+    const compilerOptions = parserServices.program.getCompilerOptions();
+    if (compilerOptions.jsxFactory) {
+      factories.add(compilerOptions.jsxFactory);
+    }
+    if (compilerOptions.jsxFragmentFactory) {
+      factories.add(compilerOptions.jsxFragmentFactory);
+    }
+  }
+  return factories;
+}
+
+function getJsxIdentifiers(context: Rule.RuleContext) {
+  return context
+    .getSourceCode()
+    .ast.tokens.filter(token => token.type === 'JSXIdentifier')
+    .map(token => token.value);
+}
+
+function getJsDocComments(context: Rule.RuleContext) {
+  return context
+    .getSourceCode()
+    .getAllComments()
+    .filter(
+      comment => comment.type === 'Block' && JSDOC_TAGS.some(tag => comment.value.includes(tag)),
+    );
 }

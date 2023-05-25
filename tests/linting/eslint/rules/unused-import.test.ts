@@ -280,6 +280,25 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
       class C extends Foo {}
       `,
     },
+    {
+      code: `
+      import type Alpha   from 'alpha';
+      import type Beta    from 'beta';
+      import type Gamma   from 'gamma';
+      import type Delta   from 'delta';
+      import type Epsilon from 'epsilon';
+
+      /** @param {Alpha} */
+
+      /** @return {Promise<Beta>} */
+
+      /** @typedef {{title: Gamma}} */
+
+      /** @type {(number|Delta)} */
+
+      /** {@link Epsilon} */
+      `,
+    },
   ],
   invalid: [
     {
