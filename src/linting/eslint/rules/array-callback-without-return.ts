@@ -30,8 +30,8 @@ import {
   isRequiredParserServices,
   isMemberExpression,
   RuleContext,
-  isIdentifier,
-  isStringLiteral,
+  isIndexNotation,
+  isDotNotation,
 } from './helpers';
 
 const message = `Add a "return" statement to this callback.`;
@@ -77,8 +77,8 @@ export const rule: Rule.RuleModule = {
         const callExpression = node as estree.CallExpression;
         const args = callExpression.arguments;
         const memberExpression = callExpression.callee as estree.MemberExpression;
-        const { property, object } = memberExpression;
-        const propName = extractPropName(property, memberExpression.computed);
+        const { object } = memberExpression;
+        const propName = extractPropName(memberExpression);
         if (propName === null || args.length === 0) {
           return;
         }
@@ -107,13 +107,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function extractPropName(property: estree.Node, isComputed: boolean) {
-  // we want arr.some(), not arr[some]()
-  if (isIdentifier(property) && !isComputed) {
-    return property.name;
-    // we want arr["some"]
-  } else if (isStringLiteral(property)) {
-    return property.value;
+function extractPropName(memberExpression: estree.MemberExpression) {
+  if (isDotNotation(memberExpression)) {
+    return memberExpression.property.name;
+  } else if (isIndexNotation(memberExpression)) {
+    return memberExpression.property.value;
   } else {
     return null;
   }
