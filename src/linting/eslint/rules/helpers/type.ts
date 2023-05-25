@@ -58,7 +58,7 @@ export const TYPED_ARRAY_TYPES = [
  */
 export function isTypedArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
-  return TYPED_ARRAY_TYPES.includes(type?.symbol.name);
+  return TYPED_ARRAY_TYPES.includes(type?.symbol?.name);
 }
 
 export function isString(node: estree.Node, services: RequiredParserServices) {
