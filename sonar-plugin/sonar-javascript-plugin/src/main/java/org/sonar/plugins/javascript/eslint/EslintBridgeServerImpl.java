@@ -473,26 +473,26 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   int nodeAlreadyRunningPort() {
     try {
-      int port = Optional
-        .ofNullable(getenv(SONARJS_EXISTING_NODE_PROCESS_PORT))
+      int existingNodePort = Optional
+        .ofNullable(getExistingNodeProcessPort())
         .map(Integer::parseInt)
         .orElse(0);
-      if (port < 0 || port > 65535) {
+      if (existingNodePort < 0 || existingNodePort > 65535) {
         throw new IllegalStateException(
           "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range"
         );
       }
-      return port;
+      return existingNodePort;
     } catch (NumberFormatException nfe) {
       throw new IllegalStateException(
-        "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: " +
-        nfe.getMessage()
+        "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT",
+        nfe
       );
     }
   }
 
-  public String getenv(String name) {
-    return System.getenv(name);
+  public String getExistingNodeProcessPort() {
+    return System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT);
   }
 
   static class InitLinterRequest {
