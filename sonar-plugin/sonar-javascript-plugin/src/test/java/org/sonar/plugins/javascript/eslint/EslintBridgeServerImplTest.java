@@ -390,7 +390,7 @@ class EslintBridgeServerImplTest {
     var wrongPortRange =
       "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range";
     var wrongPortValue =
-      "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT: For input string: \"a\"";
+      "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT";
 
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     var eslintBridgeServerMock = spy(eslintBridgeServer);
