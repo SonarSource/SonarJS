@@ -104,7 +104,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   @Override
   public NodeCommandBuilder scriptArgs(String... args) {
-    this.args.addAll(asList(args));
+    this.args = asList(args);
     return this;
   }
 

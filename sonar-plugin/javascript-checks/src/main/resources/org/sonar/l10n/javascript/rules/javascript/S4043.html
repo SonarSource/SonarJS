@@ -1,14 +1,13 @@
 <h2>Why is this an issue?</h2>
-<p>Many of JavaScript’s <code>Array</code> methods return an altered version of the array while leaving the source array intact. <code>reverse</code>,
-<code>sort</code>, and <code>splice</code> do not fall into this category. Instead, they alter the source array <em>in addition to</em> returning the
-altered version, which is likely not what was intended.</p>
+<p>Many of JavaScript’s <code>Array</code> methods return an altered version of the array while leaving the source array intact. <code>reverse</code>
+and <code>sort</code> do not fall into this category. Instead, they alter the source array <em>in addition to</em> returning the altered version,
+which is likely not what was intended.</p>
 <p>This rule raises an issue when the return values of these methods are assigned, which could lead maintainers to overlook the fact that the original
 value is altered.</p>
 <h3>Noncompliant code example</h3>
 <pre>
 const reversed = a.reverse(); // Noncompliant
 const sorted = b.sort(); // Noncompliant
-const spliced = c.splice(); // Noncompliant
 </pre>
 <h3>Compliant solution</h3>
 <pre>
@@ -19,9 +18,5 @@ a.reverse(); // reverse the array in place
 const sorted = [...b].sort(); // spread the contents of 'b' into a new array, so sort doesn't impact 'b'
 const sorted2 = b.toSorted(); // ES2023 method that copies and sorts the array
 b.sort(); // sort the array in place
-
-const spliced = [...c].splice(); // spread the contents of 'c' into a new array, so splice doesn't impact 'c'
-const spliced2 = c.toSpliced(); // ES2023 method that copies and sorts the array
-c.splice(); // splice the array in place
 </pre>
 
