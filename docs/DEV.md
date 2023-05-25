@@ -13,7 +13,7 @@ You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` w
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
 ```sh
-mvn clean install
+npm run build-full
 ```
 
 ## Integration Tests
