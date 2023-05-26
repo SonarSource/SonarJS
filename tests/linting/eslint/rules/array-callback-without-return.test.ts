@@ -67,7 +67,7 @@ typeScriptRuleTester.run(
       Array.from(a);
       Array.from(a, b);
       Array.from(a, function(){return 42;});
-      
+
       Array.isArray(function(){});
       Array.isArray(a, function(){});`,
       },
@@ -154,9 +154,9 @@ typeScriptRuleTester.run(
       var callbackProvider = function() {
         return function() {};
       };
-    
+
       myArray.map(callbackProvider);  // OK
-    
+
       myArray.map(callbackProvider());`,
         errors: [{ line: 10 }],
       },
@@ -169,6 +169,214 @@ typeScriptRuleTester.run(
             endLine: 2,
             column: 24,
             endColumn: 26,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.findLast(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.findLastIndex(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 31,
+            endColumn: 33,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.toSorted(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray.flatMap(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 25,
+            endColumn: 27,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Int8Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Uint8Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Uint8ClampedArray([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Int16Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Uint16Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Int32Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Uint32Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Float32Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new Float64Array([1, 2]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new BigInt64Array([1n, 2n]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = new BigUint64Array([1n, 2n]);
+      myArray.every(x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 23,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `
+      var myArray = [1, 2];
+      myArray["every"](x => {}); // Noncompliant`,
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 28,
           },
         ],
       },

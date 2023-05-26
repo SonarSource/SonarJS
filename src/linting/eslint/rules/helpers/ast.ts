@@ -558,12 +558,24 @@ export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral 
   return node.type === 'Literal' && node.value instanceof RegExp;
 }
 
+/**
+ * Checks if the node is of the form: foo.bar
+ *
+ * @param node
+ * @returns
+ */
 export function isDotNotation(
   node: estree.Node,
 ): node is estree.MemberExpression & { property: estree.Identifier } {
   return node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
 }
 
+/**
+ * Checks if the node is of the form: foo["bar"]
+ *
+ * @param node
+ * @returns
+ */
 export function isIndexNotation(
   node: estree.Node,
 ): node is estree.MemberExpression & { property: StringLiteral } {

@@ -25,10 +25,13 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import {
   isArray,
+  isTypedArray,
   RequiredParserServices,
   isRequiredParserServices,
   isMemberExpression,
   RuleContext,
+  isIndexNotation,
+  isDotNotation,
 } from './helpers';
 
 const message = `Add a "return" statement to this callback.`;
@@ -37,12 +40,16 @@ const methodsWithCallback = [
   'every',
   'filter',
   'find',
+  'findLast',
   'findIndex',
+  'findLastIndex',
   'map',
+  'flatMap',
   'reduce',
   'reduceRight',
   'some',
   'sort',
+  'toSorted',
 ];
 
 function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParserServices) {
@@ -70,13 +77,15 @@ export const rule: Rule.RuleModule = {
         const callExpression = node as estree.CallExpression;
         const args = callExpression.arguments;
         const memberExpression = callExpression.callee as estree.MemberExpression;
-        const { property, object } = memberExpression;
-        if (memberExpression.computed || property.type !== 'Identifier' || args.length === 0) {
+        const { object } = memberExpression;
+        const propName = extractPropName(memberExpression);
+        if (propName === null || args.length === 0) {
           return;
         }
+
         if (
-          methodsWithCallback.includes(property.name) &&
-          isArray(object, services) &&
+          methodsWithCallback.includes(propName) &&
+          (isArray(object, services) || isTypedArray(object, services)) &&
           hasCallBackWithoutReturn(args[0], services)
         ) {
           context.report({
@@ -97,6 +106,16 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function extractPropName(memberExpression: estree.MemberExpression) {
+  if (isDotNotation(memberExpression)) {
+    return memberExpression.property.name;
+  } else if (isIndexNotation(memberExpression)) {
+    return memberExpression.property.value;
+  } else {
+    return null;
+  }
+}
 
 function getNodeToReport(node: estree.Node, parent: estree.Node, context: Rule.RuleContext) {
   if (
