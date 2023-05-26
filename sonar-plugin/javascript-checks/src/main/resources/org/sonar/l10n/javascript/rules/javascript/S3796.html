@@ -1,19 +1,23 @@
 <h2>Why is this an issue?</h2>
 <p>Arrays in JavaScript have several methods for filtering, mapping, or folding that require a callback. Not having a return statement in such a
-callback function is most likely a mistake, because processing of the array uses the return value of the callback. If there is no return, callback
-will implicitly return <code>undefined</code>, which will likely fail.</p>
-<p>This rule applies for the following methods of an array:</p>
+callback function is most likely a mistake, because the processing of the array uses the return value of the callback. If there is no return, the
+callback will implicitly return <code>undefined</code>, which will likely fail.</p>
+<p>This rule applies to the following methods of an array:</p>
 <ul>
   <li> <code>Array.from</code> </li>
   <li> <code>Array.prototype.every</code> </li>
   <li> <code>Array.prototype.filter</code> </li>
   <li> <code>Array.prototype.find</code> </li>
+  <li> <code>Array.prototype.findLast</code> </li>
   <li> <code>Array.prototype.findIndex</code> </li>
+  <li> <code>Array.prototype.findLastIndex</code> </li>
   <li> <code>Array.prototype.map</code> </li>
+  <li> <code>Array.prototype.flatMap</code> </li>
   <li> <code>Array.prototype.reduce</code> </li>
   <li> <code>Array.prototype.reduceRight</code> </li>
   <li> <code>Array.prototype.some</code> </li>
   <li> <code>Array.prototype.sort</code> </li>
+  <li> <code>Array.prototype.toSorted</code> </li>
 </ul>
 <h3>Noncompliant code example</h3>
 <pre>

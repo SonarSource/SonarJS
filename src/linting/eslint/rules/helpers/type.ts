@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import ts from 'typescript';
-import { TSESTree, TSESLint } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
 import { getVariableFromScope } from './ast';
 import { Rule } from 'eslint';
@@ -28,7 +28,37 @@ export type RuleContext = TSESLint.RuleContext<string, string[]>;
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
-  return type.symbol && type.symbol.name === 'Array';
+  return type.symbol?.name === 'Array';
+}
+
+/**
+ * JavaScript typed arrays
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays
+ */
+export const TYPED_ARRAY_TYPES = [
+  'Int8Array',
+  'Uint8Array',
+  'Uint8ClampedArray',
+  'Int16Array',
+  'Uint16Array',
+  'Int32Array',
+  'Uint32Array',
+  'Float32Array',
+  'Float64Array',
+  'BigInt64Array',
+  'BigUint64Array',
+];
+
+/**
+ * Checks if the provided node is a JS typed array like "BigInt64Array". See TYPED_ARRAY_TYPES
+ *
+ * @param node
+ * @param services
+ * @returns
+ */
+export function isTypedArray(node: estree.Node, services: RequiredParserServices) {
+  const type = getTypeFromTreeNode(node, services);
+  return TYPED_ARRAY_TYPES.includes(type.symbol?.name);
 }
 
 export function isString(node: estree.Node, services: RequiredParserServices) {
