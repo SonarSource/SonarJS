@@ -80,9 +80,9 @@ describe('TSConfigs', () => {
 
     expect([...tsconfigs.iterateTSConfigs(file)]).toEqual([
       { filename: tsconfig5, contents: '' },
-      { filename: tsconfig3, contents: '' },
       { filename: tsconfig4, contents: '' },
       { filename: tsconfig6, contents: '' },
+      { filename: tsconfig3, contents: '' },
       { filename: tsconfig1, contents: '' },
       { filename: tsconfig2, contents: '' },
       {
