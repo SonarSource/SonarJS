@@ -63,12 +63,13 @@ describe('TSConfigs', () => {
   it('should return tsconfig.json files properly sorted', async () => {
     const dir = toUnixPath(path.join(__dirname, 'fixtures', 'tsconfigs'));
     const file = toUnixPath(path.join(dir, 'foo', 'file.js'));
-    const tsconfig1 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig1.json'));
+    const tsconfig1 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig.json'));
     const tsconfig2 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig2.json'));
     const tsconfig3 = toUnixPath(path.join(dir, 'foo', 'tsconfig2.json'));
     const tsconfig4 = toUnixPath(path.join(dir, 'tsconfig.json'));
     const tsconfig5 = toUnixPath(path.join(dir, 'foo', 'tsconfig.json'));
     const tsconfig6 = toUnixPath(path.join(dir, 'foo2', 'tsconfig.json'));
+    const tsconfig7 = toUnixPath(path.join(dir, 'foo', 'bar', 'tsconfig1.json'));
 
     const tsconfigs = new ProjectTSConfigs();
     tsconfigs.db.set(tsconfig1, { filename: tsconfig1, contents: '' });
@@ -77,13 +78,15 @@ describe('TSConfigs', () => {
     tsconfigs.db.set(tsconfig4, { filename: tsconfig4, contents: '' });
     tsconfigs.db.set(tsconfig5, { filename: tsconfig5, contents: '' });
     tsconfigs.db.set(tsconfig6, { filename: tsconfig6, contents: '' });
+    tsconfigs.db.set(tsconfig7, { filename: tsconfig7, contents: '' });
 
     expect([...tsconfigs.iterateTSConfigs(file)]).toEqual([
       { filename: tsconfig5, contents: '' },
-      { filename: tsconfig3, contents: '' },
       { filename: tsconfig4, contents: '' },
       { filename: tsconfig6, contents: '' },
       { filename: tsconfig1, contents: '' },
+      { filename: tsconfig3, contents: '' },
+      { filename: tsconfig7, contents: '' },
       { filename: tsconfig2, contents: '' },
       {
         filename: `tsconfig-${file}.json`,

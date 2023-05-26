@@ -22,6 +22,7 @@ import path from 'path';
 import { toUnixPath, writeTmpFile } from './files';
 import { debug } from './debug';
 
+const TSCONFIG_JSON = 'tsconfig.json';
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -125,20 +126,29 @@ function fileIsTSConfig(filename: string): boolean {
 }
 
 /**
- * Given a file and two TSConfig, chose the better choice mostly
- * based on its path compared with source file. On equal path conditions,
- * tsconfig.json name has preference
+ * Given a file and two TSConfig, chose the better choice. tsconfig.json name has preference.
+ * Otherwise, logic is based on nearest path compared to source file.
  *
  * @param file source file for which we need a tsconfig
  * @param tsconfig1 first TSConfig instance we want to compare
  * @param tsconfig2 second TSConfig instance we want to compare
  */
 function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSConfig) {
+  const filename1 = path.basename(tsconfig1.filename).toLowerCase();
+  const filename2 = path.basename(tsconfig2.filename).toLowerCase();
+
+  if (filename1 === TSCONFIG_JSON && filename2 !== TSCONFIG_JSON) {
+    return tsconfig1;
+  } else if (filename1 !== TSCONFIG_JSON && filename2 === TSCONFIG_JSON) {
+    return tsconfig2;
+  }
+
   const fileDirs = path.dirname(file).split('/');
   const tsconfig1Dirs = path.dirname(tsconfig1.filename).split('/');
   const tsconfig2Dirs = path.dirname(tsconfig2.filename).split('/');
   let relativeDepth1 = -fileDirs.length;
   let relativeDepth2 = -fileDirs.length;
+
   for (let i = 0; i < fileDirs.length; i++) {
     if (tsconfig1Dirs.length > i && fileDirs[i] === tsconfig1Dirs[i]) {
       relativeDepth1++;
@@ -157,13 +167,8 @@ function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSCon
   if (relativeDepth1 === relativeDepth2) {
     if (tsconfig1Dirs.length > tsconfig2Dirs.length) {
       return tsconfig2;
-    } else if (tsconfig1Dirs.length < tsconfig2Dirs.length) {
+    } else {
       return tsconfig1;
-    }
-    if (path.basename(tsconfig1.filename).toLowerCase() === 'tsconfig.json') {
-      return tsconfig1;
-    } else if (path.basename(tsconfig2.filename).toLowerCase() === 'tsconfig.json') {
-      return tsconfig2;
     }
   } else if (relativeDepth1 > relativeDepth2) {
     return relativeDepth1 <= 0 ? tsconfig1 : tsconfig2;
