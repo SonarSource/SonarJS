@@ -167,7 +167,7 @@ function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSCon
   if (relativeDepth1 === relativeDepth2) {
     if (tsconfig1Dirs.length > tsconfig2Dirs.length) {
       return tsconfig2;
-    } else if (tsconfig1Dirs.length < tsconfig2Dirs.length) {
+    } else {
       return tsconfig1;
     }
   } else if (relativeDepth1 > relativeDepth2) {
