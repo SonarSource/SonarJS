@@ -122,7 +122,7 @@ export class ProjectTSConfigs {
 }
 
 function fileIsTSConfig(filename: string): boolean {
-  return !!filename.match(/[tj]sconfig.*\.json/i);
+  return !!filename.match(/[tj]sconfig.json/i);
 }
 
 /**

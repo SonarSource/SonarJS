@@ -44,17 +44,16 @@ describe('TSConfigs', () => {
     const projectTSConfigs = new ProjectTSConfigs(dir);
     const tsconfigs = [
       ['tsconfig.json'],
-      ['tsconfig.base.json'],
+      ['jsconfig.json'],
       ['subfolder', 'tsconfig.json'],
-      ['subfolder', 'tsconfig.base.json'],
-      ['subfolder', 'JSCONFIG.DEV.JSON'],
+      ['subfolder', 'JSCONFIG.JSON'],
     ];
 
     expect(projectTSConfigs.db).toEqual(
       new Map(
         tsconfigs.map(tsconfig => {
           const filename = toUnixPath(path.join(dir, ...tsconfig));
-          return [filename, { filename, contents: '' }];
+          return [filename, { filename, contents: '{}\n' }];
         }),
       ),
     );

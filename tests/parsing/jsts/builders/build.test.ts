@@ -24,6 +24,7 @@ import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
 import { programCache, setDefaultTSConfigs } from 'services/program';
+
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -316,9 +317,6 @@ describe('buildSourceCode', () => {
   it('should not fail if the provided tsconfig does not include the file but we allow to lookup for other tsconfigs which include the file', async () => {
     const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
     const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
-    const tsConfigToBeDiscovered = toUnixPath(
-      path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig-allfiles.json'),
-    );
 
     setContext({
       sonarlint: true,
@@ -337,11 +335,9 @@ describe('buildSourceCode', () => {
 
     expect(() => {
       const parserServices = buildSourceCode(analysisInput).parserServices;
-      expect(parserServices.hasFullTypeInformation).toBeTruthy();
+      expect(parserServices.hasFullTypeInformation).toBeFalsy();
       //We compare in lowercase because typescript-eslint normalizes to lowercase in case-insensitive fs
-      expect(parserServices.program.getCompilerOptions().configFilePath.toLowerCase()).toEqual(
-        tsConfigToBeDiscovered.toLowerCase(),
-      );
+      expect(parserServices.program.getCompilerOptions().configFilePath).toBeUndefined();
     }).not.toThrow();
   });
 
