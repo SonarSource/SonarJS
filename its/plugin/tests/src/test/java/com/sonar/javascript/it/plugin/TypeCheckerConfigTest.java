@@ -65,15 +65,12 @@ class TypeCheckerConfigTest {
 
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(scanner))
-      .logsTimes(2, TSCONFIG_FOUND)
+      .logsOnce(TSCONFIG_FOUND)
       .logsOnce("INFO: 3/3 source files have been analyzed");
 
     assertThat(getIssues(key))
       .extracting(Issue::getLine, Issue::getComponent)
-      .containsExactlyInAnyOrder(
-        tuple(4, key + ":src/main.ts"),
-        tuple(4, key + ":src/main.es6.ts")
-      );
+      .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
   }
 
   /**
@@ -176,13 +173,13 @@ class TypeCheckerConfigTest {
      * Test a project with a base tsconfig.base.json and a main tsconfig.json extending the base file located in the parent folder.
      * The analyzer will detect the main tsconfig.json and TypeScript will read automatically the base file.
      */
-    EXTEND_BASE_FROM_FOLDER("extend-base-from-folder", 2, "src/main.ts"),
+    EXTEND_BASE_FROM_FOLDER("extend-base-from-folder", 1, "src/main.ts"),
 
     /**
      * Test a project with a base tsconfig.base.json and main tsconfig.json extending the base file located in the same folder.
      * The analyzer will detect the main tsconfig.json and TypeScript will read automatically the base file.
      */
-    SHARED_BASE("shared-base", 2, "src/main.ts"),
+    SHARED_BASE("shared-base", 1, "src/main.ts"),
 
     /**
      * Test a project with subprojects having their own main tsconfig.json files.
@@ -199,7 +196,7 @@ class TypeCheckerConfigTest {
      * <a href="https://www.typescriptlang.org/docs/handbook/project-references.html#overall-structure">
      * TypeScript Project References</a> guide.
      */
-    SOLUTION_TSCONFIG("solution-tsconfig", 4, "library/index.ts");
+    SOLUTION_TSCONFIG("solution-tsconfig", 3, "library/index.ts");
 
     private static final int ISSUE_LINE = 4;
 
