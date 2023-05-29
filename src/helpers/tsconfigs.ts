@@ -100,7 +100,7 @@ export class ProjectTSConfigs {
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = toUnixPath(path.join(dir, file.name));
-      if (file.name !== 'node_modules' && file.isDirectory()) {
+      if (file.name !== 'node_modules' && file.name !== '.scannerwork' && file.isDirectory()) {
         if (this.tsConfigLookup(filename)) {
           changes = true;
         }
