@@ -23,6 +23,12 @@ import { toUnixPath, writeTmpFile } from './files';
 import { debug } from './debug';
 
 const TSCONFIG_JSON = 'tsconfig.json';
+
+/**
+ * Number of attempts to match a source file with a tsconfig in the DB. To avoid too high memory
+ * consumption, after we surpass this number we will default to a fallback tsconfig
+ */
+const MAX_TSCONFIGS_ATTEMPTS = 3;
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -50,25 +56,28 @@ export class ProjectTSConfigs {
    */
   *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
     const normalizedInputTSConfigs = (tsconfigs ?? []).map(filename => toUnixPath(filename));
-    yield* normalizedInputTSConfigs
-      .map(tsConfigPath => {
-        try {
-          if (!this.db.has(tsConfigPath)) {
-            const contents = fs.readFileSync(tsConfigPath, 'utf-8');
-            this.db.set(tsConfigPath, {
-              filename: tsConfigPath,
-              contents,
-            });
-          }
-          return this.db.get(tsConfigPath)!;
-        } catch (e) {
-          console.log(`ERROR Could not read ${file}`);
+
+    // We add the tsconfigs from the request to the DB
+    for (const tsConfigPath of normalizedInputTSConfigs) {
+      try {
+        if (!this.db.has(tsConfigPath)) {
+          const contents = fs.readFileSync(tsConfigPath, 'utf-8');
+          this.db.set(tsConfigPath, {
+            filename: tsConfigPath,
+            contents,
+          });
         }
-      })
-      .filter(isDefined);
+      } catch (e) {
+        console.log(`ERROR Could not read ${file}`);
+      }
+    }
+
     yield* [...this.db.values()]
       .filter(tsconfig => {
-        return !normalizedInputTSConfigs.includes(tsconfig.filename);
+        if (normalizedInputTSConfigs.length) {
+          return normalizedInputTSConfigs.includes(tsconfig.filename);
+        }
+        return true;
       })
       .sort((tsconfig1, tsconfig2) => {
         const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
@@ -76,7 +85,8 @@ export class ProjectTSConfigs {
           return 0;
         }
         return tsconfig === tsconfig1 ? -1 : 1;
-      });
+      })
+      .filter((_, index) => index < MAX_TSCONFIGS_ATTEMPTS);
     yield {
       filename: `tsconfig-${file}.json`,
       contents: generateTSConfig([file]),
@@ -203,8 +213,4 @@ export function getWildcardTSConfig(baseDir = '') {
     wildcardTSConfigByBaseDir.set(normalizedBaseDir, tsConfig);
   }
   return tsConfig;
-}
-
-function isDefined<T>(argument: T | undefined): argument is T {
-  return argument !== undefined;
 }
