@@ -83,10 +83,7 @@ describe('TSConfigs', () => {
       { filename: tsconfig5, contents: '' },
       { filename: tsconfig4, contents: '' },
       { filename: tsconfig6, contents: '' },
-      { filename: tsconfig1, contents: '' },
-      { filename: tsconfig3, contents: '' },
-      { filename: tsconfig7, contents: '' },
-      { filename: tsconfig2, contents: '' },
+      //after 3 tries we fall back to default tsconfig
       {
         filename: `tsconfig-${file}.json`,
         contents: JSON.stringify({
