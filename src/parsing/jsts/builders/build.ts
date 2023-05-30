@@ -123,11 +123,11 @@ export function buildSourceCode(input: JsTsAnalysisInput) {
   }
 }
 
-export function shouldCreateProgram(input: JsTsAnalysisInput): boolean {
+function shouldCreateProgram(input: JsTsAnalysisInput): boolean {
   return !getContext()?.sonarlint && !isVueFile(input.filePath) && input.createProgram === true;
 }
 
-export function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
+function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
   return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 
