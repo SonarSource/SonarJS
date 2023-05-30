@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './debug';
-export * from './files';
-export * from './language';
-export * from './tsconfigs';
-export * from './cache';
-export * from './escape';
+import { unicodeEscape } from 'helpers';
+
+describe('unicodeEscape', () => {
+  it('should escape', () => {
+    expect(unicodeEscape(`test \u0000`)).toEqual('test \\u0000');
+  });
+});
