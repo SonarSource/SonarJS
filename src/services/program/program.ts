@@ -53,10 +53,10 @@ export function setDefaultTSConfigs(baseDir: string, tsConfigs: ProjectTSConfigs
   projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
 }
 
-export function getDefaultTSConfigs(baseDir: string) {
+export function getDefaultTSConfigs(baseDir: string, inputTSConfigs?: string[]) {
   let tsConfigs = projectTSConfigsByBaseDir.get(baseDir);
   if (!tsConfigs) {
-    tsConfigs = new ProjectTSConfigs(baseDir);
+    tsConfigs = new ProjectTSConfigs(baseDir, inputTSConfigs);
     projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
   }
   return tsConfigs;
@@ -77,7 +77,7 @@ export function getProgramForFile(
   const topDir =
     process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] === '1' ? toUnixPath(input.baseDir) : undefined;
   if (!tsconfigs) {
-    tsconfigs = getDefaultTSConfigs(input.baseDir);
+    tsconfigs = getDefaultTSConfigs(input.baseDir, input.tsConfigs);
   }
   if (input.forceUpdateTSConfigs) {
     // if at least a tsconfig changed, removed cache of programs, as files

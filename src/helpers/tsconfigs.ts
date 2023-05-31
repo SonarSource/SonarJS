@@ -37,9 +37,11 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(dir?: string) {
+  constructor(dir?: string, inputTSConfigs?: string[]) {
     this.db = new Map<string, TSConfig>();
-    if (dir) {
+    if (inputTSConfigs) {
+      this.addInputTSConfigsToDB(inputTSConfigs);
+    } else if (dir) {
       this.tsConfigLookup(dir);
     }
   }
@@ -47,15 +49,10 @@ export class ProjectTSConfigs {
     return this.db.get(tsconfig);
   }
 
-  /**
-   * Iterate over saved tsConfig returning a fake tsconfig
-   * as a fallback for the given file
-   *
-   * @param file the JS/TS file for which the tsconfig needs to be found
-   * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
-   */
-  *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
-    const normalizedInputTSConfigs = (tsconfigs ?? []).map(filename => toUnixPath(filename));
+  addInputTSConfigsToDB(tsconfigs: string[], normalized = false) {
+    const normalizedInputTSConfigs = normalized
+      ? tsconfigs
+      : tsconfigs.map(filename => toUnixPath(filename));
 
     // We add the tsconfigs from the request to the DB
     for (const tsConfigPath of normalizedInputTSConfigs) {
@@ -68,14 +65,26 @@ export class ProjectTSConfigs {
           });
         }
       } catch (e) {
-        console.log(`ERROR Could not read ${file}`);
+        console.log(`ERROR Could not read ${tsConfigPath}`);
       }
     }
-
+  }
+  /**
+   * Iterate over saved tsConfig returning a fake tsconfig
+   * as a fallback for the given file
+   *
+   * @param file the JS/TS file for which the tsconfig needs to be found
+   * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
+   */
+  *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
+    if (tsconfigs) {
+      tsconfigs = tsconfigs.map(filename => toUnixPath(filename));
+      this.addInputTSConfigsToDB(tsconfigs, true);
+    }
     yield* [...this.db.values()]
       .filter(tsconfig => {
-        if (normalizedInputTSConfigs.length) {
-          return normalizedInputTSConfigs.includes(tsconfig.filename);
+        if (tsconfigs?.length) {
+          return tsconfigs.includes(tsconfig.filename);
         }
         return true;
       })
