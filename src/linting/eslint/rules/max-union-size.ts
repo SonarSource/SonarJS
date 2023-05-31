@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isIdentifier } from './helpers';
+import { UTILITY_TYPES, isIdentifier } from './helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     return {
       TSUnionType: (node: estree.Node) => {
         const union = node as unknown as TSESTree.TSUnionType;
-        if (isPickedOrOmitted(union)) {
+        if (isUsedWithUtilityType(union)) {
           return;
         }
         const [threshold] = context.options;
@@ -56,10 +56,10 @@ function isFromTypeStatement(node: TSESTree.TSUnionType): boolean {
   return node.parent!.type === 'TSTypeAliasDeclaration';
 }
 
-function isPickedOrOmitted(node: TSESTree.TSUnionType): boolean {
+function isUsedWithUtilityType(node: TSESTree.TSUnionType): boolean {
   return (
     node.parent!.type === 'TSTypeParameterInstantiation' &&
     node.parent!.parent!.type === 'TSTypeReference' &&
-    isIdentifier(node.parent!.parent!.typeName, 'Pick', 'Omit')
+    isIdentifier(node.parent!.parent!.typeName, ...UTILITY_TYPES)
   );
 }

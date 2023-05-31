@@ -32,6 +32,34 @@ export function isArray(node: estree.Node, services: RequiredParserServices) {
 }
 
 /**
+ * TypeScript provides a set of utility types to facilitate type transformations.
+ * @see https://www.typescriptlang.org/docs/handbook/utility-types.html
+ */
+export const UTILITY_TYPES = new Set([
+  'Awaited',
+  'Partial',
+  'Required',
+  'Readonly',
+  'Record',
+  'Pick',
+  'Omit',
+  'Exclude',
+  'Extract',
+  'NonNullable',
+  'Parameters',
+  'ConstructorParameters',
+  'ReturnType',
+  'InstanceType',
+  'ThisParameterType',
+  'OmitThisParameter',
+  'ThisType',
+  'Uppercase',
+  'Lowercase',
+  'Capitalize',
+  'Uncapitalize',
+]);
+
+/**
  * JavaScript typed arrays
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays
  */
