@@ -2,6 +2,7 @@
   "name": "sonarjs",
   "version": "1.0.0",
   "description": "SonarJS code analyzer",
+  "bin": "bin/server",
   "scripts": {
     "build": "npm ci && npm run check-format && npm run clear && npm run compile",
     "clear": "tsc -b src tests --clean",
