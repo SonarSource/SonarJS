@@ -8,12 +8,6 @@
 'ant-design:components/auto-complete/index.tsx':[
 40,
 ],
-'ant-design:components/calendar/generateCalendar.tsx':[
-20,
-],
-'ant-design:components/date-picker/generatePicker/index.tsx':[
-79,
-],
 'ant-design:components/drawer/index.tsx':[
 39,
 66,
