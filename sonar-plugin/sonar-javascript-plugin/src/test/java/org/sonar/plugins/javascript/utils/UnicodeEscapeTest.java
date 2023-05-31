@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.javascript.utils;
 
-/**
- * Escape non-ascii characters with unicode sequence \uXXXX
- *
- * @param s string to escape
- */
-export function unicodeEscape(s: string): string {
-  return s
-    .split('')
-    .map(char => {
-      const charCode = char.charCodeAt(0);
-      return charCode < 32 || charCode > 127 ? unicodeCharEscape(charCode) : char;
-    })
-    .join('');
-}
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
-function padWithLeadingZeros(s: string) {
-  return new Array(5 - s.length).join('0') + s;
-}
+import org.junit.jupiter.api.Test;
 
-function unicodeCharEscape(charCode: number) {
-  return '\\u' + padWithLeadingZeros(charCode.toString(16));
+class UnicodeEscapeTest {
+
+  @Test
+  void test_unicodeEscape() {
+    assertThat(unicodeEscape("test \u0000")).isEqualTo("test \\u0000");
+    assertThat(unicodeEscape("Ödmjuk")).isEqualTo("\\u0214dmjuk");
+  }
 }
