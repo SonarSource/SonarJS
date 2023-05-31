@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.javascript.utils;
 
-/**
- * Escape non-ascii characters with unicode sequence \uXXXX
- *
- * @param s string to escape
- */
-export function unicodeEscape(s: string): string {
-  return s
-    .split('')
-    .map(char => {
-      const charCode = char.charCodeAt(0);
-      return charCode < 32 || charCode > 127 ? unicodeCharEscape(charCode) : char;
-    })
-    .join('');
-}
+public class UnicodeEscape {
 
-function padWithLeadingZeros(s: string) {
-  return new Array(5 - s.length).join('0') + s;
-}
+  private UnicodeEscape() {
+    // utility class
+  }
 
-function unicodeCharEscape(charCode: number) {
-  return '\\u' + padWithLeadingZeros(charCode.toString(16));
+  public static String unicodeEscape(String message) {
+    var s = new StringBuilder();
+    message
+      .chars()
+      .forEach(value -> {
+        if (value < 32 || value > 127) {
+          s.append(String.format("\\u%04d", value));
+        } else {
+          s.append((char) value);
+        }
+      });
+
+    return s.toString();
+  }
 }
