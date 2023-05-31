@@ -25,4 +25,8 @@ function foo(value: string, padding: MyUnionType) {
 <pre>
 type MyUnionType = MyType1 | MyType2 | MyType3 | MyType4;
 </pre>
+<p>It also ignores union types used with TypeScript utility types:</p>
+<pre>
+type PickedType = Pick&lt;SomeType, 'foo' | 'bar' | 'baz' | 'qux'&gt;;
+</pre>
 

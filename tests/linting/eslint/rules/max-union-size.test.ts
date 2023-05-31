@@ -72,10 +72,16 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `
-        type T = A | B | C | D;
-        interface okInterfaceDeclaration {
-          prop: T;
-        }`,
+        interface Foo {
+          a: string;
+          b: number;
+          c: boolean;
+          d: undefined;
+          e: 'hello, world!';
+          f: 42;
+        };
+        type Bar = Pick<Foo, 'a' | 'b' | 'c' | 'd'>;
+      `,
       options: [DEFAULT_THRESHOLD],
     },
   ],
