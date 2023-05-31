@@ -39,7 +39,7 @@ export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
   constructor(dir?: string, inputTSConfigs?: string[]) {
     this.db = new Map<string, TSConfig>();
-    if (inputTSConfigs) {
+    if (inputTSConfigs?.length) {
       this.addInputTSConfigsToDB(inputTSConfigs);
     } else if (dir) {
       this.tsConfigLookup(dir);
@@ -77,7 +77,7 @@ export class ProjectTSConfigs {
    * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
    */
   *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
-    if (tsconfigs) {
+    if (tsconfigs?.length) {
       tsconfigs = tsconfigs.map(filename => toUnixPath(filename));
       this.addInputTSConfigsToDB(tsconfigs, true);
     }
