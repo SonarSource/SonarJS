@@ -263,9 +263,12 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(EslintBridgeServer.Issue issue) {
-    NewIssue newIssue = context.newIssue();
-    var escapedMsg = unicodeEscape(issue.message);
-    NewIssueLocation location = newIssue.newLocation().message(escapedMsg).on(file);
+    var newIssue = context.newIssue();
+    var location = newIssue.newLocation().on(file);
+    if (issue.message != null) {
+      var escapedMsg = unicodeEscape(issue.message);
+      location.message(escapedMsg);
+    }
 
     if (issue.endLine != null) {
       location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
