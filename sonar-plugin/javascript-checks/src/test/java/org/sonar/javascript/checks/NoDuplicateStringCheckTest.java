@@ -21,16 +21,22 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class NoDuplicateStringCheckTest {
 
   @Test
   void configurations() {
-    NoDuplicateStringCheck noDuplicateStringCheck = new NoDuplicateStringCheck();
     // default configuration
-    assertThat(noDuplicateStringCheck.configurations()).containsExactly(3);
+    String configAsString = new Gson().toJson(new NoDuplicateStringCheck().configurations());
+    assertThat(configAsString)
+      .isEqualTo("[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]");
+    // custom configuration
+    NoDuplicateStringCheck noDuplicateStringCheck = new NoDuplicateStringCheck();
     noDuplicateStringCheck.threshold = 10;
-    assertThat(noDuplicateStringCheck.configurations()).containsExactly(10);
+    noDuplicateStringCheck.ignoreStrings = "foo,bar,baz";
+    configAsString = new Gson().toJson(noDuplicateStringCheck.configurations());
+    assertThat(configAsString).isEqualTo("[{\"threshold\":10,\"ignoreStrings\":\"foo,bar,baz\"}]");
   }
 }
