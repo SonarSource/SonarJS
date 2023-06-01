@@ -49,6 +49,9 @@ class TypeCheckerConfigTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
   private static final String PROJECT_ROOT = "typechecker-config";
+  /**
+   * LOG from node.js tsconfig lookup, should not appear when sonar.typescript.tsconfigPath[s] is set
+   */
   private static final String TSCONFIG_FOUND = "DEBUG: tsconfig found:";
 
   /**
@@ -96,6 +99,7 @@ class TypeCheckerConfigTest {
     );
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(configuredBuild))
+      .doesNotLog(TSCONFIG_FOUND)
       .logsOnce("Found 1 TSConfig file(s)");
 
     assertThat(getIssues(key))
@@ -120,12 +124,11 @@ class TypeCheckerConfigTest {
       .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
       .contains(tuple("javascript:S3003", "typechecker-config-jsconfig:src/main.js", 4));
 
-    var configuredBuild = scanner.setProperty(
-      "sonar.typescript.tsconfigPaths",
-      "src/jsconfig.json"
-    );
+    var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "jsconfig.json");
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(configuredBuild))
+      .doesNotLog(TSCONFIG_FOUND)
+      .logsOnce("Found 1 TSConfig file(s)")
       .logsOnce("INFO: 2/2 source files have been analyzed");
     assertThat(getIssues(key))
       .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
