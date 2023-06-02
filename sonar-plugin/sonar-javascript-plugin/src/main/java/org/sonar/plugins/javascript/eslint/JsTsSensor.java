@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
+import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 
 import java.io.IOException;
 import java.util.List;
@@ -83,28 +84,35 @@ public class JsTsSensor extends AbstractEslintSensor {
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
     return StreamSupport
       .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
-      .peek(inputFile -> {
-        if (inputFile.filename().toLowerCase(Locale.ROOT).endsWith(".vue")) {
-          createProgram = false;
-        }
-      })
       .collect(Collectors.toList());
   }
 
-  protected void prepareAnalysis() throws IOException {
+  @Override
+  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
     var rules = checks.eslintRules();
     analysisMode = AnalysisMode.getMode(context, rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
     if (tsconfigs.isEmpty()) {
       useFoundTSConfigs = true;
-      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-      if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
+    }
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+    if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
+      createWildcardTSConfig = true;
+    }
+    var vueFile = inputFiles
+      .stream()
+      .filter(f -> f.filename().toLowerCase(Locale.ROOT).endsWith(".vue"))
+      .findAny();
+    if (vueFile.isPresent()) {
+      createProgram = false;
+      if (contextUtils.isSonarQube() && inputFiles.size() < DEFAULT_MAX_FILES_FOR_TYPE_CHECKING) {
         createWildcardTSConfig = true;
       }
     }
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
+  @Override
   protected void analyze(InputFile file) throws IOException {
     monitoring.startFile(file);
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);

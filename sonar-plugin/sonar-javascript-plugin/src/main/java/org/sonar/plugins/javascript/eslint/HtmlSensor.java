@@ -81,12 +81,14 @@ public class HtmlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  protected void prepareAnalysis() throws IOException {
+  @Override
+  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
     var rules = AnalysisMode.getHtmlFileRules(checks.eslintRules());
     analysisMode = AnalysisMode.getMode(context, rules);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
+  @Override
   protected void analyze(InputFile file) throws IOException {
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {

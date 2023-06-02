@@ -201,9 +201,6 @@ class TypeScriptAnalysisTest {
         tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
         tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
       );
-
-    assertThat(result.getLogsLines(fallbackTsConfigLogPredicate("main\\.ts").asMatchPredicate()))
-      .hasSize(1);
   }
 
   @Test

@@ -80,12 +80,14 @@ public class YamlSensor extends AbstractEslintSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
   }
 
-  protected void prepareAnalysis() throws IOException {
+  @Override
+  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
     var rules = checks.eslintRules();
     analysisMode = AnalysisMode.getMode(context, rules);
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
+  @Override
   protected void analyze(InputFile file) throws IOException {
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
