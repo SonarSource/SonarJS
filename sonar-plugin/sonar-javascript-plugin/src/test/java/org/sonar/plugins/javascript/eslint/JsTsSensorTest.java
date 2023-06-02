@@ -113,6 +113,7 @@ class JsTsSensorTest {
     PluginInfo.setUcfgPluginVersion(null);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -295,8 +296,8 @@ class JsTsSensorTest {
     SensorContextTester ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
-      .setLanguage("ts")
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("js")
       .setCharset(StandardCharsets.ISO_8859_1)
       .setContents(content)
       .build();
@@ -304,7 +305,8 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor(ctx).execute(ctx);
-    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    verify(eslintBridgeServerMock, times(1)).analyzeJavaScript(captor.capture());
+    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
   }
 
@@ -385,7 +387,6 @@ class JsTsSensorTest {
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
     JsTsSensor sensor = createSensor(context);
     DefaultInputFile inputFile = createInputFile(context);
-    // having a vue file makes TypeScriptSensor#shouldAnalyzeWithProgram() return false, which leads to the path that executes TypeScript#analyze()
     createVueInputFile();
 
     sensor.execute(context);
