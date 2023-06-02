@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -35,8 +36,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
 
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
-  static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
-  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
   private static final int FILE_WALK_MAX_DEPTH = 20;
 
   private boolean beyondLimit = true;
@@ -57,7 +56,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
   private void checkLimit(SensorContext context) {
     try {
       var start = Instant.now();
-      var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
+      var maxFilesForTypeChecking = ContextUtils.getMaxFilesForTypeChecking(context);
       long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
 
       beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
@@ -75,7 +74,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
           maxFilesForTypeChecking
         );
         // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
-        LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
+        LOG.debug("Update \"{}\" to set a different limit.", JavaScriptPlugin.MAX_FILES_PROPERTY);
       }
 
       LOG.debug(
@@ -108,12 +107,5 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
   private static Stream<Path> walkProjectFiles(SensorContext context) {
     // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
     return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
-  }
-
-  private static int getMaxFilesForTypeChecking(SensorContext context) {
-    return Math.max(
-      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
-      0
-    );
   }
 }

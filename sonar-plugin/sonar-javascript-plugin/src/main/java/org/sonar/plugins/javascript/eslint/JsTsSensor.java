@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint;
 
 import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 
 import java.io.IOException;
 import java.util.List;
@@ -105,7 +104,10 @@ public class JsTsSensor extends AbstractEslintSensor {
       .findAny();
     if (vueFile.isPresent()) {
       createProgram = false;
-      if (contextUtils.isSonarQube() && inputFiles.size() < DEFAULT_MAX_FILES_FOR_TYPE_CHECKING) {
+      if (
+        contextUtils.isSonarQube() &&
+        ContextUtils.canUseWildcardForTypeChecking(context, inputFiles.size())
+      ) {
         createWildcardTSConfig = true;
       }
     }
