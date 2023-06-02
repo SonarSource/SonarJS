@@ -20,10 +20,6 @@
 'vuetify:packages/docs/src/util/routes.ts':[
 3,
 ],
-'vuetify:packages/vuetify/cypress/templates/Application.tsx':[
-1,
-2,
-],
 'vuetify:packages/vuetify/src/__tests__/framework.spec.ts':[
 3,
 ],
