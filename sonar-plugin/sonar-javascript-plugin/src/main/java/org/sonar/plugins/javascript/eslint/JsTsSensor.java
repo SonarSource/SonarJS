@@ -23,6 +23,7 @@ import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptF
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -48,6 +49,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private List<String> tsconfigs;
   private boolean useFoundTSConfigs = false;
   private boolean createWildcardTSConfig = false;
+  private boolean createProgram = true;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -81,6 +83,11 @@ public class JsTsSensor extends AbstractEslintSensor {
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
     return StreamSupport
       .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
+      .peek(inputFile -> {
+        if (inputFile.filename().toLowerCase(Locale.ROOT).endsWith(".vue")) {
+          createProgram = false;
+        }
+      })
       .collect(Collectors.toList());
   }
 
@@ -115,7 +122,7 @@ public class JsTsSensor extends AbstractEslintSensor {
           contextUtils.ignoreHeaderComments(),
           tsconfigs,
           analysisMode.getLinterIdFor(file),
-          true,
+          createProgram,
           useFoundTSConfigs,
           createWildcardTSConfig,
           context.fileSystem().baseDir().getAbsolutePath()
