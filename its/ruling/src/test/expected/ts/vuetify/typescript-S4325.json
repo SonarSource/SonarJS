@@ -44,6 +44,10 @@
 'vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts':[
 39,
 ],
+'vuetify:packages/vuetify/src/composables/__tests__/color.spec.ts':[
+25,
+65,
+],
 'vuetify:packages/vuetify/src/composables/forwardRefs.ts':[
 66,
 ],
