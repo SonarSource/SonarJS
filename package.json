@@ -145,5 +145,10 @@
     "parsing": "lib/parsing",
     "routing": "lib/routing",
     "services": "lib/services"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/**/*"
+    ]
   }
 }
