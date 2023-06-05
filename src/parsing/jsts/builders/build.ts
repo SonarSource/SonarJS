@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, getWildcardTSConfig, JsTsLanguage } from 'helpers';
-import { JsTsAnalysisInput } from 'services/analysis';
-import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
-import { getDefaultTSConfigs, getProgramForFile } from 'services/program';
+import { debug, getContext, getWildcardTSConfig, JsTsLanguage } from '../../../helpers';
+import { JsTsAnalysisInput } from '../../../services/analysis';
+import { buildParserOptions, parseForESLint, parsers } from '../../jsts';
+import { getDefaultTSConfigs, getProgramForFile } from '../../../services/program';
 import { Linter } from 'eslint';
 
 /**

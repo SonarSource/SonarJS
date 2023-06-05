@@ -28,7 +28,7 @@ import {
   isStringType,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const MESSAGE = 'Convert this operand into a number.';
 export const rule: Rule.RuleModule = {

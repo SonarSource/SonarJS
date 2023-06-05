@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
 import { findFirstMatchingAncestor, toEncodedMessage } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;

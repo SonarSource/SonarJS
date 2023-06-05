@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from './core';
 import { interceptReport, mergeRules } from '../rules/decorators/helpers';
 import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
 import { TSESTree } from '@typescript-eslint/experimental-utils';

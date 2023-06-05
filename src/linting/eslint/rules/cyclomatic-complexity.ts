@@ -28,8 +28,8 @@ import {
 } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { FunctionNodeType, isFunctionNode, getParent, RuleContext } from './helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import { childrenOf } from 'linting/eslint';
+import { SONAR_RUNTIME } from '../linter/parameters';
+import { childrenOf } from '..';
 
 export const rule: Rule.RuleModule = {
   meta: {

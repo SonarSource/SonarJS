@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from 'linting/eslint';
+import { childrenOf } from '..';
 import { Chai, isFunctionCall, Mocha, resolveFunction } from './helpers';
 
 export const rule: Rule.RuleModule = {

@@ -19,10 +19,10 @@
  */
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { getLinter, Issue } from 'linting/eslint';
-import { buildSourceCodes, Language } from 'parsing/embedded';
+import { getLinter, Issue } from '../../../../linting/eslint';
+import { buildSourceCodes, Language } from '../../../../parsing/embedded';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
-import { debug } from 'helpers';
+import { debug } from '../../../../helpers';
 
 /**
  * Analyzes a file containing JS snippets

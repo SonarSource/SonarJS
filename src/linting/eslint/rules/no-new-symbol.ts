@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromName, toEncodedMessage } from './helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const SYMBOL = 'Symbol';
 

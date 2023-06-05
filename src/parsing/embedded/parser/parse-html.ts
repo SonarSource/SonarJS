@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as htmlparser from 'htmlparser2';
-import { EmbeddedJS } from 'parsing/embedded';
+import { EmbeddedJS } from '..';
 
 /**
  * References:

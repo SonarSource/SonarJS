@@ -26,7 +26,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from './helpers';
-import { stripBOM } from 'helpers';
+import { stripBOM } from '../../../helpers';
 
 const DefinitelyTyped = '@types/';
 

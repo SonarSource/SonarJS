@@ -19,7 +19,7 @@
  */
 import * as stylelint from 'stylelint';
 import { transform } from './issues';
-import { rules } from 'linting/stylelint';
+import { rules } from '..';
 
 /**
  * A wrapper of Stylelint linter

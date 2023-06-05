@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from '../rules/core';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { rules as internalRules } from 'linting/eslint';
+import { rules as internalRules } from '..';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
 /* import { debug, getContext } from 'helpers'; */

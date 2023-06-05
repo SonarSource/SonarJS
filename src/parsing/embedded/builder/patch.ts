@@ -19,9 +19,9 @@
  */
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
-import { visit } from 'linting/eslint';
-import { EmbeddedJS } from 'parsing/embedded';
-import { APIError } from 'errors';
+import { visit } from '../../../linting/eslint';
+import { EmbeddedJS } from '..';
+import { APIError } from '../../../errors';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser

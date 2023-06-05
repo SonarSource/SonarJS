@@ -33,7 +33,7 @@ import {
   getTypeAsString,
   resolveIdentifiers,
 } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

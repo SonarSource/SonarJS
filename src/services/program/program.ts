@@ -37,10 +37,10 @@ import {
   ProjectTSConfigs,
   readFileSync,
   toUnixPath,
-} from 'helpers';
+} from '../../helpers';
 
-import { ProgramCache } from 'helpers/cache';
-import { JsTsAnalysisInput } from 'services/analysis';
+import { ProgramCache } from '../../helpers/cache';
+import { JsTsAnalysisInput } from '../analysis';
 
 export const programCache = new ProgramCache();
 const projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<

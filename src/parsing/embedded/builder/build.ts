@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
-import { buildSourceCode } from 'parsing/jsts';
-import { EmbeddedJS, parseAwsFromYaml, parseHTML } from 'parsing/embedded';
+import { JsTsAnalysisInput, EmbeddedAnalysisInput } from '../../../services/analysis';
+import { buildSourceCode } from '../../jsts';
+import { EmbeddedJS, parseAwsFromYaml, parseHTML } from '../../embedded';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';

@@ -50,7 +50,7 @@ import {
   isRegExpConstructor,
   isStringRegexMethodCall,
 } from './helpers/regex';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const DEFAULT_THESHOLD = 20;
 

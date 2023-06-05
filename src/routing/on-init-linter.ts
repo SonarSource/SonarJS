@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
+import { initializeLinter, RuleConfig } from '../linting/eslint';
 
 /**
  * Handles initialization requests of the global ESLint linter wrappers

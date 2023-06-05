@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { Analysis } from './analysis';
-import { readFile } from 'helpers';
+import { readFile } from '../../helpers';
 
 /**
  * Runs an analysis

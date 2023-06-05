@@ -23,7 +23,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getObjectExpressionProperty, toEncodedMessage, getFullyQualifiedName } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];

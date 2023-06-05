@@ -20,7 +20,7 @@
 import { AST } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
-import { last, isRegexLiteral, isStringLiteral } from 'linting/eslint/rules/helpers';
+import { last, isRegexLiteral, isStringLiteral } from '..';
 import { tokenizeString } from './tokenizer';
 
 /**

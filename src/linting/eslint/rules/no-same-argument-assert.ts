@@ -24,7 +24,7 @@ import { Rule } from 'eslint';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 import * as estree from 'estree';
 import { Chai, isIdentifier, isLiteral, toEncodedMessage } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 export const rule: Rule.RuleModule = {
   meta: {

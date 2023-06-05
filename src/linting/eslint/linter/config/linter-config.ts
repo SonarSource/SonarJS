@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { getContext } from 'helpers';
+import { getContext } from '../../../../helpers';
 import { customRules as internalCustomRules } from '../custom-rules';
 import { extendRuleConfig, RuleConfig } from './rule-config';
 

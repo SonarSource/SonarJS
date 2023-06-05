@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { APIError, ErrorCode } from 'errors';
-import { JsTsAnalysisOutput } from 'services/analysis';
+import { APIError, ErrorCode } from '../../errors';
+import { JsTsAnalysisOutput } from '../../services/analysis';
 
 /**
  * Express.js middleware for handling error while serving requests.

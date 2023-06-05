@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { visit } from 'linting/eslint';
+import { visit } from '../../..';
 
 /**
  * The ESLint loop node types

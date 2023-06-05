@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError } from 'errors';
+import { APIError } from '../../../../errors';
 import { SourceCode } from 'eslint';
-import { debug, getContext } from 'helpers';
+import { debug, getContext } from '../../../../helpers';
 import {
   computeMetrics,
   findNoSonarLines,
@@ -28,9 +28,9 @@ import {
   getSyntaxHighlighting,
   LinterWrapper,
   SymbolHighlight,
-} from 'linting/eslint';
-import { buildSourceCode } from 'parsing/jsts';
-import { measureDuration } from 'services/monitoring';
+} from '../../../../linting/eslint';
+import { buildSourceCode } from '../../../../parsing/jsts';
+import { measureDuration } from '../../../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
 /**

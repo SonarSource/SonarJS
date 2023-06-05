@@ -22,7 +22,7 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from './helpers';
-import { removeNodeWithLeadingWhitespaces } from 'linting/eslint/rules/helpers';
+import { removeNodeWithLeadingWhitespaces } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoUnreachable(rule: Rule.RuleModule): Rule.RuleModule {

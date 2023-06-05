@@ -23,7 +23,7 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as babel from '@babel/eslint-parser';
-import { buildParserOptions } from 'parsing/jsts';
+import { buildParserOptions } from '../../../parsing/jsts';
 import { CodeRecognizer, JavaScriptFootPrint } from '../linter/recognizers';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
