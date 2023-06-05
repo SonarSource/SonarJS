@@ -230,6 +230,7 @@ public final class CheckList {
       NoClearTextProtocolsCheck.class,
       NoCodeAfterDoneCheck.class,
       NoConfusingNonNullAssertionCheck.class,
+      NoConstantBinaryExpressionCheck.class,
       NoConstructorReturnCheck.class,
       NoControlRegexCheck.class,
       NoDuplicateEnumValuesCheck.class,
