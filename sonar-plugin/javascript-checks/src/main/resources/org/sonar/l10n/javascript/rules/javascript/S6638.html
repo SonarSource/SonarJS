@@ -12,6 +12,9 @@ come from</p>
 </ul>
 <p>This can also happen when you put an assignment in a logical sub-expression. While not strictly a bug, this practice is confusing and should be
 avoided.</p>
+<h2>How to fix it</h2>
+<p>Review the code around the issue to find out why the expression always produces the same result. Pay attention to the operator precedence,
+comparing objects of different types, comparing objects by reference (not by value!).</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
