@@ -1,14 +1,28 @@
-<p>Disallow expressions where the operation doesn’t affect the value</p>
+<p>Comparisons that always evaluate to true or to false, logical expressions that either always or never short-circuit and comparisons to a newly
+constructed object should not be used.</p>
 <h2>Why is this an issue?</h2>
-<p>FIXME: remove the unused optional headers (that are commented out)</p>
-<h2>How to fix it</h2>
+<p>An expression that always produces the same result, regardless of the inputs, is unnecessary and likely indicates a programmer’s error. This can
+come from</p>
+<ul>
+  <li> confusing operator precedence </li>
+  <li> expecting strict equality between different types </li>
+  <li> expecting objects to be compared by value </li>
+  <li> expecting empty objects to be <code>false</code> or <code>null</code> </li>
+  <li> mistyping <code>&gt;=</code> for <code>⇒</code> </li>
+</ul>
+<p>This can also happen when you put an assignment in a logical sub-expression. While not strictly a bug, this practice is confusing and should be
+avoided.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-const value1 = +x == null;
+!foo == null;
+a + b ?? c;
+x === [];
+(foo=0) &amp;&amp; bar;
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
-const value1 = x == null;
+foo != null;
+a + (b ?? c);
 </pre>
 

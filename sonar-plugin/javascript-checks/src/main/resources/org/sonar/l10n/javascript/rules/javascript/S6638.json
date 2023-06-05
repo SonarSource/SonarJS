@@ -1,5 +1,5 @@
 {
-  "title": "Disallow expressions where the operation doesn\u0027t affect the value",
+  "title": "Binary expressions should not always return the same value",
   "type": "BUG",
   "status": "ready",
   "remediation": {
