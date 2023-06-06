@@ -17,10 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './debug';
-export * from './files';
-export * from './language';
-export * from './tsconfigs';
-export * from './cache';
-export * from './escape';
+package org.sonar.plugins.javascript.utils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
+
+import org.junit.jupiter.api.Test;
+
+class UnicodeEscapeTest {
+
+  @Test
+  void test_unicodeEscape() {
+    assertThat(unicodeEscape("test \u0000")).isEqualTo("test \\u0000");
+    assertThat(unicodeEscape("Ödmjuk")).isEqualTo("\\u0214dmjuk");
+  }
+}

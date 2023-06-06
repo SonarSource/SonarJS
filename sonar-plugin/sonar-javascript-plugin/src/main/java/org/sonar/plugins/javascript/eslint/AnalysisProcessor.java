@@ -25,6 +25,7 @@ import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYP
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
 import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
+import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -262,8 +263,12 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(EslintBridgeServer.Issue issue) {
-    NewIssue newIssue = context.newIssue();
-    NewIssueLocation location = newIssue.newLocation().message(issue.message).on(file);
+    var newIssue = context.newIssue();
+    var location = newIssue.newLocation().on(file);
+    if (issue.message != null) {
+      var escapedMsg = unicodeEscape(issue.message);
+      location.message(escapedMsg);
+    }
 
     if (issue.endLine != null) {
       location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
@@ -338,7 +343,7 @@ public class AnalysisProcessor {
         inputFile.newRange(location.line, location.column, location.endLine, location.endColumn)
       );
       if (location.message != null) {
-        newIssueLocation.message(location.message);
+        newIssueLocation.message(unicodeEscape(location.message));
       }
       return newIssueLocation;
     }

@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './debug';
-export * from './files';
-export * from './language';
-export * from './tsconfigs';
-export * from './cache';
-export * from './escape';
+package org.sonar.javascript.checks;
+
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6638")
+public class NoConstantBinaryExpressionCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-constant-binary-expression";
+  }
+}

@@ -40,7 +40,6 @@ describe('TSConfigs', () => {
   });
 
   it('should find and update tsconfig.json files', async () => {
-    console.log = jest.fn();
     const projectTSConfigs = new ProjectTSConfigs(dir);
     const tsconfigs = [
       ['tsconfig.json'],
@@ -56,6 +55,15 @@ describe('TSConfigs', () => {
           return [filename, { filename, contents: '{}\n' }];
         }),
       ),
+    );
+  });
+
+  it('should not search tsconfig.json files if we pass them in input', async () => {
+    const tsconfig = toUnixPath(path.join(dir, 'tsconfig.json'));
+    const projectTSConfigs = new ProjectTSConfigs(dir, [tsconfig]);
+
+    expect(projectTSConfigs.db).toEqual(
+      new Map([[tsconfig, { filename: tsconfig, contents: '{}\n' }]]),
     );
   });
 
@@ -83,10 +91,7 @@ describe('TSConfigs', () => {
       { filename: tsconfig5, contents: '' },
       { filename: tsconfig4, contents: '' },
       { filename: tsconfig6, contents: '' },
-      { filename: tsconfig1, contents: '' },
-      { filename: tsconfig3, contents: '' },
-      { filename: tsconfig7, contents: '' },
-      { filename: tsconfig2, contents: '' },
+      //after 3 tries we fall back to default tsconfig
       {
         filename: `tsconfig-${file}.json`,
         contents: JSON.stringify({

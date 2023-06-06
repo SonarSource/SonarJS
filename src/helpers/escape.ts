@@ -17,10 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './debug';
-export * from './files';
-export * from './language';
-export * from './tsconfigs';
-export * from './cache';
-export * from './escape';
+
+/**
+ * Escape non-ascii characters with unicode sequence \uXXXX
+ *
+ * @param s string to escape
+ */
+export function unicodeEscape(s: string): string {
+  return s
+    .split('')
+    .map(char => {
+      const charCode = char.charCodeAt(0);
+      return charCode < 32 || charCode > 127 ? unicodeCharEscape(charCode) : char;
+    })
+    .join('');
+}
+
+function padWithLeadingZeros(s: string) {
+  return new Array(5 - s.length).join('0') + s;
+}
+
+function unicodeCharEscape(charCode: number) {
+  return '\\u' + padWithLeadingZeros(charCode.toString(16));
+}

@@ -17,10 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './debug';
-export * from './files';
-export * from './language';
-export * from './tsconfigs';
-export * from './cache';
-export * from './escape';
+package org.sonar.plugins.javascript.utils;
+
+public class UnicodeEscape {
+
+  private UnicodeEscape() {
+    // utility class
+  }
+
+  public static String unicodeEscape(String message) {
+    var s = new StringBuilder();
+    message
+      .chars()
+      .forEach(value -> {
+        if (value < 32 || value > 127) {
+          s.append(String.format("\\u%04d", value));
+        } else {
+          s.append((char) value);
+        }
+      });
+
+    return s.toString();
+  }
+}
