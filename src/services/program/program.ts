@@ -74,8 +74,15 @@ export function getProgramForFile(
   cache = programCache,
   tsconfigs?: ProjectTSConfigs,
 ): ts.Program {
+  /**
+   * SONARJS_LIMIT_DEPS_RESOLUTION is available to limit TS resolution to current baseDir.
+   * However, this does not apply when we rely on typescript-eslint to create watchPrograms.
+   * If we are ever able to provide our own compilerHost to typescript-eslint, we can generalize
+   * for all projects and avoid removing node_modules for ruling tests
+   */
   const topDir =
     process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] === '1' ? toUnixPath(input.baseDir) : undefined;
+
   if (!tsconfigs) {
     tsconfigs = getDefaultTSConfigs(input.baseDir, input.tsConfigs);
   }
