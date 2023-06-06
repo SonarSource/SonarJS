@@ -94,7 +94,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (tsconfigs.isEmpty()) {
       useFoundTSConfigs = true;
     }
-    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, contextUtils);
     if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
       createWildcardTSConfig = true;
     }
@@ -105,8 +105,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     if (vueFile.isPresent()) {
       createProgram = false;
       if (
-        contextUtils.isSonarQube() &&
-        ContextUtils.canUseWildcardForTypeChecking(context, inputFiles.size())
+        contextUtils.isSonarQube() && contextUtils.canUseWildcardForTypeChecking(inputFiles.size())
       ) {
         createWildcardTSConfig = true;
       }

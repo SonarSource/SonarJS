@@ -23,6 +23,7 @@ import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FO
 import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -55,11 +56,11 @@ class ContextUtils {
     return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
-  static boolean canUseWildcardForTypeChecking(SensorContext context, int filesCount) {
-    return filesCount < getMaxFilesForTypeChecking(context);
+  boolean canUseWildcardForTypeChecking(int filesCount) {
+    return filesCount < getMaxFilesForTypeChecking();
   }
 
-  static int getMaxFilesForTypeChecking(SensorContext context) {
+  int getMaxFilesForTypeChecking() {
     return Math.max(
       context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
       0
@@ -68,5 +69,9 @@ class ContextUtils {
 
   boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
+  }
+
+  Path getBasePath() {
+    return context.fileSystem().baseDir().toPath();
   }
 }

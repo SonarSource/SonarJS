@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -46,18 +45,18 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return beyondLimit;
   }
 
-  public void checkOnce(SensorContext context) {
+  public void checkOnce(ContextUtils contextUtils) {
     if (shouldCheck) {
-      checkLimit(context);
+      checkLimit(contextUtils);
       shouldCheck = false;
     }
   }
 
-  private void checkLimit(SensorContext context) {
+  private void checkLimit(ContextUtils contextUtils) {
     try {
       var start = Instant.now();
-      var maxFilesForTypeChecking = ContextUtils.getMaxFilesForTypeChecking(context);
-      long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
+      var maxFilesForTypeChecking = contextUtils.getMaxFilesForTypeChecking();
+      long cappedFileCount = countFiles(contextUtils, maxFilesForTypeChecking);
 
       beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
@@ -91,7 +90,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
+  private static long countFiles(ContextUtils context, int maxFilesForTypeChecking) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
     try (var files = walkProjectFiles(context)) {
@@ -104,8 +103,8 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static Stream<Path> walkProjectFiles(SensorContext context) {
+  private static Stream<Path> walkProjectFiles(ContextUtils context) {
     // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
-    return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
+    return PathWalker.stream(context.getBasePath(), FILE_WALK_MAX_DEPTH);
   }
 }

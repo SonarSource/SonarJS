@@ -90,7 +90,8 @@ class SonarLintProjectCheckerTest {
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
     var checker = new SonarLintJavaScriptProjectChecker();
-    checker.checkOnce(sensorContext(maxFiles));
+    var contextUtils = new ContextUtils(sensorContext(maxFiles));
+    checker.checkOnce(contextUtils);
     return checker;
   }
 
@@ -100,7 +101,9 @@ class SonarLintProjectCheckerTest {
     var checker = new SonarLintJavaScriptProjectChecker();
     var context = sensorContext();
     when(context.fileSystem().baseDir()).thenThrow(error);
-    checker.checkOnce(context);
+
+    var contextUtils = new ContextUtils(context);
+    checker.checkOnce(contextUtils);
     return checker;
   }
 

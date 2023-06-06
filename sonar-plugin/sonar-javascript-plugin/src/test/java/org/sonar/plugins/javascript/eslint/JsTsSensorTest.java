@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -372,12 +371,12 @@ class JsTsSensorTest {
 
   @Test
   void should_use_wildcard_value_for_typechecking_in_sonarlint() throws Exception {
-    SensorContextTester ctx = createSensorContext(tempDir);
+    var ctx = createSensorContext(tempDir);
     setSonarLintRuntime(ctx);
-    JsTsSensor sensor = createSensor(ctx);
+    var sensor = createSensor(ctx);
     createVueInputFile(ctx, "file1.vue");
     createVueInputFile(ctx, "file2.vue");
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     sensor.execute(ctx);
     verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
@@ -388,11 +387,11 @@ class JsTsSensorTest {
   @Test
   void should_use_wildcard_value_for_typechecking_in_sonarqube_with_vue_below_limit()
     throws Exception {
-    SensorContextTester ctx = createSensorContext(tempDir);
-    JsTsSensor sensor = createSensor(ctx);
+    var ctx = createSensorContext(tempDir);
+    var sensor = createSensor(ctx);
     createVueInputFile(ctx, "file1.vue");
     createVueInputFile(ctx, "file2.vue");
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     sensor.execute(ctx);
     verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
