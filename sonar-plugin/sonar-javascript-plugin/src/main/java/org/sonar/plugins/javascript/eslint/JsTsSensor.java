@@ -23,6 +23,7 @@ import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptF
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -48,6 +49,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private List<String> tsconfigs;
   private boolean useFoundTSConfigs = false;
   private boolean createWildcardTSConfig = false;
+  private boolean createProgram = true;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -84,20 +86,34 @@ public class JsTsSensor extends AbstractEslintSensor {
       .collect(Collectors.toList());
   }
 
-  protected void prepareAnalysis() throws IOException {
+  @Override
+  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
     var rules = checks.eslintRules();
     analysisMode = AnalysisMode.getMode(context, rules);
     tsconfigs = TsConfigPropertyProvider.tsconfigs(context);
     if (tsconfigs.isEmpty()) {
       useFoundTSConfigs = true;
-      JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
-      if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
+    }
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, contextUtils);
+    if (javaScriptProjectChecker != null && !javaScriptProjectChecker.isBeyondLimit()) {
+      createWildcardTSConfig = true;
+    }
+    var vueFile = inputFiles
+      .stream()
+      .filter(f -> f.filename().toLowerCase(Locale.ROOT).endsWith(".vue"))
+      .findAny();
+    if (vueFile.isPresent()) {
+      createProgram = false;
+      if (
+        contextUtils.isSonarQube() && contextUtils.canUseWildcardForTypeChecking(inputFiles.size())
+      ) {
         createWildcardTSConfig = true;
       }
     }
     eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
   }
 
+  @Override
   protected void analyze(InputFile file) throws IOException {
     monitoring.startFile(file);
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
@@ -115,7 +131,7 @@ public class JsTsSensor extends AbstractEslintSensor {
           contextUtils.ignoreHeaderComments(),
           tsconfigs,
           analysisMode.getLinterIdFor(file),
-          true,
+          createProgram,
           useFoundTSConfigs,
           createWildcardTSConfig,
           context.fileSystem().baseDir().getAbsolutePath()
