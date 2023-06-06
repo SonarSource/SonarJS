@@ -1,0 +1,22 @@
+<p>Prototypes of builtin objects should not be modified.</p>
+<h2>Why is this an issue?</h2>
+<p>By default, JavaScript allows you to modify native object prototypes, such as <code>Array</code>, <code>String</code>, <code>Object</code>, and so
+on. This means you can add new properties or methods to native objects or override existing ones. While this flexibility can be useful in some
+instances, it can lead to unexpected behavior, bugs, and compatibility issues.</p>
+<p>The rule forbids extending or modifying native JavaScript objects or prototypes.</p>
+<h2>How to fix it</h2>
+<p>Prototypes of builtin objects should not be modified altogether.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+Object.prototype.universe = 42;
+Object.defineProperty(Array.prototype, "size", { value: 0 });
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes">MDN Object prototypes</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty">MDN
+  Object.defineProperty()</a> </li>
+</ul>
+
