@@ -31,6 +31,7 @@ import { decorateNoDuplicateImports } from './no-duplicate-imports-decorator';
 import { decorateNoEmpty } from './no-empty-decorator';
 import { decorateNoEmptyFunction } from './no-empty-function-decorator';
 import { decorateNoEmptyInterface } from './no-empty-interface-decorator';
+import { decorateNoExtendNative } from './no-extend-native-decorator';
 import { decorateNoExtraSemi } from './no-extra-semi-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
 import { decorateNoThisAlias } from './no-this-alias-decorator';
@@ -79,6 +80,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-empty': decorateNoEmpty,
   'no-empty-function': decorateNoEmptyFunction,
   'no-empty-interface': decorateNoEmptyInterface,
+  'no-extend-native': decorateNoExtendNative,
   'no-extra-semi': decorateNoExtraSemi,
   'no-redeclare': decorateNoRedeclare,
   'no-redundant-type-constituents': decorateNoRedundantTypeConstituents,
