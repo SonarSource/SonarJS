@@ -126,7 +126,7 @@ class EslintCustomRulesTest {
       )
     )
       .isEmpty();
-    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 5.0.4")))
+    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 5.1.3")))
       .hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);
