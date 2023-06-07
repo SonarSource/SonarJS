@@ -1,13 +1,17 @@
 {
   "name": "bundle",
   "version": "1.0.0",
-  "description": "",
-  "main": "hello.js",
-  "bin": "hello.js",
+  "description": "bundling tools",
+  "bin": {
+    "bundle": "hello.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "caxa": "^3.0.1"
+  }
 }

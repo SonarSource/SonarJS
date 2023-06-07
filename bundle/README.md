@@ -9,3 +9,9 @@
 ## native
 
 [Instructions](https://nodejs.org/api/single-executable-applications.html)
+
+## caxa
+
+```bash
+./node_modules/.bin/caxa --input caxa --output dist-caxa/sonarjs -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/bin/server"
+```
