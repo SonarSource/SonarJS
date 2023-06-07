@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.plugins.javascript.utils;
 
-import javax.annotation.Nullable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
-    }
+import org.junit.jupiter.api.Test;
+
+class UnicodeEscapeTest {
+
+  @Test
+  void test_unicodeEscape() {
+    assertThat(unicodeEscape("test \u0000")).isEqualTo("test \\u0000");
+    assertThat(unicodeEscape("Ödmjuk")).isEqualTo("\\u0214dmjuk");
   }
-
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
-    }
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6638")
+public class NoConstantBinaryExpressionCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-constant-binary-expression";
   }
-
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
 }

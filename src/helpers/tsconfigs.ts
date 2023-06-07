@@ -23,6 +23,12 @@ import { toUnixPath, writeTmpFile } from './files';
 import { debug } from './debug';
 
 const TSCONFIG_JSON = 'tsconfig.json';
+
+/**
+ * Number of attempts to match a source file with a tsconfig in the DB. To avoid too high memory
+ * consumption, after we surpass this number we will default to a fallback tsconfig
+ */
+const MAX_TSCONFIGS_ATTEMPTS = 3;
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -31,9 +37,11 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(dir?: string) {
+  constructor(dir?: string, inputTSConfigs?: string[]) {
     this.db = new Map<string, TSConfig>();
-    if (dir) {
+    if (inputTSConfigs?.length) {
+      this.addInputTSConfigsToDB(inputTSConfigs);
+    } else if (dir) {
       this.tsConfigLookup(dir);
     }
   }
@@ -41,6 +49,26 @@ export class ProjectTSConfigs {
     return this.db.get(tsconfig);
   }
 
+  addInputTSConfigsToDB(tsconfigs: string[], normalized = false) {
+    const normalizedInputTSConfigs = normalized
+      ? tsconfigs
+      : tsconfigs.map(filename => toUnixPath(filename));
+
+    // We add the tsconfigs from the request to the DB
+    for (const tsConfigPath of normalizedInputTSConfigs) {
+      try {
+        if (!this.db.has(tsConfigPath)) {
+          const contents = fs.readFileSync(tsConfigPath, 'utf-8');
+          this.db.set(tsConfigPath, {
+            filename: tsConfigPath,
+            contents,
+          });
+        }
+      } catch (e) {
+        console.log(`ERROR Could not read ${tsConfigPath}`);
+      }
+    }
+  }
   /**
    * Iterate over saved tsConfig returning a fake tsconfig
    * as a fallback for the given file
@@ -49,26 +77,16 @@ export class ProjectTSConfigs {
    * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
    */
   *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
-    const normalizedInputTSConfigs = (tsconfigs ?? []).map(filename => toUnixPath(filename));
-    yield* normalizedInputTSConfigs
-      .map(tsConfigPath => {
-        try {
-          if (!this.db.has(tsConfigPath)) {
-            const contents = fs.readFileSync(tsConfigPath, 'utf-8');
-            this.db.set(tsConfigPath, {
-              filename: tsConfigPath,
-              contents,
-            });
-          }
-          return this.db.get(tsConfigPath)!;
-        } catch (e) {
-          console.log(`ERROR Could not read ${file}`);
-        }
-      })
-      .filter(isDefined);
+    if (tsconfigs?.length) {
+      tsconfigs = tsconfigs.map(filename => toUnixPath(filename));
+      this.addInputTSConfigsToDB(tsconfigs, true);
+    }
     yield* [...this.db.values()]
       .filter(tsconfig => {
-        return !normalizedInputTSConfigs.includes(tsconfig.filename);
+        if (tsconfigs?.length) {
+          return tsconfigs.includes(tsconfig.filename);
+        }
+        return true;
       })
       .sort((tsconfig1, tsconfig2) => {
         const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
@@ -76,7 +94,8 @@ export class ProjectTSConfigs {
           return 0;
         }
         return tsconfig === tsconfig1 ? -1 : 1;
-      });
+      })
+      .filter((_, index) => index < MAX_TSCONFIGS_ATTEMPTS);
     yield {
       filename: `tsconfig-${file}.json`,
       contents: generateTSConfig([file]),
@@ -203,8 +222,4 @@ export function getWildcardTSConfig(baseDir = '') {
     wildcardTSConfigByBaseDir.set(normalizedBaseDir, tsConfig);
   }
   return tsConfig;
-}
-
-function isDefined<T>(argument: T | undefined): argument is T {
-  return argument !== undefined;
 }

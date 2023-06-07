@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { unicodeEscape } from 'helpers';
+
 /**
  * The possible codes of analysis errors
  *
@@ -40,7 +42,7 @@ export class APIError extends Error {
   data?: ErrorData;
 
   private constructor(code: ErrorCode, message: string, data?: ErrorData) {
-    super(message);
+    super(unicodeEscape(message));
     this.code = code;
     this.data = data;
   }

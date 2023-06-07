@@ -17,20 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+import { unicodeEscape } from 'helpers';
 
-import javax.annotation.Nullable;
-
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
-    }
-  }
-
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
-}
+describe('unicodeEscape', () => {
+  it('should escape', () => {
+    expect(unicodeEscape(`test \u0000`)).toEqual('test \\u0000');
+  });
+});

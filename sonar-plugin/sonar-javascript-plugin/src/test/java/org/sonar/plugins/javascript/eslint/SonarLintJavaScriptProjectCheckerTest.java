@@ -22,8 +22,8 @@ package org.sonar.plugins.javascript.eslint;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-import static org.sonar.plugins.javascript.eslint.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -90,7 +90,8 @@ class SonarLintProjectCheckerTest {
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
     var checker = new SonarLintJavaScriptProjectChecker();
-    checker.checkOnce(sensorContext(maxFiles));
+    var contextUtils = new ContextUtils(sensorContext(maxFiles));
+    checker.checkOnce(contextUtils);
     return checker;
   }
 
@@ -100,7 +101,9 @@ class SonarLintProjectCheckerTest {
     var checker = new SonarLintJavaScriptProjectChecker();
     var context = sensorContext();
     when(context.fileSystem().baseDir()).thenThrow(error);
-    checker.checkOnce(context);
+
+    var contextUtils = new ContextUtils(context);
+    checker.checkOnce(contextUtils);
     return checker;
   }
 

@@ -112,7 +112,7 @@ public abstract class AbstractEslintSensor implements Sensor {
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
     var success = false;
     try {
-      prepareAnalysis();
+      prepareAnalysis(inputFiles);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException(
@@ -141,7 +141,7 @@ public abstract class AbstractEslintSensor implements Sensor {
 
   protected abstract String getProgressReportTitle() throws IOException;
 
-  protected abstract void prepareAnalysis() throws IOException;
+  protected abstract void prepareAnalysis(List<InputFile> inputFiles) throws IOException;
 
   protected abstract void analyze(InputFile file) throws IOException;
 

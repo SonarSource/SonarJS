@@ -125,6 +125,10 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
+  public static final String MAX_FILES_PROPERTY =
+    "sonar.javascript.sonarlint.typechecking.maxfiles";
+  public static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
+
   @Override
   public void define(Context context) {
     context.addExtensions(

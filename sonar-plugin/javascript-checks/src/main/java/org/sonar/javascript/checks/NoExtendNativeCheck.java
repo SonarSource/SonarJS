@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
-    }
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6643")
+public class NoExtendNativeCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-extend-native";
   }
-
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
 }

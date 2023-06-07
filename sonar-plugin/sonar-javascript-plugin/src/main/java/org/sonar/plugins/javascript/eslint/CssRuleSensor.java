@@ -94,6 +94,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     super.execute(context);
   }
 
+  @Override
   protected void analyze(InputFile inputFile) {
     try {
       URI uri = inputFile.uri();
@@ -177,7 +178,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void prepareAnalysis() throws IOException {
+  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
     // No need to init linter for CSS
   }
 

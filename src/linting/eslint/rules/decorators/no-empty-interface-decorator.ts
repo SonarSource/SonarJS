@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { interceptReport } from './helpers';
+import { UTILITY_TYPES } from '../helpers';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types
 export function decorateNoEmptyInterface(rule: Rule.RuleModule): Rule.RuleModule {
@@ -34,34 +35,6 @@ export function decorateNoEmptyInterface(rule: Rule.RuleModule): Rule.RuleModule
     context.report(reportDescriptor);
   });
 }
-
-/**
- * TypeScript provides a set of utility types to facilitate type transformations.
- * @see https://www.typescriptlang.org/docs/handbook/utility-types.html
- */
-const UTILITY_TYPES = new Set([
-  'Awaited',
-  'Partial',
-  'Required',
-  'Readonly',
-  'Record',
-  'Pick',
-  'Omit',
-  'Exclude',
-  'Extract',
-  'NonNullable',
-  'Parameters',
-  'ConstructorParameters',
-  'ReturnType',
-  'InstanceType',
-  'ThisParameterType',
-  'OmitThisParameter',
-  'ThisType',
-  'Uppercase',
-  'Lowercase',
-  'Capitalize',
-  'Uncapitalize',
-]);
 
 function isUtilityType(node: TSESTree.TSInterfaceHeritage) {
   return node.expression.type === 'Identifier' && UTILITY_TYPES.has(node.expression.name);

@@ -19,8 +19,6 @@
  */
 import { readFile, toUnixPath } from 'helpers';
 import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
-import { loadTsconfigs } from './load-tsconfigs';
-import { shouldCreateProgram, shouldUseTypescriptParser } from 'parsing/jsts';
 import path from 'path';
 
 const defaultInput: JsTsAnalysisInput = {
@@ -42,9 +40,6 @@ export async function jsTsInput(input: any): Promise<JsTsAnalysisInput> {
     input.baseDir = path.posix.dirname(toUnixPath(input.filePath));
   }
   const newInput = { ...defaultInput, ...input };
-  if (shouldUseTypescriptParser(newInput.language) && shouldCreateProgram(newInput)) {
-    await loadTsconfigs(input.baseDir, newInput.tsConfigs);
-  }
   if (!newInput.fileContent) {
     newInput.fileContent = await readFile(newInput.filePath);
   }

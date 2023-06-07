@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+// https://sonarsource.github.io/rspec/#/rspec/S6643/javascript
 
-import javax.annotation.Nullable;
+import * as estree from 'estree';
+import { Rule } from 'eslint';
+import { interceptReport } from './helpers';
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
+export function decorateNoExtendNative(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, reportDescriptor) => {
+    const node = (reportDescriptor as any).node as estree.Node;
+    let reportedNode: estree.Node;
+    if (node.type === 'CallExpression') {
+      // `*.prototype` <- CallExpression
+      reportedNode = node.arguments[0];
+    } else {
+      // `*.prototype` <- MemberExpression <- AssignmentExpression
+      reportedNode = (node as estree.AssignmentExpression).left;
     }
-  }
-
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
+    context.report({ ...reportDescriptor, node: reportedNode });
+  });
 }

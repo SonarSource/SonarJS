@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -113,6 +114,7 @@ class JsTsSensorTest {
     PluginInfo.setUcfgPluginVersion(null);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -295,8 +297,8 @@ class JsTsSensorTest {
     SensorContextTester ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
-      .setLanguage("ts")
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("js")
       .setCharset(StandardCharsets.ISO_8859_1)
       .setContents(content)
       .build();
@@ -304,7 +306,8 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor(ctx).execute(ctx);
-    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    verify(eslintBridgeServerMock, times(1)).analyzeJavaScript(captor.capture());
+    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
   }
 
@@ -367,6 +370,54 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_use_wildcard_value_for_typechecking_in_sonarlint() throws Exception {
+    var ctx = createSensorContext(tempDir);
+    setSonarLintRuntime(ctx);
+    var sensor = createSensor(ctx);
+    createVueInputFile(ctx, "file1.vue");
+    createVueInputFile(ctx, "file2.vue");
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    sensor.execute(ctx);
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues())
+      .extracting(c -> c.createWildcardTSConfig)
+      .isEqualTo(List.of(true, true));
+  }
+
+  @Test
+  void should_use_wildcard_value_for_typechecking_in_sonarqube_with_vue_below_limit()
+    throws Exception {
+    var ctx = createSensorContext(tempDir);
+    var sensor = createSensor(ctx);
+    createVueInputFile(ctx, "file1.vue");
+    createVueInputFile(ctx, "file2.vue");
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    sensor.execute(ctx);
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues())
+      .extracting(c -> c.createWildcardTSConfig)
+      .isEqualTo(List.of(true, true));
+  }
+
+  @Test
+  void should_not_use_wildcard_value_for_typechecking_in_sonarqube_with_vue_above_limit()
+    throws Exception {
+    SensorContextTester ctx = createSensorContext(tempDir);
+    MapSettings settings = new MapSettings()
+      .setProperty("sonar.javascript.sonarlint.typechecking.maxfiles", 1);
+    ctx.setSettings(settings);
+    JsTsSensor sensor = createSensor(ctx);
+    createVueInputFile(ctx, "file1.vue");
+    createVueInputFile(ctx, "file2.vue");
+    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    sensor.execute(ctx);
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues())
+      .extracting(c -> c.createWildcardTSConfig)
+      .isEqualTo(List.of(false, false));
+  }
+
+  @Test
   void stop_analysis_if_cancelled() throws Exception {
     JsTsSensor sensor = createSensor(context);
     createInputFile(context);
@@ -385,7 +436,6 @@ class JsTsSensorTest {
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
     JsTsSensor sensor = createSensor(context);
     DefaultInputFile inputFile = createInputFile(context);
-    // having a vue file makes TypeScriptSensor#shouldAnalyzeWithProgram() return false, which leads to the path that executes TypeScript#analyze()
     createVueInputFile();
 
     sensor.execute(context);
@@ -562,14 +612,18 @@ class JsTsSensorTest {
   }
 
   private void createVueInputFile() {
-    createVueInputFile(context);
+    createVueInputFile(context, "file.vue");
   }
 
   private void createVueInputFile(SensorContextTester context) {
+    createVueInputFile(context, "file.vue");
+  }
+
+  private void createVueInputFile(SensorContextTester context, String path) {
     var vueFile = new TestInputFileBuilder(
       "moduleKey",
       baseDir.toFile(),
-      baseDir.resolve("file.vue").toFile()
+      baseDir.resolve(path).toFile()
     )
       .setLanguage("js")
       .setCharset(StandardCharsets.UTF_8)

@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
+
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -52,7 +56,22 @@ class ContextUtils {
     return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
+  boolean canUseWildcardForTypeChecking(int filesCount) {
+    return filesCount < getMaxFilesForTypeChecking();
+  }
+
+  int getMaxFilesForTypeChecking() {
+    return Math.max(
+      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
+      0
+    );
+  }
+
   boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
+  }
+
+  Path getBasePath() {
+    return context.fileSystem().baseDir().toPath();
   }
 }

@@ -17,20 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
 
-import javax.annotation.Nullable;
+/**
+ * Escape non-ascii characters with unicode sequence \uXXXX
+ *
+ * @param s string to escape
+ */
+export function unicodeEscape(s: string): string {
+  return s
+    .split('')
+    .map(char => {
+      const charCode = char.charCodeAt(0);
+      return charCode < 32 || charCode > 127 ? unicodeCharEscape(charCode) : char;
+    })
+    .join('');
+}
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
-    }
-  }
+function padWithLeadingZeros(s: string) {
+  return new Array(5 - s.length).join('0') + s;
+}
 
-  void checkOnce(ContextUtils contextUtils);
-  boolean isBeyondLimit();
+function unicodeCharEscape(charCode: number) {
+  return '\\u' + padWithLeadingZeros(charCode.toString(16));
 }

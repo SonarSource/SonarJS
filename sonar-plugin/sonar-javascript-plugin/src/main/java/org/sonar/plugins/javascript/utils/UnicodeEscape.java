@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ProjectTSConfigs, readFile, toUnixPath, TSConfig } from 'helpers';
-import path from 'path';
-import { setDefaultTSConfigs } from 'services/program';
+package org.sonar.plugins.javascript.utils;
 
-export async function loadTsconfigs(baseDir, tsConfigs) {
-  const projectTSConfigs = new ProjectTSConfigs();
-  for (const tsConfigPath of tsConfigs) {
-    const contents = JSON.parse(await readFile(tsConfigPath));
-    if (!contents.include && !contents.files) {
-      contents.include = [`${path.posix.dirname(toUnixPath(tsConfigPath))}/**/*`];
-    }
-    const tsconfig: TSConfig = {
-      filename: toUnixPath(tsConfigPath),
-      contents: JSON.stringify(contents),
-    };
-    projectTSConfigs.db.set(toUnixPath(tsConfigPath), tsconfig);
+public class UnicodeEscape {
+
+  private UnicodeEscape() {
+    // utility class
   }
-  setDefaultTSConfigs(baseDir, projectTSConfigs);
+
+  public static String unicodeEscape(String message) {
+    var s = new StringBuilder();
+    message
+      .chars()
+      .forEach(value -> {
+        if (value < 32 || value > 127) {
+          s.append(String.format("\\u%04d", value));
+        } else {
+          s.append((char) value);
+        }
+      });
+
+    return s.toString();
+  }
 }
