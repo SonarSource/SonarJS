@@ -35,12 +35,6 @@
 'vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx':[
 17,
 ],
-'vuetify:packages/vuetify/src/components/VStepper/VStepper.ts':[
-109,
-111,
-112,
-119,
-],
 'vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts':[
 39,
 ],
