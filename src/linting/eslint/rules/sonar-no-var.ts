@@ -17,20 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S3504")
-public class VarDeclarationCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "sonar-no-var";
-  }
-}
+export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      safeStdin: `Make sure that reading the standard input is safe here.`,
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      'VariableDeclaration:exit'(node: estree.VariableDeclaration) {
+        if (node.kind === 'var') {
+          context.report({
+            node,
+            messageId: 'safeStdin',
+          });
+        }
+      },
+    };
+  },
+};
