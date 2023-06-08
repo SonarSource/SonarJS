@@ -68,7 +68,7 @@ export function start(
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   return new Promise(resolve => {
-    debug(`starting eslint-bridge server at port ${port}`);
+    console.log(`starting eslint-bridge server at port ${port}`);
 
     const app = express();
     const server = http.createServer(app);
@@ -105,7 +105,7 @@ export function start(
     });
 
     server.on('error', (err: Error) => {
-      debug(`eslint-bridge server error: ${err}`);
+      console.log(`eslint-bridge server error: ${err}`);
     });
 
     server.on('listening', () => {

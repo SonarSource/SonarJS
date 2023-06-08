@@ -26,5 +26,5 @@
  * @param message the message to log
  */
 export function debug(message: string) {
-  console.log(`DEBUG ${message}`);
+  message;
 }
