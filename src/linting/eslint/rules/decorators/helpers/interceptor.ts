@@ -59,6 +59,10 @@ export function interceptReport(
           parserPath: originalContext.parserPath,
           parserOptions: originalContext.parserOptions,
           parserServices: originalContext.parserServices,
+          sourceCode: originalContext.sourceCode,
+          cwd: originalContext.cwd,
+          filename: originalContext.filename,
+          physicalFilename: originalContext.physicalFilename,
 
           getCwd(): string {
             return originalContext.getCwd();
