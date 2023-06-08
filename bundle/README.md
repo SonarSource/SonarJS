@@ -2,6 +2,9 @@
 
 ## pkg (by Vercel)
 
+Make sure that you have transpile TS using: `npm run compile`
+The build binary will also include the files/folders specified in the root `package.json`, under `pkg:assets`.
+
 ```bash
 ./node_modules/.bin/pkg . --out-path=bundle/dist --targets=node16-win-x64,node16-macos-x64,node16-macos-arm64,node16-linux-x64
 ```
