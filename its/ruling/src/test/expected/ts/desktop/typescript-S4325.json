@@ -12,7 +12,4 @@
 'desktop:app/src/ui/repositories-list/repositories-list.tsx':[
 169,
 ],
-'desktop:script/publish.ts':[
-59,
-],
 }

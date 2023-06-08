@@ -764,6 +764,11 @@
 193,
 217,
 ],
+'javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js':[
+119,
+183,
+187,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js':[
 291,
 302,
