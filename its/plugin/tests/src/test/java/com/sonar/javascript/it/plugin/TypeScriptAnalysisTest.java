@@ -234,7 +234,11 @@ class TypeScriptAnalysisTest {
   @NotNull
   private static Pattern fallbackTsConfigLogPredicate(String file) {
     return Pattern.compile(
-      ".*DEBUG: Analyzing file .*" + file + " using tsconfig tsconfig-.*" + file + "\\.json"
+      ".*DEBUG: Analyzing file .*" +
+      file +
+      " using fallback tsconfig tsconfig-.*" +
+      file +
+      "\\.json"
     );
   }
 
