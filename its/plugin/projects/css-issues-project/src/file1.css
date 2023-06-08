@@ -30,7 +30,7 @@ a:unknown {                                                   /* S4659 | selecto
   heigth: 100%;                                               /* S4654 | property-no-unknown */
   padding-left: 10px;
   padding: 20px;                                              /* S4657 | declaration-block-no-shorthand-property-overrides */
-  top: calc(1px+2px);                                         /* S4650 | function-calc-no-unspaced-operator */ /* S4653 | unit-no-unknown */
+  top: calc(1px+2px);                                         /* S4650 | function-calc-no-unspaced-operator */
   width: calc(100% 80px);                                     /* S5362 | function-calc-no-invalid */
 }
 
