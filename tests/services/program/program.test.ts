@@ -27,7 +27,6 @@ import {
 } from 'services/program';
 import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
-import { awaitCleanUp } from '../../tools/helpers/wait-gc';
 import { jsTsInput } from '../../tools';
 
 jest.setTimeout(60000);
@@ -246,13 +245,12 @@ describe('program', () => {
 
     const program = getProgramForFile(await jsTsInput({ filePath: mainFile }), cache, tsconfigs);
     expect(program).toBeDefined();
-    expect(cache.programs.get(tsConfig)).toBeDefined();
-    expect(cache.programs.get(tsConfig).files).toContain(dependencyPath);
-    expect(cache.programs.get(tsConfig).files).toContain(mainFile);
+    expect(cache.get(tsConfig)).toBeDefined();
+    expect(cache.get(tsConfig).files).toContain(dependencyPath);
+    expect(cache.get(tsConfig).files).toContain(mainFile);
   });
 
-  // skipping due to indeterminism. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry#avoid_where_possible
-  it.skip('cache should only contain 2 elements and GC should clean up old programs', async () => {
+  it('cache should only contain 2 elements and GC should clean up old programs', async () => {
     const cache = new ProgramCache(2);
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
@@ -263,41 +261,46 @@ describe('program', () => {
 
     getProgramForFile(await jsTsInput({ filePath: file1Path }), cache);
     expect(cache.programs.has(fakeTsConfig1)).toBeTruthy();
-    expect(cache.programs.get(fakeTsConfig1).files).toContain(file1Path);
+    expect(cache.get(fakeTsConfig1).files).toContain(file1Path);
 
-    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig1).program.deref())).toEqual(0);
 
     getProgramForFile(await jsTsInput({ filePath: file2Path }), cache);
     expect(cache.programs.has(fakeTsConfig2)).toBeTruthy();
-    expect(cache.programs.get(fakeTsConfig2).files).toContain(file2Path);
+    expect(cache.get(fakeTsConfig2).files).toContain(file2Path);
 
-    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
-    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig2).program.deref());
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig2).program.deref())).toEqual(1);
+    expect(cache.lru.get()).toContain(cache.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.get(fakeTsConfig2).program.deref());
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig2).program.deref())).toEqual(1);
 
     getProgramForFile(await jsTsInput({ filePath: file1Path }), cache);
 
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(1);
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig2).program.deref())).toEqual(0);
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig1).program.deref())).toEqual(1);
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig2).program.deref())).toEqual(0);
 
     getProgramForFile(await jsTsInput({ filePath: file3Path }), cache);
     expect(cache.programs.has(fakeTsConfig3)).toBeTruthy();
-    expect(cache.programs.get(fakeTsConfig3).files).toContain(file3Path);
+    expect(cache.get(fakeTsConfig3).files).toContain(file3Path);
 
-    expect(cache.lru.get()).not.toContain(cache.programs.get(fakeTsConfig2).program.deref());
-    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig1).program.deref());
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig1).program.deref())).toEqual(0);
-    expect(cache.lru.get()).toContain(cache.programs.get(fakeTsConfig3).program.deref());
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig3).program.deref())).toEqual(1);
+    expect(cache.lru.get()).not.toContain(cache.get(fakeTsConfig2).program.deref());
+    expect(cache.lru.get()).toContain(cache.get(fakeTsConfig1).program.deref());
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig1).program.deref())).toEqual(0);
+    expect(cache.lru.get()).toContain(cache.get(fakeTsConfig3).program.deref());
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig3).program.deref())).toEqual(1);
 
-    await awaitCleanUp(cache.programs.get(fakeTsConfig2).program.deref());
-    expect(cache.programs.get(fakeTsConfig2).program.deref()).toBeUndefined();
+    // skipping due to indeterminism. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry#avoid_where_possible
+    //await awaitCleanUp(cache.get(fakeTsConfig2).program.deref());
+    //expect(cache.get(fakeTsConfig2).program.deref()).toBeUndefined();
+
+    // Mock GC
+    // @ts-ignore
+    jest.spyOn(cache.get(fakeTsConfig2).program, 'deref').mockImplementation(() => {});
 
     getProgramForFile(await jsTsInput({ filePath: file2Path }), cache);
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig2).program.deref())).toEqual(1);
-    expect(cache.lru.get().indexOf(cache.programs.get(fakeTsConfig3).program.deref())).toEqual(0);
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig2).program.deref())).toEqual(1);
+    expect(cache.lru.get().indexOf(cache.get(fakeTsConfig3).program.deref())).toEqual(0);
   });
 
   it('changing tsconfig contents should trigger program creation', async () => {
@@ -315,9 +318,9 @@ describe('program', () => {
     tsconfigs.db.set(tsconfigPath, tsconfig);
 
     getProgramForFile(await jsTsInput({ filePath: file1Path }), cache, tsconfigs);
-    expect(cache.programs.get(tsconfigPath)).toBeDefined();
-    expect(cache.programs.get(tsconfigPath).files).toContain(file1Path);
-    expect(cache.programs.get(tsconfigPath).files).not.toContain(file2Path);
+    expect(cache.get(tsconfigPath)).toBeDefined();
+    expect(cache.get(tsconfigPath).files).toContain(file1Path);
+    expect(cache.get(tsconfigPath).files).not.toContain(file2Path);
     expect(cache.lru.get().length).toEqual(1);
 
     tsconfig.contents = JSON.stringify({
@@ -326,24 +329,26 @@ describe('program', () => {
     cache.clear();
 
     getProgramForFile(await jsTsInput({ filePath: file1Path }), cache, tsconfigs);
-    expect(cache.programs.get(tsconfigPath)).toBeDefined();
-    expect(cache.programs.get(tsconfigPath).files).toContain(file1Path);
-    expect(cache.programs.get(tsconfigPath).files).toContain(file2Path);
+    expect(cache.get(tsconfigPath)).toBeDefined();
+    expect(cache.get(tsconfigPath).files).toContain(file1Path);
+    expect(cache.get(tsconfigPath).files).toContain(file2Path);
     expect(cache.lru.get().length).toEqual(1);
   });
 
   it('should not find top dependencies if we limit lookup', async () => {
     const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'paths'));
     const tsconfigs = new ProjectTSConfigs(fixtures);
-    const cacheLimitingResolution = new ProgramCache();
     const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'paths', 'file.ts'));
-    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '1';
     const input = await jsTsInput({ filePath: filePath });
+
+    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '1';
+    const cacheLimitingResolution = new ProgramCache();
     getProgramForFile(input, cacheLimitingResolution, tsconfigs);
 
     process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] = '0';
     const cacheUnlimitedResolution = new ProgramCache();
     getProgramForFile(input, cacheUnlimitedResolution, tsconfigs);
+
     expect(cacheUnlimitedResolution.programs.values().next().value.files.length).toBeGreaterThan(
       cacheLimitingResolution.programs.values().next().value.files.length,
     );

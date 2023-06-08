@@ -37,8 +37,8 @@ export type ProgramResult = {
  * @param lru Cache to keep strong references to the latest used Programs to avoid GC
  */
 export class ProgramCache {
-  public programs: Map<string, ProgramResult>;
-  public lru: LRU<ts.Program>;
+  programs: Map<string, ProgramResult>;
+  lru: LRU<ts.Program>;
   constructor(max = 2) {
     this.programs = new Map<string, ProgramResult>();
     this.lru = new LRU<ts.Program>(max);
@@ -46,5 +46,25 @@ export class ProgramCache {
   clear() {
     this.programs.clear();
     this.lru.clear();
+  }
+
+  get(tsconfig: string) {
+    return this.programs.get(tsconfig);
+  }
+
+  set(tsconfig: string, programResult: ProgramResult) {
+    this.programs.set(tsconfig, programResult);
+  }
+
+  delete(tsconfig: string) {
+    this.programs.delete(tsconfig);
+  }
+
+  getPrograms() {
+    return this.programs;
+  }
+
+  mark(program: ts.Program) {
+    this.lru.set(program);
   }
 }
