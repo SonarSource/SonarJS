@@ -1,21 +1,14 @@
 <h2>Why is this an issue?</h2>
-<p>The size of a collection and the length of an array are always greater than or equal to zero. So testing that a size or length is greater than or
-equal to zero doesn’t make sense, since the result is always <code>true</code>. Similarly testing that it is less than zero will always return
-<code>false</code>. Perhaps the intent was to check the non-emptiness of the collection or array instead.</p>
-<h3>Noncompliant code example</h3>
+<p>The size of a collection and the length of an array are always greater than or equal to zero. Testing it doesn’t make sense, since the result is
+always <code>true</code>.</p>
 <pre>
-if (someSet.size &gt;= 0) {...} // Noncompliant
+if (someSet.size &gt;= 0) {...} // Noncompliant always true
 
-if (someMap.size &lt; 0) {...} // Noncompliant
-
-const result = someArray.length &gt;= 0;  // Noncompliant
+const result = someArray.length &gt;= 0;  // Noncompliant always true
 </pre>
-<h3>Compliant solution</h3>
+<p>Similarly testing that it is less than zero will always return <code>false</code>.</p>
 <pre>
-if (someSet.size &gt; 0) {...}
-
-if (someMap.size == 0) {...}
-
-const result = someArray.length &gt; 0;
+if (someMap.size &lt; 0) {...} // Noncompliant always false
 </pre>
+<p>Fix the code to properly check for emptiness if it was the intent, or remove the redundant code to keep the current behavior.</p>
 
