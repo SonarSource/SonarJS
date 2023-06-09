@@ -1,26 +1,31 @@
 <p>This rule is deprecated, and will eventually be removed.</p>
 <h2>Why is this an issue?</h2>
-<p>In the absence of enclosing curly braces, the line immediately after a conditional is the one that is conditionally executed. By both convention
-and good practice, such lines are indented. In the absence of both curly braces and indentation the intent of the original programmer is entirely
-unclear and perhaps not actually what is executed. Additionally, such code is highly likely to be confusing to maintainers.</p>
-<h3>Noncompliant code example</h3>
+<p>When the line immediately after a conditional has neither curly braces nor indentation, the intent of the code is unclear and perhaps not what is
+executed. Additionally, such code is confusing to maintainers.</p>
 <pre>
 if (condition)  // Noncompliant
 doTheThing();
-
-doTheOtherThing();
-somethingElseEntirely();
-
-foo();
+doTheOtherThing(); // Was the intent to call this function unconditionally?
 </pre>
-<h3>Compliant solution</h3>
+<p>It becomes even more confusing and bug-prone if lines get commented out.</p>
+<pre>
+if (condition)  // Noncompliant
+//  doTheThing();
+doTheOtherThing(); // Was the intent to call this function conditionally?
+</pre>
+<p>Indentation alone or together with curly braces makes the intent clear.</p>
 <pre>
 if (condition)
   doTheThing();
+doTheOtherThing(); // Clear intent to call this function unconditionally
 
-doTheOtherThing();
-somethingElseEntirely();
+// or
 
-foo();
+if (condition) {
+  doTheThing();
+}
+doTheOtherThing(); // Clear intent to call this function unconditionally
 </pre>
+<p>This rule raises an issue if the line controlled by a conditional has the same indentation as the conditional and is not enclosed in curly
+braces.</p>
 

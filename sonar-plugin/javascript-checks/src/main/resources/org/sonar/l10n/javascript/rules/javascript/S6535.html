@@ -1,28 +1,29 @@
-<p>In JavaScript, we can use the <code>/</code> (backslash) character to escape special characters inside a string, a template literal, or a regular
-expression.</p>
-<p>It indicates that the next character should be treated as a literal character rather than as a special character or string delimiter.</p>
-<p>For instance, it is common to escape single quotes inside a string literal using the single quote delimiter like <code>'It\'s a beautiful
-day'</code>.</p>
-<p>Escaping is only meaningful for special characters.</p>
 <h2>Why is this an issue?</h2>
-<p>Escaping non-special characters in strings, template literals, and regular expressions doesn’t affect their value. Therefore, useless escapes
-impact code readability and could even denote a bug in the code if the developer left it by mistake or intended to escape another special character
-instead.</p>
-<h2>How to fix it</h2>
-<p>We can safely remove a useless character escape without changing the original behaviour.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
+<p>The <code>\</code> (backslash) character indicates that the next character should be treated as a literal character rather than as a special
+character or string delimiter. For instance, it is common to escape single quotes inside a string literal using the single quote delimiter like
+<code>'It\'s a beautiful day'</code>. Escaping is only meaningful for special characters. Escaping non-special characters in strings, template
+literals, and regular expressions doesn’t affect their value.</p>
 <pre>
-const regex = /[\[]/;
-const octal = '\8';
-const hello = 'Hello, world\!';
-const path  = `\/${some}\/${dir}`;
+const regex = /[\[]/;  // Noncompliant: '[' does not need to be escaped when inside a character class '[]'
+const octal = '\8';    // Noncompliant: '8' is not valid octal number
+const hello = 'Hello, world\!';    // Noncompliant: '!' is not a special character
+const path  = `\/${some}\/${dir}`; // Noncompliant: '/' is not a special character
 </pre>
-<h4>Compliant solution</h4>
+<p>Therefore, useless escapes impact code readability and could even denote a bug in the code if the developer left it by mistake or intended to
+escape another special character instead.</p>
+<p>You should check if the escape character was not misplaced. Useless character escapes can safely be removed without changing the original
+value.</p>
 <pre>
 const regex = /[[]/;
 const octal = '8';
 const hello = 'Hello, world!';
 const path  = `/${some}/${dir}`;
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping">MDN Escaping in Regular expressions</a>
+  </li>
+  <li> <a href="https://www.w3schools.com/js/js_strings.asp">W3 schools - JavaScript strings</a> </li>
+</ul>
 
