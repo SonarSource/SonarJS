@@ -1,21 +1,58 @@
-<p>Disallow assigning values to variables used for imports.</p>
 <h2>Why is this an issue?</h2>
-<p>Assigning a new value to an import variable is a poor practice that affects code readability.</p>
-<h3>What is the potential impact?</h3>
-<p>Bad practices can cause bugs. When using the reassigned variable, if you are expecting to access the imported value, but are in fact using
-something else can lead to unexpected behaviour that is hard to debug.</p>
-<p>More importantly, it will cause a runtime error when using ES modules. With TypeScript, it will raise a compilation error.</p>
-<h2>How to fix it</h2>
-<p>You should use a separate variable to store your other values and make constant the import variable.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
+<p>Assigning a value to an import variable will cause a runtime error and will raise a compilation error in TypeScript.</p>
+<h3>Named imports</h3>
+<p>When using named imports, the imported identifier is a <em>live binding</em> exported by another module. Live bindings can be updated or reassigned
+by the exporting module, and the imported value would also change. The importing module cannot reassign it.</p>
 <pre>
-let { readFile } = require('fs');
-readFile = 'hello world!';
+import { exportedObject } from 'module.js';
+exportedObject = 'hello world!';   // Noncompliant: TypeError: Assignment to constant variable.
 </pre>
-<h4>Compliant solution</h4>
+<p>This rule will <strong>not</strong> raise an issue when a module mutates the imported object. Be aware that all other modules importing the same
+value will observe the mutated value.</p>
 <pre>
-const { readFile } = require('fs');
-const text = 'hello world!';
+import { exportedObject } from 'module.js';
+exportedObject.newAttribute = 'hello world!'; // exportedObject now contains newAttribute and can be seen from all other modules importing it
 </pre>
+<h3>Namespace and dynamic imports</h3>
+<p>This rule will raise an issue when modifying members of a <a
+href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object"><em>module namespace
+object</em></a>. A module namespace object is a <a
+href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal">sealed object</a> that describes all exports from
+a module.</p>
+<p>This can be done using</p>
+<ul>
+  <li> a namespace import </li>
+</ul>
+<pre>
+import * as module from 'module.js';
+module.newObject = module.exportedObject; // Noncompliant: TypeError: Cannot add property readPath, object is not extensible
+</pre>
+<ul>
+  <li> the fulfillment value of a dynamic import. </li>
+</ul>
+<pre>
+import('module.js').then(module =&gt; {
+  module.newObject = module.exportedObject; // Noncompliant: TypeError: Cannot add property readPath, object is not extensible
+})
+</pre>
+<h3>Default imports</h3>
+<p>Default imports are live bindings to the <code>default</code> export. As with the other forms of <code>import</code> declarations, the importing
+module cannot reassign it.</p>
+<pre>
+import module from 'module.js';
+module = 'hello world!';   // Noncompliant: TypeError: Assignment to constant variable.
+</pre>
+<p>However, the object which <code>default</code> refers to is not a <em>live binding</em> and may still be mutated by importing modules.</p>
+<pre>
+import moduleDefault from 'module.js';
+moduleDefault.newAttribute = 'hello world!'; // module.default now contains newAttribute and can be seen from all other modules importing it
+</pre>
+<h2>Resources</h2>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">MDN - import</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object">MDN - Module namespace
+  object</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed#description">MDN - Sealed Objects</a>
+  </li>
+</ul>
 
