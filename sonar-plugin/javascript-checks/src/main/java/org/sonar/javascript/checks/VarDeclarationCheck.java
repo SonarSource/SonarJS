@@ -31,6 +31,6 @@ public class VarDeclarationCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "sonar-no-var";
+    return "no-var";
   }
 }
