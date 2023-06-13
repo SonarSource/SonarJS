@@ -1,9 +1,0 @@
-{
-'amplify:test-jquery-versions.js':[
-8,
-9,
-],
-'amplify:test-server.js':[
-8,
-],
-}
