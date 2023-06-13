@@ -20,9 +20,6 @@
 'jshint:tests/unit/fixtures/es6-template-literal.js':[
 22,
 ],
-'jshint:tests/unit/fixtures/identifiers.js':[
-6,
-],
 'jshint:tests/unit/fixtures/ignoreDelimiters.js':[
 3,
 ],
