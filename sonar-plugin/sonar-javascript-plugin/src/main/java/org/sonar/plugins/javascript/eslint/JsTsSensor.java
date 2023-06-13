@@ -49,6 +49,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private boolean useFoundTSConfigs = false;
   private boolean createWildcardTSConfig = false;
 
+  // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
     JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
