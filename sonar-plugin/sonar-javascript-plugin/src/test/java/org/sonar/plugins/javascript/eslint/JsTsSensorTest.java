@@ -466,10 +466,10 @@ class JsTsSensorTest {
       eslintBridgeServerMock,
       analysisWarnings,
       monitoring,
+      processAnalysis,
       ctx.runtime().getProduct() == SonarProduct.SONARLINT
         ? new SonarLintJavaScriptProjectChecker()
-        : null,
-      processAnalysis
+        : null
     );
   }
 

@@ -54,8 +54,18 @@ public class JsTsSensor extends AbstractEslintSensor {
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
     AnalysisProcessor analysisProcessor
+  ) {
+    this(checks, eslintBridgeServer, analysisWarnings, monitoring, analysisProcessor, null);
+  }
+
+  public JsTsSensor(
+    JsTsChecks checks,
+    EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings,
+    Monitoring monitoring,
+    AnalysisProcessor analysisProcessor,
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
