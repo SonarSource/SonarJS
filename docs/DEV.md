@@ -65,6 +65,8 @@ Note that you can fix the port in `orchestrator.properties files`, e.g. `orchest
 
 You can run your own Node.js process manually and set the environment variable `SONARJS_EXISTING_NODE_PROCESS_PORT` with the value of the port where your process is listening to. When set, SonarJS will not start a new Node process and will send the analysis requests to the specified port instead.
 
+When using this for the ruling tests, make sure that you run them in series (and not in parallel), by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
+
 ## Adding a rule
 
 ### Rule Description
