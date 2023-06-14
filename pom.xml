@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>66.0.234</version>
+    <version>68.0.0.247</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.3.0-SNAPSHOT</version>
+  <version>10.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
@@ -73,7 +73,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <maven.compiler.release>11</maven.compiler.release>
     <jdk.min.version>11</jdk.min.version>
-    <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>

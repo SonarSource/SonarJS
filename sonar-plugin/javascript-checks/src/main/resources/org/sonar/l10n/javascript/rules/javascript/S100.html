@@ -1,19 +1,17 @@
-<h2>Why is this an issue?</h2>
-<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that all function names match a provided regular expression.</p>
-<h3>Noncompliant code example</h3>
-<p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
+<p>Shared naming conventions allow teams to collaborate efficiently.</p>
+<p>This rule raises an issue when a function or a method name does not match a provided regular expression.</p>
+<p>For example, with the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>, the function:</p>
 <pre>
 function DoSomething(){...}  // Noncompliant
 </pre>
-<h3>Compliant solution</h3>
+<p>should be renamed to</p>
 <pre>
 function doSomething(){...}
 </pre>
 <h3>Exceptions</h3>
-<p>This rule ignores React Functional Components, which are JavaScript functions named with a capital letter and returning a React element (JSX
-syntax).</p>
+<p>This rule ignores React Functional Components, JavaScript functions named with a capital letter and returning a React element (JSX syntax).</p>
 <pre>
-function Welcome() {
+function Welcome() { // Compliant by exception
   const greeting = 'Hello, World!';
 
   // ...

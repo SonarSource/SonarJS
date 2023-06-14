@@ -91,7 +91,7 @@ export function getProgramForFile(
     // could now belong to another program
     const newTsConfigs = tsconfigs.tsConfigLookup(input.baseDir);
     if (newTsConfigs) {
-      programCache.clear();
+      cache.clear();
     }
   }
 
@@ -100,44 +100,44 @@ export function getProgramForFile(
     try {
       if (!tsconfig.isFallbackTSConfig) {
         // looping through actual tsconfigs in fs
-        let programResult = cache.programs.get(tsconfig.filename);
+        let programResult = cache.get(tsconfig.filename);
 
         if (
           !programResult ||
           (programResult.files.includes(normalizedPath) && !programResult.program.deref())
         ) {
           programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
-          cache.programs.set(tsconfig.filename, programResult);
+          cache.set(tsconfig.filename, programResult);
         }
         if (programResult.files.includes(normalizedPath)) {
           const program = programResult.program.deref()!;
-          cache.lru.set(program);
+          cache.mark(program);
           debug(`Analyzing ${input.filePath} using tsconfig ${tsconfig.filename}`);
           return program;
         }
       } else {
         // last item in loop is a fallback tsConfig
         //we first check existing fallback programs
-        for (const [tsConfigPath, programResult] of cache.programs) {
+        for (const [tsConfigPath, programResult] of cache.getPrograms()) {
           if (programResult.files.includes(normalizedPath) && programResult.isFallbackProgram) {
             const program = programResult.program.deref();
             if (program) {
-              cache.lru.set(program);
+              cache.mark(program);
               debug(`Analyzing file ${input.filePath} using tsconfig ${tsConfigPath}`);
               return program;
             } else {
-              cache.programs.delete(tsConfigPath);
+              cache.delete(tsConfigPath);
             }
           }
         }
         // no existing fallback program contained our file, creating a fallback program with our file
         const programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
         programResult.isFallbackProgram = true;
-        cache.programs.set(tsconfig.filename, programResult);
+        cache.set(tsconfig.filename, programResult);
         if (programResult.files.includes(normalizedPath)) {
           const program = programResult.program.deref()!;
-          cache.lru.set(program);
-          debug(`Analyzing file ${input.filePath} using tsconfig ${tsconfig.filename}`);
+          cache.mark(program);
+          debug(`Analyzing file ${input.filePath} using fallback tsconfig ${tsconfig.filename}`);
           return program;
         }
       }
@@ -292,7 +292,7 @@ export function createProgram(
     }
   }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
-
+  debug(`Created program for ${tsConfig} with ${files.length} files`);
   return {
     files,
     projectReferences,
