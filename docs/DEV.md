@@ -100,7 +100,7 @@ This script:
 3. Update generated files
    - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
    - If your rule has configurations or you are using some from an ESLint rule, override the `configurations()` method of the Java check class
-     - You can use a `MyRuleCheckTest.java` test case to verify how the options will be serialized to JSON as shown [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
+     - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be serialized to JSON as shown [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
    - If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
    - In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
      ```json
