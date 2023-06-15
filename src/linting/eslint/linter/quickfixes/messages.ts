@@ -50,6 +50,7 @@ const quickFixMessages = new Map<string, string>([
   ['prefer-namespace-keyword', "Replace with 'namespace' keyword"],
   ['prefer-readonly', "Add 'readonly'"],
   ['no-non-null-assertion', "Replace with optional chaining '.?'"],
+  ['no-unneeded-ternary', 'Replace with a simpler expression'],
 ]);
 
 /**
