@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
@@ -32,5 +34,15 @@ public class NoUnneededTernaryCheck implements EslintBasedCheck {
   @Override
   public String eslintKey() {
     return "no-unneeded-ternary";
+  }
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
+  }
+
+  private static class Config {
+
+    boolean defaultAssignment = false;
   }
 }
