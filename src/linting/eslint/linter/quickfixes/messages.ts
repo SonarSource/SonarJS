@@ -44,6 +44,7 @@ const quickFixMessages = new Map<string, string>([
   ['prefer-while', "Replace with 'while' loop"],
   ['no-empty-interface', 'Replace with type alias'],
   ['no-inferrable-types', 'Remove type declaration'],
+  ['no-undef-init', 'Remove initialization'],
   ['no-unnecessary-type-arguments', 'Remove type argument'],
   ['no-unnecessary-type-assertion', 'Remove type assertion'],
   ['prefer-function-type', 'Replace with a function type'],
