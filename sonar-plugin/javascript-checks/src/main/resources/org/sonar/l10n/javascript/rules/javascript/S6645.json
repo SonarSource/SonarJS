@@ -1,0 +1,18 @@
+{
+  "title": "Variables should not be initialized to undefined",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6645",
+  "sqKey": "S6645",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]  
+}
