@@ -26,11 +26,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.zip.GZIPInputStream;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.tukaani.xz.XZInputStream;
 
 class BundleUtils {
 
@@ -41,34 +37,26 @@ class BundleUtils {
   static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {
     Objects.requireNonNull(resource);
     try (
-      InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
-      ArchiveInputStream archive = new TarArchiveInputStream(stream)
+      InputStream stream = new BufferedInputStream(resource);
+      XZInputStream archive = new XZInputStream(stream);
     ) {
-      ArchiveEntry entry;
-      while ((entry = archive.getNextEntry()) != null) {
-        if (!archive.canReadEntryData(entry)) {
-          throw new IllegalStateException("Failed to extract bundle");
+      int nextBytes;
+      byte[] buf = new byte[5 * 1024 * 1024];
+      Path entryFile = entryPath(targetPath);
+      try (OutputStream os = Files.newOutputStream(entryFile)) {
+        while ((nextBytes = archive.read(buf)) > -1) {
+          System.out.println("read " + nextBytes + " bytes");
+          os.write(buf, 0, nextBytes);
         }
-        Path entryFile = entryPath(targetPath, entry);
-        if (entry.isDirectory()) {
-          Files.createDirectories(entryFile);
-        } else {
-          Path parent = entryFile.getParent();
-          Files.createDirectories(parent);
-          try (OutputStream os = Files.newOutputStream(entryFile)) {
-            IOUtils.copy(archive, os);
-          }
-        }
+        stream.close();
       }
     }
   }
 
-  private static Path entryPath(Path targetPath, ArchiveEntry entry) {
-    Path entryPath = targetPath.resolve(entry.getName()).normalize();
+  private static Path entryPath(Path targetPath) {
+    Path entryPath = targetPath.resolve("sonarjs").normalize();
     if (!entryPath.startsWith(targetPath)) {
-      throw new IllegalStateException(
-        "Archive entry " + entry.getName() + " is not within " + targetPath
-      );
+      throw new IllegalStateException("Archive entry 'sonarjs' is not within " + targetPath);
     }
     return entryPath;
   }

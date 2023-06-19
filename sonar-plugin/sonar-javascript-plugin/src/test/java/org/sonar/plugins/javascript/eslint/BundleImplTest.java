@@ -35,18 +35,19 @@ class BundleImplTest {
 
   @Test
   void test() throws Exception {
-    BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
+    BundleImpl bundle = new BundleImpl("/sonarjs.xz");
     bundle.deploy(deployLocation);
     String script = bundle.startServerScript();
     File scriptFile = new File(script);
     assertThat(scriptFile).exists();
+    var foo = scriptFile.length();
     String content = new String(Files.readAllBytes(scriptFile.toPath()), StandardCharsets.UTF_8);
     assertThat(content).startsWith("#!/usr/bin/env node");
   }
 
   @Test
   void should_not_fail_when_deployed_twice() throws Exception {
-    BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
+    BundleImpl bundle = new BundleImpl("/test-bundle.xz");
     bundle.deploy(deployLocation);
     bundle.deploy(deployLocation);
     // no exception expected

@@ -38,8 +38,8 @@ public class BundleImpl implements Bundle {
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
 
   // this archive is created in eslint-bridge module
-  private static final String BUNDLE_LOCATION = "/sonarjs-1.0.0.tgz";
-  private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server";
+  private static final String BUNDLE_LOCATION = "/sonarjs.xz";
+  private static final String DEFAULT_STARTUP_SCRIPT = "sonarjs";
   private Path deployLocation;
   private final String bundleLocation;
 
