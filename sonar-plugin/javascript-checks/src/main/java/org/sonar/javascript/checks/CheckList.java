@@ -281,6 +281,7 @@ public final class CheckList {
       NoSameArgumentAssertCheck.class,
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
+      NoUndefInitCheck.class,
       NoUniqKeyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUnnecessaryTypeConstraintCheck.class,

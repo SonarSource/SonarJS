@@ -1,0 +1,18 @@
+<p>Variables should not be initialized to <code>undefined</code>.</p>
+<h2>Why is this an issue?</h2>
+<p>Initializing a variable to <code>undefined</code> is unnecessary and should be avoided. A variable will automatically be set to
+<code>undefined</code> if you declare it without initialization, so the initialization code is redundant in this case.</p>
+<h2>How to fix it</h2>
+<p>Declare the variable without initialization.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+var foo = undefined;
+let bar = undefined;
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+var foo;
+let bar;
+</pre>
+

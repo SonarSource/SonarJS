@@ -38,6 +38,7 @@ export const quickFixRules = new Set([
   'no-extra-semi',
   'no-return-await',
   'no-trailing-spaces',
+  'no-undef-init',
   'no-unneeded-ternary',
   'no-unsafe-negation',
   'no-var',
