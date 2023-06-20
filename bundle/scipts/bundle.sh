@@ -14,7 +14,7 @@ cd ..
 npm prune --omit=dev
 
 # build bundle
-./bundle/node_modules/.bin/pkg . --out-path=bundle/dist --targets=node18-macos-arm64 # TODO add other platforms
+./bundle/node_modules/.bin/pkg . --out-path=bundle/dist --targets=node18-macos-arm64 # TODO add other platforms: ,node18-macos-x64,node18-win-x64,node18-linux-x64
 
 # compress
 xz -v -9 ./bundle/dist/sonarjs
