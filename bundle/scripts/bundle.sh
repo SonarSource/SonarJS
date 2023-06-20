@@ -19,5 +19,6 @@ npm prune --omit=dev
 # compress
 xz -v -9 ./bundle/dist/sonarjs
 
-
+# go back to root
+cd "$SCRIPT_FOLDER/../.."
 
