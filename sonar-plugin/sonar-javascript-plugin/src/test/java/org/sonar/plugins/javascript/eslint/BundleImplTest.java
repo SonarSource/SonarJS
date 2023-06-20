@@ -21,10 +21,9 @@ package org.sonar.plugins.javascript.eslint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -38,11 +37,8 @@ class BundleImplTest {
     BundleImpl bundle = new BundleImpl("/sonarjs.xz");
     bundle.deploy(deployLocation);
     String script = bundle.startServerScript();
-    File scriptFile = new File(script);
-    assertThat(scriptFile).exists();
-    var foo = scriptFile.length();
-    String content = new String(Files.readAllBytes(scriptFile.toPath()), StandardCharsets.UTF_8);
-    assertThat(content).startsWith("#!/usr/bin/env node");
+    long size = Files.size(Paths.get(script));
+    assertThat(size).isEqualTo(180951024);
   }
 
   @Test
