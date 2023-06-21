@@ -25,7 +25,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Objects;
+import java.util.Set;
 import org.tukaani.xz.XZInputStream;
 
 class BundleUtils {
@@ -49,6 +52,8 @@ class BundleUtils {
           os.write(buf, 0, nextBytes);
         }
         stream.close();
+        Set<PosixFilePermission> executable = PosixFilePermissions.fromString("rwxr-xr-x");
+        Files.setPosixFilePermissions(entryFile, executable);
       }
     }
   }
