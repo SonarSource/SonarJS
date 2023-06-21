@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,13 +44,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.tukaani.xz.XZInputStream;
 
 /**
  * This test extracts eslint-bridge archive into tmp directory and starts eslint-bridge using node, then tries to analyze
@@ -68,7 +66,7 @@ class SonarJsIntegrationTest {
 
   @Test
   void test() throws Exception {
-    String filename = "sonarjs-1.0.0.tgz";
+    String filename = "sonarjs.xz";
     EslintBridge eslintBridge = new EslintBridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
       Path fileToExtract = fileSystem.getPath(filename);
@@ -77,6 +75,8 @@ class SonarJsIntegrationTest {
       assertStatus(eslintBridge);
       eslintBridge.request(gson.toJson(InitLinter.build("sonar-no-unused-vars")), "init-linter");
       assertAnalyzeJs(eslintBridge);
+    } catch (Exception e) {
+      System.out.println(e);
     } finally {
       eslintBridge.stop();
     }
@@ -117,35 +117,33 @@ class SonarJsIntegrationTest {
   }
 
   static void extractArchive(Path tgz, Path targetPath) throws IOException {
+    //extractFromClasspath(getClass().getResourceAsStream(tgz), targetPath);
+    extractFromClasspath(Files.newInputStream(tgz), targetPath);
+  }
+
+  static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {
+    Objects.requireNonNull(resource);
     try (
-      InputStream stream = new GZIPInputStream(Files.newInputStream(tgz));
-      ArchiveInputStream archive = new TarArchiveInputStream(stream)
+      InputStream stream = new BufferedInputStream(resource);
+      XZInputStream archive = new XZInputStream(stream);
     ) {
-      ArchiveEntry entry;
-      while ((entry = archive.getNextEntry()) != null) {
-        if (!archive.canReadEntryData(entry)) {
-          throw new IllegalStateException("Failed to extract bundle");
+      int nextBytes;
+      byte[] buf = new byte[8 * 1024 * 1024];
+      Path entryFile = entryPath(targetPath);
+      try (OutputStream os = Files.newOutputStream(entryFile)) {
+        while ((nextBytes = archive.read(buf)) > -1) {
+          System.out.println("read " + nextBytes + " bytes");
+          os.write(buf, 0, nextBytes);
         }
-        Path entryFile = entryPath(targetPath, entry);
-        if (entry.isDirectory()) {
-          Files.createDirectories(entryFile);
-        } else {
-          Path parent = entryFile.getParent();
-          Files.createDirectories(parent);
-          try (OutputStream os = Files.newOutputStream(entryFile)) {
-            IOUtils.copy(archive, os);
-          }
-        }
+        stream.close();
       }
     }
   }
 
-  private static Path entryPath(Path targetPath, ArchiveEntry entry) {
-    Path entryPath = targetPath.resolve(entry.getName()).normalize();
+  private static Path entryPath(Path targetPath) {
+    Path entryPath = targetPath.resolve("sonarjs").normalize();
     if (!entryPath.startsWith(targetPath)) {
-      throw new IllegalStateException(
-        "Archive entry " + entry.getName() + " is not within " + targetPath
-      );
+      throw new IllegalStateException("Archive entry 'sonarjs' is not within " + targetPath);
     }
     return entryPath;
   }
@@ -163,8 +161,7 @@ class SonarJsIntegrationTest {
     void start(Path dest) throws IOException {
       port = findOpenPort();
       String[] cmd = {
-        "node",
-        dest.resolve("package/bin/server").toString(),
+        dest.resolve("sonarjs").toString(),
         String.valueOf(port),
         "127.0.0.1",
         temp.toString(),

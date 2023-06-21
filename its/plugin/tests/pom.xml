@@ -74,6 +74,12 @@
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.tukaani</groupId>
+        <artifactId>xz</artifactId>
+        <version>1.9</version>
+        <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
