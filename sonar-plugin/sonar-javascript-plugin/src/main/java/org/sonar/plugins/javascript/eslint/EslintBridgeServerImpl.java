@@ -189,7 +189,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       serverHasStarted();
     }
     PROFILER.stopDebug();
-    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
   boolean waitServerToStart(int timeoutMs) {

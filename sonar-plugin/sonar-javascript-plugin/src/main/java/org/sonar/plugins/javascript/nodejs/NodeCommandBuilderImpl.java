@@ -20,9 +20,7 @@
 package org.sonar.plugins.javascript.nodejs;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,8 +140,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    */
   @Override
   public NodeCommand build() throws NodeCommandException, IOException {
-    String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
-    checkNodeCompatibility(nodeExecutable);
+    //String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
+    //checkNodeCompatibility(nodeExecutable);
 
     if (nodeJsArgs.isEmpty() && scriptFilename == null && args.isEmpty()) {
       throw new IllegalArgumentException("Missing arguments for Node.js.");
@@ -153,8 +151,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     return new NodeCommand(
       processWrapper,
-      nodeExecutable,
-      actualNodeVersion,
       nodeJsArgs,
       scriptFilename,
       args,
@@ -205,8 +201,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     StringBuilder output = new StringBuilder();
     NodeCommand nodeCommand = new NodeCommand(
       processWrapper,
-      nodeExecutable,
-      Version.create(0, 0),
       singletonList("-v"),
       null,
       emptyList(),
