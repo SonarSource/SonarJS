@@ -57,6 +57,7 @@ export const quickFixRules = new Set([
   'no-empty',
   'no-throw-literal',
   'no-unreachable',
+  'no-useless-constructor',
   'use-isnan',
 
   // eslint-plugin-sonarjs

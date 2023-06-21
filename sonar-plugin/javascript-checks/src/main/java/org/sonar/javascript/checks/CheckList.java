@@ -290,6 +290,7 @@ public final class CheckList {
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
       NoUselessCatchCheck.class,
+      NoUselessConstructorCheck.class,
       NoUselessReactSetstateCheck.class,
       NoVueBypassSanitizationCheck.class,
       NoWeakCipherCheck.class,
