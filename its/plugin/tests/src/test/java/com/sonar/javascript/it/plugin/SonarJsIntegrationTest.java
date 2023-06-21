@@ -41,10 +41,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.tukaani.xz.XZInputStream;
@@ -136,6 +135,8 @@ class SonarJsIntegrationTest {
           os.write(buf, 0, nextBytes);
         }
         stream.close();
+        Set<PosixFilePermission> executable = PosixFilePermissions.fromString("rwxr-xr-x");
+        Files.setPosixFilePermissions(entryFile, executable);
       }
     }
   }
