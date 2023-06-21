@@ -76,6 +76,9 @@ public class NodeCommand {
       LOG.debug("Launching command {}", toString());
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
+      LOG.error("error: " + e.toString());
+      LOG.error("command: " + command);
+      LOG.error("env: " + env);
       throw new NodeCommandException(
         "Error when running: '" + toString() + "'. Is Node.js available during analysis?",
         e
