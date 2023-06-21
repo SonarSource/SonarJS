@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { APIError } from '../../errors';
+import { debug } from '../../helpers';
 import { LinterWrapper, RuleConfig } from './linter';
 
 export * from './linter';
@@ -50,7 +51,7 @@ export function initializeLinter(
   globals: string[] = [],
   linterId = 'default',
 ) {
-  console.log(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
+  debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
   linters[linterId] = new LinterWrapper({ inputRules, environments, globals });
 }
 

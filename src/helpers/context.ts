@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { debug } from './debug';
+
 /**
  * A container of contextual information
  *
@@ -55,6 +57,6 @@ export function getContext(): Context {
  * @param ctx the new global context
  */
 export function setContext(ctx: Context) {
-  console.log(`Context set with ${JSON.stringify(ctx)}`);
+  debug(`Context set with ${JSON.stringify(ctx)}`);
   context = { ...ctx };
 }
