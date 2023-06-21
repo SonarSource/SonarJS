@@ -1,0 +1,34 @@
+<h2>Why is this an issue?</h2>
+<p>If the class declaration does not include a constructor, one is automatically created, so there is no need to provide an empty constructor, or one
+that just delegates to the parent class.</p>
+<h3>Noncompliant code example</h3>
+<pre>
+class Foo {
+    constructor() {}  // Noncompliant, empty
+}
+
+class Bar extends Foo {
+    constructor(params) { // Noncompliant, just delegates to the parent
+        super(params);
+    }
+}
+</pre>
+<h3>Compliant solution</h3>
+<pre>
+class Foo {
+    constructor() {
+        doSomething();
+    }
+}
+
+class Bar extends Foo {
+    constructor(params) {
+        super(params);
+        doSomethingElse();
+    }
+}
+</pre>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor">MDN - constructor</a> </li>
+</ul>
+
