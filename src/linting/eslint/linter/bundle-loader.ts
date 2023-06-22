@@ -25,7 +25,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { rules as internalRules } from '..';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
-/* import { debug, getContext } from 'helpers'; */
+import { debug, getContext } from '../../../helpers';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
@@ -96,8 +96,8 @@ const loaders: { [key: string]: Function } = {
    * including rule keys and rule definitions that cannot be provided to the linter
    * wrapper using the same feeding channel as rules from the active quality profile.
    */
-  contextRules(/* linter: Linter */) {
-    /*     const { bundles } = getContext();
+  contextRules(linter: Linter) {
+    const { bundles } = getContext();
     const customRules: CustomRule[] = [];
     for (const ruleBundle of bundles) {
       const bundle = require(ruleBundle);
@@ -105,7 +105,7 @@ const loaders: { [key: string]: Function } = {
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
     }
-    loadCustomRules(linter, customRules); */
+    loadCustomRules(linter, customRules);
   },
   /**
    * Loads internal custom rules
