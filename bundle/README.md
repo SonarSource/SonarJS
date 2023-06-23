@@ -12,9 +12,3 @@ The build binary will also include the files/folders specified in the root `pack
 ## native
 
 [Instructions](https://nodejs.org/api/single-executable-applications.html)
-
-## caxa
-
-```bash
-./node_modules/.bin/caxa --input caxa --output dist-caxa/sonarjs -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/bin/server"
-```
