@@ -8,7 +8,3 @@ The build binary will also include the files/folders specified in the root `pack
 ```bash
 ./bundle/node_modules/.bin/pkg . --out-path=bundle/dist --targets=node18-macos-arm64,node18-win-x64,node18-macos-x64,node18-linux-x64
 ```
-
-## native
-
-[Instructions](https://nodejs.org/api/single-executable-applications.html)
