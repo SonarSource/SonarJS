@@ -4,13 +4,13 @@
 SCRIPT_FOLDER=$(cd $(dirname "$0"); pwd)
 cd "$SCRIPT_FOLDER/.."
 
-# install pkg
+echo "installing pkg in bundle/ folder"
 npm ci
 
 # go to the root of the project
 cd ..
 
-# remove dev dependencies
+echo "removing dev dependencies from root"
 npm prune --omit=dev
 
 # build bundle
