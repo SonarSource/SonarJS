@@ -29,3 +29,5 @@ sonar-plugin/sonar-javascript-plugin/src/test/resources
 
 typedoc/site
 typedoc/models
+
+bundle/
