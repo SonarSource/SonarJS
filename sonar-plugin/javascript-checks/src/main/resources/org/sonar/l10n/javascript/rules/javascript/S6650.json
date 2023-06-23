@@ -1,0 +1,19 @@
+{
+  "title": "Renaming import, export, and destructuring assignments should not be to the same name",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6650",
+  "sqKey": "S6650",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]  
+}
