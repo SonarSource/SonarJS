@@ -23,11 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
@@ -83,7 +79,7 @@ public class RulesBundles {
       try {
         Path location = Files.createTempDirectory(target, "custom-rules");
         LOG.debug("Deploying custom rules bundle {} to {}", bundle, location);
-        BundleUtils.extractFromClasspath(bundle.openStream(), location);
+        BundleUtils.oldExtractFromClasspath(bundle.openStream(), location);
         Path deployedBundle = location.resolve("package").toAbsolutePath();
         if (!Files.exists(deployedBundle)) {
           // Inside tgz we expect "package" directory, this is npm contract.
