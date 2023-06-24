@@ -49,7 +49,7 @@ class BundleUtils {
       XZInputStream archive = new XZInputStream(stream);
     ) {
       int nextBytes;
-      byte[] buf = new byte[5 * 1024 * 1024];
+      byte[] buf = new byte[8 * 1024 * 1024];
       Path entryFile = entryPath(targetPath);
       try (OutputStream os = Files.newOutputStream(entryFile)) {
         while ((nextBytes = archive.read(buf)) > -1) {
