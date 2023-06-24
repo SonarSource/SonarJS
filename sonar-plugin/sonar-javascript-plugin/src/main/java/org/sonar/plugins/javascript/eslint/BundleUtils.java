@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -57,7 +58,14 @@ class BundleUtils {
           os.write(buf, 0, nextBytes);
         }
         stream.close();
-        Set<PosixFilePermission> executable = PosixFilePermissions.fromString("rwxr-xr-x");
+        Set<PosixFilePermission> executable = EnumSet.of(
+          PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE,
+          PosixFilePermission.OWNER_EXECUTE,
+          PosixFilePermission.GROUP_READ,
+          PosixFilePermission.GROUP_WRITE,
+          PosixFilePermission.OTHERS_READ,
+          PosixFilePermission.OTHERS_EXECUTE);
         Files.setPosixFilePermissions(entryFile, executable);
       }
     }

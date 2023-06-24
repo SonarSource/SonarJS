@@ -135,7 +135,14 @@ class SonarJsIntegrationTest {
           os.write(buf, 0, nextBytes);
         }
         stream.close();
-        Set<PosixFilePermission> executable = PosixFilePermissions.fromString("rwxr-xr-x");
+        Set<PosixFilePermission> executable = EnumSet.of(
+          PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE,
+          PosixFilePermission.OWNER_EXECUTE,
+          PosixFilePermission.GROUP_READ,
+          PosixFilePermission.GROUP_WRITE,
+          PosixFilePermission.OTHERS_READ,
+          PosixFilePermission.OTHERS_EXECUTE);
         Files.setPosixFilePermissions(entryFile, executable);
       }
     }
