@@ -16,6 +16,8 @@ simple hello world
 
 Tests the passing of CLI args and the loading of an external file
 
+This requires that you install `lodash` somewhere reachable for `required-file.js`
+
 ```bash
 ./node_modules/.bin/pkg ./debug/hello-require.js -t=node18-macos-arm64 -o=./dist/hello-require
 
@@ -26,6 +28,8 @@ Tests the passing of CLI args and the loading of an external file
 
 Used to test linting a file with an eslint rule.
 Concretely, it was used to test the execution of the UCFG generating rule that is created by sonar-security [here](https://github.com/SonarSource/sonar-security/blob/5c3495aefc2beb0b661a805d387f4b73e069e2fc/frontend/js/bundle/esbuild.js#L4).
+
+This requires that you install `eslint` somewhere reachable for `required-file.js`
 
 ```bash
 ./node_modules/.bin/pkg ./debug/hello-rule.js -t=node18-macos-arm64 -o=./dist/hello-rule
