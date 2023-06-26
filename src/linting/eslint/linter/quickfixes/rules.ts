@@ -41,6 +41,7 @@ export const quickFixRules = new Set([
   'no-undef-init',
   'no-unneeded-ternary',
   'no-unsafe-negation',
+  'no-useless-rename',
   'no-var',
   'object-shorthand',
   'prefer-const',

@@ -1,0 +1,23 @@
+<h2>Why is this an issue?</h2>
+<p>Renaming imports, exports, or destructuring assignments to the same name makes no sense and should be removed. You may accidentally end up with
+such code if you do a refactoring and change the local name in several places.</p>
+<pre>
+import { foo as foo } from "bar";
+export { foo as foo };
+let { foo: foo } = bar;
+</pre>
+<p>Fix your code to remove the unnecessary renaming.</p>
+<pre>
+import { foo } from "bar";
+export { foo };
+let { foo } = bar;
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">MDN - import</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export">MDN - export</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">MDN - Destructuring
+  assignment</a> </li>
+</ul>
+
