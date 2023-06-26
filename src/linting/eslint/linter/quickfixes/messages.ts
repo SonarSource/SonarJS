@@ -52,6 +52,7 @@ const quickFixMessages = new Map<string, string>([
   ['prefer-readonly', "Add 'readonly'"],
   ['no-non-null-assertion', "Replace with optional chaining '.?'"],
   ['no-unneeded-ternary', 'Replace with a simpler expression'],
+  ['no-useless-rename', 'Remove alias'],
 ]);
 
 /**
