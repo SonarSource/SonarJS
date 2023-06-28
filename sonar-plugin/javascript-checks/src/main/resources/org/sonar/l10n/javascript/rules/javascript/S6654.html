@@ -1,0 +1,23 @@
+<h2>Why is this an issue?</h2>
+<p>The <code>__proto__</code> property is deprecated and should no longer be used. To get and set the prototype of an object, use the static methods
+<code>Object.getPrototype</code> and <code>Object.setPrototype</code>.</p>
+<pre>
+let prototype = foo.__proto__;  // Noncompliant, use Object.getPrototype
+foo.__proto__ = bar; // Noncompliant, use Object.setPrototype
+</pre>
+<p>To fix your code replace <code>__proto__</code> with calls to <code>Object.getPrototype</code> and <code>Object.setPrototype</code> static
+methods.</p>
+<pre>
+let prototype = Object.getPrototype(foo);
+Object.setPrototype(foo, bar);
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto">MDN - __proto__</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf">MDN -
+  Object.getPrototypeOf</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf">MDN -
+  Object.setPrototypeOf</a> </li>
+</ul>
+
