@@ -271,6 +271,7 @@ public final class CheckList {
       NoNonNullAssertionCheck.class,
       NoOneIterationLoopCheck.class,
       NoOsCommandsFromPathCheck.class,
+      NoProtoCheck.class,
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
       NoRedundantTypeConstituentsCheck.class,
