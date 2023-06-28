@@ -1,0 +1,23 @@
+name: Assign card to sender
+
+on:
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads?actionType=edited#projects_v2_item
+  projects_v2_item:
+    types: ["edited"]
+
+jobs:
+  AssignCardToSender_job:
+    runs-on: ubuntu-latest
+    if: |
+        github.event.changes.column_id.from == 195b115f  # id of "in progress column" in https://github.com/users/ilia-kebets-sonarsource/projects/1
+        && github.event.project_card.content_url != null
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/AssignCardToSender-v2@ilia/assign-card-to-sender-v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
