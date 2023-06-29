@@ -10,7 +10,7 @@ key: javascript
 ## Prerequisites
 
 In order to analyze JavaScript, TypeScript or CSS code, you need to have supported version of Node.js installed on the
-machine running the scan. The recommended versions are v16 and v18. We recommend using the [active LTS version of Node.js](https://nodejs.org/en/about/releases/) for optimal stability and performance. +v14.17.0 is still supported, but it already reached end-of-life and
+machine running the scan. The recommended versions are v18 or v20. We recommend using the [active LTS version of Node.js](https://nodejs.org/en/about/releases/) for optimal stability and performance. +v14.17.0 is still supported, but it already reached end-of-life and
 is deprecated.
 
 If `node` is not available in the PATH, you can use property `sonar.nodejs.executable` to set an absolute path to
@@ -26,11 +26,11 @@ Discover and update the CSS [properties](/analysis/analysis-parameters/) in: **<
 
 ## Supported Frameworks, Versions and Languages
 
-- ECMAScript 3, 5, 2015, 2016, 2017, 2018, 2019, and 2020
-- TypeScript 4.9.4
+- ECMAScript 3 - 2022
+- TypeScript 5.0.4
 - React JSX, Vue.js, Angular
 - Flow
-- CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
+- CSS, SCSS, Less, also 'style' inside PHP, HTML, and VueJS files
 
 ## Troubleshooting
 
