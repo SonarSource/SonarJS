@@ -26,11 +26,11 @@ Discover and update the CSS [properties](/analysis/analysis-parameters/) in: **<
 
 ## Supported Frameworks, Versions and Languages
 
-- ECMAScript 3, 5, 2015, 2016, 2017, 2018, 2019, and 2020
-- TypeScript 4.9.4
+- ECMAScript 3 - 2022
+- TypeScript 5.0.4
 - React JSX, Vue.js, Angular
 - Flow
-- CSS, SCSS, Less, also 'style' inside PHP, HTML and VueJS files
+- CSS, SCSS, Less, also 'style' inside PHP, HTML, and VueJS files
 
 ## Troubleshooting
 
