@@ -19,13 +19,12 @@
  */
 import { countFunctions } from 'linting/eslint/linter/visitors/metrics/functions';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('countFunctions', () => {
   it('should count the number of functions', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'functions.js');
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
     const statements = countFunctions(sourceCode);
     expect(statements).toEqual(6);
   });

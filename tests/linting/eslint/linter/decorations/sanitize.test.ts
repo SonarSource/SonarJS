@@ -21,8 +21,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { Linter } from 'eslint';
 import { sanitizeTypeScriptESLintRule } from 'linting/eslint/linter/decoration/sanitize';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../tools';
+import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 
 const cases = [
   {
@@ -53,9 +52,7 @@ describe('sanitizeTypeScriptESLintRule', () => {
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
-      const sourceCode = buildSourceCode(
-        await jsTsInput({ filePath, tsConfigs, language: 'ts', createProgram: false }),
-      );
+      const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
       const rules = { [ruleId]: 'error' } as any;
 
       const messages = linter.verify(sourceCode, { rules });

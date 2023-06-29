@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
+import { EmbeddedAnalysisInput, JsTsAnalysisInput } from 'services/analysis';
 import { buildSourceCode } from 'parsing/jsts';
 import { EmbeddedJS, parseAwsFromYaml, parseHTML } from 'parsing/embedded';
 import { patchParsingError, patchSourceCode } from './patch';
@@ -67,10 +67,9 @@ export function buildSourceCodes(
       filePath: '',
       fileContent: code,
       fileType: 'MAIN',
-      language: 'js',
     } as JsTsAnalysisInput;
     try {
-      const sourceCode = buildSourceCode(jsTsAnalysisInput);
+      const sourceCode = buildSourceCode(jsTsAnalysisInput, 'js');
       const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
       // We use lodash.clone here to remove the effects of Object.preventExtensions()
       const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {

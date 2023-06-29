@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeEmbedded } from 'services/analysis';
-import { initializeLinter, getLinter } from 'linting/eslint';
+import { getLinter, initializeLinter } from 'linting/eslint';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
 import { composeSyntheticFilePath } from 'parsing/embedded';
@@ -31,6 +31,7 @@ describe('analyzeYAML', () => {
 
   beforeAll(() => {
     setContext({
+      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],

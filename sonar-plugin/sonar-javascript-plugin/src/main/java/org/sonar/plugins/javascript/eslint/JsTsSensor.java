@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -31,17 +29,19 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 
 public class JsTsSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JsTsSensor.class);
+  private final TempFolder tempFolder;
+  private final AnalysisWithProgram analysisWithProgram;
+  private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private final JavaScriptProjectChecker javaScriptProjectChecker;
@@ -56,21 +56,40 @@ public class JsTsSensor extends AbstractEslintSensor {
     JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
+    TempFolder tempFolder,
     Monitoring monitoring,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram,
     AnalysisProcessor analysisProcessor
   ) {
-    this(checks, eslintBridgeServer, analysisWarnings, monitoring, analysisProcessor, null);
+    this(
+      checks,
+      eslintBridgeServer,
+      analysisWarnings,
+      tempFolder,
+      monitoring,
+      analysisProcessor,
+      null,
+      analysisWithProgram,
+      analysisWithWatchProgram
+    );
   }
 
   public JsTsSensor(
     JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
+    TempFolder tempFolder,
     Monitoring monitoring,
     AnalysisProcessor analysisProcessor,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker
+    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
     super(eslintBridgeServer, analysisWarnings, monitoring);
+    this.tempFolder = tempFolder;
+    this.analysisWithProgram = analysisWithProgram;
+    this.analysisWithWatchProgram = analysisWithWatchProgram;
     this.checks = checks;
     this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.analysisProcessor = analysisProcessor;
@@ -125,44 +144,35 @@ public class JsTsSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyze(InputFile file) throws IOException {
-    monitoring.startFile(file);
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
-    if (cacheStrategy.isAnalysisRequired()) {
-      try {
-        LOG.debug("Analyzing file: " + file.uri());
-        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var request = new EslintBridgeServer.JsAnalysisRequest(
-          file.absolutePath(),
-          file.type().toString(),
-          JavaScriptFilePredicate.isTypeScriptFile(file)
-            ? TypeScriptLanguage.KEY
-            : JavaScriptLanguage.KEY,
-          fileContent,
-          contextUtils.ignoreHeaderComments(),
-          tsconfigs,
-          analysisMode.getLinterIdFor(file),
-          createProgram,
-          useFoundTSConfigs,
-          createWildcardTSConfig,
-          context.fileSystem().baseDir().getAbsolutePath()
-        );
-        var response = isTypeScriptFile(file)
-          ? eslintBridgeServer.analyzeTypeScript(request)
-          : eslintBridgeServer.analyzeJavaScript(request);
-        analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
-          file
-        );
-      } catch (IOException | RuntimeException e) {
-        LOG.error("Failed to get response while analyzing " + file.uri(), e);
-        throw new IllegalStateException("Failure during analysis of " + file.uri(), e);
-      }
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+
+    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, contextUtils);
+    var tsConfigs = TsConfigProvider.getTsConfigs(
+      contextUtils,
+      javaScriptProjectChecker,
+      this::createTsConfigFile
+    );
+    AbstractAnalysis analysis;
+    if (shouldAnalyzeWithProgram(inputFiles)) {
+      analysis = analysisWithProgram;
     } else {
-      LOG.debug("Processing cache analysis of file: {}", file.uri());
-      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
+      analysis = analysisWithWatchProgram;
     }
+    if (tsConfigs.isEmpty()) {
+      LOG.info("No tsconfig.json file found");
+    }
+    analysis.initialize(context, checks, analysisMode);
+    analysis.analyzeFiles(inputFiles, tsConfigs);
+  }
+
+  @Override
+  protected void analyze(InputFile file) throws IOException {
+    throw new IllegalStateException(); // not used
+  }
+
+  private String createTsConfigFile(String content) throws IOException {
+    return eslintBridgeServer.createTsConfigFile(content).filename;
   }
 }

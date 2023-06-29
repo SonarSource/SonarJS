@@ -68,7 +68,6 @@ export const parsers: { javascript: ESLintParser; typescript: ESLintParser; vuej
  * clearing or not TypeScript ESLint parser's caches. To address that,
  * the sensor requests clearing the caches for each considered TSConfig.
  */
-// TODO: Not used, keeping for possible future SonarLint specific cleanups
 export function clearTypeScriptESLintParserCaches() {
   typescriptESLintParser.clearCaches();
 }

@@ -19,8 +19,7 @@
  */
 import { computeCyclomaticComplexity } from 'linting/eslint/linter/visitors/metrics/cyclomatic-complexity';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 const cases = [
   { fixture: 'conjunction', expectedComplexity: 1 },
@@ -35,7 +34,7 @@ describe('computeCyclomaticComplexity', () => {
     'should compute complexity for $fixture',
     async ({ fixture, expectedComplexity }) => {
       const filePath = path.join(__dirname, 'fixtures', 'cyclomatic-complexity', `${fixture}.js`);
-      const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
     },

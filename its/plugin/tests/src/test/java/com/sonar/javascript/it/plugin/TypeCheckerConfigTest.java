@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.Issues;
 
 /**
  * Tests different TypeScript project structures to verify SonarJS ability to run typed rules (like S3003 'strings-comparison').
@@ -69,11 +69,32 @@ class TypeCheckerConfigTest {
     BuildResultAssert
       .assertThat(orchestrator.executeBuild(scanner))
       .logsOnce(TSCONFIG_FOUND)
-      .logsOnce("INFO: 3/3 source files have been analyzed");
+      .logsOnce("INFO: 3/3 source files have been analyzed")
+      .logsOnce("Found 1 tsconfig.json file(s)")
+      .logsOnce(
+        "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
+      );
 
     assertThat(getIssues(key))
-      .extracting(Issue::getLine, Issue::getComponent)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
       .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
+    // Missing issues for main.es6.ts
+
+    var configuredBuild = scanner.setProperty(
+      "sonar.typescript.tsconfigPaths",
+      "tsconfig.json,tsconfig.es6.json"
+    );
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(configuredBuild))
+      .logsOnce("Found 2 TSConfig file(s)")
+      .doesNotLog("INFO: Skipped");
+
+    assertThat(getIssues(key))
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple(4, key + ":src/main.ts"),
+        tuple(4, key + ":src/main.es6.ts")
+      );
   }
 
   /**
@@ -87,11 +108,12 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner)).logsTimes(2, TSCONFIG_FOUND);
+    BuildResultAssert
+      .assertThat(orchestrator.executeBuild(scanner))
+      .logsOnce("Found 2 tsconfig.json file(s)");
 
-    assertThat(getIssues(key))
-      .extracting(Issue::getRule, Issue::getLine, Issue::getComponent)
-      .containsExactlyInAnyOrder(tuple("typescript:S3003", 4, key + ":src/main.ts"));
+    assertThat(getIssues(key)).isEmpty();
+    // Missing issues for main.ts
 
     var configuredBuild = scanner.setProperty(
       "sonar.typescript.tsconfigPaths",
@@ -103,7 +125,7 @@ class TypeCheckerConfigTest {
       .logsOnce("Found 1 TSConfig file(s)");
 
     assertThat(getIssues(key))
-      .extracting(Issue::getLine, Issue::getComponent)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
       .containsExactlyInAnyOrder(tuple(4, key + ":src/main.ts"));
   }
 
@@ -120,9 +142,7 @@ class TypeCheckerConfigTest {
 
     var buildResult = orchestrator.executeBuild(scanner);
     BuildResultAssert.assertThat(buildResult).logsOnce("INFO: 2/2 source files have been analyzed");
-    assertThat(getIssues(key))
-      .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
-      .contains(tuple("javascript:S3003", "typechecker-config-jsconfig:src/main.js", 4));
+    assertThat(getIssues(key)).isEmpty(); // False negative
 
     var configuredBuild = scanner.setProperty("sonar.typescript.tsconfigPaths", "jsconfig.json");
     BuildResultAssert
@@ -130,9 +150,7 @@ class TypeCheckerConfigTest {
       .doesNotLog(TSCONFIG_FOUND)
       .logsOnce("Found 1 TSConfig file(s)")
       .logsOnce("INFO: 2/2 source files have been analyzed");
-    assertThat(getIssues(key))
-      .extracting(Issue::getRule, Issue::getComponent, Issue::getLine)
-      .contains(tuple("javascript:S3003", "typechecker-config-jsconfig:src/main.js", 4));
+    assertThat(getIssues(key)).isEmpty(); // False negative
   }
 
   @ParameterizedTest
@@ -141,9 +159,11 @@ class TypeCheckerConfigTest {
     var scanner = getSonarScanner(project.getName());
     var buildResult = orchestrator.executeBuild(scanner);
 
-    BuildResultAssert.assertThat(buildResult).logsTimes(project.getExpectedFound(), TSCONFIG_FOUND);
+    BuildResultAssert
+      .assertThat(buildResult)
+      .logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
     assertThat(getIssues(project.getKey()))
-      .extracting(Issue::getLine, Issue::getComponent)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
       .containsExactlyInAnyOrder(project.getIssues());
   }
 
@@ -164,7 +184,6 @@ class TypeCheckerConfigTest {
       .setProjectKey(key)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setDebugLogs(true)
       .setProjectDir(projectDir);
   }
 

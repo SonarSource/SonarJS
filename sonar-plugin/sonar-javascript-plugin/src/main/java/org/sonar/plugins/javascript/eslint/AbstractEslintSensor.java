@@ -19,10 +19,11 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import static org.sonar.plugins.javascript.eslint.AbstractAnalysis.PROGRESS_REPORT_PERIOD;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -37,7 +38,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 public abstract class AbstractEslintSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
-  static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
+
   protected final EslintBridgeServer eslintBridgeServer;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
@@ -146,4 +147,18 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected abstract void analyze(InputFile file) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
+
+  protected boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
+    if (contextUtils.isSonarLint()) {
+      LOG.debug("Will use AnalysisWithWatchProgram because we are in SonarLint context");
+      return false;
+    }
+    var vueFile = inputFiles.stream().filter(f -> f.filename().endsWith(".vue")).findAny();
+    if (vueFile.isPresent()) {
+      LOG.debug("Will use AnalysisWithWatchProgram because we have vue file");
+      return false;
+    }
+    LOG.debug("Will use AnalysisWithProgram");
+    return true;
+  }
 }

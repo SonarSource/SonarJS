@@ -38,6 +38,9 @@ import {
   readFileSync,
   toUnixPath,
 } from 'helpers';
+import tmp from 'tmp';
+import { promisify } from 'util';
+import fs from 'fs/promises';
 
 import { ProgramCache } from 'helpers/cache';
 import { JsTsAnalysisInput } from 'services/analysis';
@@ -93,61 +96,71 @@ export function getProgramForFile(
     if (newTsConfigs) {
       cache.clear();
     }
-  }
+    let newTsConfigs = false;
+    if (input.tsConfigs) {
+      newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
+    }
 
-  const normalizedPath = toUnixPath(input.filePath);
-  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath, input.tsConfigs)) {
-    try {
-      if (!tsconfig.isFallbackTSConfig) {
-        // looping through actual tsconfigs in fs
-        let programResult = cache.get(tsconfig.filename);
+    // if at least a tsconfig changed, removed cache of programs, as files
+    // could now belong to another program
+    if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
+      programCache.clear();
+    }
 
-        if (
-          !programResult ||
-          (programResult.files.includes(normalizedPath) && !programResult.program.deref())
-        ) {
-          programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
-          cache.set(tsconfig.filename, programResult);
-        }
-        if (programResult.files.includes(normalizedPath)) {
-          const program = programResult.program.deref()!;
-          cache.mark(program);
-          debug(`Analyzing ${input.filePath} using tsconfig ${tsconfig.filename}`);
-          return program;
-        }
-      } else {
-        // last item in loop is a fallback tsConfig
-        //we first check existing fallback programs
-        for (const [tsConfigPath, programResult] of cache.getPrograms()) {
-          if (programResult.files.includes(normalizedPath) && programResult.isFallbackProgram) {
-            const program = programResult.program.deref();
-            if (program) {
-              cache.mark(program);
-              debug(`Analyzing file ${input.filePath} using tsconfig ${tsConfigPath}`);
-              return program;
-            } else {
-              cache.delete(tsConfigPath);
+    const normalizedPath = toUnixPath(input.filePath);
+    for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath, input.tsConfigs)) {
+      try {
+        if (!tsconfig.isFallbackTSConfig) {
+          // looping through actual tsconfigs in fs
+          let programResult = cache.get(tsconfig.filename);
+
+          if (
+            !programResult ||
+            (programResult.files.includes(normalizedPath) && !programResult.program.deref())
+          ) {
+            programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
+            cache.set(tsconfig.filename, programResult);
+          }
+          if (programResult.files.includes(normalizedPath)) {
+            const program = programResult.program.deref()!;
+            cache.mark(program);
+            debug(`Analyzing ${input.filePath} using tsconfig ${tsconfig.filename}`);
+            return program;
+          }
+        } else {
+          // last item in loop is a fallback tsConfig
+          //we first check existing fallback programs
+          for (const [tsConfigPath, programResult] of cache.getPrograms()) {
+            if (programResult.files.includes(normalizedPath) && programResult.isFallbackProgram) {
+              const program = programResult.program.deref();
+              if (program) {
+                cache.mark(program);
+                debug(`Analyzing file ${input.filePath} using tsconfig ${tsConfigPath}`);
+                return program;
+              } else {
+                cache.delete(tsConfigPath);
+              }
             }
           }
+          // no existing fallback program contained our file, creating a fallback program with our file
+          const programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
+          programResult.isFallbackProgram = true;
+          cache.set(tsconfig.filename, programResult);
+          if (programResult.files.includes(normalizedPath)) {
+            const program = programResult.program.deref()!;
+            cache.mark(program);
+            debug(`Analyzing file ${input.filePath} using fallback tsconfig ${tsconfig.filename}`);
+            return program;
+          }
         }
-        // no existing fallback program contained our file, creating a fallback program with our file
-        const programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
-        programResult.isFallbackProgram = true;
-        cache.set(tsconfig.filename, programResult);
-        if (programResult.files.includes(normalizedPath)) {
-          const program = programResult.program.deref()!;
-          cache.mark(program);
-          debug(`Analyzing file ${input.filePath} using fallback tsconfig ${tsconfig.filename}`);
-          return program;
-        }
+      } catch (e) {
+        console.log(
+          `ERROR: Failed create program with tsconfig ${tsconfig.filename}}. Error: ${e.message}`,
+        );
       }
-    } catch (e) {
-      console.log(
-        `ERROR: Failed create program with tsconfig ${tsconfig.filename}}. Error: ${e.message}`,
-      );
     }
+    throw Error(`Could not create a program containing ${normalizedPath}`);
   }
-  throw Error(`Could not create a program containing ${normalizedPath}`);
 }
 
 /**
@@ -305,6 +318,63 @@ export function createProgram(
   };
 }
 
+/**
+ * A cache of created TypeScript's Program instances
+ *
+ * It associates a program identifier to an instance of a TypeScript's Program.
+ */
+const programs = new Map<string, ts.Program>();
+
+/**
+ * A counter of created TypeScript's Program instances
+ */
+let programCount = 0;
+
+/**
+ * Computes the next identifier available for a TypeScript's Program.
+ * @returns
+ */
+function nextId() {
+  programCount++;
+  return programCount.toString();
+}
+
+/**
+ * Creates a TypeScript's Program instance and saves it in memory
+ *
+ * To be removed once Java part does not handle program creation
+ */
+export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
+  const program = createProgram(tsConfig);
+
+  const programId = nextId();
+  programs.set(programId, program.program.deref()!);
+  debug(`program from ${tsConfig} with id ${programId} is created`);
+  return { ...program, programId };
+}
+
+/**
+ * Gets an existing TypeScript's Program by its identifier
+ * @param programId the identifier of the TypeScript's Program to retrieve
+ * @throws a runtime error if there is no such program
+ * @returns the retrieved TypeScript's Program
+ */
+export function getProgramById(programId: string): ts.Program {
+  const program = programs.get(programId);
+  if (!program) {
+    throw Error(`Failed to find program ${programId}`);
+  }
+  return program;
+}
+
+/**
+ * Deletes an existing TypeScript's Program by its identifier
+ * @param programId the identifier of the TypeScript's Program to delete
+ */
+export function deleteProgram(programId: string): void {
+  programs.delete(programId);
+}
+
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
   const text =
     typeof diagnostic.messageText === 'string'
@@ -357,4 +427,24 @@ export function isRootNodeModules(file: string, topDir?: string) {
 
 export function isRoot(file: string) {
   return toUnixPath(file) === toUnixPath(path.parse(file).root);
+}
+
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+tmp.setGracefulCleanup();
+
+/**
+ * Create the TSConfig file and returns its path.
+ *
+ * The file is written in a temporary location in the file system
+ * and is marked to be removed after Node.js process terminates.
+ *
+ * @param tsConfig TSConfig to write
+ * @returns the resolved TSConfig file path
+ */
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+  const filename = await promisify(tmp.file)();
+  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+  return { filename };
 }

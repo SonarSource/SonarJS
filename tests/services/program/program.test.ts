@@ -19,14 +19,19 @@
  */
 import path from 'path';
 import {
+  createAndSaveProgram,
   createProgram,
   createProgramOptions,
+  deleteProgram,
+  getProgramById,
   getProgramForFile,
-  isRootNodeModules,
   isRoot,
+  isRootNodeModules,
+  writeTSConfigFile,
 } from 'services/program';
 import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
+import fs from 'fs';
 import { jsTsInput } from '../../tools';
 
 jest.setTimeout(60000);
@@ -37,8 +42,9 @@ describe('program', () => {
     const reference = path.join(fixtures, 'reference');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-    const { files, projectReferences } = createProgram(tsConfig);
+    const { programId, files, projectReferences } = createAndSaveProgram(tsConfig);
 
+    expect(programId).toBeDefined();
     expect(files).toEqual(
       expect.arrayContaining([
         toUnixPath(path.join(fixtures, 'file.ts')),
@@ -52,8 +58,9 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
 
-    const { files, projectReferences, missingTsConfig } = createProgram(tsConfig);
+    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
 
+    expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
     expect(missingTsConfig).toBe(false);
@@ -96,8 +103,9 @@ describe('program', () => {
     const fixtures = path.join(__dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-    const { files, projectReferences, missingTsConfig } = createProgram(tsConfig);
+    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
 
+    expect(programId).toBeDefined();
     expect(files).toEqual(expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]));
     expect(projectReferences).toEqual([]);
     expect(missingTsConfig).toBe(true);
@@ -184,6 +192,33 @@ describe('program', () => {
     });
   });
 
+  it('should find an existing program', () => {
+    const fixtures = path.join(__dirname, 'fixtures');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+    const { programId, files } = createAndSaveProgram(tsConfig);
+
+    const program = getProgramById(programId);
+
+    expect(program.getCompilerOptions().configFilePath).toEqual(toUnixPath(tsConfig));
+    expect(program.getRootFileNames()).toEqual(
+      files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
+    );
+  });
+
+  it('should fail finding a non-existing program', () => {
+    const programId = '$#&/()=?!£@~+°';
+    expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
+  });
+
+  it('should delete a program', () => {
+    const fixtures = path.join(__dirname, 'fixtures');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+    const { programId } = createAndSaveProgram(tsConfig);
+
+    deleteProgram(programId);
+    expect(() => getProgramById(programId)).toThrow(`Failed to find program ${programId}`);
+  });
+
   it('should return files', () => {
     const result = createProgramOptions('tsconfig.json', '{ "files": ["/foo/file.ts"] }');
     expect(result).toMatchObject({
@@ -232,6 +267,17 @@ describe('program', () => {
       expect.objectContaining({
         rootNames: expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.vue'))]),
       }),
+    );
+  });
+
+  it('should write tsconfig file', async () => {
+    const { filename } = await writeTSConfigFile({
+      compilerOptions: { allowJs: true, noImplicitAny: true },
+      include: ['/path/to/project/**/*'],
+    });
+    const content = fs.readFileSync(filename, { encoding: 'utf-8' });
+    expect(content).toBe(
+      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
     );
   });
 
@@ -305,7 +351,7 @@ describe('program', () => {
 
   it('changing tsconfig contents should trigger program creation', async () => {
     const cache = new ProgramCache();
-    const tsconfigs = new ProjectTSConfigs();
+    const tsconfigs = new ProjectTSConfigs(undefined, false);
     const file1Path = toUnixPath(path.join(__dirname, 'fixtures', 'file1.js'));
     const file2Path = toUnixPath(path.join(__dirname, 'fixtures', 'file2.js'));
     const tsconfigPath = 'tsconfig.json';

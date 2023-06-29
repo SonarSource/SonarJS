@@ -20,8 +20,6 @@
 import { buildSourceCode } from 'parsing/jsts';
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
-import { toUnixPath } from 'helpers';
-import path from 'path';
 
 export interface Comment {
   value: string;
@@ -38,14 +36,7 @@ export interface Comment {
  * @returns
  */
 export function extractComments(fileContent: string, filePath: string): Comment[] {
-  const parsed = buildSourceCode({
-    fileContent,
-    filePath,
-    baseDir: path.posix.dirname(toUnixPath(filePath)),
-    fileType: null,
-    tsConfigs: [],
-    language: null,
-  });
+  const parsed = buildSourceCode({ fileContent, filePath, fileType: null, tsConfigs: [] }, null);
   let esTreeComments: estree.Comment[];
   if (parsed instanceof SourceCode) {
     esTreeComments = parsed.getAllComments();

@@ -33,6 +33,8 @@ import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
+import org.sonar.plugins.javascript.eslint.AnalysisWithProgram;
+import org.sonar.plugins.javascript.eslint.AnalysisWithWatchProgram;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
@@ -148,6 +150,8 @@ public class JavaScriptPlugin implements Plugin {
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       Monitoring.class,
+      AnalysisWithProgram.class,
+      AnalysisWithWatchProgram.class,
       AnalysisProcessor.class,
       YamlSensor.class,
       HtmlSensor.class

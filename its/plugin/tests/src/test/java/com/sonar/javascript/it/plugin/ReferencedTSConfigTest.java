@@ -43,7 +43,6 @@ class ReferencedTSConfigTest {
       .setProjectKey(PROJECT)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setDebugLogs(true)
       .setProjectDir(PROJECT_DIR);
 
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
@@ -53,6 +52,7 @@ class ReferencedTSConfigTest {
 
     BuildResult buildResult = orchestrator.executeBuild(build);
 
-    assertThat(buildResult.getLogsLines(l -> l.contains("DEBUG: tsconfig found:"))).hasSize(2);
+    assertThat(buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file")))
+      .hasSize(2);
   }
 }

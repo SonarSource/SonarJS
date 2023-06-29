@@ -35,7 +35,6 @@ import { Perf } from 'services/monitoring';
  * data structure used by TypeScript ESLint parser for performance reasons.
  *
  * @param fileType the file type to select the proper linting configuration
- * @param language the file language ('js' or 'ts')
  * @param ignoreHeaderComments a flag used by some rules to ignore header comments
  * @param tsConfigs a list of TSConfigs
  * @param createProgram force creation of a program
@@ -44,17 +43,17 @@ import { Perf } from 'services/monitoring';
  *        including all files from basedir and pass it to typescript-eslint as project
  * @param useFoundTSConfigs used for sonarLint (or vue). When true, all tsconfigs found in the
  *        fs will be passed to typescript-eslint as project.
+ * @param programId the identifier of a TypeScript Program's instance
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
-  language: JsTsLanguage;
-  baseDir: string;
+  baseDir?: string;
+  language?: JsTsLanguage;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
+  programId?: string;
   createProgram?: boolean;
   forceUpdateTSConfigs?: boolean;
-  createWildcardTSConfig?: boolean;
-  useFoundTSConfigs?: boolean;
 }
 
 /**

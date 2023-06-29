@@ -23,8 +23,7 @@ import {
   TextType,
 } from 'linting/eslint/linter/visitors/syntax-highlighting';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', async () => {
@@ -101,7 +100,7 @@ describe('getSyntaxHighlighting', () => {
 
 async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
   const filePath = path.join(__dirname, 'fixtures', 'syntax-highlighting', filename);
-  const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+  const sourceCode = await parseJavaScriptSourceFile(filePath);
   return getSyntaxHighlighting(sourceCode).highlights;
 }
 

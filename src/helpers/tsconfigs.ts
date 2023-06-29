@@ -19,8 +19,9 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, writeTmpFile } from './files';
+import { readFileSync, toUnixPath, writeTmpFile } from './files';
 import { debug } from './debug';
+import { getContext } from './context';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -37,14 +38,18 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(dir?: string, inputTSConfigs?: string[]) {
+  constructor(private readonly dir = getContext()?.workDir, launchLookup = true) {
     this.db = new Map<string, TSConfig>();
-    if (inputTSConfigs?.length) {
-      this.addInputTSConfigsToDB(inputTSConfigs);
-    } else if (dir) {
-      this.tsConfigLookup(dir);
+    if (launchLookup) {
+      this.tsConfigLookup();
+      if (inputTSConfigs?.length) {
+        this.addInputTSConfigsToDB(inputTSConfigs);
+      } else if (dir) {
+        this.tsConfigLookup(dir);
+      }
     }
   }
+
   get(tsconfig: string) {
     return this.db.get(tsconfig);
   }
@@ -69,6 +74,7 @@ export class ProjectTSConfigs {
       }
     }
   }
+
   /**
    * Iterate over saved tsConfig returning a fake tsconfig
    * as a fallback for the given file
@@ -134,6 +140,64 @@ export class ProjectTSConfigs {
           filename,
           contents,
         });
+      }
+    }
+  }
+
+  /**
+   * Check for any changes in the list of known tsconfigs
+   *
+   * @param force the check will be bypassed if we are not on SonarLint, unless force is `true`
+   */
+  reloadTsConfigs(force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    // check for changes in known tsconfigs
+    for (const tsconfig of this.db.values()) {
+      try {
+        const contents = readFileSync(tsconfig.filename);
+        if (tsconfig.contents !== contents) {
+          changes = true;
+        }
+        tsconfig.contents = contents;
+      } catch (e) {
+        this.db.delete(tsconfig.filename);
+        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
+      }
+    }
+    return changes;
+  }
+
+  /**
+   * Check a list of tsconfig paths and add their contents
+   * to the internal list of tsconfigs.
+   *
+   * @param tsconfigs list of new or changed TSConfigs
+   * @param force force the update of tsconfigs if we are not on SonarLint
+   * @return true if there are changes, thus cache may need to be invalidated
+   */
+  upsertTsConfigs(tsconfigs: string[], force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    for (const tsconfig of tsconfigs) {
+      const normalizedTsConfig = toUnixPath(tsconfig);
+      if (!this.db.has(normalizedTsConfig)) {
+        try {
+          const contents = readFileSync(normalizedTsConfig);
+          this.db.set(normalizedTsConfig, {
+            filename: normalizedTsConfig,
+            contents,
+          });
+          changes = true;
+        } catch (e) {
+          console.log(`ERROR: Could not read tsconfig ${tsconfig}`);
+        }
       }
     }
     return changes;

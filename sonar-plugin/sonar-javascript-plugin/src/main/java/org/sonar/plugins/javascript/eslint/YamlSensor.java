@@ -39,6 +39,7 @@ public class YamlSensor extends AbstractEslintSensor {
   public static final String LANGUAGE = "yaml";
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
   public static final String NODEJS_RUNTIME_REGEX = "^\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?";
+
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;

@@ -19,7 +19,6 @@
  */
 import fs from 'fs';
 import path from 'path';
-import tmp from 'tmp';
 
 /**
  * Byte Order Marker

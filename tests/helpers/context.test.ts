@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, getContext } from 'helpers';
+import { getContext, setContext } from 'helpers';
 
 describe('context', () => {
   const initialCtx = {
+    workDir: '/',
     shouldUseTypeScriptParserForJS: false,
     sonarlint: false,
     bundles: [],
@@ -36,6 +37,7 @@ describe('context', () => {
 
   it('should set context', () => {
     const newContext = {
+      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: true,
       bundles: ['custom-rule'],

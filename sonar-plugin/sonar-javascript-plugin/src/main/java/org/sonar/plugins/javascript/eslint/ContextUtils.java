@@ -74,4 +74,8 @@ class ContextUtils {
   Path getBasePath() {
     return context.fileSystem().baseDir().toPath();
   }
+
+  SensorContext context() {
+    return context;
+  }
 }
