@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -25,10 +25,10 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S3834")
-public class SymbolUsedAsConstructorCheck implements EslintBasedCheck {
+public class NoNewNativeNonconstructorCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-new-symbol";
+    return "no-new-native-nonconstructor";
   }
 }
