@@ -74,7 +74,7 @@ function babelParserOptions(options: Linter.ParserOptions) {
   const babelOptions = {
     targets: 'defaults',
     presets: [
-      [`${pluginPath}/@babel/preset-react`, { ignoreBrowserslistConfig: true }],
+      `${pluginPath}/@babel/preset-react`,
       `${pluginPath}/@babel/preset-flow`,
       `${pluginPath}/@babel/preset-env`,
     ],
