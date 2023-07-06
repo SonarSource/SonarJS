@@ -72,8 +72,9 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
 function babelParserOptions(options: Linter.ParserOptions) {
   const pluginPath = `${__dirname}/../../../../node_modules`;
   const babelOptions = {
+    targets: 'defaults',
     presets: [
-      `${pluginPath}/@babel/preset-react`,
+      [`${pluginPath}/@babel/preset-react`, { ignoreBrowserslistConfig: true }],
       `${pluginPath}/@babel/preset-flow`,
       `${pluginPath}/@babel/preset-env`,
     ],
