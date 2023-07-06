@@ -4,4 +4,4 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Runtime: "nodejs16.0"
-      InlineCode: var symbol = new Symbol("foo");
+      InlineCode: for (var i = 0; i < strings.length; i--) {}

@@ -130,7 +130,9 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([
+      { key: 'for-loop-increment-sign', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
       'yaml',
@@ -144,9 +146,9 @@ describe('analyzeYAML', () => {
     } = result;
     expect(secondaryLocation).toEqual({
       line: 7,
-      column: 35,
+      column: 34,
       endLine: 7,
-      endColumn: 41,
+      endColumn: 52,
     });
   });
 
