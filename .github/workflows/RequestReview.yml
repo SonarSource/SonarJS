@@ -9,9 +9,12 @@ jobs:
     name: Move card to review
     runs-on: ubuntu-latest
     # PRs from forks don't have required token authorization
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: |
+        github.event.pull_request.head.repo.full_name == github.repository
+        && github.event.review.author_association != 'NONE'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@v1
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardToReviewV2@use-until-merged
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          column-id: 16320793     # Kanban "In review" column
+          column-id: "14c3336d"     # Kanban "Review in progress" column
+          project-number: 8
