@@ -15,7 +15,7 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
-      <key>S3834</key> <!-- no-new-symbol -->
+      <key>S3834</key> <!-- no-new-native-nonconstructor -->
       <priority>INFO</priority>
     </rule>
   </rules>

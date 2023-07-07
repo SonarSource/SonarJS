@@ -55,16 +55,10 @@ public class HtmlAnalysisTest {
     var issuesList = getIssues(projectKey);
 
     Common.TextRange primaryLocation = issuesList.get(2).getTextRange();
-    Common.TextRange secondaryLocation = issuesList
-      .get(2)
-      .getFlows(0)
-      .getLocations(0)
-      .getTextRange();
+    // S3834 no longer reports secondaryLocation
 
-    assertThat(primaryLocation.getStartOffset()).isEqualTo(15);
-    assertThat(primaryLocation.getEndOffset()).isEqualTo(18);
-    assertThat(secondaryLocation.getStartOffset()).isEqualTo(19);
-    assertThat(secondaryLocation.getEndOffset()).isEqualTo(25);
+    assertThat(primaryLocation.getStartOffset()).isEqualTo(19);
+    assertThat(primaryLocation.getEndOffset()).isEqualTo(25);
 
     assertThat(issuesList)
       .extracting(Issue::getLine, Issue::getRule)
