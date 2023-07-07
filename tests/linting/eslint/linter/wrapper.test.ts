@@ -37,7 +37,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'internal.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-new-symbol';
+    const ruleId = 'for-loop-increment-sign';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });

@@ -112,7 +112,9 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([{ key: 'no-new-symbol', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([
+      { key: 'for-loop-increment-sign', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
       'html',
@@ -126,9 +128,9 @@ describe('analyzeHTML', () => {
     } = result;
     expect(secondaryLocation).toEqual({
       line: 10,
-      column: 19,
+      column: 18,
       endLine: 10,
-      endColumn: 25,
+      endColumn: 36,
     });
   });
 
