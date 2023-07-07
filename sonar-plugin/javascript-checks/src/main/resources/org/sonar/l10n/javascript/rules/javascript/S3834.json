@@ -1,5 +1,5 @@
 {
-  "title": "\"Symbol\" should not be used as a constructor",
+  "title": "\"new\" operator should not be used with Symbol and BigInt",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -15,6 +15,6 @@
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT"    
   ]
 }
