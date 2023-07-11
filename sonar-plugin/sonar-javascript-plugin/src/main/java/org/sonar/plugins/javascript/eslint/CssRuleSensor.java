@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,13 +45,15 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.css.StylelintRule;
+import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class CssRuleSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(CssRuleSensor.class);
+
   private final SonarRuntime sonarRuntime;
   private final CssRules cssRules;
-  private final List<StylelintRule> rules;
 
   public CssRuleSensor(
     SonarRuntime sonarRuntime,
@@ -62,7 +65,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
     super(eslintBridgeServer, analysisWarnings, monitoring);
     this.sonarRuntime = sonarRuntime;
     this.cssRules = new CssRules(checkFactory);
-    this.rules = cssRules.getStylelintRules();
   }
 
   @Override
@@ -95,7 +97,40 @@ public class CssRuleSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyze(InputFile inputFile) {
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    ProgressReport progressReport = new ProgressReport(
+      "Analysis progress",
+      TimeUnit.SECONDS.toMillis(10)
+    );
+    boolean success = false;
+    List<StylelintRule> rules = cssRules.getStylelintRules();
+
+    try {
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      for (InputFile inputFile : inputFiles) {
+        if (context.isCancelled()) {
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
+        }
+        if (!eslintBridgeServer.isAlive()) {
+          throw new IllegalStateException("eslint-bridge server is not answering");
+        }
+
+        analyzeFile(inputFile, context, rules);
+        progressReport.nextFile(inputFile.absolutePath());
+      }
+      success = true;
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+    }
+  }
+
+  void analyzeFile(InputFile inputFile, SensorContext context, List<StylelintRule> rules) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
@@ -170,16 +205,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
     } else {
       LOG.warn(msg);
     }
-  }
-
-  @Override
-  protected String getProgressReportTitle() {
-    return "Progress of CSS analysis";
-  }
-
-  @Override
-  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
-    // No need to init linter for CSS
   }
 
   @Override

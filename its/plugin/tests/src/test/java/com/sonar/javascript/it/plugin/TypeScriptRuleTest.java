@@ -30,6 +30,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -128,7 +129,10 @@ class TypeScriptRuleTest {
 
     orchestrator.executeBuild(build);
 
-    assertThat(Paths.get("target/differences")).hasContent("");
+    assertThat(
+      new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)
+    )
+      .isEmpty();
     assertPerfMonitoringAvailable(perfMonitoringDir);
   }
 
@@ -138,8 +142,7 @@ class TypeScriptRuleTest {
     assertThat(content)
       .contains("\"metricType\":\"FILE\"")
       .contains("\"metricType\":\"SENSOR\"")
-      // TODO duration of program creation metric is not available because logic is in Node
-      //      .contains("\"metricType\":\"PROGRAM\"")
+      .contains("\"metricType\":\"PROGRAM\"")
       .contains("\"metricType\":\"RULE\"");
   }
 }

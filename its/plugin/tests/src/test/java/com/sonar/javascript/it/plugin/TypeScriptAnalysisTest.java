@@ -32,9 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
@@ -53,7 +51,6 @@ class TypeScriptAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setDebugLogs(true)
       .setProjectDir(PROJECT_DIR);
 
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
@@ -83,7 +80,8 @@ class TypeScriptAnalysisTest {
     issuesList = getIssues(projectKey + ":nosonar.lint.ts");
     assertThat(issuesList).hasSize(1);
 
-    assertThat(result.getLogsLines(log -> log.contains("tsconfig found:"))).hasSize(2);
+    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)")))
+      .hasSize(1);
   }
 
   @Test
@@ -171,7 +169,7 @@ class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getRule).containsExactly("typescript:S4325");
-    assertThat(result.getLogsLines(fallbackTsConfigLogPredicate("main\\.ts").asMatchPredicate()))
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
       .hasSize(1);
   }
 
@@ -201,6 +199,9 @@ class TypeScriptAnalysisTest {
         tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
         tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
       );
+
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
+      .hasSize(1);
   }
 
   @Test
@@ -226,20 +227,20 @@ class TypeScriptAnalysisTest {
         tuple(2, "typescript:S3923", "tsproject-extended:dir/file.excluded.ts")
       );
 
-    var pattern = fallbackTsConfigLogPredicate("file\\.excluded\\.ts");
-    var logsLines = result.getLogsLines(pattern.asMatchPredicate());
-    assertThat(logsLines).hasSize(1);
-  }
-
-  @NotNull
-  private static Pattern fallbackTsConfigLogPredicate(String file) {
-    return Pattern.compile(
-      ".*DEBUG: Analyzing file .*" +
-      file +
-      " using fallback tsconfig tsconfig-.*" +
-      file +
-      "\\.json"
-    );
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains(
+          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
+        )
+      )
+    )
+      .hasSize(1);
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
+      )
+    )
+      .hasSize(1);
   }
 
   @Test
@@ -263,6 +264,13 @@ class TypeScriptAnalysisTest {
         tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
         tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
       );
+
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      )
+    )
+      .isEmpty();
   }
 
   @Test
@@ -288,5 +296,12 @@ class TypeScriptAnalysisTest {
         tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/file.ts"),
         tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
       );
+
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      )
+    )
+      .isEmpty();
   }
 }

@@ -33,33 +33,26 @@ import ts from 'typescript';
 import {
   addTsConfigIfDirectory,
   debug,
-  ProgramResult,
-  ProjectTSConfigs,
   readFileSync,
   toUnixPath,
+  ProgramResult,
+  ProjectTSConfigs,
 } from 'helpers';
+import tmp from 'tmp';
+import { promisify } from 'util';
+import fs from 'fs/promises';
 
 import { ProgramCache } from 'helpers/cache';
 import { JsTsAnalysisInput } from 'services/analysis';
 
 export const programCache = new ProgramCache();
-const projectTSConfigsByBaseDir: Map<string, ProjectTSConfigs> = new Map<
-  string,
-  ProjectTSConfigs
->();
+let projectTSConfigs: ProjectTSConfigs;
 
-export function setDefaultTSConfigs(baseDir: string, tsConfigs: ProjectTSConfigs) {
-  // used only in tests
-  projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
-}
-
-export function getDefaultTSConfigs(baseDir: string, inputTSConfigs?: string[]) {
-  let tsConfigs = projectTSConfigsByBaseDir.get(baseDir);
-  if (!tsConfigs) {
-    tsConfigs = new ProjectTSConfigs(baseDir, inputTSConfigs);
-    projectTSConfigsByBaseDir.set(baseDir, tsConfigs);
+function getDefaultTSConfigs() {
+  if (!projectTSConfigs) {
+    projectTSConfigs = new ProjectTSConfigs();
   }
-  return tsConfigs;
+  return projectTSConfigs;
 }
 
 /**
@@ -74,77 +67,48 @@ export function getProgramForFile(
   cache = programCache,
   tsconfigs?: ProjectTSConfigs,
 ): ts.Program {
-  /**
-   * SONARJS_LIMIT_DEPS_RESOLUTION is available to limit TS resolution to current baseDir.
-   * However, this does not apply when we rely on typescript-eslint to create watchPrograms.
-   * If we are ever able to provide our own compilerHost to typescript-eslint, we can generalize
-   * for all projects and avoid removing node_modules for ruling tests
-   */
-  const topDir =
-    process.env['SONARJS_LIMIT_DEPS_RESOLUTION'] === '1' ? toUnixPath(input.baseDir) : undefined;
-
   if (!tsconfigs) {
-    tsconfigs = getDefaultTSConfigs(input.baseDir, input.tsConfigs);
+    tsconfigs = getDefaultTSConfigs();
   }
-  if (input.forceUpdateTSConfigs) {
-    // if at least a tsconfig changed, removed cache of programs, as files
-    // could now belong to another program
-    const newTsConfigs = tsconfigs.tsConfigLookup(input.baseDir);
-    if (newTsConfigs) {
-      cache.clear();
-    }
+  let newTsConfigs = false;
+  if (input.tsConfigs) {
+    newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
+  }
+
+  // if at least a tsconfig changed, removed cache of programs, as files
+  // could now belong to another program
+  if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
+    programCache.clear();
   }
 
   const normalizedPath = toUnixPath(input.filePath);
-  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath, input.tsConfigs)) {
-    try {
-      if (!tsconfig.isFallbackTSConfig) {
-        // looping through actual tsconfigs in fs
-        let programResult = cache.get(tsconfig.filename);
-
-        if (
-          !programResult ||
-          (programResult.files.includes(normalizedPath) && !programResult.program.deref())
-        ) {
-          programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
-          cache.set(tsconfig.filename, programResult);
-        }
-        if (programResult.files.includes(normalizedPath)) {
-          const program = programResult.program.deref()!;
-          cache.mark(program);
-          debug(`Analyzing ${input.filePath} using tsconfig ${tsconfig.filename}`);
-          return program;
-        }
+  for (const [tsConfigPath, programResult] of cache.programs) {
+    const tsConfig = tsconfigs.get(tsConfigPath);
+    if (
+      programResult.files.includes(normalizedPath) &&
+      (programResult.isFallbackProgram || tsConfig)
+    ) {
+      const program = programResult.program.deref();
+      if (program) {
+        cache.lru.set(program);
+        return program;
       } else {
-        // last item in loop is a fallback tsConfig
-        //we first check existing fallback programs
-        for (const [tsConfigPath, programResult] of cache.getPrograms()) {
-          if (programResult.files.includes(normalizedPath) && programResult.isFallbackProgram) {
-            const program = programResult.program.deref();
-            if (program) {
-              cache.mark(program);
-              debug(`Analyzing file ${input.filePath} using tsconfig ${tsConfigPath}`);
-              return program;
-            } else {
-              cache.delete(tsConfigPath);
-            }
-          }
-        }
-        // no existing fallback program contained our file, creating a fallback program with our file
-        const programResult = createProgram(tsconfig.filename, tsconfig.contents, topDir);
-        programResult.isFallbackProgram = true;
-        cache.set(tsconfig.filename, programResult);
-        if (programResult.files.includes(normalizedPath)) {
-          const program = programResult.program.deref()!;
-          cache.mark(program);
-          debug(`Analyzing file ${input.filePath} using fallback tsconfig ${tsconfig.filename}`);
-          return program;
-        }
+        cache.programs.delete(tsConfigPath);
       }
-    } catch (e) {
-      console.log(
-        `ERROR: Failed create program with tsconfig ${tsconfig.filename}}. Error: ${e.message}`,
-      );
+    }
+  }
+  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
+    if (!cache.programs.has(tsconfig.filename)) {
+      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
+      if (tsconfig.isFallbackTSConfig) {
+        programResult.isFallbackProgram = true;
+      }
+      cache.programs.set(tsconfig.filename, programResult);
+      if (programResult.files.includes(normalizedPath)) {
+        const program = programResult.program.deref()!;
+        cache.lru.set(program);
+        return program;
+      }
     }
   }
   throw Error(`Could not create a program containing ${normalizedPath}`);
@@ -158,14 +122,11 @@ export function getProgramForFile(
  *
  * @param tsConfig TSConfig to parse
  * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
- * @param topDir root of the project, if set we will not allow TS to search for tsconfig files
- *        above this path
  * @returns the resolved TSConfig files
  */
 export function createProgramOptions(
   tsConfig: string,
   tsconfigContents?: string,
-  topDir?: string,
 ): ts.CreateProgramOptions & { missingTsConfig: boolean } {
   let missingTsConfig = false;
 
@@ -175,10 +136,7 @@ export function createProgramOptions(
     fileExists: file => {
       // When Typescript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
-      if (topDir && !file.startsWith(toUnixPath(topDir))) {
-        return false;
-      }
-      if (isLastTsConfigCheck(file, topDir)) {
+      if (isLastTsConfigCheck(file)) {
         return true;
       }
       return ts.sys.fileExists(file);
@@ -190,7 +148,7 @@ export function createProgramOptions(
       const fileContents = ts.sys.readFile(file);
       // When Typescript search for tsconfig which does not exist, return empty configuration
       // only when the check is for the last location at the root node_modules
-      if (!fileContents && isLastTsConfigCheck(file, topDir)) {
+      if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
         console.log(
           `WARN Could not find tsconfig.json: ${file}; falling back to an empty configuration.`,
@@ -249,36 +207,16 @@ export function createProgramOptions(
  *
  * @param tsConfig the TSConfig input to create a program for
  * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
- * @param topDir root of the project, if set we will not allow TS to search for
- *        dependencies above this path
  * @returns the identifier of the created TypeScript's Program along with the
  *          program itself, the resolved files, project references and a boolean
  *          'missingTsConfig' which is true when an extended tsconfig.json path
  *          was not found, which defaulted to default Typescript configuration
  */
-export function createProgram(
-  tsConfig: string,
-  tsconfigContents?: string,
-  topDir?: string,
-): ProgramResult {
+export function createProgram(tsConfig: string, tsconfigContents?: string): ProgramResult {
   if (!tsconfigContents) {
     tsconfigContents = readFileSync(tsConfig);
   }
-  const programOptions = createProgramOptions(tsConfig, tsconfigContents, topDir);
-
-  if (topDir) {
-    programOptions.host = ts.createCompilerHost(programOptions.options);
-
-    const originalFileExists = programOptions.host.fileExists;
-    // Ignore files outside the topDir
-    programOptions.host.fileExists = fileName => {
-      if (path.isAbsolute(fileName) && !fileName.startsWith(topDir)) {
-        return false;
-      }
-      return originalFileExists(fileName);
-    };
-  }
-
+  const programOptions = createProgramOptions(tsConfig, tsconfigContents);
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() || [];
   const projectReferences: string[] = [];
@@ -292,7 +230,7 @@ export function createProgram(
     }
   }
   const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
-  debug(`Created program for ${tsConfig} with ${files.length} files`);
+
   return {
     files,
     projectReferences,
@@ -303,6 +241,63 @@ export function createProgram(
       contents: tsconfigContents,
     },
   };
+}
+
+/**
+ * A cache of created TypeScript's Program instances
+ *
+ * It associates a program identifier to an instance of a TypeScript's Program.
+ */
+const programs = new Map<string, ts.Program>();
+
+/**
+ * A counter of created TypeScript's Program instances
+ */
+let programCount = 0;
+
+/**
+ * Computes the next identifier available for a TypeScript's Program.
+ * @returns
+ */
+function nextId() {
+  programCount++;
+  return programCount.toString();
+}
+
+/**
+ * Creates a TypeScript's Program instance and saves it in memory
+ *
+ * To be removed once Java part does not handle program creation
+ */
+export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
+  const program = createProgram(tsConfig);
+
+  const programId = nextId();
+  programs.set(programId, program.program.deref()!);
+  debug(`program from ${tsConfig} with id ${programId} is created`);
+  return { ...program, programId };
+}
+
+/**
+ * Gets an existing TypeScript's Program by its identifier
+ * @param programId the identifier of the TypeScript's Program to retrieve
+ * @throws a runtime error if there is no such program
+ * @returns the retrieved TypeScript's Program
+ */
+export function getProgramById(programId: string): ts.Program {
+  const program = programs.get(programId);
+  if (!program) {
+    throw Error(`Failed to find program ${programId}`);
+  }
+  return program;
+}
+
+/**
+ * Deletes an existing TypeScript's Program by its identifier
+ * @param programId the identifier of the TypeScript's Program to delete
+ */
+export function deleteProgram(programId: string): void {
+  programs.delete(programId);
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
@@ -341,20 +336,38 @@ function diagnosticToString(diagnostic: ts.Diagnostic): string {
  * /node_modules/$EXTENDED_TSCONFIG_VALUE/tsconfig.json
  *
  * @param file
- * @param topDir root of the project, we will not allow TS to search above this path if set
  */
-function isLastTsConfigCheck(file: string, topDir?: string) {
-  return path.basename(file) === 'tsconfig.json' && isRootNodeModules(file, topDir);
+function isLastTsConfigCheck(file: string) {
+  return path.basename(file) === 'tsconfig.json' && isRootNodeModules(file);
 }
-export function isRootNodeModules(file: string, topDir?: string) {
-  if (!topDir) {
-    topDir = path.parse(file).root;
-  }
+
+export function isRootNodeModules(file: string) {
+  const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
   const normalizedFile = toUnixPath(file);
-  const topNodeModules = toUnixPath(path.resolve(path.join(topDir, 'node_modules')));
+  const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
 }
 
 export function isRoot(file: string) {
   return toUnixPath(file) === toUnixPath(path.parse(file).root);
+}
+
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+tmp.setGracefulCleanup();
+
+/**
+ * Create the TSConfig file and returns its path.
+ *
+ * The file is written in a temporary location in the file system
+ * and is marked to be removed after Node.js process terminates.
+ *
+ * @param tsConfig TSConfig to write
+ * @returns the resolved TSConfig file path
+ */
+export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+  const filename = await promisify(tmp.file)();
+  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+  return { filename };
 }

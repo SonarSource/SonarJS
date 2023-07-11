@@ -21,6 +21,7 @@ import { setContext, getContext } from 'helpers';
 
 describe('context', () => {
   const initialCtx = {
+    workDir: '/',
     shouldUseTypeScriptParserForJS: false,
     sonarlint: false,
     bundles: [],
@@ -36,6 +37,7 @@ describe('context', () => {
 
   it('should set context', () => {
     const newContext = {
+      workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
       sonarlint: true,
       bundles: ['custom-rule'],

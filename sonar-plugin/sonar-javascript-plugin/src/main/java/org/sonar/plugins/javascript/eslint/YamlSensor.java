@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,14 +32,19 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
+import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class YamlSensor extends AbstractEslintSensor {
 
   public static final String LANGUAGE = "yaml";
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
   public static final String NODEJS_RUNTIME_REGEX = "^\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?";
+
   private static final Logger LOG = Loggers.get(YamlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
@@ -64,8 +70,34 @@ public class YamlSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected String getProgressReportTitle() {
-    return "Progress of JavaScript inside YAML files analysis";
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
+    var success = false;
+    try {
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+      for (var inputFile : inputFiles) {
+        if (context.isCancelled()) {
+          throw new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          );
+        }
+        if (eslintBridgeServer.isAlive()) {
+          progressReport.nextFile(inputFile.absolutePath());
+          analyze(inputFile);
+        } else {
+          throw new IllegalStateException("eslint-bridge server is not answering");
+        }
+      }
+      success = true;
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+    }
   }
 
   @Override
@@ -78,39 +110,6 @@ public class YamlSensor extends AbstractEslintSensor {
     );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
-  }
-
-  @Override
-  protected void prepareAnalysis(List<InputFile> inputFiles) throws IOException {
-    var rules = checks.eslintRules();
-    analysisMode = AnalysisMode.getMode(context, rules);
-    eslintBridgeServer.initLinter(rules, environments, globals, analysisMode);
-  }
-
-  @Override
-  protected void analyze(InputFile file) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
-    // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
-    // See AnalysisProcessor for more details.
-    if (cacheStrategy.isAnalysisRequired()) {
-      try {
-        LOG.debug("Analyzing file: {}", file.uri());
-        var request = new EslintBridgeServer.EmbeddedAnalysisRequest(
-          file.absolutePath(),
-          contextUtils.shouldSendFileContent(file) ? file.contents() : null,
-          analysisMode.getLinterIdFor(file)
-        );
-        var response = eslintBridgeServer.analyzeYaml(request);
-        analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
-          file
-        );
-      } catch (IOException e) {
-        LOG.error("Failed to get response while analyzing " + file.uri(), e);
-        throw e;
-      }
-    }
   }
 
   // Inspired from
@@ -143,5 +142,36 @@ public class YamlSensor extends AbstractEslintSensor {
     }
 
     return false;
+  }
+
+  private void analyze(InputFile file) throws IOException {
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
+    // See AnalysisProcessor for more details.
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: {}", file.uri());
+        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var jsAnalysisRequest = new JsAnalysisRequest(
+          file.absolutePath(),
+          file.type().toString(),
+          JavaScriptLanguage.KEY,
+          fileContent,
+          contextUtils.ignoreHeaderComments(),
+          null,
+          null,
+          analysisMode.getLinterIdFor(file)
+        );
+        var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
+          file
+        );
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
+        throw e;
+      }
+    }
   }
 }

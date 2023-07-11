@@ -17,33 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { readFile, toUnixPath } from 'helpers';
+import { FileType, readFile } from 'helpers';
 import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
-import path from 'path';
 
-const defaultInput: JsTsAnalysisInput = {
-  filePath: '',
-  baseDir: '',
-  fileContent: undefined,
-  fileType: 'MAIN',
-  tsConfigs: [],
-  linterId: 'default',
-  createProgram: true,
-  forceUpdateTSConfigs: false,
-  useFoundTSConfigs: false,
-  language: 'js',
-};
-
-export async function jsTsInput(input: any): Promise<JsTsAnalysisInput> {
-  input.filePath = toUnixPath(input.filePath);
-  if (!input.baseDir) {
-    input.baseDir = path.posix.dirname(toUnixPath(input.filePath));
-  }
-  const newInput = { ...defaultInput, ...input };
-  if (!newInput.fileContent) {
-    newInput.fileContent = await readFile(newInput.filePath);
-  }
-  return newInput;
+export async function jsTsInput({
+  filePath = '',
+  fileContent = undefined,
+  fileType = 'MAIN' as FileType,
+  tsConfigs = [],
+  programId = undefined,
+  linterId = 'default',
+  createProgram = false,
+  forceUpdateTSConfigs = false,
+}): Promise<JsTsAnalysisInput> {
+  return {
+    filePath,
+    fileContent: fileContent || (await readFile(filePath)),
+    fileType,
+    programId,
+    linterId,
+    tsConfigs,
+    createProgram,
+    forceUpdateTSConfigs,
+  };
 }
 
 export async function embeddedInput({

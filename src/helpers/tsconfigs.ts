@@ -19,16 +19,8 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, writeTmpFile } from './files';
-import { debug } from './debug';
-
-const TSCONFIG_JSON = 'tsconfig.json';
-
-/**
- * Number of attempts to match a source file with a tsconfig in the DB. To avoid too high memory
- * consumption, after we surpass this number we will default to a fallback tsconfig
- */
-const MAX_TSCONFIGS_ATTEMPTS = 3;
+import { getContext } from './context';
+import { readFileSync, toUnixPath } from './files';
 export interface TSConfig {
   filename: string;
   contents: string;
@@ -37,68 +29,39 @@ export interface TSConfig {
 
 export class ProjectTSConfigs {
   public db: Map<string, TSConfig>;
-  constructor(dir?: string, inputTSConfigs?: string[]) {
+  constructor(private readonly dir = getContext()?.workDir, launchLookup = true) {
     this.db = new Map<string, TSConfig>();
-    if (inputTSConfigs?.length) {
-      this.addInputTSConfigsToDB(inputTSConfigs);
-    } else if (dir) {
-      this.tsConfigLookup(dir);
+    if (launchLookup) {
+      this.tsConfigLookup();
     }
   }
   get(tsconfig: string) {
     return this.db.get(tsconfig);
   }
 
-  addInputTSConfigsToDB(tsconfigs: string[], normalized = false) {
-    const normalizedInputTSConfigs = normalized
-      ? tsconfigs
-      : tsconfigs.map(filename => toUnixPath(filename));
-
-    // We add the tsconfigs from the request to the DB
-    for (const tsConfigPath of normalizedInputTSConfigs) {
-      try {
-        if (!this.db.has(tsConfigPath)) {
-          const contents = fs.readFileSync(tsConfigPath, 'utf-8');
-          this.db.set(tsConfigPath, {
-            filename: tsConfigPath,
-            contents,
-          });
-        }
-      } catch (e) {
-        console.log(`ERROR Could not read ${tsConfigPath}`);
-      }
-    }
-  }
   /**
    * Iterate over saved tsConfig returning a fake tsconfig
    * as a fallback for the given file
    *
    * @param file the JS/TS file for which the tsconfig needs to be found
-   * @param tsconfigs list of tsConfigs passed in the request input, they have higher priority
    */
-  *iterateTSConfigs(file: string, tsconfigs?: string[]): Generator<TSConfig, void, undefined> {
-    if (tsconfigs?.length) {
-      tsconfigs = tsconfigs.map(filename => toUnixPath(filename));
-      this.addInputTSConfigsToDB(tsconfigs, true);
-    }
-    yield* [...this.db.values()]
-      .filter(tsconfig => {
-        if (tsconfigs?.length) {
-          return tsconfigs.includes(tsconfig.filename);
-        }
-        return true;
-      })
-      .sort((tsconfig1, tsconfig2) => {
-        const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
-        if (tsconfig === undefined) {
-          return 0;
-        }
-        return tsconfig === tsconfig1 ? -1 : 1;
-      })
-      .filter((_, index) => index < MAX_TSCONFIGS_ATTEMPTS);
+  *iterateTSConfigs(file: string): Generator<TSConfig, void, undefined> {
+    yield* [...this.db.values()].sort((tsconfig1, tsconfig2) => {
+      const tsconfig = bestTSConfigForFile(file, tsconfig1, tsconfig2);
+      if (tsconfig === undefined) {
+        return 0;
+      }
+      return tsconfig === tsconfig1 ? -1 : 1;
+    });
     yield {
       filename: `tsconfig-${file}.json`,
-      contents: generateTSConfig([file]),
+      contents: JSON.stringify({
+        compilerOptions: {
+          allowJs: true,
+          noImplicitAny: true,
+        },
+        files: [file],
+      }),
       isFallbackTSConfig: true,
     };
   }
@@ -109,31 +72,82 @@ export class ProjectTSConfigs {
    *
    * @param dir parent folder where the search starts
    */
-  tsConfigLookup(dir: string) {
-    let changes = false;
-    if (!dir || !fs.existsSync(dir)) {
-      console.log(`ERROR Could not access project directory ${dir}`);
-      throw Error(`Could not access project directory ${dir}`);
+  tsConfigLookup(dir = this.dir) {
+    if (!fs.existsSync(dir)) {
+      console.log(`ERROR Could not access working directory ${dir}`);
+      return;
     }
-    debug(`Looking for tsconfig files in ${dir}`);
-    const files = fs.readdirSync(dir, { withFileTypes: true });
+
+    const files = fs.readdirSync(dir);
     for (const file of files) {
-      const filename = toUnixPath(path.join(dir, file.name));
-      if (file.name !== 'node_modules' && file.name !== '.scannerwork' && file.isDirectory()) {
-        if (this.tsConfigLookup(filename)) {
-          changes = true;
-        }
-      } else if (fileIsTSConfig(file.name) && !file.isDirectory()) {
-        debug(`tsconfig found: ${filename}`);
+      const filename = toUnixPath(path.join(dir, file));
+      const stats = fs.lstatSync(filename);
+      if (file !== 'node_modules' && stats.isDirectory()) {
+        this.tsConfigLookup(filename);
+      } else if (fileIsTSConfig(filename) && !stats.isDirectory()) {
         const contents = fs.readFileSync(filename, 'utf-8');
-        const existingTsConfig = this.db.get(filename);
-        if (!existingTsConfig || existingTsConfig.contents !== contents) {
-          changes = true;
-        }
         this.db.set(filename, {
           filename,
           contents,
         });
+      }
+    }
+  }
+
+  /**
+   * Check for any changes in the list of known tsconfigs
+   *
+   * @param force the check will be bypassed if we are not on SonarLint, unless force is `true`
+   */
+  reloadTsConfigs(force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    // check for changes in known tsconfigs
+    for (const tsconfig of this.db.values()) {
+      try {
+        const contents = readFileSync(tsconfig.filename);
+        if (tsconfig.contents !== contents) {
+          changes = true;
+        }
+        tsconfig.contents = contents;
+      } catch (e) {
+        this.db.delete(tsconfig.filename);
+        console.log(`ERROR: tsconfig is no longer accessible ${tsconfig.filename}`);
+      }
+    }
+    return changes;
+  }
+
+  /**
+   * Check a list of tsconfig paths and add their contents
+   * to the internal list of tsconfigs.
+   *
+   * @param tsconfigs list of new or changed TSConfigs
+   * @param force force the update of tsconfigs if we are not on SonarLint
+   * @return true if there are changes, thus cache may need to be invalidated
+   */
+  upsertTsConfigs(tsconfigs: string[], force = false) {
+    // No need to rescan if we are not on sonarlint, unless we force it
+    if (!getContext()?.sonarlint && !force) {
+      return false;
+    }
+    let changes = false;
+    for (const tsconfig of tsconfigs) {
+      const normalizedTsConfig = toUnixPath(tsconfig);
+      if (!this.db.has(normalizedTsConfig)) {
+        try {
+          const contents = readFileSync(normalizedTsConfig);
+          this.db.set(normalizedTsConfig, {
+            filename: normalizedTsConfig,
+            contents,
+          });
+          changes = true;
+        } catch (e) {
+          console.log(`ERROR: Could not read tsconfig ${tsconfig}`);
+        }
       }
     }
     return changes;
@@ -141,33 +155,24 @@ export class ProjectTSConfigs {
 }
 
 function fileIsTSConfig(filename: string): boolean {
-  return /[tj]sconfig.json/i.exec(filename) !== null;
+  return !!filename.match(/[tj]sconfig.*\.json/i);
 }
 
 /**
- * Given a file and two TSConfig, chose the better choice. tsconfig.json name has preference.
- * Otherwise, logic is based on nearest path compared to source file.
+ * Given a file and two TSConfig, chose the better choice mostly
+ * based on its path compared with source file. On equal path conditions,
+ * tsconfig.json name has preference
  *
  * @param file source file for which we need a tsconfig
  * @param tsconfig1 first TSConfig instance we want to compare
  * @param tsconfig2 second TSConfig instance we want to compare
  */
 function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSConfig) {
-  const filename1 = path.basename(tsconfig1.filename).toLowerCase();
-  const filename2 = path.basename(tsconfig2.filename).toLowerCase();
-
-  if (filename1 === TSCONFIG_JSON && filename2 !== TSCONFIG_JSON) {
-    return tsconfig1;
-  } else if (filename1 !== TSCONFIG_JSON && filename2 === TSCONFIG_JSON) {
-    return tsconfig2;
-  }
-
   const fileDirs = path.dirname(file).split('/');
   const tsconfig1Dirs = path.dirname(tsconfig1.filename).split('/');
   const tsconfig2Dirs = path.dirname(tsconfig2.filename).split('/');
   let relativeDepth1 = -fileDirs.length;
   let relativeDepth2 = -fileDirs.length;
-
   for (let i = 0; i < fileDirs.length; i++) {
     if (tsconfig1Dirs.length > i && fileDirs[i] === tsconfig1Dirs[i]) {
       relativeDepth1++;
@@ -186,40 +191,17 @@ function bestTSConfigForFile(file: string, tsconfig1: TSConfig, tsconfig2: TSCon
   if (relativeDepth1 === relativeDepth2) {
     if (tsconfig1Dirs.length > tsconfig2Dirs.length) {
       return tsconfig2;
-    } else {
+    } else if (tsconfig1Dirs.length < tsconfig2Dirs.length) {
       return tsconfig1;
+    }
+    if (path.basename(tsconfig1.filename).toLowerCase() === 'tsconfig.json') {
+      return tsconfig1;
+    } else if (path.basename(tsconfig2.filename).toLowerCase() === 'tsconfig.json') {
+      return tsconfig2;
     }
   } else if (relativeDepth1 > relativeDepth2) {
     return relativeDepth1 <= 0 ? tsconfig1 : tsconfig2;
   } else {
     return relativeDepth2 <= 0 ? tsconfig2 : tsconfig1;
   }
-}
-
-function generateTSConfig(files?: string[], include?: string[]) {
-  const tsConfig = {
-    compilerOptions: {
-      allowJs: true,
-      noImplicitAny: true,
-    },
-  } as any;
-  if (files?.length) {
-    tsConfig.files = files;
-  }
-  if (include?.length) {
-    tsConfig.include = include;
-  }
-  return JSON.stringify(tsConfig);
-}
-
-export const wildcardTSConfigByBaseDir: Map<string, string> = new Map<string, string>();
-
-export function getWildcardTSConfig(baseDir = '') {
-  const normalizedBaseDir = toUnixPath(baseDir);
-  let tsConfig = wildcardTSConfigByBaseDir.get(normalizedBaseDir);
-  if (!tsConfig) {
-    tsConfig = writeTmpFile(generateTSConfig(undefined, [`${toUnixPath(normalizedBaseDir)}/**/*`]));
-    wildcardTSConfigByBaseDir.set(normalizedBaseDir, tsConfig);
-  }
-  return tsConfig;
 }

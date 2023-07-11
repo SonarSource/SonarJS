@@ -29,9 +29,6 @@
 'vuetify:packages/vuetify/src/components/VList/VListChildren.tsx':[
 61,
 ],
-'vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx':[
-95,
-],
 'vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx':[
 17,
 ],

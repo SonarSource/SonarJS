@@ -9,11 +9,6 @@
 24,
 27,
 ],
-'searchkit:packages/searchkit-schema/tests/support/server.ts':[
-54,
-55,
-56,
-],
 'searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts':[
 21,
 ],

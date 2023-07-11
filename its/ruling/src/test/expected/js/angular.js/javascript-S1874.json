@@ -1,4 +1,7 @@
 {
+'angular.js:src/AngularPublic.js':[
+136,
+],
 'angular.js:src/ng/animate.js':[
 232,
 ],
@@ -19,8 +22,12 @@
 235,
 ],
 'angular.js:src/ngTouch/directive/ngSwipe.js':[
+85,
 143,
 144,
+],
+'angular.js:src/ngTouch/swipe.js':[
+28,
 ],
 'angular.js:src/ngTouch/touch.js':[
 27,

@@ -22,9 +22,8 @@ import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import path from 'path';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../tools';
 
 const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLintRules };
 const decoratedExternalRules = decorateExternalRules(externalRules);
@@ -37,7 +36,7 @@ describe('decorateExternalRules', () => {
       linter.defineRules(decoratedExternalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'enforce-trailing-comma.js');
-      const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
 
       const rules = { [ruleId]: 'error' } as any;
 
@@ -55,7 +54,7 @@ describe('decorateExternalRules', () => {
     linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'no-throw-literal.js');
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'no-throw-literal';
     const rules = { [ruleId]: 'error' } as any;
@@ -73,10 +72,9 @@ describe('decorateExternalRules', () => {
     linter.defineRules(decoratedExternalRules);
 
     const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
+    const tsConfigs = [];
 
-    const sourceCode = buildSourceCode(
-      await jsTsInput({ filePath, language: 'ts', createProgram: false }),
-    );
+    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
     expect(sourceCode.parserServices.hasFullTypeInformation).toBeDefined();
     expect(sourceCode.parserServices.hasFullTypeInformation).toEqual(false);
 
@@ -94,7 +92,7 @@ describe('decorateExternalRules', () => {
       linter.defineRules(decorate ? decoratedExternalRules : externalRules);
 
       const filePath = path.join(__dirname, 'fixtures', 'decorate', 'internal-decorator.js');
-      const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
 
       const ruleId = 'accessor-pairs';
       const rules = { [ruleId]: 'error' } as any;

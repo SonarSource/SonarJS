@@ -1,4 +1,7 @@
 {
+'jquery:src/exports/global.js':[
+12,
+],
 'jquery:src/selector.js':[
 1470,
 ],

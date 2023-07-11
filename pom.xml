@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.4.0-SNAPSHOT</version>
+  <version>10.3.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
@@ -57,7 +57,7 @@
     <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
     <jgit.version>6.2.0.202206071550-r</jgit.version>
-    <junit.version>5.8.1</junit.version>
+    <junit.version>5.9.3</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>9.9.0.65466</sonar.version>

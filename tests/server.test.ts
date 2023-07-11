@@ -30,6 +30,7 @@ describe('server', () => {
 
   beforeAll(() => {
     setContext({
+      workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
       bundles: [],

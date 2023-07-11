@@ -25,9 +25,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -35,6 +35,8 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectChecker {
 
   private static final Logger LOG = Loggers.get(SonarLintJavaScriptProjectChecker.class);
+  static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
+  static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
   private static final int FILE_WALK_MAX_DEPTH = 20;
 
   private boolean beyondLimit = true;
@@ -45,18 +47,18 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return beyondLimit;
   }
 
-  public void checkOnce(ContextUtils contextUtils) {
+  public void checkOnce(SensorContext context) {
     if (shouldCheck) {
-      checkLimit(contextUtils);
+      checkLimit(context);
       shouldCheck = false;
     }
   }
 
-  private void checkLimit(ContextUtils contextUtils) {
+  private void checkLimit(SensorContext context) {
     try {
       var start = Instant.now();
-      var maxFilesForTypeChecking = contextUtils.getMaxFilesForTypeChecking();
-      long cappedFileCount = countFiles(contextUtils, maxFilesForTypeChecking);
+      var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
+      long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
 
       beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
       if (!beyondLimit) {
@@ -73,7 +75,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
           maxFilesForTypeChecking
         );
         // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
-        LOG.debug("Update \"{}\" to set a different limit.", JavaScriptPlugin.MAX_FILES_PROPERTY);
+        LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
       }
 
       LOG.debug(
@@ -90,7 +92,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static long countFiles(ContextUtils context, int maxFilesForTypeChecking) {
+  private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
     try (var files = walkProjectFiles(context)) {
@@ -103,8 +105,15 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static Stream<Path> walkProjectFiles(ContextUtils context) {
+  private static Stream<Path> walkProjectFiles(SensorContext context) {
     // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
-    return PathWalker.stream(context.getBasePath(), FILE_WALK_MAX_DEPTH);
+    return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
+  }
+
+  private static int getMaxFilesForTypeChecking(SensorContext context) {
+    return Math.max(
+      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
+      0
+    );
   }
 }

@@ -19,15 +19,13 @@
  */
 import { findExecutableLines } from 'linting/eslint/linter/visitors/metrics/executable-lines';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../../tools';
+import { parseTypeScriptSourceFile } from '../../../../../tools';
 
 describe('findExecutableLines', () => {
   it('should find the number of executable lines', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'executable-lines.ts');
-    const sourceCode = buildSourceCode(
-      await jsTsInput({ filePath, language: 'ts', createProgram: false }),
-    );
+    const tsConfigs = [];
+    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
     const statements = findExecutableLines(sourceCode);
     expect(statements).toEqual([
       4, 7, 10, 11, 13, 16, 19, 20, 21, 24, 25, 27, 30, 31, 33, 36, 38, 42, 43, 46, 47, 48, 49, 52,

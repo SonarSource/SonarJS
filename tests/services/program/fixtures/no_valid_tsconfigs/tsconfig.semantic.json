@@ -1,6 +1,0 @@
-{
-  "compilerOptions": {
-    "targetSomething": "es6" // non-existing property
-  },
-  "exclude": ["excluded.ts"]
-}

@@ -19,8 +19,7 @@
  */
 import { findCommentLines } from 'linting/eslint/linter/visitors/metrics/comments';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../../tools/helpers';
 
 const cases = [
   {
@@ -66,7 +65,7 @@ describe('findCommentLines', () => {
     'should find comment lines $given',
     async ({ fixture, ignoreHeader, expectedLines }) => {
       const filePath = path.join(__dirname, 'fixtures', 'comments', `${fixture}.js`);
-      const sourceCode = buildSourceCode(await jsTsInput({ filePath, createProgram: false }));
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
     },

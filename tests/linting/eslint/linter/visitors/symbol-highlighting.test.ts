@@ -21,8 +21,7 @@ import { Linter } from 'eslint';
 import { rule, SymbolHighlight } from 'linting/eslint/linter/visitors';
 import { Location } from 'linting/eslint/linter/visitors/metrics/helpers';
 import path from 'path';
-import { buildSourceCode } from 'parsing/jsts';
-import { jsTsInput } from '../../../../tools';
+import { parseTypeScriptSourceFile } from '../../../../tools';
 
 describe('symbol highlighting rule', () => {
   it('should highlight variables', async () => {
@@ -95,9 +94,7 @@ describe('symbol highlighting rule', () => {
 
 async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
   const filePath = path.join(__dirname, 'fixtures', 'symbol-highlighting', fixture);
-  const sourceCode = buildSourceCode(
-    await jsTsInput({ filePath, language: 'ts', createProgram: false }),
-  );
+  const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';
   const rules = { [ruleId]: 'error' } as any;

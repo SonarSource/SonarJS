@@ -29,11 +29,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -54,10 +56,12 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -81,7 +85,12 @@ class CssRuleSensorTest {
   Path baseDir;
 
   @TempDir
+  File tempDir;
+
+  @TempDir
   Path workDir;
+
+  TempFolder tempFolder;
 
   private SensorContextTester context;
 
@@ -104,6 +113,7 @@ class CssRuleSensorTest {
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
+    tempFolder = new DefaultTempFolder(tempDir, true);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -284,7 +294,7 @@ class CssRuleSensorTest {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
-    sensor.analyze(httpFile);
+    sensor.analyzeFile(httpFile, context, Collections.emptyList());
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");

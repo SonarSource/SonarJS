@@ -33,6 +33,8 @@ import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
+import org.sonar.plugins.javascript.eslint.AnalysisWithProgram;
+import org.sonar.plugins.javascript.eslint.AnalysisWithWatchProgram;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
@@ -125,10 +127,6 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
-  public static final String MAX_FILES_PROPERTY =
-    "sonar.javascript.sonarlint.typechecking.maxfiles";
-  public static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
-
   @Override
   public void define(Context context) {
     context.addExtensions(
@@ -148,6 +146,8 @@ public class JavaScriptPlugin implements Plugin {
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       Monitoring.class,
+      AnalysisWithProgram.class,
+      AnalysisWithWatchProgram.class,
       AnalysisProcessor.class,
       YamlSensor.class,
       HtmlSensor.class

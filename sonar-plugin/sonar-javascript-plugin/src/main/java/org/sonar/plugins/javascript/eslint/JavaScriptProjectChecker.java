@@ -20,17 +20,18 @@
 package org.sonar.plugins.javascript.eslint;
 
 import javax.annotation.Nullable;
+import org.sonar.api.batch.sensor.SensorContext;
 
 public interface JavaScriptProjectChecker {
   static void checkOnce(
     @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    ContextUtils contextUtils
+    SensorContext context
   ) {
     if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(contextUtils);
+      javascriptProjectChecker.checkOnce(context);
     }
   }
 
-  void checkOnce(ContextUtils contextUtils);
+  void checkOnce(SensorContext context);
   boolean isBeyondLimit();
 }

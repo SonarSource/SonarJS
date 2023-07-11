@@ -2,6 +2,10 @@
 'p5.js:lib/addons/p5.sound.js':[
 9362,
 ],
+'p5.js:src/events/keyboard.js':[
+189,
+240,
+],
 'p5.js:src/io/files.js':[
 1854,
 ],
