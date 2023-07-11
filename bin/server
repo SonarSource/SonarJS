@@ -18,7 +18,7 @@ const context = require('../lib/helpers/context');
 const port = process.argv[2];
 const host = process.argv[3];
 const workDir = process.argv[4];
-const shouldUseTypeScriptParserForJS = process.argv[5] === 'true';
+const shouldUseTypeScriptParserForJS = process.argv[5] !== 'false';
 const sonarlint = process.argv[6] === 'true';
 
 let bundles = [];
