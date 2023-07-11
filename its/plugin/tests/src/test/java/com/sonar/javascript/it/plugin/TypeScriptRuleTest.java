@@ -41,7 +41,7 @@ class TypeScriptRuleTest {
 
   private static final String PROJECT_KEY = "ts-rule-project";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
-  static final String LITS_VERSION = "0.10.0.2181";
+  static final String LITS_VERSION = "0.11.0.2659";
 
   private static Orchestrator orchestrator;
 
