@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.3.0-SNAPSHOT</version>
+  <version>10.3.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
