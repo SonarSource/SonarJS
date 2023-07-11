@@ -1,4 +1,4 @@
-name: Submit Review
+name: Submit Review for Project V2
 
 on:
   pull_request_review:
