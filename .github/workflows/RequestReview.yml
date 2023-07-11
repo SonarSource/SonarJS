@@ -15,6 +15,6 @@ jobs:
     steps:
       - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@use-until-merged
         with:
-          github-token: ${{secrets.GH_TOKEN}}
+          github-token: ${{secrets.ILIA_TOKEN}}
           column-id: "14c3336d"     # Kanban "Review in progress" column
           project-number: 8

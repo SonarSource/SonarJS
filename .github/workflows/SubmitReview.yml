@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@use-until-merged
         with:
-          github-token: ${{secrets.GH_TOKEN}}
+          github-token: ${{secrets.ILIA_TOKEN}}
           column-id: "47fc9ee4"     # Kanban "In progress" column
           project-number: 8
 
@@ -31,6 +31,6 @@ jobs:
     steps:
       - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@use-until-merged
         with:
-          github-token: ${{secrets.GH_TOKEN}}
+          github-token: ${{secrets.ILIA_TOKEN}}
           column-id: "dd10adad"     # Kanban "Review approved" column
           project-number: 8
