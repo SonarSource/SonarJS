@@ -35,6 +35,7 @@ const quickFixMessages = new Map<string, string>([
   ['object-shorthand', 'Use shorthand property'],
   ['prefer-as-const', "Replace with 'as const'"],
   ['prefer-const', "Replace with 'const'"],
+  ['prefer-object-has-own', 'Replace with Object.hasOwn()'],
   ['prefer-return-this-type', "Replace return type with 'this'"],
   ['prefer-template', 'Replace with template string literal'],
   ['quotes', 'Fix quotes'],
