@@ -37,6 +37,7 @@ import { Perf } from 'services/monitoring';
  * @param fileType the file type to select the proper linting configuration
  * @param ignoreHeaderComments a flag used by some rules to ignore header comments
  * @param tsConfigs a list of TSConfigs
+ * @param language the file language ('js' or 'ts')
  * @param programId the identifier of a TypeScript Program's instance
  */
 export interface JsTsAnalysisInput extends AnalysisInput {

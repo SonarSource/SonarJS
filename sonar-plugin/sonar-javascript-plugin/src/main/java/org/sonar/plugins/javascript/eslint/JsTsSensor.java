@@ -44,6 +44,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   private final JsTsChecks checks;
   private final JavaScriptProjectChecker javaScriptProjectChecker;
 
+  // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
     JsTsChecks checks,
     EslintBridgeServer eslintBridgeServer,
