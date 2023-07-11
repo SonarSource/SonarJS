@@ -57,7 +57,7 @@
     <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
     <jgit.version>6.2.0.202206071550-r</jgit.version>
-    <junit.version>5.8.1</junit.version>
+    <junit.version>5.9.3</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>9.9.0.65466</sonar.version>
@@ -73,7 +73,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <maven.compiler.release>11</maven.compiler.release>
     <jdk.min.version>11</jdk.min.version>
-    <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
