@@ -27,20 +27,18 @@ export function decorateNoLonelyIf(rule: Rule.RuleModule): Rule.RuleModule {
     if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { node, messageId, ...rest } = reportDescriptor;
 
-      if (node.type !== 'IfStatement' || messageId !== 'unexpectedLonelyIf' || !('loc' in node)) {
-        return;
+      if (node.type === 'IfStatement' && node.loc && messageId === 'unexpectedLonelyIf') {
+        const { start } = node.loc;
+
+        context.report({
+          message: "'If' statement should not be the only statement in 'else' block",
+          loc: {
+            start,
+            end: { line: start.line, column: start.column + 2 },
+          },
+          ...rest,
+        });
       }
-
-      const { start } = node.loc!;
-
-      context.report({
-        message: "'If' statement should not be the only statement in 'else' block",
-        loc: {
-          start,
-          end: { line: start.line, column: start.column + 2 },
-        },
-        ...rest,
-      });
     }
   });
 }
