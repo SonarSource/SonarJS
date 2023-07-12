@@ -1,25 +1,39 @@
+<p>This vulnerability makes it possible that an encrypted communication is intercepted.</p>
 <h2>Why is this an issue?</h2>
-<p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks.</p>
-<p>The certificate chain validation includes these steps:</p>
-<ul>
-  <li> The certificate is issued by its parent Certificate Authority or the root CA trusted by the system. </li>
-  <li> Each CA is allowed to issue certificates. </li>
-  <li> Each certificate in the chain is not expired. </li>
-</ul>
-<p>It’s not recommended to reinvent the wheel by implementing custom certificate chain validation.</p>
-<p>TLS libraries provide built-in certificate validation functions that should be used.</p>
-<h3>Noncompliant code example</h3>
-<p>There is no way to disable certificate verification in tls, https and request modules but it is possible to not reject request when verification
-fails.</p>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
-<pre>
+<p>Transport Layer Security (TLS) provides secure communication between systems over the internet by encrypting the data sent between them. The role
+of certificate validation in this process is to ensure that a system is indeed the one it claims to be, adding an extra layer of trust and
+security.</p>
+<p>When certificate validation is disabled, the client skips this critical check. This creates an opportunity for attackers to pose as a trusted
+entity and intercept, manipulate, or steal the data being transmitted.</p>
+<h3>What is the potential impact?</h3>
+<p>Establishing trust in a secure way is a non-trivial task. When you disable certificate validation, you are removing a key mechanism designed to
+build this trust in internet communication, opening your system up to a number of potential threats.</p>
+<h4>Identity spoofing</h4>
+<p>If a system does not validate certificates, it cannot confirm the identity of the other party involved in the communication. An attacker can
+exploit this by creating a fake server and masquerading it as a legitimate one. For example, they might set up a server that looks like your bank’s
+server, tricking your system into thinking it is communicating with the bank. This scenario, called identity spoofing, allows the attacker to collect
+any data your system sends to them, potentially leading to significant data breaches.</p>
+<h4>Loss of data integrity</h4>
+<p>When TLS certificate validation is disabled, the integrity of the data you send and receive cannot be guaranteed. An attacker could modify the data
+in transit, and you would have no way of knowing. This could range from subtle manipulations of the data you receive to the injection of malicious
+code or malware into your system. The consequences of such breaches of data integrity can be severe, depending on the nature of the data and the
+system.</p>
+<h2>How to fix it in Node.js</h2>
+<h3>Code examples</h3>
+<p>The following code contains examples of disabled certificate validation.</p>
+<p>The certificate validation gets disabled by setting <code>rejectUnauthorized</code> to <code>false</code>. To enable validation set the value to
+<code>true</code> or do not set <code>rejectUnauthorized</code> at all to use the secure default value.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const https = require('node:https');
+
 let options = {
   hostname: 'www.example.com',
   port: 443,
   path: '/',
   method: 'GET',
-  secureProtocol: 'TLSv1_2_method',
-  rejectUnauthorized: false ; // Noncompliant
+  rejectUnauthorized: false,
+  secureProtocol: 'TLSv1_2_method'
 };
 
 let req = https.request(options, (res) =&gt; {
@@ -28,29 +42,23 @@ let req = https.request(options, (res) =&gt; {
   });
 }); // Noncompliant
 </pre>
-<p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+const tls = require('node:tls');
+
 let options = {
-    secureProtocol: 'TLSv1_2_method',
-    rejectUnauthorized: false ; // Noncompliant
+    rejectUnauthorized: false,
+    secureProtocol: 'TLSv1_2_method'
 };
 
 let socket = tls.connect(443, "www.example.com", options, () =&gt; {
   process.stdin.pipe(socket);
   process.stdin.resume();
-});  // Noncompliant
+}); // Noncompliant
 </pre>
-<p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
-<pre>
-let socket = request.get({
-    url: 'www.example.com',
-    secureProtocol: 'TLSv1_2_method',
-    rejectUnauthorized: false ; // Noncompliant
-});
-</pre>
-<h3>Compliant solution</h3>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const https = require('node:https');
+
 let options = {
   hostname: 'www.example.com',
   port: 443,
@@ -63,10 +71,11 @@ let req = https.request(options, (res) =&gt; {
   res.on('data', (d) =&gt; {
     process.stdout.write(d);
   });
-}); // Compliant: by default rejectUnauthorized  is set to true
+});
 </pre>
-<p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+const tls = require('node:tls');
+
 let options = {
     secureProtocol: 'TLSv1_2_method'
 };
@@ -74,16 +83,54 @@ let options = {
 let socket = tls.connect(443, "www.example.com", options, () =&gt; {
   process.stdin.pipe(socket);
   process.stdin.resume();
-}); // Compliant: by default rejectUnauthorized  is set to true
+});
 </pre>
-<p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
-<pre>
+<h3>How does this work?</h3>
+<p>Addressing the vulnerability of disabled TLS certificate validation primarily involves re-enabling the default validation.</p>
+<p>To avoid running into problems with invalid certificates, consider the following sections.</p>
+<h4>Using trusted certificates</h4>
+<p>If possible, always use a certificate issued by a well-known, trusted CA for your server. Most programming environments come with a predefined list
+of trusted root CAs, and certificates issued by these authorities are validated automatically. This is the best practice, and it requires no
+additional code or configuration.</p>
+<h4>Working with self-signed certificates or non-standard CAs</h4>
+<p>In some cases, you might need to work with a server using a self-signed certificate, or a certificate issued by a CA not included in your trusted
+roots. Rather than disabling certificate validation in your code, you can add the necessary certificates to your trust store.</p>
+<h2>How to fix it in Request</h2>
+<h3>Code examples</h3>
+<p>The following code contains examples of disabled certificate validation.</p>
+<p>The certificate validation gets disabled by setting <code>rejectUnauthorized</code> to <code>false</code>. To enable validation set the value to
+<code>true</code> or do not set <code>rejectUnauthorized</code> at all to use the secure default value.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const request = require('request');
+
 let socket = request.get({
-    url: 'https://www.example.com/',
-    secureProtocol: 'TLSv1_2_method' // Compliant
-}); // Compliant: by default rejectUnauthorized  is set to true
+  url: 'www.example.com',
+  rejectUnauthorized: false, // Noncompliant
+  secureProtocol: 'TLSv1_2_method'
+});
 </pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const request = require('request');
+
+let socket = request.get({
+  url: 'https://www.example.com/',
+  secureProtocol: 'TLSv1_2_method'
+});
+</pre>
+<h3>How does this work?</h3>
+<p>Addressing the vulnerability of disabled TLS certificate validation primarily involves re-enabling the default validation.</p>
+<p>To avoid running into problems with invalid certificates, consider the following sections.</p>
+<h4>Using trusted certificates</h4>
+<p>If possible, always use a certificate issued by a well-known, trusted CA for your server. Most programming environments come with a predefined list
+of trusted root CAs, and certificates issued by these authorities are validated automatically. This is the best practice, and it requires no
+additional code or configuration.</p>
+<h4>Working with self-signed certificates or non-standard CAs</h4>
+<p>In some cases, you might need to work with a server using a self-signed certificate, or a certificate issued by a CA not included in your trusted
+roots. Rather than disabling certificate validation in your code, you can add the necessary certificates to your trust store.</p>
 <h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
   <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
@@ -93,10 +140,10 @@ let socket = request.get({
   Exposure </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
-  Standard</a> - Network Communication Requirements </li>
   <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
   Communication </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
+  Standard</a> - Network Communication Requirements </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/295">MITRE, CWE-295</a> - Improper Certificate Validation </li>
 </ul>
 

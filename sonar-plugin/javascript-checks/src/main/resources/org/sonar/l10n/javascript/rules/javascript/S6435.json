@@ -1,5 +1,5 @@
 {
-  "title": "React \"render\" function should return a value",
+  "title": "React \"render\" functions should return a value",
   "type": "BUG",
   "status": "ready",
   "remediation": {

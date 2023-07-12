@@ -1,30 +1,35 @@
 <h2>Why is this an issue?</h2>
-<p>Providing values like an object to a React <code>Context</code> will provoke additional re-renders as React doesn’t know the object is the same.
-This can significantly impact performance since the whole component tree will be re-rendered each time. Wrapping the value in a <code>useMemo</code>
-hook will avoid additional render passes.</p>
-<h3>Noncompliant code example</h3>
+<p>Whenever the <code>value</code> property of React context changes, React will rerender the context and all its child nodes and consumers. In
+JavaScript, things like object literals or function expressions will create a new identity every time they are evaluated. Such constructions should
+not be directly used as context <code>value</code> because React will always consider they have changed. This can significantly impact
+performance.</p>
 <pre>
 function Component() {
   return (
-    &lt;SomeContext.Provider value={{foo: 'bar'}}&gt; { /* value is an object expression */ }
+    &lt;SomeContext.Provider value={{foo: 'bar'}}&gt; { /* Noncompliant: value is an object literal */ }
       &lt;SomeComponent /&gt;
     &lt;/SomeContext.Provider&gt;
   );
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>To avoid additional rerenders wrap the value in a <code>useMemo</code> hook. Use the <code>useCallback()</code> hook if the value is a
+function.</p>
 <pre>
 function Component() {
-  const foo = useMemo(() =&gt; ({foo: 'bar'}), []);
+  const obj = useMemo(() =&gt; ({foo: 'bar'}), []); // value is cached by useMemo
   return (
-    &lt;SomeContext.Provider value={foo}&gt;
+    &lt;SomeContext.Provider value={obj}&gt; { /* Compliant */ }
       &lt;SomeComponent /&gt;
     &lt;/SomeContext.Provider&gt;
   );
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://reactjs.org/docs/context.html#caveats">Context Caveats</a> - React documentation </li>
+  <li> <a href="https://reactjs.org/docs/context.html#caveats">React documentation - Context Caveats</a> </li>
+  <li> <a href="https://react.dev/learn/passing-data-deeply-with-context">React documentation - Passing Data Deeply with Context</a> </li>
+  <li> <a href="https://react.dev/reference/react/useCallback">React documentation - <code>useCallback</code> hook</a> </li>
+  <li> <a href="https://react.dev/reference/react/useMemo">React documentation - <code>useMemo</code> hook</a> </li>
 </ul>
 

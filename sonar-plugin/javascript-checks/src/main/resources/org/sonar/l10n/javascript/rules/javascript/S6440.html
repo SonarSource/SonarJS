@@ -1,21 +1,13 @@
 <h2>Why is this an issue?</h2>
-<p>From React documentation:</p>
-<blockquote>
-   Always use Hooks at the top level of your React function, before any early returns. By following this rule, you ensure that Hooks are called in the
-   same order each time a component renders. That’s what allows React to correctly preserve the state of Hooks between multiple
-  <code>useState</code> and
-  <code>useEffect</code> calls.
-</blockquote>
-<p>React is relying on the order of the Hook calls to know which local state matches which Hook call. That is why it’s important that the Hooks are
-not called inside loops, conditions, or nested functions.</p>
-<p>Also this rule ensures that the Hooks are called only from React function components or custom Hooks so that the stateful logic of a component is
-clearly visible from its source code.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>React relies on the order in which Hooks are called to correctly preserve the state of Hooks between multiple <code>useState</code> and
+<code>useEffect</code> calls. This means React Hooks should be called in the same order each time a component renders and should not be called inside
+loops, conditions, or nested functions.</p>
+<p>Additionally, this rule ensures that the Hooks are called only from React function components or custom Hooks.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
   if (ordersCount !== 0) {
-    useEffect(function() { // Noncompliant, this Hook is called conditionally
+    useEffect(function() { // Noncompliant: Hook is called conditionally
       localStorage.setItem('ordersData', ordersCount);
     });
   }
@@ -24,12 +16,12 @@ function Profile() {
 }
 
 function getName() {
-  const [name] = useState('John'); // Noncompliant, this Hook is called from simple JavaScript function
+  const [name] = useState('John'); // Noncompliant: Hook is called from a JavaScript function, not a React component
   return name;
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Instead, always use Hooks at the top of your React function, before any early returns.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
   useEffect(function() {
@@ -43,7 +35,9 @@ function Profile() {
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://reactjs.org/docs/hooks-rules.html">Rules of Hooks</a> - React documentation </li>
+  <li> <a href="https://react.dev/warnings/invalid-hook-call-warning#breaking-rules-of-hooks">React.dev - Breaking Rules of Hooks</a> </li>
+  <li> <a href="https://legacy.reactjs.org/docs/hooks-rules.html">React documentation - Rules of Hooks</a> </li>
 </ul>
 

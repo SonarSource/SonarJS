@@ -1,5 +1,5 @@
 <h2>Why is this an issue?</h2>
-<p>Renaming imports, exports, or destructuring assignments to the same name makes no sense and should be removed. You may accidentally end up with
+<p>Renaming imports, exports, or destructuring assignments to the same name is redundant and can be safely removed. You may accidentally end up with
 such code if you do a refactoring and change the local name in several places.</p>
 <pre>
 import { foo as foo } from "bar";

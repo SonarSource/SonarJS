@@ -1,26 +1,31 @@
 <h2>Why is this an issue?</h2>
 <p>The <code>typeof</code> operator returns a string indicating the type of its argument, and the set of returned values is limited:</p>
 <ul>
-  <li> "undefined" </li>
-  <li> "boolean" </li>
-  <li> "number" </li>
-  <li> "string" </li>
-  <li> "symbol" (since ECMAScript 2015) </li>
-  <li> "function" </li>
-  <li> "object" (for <code>null</code> and any other object) </li>
-  <li> "BigInt" (since ECMAScript 2020) </li>
+  <li> <code>"undefined"</code> </li>
+  <li> <code>"boolean"</code> </li>
+  <li> <code>"number"</code> </li>
+  <li> <code>"string"</code> </li>
+  <li> <code>"symbol"</code> (since ECMAScript 2015) </li>
+  <li> <code>"function"</code> </li>
+  <li> <code>"object"</code> (for <code>null</code> and any other object) </li>
+  <li> <code>"bigint"</code> (since ECMAScript 2020) </li>
 </ul>
-<p>Compare a <code>typeof</code> expression to anything else, and the result is predefined: <code>false</code>.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function someFunc(x) {
-  return typeof x === "Number"; // Noncompliant, function will always return 'false'
+<p>Compare a <code>typeof</code> expression to anything else, and the result will always be <code>false</code>.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function isNumber(x) {
+  return typeof x === "Number"; // Noncompliant: the function always returns 'false'
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-function someFunc(x) {
+<p>Instead, make sure you are always comparing the expression against one of the seven possible values.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function isNumber(x) {
   return typeof x === "number";
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof">MDN - typeof</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values">MDN - Primitive values</a> </li>
+</ul>
 

@@ -1,26 +1,39 @@
 <h2>Why is this an issue?</h2>
-<p>JSX is a special JavaScript syntax allowing to easily write HTML together with JavaScript when using React framework. Adding comments inside JSX
-might be tricky as JSX code is neither a plain HTML nor JavaScript. It’s not allowed to use HTML comment syntax (<code>&lt;!-- …​ --&gt;</code>), it
-will make the parsing fail. And using JavaScript style comments, single or multiline, will create an additional text node in the browser, which is
-probably not expected. To avoid that use JavaScript multiline comments enclosed in the curly braces. Note that JavaScript comments are also allowed
-next to the attributes (<code>&lt;div /* comment */&gt;</code>).</p>
-<p>However if the additional text node is intentional, prefer using a JavaScript string literal containing that comment.</p>
-<h3>Noncompliant code example</h3>
+<p>JSX lets you write HTML-like markup inside a JavaScript file, commonly used in React.</p>
+<p>Adding comments inside JSX might be tricky as JSX code is neither a plain HTML nor JavaScript.</p>
+<p>HTML comments (<code>&lt;!-- comment here --&gt;</code>) are not valid syntax in JSX.</p>
+<p>JavaScript-style comments, single or multiline, will create an additional text node in the browser, which is probably not expected.</p>
 <pre>
 &lt;div&gt;
-  // nothing here
+  // Noncompliant: text inside node
 &lt;/div&gt;
 </pre>
-<h3>Compliant solution</h3>
+<p>To avoid that, use JavaScript multiline comments enclosed in curly braces. Single-line comments can also be used, but avoid having the ending
+bracket in the same line.</p>
 <pre>
 &lt;div&gt;
-  { /* nothing here */ }
+  {
+    /*
+      multi-line
+      comment
+    */
+  }
+  {
+    // single-line comment
+  }
+  { /* short form comment */ }
 &lt;/div&gt;
 </pre>
-<p>When text node is intentional:</p>
+<p>Note that JavaScript comments around attributes are also allowed (<code>&lt;div /* comment */&gt;</code>).</p>
+<p>If the additional text node is intentional, prefer using a JavaScript string literal containing that comment.</p>
 <pre>
 &lt;div&gt;
-  { '// nothing here' }
+  { '// text inside node' }
 &lt;/div&gt;
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://react.dev/learn/javascript-in-jsx-with-curly-braces">React.dev - JavaScript in JSX with Curly Braces</a> </li>
+</ul>
 

@@ -1,5 +1,5 @@
 {
-  "title": "Mandatory keys in JSX list components",
+  "title": "JSX list components should have a key property",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

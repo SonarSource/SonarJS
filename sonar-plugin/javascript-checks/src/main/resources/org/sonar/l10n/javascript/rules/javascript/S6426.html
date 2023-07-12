@@ -1,8 +1,6 @@
 <h2>Why is this an issue?</h2>
-<p>Testing frameworks like Mocha and Jest provide a way to run a single test case for a file by appending <code>.only()</code> to the test function.
-This is convenient when debugging a specific use case. It makes, however, no sense to have it in production or development, and it was likely left by
-mistake after such a debugging session. Therefore, it is strongly recommended not to commit usages of <code>.only()</code> to version control.</p>
-<h3>Noncompliant code example</h3>
+<p>When using testing frameworks like Mocha and Jest, appending <code>.only()</code> to the test function allows running a single test case for a
+file. Using <code>.only()</code> means no other test from this file is executed. This is useful when debugging a specific use case.</p>
 <pre>
 describe("MyClass", function () {
     it.only("should run correctly", function () {
@@ -10,7 +8,8 @@ describe("MyClass", function () {
     });
 });
 </pre>
-<h3>Compliant solution</h3>
+<p>However, it should not be used in production or development, as it is likely a leftover from debugging and serves no purpose in those contexts. It
+is strongly recommended not to include <code>.only()</code> usages in version control.</p>
 <pre>
 describe("MyClass", function () {
     it("should run correctly", function () {
@@ -19,6 +18,7 @@ describe("MyClass", function () {
 });
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li> <a href="https://mochajs.org/#exclusive-tests">exclusive tests in Mocha</a> </li>
   <li> <a href="https://jestjs.io/docs/next/api#testonlyname-fn-timeout">test.only() in Jest</a> </li>

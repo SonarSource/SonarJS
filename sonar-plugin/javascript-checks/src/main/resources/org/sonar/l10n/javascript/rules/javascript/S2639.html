@@ -1,12 +1,16 @@
 <h2>Why is this an issue?</h2>
-<p>Empty character classes in regular expressions don’t match anything.</p>
-<p>This is likely a sign that the regular expression does not work as intended.</p>
-<h3>Noncompliant code example</h3>
+<p>Character classes in regular expressions allow you to define sets of characters for matching, for example <code>[abc]</code> will match
+<code>a</code>, <code>b</code> or <code>c</code>.</p>
 <pre>
-/^foo[]/.test("foobar"); // false
+/^foo[]/.test(str); // Noncompliant, always returns "false"
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-/^foo/.test("foobar"); // true
-</pre>
+<p>An empty character class (<code>[]</code>) will not match any character because the set of matching characters is empty. So the regular expression
+will not work as you intended.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes">MDN web docs: Character
+  classes</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN web docs: Regular expressions</a> </li>
+</ul>
 

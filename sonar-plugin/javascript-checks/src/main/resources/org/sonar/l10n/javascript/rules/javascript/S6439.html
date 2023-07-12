@@ -1,24 +1,22 @@
 <h2>Why is this an issue?</h2>
-<p>One can use logical AND (<code>&amp;&amp;</code>) operator to conditionally render in React (aka short-circuit evaluation). <code>myCondition
-&amp;&amp; &lt;MyElement /&gt;</code> will return <code>&lt;MyElement /&gt;</code> if <code>myCondition</code> is <code>true</code> and
-<code>false</code> otherwise. As React renders boolean values to nothing, when condition is <code>false</code>, nothing will be rendered as intended.
-But if the condition has a non-boolean value which evaluates to <code>false</code> (e.g. <code>0</code>), that value will leak into the rendered
+<p>Logical AND (<code>&amp;&amp;</code>) operator is sometimes used to conditionally render in React (aka short-circuit evaluation). For example,
+<code>myCondition &amp;&amp; &lt;MyElement /&gt;</code> will return <code>&lt;MyElement /&gt;</code> if <code>myCondition</code> is <code>true</code>
+and <code>false</code> otherwise.</p>
+<p>React considers <code>false</code> as a 'hole' in the JSX tree, just like <code>null</code> or <code>undefined</code>, and doesn’t render anything
+in its place. But if the condition has a <code>falsy</code> non-boolean value (e.g. <code>0</code>), that value will leak into the rendered
 result.</p>
 <p>This rule will report when the condition has type <code>number</code> or <code>bigint</code>.</p>
-<p>If React Native is used, the type <code>string</code> will also raise an error, as your render method will crash if you render <code>0</code>,
+<p>In the case of React Native, the type <code>string</code> will also raise an error, as your render method will crash if you render <code>0</code>,
 <code>''</code>, or <code>NaN</code>.</p>
-<p>Note that along with short-circuit evaluation, in order to achieve conditional rendering it’s possible to use ternary operator (<code>myCondition ?
-&lt;MyElement /&gt; : null</code>), which is less error-prone in this case as both return values are explicit.</p>
-<h3>Noncompliant code example</h3>
 <pre>
 function Profile(props) {
   return &lt;div&gt;
     &lt;h1&gt;{ props.username }&lt;/h1&gt;
-    { props.orders &amp;&amp; &lt;Orders /&gt; } { /* Noncompliant, 0 will be rendered if no orders available */ }
-  &lt;/div&gt;
+    { props.orders &amp;&amp; &lt;Orders /&gt; } { /* Noncompliant: 0 will be rendered if no orders available */ }
+  &lt;/div&gt;;
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>Instead, make the left-hand side a boolean to avoid accidental renderings.</p>
 <pre>
 function Profile(props) {
   return &lt;div&gt;
@@ -27,7 +25,8 @@ function Profile(props) {
   &lt;/div&gt;;
 }
 </pre>
-<p>or</p>
+<p>Another alternative to achieve conditional rendering is using the ternary operator (<code>myCondition ? &lt;MyElement /&gt; : null</code>), which
+is less error-prone in this case as both return values are explicit.</p>
 <pre>
 function Profile(props) {
   return &lt;div&gt;
@@ -37,7 +36,8 @@ function Profile(props) {
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://reactjs.org/docs/conditional-rendering.html">Conditional Rendering</a> - conditional rendering in React </li>
+  <li> <a href="https://react.dev/learn/conditional-rendering#logical-and-operator-">React.dev - Conditional Rendering</a> </li>
 </ul>
 

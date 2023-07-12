@@ -3,8 +3,10 @@
 but probably not the ones you want.</p>
 <p>Instead, the best way to see whether a variable is equal to <code>NaN</code> is to use <code>Number.isNaN()</code>, since ES2015, or (perhaps
 counter-intuitively) to compare it to itself. Since <code>NaN !== NaN</code>, when <code>a !== a</code>, you know it must equal <code>NaN</code>.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 var a = NaN;
 
 if (a === NaN) {  // Noncompliant; always false
@@ -14,8 +16,8 @@ if (a !== NaN) { // Noncompliant; always true
   console.log("a is not NaN"); // this statement is not necessarily true
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 if (Number.isNaN(a)) {
   console.log("a is not a number");
 }

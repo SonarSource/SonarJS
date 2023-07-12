@@ -1,5 +1,5 @@
 {
-  "title": "\"future reserved words\" should not be used as identifiers",
+  "title": "Future reserved words should not be used as identifiers",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

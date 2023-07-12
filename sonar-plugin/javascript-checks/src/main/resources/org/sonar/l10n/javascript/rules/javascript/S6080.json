@@ -1,5 +1,5 @@
 {
-  "title": "Mocha timeout should be disabled by setting it to \"0\".",
+  "title": "Disabling Mocha timeouts should be explicit",
   "type": "BUG",
   "status": "ready",
   "remediation": {

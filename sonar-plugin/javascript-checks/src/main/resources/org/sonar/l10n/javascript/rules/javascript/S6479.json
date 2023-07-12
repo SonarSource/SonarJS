@@ -1,5 +1,5 @@
 {
-  "title": "No array index for keys in JSX list components",
+  "title": "JSX list components should not use array indexes as key",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

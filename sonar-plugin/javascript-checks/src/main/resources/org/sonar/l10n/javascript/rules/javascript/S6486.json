@@ -1,5 +1,5 @@
 {
-  "title": "No uniq values as keys for JSX list components",
+  "title": "JSX list components keys should match up between renders",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

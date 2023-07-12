@@ -1,18 +1,16 @@
-<p>Variables should not be initialized to <code>undefined</code>.</p>
 <h2>Why is this an issue?</h2>
 <p>Initializing a variable to <code>undefined</code> is unnecessary and should be avoided. A variable will automatically be set to
 <code>undefined</code> if you declare it without initialization, so the initialization code is redundant in this case.</p>
-<h2>How to fix it</h2>
-<p>Declare the variable without initialization.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-var foo = undefined;
-let bar = undefined;
+<pre>
+var foo = undefined; // Non-compliant, replace with var foo;
+let bar = undefined; // Non-compliant, replace with let foo;
 </pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
-var foo;
-let bar;
-</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">MDN - undefined</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let">MDN - let</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">MDN - var</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Hoisting">MDN - hoisting</a> </li>
+</ul>
 

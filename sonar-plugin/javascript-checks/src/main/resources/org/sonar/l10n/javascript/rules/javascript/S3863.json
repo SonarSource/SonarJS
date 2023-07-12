@@ -1,5 +1,5 @@
 {
-  "title": "Imports from the same modules should be merged",
+  "title": "Imports from the same module should be merged",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

@@ -1,13 +1,11 @@
 <h2>Why is this an issue?</h2>
 <p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They form the JavaScript standard built-in
-objects and are available in all environments. They include identifiers like:</p>
+objects and global properties. They are available in all environments. Some examples are:</p>
 <ul>
-  <li> <code>eval</code> - Evaluates a string as JavaScript code. </li>
-  <li> <code>arguments</code> - Used to access function arguments through indexed properties. It exists only inside function declarations and function
-  expressions. </li>
-  <li> <code>undefined</code> - Returned for values and properties that have not yet been assigned. </li>
-  <li> <code>NaN</code> - Not a Number; returned when math functions fail. </li>
-  <li> <code>Infinity</code> - When a number exceeds the upper limit of the floating point numbers. </li>
+  <li> Global objects: <code>Object</code>, <code>Function</code>, <code>Error</code>, …​ </li>
+  <li> Global object function properties: <code>eval()</code>, <code>isNan()</code>, <code>parseFloat()</code>, <code>decodeURI()</code>, …​ </li>
+  <li> Global object value properties: <code>undefined</code>, <code>NaN</code>, <code>Infinity</code> </li>
+  <li> Identifiers with special meanings: <code>arguments</code> </li>
 </ul>
 <p>These words should not be bound or assigned, because doing so would overwrite the original definitions of these identifiers. What’s more, assigning
 or binding some of these names will generate an error in JavaScript strict mode code.</p>
@@ -47,4 +45,12 @@ function fun() {
   }
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#reserved_words">MDN - Reserved words</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#identifiers_with_special_meanings">MDN - Identifiers
+  with special meanings</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects">MDN - Global Objects</a> </li>
+</ul>
 

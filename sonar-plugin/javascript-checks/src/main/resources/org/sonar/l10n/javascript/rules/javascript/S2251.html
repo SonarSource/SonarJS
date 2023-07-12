@@ -2,16 +2,23 @@
 <p>A <code>for</code> loop with a stop condition that can never be reached, such as one with a counter that moves in the wrong direction, will run
 infinitely. While there are occasions when an infinite loop is intended, the convention is to construct such loops as <code>while</code> loops. More
 typically, an infinite <code>for</code> loop is a bug.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-for (var i = 0; i &lt; strings.length; i--) { // Noncompliant;
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+for (var i = 0; i &lt; strings.length; i--) { // Noncompliant
   //...
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 for (var i = 0; i &lt; strings.length; i++) {
   //...
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://en.wikipedia.org/wiki/Integer_overflow">Integer overflow</a> </li>
+</ul>
 

@@ -1,26 +1,26 @@
 <h2>Why is this an issue?</h2>
-<p>React’s useState hook setter function should not be called directly in the body of a component, otherwise it would produce an infinite render loop.
-This can happen by mistake. Most commonly, the setter function is called from an event handler.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>React’s <code>useState</code> hook setter function should not be called directly in the body of a component, as it would produce an infinite render
+loop. A re-rendering occurs whenever the state of a component changes. Since a hook setter function changes the component’s state, it also triggers
+re-rendering.</p>
+<p>The loop "state updates → triggers re-render → state updates → triggers re-render → …​" will continue indefinitely.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 import { useState } from "react";
 
 function ShowLanguage() {
     const [language, setLanguage] = useState("fr-FR");
 
-    // Makes an infinite loop
-    setLanguage(navigator.language);
+    setLanguage(navigator.language); // Noncompliant: causes an infinite loop
 
     return (
       &lt;section&gt;
         &lt;h1&gt;Your language is {language}!&lt;/h1&gt;
-        &lt;button onClick={() =&gt; setLanguage("fr-FR")}&gt;Je préfère le Français&lt;/button&gt;
+        &lt;button onClick={() =&gt; setLanguage("fr-FR")}&gt;Je préfère le français&lt;/button&gt;
       &lt;/section&gt;
     );
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Instead, the setter function should be called from an event handler.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 import { useState } from "react";
 
 function ShowLanguage() {
@@ -35,7 +35,10 @@ function ShowLanguage() {
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://reactjs.org/docs/hooks-state.html">hooks-state</a> - React API reference </li>
+  <li> <a href="https://react.dev/reference/react">React Hooks</a> </li>
+  <li> <a href="https://react.dev/reference/react/useState">React useState - API reference</a> </li>
+  <li> <a href="https://react.dev/reference/react/useState#im-getting-an-error-too-many-re-renders">React useState - Troubleshooting</a> </li>
 </ul>
 

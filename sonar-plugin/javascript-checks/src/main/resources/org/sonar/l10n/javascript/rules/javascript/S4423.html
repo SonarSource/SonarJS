@@ -1,111 +1,177 @@
+<p>This vulnerability exposes encrypted data to a number of attacks whose goal is to recover the plaintext.</p>
 <h2>Why is this an issue?</h2>
-<p>This rule raises an issue when an insecure TLS protocol version (i.e. a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2", or "DTLSv1.3") is
-used or allowed.</p>
-<p>It is recommended to enforce TLS 1.2 as the minimum protocol version and to disallow older versions like TLS 1.0. Failure to do so could open the
-door to downgrade attacks: a malicious actor who is able to intercept the connection could modify the requested protocol version and downgrade it to a
-less secure version.</p>
-<p>In most cases, using the default system configuration is not compliant. Indeed, an application might get deployed on a wide range of systems with
-different configurations. While using a system’s default value might be safe on modern up-to-date systems, this might not be the case on older
-systems. It is therefore recommended to explicitly set a safe configuration in every case.</p>
-<h3>Noncompliant code example</h3>
-<p><code>secureProtocol</code>, <code>minVersion</code>/<code>maxVersion</code> and <code>secureOptions</code> should not be set to use weak TLS
-protocols (TLSv1.1 and lower):</p>
-<pre>
-let options = {
-  secureProtocol: 'TLSv1_method' // Noncompliant: TLS1.0 is insecure
-};
+<p>Encryption algorithms are essential for protecting sensitive information and ensuring secure communications in a variety of domains. They are used
+for several important reasons:</p>
+<ul>
+  <li> Confidentiality, privacy, and intellectual property protection </li>
+  <li> Security during transmission or on storage devices </li>
+  <li> Data integrity, general trust, and authentication </li>
+</ul>
+<p>When selecting encryption algorithms, tools, or combinations, you should also consider two things:</p>
+<ol>
+  <li> No encryption is unbreakable. </li>
+  <li> The strength of an encryption algorithm is usually measured by the effort required to crack it within a reasonable time frame. </li>
+</ol>
+<p>For these reasons, as soon as cryptography is included in a project, it is important to choose encryption algorithms that are considered strong and
+secure by the cryptography community.</p>
+<p>To provide communication security over a network, SSL and TLS are generally used. However, it is important to note that the following protocols are
+all considered weak by the cryptographic community, and are officially deprecated:</p>
+<ul>
+  <li> SSL versions 1.0, 2.0 and 3.0 </li>
+  <li> TLS versions 1.0 and 1.1 </li>
+</ul>
+<p>When these unsecured protocols are used, it is best practice to expect a breach: that a user or organization with malicious intent will perform
+mathematical attacks on this data after obtaining it by other means.</p>
+<h3>What is the potential impact?</h3>
+<p>After retrieving encrypted data and performing cryptographic attacks on it on a given timeframe, attackers can recover the plaintext that
+encryption was supposed to protect.</p>
+<p>Depending on the recovered data, the impact may vary.</p>
+<p>Below are some real-world scenarios that illustrate the potential impact of an attacker exploiting the vulnerability.</p>
+<h4>Additional attack surface</h4>
+<p>By modifying the plaintext of the encrypted message, an attacker may be able to trigger additional vulnerabilities in the code. An attacker can
+further exploit a system to obtain more information.<br> Encrypted values are often considered trustworthy because it would not be possible for a
+third party to modify them under normal circumstances.</p>
+<h4>Breach of confidentiality and privacy</h4>
+<p>When encrypted data contains personal or sensitive information, its retrieval by an attacker can lead to privacy violations, identity theft,
+financial loss, reputational damage, or unauthorized access to confidential systems.</p>
+<p>In this scenario, the company, its employees, users, and partners could be seriously affected.</p>
+<p>The impact is twofold, as data breaches and exposure of encrypted data can undermine trust in the organization, as customers, clients and
+stakeholders may lose confidence in the organization’s ability to protect their sensitive data.</p>
+<h4>Legal and compliance issues</h4>
+<p>In many industries and locations, there are legal and compliance requirements to protect sensitive data. If encrypted data is compromised and the
+plaintext can be recovered, companies face legal consequences, penalties, or violations of privacy laws.</p>
+<h2>How to fix it in Node.js</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>NodeJs offers multiple ways to set weak TLS protocols. For https and tls, <a
+href="https://nodejs.org/api/tls.html#tlscreatesecurecontextoptions">these options</a> are used and are used in other third-party libraries as
+well.</p>
+<p>The first is <code>secureProtocol</code>:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const https = require('node:https');
+const tls   = require('node:tls');
 
 let options = {
-  minVersion: 'TLSv1.1',  // Noncompliant: TLS1.1 is insecure
+ secureProtocol: 'TLSv1_method' // Noncompliant
+};
+
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
+</pre>
+<p>The second is the combination of <code>minVersion</code> and <code>maxVerison</code>. Note that they cannot be specified along with the
+<code>secureProtocol</code> option:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+const https = require('node:https');
+const tls   = require('node:tls');
+
+let options = {
+  minVersion: 'TLSv1.1',  // Noncompliant
   maxVersion: 'TLSv1.2'
 };
 
-let options = {
-  secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1
-}; // Noncompliant TLS 1.1 (constants.SSL_OP_NO_TLSv1_1) is not disabled
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
-<pre>
-let req = https.request(options, (res) =&gt; {
-  res.on('data', (d) =&gt; {
-    process.stdout.write(d);
-  });
-});  // Noncompliant
-</pre>
-<p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
-<pre>
-let socket = tls.connect(443, "www.example.com", options, () =&gt; { });  // Noncompliant
-</pre>
-<p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
-<pre>
-let socket = request.get(options);
-</pre>
-<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigateway.DomainName.html">aws-cdk-lib.aws_apigateway.DomainName</a>:</p>
-<pre>
-import { aws_apigateway as agw } from 'aws-cdk-lib';
+<p>And <code>secureOptions</code>, which in this example instructs the OpenSSL protocol to turn off some algorithms altogether. In general, this
+option might trigger side effects and should be used carefully, if used at all.</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+const https     = require('node:https');
+const tls       = require('node:tls');
+const constants = require('node:crypto'):
 
+let options = {
+  secureOptions:
+    constants.SSL_OP_NO_SSLv2
+    | constants.SSL_OP_NO_SSLv3
+    | constants.SSL_OP_NO_TLSv1
+}; // Noncompliant
+
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const https = require('node:https');
+const tls   = require('node:tls');
+
+let options = {
+  secureProtocol: 'TLSv1_2_method'
+};
+
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+const https = require('node:https');
+const tls   = require('node:tls');
+
+let options = {
+  minVersion: 'TLSv1.2',
+  maxVersion: 'TLSv1.2'
+};
+
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
+</pre>
+<p>Here, the goal is to turn on only TLSv1.2 and higher, by turning off all lower versions:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+const https = require('node:https');
+const tls   = require('node:tls');
+
+let options = {
+  secureOptions:
+    constants.SSL_OP_NO_SSLv2
+    | constants.SSL_OP_NO_SSLv3
+    | constants.SSL_OP_NO_TLSv1
+    | constants.SSL_OP_NO_TLSv1_1
+};
+
+let req    = https.request(options, (res) =&gt; { });
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
+</pre>
+<h3>How does this work?</h3>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
+<p>The best choices at the moment are the following.</p>
+<h4>Use TLS v1.2 or TLS v1.3</h4>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
+<h2>How to fix it in AWS CDK</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import { aws_apigateway as agw } from 'aws-cdk-lib';
 new agw.DomainName(this, 'Example', {
     certificate: certificate,
     domainName: domainName,
     securityPolicy: agw.SecurityPolicy.TLS_1_0, // Noncompliant
 });
 </pre>
-<p>For <a
-href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_opensearchservice.Domain.html">aws-cdk-lib.aws_opensearchservice.Domain</a>:</p>
-<pre>
+<p>The resource <code>CfnDomain</code> uses a weak TLS security policy, by default.</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 import { aws_opensearchservice as os } from 'aws-cdk-lib';
 
 new os.CfnDomain(this, 'Example', {
   domainEndpointOptions: {
     enforceHttps: true,
   },
-}); // NonCompliant by default
+}); // Noncompliant
 </pre>
-<h3>Compliant solution</h3>
-<p>Set either <code>secureProtocol</code> or <code>secureOptions</code> or <code>minVersion</code> to use secure protocols only (TLSv1.2 and
-higher):</p>
-<pre>
-let options = {
-  secureProtocol: 'TLSv1_2_method'
-};
-// or
-let options = {
-  secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1
-};
-// or
-let options = {
-    minVersion: 'TLSv1.2'
-};
-</pre>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
-<pre>
-let req = https.request(options, (res) =&gt; {
-  res.on('data', (d) =&gt; {
-    process.stdout.write(d);
-  });
-});
-</pre>
-<p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
-<pre>
-let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
-</pre>
-<p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
-<pre>
-let socket = request.get(options);
-</pre>
-<p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apigateway.DomainName.html">aws-cdk-lib.aws_apigateway.DomainName</a>:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 import { aws_apigateway as agw } from 'aws-cdk-lib';
-
 new agw.DomainName(this, 'Example', {
     certificate: certificate,
     domainName: domainName,
     securityPolicy: agw.SecurityPolicy.TLS_1_2,
 });
 </pre>
-<p>For <a
-href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_opensearchservice.Domain.html">aws-cdk-lib.aws_opensearchservice.Domain</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 import { aws_opensearchservice as os } from 'aws-cdk-lib';
 
 new os.CfnDomain(this, 'Example', {
@@ -115,25 +181,34 @@ new os.CfnDomain(this, 'Example', {
   },
 });
 </pre>
+<h3>How does this work?</h3>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
+<p>The best choices at the moment are the following.</p>
+<h4>Use TLS v1.2 or TLS v1.3</h4>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
 <h2>Resources</h2>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li> <a href="https://en.wikipedia.org/wiki/Padding_oracle_attack">Wikipedia, Padding Oracle Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Chosen-ciphertext_attack">Wikipedia, Chosen-Ciphertext Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Chosen-plaintext_attack">Wikipedia, Chosen-Plaintext Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Semantic_security">Wikipedia, Semantically Secure Cryptosystems</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding">Wikipedia, OAEP</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">Wikipedia, Galois/Counter Mode</a> </li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
-  Authentication Failures </li>
-  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
-  Standard</a> - Network Communication Requirements </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
-  Communication </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/326">MITRE, CWE-327</a> - Inadequate Encryption Strength </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-326</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
-  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#22-use-secure-protocols">SSL and TLS Deployment Best
-  Practices - Use secure protocols</a> </li>
-  <li> <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-custom-domain-tls-version.html">Amazon API Gateway</a> -
-  Choosing a minimum TLS version </li>
 </ul>
 

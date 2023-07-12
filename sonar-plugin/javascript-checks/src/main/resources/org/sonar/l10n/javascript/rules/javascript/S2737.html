@@ -1,8 +1,6 @@
 <h2>Why is this an issue?</h2>
 <p>A <code>catch</code> clause that only rethrows the caught exception has the same effect as omitting the <code>catch</code> altogether and letting
-it bubble up automatically, but with more code and the additional detriment of leaving maintainers scratching their heads.</p>
-<p>Such clauses should either be eliminated or populated with the appropriate logic.</p>
-<h3>Noncompliant code example</h3>
+it bubble up automatically.</p>
 <pre>
 try {
   doSomething();
@@ -10,7 +8,11 @@ try {
   throw ex;
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>Such clauses should either be removed or populated with the appropriate logic.</p>
+<pre>
+doSomething();
+</pre>
+<p>or</p>
 <pre>
 try {
   doSomething();
@@ -18,9 +20,5 @@ try {
   console.err(ex);
   throw ex;
 }
-</pre>
-<p>or</p>
-<pre>
-doSomething();
 </pre>
 

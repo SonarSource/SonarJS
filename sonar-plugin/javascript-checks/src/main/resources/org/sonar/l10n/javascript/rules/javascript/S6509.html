@@ -1,54 +1,24 @@
-<p>In JavaScript, every value can be coerced into a boolean value: either <code>true</code> or <code>false</code>.</p>
-<p>Values that are coerced into <code>true</code> are said to be <em>truthy</em>, and those coerced into <code>false</code> are said to be
-<em>falsy</em>.</p>
-<p>A value’s truthiness matters, and depending on the context, it can be necessary or redundant to cast a value to boolean explicitly.</p>
 <h2>Why is this an issue?</h2>
-<p>A boolean cast via double negation (<code>!!</code>) or a <code>Boolean</code> call is redundant when used as a condition, though. The condition
-can be written without the extra cast and behave exactly the same.</p>
-<p>The reason is that JavaScript uses type coercion and automatically converts values to booleans in a specific situation known as a boolean context.
-The boolean context can be any conditional expression or statement.</p>
-<p>For example, these <code>if</code> statements are equivalent:</p>
+<p>In JavaScript, every value can be coerced into a boolean value: either <code>true</code> or <code>false</code>. Values that are coerced into
+<code>true</code> are said to be <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy"><em>truthy</em></a>, and those coerced into
+<code>false</code> are said to be <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy"><em>falsy</em></a>.</p>
+<p>Explicit conversion to a boolean can be done with double negation (<code>!!</code>) or a <code>Boolean</code> call. Depending on the context, this
+may be redundant as JavaScript uses implicit type coercion and automatically converts values to booleans when used with logical operators, conditional
+statements, or any boolean context.</p>
 <pre>
-if (!!foo) {
+if (!!foo) { // Noncompliant: redundant '!!'
     // ...
 }
 
-if (Boolean(foo)) {
-    // ...
-}
-
-if (foo) {
+if (Boolean(foo)) {  // Noncompliant: redundant 'Boolean' call
     // ...
 }
 </pre>
-<h3>What is the potential impact?</h3>
 <p>A redundant boolean cast affects code readability. Not only the condition becomes more verbose but it also misleads the reader who might question
 the intent behind the extra cast.</p>
-<p>The more concise the condition, the more readable the code.</p>
-<h2>How to fix it</h2>
-<p>The fix for this issue is straightforward. One just needs to remove the extra boolean cast.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-if (!!foo) {
-    // ...
-}
-</pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<p>The condition can be written without the Boolean cast.</p>
+<pre>
 if (foo) {
-    // ...
-}
-</pre>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-while (Boolean(foo)) {
-    // ...
-}
-</pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="2" data-diff-type="compliant">
-while (foo) {
     // ...
 }
 </pre>

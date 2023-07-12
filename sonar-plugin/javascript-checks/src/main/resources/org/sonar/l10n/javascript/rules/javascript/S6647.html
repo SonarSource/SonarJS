@@ -1,7 +1,6 @@
 <h2>Why is this an issue?</h2>
 <p>If the class declaration does not include a constructor, one is automatically created, so there is no need to provide an empty constructor, or one
 that just delegates to the parent class.</p>
-<h3>Noncompliant code example</h3>
 <pre>
 class Foo {
     constructor() {}  // Noncompliant, empty
@@ -13,21 +12,14 @@ class Bar extends Foo {
     }
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>Instead, you can safely remove the empty constructor without affecting the functionality.</p>
 <pre>
-class Foo {
-    constructor() {
-        doSomething();
-    }
-}
+class Foo {}
 
-class Bar extends Foo {
-    constructor(params) {
-        super(params);
-        doSomethingElse();
-    }
-}
+class Bar extends Foo {}
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor">MDN - constructor</a> </li>
 </ul>

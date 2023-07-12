@@ -1,16 +1,24 @@
 <h2>Why is this an issue?</h2>
-<p>It is a bad practice to <code>throw</code> something that’s not derived at some level from <code>Error</code>. If you can’t find an existing
-<code>Error</code> type that suitably conveys what you need to convey, then you should extend <code>Error</code> to create one.</p>
-<p>Specifically, part of the point of throwing <code>Error</code>s is to communicate about the conditions of the error, but literals have far less
-ability to communicate meaningfully than <code>Error</code>s because they don’t include stacktraces.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>In JavaScript, throwing literals (primitive values like strings, numbers, booleans, etc.) as exceptions is generally discouraged. While it is
+syntactically valid to throw literals, it is considered a best practice to throw instances of the <code>Error</code> class or its subclasses
+instead.</p>
+<p>Throwing an instance of the <code>Error</code> class allows you to provide more meaningful information about the error.</p>
+<p>The <code>Error</code> class and its subclasses provide properties like <code>message</code> and <code>stack</code> that can be used to convey
+useful details about the error, such as a description of the problem, the context in which it occurred, or a stack trace for debugging.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 throw 404;                              // Noncompliant
 throw "Invalid negative index.";        // Noncompliant
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Throwing literals can make it harder to handle and differentiate between different types of errors. Instead, you should use one of the exception
+types specifically created for the purpose or define your own subclass of the <code>Error</code> class.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 throw new Error("Status: " + 404);
-throw new Error("Invalid negative index.");{code}
+throw new RangeError("Invalid negative index.");
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw">MDN - <code>throw</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">MDN - Error</a> </li>
+</ul>
 
