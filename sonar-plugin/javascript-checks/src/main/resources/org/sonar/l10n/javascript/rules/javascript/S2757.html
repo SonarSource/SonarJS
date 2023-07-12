@@ -1,22 +1,27 @@
 <h2>Why is this an issue?</h2>
-<p>The use of operators pairs (<code>=+</code>, <code>=-</code> or <code>=!</code>) where the reversed, single operator was meant (<code>+=</code>,
-<code>-=</code> or <code>!=</code>) will compile and run, but not produce the expected results.</p>
-<p>This rule raises an issue when <code>=+</code>, <code>=-</code> and <code>=!</code> are used without any space between the two operators and when
-there is at least one whitespace after.</p>
-<h3>Noncompliant code example</h3>
+<p>Using operator pairs (<code>=+</code>, <code>=-</code>, or <code>=!</code>) that look like reversed single operators (<code>+=</code>,
+<code>-=</code> or <code>!=</code>) is confusing. They compile and run but do not produce the same result as their mirrored counterpart.</p>
 <pre>
 let target =-5;
 let num = 3;
 
-target =- num;  // Noncompliant; target = -3. Is that really what's meant?
-target =+ num; // Noncompliant; target = 3
+target =- num;  // Noncompliant: target = -3. Is that the expected behavior?
+target =+ num; // Noncompliant: target = 3
 </pre>
-<h3>Compliant solution</h3>
+<p>This rule raises an issue when <code>=+</code>, <code>=-</code>, or <code>=!</code> are used without any space between the operators and when there
+is at least one whitespace after.</p>
+<p>Replace the operators with a single one if that is the intention</p>
 <pre>
-let target = -5;
+let target =-5;
 let num = 3;
 
-target = -num;  // Compliant; intent to assign inverse value of num is clear
-target += num;
+target -= num;  // target = -8
+</pre>
+<p>Or fix the spacing to avoid confusion</p>
+<pre>
+let target =-5;
+let num = 3;
+
+target = - num;  // target = -3
 </pre>
 

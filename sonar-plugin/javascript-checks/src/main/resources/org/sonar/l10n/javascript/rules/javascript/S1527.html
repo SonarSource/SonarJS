@@ -1,6 +1,7 @@
 <h2>Why is this an issue?</h2>
-<p>The following words may be used as keywords in future evolutions of the language, so using them as identifiers should be avoided to allow an easier
-adoption of those potential future versions:</p>
+<p>The ECMAScript specification defines a set of special words as future keywords of the language. They don’t have particular meaning for now, but
+they might at some future time.</p>
+<p>The list contains the following words:</p>
 <ul>
   <li> <code>await</code> </li>
   <li> <code>class</code> </li>
@@ -20,16 +21,22 @@ adoption of those potential future versions:</p>
   <li> <code>super</code> </li>
   <li> <code>yield</code> </li>
 </ul>
-<p>Use of these words as identifiers would produce an error in JavaScript <code>strict</code> mode code.</p>
-<p>This list includes also the keywords that have been adopted by the latest versions of ECMAScript. They are kept to support legacy JavaScript
-codebases.</p>
-<h3>Noncompliant code example</h3>
+<p>Some of these words have already been adopted by current versions of ECMAScript, but they are kept to consider legacy JavaScript codebases as well.
+Others are only reserved when used in strict mode.</p>
+<p>These future reserved words should be avoided because they may cause syntax errors if they are ever adopted.</p>
 <pre>
-var package = document.getElementsByName("foo"); // Noncompliant
-var someData = { package: true };                 // Compliant, as it is not used as an identifier here
+const package = document.getElementsByName("foo"); // Noncompliant: `package` is used as an identifier here
 </pre>
-<h3>Compliant solution</h3>
+<p>These future keywords can be used anywhere if it is not identifiers.</p>
 <pre>
-var elements = document.getElementsByName("foo"); // Compliant
+const someData = { package: true };                // Compliant: `package` is not used as an identifier here
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#future_reserved_words">MDN - Future reserved
+  words</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">MDN - Strict mode</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Syntax_error">Wikipedia - Syntax error</a> </li>
+</ul>
 

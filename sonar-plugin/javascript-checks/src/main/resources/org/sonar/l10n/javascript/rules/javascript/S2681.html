@@ -1,43 +1,33 @@
 <h2>Why is this an issue?</h2>
-<p>Curly braces can be omitted from a one-line block, such as with an <code>if</code> statement or <code>for</code> loop, but doing so can be
-misleading and induce bugs.</p>
-<p>This rule raises an issue when the whitespacing of the lines after a one line block indicates an intent to include those lines in the block, but
+<p>Having inconsistent indentation and omitting curly braces from a control structure, such as an <code>if</code> statement or <code>for</code> loop,
+is misleading and can induce bugs.</p>
+<p>This rule raises an issue when the indentation of the lines after a control structure indicates an intent to include those lines in the block, but
 the omission of curly braces means the lines will be unconditionally executed once.</p>
-<p>Note that this rule considers tab characters to be equivalent to 1 space. If you mix spaces and tabs you will sometimes see issues in code which
-looks fine in your editor but is confusing when you change the size of tabs.</p>
-<h3>Noncompliant code example</h3>
+<p>The following patterns are recognized:</p>
 <pre>
 if (condition)
   firstActionInBlock();
-  secondAction();  // Noncompliant; executed unconditionally
+  secondAction();  // Noncompliant: secondAction is executed unconditionally
 thirdAction();
-
-if (condition) firstActionInBlock(); secondAction();  // Noncompliant; secondAction executed unconditionally
-
+</pre>
+<pre>
+if (condition) firstActionInBlock(); secondAction();  // Noncompliant: secondAction is executed unconditionally
+</pre>
+<pre>
 if (condition) firstActionInBlock();  // Noncompliant
   secondAction();  // Executed unconditionally
-
-if (condition); secondAction();  // Noncompliant; secondAction executed unconditionally
-
+</pre>
+<pre>
+if (condition); secondAction();  // Noncompliant: secondAction is executed unconditionally
+</pre>
+<pre>
 let str = undefined;
 for (let i = 0; i &lt; array.length; i++)
   str = array[i];
-  doTheThing(str);  // Noncompliant; executed only on last array element
+  doTheThing(str);  // Noncompliant: executed only on the last element
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-if (condition) {
-  firstActionInBlock();
-  secondAction();
-}
-thirdAction();
-
-let str = undefined;
-for (let i = 0; i &lt; array.length; i++) {
-  str = array[i];
-  doTheThing(str);
-}
-</pre>
+<p>Note that this rule considers tab characters to be equivalent to 1 space. When mixing spaces and tabs, a code may look fine in one editor but be
+confusing in another configured differently.</p>
 <h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/483">MITRE, CWE-483</a> - Incorrect Block Delimitation </li>

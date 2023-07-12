@@ -1,24 +1,26 @@
 <h2>Why is this an issue?</h2>
-<p>The comma operator (<code>,</code>) evaluates its operands, from left to right, and returns the second one. That’s useful in some situations, but
-just wrong in a <code>switch</code> <code>case</code>. You may think you’re compactly handling multiple values in the case, but only the last one in
-the comma-list will ever be handled. The rest will fall through to the default.</p>
-<p>Similarly the logical OR operator (<code>||</code>) will not work in a <code>switch</code> <code>case</code>, only the first argument will be
-considered at execution time.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>The use of the comma operator and logical OR (||) operator within switch cases is not recommended. The switch statement is designed to evaluate a
+single expression and compare it against multiple values. When you use the comma operator or logical OR operator within a case, you’re essentially
+trying to match multiple values or conditions simultaneously: only the rightmost value will ever be considered with the comma operator, and the first
+truthy operand will be handled with the logical OR operator.</p>
+<p>This behavior is not well-defined and can lead to unexpected results.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 switch (a) {
-  case 1,2:  // Noncompliant; only 2 is ever handled by this case
+  case 1, 2:   // Noncompliant: only 2 is matched by this case
     doTheThing(a);
-  case 3 || 4: // Noncompliant; only '3' is handled
+  case 3 || 4: // Noncompliant: only 3 is matched by this case
     doThatThing(a);
   case 5:
     doTheOtherThing(a);
   default:
-    console.log('Neener, neener!');  // this happens when a==1 or a == 4
+    console.log('Neener, neener!');
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Using the comma operator or logical OR operator to combine multiple values or conditions within a single case can make the code more complex and
+difficult to read. It goes against the intention of the switch statement, which is to provide a concise and clear structure for branching based on a
+single value.</p>
+<p>The switch statement should solely be used to rely on exact value matching instead.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 switch (a) {
   case 1:
   case 2:
@@ -32,9 +34,9 @@ switch (a) {
     console.log('Neener, neener!');
 }
 </pre>
-<h3>Exceptions</h3>
-<p>The <code>switch (true)</code> pattern is a common programming practice to match against expressions rather than literals. Expressions in the
-<code>case</code> clauses act as guards, i.e., they must evaluate to <code>true</code> if the execution is to continue in the branch.</p>
+<p>The rule makes an exception for the <code>switch (true)</code> pattern, which is sometimes used as a workaround to achieve a similar effect to a
+series of <code>if-else</code> statements. This pattern allows you to evaluate multiple conditions acting as guards and execute corresponding code
+blocks based on the first matching condition.</p>
 <pre>
 function weekStatus (day) {
   let status;
@@ -49,4 +51,12 @@ function weekStatus (day) {
   return status;
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch">MDN - <code>switch</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comma_operator">MDN - Comma operator <code>(,)</code></a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR">MDN - Logical OR <code>(||)</code></a> </li>
+</ul>
 

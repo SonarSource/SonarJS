@@ -1,26 +1,26 @@
 <h2>Why is this an issue?</h2>
-<p>Starting from Mocha v3.0.0, calling <code>this.timeout(X)</code> with <code>X</code> greater than the <a
-href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#Maximum_delay_value">maximum delay value</a>
-(2,147,483,647 ms) <a href="https://mochajs.org/#hook-level">will cause the timeout to be disabled</a>. This might not be what the developer intended.
-If the goal is really to disable the timeout, <code>this.timeout(0)</code> should be used instead.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Setting timeouts with Mocha allows you to control the maximum time a test case or suite can take to execute. However, incorrect usage or excessive
+timeout values can lead to undesired consequences and impact the effectiveness of your test suite. For example, setting a timeout by calling
+<code>this.timeout()</code> with a value greater than the <a
+href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#Maximum_delay_value">maximum delay</a> (2,147,483,647 ms)
+will cause the timeout to be disabled.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 describe("testing this.timeout", function() {
   it("unexpectedly disables the timeout", function(done) {
-    this.timeout(2147483648); // Noncompliant
+    this.timeout(2147483648); // Noncompliant: the timeout is disabled
   });
 });
 </pre>
-<h3>Compliant solution</h3>
+<p>When using <code>this.timeout()</code>, make sure to set a reasonable value that allows your tests to complete within a reasonable timeframe.</p>
 <pre>
 describe("testing this.timeout", function() {
-  it("doesn't disable the timeout", function(done) {
+  it("sets the timeout to 1'000 milliseconds", function(done) {
     this.timeout(1000);
   });
 });
 </pre>
-<p>Or if you meant to disable the timeout</p>
-<pre>
+<p>If the goal is really to disable the timeout, set it to zero instead.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 describe("testing this.timeout", function() {
   it("disables the timeout as expected", function(done) {
     this.timeout(0);
@@ -28,7 +28,10 @@ describe("testing this.timeout", function() {
 });
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://mochajs.org/#hook-level">Mocha documentation</a> </li>
+  <li> <a href="https://mochajs.org/#timeouts">Mocha - Timeouts</a> </li>
+  <li> <a href="https://mochajs.org/#hook-level">Mocha - Disabling timeouts</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#maximum_delay_value">MDN - Maximum_delay_value</a> </li>
 </ul>
 

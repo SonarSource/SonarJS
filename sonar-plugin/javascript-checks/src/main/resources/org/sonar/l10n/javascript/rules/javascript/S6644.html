@@ -1,24 +1,24 @@
-<p>Ternary operator should not be used to select between two boolean values, or instead of a logical <code>OR</code> operation.</p>
 <h2>Why is this an issue?</h2>
-<p>Ternary expressions are often difficult to read, so if a simpler syntax exists, it should be used instead of a ternary expression. This happens
-when</p>
+<p>Ternary operator should not be used to select between two boolean values, or instead of a logical <code>OR</code> operation. Ternary expressions
+are often difficult to read, so if a simpler syntax exists, it should be used instead of a ternary expression. This happens when</p>
 <ul>
   <li> the expression returns two boolean values </li>
-  <li> the same value is used for both the conditional test and the consequent </li>
 </ul>
-<h2>How to fix it</h2>
-<p>Replace the ternary expression with the condition part only, or convert it to a logical <code>OR</code> operation.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre>
 let isGood = value &gt; 0 ? true : false; // Non-compliant, replace with value &gt; 0
 let isBad = value &gt; 0 ? false : true; // Non-compliant, replace with !(value &gt; 0)
-
+</pre>
+<ul>
+  <li> the same value is used for both the conditional test and the consequent </li>
+</ul>
+<pre>
 let a = x ? x : y;  // Non-compliant, replace with x || y
 </pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
-let result = value &gt; 0 ? 'good': 'bad';
-let a = x ? y : z;
-</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator">MDN - Ternary operator</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT">MDN - Logical NOT (!)</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR">MDN - Logical OR (||)</a> </li>
+</ul>
 

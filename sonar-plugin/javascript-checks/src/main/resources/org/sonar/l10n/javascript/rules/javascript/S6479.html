@@ -1,29 +1,46 @@
 <h2>Why is this an issue?</h2>
-<p>React expects a unique identifier for performance optimizations. An array index is not a stable identifier most of the time. This results in
-unnecessary renders when the array items change index following some mutation. When components have state, this might also provoke bugs that are hard
-to diagnose.</p>
-<p>We recommend using an explicit identifier to avoid misuse and accidental re-renders. If there is no unique attribute available, consider
-concatenating existing properties - hashing them if necessary - or creating a dedicated unique identifier.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function generateButtons(props) {
-  return props.buttons.map((button, index) =&gt; {
-    &lt;Button key={index}&gt;{button.number}&lt;/Button&gt;
-  });
+<p>To optimize the rendering of React list components, a unique identifier (UID) is required for each list item. This UID lets React identify the item
+throughout its lifetime. Avoid array indexes since the order of the items may change, which will cause keys to not match up between renders,
+recreating the DOM. It can negatively impact performance and may cause issues with the component state.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function Blog(props) {
+  return (
+    &lt;ul&gt;
+      {props.posts.map((post, index) =&gt;
+        &lt;li key={index}&gt; &lt;!-- Noncompliant: When 'posts' are reordered, React will need to recreate the list DOM --&gt;
+          {post.title}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-function generateButtons(props) {
-  return props.buttons.map((button, index) =&gt; {
-    &lt;Button key={button.number}&gt;{button.number}&lt;/Button&gt;
-  });
+<p>To fix it, use a string or a number that uniquely identifies the list item. The key must be unique among its siblings, not globally.</p>
+<p>If the data comes from a database, database IDs are already unique and are the best option. Otherwise, use a counter or a UUID generator.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function Blog(props) {
+  return (
+    &lt;ul&gt;
+      {props.posts.map((post) =&gt;
+        &lt;li key={post.id}&gt;
+          {post.title}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">Recursing On Children</a> - React API reference </li>
-  <li> {rule:javascript:S6477} </li>
-  <li> {rule:javascript:S6486} </li>
+  <li> <a href="https://react.dev/learn/rendering-lists#rules-of-keys">React API reference - Rendering lists</a> </li>
+  <li> <a href="https://reactjs.org/docs/reconciliation.html#recursing-on-children">React API reference - Recursing On Children</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID">MDN - Crypto: randomUUID() method</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">Wikipedia - UUID</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:javascript:S6477} - JSX list components should have a key property </li>
+  <li> {rule:javascript:S6486} - JSX list components keys should match up between renders </li>
 </ul>
 

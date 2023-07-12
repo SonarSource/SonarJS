@@ -1,35 +1,27 @@
 <h2>Why is this an issue?</h2>
-<p>Nested components are defined in an enclosing one and can be simple functions or arrow expressions. React recreates them systematically during the
-render pass because it doesn’t know they haven’t changed. This hurts performance as the components are recreated too many times. However, this can
-also hide surprising bugs where the state of the nested components is lost between renders. Trying to use <code>useCallback</code> hooks for child
-components is also discouraged. You should actually refactor this code to define a component on its own, passing props if needed.</p>
-<h3>Noncompliant code example</h3>
+<p>React components should not be nested, as their state will be lost on each re-render of their parent component, possibly introducing bugs. This
+will also impact performance as child components will be recreated unnecessarily.</p>
+<p>If the goal is to have the state reset, use a <a
+href="https://react.dev/learn/preserving-and-resetting-state#option-2-resetting-state-with-a-key"><code>key</code></a> instead of relying on a parent
+state.</p>
 <pre>
 function Component() {
-  function UnstableNestedComponent() {
+  function NestedComponent() { // Noncompliant: NestedComponent should be moved outside Component
     return &lt;div /&gt;;
   }
 
   return (
     &lt;div&gt;
-      &lt;UnstableNestedComponent /&gt;
+      &lt;NestedComponent /&gt;
     &lt;/div&gt;
   );
 }
 </pre>
 <pre>
-function SomeComponent({ footer: Footer }) {
-  return (
-    &lt;div&gt;
-      &lt;Footer /&gt;
-    &lt;/div&gt;
-  );
-}
-
 function Component() {
   return (
     &lt;div&gt;
-      &lt;SomeComponent footer={ () =&gt; &lt;div /&gt; } /&gt; { /* footer is a component nested inside 'Component' */ }
+      &lt;OtherComponent footer={ () =&gt; &lt;div /&gt; } /&gt; { /* Noncompliant: Component is created inside prop */ }
     &lt;/div&gt;
   );
 }
@@ -37,7 +29,7 @@ function Component() {
 <pre>
 class Component extends React.Component {
   render() {
-    function UnstableNestedComponent() {
+    function UnstableNestedComponent() { // Noncompliant: NestedComponent should be moved outside Component
       return &lt;div /&gt;;
     }
 
@@ -49,23 +41,23 @@ class Component extends React.Component {
   }
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>You should refactor your code to define a component independently, passing props if needed.</p>
 <pre>
-function OutsideDefinedComponent(props) {
+function OutsideComponent(props) {
   return &lt;div /&gt;;
 }
 
 function Component() {
   return (
     &lt;div&gt;
-      &lt;OutsideDefinedComponent /&gt;
+      &lt;OutsideComponent /&gt;
     &lt;/div&gt;
   );
 }
 </pre>
 <pre>
 function Component() {
-  return &lt;SomeComponent footer={ &lt;div /&gt; } /&gt;;
+  return &lt;OtherComponent footer={ &lt;div /&gt; } /&gt;;
 }
 </pre>
 <pre>
@@ -73,14 +65,31 @@ class Component extends React.Component {
   render() {
     return (
       &lt;div&gt;
-        &lt;SomeComponent /&gt;
+        &lt;OtherComponent /&gt;
       &lt;/div&gt;
     );
   }
 }
 </pre>
+<p>Component creation is allowed inside component props only if prop name starts with <code>render</code>. Make sure you are calling the prop in the
+receiving component and not using it as an element.</p>
+<pre>
+function OtherComponent(props) {
+  return &lt;div&gt;{props.renderFooter()}&lt;/div&gt;;
+}
+
+function Component() {
+  return (
+    &lt;div&gt;
+      &lt;OtherComponent renderFooter={() =&gt; &lt;div /&gt;} /&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
 <h2>Resources</h2>
 <ul>
-  <li> <a href="https://reactjs.org/docs/reconciliation.html#elements-of-different-types">Elements Of Different Types</a> - React documentation </li>
+  <li> <a href="https://reactjs.org/docs/reconciliation.html#elements-of-different-types">React Documentation - Elements Of Different Types</a> </li>
+  <li> <a href="https://react.dev/learn/preserving-and-resetting-state#option-2-resetting-state-with-a-key">React Documentation - Resetting state with
+  a key</a> </li>
 </ul>
 

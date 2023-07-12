@@ -1,9 +1,8 @@
 <h2>Why is this an issue?</h2>
-<p>Any statement or block of statements can be identified by a label, but those labels should be used only on <code>while</code>,
-<code>do-while</code>, <code>for</code> and <code>switch</code> statements. Using labels in any other context leads to unstructured, confusing
-code.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Labels allow specifying a target statement to jump to using the <code>break</code> or <code>continue</code> statements. It’s possible to assign a
+label to any statement or block of statements. However using it with any statement can create a complex control flow path, making the code harder to
+understand and maintain.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 myLabel: if (i % 2 == 0) {  // Noncompliant
   if (i == 12) {
     console.log("12");
@@ -12,11 +11,34 @@ myLabel: if (i % 2 == 0) {  // Noncompliant
   console.log("Even number, but not 12");
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-myLabel: for (i = 0; i &lt; 10; i++) {   // Compliant
-  console.log("Loop");
-  break myLabel;
+<p>Instead of using a label with these nested <code>if</code> statements, this code block should be refactored.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+if (i % 2 == 0) {  // Compliant
+  if (i == 12) {
+    console.log("12");
+  } else {
+    console.log("Even number, but not 12");
+  }
 }
 </pre>
+<p>The rule considers that <code>while</code>, <code>do-while</code>, <code>for</code>, and <code>switch</code> statements don’t create complex
+control flow paths, thus these statements are not reported.</p>
+<pre>
+outerLoop: for (let i = 0; i &lt; 10; i++) {   // Compliant
+  for (let j = 0; j &lt; 10; j++) {
+    if (condition(i, j)) {
+      break outerLoop;
+    }
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label">MDN web docs: Label</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:javascript:S1119} - Labels should not be used </li>
+</ul>
 

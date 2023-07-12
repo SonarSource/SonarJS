@@ -1,5 +1,5 @@
 {
-  "title": "Sparse arrays should not be declared",
+  "title": "Sparse arrays should not be created with extra commas",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

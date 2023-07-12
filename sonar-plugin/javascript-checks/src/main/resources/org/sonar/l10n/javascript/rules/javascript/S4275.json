@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-4275",
   "sqKey": "S4275",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

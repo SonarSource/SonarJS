@@ -1,7 +1,6 @@
 <h2>Why is this an issue?</h2>
 <p>Octal escape sequences in string literals have been deprecated since ECMAScript 5 and should not be used in modern JavaScript code.</p>
-<p>Many developers may not have experience with this format and may confuse it with the decimal notation. For example, the copyright symbol
-<code>"\251"</code> represents character 169 (decimal) and not 251.</p>
+<p>Many developers may not have experience with this format and may confuse it with the decimal notation.</p>
 <pre>
 var message = "Copyright \251"; // Noncompliant
 </pre>
@@ -14,5 +13,7 @@ var message2 = "Copyright \xA9";    // hexadecimal
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types#string_literals">MDN - string literals</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Deprecated_octal">MDN - SyntaxError: Octal escape sequences
+  are deprecated</a> </li>
 </ul>
 

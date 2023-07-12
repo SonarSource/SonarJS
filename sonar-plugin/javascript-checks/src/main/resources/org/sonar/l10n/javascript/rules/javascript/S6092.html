@@ -1,7 +1,8 @@
 <h2>Why is this an issue?</h2>
-<p>Each assertion should test one condition and have only one reason to fail or succeed. If an assertion success depends on multiple conditions it
-becomes difficult to understand if the test passed for the right reason. It also makes debugging more difficult when the test fails.</p>
-<p>This rule raises an issue when the following Chai assertions are found:</p>
+<p>A unit test assertion should have only one reason to succeed because it helps to ensure that the test is focused and specific. When a test has
+multiple reasons to succeed, it becomes difficult to determine the root cause of a failure if the test fails. This can lead to confusion and wasted
+time trying to debug the test.</p>
+<p>This rule raises an issue when the following Chai.js assertions are found:</p>
 <ul>
   <li> When <code>.not</code> and <a href="https://www.chaijs.com/api/bdd/#method_throw"><code>.throw</code></a> are used together and at least one
   argument is provided to <code>.throw</code>. Such assertions succeed when the target either does not throw any exception, or when it throws an
@@ -23,20 +24,19 @@ becomes difficult to understand if the test passed for the right reason. It also
   assertions succeed when the target either decreases or stays the same. </li>
   <li> When <code>.not</code> and <a href="https://www.chaijs.com/api/bdd/#method_decrease"><code>.decrease</code></a> are used together. Such
   assertions succeed when the target either increases or stays the same. </li>
-  <li> When <code>.not</code> negates <a href="https://www.chaijs.com/api/bdd/#method_decrease"><code>.by</code></a>. Such assertions succeed when the
+  <li> When <code>.not</code> negates <a href="https://www.chaijs.com/api/bdd/#method_by"><code>.by</code></a>. Such assertions succeed when the
   target didn’t change by one specific delta among all the possible deltas. </li>
-  <li> When <code>.not</code> and <a href="https://www.chaijs.com/api/bdd/#method_decrease"><code>.finite</code></a> are used together. Such
-  assertions succeed when the target either is not a <code>number</code>, or is one of <code>Nan</code>, positive <code>Infinity</code>, negative
+  <li> When <code>.not</code> and <a href="https://www.chaijs.com/api/bdd/#method_finite"><code>.finite</code></a> are used together. Such assertions
+  succeed when the target either is not a <code>number</code>, or is one of <code>Nan</code>, positive <code>Infinity</code>, negative
   <code>Infinity</code>. </li>
 </ul>
-<h3>Noncompliant code example</h3>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 const expect = require('chai').expect;
 
-describe("uncertain assertions", function() {
+describe("Each Chai.js assertion", function() {
     const throwsTypeError = () =&gt; { throw new TypeError() }
 
-    it("uses chai 'expect'", function() {
+    it("has more than one reason to succeed", function() {
         expect(throwsTypeError).to.not.throw(ReferenceError) // Noncompliant
         expect({a: 42}).to.not.include({b: 10, c: 20});  // Noncompliant
         expect({a: 21}).to.not.have.property('b', 42); // Noncompliant
@@ -48,7 +48,7 @@ describe("uncertain assertions", function() {
         });
         expect([21, 42]).to.not.have.members([1, 2]); // Noncompliant
 
-        var myObj = { value: 1 }
+        let myObj = { value: 1 }
         const incThree = () =&gt; { myObj.value += 3; };
         const decThree = () =&gt; { myObj.value -= 3; };
         const doNothing = () =&gt; {};
@@ -69,21 +69,22 @@ describe("uncertain assertions", function() {
     });
 });
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>By having only one reason to succeed, the test is more precise and easier to understand. It also helps to ensure that the test is testing only one
+specific behavior or functionality of the code, which makes it easier to identify and fix any issues that arise.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 const expect = require('chai').expect;
 
-describe("uncertain assertions", function() {
+describe("Each Chai.js assertion", function() {
     const throwsTypeError = () =&gt; { throw new TypeError() }
 
-    it("uses chai 'expect'", function() {
+    it("has only one reason to succeed", function() {
         expect(throwsTypeError).to.throw(TypeError)
         expect({a: 42}).to.not.have.any.keys('b', 'c');
         expect({a: 21}).to.not.have.property('b');
         expect({a: 21}).to.not.have.ownPropertyDescriptor('b');
         expect([21, 42]).to.not.include(1).and.not.include(2);
 
-        var myObj = { value: 1 }
+        let myObj = { value: 1 }
         const incThree = () =&gt; { myObj.value += 3; };
         const decThree = () =&gt; { myObj.value -= 3; };
         const doNothing = () =&gt; {};
@@ -107,4 +108,17 @@ describe("uncertain assertions", function() {
     });
 });
 </pre>
+<p>Having only one reason to succeed also helps to make the test more maintainable. If the test needs to be updated or modified in the future, it is
+easier to do so when the test is focused on a single behavior or functionality.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<p><a href="https://www.chaijs.com/api/bdd/#method_by">Chai.js - <code>.by</code></a> <a href="https://www.chaijs.com/api/bdd/#method_change">Chai.js
+- <code>.change</code></a> <a href="https://www.chaijs.com/api/bdd/#method_decrease">Chai.js - <code>.decrease</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_finite">Chai.js - <code>.finite</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_include">Chai.js - <code>.include</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_increase">Chai.js - <code>.increase</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_members">Chai.js - <code>.members</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_ownpropertydescriptor">Chai.js - <code>.ownPropertyDescriptor</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_property">Chai.js - <code>.property</code></a> <a
+href="https://www.chaijs.com/api/bdd/#method_throw">Chai.js - <code>.throw</code></a></p>
 

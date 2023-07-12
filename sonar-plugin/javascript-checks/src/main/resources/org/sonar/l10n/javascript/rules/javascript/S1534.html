@@ -1,11 +1,6 @@
 <h2>Why is this an issue?</h2>
-<p>JavaScript allows duplicate member names in classes and object literals, but only the last instance of a duplicated name determines the actual
-value that will be used for it. Therefore, changing values of other occurrences of a duplicated name will have no effect and may cause
-misunderstandings and bugs.</p>
-<p>Defining a <code>class</code> with a duplicated <code>constructor</code> will generate an error.</p>
-<p>Before ECMAScript 2015, using duplicate names will generate an error in JavaScript strict mode code.</p>
-<p>This rule will also report on duplicate properties in JSX.</p>
-<h3>Noncompliant code example</h3>
+<p>JavaScript allows duplicate property names in classes and object literals. The last occurrence will overwrite previous definitions. Therefore,
+having more than one occurrence will have no effect and may cause misunderstandings and bugs.</p>
 <pre>
 let data = {
   "key": "value",
@@ -19,30 +14,33 @@ let data = {
   1: "value" // Noncompliant - duplicate of "1"
 }
 
+class Foo {
+  bar() { }
+  bar() { }  // Noncompliant - duplicate of "bar"
+}
+</pre>
+<p>Defining a <code>class</code> with a duplicated <code>constructor</code> will generate an error.</p>
+<pre>
+class Class {
+  constructor() {
+  }
+  constructor(value) { // Noncompliant: A class may only have one constructor
+  }
+}
+</pre>
+<p>Before ECMAScript 2015, using duplicate names generated an error in JavaScript strict mode code.</p>
+<p>This rule will also report on duplicate properties in JSX.</p>
+<pre>
 function MyComponent(props) {
   return &lt;div prop={props.prop1} prop={props.prop2}&gt; { /* Noncompliant, 'prop' is defined twice */ }
     This is my component
   &lt;/div&gt;;
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-let data = {
-  "key": "value",
-  "1": "value",
-  "key2": "value",
-  'key3': "value",
-  key4: "value",
-  \u006bey5: "value",
-  "\u006bey6": "value",
-  "\x6bey7": "value",
-  1b: "value"
-}
-
-function MyComponent(props) {
-  return &lt;div prop1={props.prop1} prop2={props.prop2}&gt;
-    This is my component
-  &lt;/div&gt;;
-}
-</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#property_definitions">MDN - Property
+  definitions</a> </li>
+</ul>
 

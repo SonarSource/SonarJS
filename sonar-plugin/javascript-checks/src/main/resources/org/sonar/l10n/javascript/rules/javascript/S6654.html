@@ -1,6 +1,12 @@
 <h2>Why is this an issue?</h2>
-<p>The <code>__proto__</code> property is deprecated and should no longer be used. To get and set the prototype of an object, use the static methods
-<code>Object.getPrototype</code> and <code>Object.setPrototype</code>.</p>
+<p>Javascript has a prototypical inheritance model. Each object has an internal property that points to another object, called a
+<code>prototype</code>. That prototype object has a prototype of its own, and the whole sequence is called a <strong>prototype chain</strong>. When
+accessing a property or a method of an object, if it is not found at the top level, the search continues through the object’s prototype and then
+further down the prototype chain. This feature allows for very powerful dynamic inheritance patterns but can also lead to confusion when compared to
+the classic inheritance.</p>
+<p>To simplify the access to the prototype of an object some browsers introduced the <code>__proto__</code> property, which was later deprecated and
+removed from the language. The current ECMAScript standard includes <code>Object.getPrototype</code> and <code>Object.setPrototype</code> static
+methods that should be used instead of the <code>__proto__</code> property.</p>
 <pre>
 let prototype = foo.__proto__;  // Noncompliant, use Object.getPrototype
 foo.__proto__ = bar; // Noncompliant, use Object.setPrototype
@@ -14,6 +20,8 @@ Object.setPrototype(foo, bar);
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">MDN - inheritance and the prototype
+  chain</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto">MDN - __proto__</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf">MDN -
   Object.getPrototypeOf</a> </li>

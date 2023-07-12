@@ -1,7 +1,7 @@
 <h2>Why is this an issue?</h2>
-<p>Using the same value on either side of a binary operator is almost always a mistake. In the case of logical operators, it is either a copy/paste
-error and therefore a bug, or it is simply wasted code, and should be simplified. In the case of bitwise operators and most binary mathematical
-operators, having the same value on both sides of an operator yields predictable results, and should be simplified.</p>
+<p>Using the same value on both sides of a binary operator is a code defect. In the case of logical operators, it is either a copy/paste error and,
+therefore, a bug, or it is simply duplicated code and should be simplified. In the case of bitwise operators and most binary mathematical operators,
+having the same value on both sides of an operator yields predictable results and should be simplified as well.</p>
 <h3>Noncompliant code example</h3>
 <pre>
 if (a == b &amp;&amp; a == b) { // if the first one is true, the second one is too
