@@ -1,0 +1,13 @@
+{
+'jshint:src/jshint.js':[
+867,
+2708,
+2714,
+4957,
+5252,
+5306,
+],
+'jshint:src/scope-manager.js':[
+382,
+],
+}

@@ -57,6 +57,7 @@ export const quickFixRules = new Set([
   'no-duplicate-imports',
   'no-empty-function',
   'no-empty',
+  'no-lonely-if',
   'no-throw-literal',
   'no-unreachable',
   'no-useless-constructor',
