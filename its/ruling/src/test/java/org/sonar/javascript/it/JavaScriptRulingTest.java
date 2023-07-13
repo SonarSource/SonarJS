@@ -61,7 +61,7 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
-  static final String LITS_VERSION = "0.10.0.2181";
+  static final String LITS_VERSION = "0.11.0.2659";
   static final String SCANNER_VERSION = "4.7.0.2747";
 
   public static final Orchestrator orchestrator = Orchestrator
