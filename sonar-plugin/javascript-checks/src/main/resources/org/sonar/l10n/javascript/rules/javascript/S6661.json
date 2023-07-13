@@ -1,0 +1,21 @@
+{
+  "title": "Object spread syntax should be used instead of Object.assign",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2018"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6661",
+  "sqKey": "S6661",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]  
+}
