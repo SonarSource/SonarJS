@@ -325,6 +325,7 @@ public final class CheckList {
       PreferNullishCoalescingCheck.class,
       PreferObjectHasOwnCheck.class,
       PreferObjectLiteralCheck.class,
+      PreferObjectSpreadCheck.class,
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
       PreferRegexLiteralsCheck.class,
