@@ -322,6 +322,7 @@ public final class CheckList {
       PreferLiteralEnumMemberCheck.class,
       PreferNamespaceCheck.class,
       PreferNullishCoalescingCheck.class,
+      PreferObjectHasOwnCheck.class,
       PreferObjectLiteralCheck.class,
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,

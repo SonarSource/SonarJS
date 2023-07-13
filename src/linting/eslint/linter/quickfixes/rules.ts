@@ -45,6 +45,7 @@ export const quickFixRules = new Set([
   'no-var',
   'object-shorthand',
   'prefer-const',
+  'prefer-object-has-own',
   'prefer-regex-literals',
   'prefer-template',
   'quotes',

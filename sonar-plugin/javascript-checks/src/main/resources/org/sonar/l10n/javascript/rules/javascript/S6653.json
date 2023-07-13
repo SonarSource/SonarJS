@@ -1,0 +1,21 @@
+{
+  "title": "Use Object.hasOwn static method instead of hasOwnProperty",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2022"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6653",
+  "sqKey": "S6653",
+  "scope": "All",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]  
+}
