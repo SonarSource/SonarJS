@@ -78,7 +78,7 @@ export function start(
      * in case the process becomes orphan.
      */
     const orphanTimeout = timeoutMiddleware(() => {
-      if (server.listening) {
+      if (server.listening && server.listening) {
         server.close();
       }
     }, timeout);
