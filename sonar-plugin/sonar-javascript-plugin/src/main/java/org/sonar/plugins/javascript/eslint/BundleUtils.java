@@ -65,7 +65,8 @@ class BundleUtils {
           PosixFilePermission.GROUP_READ,
           PosixFilePermission.GROUP_WRITE,
           PosixFilePermission.OTHERS_READ,
-          PosixFilePermission.OTHERS_EXECUTE);
+          PosixFilePermission.OTHERS_EXECUTE
+        );
         Files.setPosixFilePermissions(entryFile, executable);
       }
     }
