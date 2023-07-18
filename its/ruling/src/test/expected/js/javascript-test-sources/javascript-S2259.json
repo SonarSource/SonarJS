@@ -1,11 +1,11 @@
 {
 "javascript-test-sources:src/ace/src/commands/incremental_search_commands.js":[
-168,
+168
 ],
 "javascript-test-sources:src/ace/src/commands/occur_commands.js":[
-57,
+57
 ],
 "javascript-test-sources:src/ace/src/lib/event_emitter.js":[
-68,
-],
+68
+]
 }

@@ -7,7 +7,7 @@
 830,
 845,
 1047,
-1080,
+1080
 ],
 "qunit:reporter/html.js":[
 161,
@@ -16,12 +16,12 @@
 225,
 229,
 257,
-830,
+830
 ],
 "qunit:src/core/stacktrace.js":[
-20,
+20
 ],
 "qunit:src/test.js":[
-651,
-],
+651
+]
 }

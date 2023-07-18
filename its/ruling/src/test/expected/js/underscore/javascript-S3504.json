@@ -9,12 +9,12 @@
 30,
 34,
 35,
-41,
+41
 ],
 "underscore:karma.conf-sauce.js":[
 1,
 4,
-33,
+33
 ],
 "underscore:underscore.js":[
 14,
@@ -229,6 +229,6 @@
 1637,
 1650,
 1652,
-1661,
-],
+1661
+]
 }

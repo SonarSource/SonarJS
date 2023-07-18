@@ -1,11 +1,11 @@
 {
 "sizzle:speed/data/selector.html":[
-3282,
+3282
 ],
 "sizzle:test/data/mixed_sort.html":[
 11,
 12,
-13,
+13
 ],
 "sizzle:test/data/noConflict.html":[
 7,
@@ -16,6 +16,6 @@
 19,
 20,
 21,
-22,
-],
+22
+]
 }

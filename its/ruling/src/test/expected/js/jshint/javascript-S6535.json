@@ -2,13 +2,13 @@
 "jshint:src/cli.js":[
 241,
 241,
-572,
+572
 ],
 "jshint:src/jshint.js":[
-6252,
+6252
 ],
 "jshint:src/reg.js":[
 15,
-18,
-],
+18
+]
 }

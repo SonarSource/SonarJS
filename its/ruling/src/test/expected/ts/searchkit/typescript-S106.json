@@ -1,10 +1,10 @@
 {
 "searchkit:packages/searchkit-client/src/searchkit.tsx":[
-299,
+299
 ],
 "searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts":[
 38,
 45,
-48,
-],
+48
+]
 }

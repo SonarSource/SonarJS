@@ -2,12 +2,12 @@
 "searchkit:packages/searchkit-cli/src/lib.ts":[
 31,
 220,
-302,
+302
 ],
 "searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx":[
-15,
+15
 ],
 "searchkit:packages/searchkit-sdk/src/facets/MultiQueryOptionsFacet.ts":[
-36,
-],
+36
+]
 }

@@ -1,9 +1,9 @@
 {
 "jshint:src/jshint.js":[
 583,
-586,
+586
 ],
 "jshint:src/lex.js":[
-1659,
-],
+1659
+]
 }

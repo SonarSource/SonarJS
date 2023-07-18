@@ -2,12 +2,12 @@
 "paper.js:src/core/PaperScript.js":[
 94,
 110,
-211,
+211
 ],
 "paper.js:src/path/PathItem.js":[
-171,
+171
 ],
 "paper.js:src/svg/SvgImport.js":[
-341,
-],
+341
+]
 }

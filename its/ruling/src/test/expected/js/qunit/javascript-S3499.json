@@ -4,13 +4,13 @@
 238,
 257,
 327,
-435,
+435
 ],
 "qunit:src/core.js":[
-39,
+39
 ],
 "qunit:src/core/processing-queue.js":[
 191,
-211,
-],
+211
+]
 }

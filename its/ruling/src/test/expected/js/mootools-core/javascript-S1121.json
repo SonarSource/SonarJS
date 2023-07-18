@@ -7,11 +7,11 @@
 611,
 693,
 1163,
-1172,
+1172
 ],
 "mootools-core:Source/Fx/Fx.CSS.js":[
 129,
-141,
+141
 ],
 "mootools-core:Source/Slick/Slick.Finder.js":[
 293,
@@ -28,9 +28,9 @@
 638,
 658,
 666,
-671,
+671
 ],
 "mootools-core:Source/Slick/Slick.Parser.js":[
-37,
-],
+37
+]
 }

@@ -1,11 +1,11 @@
 {
 "jquery:Gruntfile.js":[
-3,
+3
 ],
 "jquery:build/tasks/build.js":[
-9,
+9
 ],
 "jquery:src/ajax.js":[
-382,
-],
+382
+]
 }

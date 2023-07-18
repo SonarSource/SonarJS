@@ -1,7 +1,7 @@
 {
 "javascript-test-sources:src/ecmascript6/reddit-mobile/index.js":[
 128,
-137,
+137
 ],
 "javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
 414,
@@ -20,6 +20,6 @@
 548,
 553,
 560,
-567,
-],
+567
+]
 }

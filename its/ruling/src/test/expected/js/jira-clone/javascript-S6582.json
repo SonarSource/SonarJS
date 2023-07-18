@@ -1,11 +1,11 @@
 {
 "jira-clone:client/src/Project/Board/IssueDetails/AssigneesReporter/index.jsx":[
-61,
+61
 ],
 "jira-clone:client/src/Project/IssueCreate/index.jsx":[
-162,
+162
 ],
 "jira-clone:client/src/shared/hooks/onOutsideClick.js":[
-30,
-],
+30
+]
 }

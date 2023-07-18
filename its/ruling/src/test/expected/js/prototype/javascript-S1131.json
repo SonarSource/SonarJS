@@ -61,7 +61,7 @@
 326,
 328,
 330,
-336,
+336
 ],
 "prototype:ext/update_helper/prototype_update_helper.js":[
 4,
@@ -127,7 +127,7 @@
 370,
 382,
 388,
-416,
+416
 ],
 "prototype:ext/update_helper/update_helper.js":[
 2,
@@ -138,7 +138,7 @@
 27,
 36,
 52,
-65,
+65
 ],
 "prototype:src/prototype/ajax/periodical_updater.js":[
 60,
@@ -154,7 +154,7 @@
 192,
 194,
 198,
-200,
+200
 ],
 "prototype:src/prototype/lang/enumerable.js":[
 33,
@@ -167,14 +167,14 @@
 58,
 60,
 65,
-68,
+68
 ],
 "prototype:src/prototype/lang/function.js":[
 121,
 124,
 132,
 401,
-411,
+411
 ],
 "prototype:src/prototype/lang/hash.js":[
 3,
@@ -185,7 +185,7 @@
 193,
 293,
 348,
-359,
+359
 ],
 "prototype:src/prototype/lang/range.js":[
 27,
@@ -207,7 +207,7 @@
 130,
 133,
 136,
-139,
+139
 ],
 "prototype:src/prototype/lang/template.js":[
 125,
@@ -216,7 +216,7 @@
 133,
 136,
 139,
-155,
+155
 ],
 "prototype:test/browser.html":[
 91,
@@ -241,13 +241,13 @@
 189,
 191,
 201,
-209,
+209
 ],
 "prototype:test/console.html":[
 19,
 28,
 30,
 35,
-46,
-],
+46
+]
 }

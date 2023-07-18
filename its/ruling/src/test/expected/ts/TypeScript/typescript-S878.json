@@ -1,6 +1,6 @@
 {
 "Typescript:Gulpfile.ts":[
-417,
+417
 ],
 "Typescript:src/compiler/scanner.ts":[
 1286,
@@ -30,6 +30,6 @@
 1622,
 1624,
 1627,
-1858,
-],
+1858
+]
 }

@@ -1,8 +1,8 @@
 {
 "postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts":[
-18,
+18
 ],
 "postgraphql:src/postgres/inventory/type/custom/pgIntervalType.ts":[
-74,
-],
+74
+]
 }

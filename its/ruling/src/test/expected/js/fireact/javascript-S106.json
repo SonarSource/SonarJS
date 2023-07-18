@@ -3,11 +3,11 @@
 569,
 574,
 633,
-646,
+646
 ],
 "fireact:src/libs/user/index.js":[
 21,
-34,
+34
 ],
 "fireact:src/serviceWorker.js":[
 44,
@@ -15,6 +15,6 @@
 85,
 97,
 125,
-138,
-],
+138
+]
 }

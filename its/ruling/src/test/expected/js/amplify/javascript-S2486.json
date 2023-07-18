@@ -1,11 +1,11 @@
 {
 "amplify:test/core/unit.js":[
 152,
-158,
+158
 ],
 "amplify:test/store/unit.js":[
 99,
 105,
-176,
-],
+176
+]
 }

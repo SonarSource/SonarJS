@@ -1,11 +1,11 @@
 {
 "Typescript:src/compiler/binder.ts":[
-393,
+393
 ],
 "Typescript:src/compiler/emitter.ts":[
-2335,
+2335
 ],
 "Typescript:src/compiler/moduleNameResolver.ts":[
-884,
-],
+884
+]
 }

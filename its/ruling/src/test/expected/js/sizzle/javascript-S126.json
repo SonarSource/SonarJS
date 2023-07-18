@@ -1,7 +1,7 @@
 {
 "sizzle:speed/speed.js":[
 576,
-599,
+599
 ],
 "sizzle:src/sizzle.js":[
 302,
@@ -12,9 +12,9 @@
 1225,
 1298,
 1318,
-2338,
+2338
 ],
 "sizzle:tasks/dist.js":[
-18,
-],
+18
+]
 }

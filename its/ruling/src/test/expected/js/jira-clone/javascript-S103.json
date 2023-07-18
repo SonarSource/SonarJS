@@ -7,10 +7,10 @@
 51,
 56,
 62,
-67,
+67
 ],
 "jira-clone:client/src/shared/components/Logo.jsx":[
-43,
+43
 ],
 "jira-clone:client/src/shared/components/ProjectAvatar.jsx":[
 37,
@@ -21,6 +21,6 @@
 79,
 85,
 98,
-103,
-],
+103
+]
 }

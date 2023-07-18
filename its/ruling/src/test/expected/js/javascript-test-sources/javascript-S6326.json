@@ -1,12 +1,12 @@
 {
 "javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
-86,
+86
 ],
 "javascript-test-sources:src/ace/src/mode/apex_highlight_rules.js":[
-190,
+190
 ],
 "javascript-test-sources:src/ace/src/mode/mixal_highlight_rules.js":[
-49,
+49
 ],
 "javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/showdown_client_integrated_spec.js":[
 210,
@@ -25,6 +25,6 @@
 502,
 606,
 610,
-610,
-],
+610
+]
 }

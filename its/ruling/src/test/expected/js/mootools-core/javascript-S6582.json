@@ -6,12 +6,12 @@
 777,
 782,
 1162,
-1175,
+1175
 ],
 "mootools-core:Source/Fx/Fx.Transitions.js":[
 72,
 88,
-104,
+104
 ],
 "mootools-core:Source/Slick/Slick.Finder.js":[
 216,
@@ -19,9 +19,9 @@
 657,
 664,
 881,
-890,
+890
 ],
 "mootools-core:Source/Utilities/JSON.js":[
-49,
-],
+49
+]
 }

@@ -1,11 +1,11 @@
 {
 "javascript-test-sources:src/ace/src/mode/css_completions.js":[
-136,
+136
 ],
 "javascript-test-sources:src/ecmascript6/router/src/activation.js":[
-146,
+146
 ],
 "javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js":[
-1186,
-],
+1186
+]
 }

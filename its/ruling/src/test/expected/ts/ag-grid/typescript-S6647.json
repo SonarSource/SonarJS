@@ -1,11 +1,11 @@
 {
 "ag-grid:src/ts/rowModels/infinite/infiniteCache.ts":[
-20,
+20
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts":[
-35,
+35
 ],
 "ag-grid:src/ts/widgets/agCheckbox.ts":[
-34,
-],
+34
+]
 }

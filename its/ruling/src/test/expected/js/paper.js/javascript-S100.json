@@ -2,12 +2,12 @@
 "paper.js:src/core/PaperScript.js":[
 74,
 88,
-106,
+106
 ],
 "paper.js:src/item/Shape.js":[
 432,
 530,
-574,
+574
 ],
 "paper.js:src/path/Path.Constructors.js":[
 81,
@@ -16,6 +16,6 @@
 291,
 336,
 383,
-439,
-],
+439
+]
 }

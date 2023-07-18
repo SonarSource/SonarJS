@@ -1,6 +1,6 @@
 {
 "jshint:scripts/build.js":[
-11,
+11
 ],
 "jshint:src/cli.js":[
 100,
@@ -9,7 +9,7 @@
 340,
 386,
 528,
-544,
+544
 ],
 "jshint:src/jshint.js":[
 382,
@@ -28,14 +28,14 @@
 4751,
 6050,
 6060,
-6090,
+6090
 ],
 "jshint:src/lex.js":[
 391,
 1509,
-1702,
+1702
 ],
 "jshint:src/scope-manager.js":[
-188,
-],
+188
+]
 }

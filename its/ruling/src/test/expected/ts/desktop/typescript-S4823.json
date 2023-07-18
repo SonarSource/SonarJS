@@ -1,13 +1,13 @@
 {
 "desktop:app/src/cli/main.ts":[
-12,
+12
 ],
 "desktop:app/src/main-process/main.ts":[
 136,
 137,
-150,
+150
 ],
 "desktop:script/draft-release/index.ts":[
-14,
-],
+14
+]
 }

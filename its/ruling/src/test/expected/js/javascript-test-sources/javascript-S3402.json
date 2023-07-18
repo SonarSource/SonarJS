@@ -1,6 +1,6 @@
 {
 "javascript-test-sources:src/ace/Makefile.dryice.js":[
-540,
+540
 ],
 "javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
 5405,
@@ -8,13 +8,13 @@
 5407,
 5408,
 5411,
-5418,
+5418
 ],
 "javascript-test-sources:src/ace/src/test/user.js":[
 36,
 37,
 40,
-45,
+45
 ],
 "javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js":[
 397,
@@ -23,6 +23,6 @@
 639,
 728,
 848,
-897,
-],
+897
+]
 }

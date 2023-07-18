@@ -1,7 +1,7 @@
 {
 "underscore:karma.conf-sauce.js":[
 37,
-77,
+77
 ],
 "underscore:underscore.js":[
 1328,
@@ -11,6 +11,6 @@
 1580,
 1589,
 1591,
-1609,
-],
+1609
+]
 }

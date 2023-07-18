@@ -1,8 +1,8 @@
 {
 "qunit:reporter/urlparams.js":[
-30,
+30
 ],
 "qunit:src/cli/run.js":[
-34,
-],
+34
+]
 }

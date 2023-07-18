@@ -1,8 +1,8 @@
 {
 "postgraphql:src/graphql/utils/__tests__/formatName-test.ts":[
-5,
+5
 ],
 "postgraphql:src/postgres/utils/__tests__/sql-test.ts":[
-57,
-],
+57
+]
 }

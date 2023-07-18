@@ -1,6 +1,6 @@
 {
 "Typescript:src/compiler/checker.ts":[
-14043,
+14043
 ],
 "Typescript:src/harness/fourslash.ts":[
 272,
@@ -8,13 +8,13 @@
 565,
 1056,
 1056,
-2867,
+2867
 ],
 "Typescript:src/services/formatting/ruleDescriptor.ts":[
 10,
-11,
+11
 ],
 "Typescript:src/services/formatting/ruleOperation.ts":[
-9,
-],
+9
+]
 }

@@ -1,6 +1,6 @@
 {
 "mootools-core:Grunt/plugins/karma/syn/index.js":[
-3,
+3
 ],
 "mootools-core:Source/Element/Element.js":[
 290,
@@ -24,7 +24,7 @@
 1011,
 1017,
 1069,
-1126,
+1126
 ],
 "mootools-core:Source/Slick/Slick.Finder.js":[
 419,
@@ -42,9 +42,9 @@
 715,
 720,
 727,
-735,
+735
 ],
 "mootools-core:Source/Slick/Slick.Parser.js":[
-176,
-],
+176
+]
 }

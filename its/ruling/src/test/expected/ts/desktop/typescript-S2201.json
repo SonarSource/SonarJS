@@ -1,12 +1,12 @@
 {
 "desktop:app/src/lib/fix-emoji-spacing.ts":[
-34,
+34
 ],
 "desktop:app/src/lib/source-map-support.ts":[
-127,
+127
 ],
 "desktop:app/src/ui/changes/changes-list.tsx":[
 574,
-584,
-],
+584
+]
 }

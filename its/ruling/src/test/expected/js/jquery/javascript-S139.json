@@ -1,11 +1,11 @@
 {
 "jquery:src/callbacks.js":[
-44,
+44
 ],
 "jquery:src/queue/delay.js":[
-4,
+4
 ],
 "jquery:src/wrap.js":[
-5,
-],
+5
+]
 }

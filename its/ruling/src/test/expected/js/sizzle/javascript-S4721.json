@@ -1,11 +1,11 @@
 {
 "sizzle:tasks/commit.js":[
-8,
+8
 ],
 "sizzle:tasks/karma-tests.js":[
-31,
+31
 ],
 "sizzle:tasks/tag.js":[
-7,
-],
+7
+]
 }

@@ -3,7 +3,7 @@
 96,
 96,
 110,
-110,
+110
 ],
 "ocanvas:src/animation.js":[
 30,
@@ -15,10 +15,10 @@
 343,
 374,
 377,
-408,
+408
 ],
 "ocanvas:src/displayobjects/text.js":[
 9,
-96,
-],
+96
+]
 }

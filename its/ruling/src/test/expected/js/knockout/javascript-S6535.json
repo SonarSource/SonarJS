@@ -1,9 +1,9 @@
 {
 "knockout:src/binding/expressionRewriting.js":[
-31,
+31
 ],
 "knockout:src/memoization.js":[
-60,
+60
 ],
 "knockout:src/templating/templateRewriting.js":[
 3,
@@ -12,6 +12,6 @@
 3,
 3,
 3,
-3,
-],
+3
+]
 }

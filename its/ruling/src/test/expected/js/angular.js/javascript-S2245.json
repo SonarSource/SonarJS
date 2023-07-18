@@ -1,6 +1,6 @@
 {
 "angular.js:benchmarks/orderby-bp/app.js":[
-20,
+20
 ],
 "angular.js:benchmarks/parsed-expressions-bp/app.js":[
 61,
@@ -11,6 +11,6 @@
 66,
 67,
 68,
-69,
-],
+69
+]
 }

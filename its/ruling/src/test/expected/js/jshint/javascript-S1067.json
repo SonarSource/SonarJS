@@ -1,6 +1,6 @@
 {
 "jshint:data/ascii-identifier-data.js":[
-5,
+5
 ],
 "jshint:src/jshint.js":[
 882,
@@ -20,15 +20,15 @@
 5293,
 5299,
 5468,
-5481,
+5481
 ],
 "jshint:src/lex.js":[
 769,
 1713,
 1841,
-1969,
+1969
 ],
 "jshint:src/scope-manager.js":[
-734,
-],
+734
+]
 }

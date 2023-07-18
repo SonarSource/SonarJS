@@ -1,13 +1,13 @@
 {
 "ocanvas:scripts/release.js":[
 66,
-73,
+73
 ],
 "ocanvas:src/animation.js":[
-280,
+280
 ],
 "ocanvas:src/mouse.js":[
-212,
+212
 ],
 "ocanvas:src/style.js":[
 134,
@@ -15,6 +15,6 @@
 330,
 437,
 672,
-724,
-],
+724
+]
 }

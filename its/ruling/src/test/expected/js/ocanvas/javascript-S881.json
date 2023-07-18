@@ -1,13 +1,13 @@
 {
 "ocanvas:src/animation.js":[
 483,
-549,
+549
 ],
 "ocanvas:src/displayobject.js":[
 876,
-977,
+977
 ],
 "ocanvas:src/events.js":[
-77,
-],
+77
+]
 }

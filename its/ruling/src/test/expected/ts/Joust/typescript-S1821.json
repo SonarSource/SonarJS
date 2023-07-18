@@ -5,12 +5,12 @@
 360,
 372,
 382,
-392,
+392
 ],
 "Joust:ts/protocol/KettleDecoder.ts":[
-146,
+146
 ],
 "Joust:ts/state/plugins/Timer.ts":[
-76,
-],
+76
+]
 }

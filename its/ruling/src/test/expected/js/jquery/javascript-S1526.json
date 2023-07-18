@@ -1,12 +1,12 @@
 {
 "jquery:Gruntfile.js":[
-9,
+9
 ],
 "jquery:src/deferred.js":[
-63,
+63
 ],
 "jquery:src/effects.js":[
 294,
-301,
-],
+301
+]
 }

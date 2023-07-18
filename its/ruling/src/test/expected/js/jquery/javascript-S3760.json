@@ -1,9 +1,9 @@
 {
 "jquery:src/css.js":[
-42,
+42
 ],
 "jquery:src/effects.js":[
-554,
+554
 ],
 "jquery:src/selector.js":[
 116,
@@ -14,9 +14,9 @@
 774,
 774,
 1421,
-1480,
+1480
 ],
 "jquery:src/selector/uniqueSort.js":[
-17,
-],
+17
+]
 }

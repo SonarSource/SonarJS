@@ -1,6 +1,6 @@
 {
 "fireface:src/auth/auth.service.ts":[
-72,
+72
 ],
 "fireface:src/storage/storage.component.ts":[
 43,
@@ -8,6 +8,6 @@
 92,
 119,
 130,
-133,
-],
+133
+]
 }

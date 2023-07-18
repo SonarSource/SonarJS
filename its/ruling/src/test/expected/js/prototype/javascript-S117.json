@@ -1,6 +1,6 @@
 {
 "prototype:ext/update_helper/prototype_update_helper.js":[
-340,
+340
 ],
 "prototype:src/prototype/lang/function.js":[
 123,
@@ -8,9 +8,9 @@
 228,
 260,
 338,
-395,
+395
 ],
 "prototype:test/functional/event.html":[
-80,
-],
+80
+]
 }

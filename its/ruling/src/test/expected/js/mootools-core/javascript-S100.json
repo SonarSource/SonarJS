@@ -1,6 +1,6 @@
 {
 "mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js":[
-37,
+37
 ],
 "mootools-core:Source/Fx/Fx.Transitions.js":[
 71,
@@ -9,9 +9,9 @@
 83,
 87,
 92,
-103,
+103
 ],
 "mootools-core:Source/Types/Function.js":[
-44,
-],
+44
+]
 }

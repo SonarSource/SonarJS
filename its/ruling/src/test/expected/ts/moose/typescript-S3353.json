@@ -1,6 +1,6 @@
 {
 "moose:main/helpers/createWindow.ts":[
-22,
+22
 ],
 "moose:main/utils/opensubtitle-hash.ts":[
 15,
@@ -9,6 +9,6 @@
 95,
 98,
 99,
-100,
-],
+100
+]
 }

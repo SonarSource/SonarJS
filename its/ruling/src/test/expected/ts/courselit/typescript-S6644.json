@@ -1,11 +1,11 @@
 {
 "courselit:apps/web/graphql/courses/logic.ts":[
-246,
+246
 ],
 "courselit:apps/web/lib/passport-magic-link.ts":[
-25,
+25
 ],
 "courselit:packages/components-library/src/image.tsx":[
-66,
-],
+66
+]
 }

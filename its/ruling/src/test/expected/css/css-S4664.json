@@ -1,6 +1,6 @@
 {
 "project:projects/animate.css-4.1.1/docs/style.css":[
-602,
+602
 ],
 "project:projects/bulma-0.9.2/css/bulma-rtl.css":[
 66,
@@ -7229,7 +7229,7 @@
 11682,
 11682,
 11682,
-11682,
+11682
 ],
 "project:projects/bulma-0.9.2/css/bulma.css":[
 66,
@@ -14458,7 +14458,7 @@
 11682,
 11682,
 11682,
-11682,
+11682
 ],
 "project:projects/bulma-0.9.2/docs/css/bulma-docs.css":[
 67,
@@ -30833,10 +30833,10 @@
 16069,
 16069,
 16069,
-16069,
+16069
 ],
 "project:projects/tailwindcss-2.0.3/src/plugins/css/preflight.css":[
 148,
-185,
-],
+185
+]
 }

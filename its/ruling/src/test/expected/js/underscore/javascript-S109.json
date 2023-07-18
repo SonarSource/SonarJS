@@ -1,10 +1,10 @@
 {
 "underscore:docs/main.js":[
 52,
-59,
+59
 ],
 "underscore:karma.conf-sauce.js":[
-42,
+42
 ],
 "underscore:underscore.js":[
 70,
@@ -17,6 +17,6 @@
 231,
 684,
 966,
-1079,
-],
+1079
+]
 }

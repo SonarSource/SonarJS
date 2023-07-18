@@ -1,6 +1,6 @@
 {
 "mootools-core:Source/Element/Element.js":[
-32,
+32
 ],
 "mootools-core:Source/Slick/Slick.Finder.js":[
 320,
@@ -8,9 +8,9 @@
 521,
 526,
 693,
-737,
+737
 ],
 "mootools-core:Source/Types/Array.js":[
-136,
-],
+136
+]
 }

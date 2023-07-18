@@ -1,9 +1,9 @@
 {
 "knockout:src/binding/bindingAttributeSyntax.js":[
-172,
+172
 ],
 "knockout:src/subscribables/dependentObservable.js":[
 280,
-343,
-],
+343
+]
 }
