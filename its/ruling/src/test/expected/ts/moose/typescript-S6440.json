@@ -1,5 +1,5 @@
 {
-'moose:renderer/components/FilesList/FilesList.tsx':[
+"moose:renderer/components/FilesList/FilesList.tsx":[
 36,
 37,
 38,
@@ -8,7 +8,7 @@
 98,
 115,
 ],
-'moose:renderer/components/TorrentDetails/TorrentDetails.tsx':[
+"moose:renderer/components/TorrentDetails/TorrentDetails.tsx":[
 26,
 27,
 30,

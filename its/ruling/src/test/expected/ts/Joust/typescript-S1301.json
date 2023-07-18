@@ -1,8 +1,8 @@
 {
-'Joust:ts/components/GameWrapper.tsx':[
+"Joust:ts/components/GameWrapper.tsx":[
 133,
 ],
-'Joust:ts/protocol/KettleDecoder.ts':[
+"Joust:ts/protocol/KettleDecoder.ts":[
 146,
 ],
 }

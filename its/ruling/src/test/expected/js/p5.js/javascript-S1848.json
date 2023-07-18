@@ -1,11 +1,11 @@
 {
-'p5.js:docs/preprocessor.js':[
+"p5.js:docs/preprocessor.js":[
 8,
 ],
-'p5.js:src/core/init.js':[
+"p5.js:src/core/init.js":[
 24,
 ],
-'p5.js:test/manual-test-examples/module.html':[
+"p5.js:test/manual-test-examples/module.html":[
 12,
 ],
 }

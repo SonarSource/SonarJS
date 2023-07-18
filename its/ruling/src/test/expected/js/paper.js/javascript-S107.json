@@ -1,14 +1,14 @@
 {
-'paper.js:src/basic/Line.js':[
+"paper.js:src/basic/Line.js":[
 133,
 169,
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js":[
 63,
 848,
 1768,
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js":[
 2851,
 ],
 }

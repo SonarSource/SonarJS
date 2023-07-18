@@ -1,8 +1,8 @@
 {
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx":[
 212,
 ],
-'Joust:ts/state/mutators/SetOptionsMutator.ts':[
+"Joust:ts/state/mutators/SetOptionsMutator.ts":[
 22,
 ],
 }

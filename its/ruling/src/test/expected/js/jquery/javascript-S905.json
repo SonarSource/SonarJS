@@ -1,10 +1,10 @@
 {
-'jquery:src/attributes/prop.js':[
+"jquery:src/attributes/prop.js":[
 101,
 111,
 115,
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js":[
 931,
 ],
 }

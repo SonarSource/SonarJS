@@ -1,8 +1,8 @@
 {
-'jquery:src/exports/global.js':[
+"jquery:src/exports/global.js":[
 12,
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js":[
 1470,
 ],
 }

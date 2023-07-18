@@ -1,8 +1,8 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.js':[
+"prototype:ext/update_helper/prototype_update_helper.js":[
 340,
 ],
-'prototype:src/prototype/lang/function.js':[
+"prototype:src/prototype/lang/function.js":[
 123,
 195,
 228,
@@ -10,7 +10,7 @@
 338,
 395,
 ],
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html":[
 80,
 ],
 }

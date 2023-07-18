@@ -1,14 +1,14 @@
 {
-'mootools-core:Source/Fx/Fx.CSS.js':[
+"mootools-core:Source/Fx/Fx.CSS.js":[
 144,
 163,
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
+"mootools-core:Source/Slick/Slick.Parser.js":[
 107,
 119,
 124,
 ],
-'mootools-core:Tests/Element/Element.Delegation.html':[
+"mootools-core:Tests/Element/Element.Delegation.html":[
 303,
 ],
 }

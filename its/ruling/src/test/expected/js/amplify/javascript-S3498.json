@@ -1,11 +1,11 @@
 {
-'amplify:lib/amplify-vsdoc.js':[
+"amplify:lib/amplify-vsdoc.js":[
 14,
 ],
-'amplify:src/amplify-vsdoc.js':[
+"amplify:src/amplify-vsdoc.js":[
 5,
 ],
-'amplify:src/core.js':[
+"amplify:src/core.js":[
 7,
 34,
 63,

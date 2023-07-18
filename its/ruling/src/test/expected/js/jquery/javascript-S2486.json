@@ -1,5 +1,5 @@
 {
-'jquery:test/data/jquery-1.9.1.js':[
+"jquery:test/data/jquery-1.9.1.js":[
 497,
 599,
 941,
@@ -21,10 +21,10 @@
 8784,
 8836,
 ],
-'jquery:test/unit/ajax.js':[
+"jquery:test/unit/ajax.js":[
 1768,
 ],
-'jquery:test/unit/attributes.js':[
+"jquery:test/unit/attributes.js":[
 433,
 443,
 590,
@@ -33,7 +33,7 @@
 1665,
 1734,
 ],
-'jquery:test/unit/core.js':[
+"jquery:test/unit/core.js":[
 72,
 287,
 305,
@@ -44,15 +44,15 @@
 1411,
 1455,
 ],
-'jquery:test/unit/css.js':[
+"jquery:test/unit/css.js":[
 325,
 1074,
 1673,
 ],
-'jquery:test/unit/deferred.js':[
+"jquery:test/unit/deferred.js":[
 543,
 ],
-'jquery:test/unit/event.js':[
+"jquery:test/unit/event.js":[
 15,
 20,
 1033,
@@ -60,7 +60,7 @@
 2154,
 2728,
 ],
-'jquery:test/unit/manipulation.js':[
+"jquery:test/unit/manipulation.js":[
 1907,
 2222,
 2364,

@@ -1,12 +1,12 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 1423,
 2269,
 ],
-'jshint:src/options.js':[
+"jshint:src/options.js":[
 635,
 ],
-'jshint:src/style.js':[
+"jshint:src/style.js":[
 94,
 ],
 }

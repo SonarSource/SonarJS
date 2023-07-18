@@ -1,11 +1,11 @@
 {
-'postgraphql:src/postgres/inventory/collection/PgCollection.ts':[
+"postgraphql:src/postgres/inventory/collection/PgCollection.ts":[
 140,
 ],
-'postgraphql:src/postgres/inventory/type/PgClassType.ts':[
+"postgraphql:src/postgres/inventory/type/PgClassType.ts":[
 83,
 ],
-'postgraphql:src/postgres/utils/memoizeMethod.ts':[
+"postgraphql:src/postgres/utils/memoizeMethod.ts":[
 20,
 ],
 }

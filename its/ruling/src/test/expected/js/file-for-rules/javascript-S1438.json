@@ -1,5 +1,5 @@
 {
-'file-for-rules:S3854.js':[
+"file-for-rules:S3854.js":[
 19,
 27,
 30,
@@ -10,12 +10,12 @@
 332,
 347,
 ],
-'file-for-rules:S5743.js':[
+"file-for-rules:S5743.js":[
 1,
 2,
 5,
 ],
-'file-for-rules:S6321.js':[
+"file-for-rules:S6321.js":[
 1,
 8,
 9,
@@ -38,7 +38,7 @@
 124,
 134,
 ],
-'file-for-rules:S6332.js':[
+"file-for-rules:S6332.js":[
 3,
 ],
 }

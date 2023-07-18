@@ -1,8 +1,8 @@
 {
-'jshint:src/cli.js':[
+"jshint:src/cli.js":[
 691,
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 150,
 218,
 463,
@@ -48,7 +48,7 @@
 6144,
 6256,
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js":[
 227,
 391,
 424,
@@ -62,7 +62,7 @@
 1935,
 1941,
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js":[
 295,
 495,
 730,

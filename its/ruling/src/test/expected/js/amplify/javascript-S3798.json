@@ -1,11 +1,11 @@
 {
-'amplify:lib/amplify-vsdoc.js':[
+"amplify:lib/amplify-vsdoc.js":[
 12,
 ],
-'amplify:src/amplify-vsdoc.js':[
+"amplify:src/amplify-vsdoc.js":[
 3,
 ],
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js":[
 5,
 8,
 9,
@@ -14,7 +14,7 @@
 13,
 15,
 ],
-'amplify:test-server.js':[
+"amplify:test-server.js":[
 8,
 ],
 }

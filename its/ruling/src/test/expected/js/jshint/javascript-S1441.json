@@ -1,5 +1,5 @@
 {
-'jshint:examples/reporter.js':[
+"jshint:examples/reporter.js":[
 1,
 6,
 12,
@@ -12,7 +12,7 @@
 18,
 18,
 ],
-'jshint:scripts/build.js':[
+"jshint:scripts/build.js":[
 1,
 3,
 4,
@@ -33,7 +33,7 @@
 43,
 46,
 ],
-'jshint:scripts/remove-dev-dependencies.js':[
+"jshint:scripts/remove-dev-dependencies.js":[
 1,
 13,
 14,
@@ -44,7 +44,7 @@
 35,
 36,
 ],
-'jshint:src/cli.js':[
+"jshint:src/cli.js":[
 1,
 3,
 4,
@@ -173,7 +173,7 @@
 766,
 766,
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 34,
 35,
 36,
@@ -2003,7 +2003,7 @@
 6581,
 6596,
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js":[
 5,
 7,
 8,
@@ -2431,7 +2431,7 @@
 2163,
 2182,
 ],
-'jshint:src/messages.js':[
+"jshint:src/messages.js":[
 1,
 3,
 8,
@@ -2557,7 +2557,7 @@
 241,
 249,
 ],
-'jshint:src/name-stack.js':[
+"jshint:src/name-stack.js":[
 21,
 27,
 65,
@@ -2570,17 +2570,17 @@
 84,
 88,
 ],
-'jshint:src/options.js':[
+"jshint:src/options.js":[
 1,
 1084,
 1091,
 1092,
 1093,
 ],
-'jshint:src/reg.js':[
+"jshint:src/reg.js":[
 7,
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js":[
 6,
 11,
 11,
@@ -2613,12 +2613,12 @@
 90,
 92,
 ],
-'jshint:src/reporters/default.js':[
+"jshint:src/reporters/default.js":[
 1,
 16,
 31,
 ],
-'jshint:src/reporters/jslint_xml.js':[
+"jshint:src/reporters/jslint_xml.js":[
 4,
 9,
 9,
@@ -2647,13 +2647,13 @@
 54,
 54,
 ],
-'jshint:src/reporters/non_error.js':[
+"jshint:src/reporters/non_error.js":[
 1,
 23,
 23,
 49,
 ],
-'jshint:src/reporters/unix.js':[
+"jshint:src/reporters/unix.js":[
 1,
 10,
 20,
@@ -2668,7 +2668,7 @@
 34,
 34,
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js":[
 1,
 3,
 4,
@@ -2950,7 +2950,7 @@
 1026,
 1031,
 ],
-'jshint:src/state.js':[
+"jshint:src/state.js":[
 1,
 2,
 13,
@@ -2962,7 +2962,7 @@
 139,
 174,
 ],
-'jshint:src/style.js':[
+"jshint:src/style.js":[
 1,
 7,
 8,
@@ -2999,7 +2999,7 @@
 133,
 138,
 ],
-'jshint:src/vars.js':[
+"jshint:src/vars.js":[
 3,
 22,
 487,
@@ -3019,7 +3019,7 @@
 718,
 719,
 ],
-'jshint:tests/helpers/browser/index.html':[
+"jshint:tests/helpers/browser/index.html":[
 17,
 20,
 ],

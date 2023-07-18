@@ -1,11 +1,11 @@
 {
-'sizzle:speed/data/selector.html':[
+"sizzle:speed/data/selector.html":[
 3320,
 ],
-'sizzle:test/data/mixed_sort.html':[
+"sizzle:test/data/mixed_sort.html":[
 13,
 ],
-'sizzle:test/data/noConflict.html':[
+"sizzle:test/data/noConflict.html":[
 7,
 11,
 19,

@@ -1,11 +1,11 @@
 {
-'prototype:ext/update_helper/update_helper.js':[
+"prototype:ext/update_helper/update_helper.js":[
 22,
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js":[
 169,
 ],
-'prototype:src/prototype/lang/array.js':[
+"prototype:src/prototype/lang/array.js":[
 186,
 ],
 }

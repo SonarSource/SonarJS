@@ -1,8 +1,8 @@
 {
-'amplify:src/core.js':[
+"amplify:src/core.js":[
 34,
 ],
-'amplify:src/store.js':[
+"amplify:src/store.js":[
 31,
 163,
 ],

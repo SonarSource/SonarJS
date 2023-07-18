@@ -1,11 +1,11 @@
 {
-'qunit:src/export.js':[
+"qunit:src/export.js":[
 0,
 ],
-'qunit:src/reports/suite.js':[
+"qunit:src/reports/suite.js":[
 0,
 ],
-'qunit:src/reports/test.js':[
+"qunit:src/reports/test.js":[
 0,
 ],
 }

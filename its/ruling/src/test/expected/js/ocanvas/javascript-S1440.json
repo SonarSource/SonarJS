@@ -1,5 +1,5 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js":[
 538,
 542,
 546,
@@ -14,7 +14,7 @@
 596,
 601,
 ],
-'ocanvas:src/displayobjects/polygon.js':[
+"ocanvas:src/displayobjects/polygon.js":[
 57,
 ],
 }

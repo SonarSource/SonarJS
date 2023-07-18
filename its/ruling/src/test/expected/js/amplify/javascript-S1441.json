@@ -1,11 +1,11 @@
 {
-'amplify:demo/core/context/demo.js':[
+"amplify:demo/core/context/demo.js":[
 5,
 6,
 12,
 12,
 ],
-'amplify:demo/core/data/demo.js':[
+"amplify:demo/core/data/demo.js":[
 4,
 5,
 9,
@@ -16,7 +16,7 @@
 14,
 14,
 ],
-'amplify:demo/core/nodata/demo.js':[
+"amplify:demo/core/nodata/demo.js":[
 3,
 4,
 4,
@@ -25,7 +25,7 @@
 9,
 14,
 ],
-'amplify:demo/core/priority/demo.js':[
+"amplify:demo/core/priority/demo.js":[
 4,
 5,
 5,
@@ -41,7 +41,7 @@
 23,
 23,
 ],
-'amplify:demo/store/implicit/demo.js':[
+"amplify:demo/store/implicit/demo.js":[
 5,
 5,
 8,
@@ -50,7 +50,7 @@
 12,
 19,
 ],
-'amplify:demo/store/sessionstorage/demo.js':[
+"amplify:demo/store/sessionstorage/demo.js":[
 5,
 6,
 13,
@@ -58,7 +58,7 @@
 18,
 20,
 ],
-'amplify:src/core.js':[
+"amplify:src/core.js":[
 8,
 9,
 35,
@@ -67,7 +67,7 @@
 85,
 86,
 ],
-'amplify:src/store.js':[
+"amplify:src/store.js":[
 26,
 54,
 66,
@@ -87,7 +87,7 @@
 194,
 258,
 ],
-'amplify:test/index.html':[
+"amplify:test/index.html":[
 13,
 14,
 14,
@@ -96,7 +96,7 @@
 16,
 16,
 ],
-'amplify:test/request/test.html':[
+"amplify:test/request/test.html":[
 18,
 ],
 }

@@ -1,14 +1,14 @@
 {
-'TypeScript:scripts/bisect-test.ts':[
+"Typescript:scripts/bisect-test.ts":[
 56,
 ],
-'TypeScript:scripts/buildProtocol.ts':[
+"Typescript:scripts/buildProtocol.ts":[
 14,
 22,
 94,
 113,
 ],
-'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
+"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts":[
 55,
 ],
 }

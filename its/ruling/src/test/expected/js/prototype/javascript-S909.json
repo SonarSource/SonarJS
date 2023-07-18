@@ -1,5 +1,5 @@
 {
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js":[
 1470,
 1473,
 1475,
@@ -7,14 +7,14 @@
 2827,
 3009,
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js":[
 785,
 809,
 ],
-'prototype:src/prototype/dom/form.js':[
+"prototype:src/prototype/dom/form.js":[
 248,
 ],
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html":[
 58,
 ],
 }

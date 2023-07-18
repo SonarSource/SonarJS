@@ -1,9 +1,9 @@
 {
-'amplify:src/store.js':[
+"amplify:src/store.js":[
 92,
 234,
 ],
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js":[
 38,
 48,
 ],

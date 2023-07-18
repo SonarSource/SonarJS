@@ -1,8 +1,8 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 4686,
 ],
-'jshint:src/reporters/non_error.js':[
+"jshint:src/reporters/non_error.js":[
 23,
 ],
 }

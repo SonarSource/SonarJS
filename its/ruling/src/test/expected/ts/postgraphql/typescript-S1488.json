@@ -1,8 +1,8 @@
 {
-'postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts':[
+"postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts":[
 108,
 ],
-'postgraphql:src/postgres/introspection/introspectDatabase.ts':[
+"postgraphql:src/postgres/introspection/introspectDatabase.ts":[
 33,
 ],
 }

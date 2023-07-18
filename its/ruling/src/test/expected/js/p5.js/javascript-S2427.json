@@ -1,5 +1,5 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js":[
 4174,
 4185,
 4186,
@@ -9,13 +9,13 @@
 4647,
 8087,
 ],
-'p5.js:src/core/structure.js':[
+"p5.js:src/core/structure.js":[
 371,
 ],
-'p5.js:src/data/local_storage.js':[
+"p5.js:src/data/local_storage.js":[
 144,
 ],
-'p5.js:src/webgl/loading.js':[
+"p5.js:src/webgl/loading.js":[
 241,
 ],
 }

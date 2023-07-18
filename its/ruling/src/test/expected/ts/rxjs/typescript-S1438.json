@@ -1,11 +1,11 @@
 {
-'rxjs:src/Observable.ts':[
+"rxjs:src/Observable.ts":[
 58,
 ],
-'rxjs:src/Subject.ts':[
+"rxjs:src/Subject.ts":[
 44,
 ],
-'rxjs:src/observable/GenerateObservable.ts':[
+"rxjs:src/observable/GenerateObservable.ts":[
 93,
 121,
 145,

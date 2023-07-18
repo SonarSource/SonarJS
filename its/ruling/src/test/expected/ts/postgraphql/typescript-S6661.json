@@ -1,11 +1,11 @@
 {
-'postgraphql:src/__tests__/utils/pgPool.ts':[
+"postgraphql:src/__tests__/utils/pgPool.ts":[
 6,
 ],
-'postgraphql:src/postgraphql/cli.ts':[
+"postgraphql:src/postgraphql/cli.ts":[
 93,
 ],
-'postgraphql:src/postgraphql/postgraphql.ts':[
+"postgraphql:src/postgraphql/postgraphql.ts":[
 121,
 ],
 }

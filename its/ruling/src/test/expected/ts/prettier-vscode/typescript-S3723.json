@@ -1,5 +1,5 @@
 {
-'prettier-vscode:src/PrettierEditProvider.ts':[
+"prettier-vscode:src/PrettierEditProvider.ts":[
 12,
 20,
 65,
@@ -9,7 +9,7 @@
 112,
 148,
 ],
-'prettier-vscode:src/extension.ts':[
+"prettier-vscode:src/extension.ts":[
 6,
 28,
 31,

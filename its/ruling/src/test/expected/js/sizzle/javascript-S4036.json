@@ -1,8 +1,8 @@
 {
-'sizzle:tasks/release.js':[
+"sizzle:tasks/release.js":[
 26,
 ],
-'sizzle:tasks/version.js':[
+"sizzle:tasks/version.js":[
 24,
 ],
 }

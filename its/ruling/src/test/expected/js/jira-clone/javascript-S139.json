@@ -1,10 +1,10 @@
 {
-'jira-clone:client/cypress/integration/issueDetails.spec.js':[
+"jira-clone:client/cypress/integration/issueDetails.spec.js":[
 8,
 67,
 74,
 ],
-'jira-clone:client/src/shared/utils/styles.js':[
+"jira-clone:client/src/shared/utils/styles.js":[
 11,
 ],
 }

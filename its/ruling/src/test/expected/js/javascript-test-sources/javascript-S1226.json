@@ -1,11 +1,11 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js":[
 69,
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/storage/index.js':[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/storage/index.js":[
 9,
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js':[
+"javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js":[
 326,
 ],
 }

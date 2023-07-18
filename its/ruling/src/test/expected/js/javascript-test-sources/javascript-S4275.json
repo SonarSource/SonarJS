@@ -1,8 +1,8 @@
 {
-'javascript-test-sources:src/ace/src/lib/event.js':[
+"javascript-test-sources:src/ace/src/lib/event.js":[
 14,
 ],
-'javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js':[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js":[
 56,
 92,
 ],

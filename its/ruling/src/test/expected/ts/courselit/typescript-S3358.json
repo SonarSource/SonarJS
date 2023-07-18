@@ -1,11 +1,11 @@
 {
-'courselit:apps/web/components/admin/users/index.tsx':[
+"courselit:apps/web/components/admin/users/index.tsx":[
 299,
 ],
-'courselit:packages/components-library/src/overview-and-detail/overview-list.tsx':[
+"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx":[
 22,
 ],
-'courselit:packages/components-library/src/pricetag.tsx':[
+"courselit:packages/components-library/src/pricetag.tsx":[
 15,
 ],
 }

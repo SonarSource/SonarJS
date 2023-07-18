@@ -1,8 +1,8 @@
 {
-'jshint:data/ascii-identifier-data.js':[
+"jshint:data/ascii-identifier-data.js":[
 5,
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 882,
 1939,
 1952,
@@ -22,13 +22,13 @@
 5468,
 5481,
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js":[
 769,
 1713,
 1841,
 1969,
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js":[
 734,
 ],
 }

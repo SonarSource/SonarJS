@@ -1,8 +1,8 @@
 {
-'jshint:scripts/remove-dev-dependencies.js':[
+"jshint:scripts/remove-dev-dependencies.js":[
 1,
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 379,
 ],
 }

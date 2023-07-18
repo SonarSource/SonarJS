@@ -1,11 +1,11 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js":[
 349,
 ],
-'ocanvas:src/core.js':[
+"ocanvas:src/core.js":[
 323,
 ],
-'ocanvas:src/mouse.js':[
+"ocanvas:src/mouse.js":[
 61,
 ],
 }

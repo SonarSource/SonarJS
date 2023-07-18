@@ -1,5 +1,5 @@
 {
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx":[
 107,
 175,
 176,
@@ -8,10 +8,10 @@
 212,
 213,
 ],
-'Joust:ts/components/game/Hero.tsx':[
+"Joust:ts/components/game/Hero.tsx":[
 36,
 ],
-'Joust:ts/state/mutators/ShowEntityMutator.ts':[
+"Joust:ts/state/mutators/ShowEntityMutator.ts":[
 35,
 ],
 }

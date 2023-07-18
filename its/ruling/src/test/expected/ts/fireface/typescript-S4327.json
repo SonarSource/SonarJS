@@ -1,11 +1,11 @@
 {
-'fireface:src/auth/auth.service.ts':[
+"fireface:src/auth/auth.service.ts":[
 14,
 ],
-'fireface:src/avatar/avatar.component.ts':[
+"fireface:src/avatar/avatar.component.ts":[
 45,
 ],
-'fireface:src/create/create.component.ts':[
+"fireface:src/create/create.component.ts":[
 95,
 ],
 }

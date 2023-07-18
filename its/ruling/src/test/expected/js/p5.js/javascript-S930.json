@@ -1,5 +1,5 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js":[
 93,
 1208,
 1546,
@@ -53,7 +53,7 @@
 12749,
 12875,
 ],
-'p5.js:test/test-reference.html':[
+"p5.js:test/test-reference.html":[
 146,
 ],
 }

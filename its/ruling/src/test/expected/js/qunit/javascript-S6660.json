@@ -1,11 +1,11 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js":[
 845,
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js":[
 421,
 ],
-'qunit:src/reports/suite.js':[
+"qunit:src/reports/suite.js":[
 104,
 ],
 }

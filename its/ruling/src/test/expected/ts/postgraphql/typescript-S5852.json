@@ -1,8 +1,8 @@
 {
-'postgraphql:src/graphql/utils/formatName.ts':[
+"postgraphql:src/graphql/utils/formatName.ts":[
 4,
 ],
-'postgraphql:src/postgres/inventory/type/PgRangeType.ts':[
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts":[
 164,
 ],
 }

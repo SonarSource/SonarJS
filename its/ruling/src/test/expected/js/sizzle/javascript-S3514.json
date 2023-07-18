@@ -1,8 +1,8 @@
 {
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js":[
 53,
 ],
-'sizzle:tasks/compile.js':[
+"sizzle:tasks/compile.js":[
 9,
 ],
 }

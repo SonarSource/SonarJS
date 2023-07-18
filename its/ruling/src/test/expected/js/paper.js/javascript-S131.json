@@ -1,13 +1,13 @@
 {
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js":[
 94,
 110,
 211,
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js":[
 171,
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js":[
 341,
 ],
 }

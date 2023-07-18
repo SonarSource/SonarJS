@@ -1,8 +1,8 @@
 {
-'postgraphql:src/interface/collection/Condition.ts':[
+"postgraphql:src/interface/collection/Condition.ts":[
 80,
 ],
-'postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts':[
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts":[
 11,
 ],
 }

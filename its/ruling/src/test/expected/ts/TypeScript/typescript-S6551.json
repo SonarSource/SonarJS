@@ -1,8 +1,8 @@
 {
-'TypeScript:src/compiler/checker.ts':[
+"Typescript:src/compiler/checker.ts":[
 14043,
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"Typescript:src/harness/fourslash.ts":[
 272,
 401,
 565,
@@ -10,11 +10,11 @@
 1056,
 2867,
 ],
-'TypeScript:src/services/formatting/ruleDescriptor.ts':[
+"Typescript:src/services/formatting/ruleDescriptor.ts":[
 10,
 11,
 ],
-'TypeScript:src/services/formatting/ruleOperation.ts':[
+"Typescript:src/services/formatting/ruleOperation.ts":[
 9,
 ],
 }

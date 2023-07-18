@@ -1,8 +1,8 @@
 {
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js':[
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js":[
 938,
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/linked_list.js':[
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/linked_list.js":[
 1,
 10,
 47,
@@ -10,7 +10,7 @@
 113,
 147,
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js':[
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js":[
 15,
 97,
 108,
@@ -19,10 +19,10 @@
 156,
 193,
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/test/dirtychecking.spec.js':[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/dirtychecking.spec.js":[
 576,
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/test/observer.spec.js':[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/observer.spec.js":[
 132,
 ],
 }

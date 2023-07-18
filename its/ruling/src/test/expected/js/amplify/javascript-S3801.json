@@ -1,13 +1,13 @@
 {
-'amplify:demo/core/priority/demo.js':[
+"amplify:demo/core/priority/demo.js":[
 10,
 ],
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js":[
 24,
 39,
 48,
 ],
-'amplify:test-server.js':[
+"amplify:test-server.js":[
 21,
 ],
 }

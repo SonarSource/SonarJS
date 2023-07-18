@@ -1,5 +1,5 @@
 {
-'backbone:backbone.js':[
+"backbone:backbone.js":[
 204,
 235,
 515,
@@ -33,7 +33,7 @@
 1814,
 1999,
 ],
-'backbone:docs/search.js':[
+"backbone:docs/search.js":[
 19,
 31,
 ],

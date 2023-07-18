@@ -1,12 +1,12 @@
 {
-'angular.js:src/ngAnimate/animateCssDriver.js':[
+"angular.js:src/ngAnimate/animateCssDriver.js":[
 182,
 183,
 ],
-'angular.js:src/ngAnimate/animateJs.js':[
+"angular.js:src/ngAnimate/animateJs.js":[
 131,
 ],
-'angular.js:src/ngMock/angular-mocks.js':[
+"angular.js:src/ngMock/angular-mocks.js":[
 2616,
 ],
 }

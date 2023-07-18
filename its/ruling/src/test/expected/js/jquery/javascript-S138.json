@@ -1,11 +1,11 @@
 {
-'jquery:Gruntfile.js':[
+"jquery:Gruntfile.js":[
 3,
 ],
-'jquery:build/tasks/build.js':[
+"jquery:build/tasks/build.js":[
 9,
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js":[
 382,
 ],
 }

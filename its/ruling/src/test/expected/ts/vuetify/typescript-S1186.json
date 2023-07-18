@@ -1,14 +1,14 @@
 {
-'vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts':[
+"vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts":[
 16,
 ],
-'vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts':[
+"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts":[
 26,
 47,
 62,
 63,
 ],
-'vuetify:packages/vuetify/test/util/to-have-been-warned.ts':[
+"vuetify:packages/vuetify/test/util/to-have-been-warned.ts":[
 4,
 ],
 }

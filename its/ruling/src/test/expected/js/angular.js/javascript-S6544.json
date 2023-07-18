@@ -1,8 +1,8 @@
 {
-'angular.js:src/ng/interval.js':[
+"angular.js:src/ng/interval.js":[
 159,
 ],
-'angular.js:src/ng/timeout.js':[
+"angular.js:src/ng/timeout.js":[
 88,
 ],
 }

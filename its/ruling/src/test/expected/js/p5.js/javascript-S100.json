@@ -1,8 +1,8 @@
 {
-'p5.js:docs/documented-method.js':[
+"p5.js:docs/documented-method.js":[
 18,
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
 19,
 606,
 637,
@@ -19,7 +19,7 @@
 3865,
 3899,
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js":[
 269,
 341,
 367,
@@ -30,13 +30,13 @@
 2937,
 8785,
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js":[
 3162,
 ],
-'p5.js:src/math/noise.js':[
+"p5.js:src/math/noise.js":[
 32,
 ],
-'p5.js:src/webgl/text.js':[
+"p5.js:src/webgl/text.js":[
 47,
 144,
 270,

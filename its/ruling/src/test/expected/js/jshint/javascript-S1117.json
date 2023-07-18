@@ -1,5 +1,5 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 93,
 476,
 554,
@@ -31,7 +31,7 @@
 6377,
 6386,
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js":[
 403,
 688,
 1495,
@@ -41,7 +41,7 @@
 1701,
 1941,
 ],
-'jshint:src/reporters/non_error.js':[
+"jshint:src/reporters/non_error.js":[
 25,
 ],
 }

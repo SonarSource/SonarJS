@@ -1,9 +1,9 @@
 {
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js":[
 8,
 9,
 ],
-'amplify:test-server.js':[
+"amplify:test-server.js":[
 8,
 ],
 }

@@ -1,11 +1,11 @@
 {
-'jshint:src/cli.js':[
+"jshint:src/cli.js":[
 260,
 340,
 451,
 602,
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js":[
 150,
 218,
 463,
@@ -71,7 +71,7 @@
 6256,
 6528,
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js":[
 227,
 391,
 597,
@@ -81,10 +81,10 @@
 1325,
 1935,
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js":[
 5,
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js":[
 295,
 495,
 730,

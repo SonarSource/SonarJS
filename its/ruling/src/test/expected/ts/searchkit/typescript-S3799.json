@@ -1,8 +1,8 @@
 {
-'searchkit:packages/searchkit-schema/src/resolvers/FacetsResolver.ts':[
+"searchkit:packages/searchkit-schema/src/resolvers/FacetsResolver.ts":[
 3,
 ],
-'searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts':[
+"searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts":[
 3,
 ],
 }

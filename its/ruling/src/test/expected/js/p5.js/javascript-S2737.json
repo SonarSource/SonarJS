@@ -1,8 +1,8 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js":[
 2889,
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
+"p5.js:src/webgl/p5.RendererGL.js":[
 268,
 ],
 }

@@ -1,8 +1,8 @@
 {
-'knockout:src/binding/defaultBindings/visibleHidden.js':[
+"knockout:src/binding/defaultBindings/visibleHidden.js":[
 4,
 ],
-'knockout:src/templating/native/nativeTemplateEngine.js':[
+"knockout:src/templating/native/nativeTemplateEngine.js":[
 8,
 ],
 }

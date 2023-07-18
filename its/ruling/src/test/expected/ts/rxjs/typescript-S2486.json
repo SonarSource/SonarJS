@@ -1,12 +1,12 @@
 {
-'rxjs:spec/Observable-spec.ts':[
+"rxjs:spec/Observable-spec.ts":[
 262,
 278,
 ],
-'rxjs:spec/observables/dom/ajax-spec.ts':[
+"rxjs:spec/observables/dom/ajax-spec.ts":[
 966,
 ],
-'rxjs:spec/subjects/BehaviorSubject-spec.ts':[
+"rxjs:spec/subjects/BehaviorSubject-spec.ts":[
 52,
 ],
 }

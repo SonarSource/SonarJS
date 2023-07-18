@@ -1,11 +1,11 @@
 {
-'react-cloud-music:config/webpackDevServer.config.js':[
+"react-cloud-music:config/webpackDevServer.config.js":[
 14,
 ],
-'react-cloud-music:src/application/Player/normal-player/index.jsx':[
+"react-cloud-music:src/application/Player/normal-player/index.jsx":[
 110,
 ],
-'react-cloud-music:ts-music/config/webpackDevServer.config.js':[
+"react-cloud-music:ts-music/config/webpackDevServer.config.js":[
 18,
 ],
 }

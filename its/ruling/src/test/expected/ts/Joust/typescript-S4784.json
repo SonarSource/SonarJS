@@ -1,8 +1,8 @@
 {
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx":[
 93,
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
+"Joust:ts/protocol/HSReplayDecoder.ts":[
 81,
 ],
 }

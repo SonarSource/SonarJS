@@ -1,11 +1,11 @@
 {
-'desktop:app/src/ui/autocompletion/emoji-autocompletion-provider.tsx':[
+"desktop:app/src/ui/autocompletion/emoji-autocompletion-provider.tsx":[
 31,
 ],
-'desktop:app/src/ui/autocompletion/issues-autocompletion-provider.tsx':[
+"desktop:app/src/ui/autocompletion/issues-autocompletion-provider.tsx":[
 14,
 ],
-'desktop:app/src/ui/autocompletion/user-autocompletion-provider.tsx':[
+"desktop:app/src/ui/autocompletion/user-autocompletion-provider.tsx":[
 45,
 ],
 }

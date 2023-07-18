@@ -1,9 +1,9 @@
 {
-'jquery:build/release/cdn.js':[
+"jquery:build/release/cdn.js":[
 64,
 69,
 ],
-'jquery:build/release/dist.js':[
+"jquery:build/release/dist.js":[
 30,
 37,
 106,
@@ -13,7 +13,7 @@
 122,
 135,
 ],
-'jquery:test/networkerror.html':[
+"jquery:test/networkerror.html":[
 24,
 30,
 ],

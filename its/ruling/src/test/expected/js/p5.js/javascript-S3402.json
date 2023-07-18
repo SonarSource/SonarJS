@@ -1,10 +1,10 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js":[
 1425,
 5730,
 10832,
 ],
-'p5.js:src/io/files.js':[
+"p5.js:src/io/files.js":[
 1283,
 ],
 }

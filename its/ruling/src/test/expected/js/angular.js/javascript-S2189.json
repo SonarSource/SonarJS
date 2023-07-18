@@ -1,8 +1,8 @@
 {
-'angular.js:src/ng/q.js':[
+"angular.js:src/ng/q.js":[
 383,
 ],
-'angular.js:src/ngMock/browserTrigger.js':[
+"angular.js:src/ngMock/browserTrigger.js":[
 241,
 ],
 }

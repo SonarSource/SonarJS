@@ -1,13 +1,13 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js":[
 483,
 549,
 ],
-'ocanvas:src/displayobject.js':[
+"ocanvas:src/displayobject.js":[
 876,
 977,
 ],
-'ocanvas:src/events.js':[
+"ocanvas:src/events.js":[
 77,
 ],
 }

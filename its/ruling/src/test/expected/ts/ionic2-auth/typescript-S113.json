@@ -1,11 +1,11 @@
 {
-'ionic2-auth:app/app.ts':[
+"ionic2-auth:app/app.ts":[
 46,
 ],
-'ionic2-auth:app/pages/quotes/quotes.ts':[
+"ionic2-auth:app/pages/quotes/quotes.ts":[
 36,
 ],
-'ionic2-auth:app/services/auth/auth.ts':[
+"ionic2-auth:app/services/auth/auth.ts":[
 11,
 ],
 }

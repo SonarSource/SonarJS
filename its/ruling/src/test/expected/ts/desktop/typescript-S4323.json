@@ -1,8 +1,8 @@
 {
-'desktop:app/src/lib/stores/app-store.ts':[
+"desktop:app/src/lib/stores/app-store.ts":[
 376,
 ],
-'desktop:app/src/ui/app.tsx':[
+"desktop:app/src/ui/app.tsx":[
 1138,
 ],
 }

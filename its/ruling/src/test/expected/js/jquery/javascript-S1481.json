@@ -1,8 +1,8 @@
 {
-'jquery:test/data/ajax/unreleasedXHR.html':[
+"jquery:test/data/ajax/unreleasedXHR.html":[
 12,
 ],
-'jquery:test/hovertest.html':[
+"jquery:test/hovertest.html":[
 100,
 ],
 }
