@@ -1,41 +1,41 @@
 {
-"Typescript:Gulpfile.ts": [
+"TypeScript:Gulpfile.ts": [
 532,
 533,
 600,
 816,
 937
 ],
-"Typescript:scripts/processDiagnosticMessages.ts": [
+"TypeScript:scripts/processDiagnosticMessages.ts": [
 136,
 137,
 138
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 18569,
 20891
 ],
-"Typescript:src/compiler/commandLineParser.ts": [
+"TypeScript:src/compiler/commandLineParser.ts": [
 1106,
 1107,
 1108,
 1109
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 2105
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 3298
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 189,
 272,
 804
 ],
-"Typescript:src/services/shims.ts": [
+"TypeScript:src/services/shims.ts": [
 19
 ],
-"Typescript:src/services/utilities.ts": [
+"TypeScript:src/services/utilities.ts": [
 1223,
 1224,
 1225,

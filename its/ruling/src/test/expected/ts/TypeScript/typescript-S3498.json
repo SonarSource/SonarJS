@@ -1,34 +1,34 @@
 {
-"Typescript:Gulpfile.ts": [
+"TypeScript:Gulpfile.ts": [
 675
 ],
-"Typescript:scripts/word2md.ts": [
+"TypeScript:scripts/word2md.ts": [
 144
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 20899
 ],
-"Typescript:src/compiler/moduleNameResolver.ts": [
+"TypeScript:src/compiler/moduleNameResolver.ts": [
 156
 ],
-"Typescript:src/compiler/sourcemap.ts": [
+"TypeScript:src/compiler/sourcemap.ts": [
 141,
 288,
 289
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 317,
 375
 ],
-"Typescript:src/compiler/transformers/generators.ts": [
+"TypeScript:src/compiler/transformers/generators.ts": [
 2218,
 2219,
 2260
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 1926
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 2544,
 2544,
 2544,
@@ -43,20 +43,20 @@
 3304,
 4096
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 363
 ],
-"Typescript:src/harness/sourceMapRecorder.ts": [
+"TypeScript:src/harness/sourceMapRecorder.ts": [
 282,
 285
 ],
-"Typescript:src/harness/test262Runner.ts": [
+"TypeScript:src/harness/test262Runner.ts": [
 51
 ],
-"Typescript:src/harness/typeWriter.ts": [
+"TypeScript:src/harness/typeWriter.ts": [
 71
 ],
-"Typescript:src/server/client.ts": [
+"TypeScript:src/server/client.ts": [
 189,
 273,
 307,
@@ -75,7 +75,7 @@
 714,
 736
 ],
-"Typescript:src/server/scriptVersionCache.ts": [
+"TypeScript:src/server/scriptVersionCache.ts": [
 511,
 628,
 795,
@@ -85,14 +85,14 @@
 819,
 820
 ],
-"Typescript:src/server/server.ts": [
+"TypeScript:src/server/server.ts": [
 569,
 570,
 571,
 572,
 573
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 512,
 524,
 956,
@@ -101,39 +101,39 @@
 1419,
 1420
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 392
 ],
-"Typescript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts": [
+"TypeScript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts": [
 62
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 71
 ],
-"Typescript:src/services/documentRegistry.ts": [
+"TypeScript:src/services/documentRegistry.ts": [
 182
 ],
-"Typescript:src/services/formatting/formatting.ts": [
+"TypeScript:src/services/formatting/formatting.ts": [
 119
 ],
-"Typescript:src/services/formatting/formattingScanner.ts": [
+"TypeScript:src/services/formatting/formattingScanner.ts": [
 99,
 268,
 269,
 270
 ],
-"Typescript:src/services/goToDefinition.ts": [
+"TypeScript:src/services/goToDefinition.ts": [
 278
 ],
-"Typescript:src/services/outliningElementsCollector.ts": [
+"TypeScript:src/services/outliningElementsCollector.ts": [
 13,
 25,
 74
 ],
-"Typescript:src/services/preProcess.ts": [
+"TypeScript:src/services/preProcess.ts": [
 48
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 831,
 1504,
 1757,
@@ -144,16 +144,16 @@
 1877,
 1878
 ],
-"Typescript:src/services/signatureHelp.ts": [
+"TypeScript:src/services/signatureHelp.ts": [
 156,
 157,
 297,
 298
 ],
-"Typescript:src/services/textChanges.ts": [
+"TypeScript:src/services/textChanges.ts": [
 245
 ],
-"Typescript:src/services/utilities.ts": [
+"TypeScript:src/services/utilities.ts": [
 1243
 ]
 }

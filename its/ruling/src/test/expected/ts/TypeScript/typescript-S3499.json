@@ -1,122 +1,122 @@
 {
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 76,
 10007,
 23016
 ],
-"Typescript:src/compiler/commandLineParser.ts": [
+"TypeScript:src/compiler/commandLineParser.ts": [
 1124
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 148
 ],
-"Typescript:src/compiler/declarationEmitter.ts": [
+"TypeScript:src/compiler/declarationEmitter.ts": [
 166,
 669,
 684
 ],
-"Typescript:src/compiler/factory.ts": [
+"TypeScript:src/compiler/factory.ts": [
 2332,
 2346
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 189,
 508,
 863
 ],
-"Typescript:src/compiler/sourcemap.ts": [
+"TypeScript:src/compiler/sourcemap.ts": [
 100
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 314
 ],
-"Typescript:src/compiler/transformer.ts": [
+"TypeScript:src/compiler/transformer.ts": [
 108
 ],
-"Typescript:src/compiler/transformers/destructuring.ts": [
+"TypeScript:src/compiler/transformers/destructuring.ts": [
 58,
 148,
 205
 ],
-"Typescript:src/compiler/transformers/generators.ts": [
+"TypeScript:src/compiler/transformers/generators.ts": [
 2278
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 2545
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 968
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 178,
 238
 ],
-"Typescript:src/server/editorServices.ts": [
+"TypeScript:src/server/editorServices.ts": [
 939,
 994,
 1054
 ],
-"Typescript:src/server/server.ts": [
+"TypeScript:src/server/server.ts": [
 257,
 396,
 751
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 395,
 709,
 1003
 ],
-"Typescript:src/server/typingsCache.ts": [
+"TypeScript:src/server/typingsCache.ts": [
 96,
 110
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 402
 ],
-"Typescript:src/server/utilities.ts": [
+"TypeScript:src/server/utilities.ts": [
 50
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 71,
 417,
 554
 ],
-"Typescript:src/services/findAllReferences.ts": [
+"TypeScript:src/services/findAllReferences.ts": [
 129,
 144
 ],
-"Typescript:src/services/formatting/formattingScanner.ts": [
+"TypeScript:src/services/formatting/formattingScanner.ts": [
 48
 ],
-"Typescript:src/services/importTracker.ts": [
+"TypeScript:src/services/importTracker.ts": [
 435
 ],
-"Typescript:src/services/navigateTo.ts": [
+"TypeScript:src/services/navigateTo.ts": [
 45
 ],
-"Typescript:src/services/navigationBar.ts": [
+"TypeScript:src/services/navigationBar.ts": [
 111
 ],
-"Typescript:src/services/pathCompletions.ts": [
+"TypeScript:src/services/pathCompletions.ts": [
 462
 ],
-"Typescript:src/services/rename.ts": [
+"TypeScript:src/services/rename.ts": [
 57
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 1130
 ],
-"Typescript:src/services/signatureHelp.ts": [
+"TypeScript:src/services/signatureHelp.ts": [
 476,
 488
 ],
-"Typescript:src/services/textChanges.ts": [
+"TypeScript:src/services/textChanges.ts": [
 510
 ],
-"Typescript:src/services/transpile.ts": [
+"TypeScript:src/services/transpile.ts": [
 118
 ],
-"Typescript:src/services/utilities.ts": [
+"TypeScript:src/services/utilities.ts": [
 1163
 ]
 }

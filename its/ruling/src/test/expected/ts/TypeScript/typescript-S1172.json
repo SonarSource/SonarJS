@@ -1,5 +1,5 @@
 {
-"Typescript:Gulpfile.ts": [
+"TypeScript:Gulpfile.ts": [
 475,
 747,
 753,
@@ -7,15 +7,15 @@
 873,
 875
 ],
-"Typescript:scripts/bisect-test.ts": [
+"TypeScript:scripts/bisect-test.ts": [
 31,
 32
 ],
-"Typescript:scripts/createBenchmark.ts": [
+"TypeScript:scripts/createBenchmark.ts": [
 102,
 102
 ],
-"Typescript:scripts/errorCheck.ts": [
+"TypeScript:scripts/errorCheck.ts": [
 22,
 40,
 54,

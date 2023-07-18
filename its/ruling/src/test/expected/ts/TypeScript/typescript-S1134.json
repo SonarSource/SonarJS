@@ -1,11 +1,11 @@
 {
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 621
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 980
 ],
-"Typescript:src/server/utilities.ts": [
+"TypeScript:src/server/utilities.ts": [
 41
 ]
 }

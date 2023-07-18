@@ -1,12 +1,12 @@
 {
-"Typescript:scripts/authors.ts": [
+"TypeScript:scripts/authors.ts": [
 74
 ],
-"Typescript:scripts/buildProtocol.ts": [
+"TypeScript:scripts/buildProtocol.ts": [
 41,
 61
 ],
-"Typescript:scripts/errorCheck.ts": [
+"TypeScript:scripts/errorCheck.ts": [
 2,
 3,
 4,
@@ -24,7 +24,7 @@
 70,
 78
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 45,
 55,
 56,
@@ -33,33 +33,33 @@
 124,
 125
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 15799
 ],
-"Typescript:src/compiler/commandLineParser.ts": [
+"TypeScript:src/compiler/commandLineParser.ts": [
 635
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 1217,
 2224,
 2242
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 508
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 99
 ],
-"Typescript:src/compiler/transformers/generators.ts": [
+"TypeScript:src/compiler/transformers/generators.ts": [
 1973
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 640,
 641,
 642,
 4400
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 68,
 565,
 589,
@@ -69,21 +69,21 @@
 780,
 781
 ],
-"Typescript:src/harness/harnessLanguageService.ts": [
+"TypeScript:src/harness/harnessLanguageService.ts": [
 526
 ],
-"Typescript:src/harness/runner.ts": [
+"TypeScript:src/harness/runner.ts": [
 23,
 24,
 74
 ],
-"Typescript:src/server/project.ts": [
+"TypeScript:src/server/project.ts": [
 516
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 938
 ],
-"Typescript:src/services/shims.ts": [
+"TypeScript:src/services/shims.ts": [
 19
 ]
 }

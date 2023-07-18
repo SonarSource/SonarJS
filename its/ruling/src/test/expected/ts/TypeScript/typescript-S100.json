@@ -1,32 +1,32 @@
 {
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 2199,
 2205,
 2209,
 2212
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 3719,
 3834
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 792,
 797,
 803
 ],
-"Typescript:src/server/editorServices.ts": [
+"TypeScript:src/server/editorServices.ts": [
 377,
 381
 ],
-"Typescript:src/server/project.ts": [
+"TypeScript:src/server/project.ts": [
 168
 ],
-"Typescript:src/server/utilities.ts": [
+"TypeScript:src/server/utilities.ts": [
 63,
 66,
 69
 ],
-"Typescript:src/services/formatting/formattingContext.ts": [
+"TypeScript:src/services/formatting/formattingContext.ts": [
 42,
 50,
 58,
@@ -35,11 +35,11 @@
 84,
 90
 ],
-"Typescript:src/services/formatting/ruleOperationContext.ts": [
+"TypeScript:src/services/formatting/ruleOperationContext.ts": [
 15,
 19
 ],
-"Typescript:src/services/formatting/rules.ts": [
+"TypeScript:src/services/formatting/rules.ts": [
 576,
 580,
 584,
@@ -91,7 +91,7 @@
 934,
 938
 ],
-"Typescript:src/services/formatting/rulesMap.ts": [
+"TypeScript:src/services/formatting/rulesMap.ts": [
 20,
 31,
 37,
@@ -102,7 +102,7 @@
 142,
 146
 ],
-"Typescript:src/services/formatting/tokenRange.ts": [
+"TypeScript:src/services/formatting/tokenRange.ts": [
 14,
 18,
 28,
@@ -116,7 +116,7 @@
 84,
 94
 ],
-"Typescript:src/services/textChanges.ts": [
+"TypeScript:src/services/textChanges.ts": [
 561
 ]
 }

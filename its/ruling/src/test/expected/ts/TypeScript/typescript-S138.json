@@ -1,8 +1,8 @@
 {
-"Typescript:src/compiler/binder.ts": [
+"TypeScript:src/compiler/binder.ts": [
 104
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 30,
 856,
 2290,
@@ -13,92 +13,92 @@
 10099,
 11071
 ],
-"Typescript:src/compiler/comments.ts": [
+"TypeScript:src/compiler/comments.ts": [
 15
 ],
-"Typescript:src/compiler/declarationEmitter.ts": [
+"TypeScript:src/compiler/declarationEmitter.ts": [
 43
 ],
-"Typescript:src/compiler/emitter.ts": [
+"TypeScript:src/compiler/emitter.ts": [
 192,
 395
 ],
-"Typescript:src/compiler/parser.ts": [
+"TypeScript:src/compiler/parser.ts": [
 53,
 6335
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 389
 ],
-"Typescript:src/compiler/scanner.ts": [
+"TypeScript:src/compiler/scanner.ts": [
 783,
 1227
 ],
-"Typescript:src/compiler/sourcemap.ts": [
+"TypeScript:src/compiler/sourcemap.ts": [
 81
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 100
 ],
-"Typescript:src/compiler/transformers/es2015.ts": [
+"TypeScript:src/compiler/transformers/es2015.ts": [
 264
 ],
-"Typescript:src/compiler/transformers/es2017.ts": [
+"TypeScript:src/compiler/transformers/es2017.ts": [
 13
 ],
-"Typescript:src/compiler/transformers/esnext.ts": [
+"TypeScript:src/compiler/transformers/esnext.ts": [
 12
 ],
-"Typescript:src/compiler/transformers/generators.ts": [
+"TypeScript:src/compiler/transformers/generators.ts": [
 230
 ],
-"Typescript:src/compiler/transformers/module/module.ts": [
+"TypeScript:src/compiler/transformers/module/module.ts": [
 7
 ],
-"Typescript:src/compiler/transformers/module/system.ts": [
+"TypeScript:src/compiler/transformers/module/system.ts": [
 7
 ],
-"Typescript:src/compiler/transformers/ts.ts": [
+"TypeScript:src/compiler/transformers/ts.ts": [
 21
 ],
-"Typescript:src/compiler/tsc.ts": [
+"TypeScript:src/compiler/tsc.ts": [
 99
 ],
-"Typescript:src/compiler/visitor.ts": [
+"TypeScript:src/compiler/visitor.ts": [
 209,
 919
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 60
 ],
-"Typescript:src/services/breakpoints.ts": [
+"TypeScript:src/services/breakpoints.ts": [
 11,
 71
 ],
-"Typescript:src/services/classifier.ts": [
+"TypeScript:src/services/classifier.ts": [
 3,
 624
 ],
-"Typescript:src/services/codefixes/importFixes.ts": [
+"TypeScript:src/services/codefixes/importFixes.ts": [
 125,
 221
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 348
 ],
-"Typescript:src/services/formatting/formatting.ts": [
+"TypeScript:src/services/formatting/formatting.ts": [
 353
 ],
-"Typescript:src/services/formatting/formattingScanner.ts": [
+"TypeScript:src/services/formatting/formattingScanner.ts": [
 33
 ],
-"Typescript:src/services/preProcess.ts": [
+"TypeScript:src/services/preProcess.ts": [
 2
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 1043
 ],
-"Typescript:src/services/symbolDisplay.ts": [
+"TypeScript:src/services/symbolDisplay.ts": [
 91
 ]
 }

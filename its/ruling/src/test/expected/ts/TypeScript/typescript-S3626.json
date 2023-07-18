@@ -1,17 +1,17 @@
 {
-"Typescript:src/compiler/emitter.ts": [
+"TypeScript:src/compiler/emitter.ts": [
 642
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 139
 ],
-"Typescript:src/compiler/tsc.ts": [
+"TypeScript:src/compiler/tsc.ts": [
 661
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 2405
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 1532
 ]
 }

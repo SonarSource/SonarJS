@@ -1,14 +1,14 @@
 {
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 2152
 ],
-"Typescript:src/server/server.ts": [
+"TypeScript:src/server/server.ts": [
 729
 ],
-"Typescript:src/services/jsDoc.ts": [
+"TypeScript:src/services/jsDoc.ts": [
 87
 ],
-"Typescript:src/services/shims.ts": [
+"TypeScript:src/services/shims.ts": [
 506
 ]
 }

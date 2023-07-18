@@ -1,8 +1,8 @@
 {
-"Typescript:scripts/processDiagnosticMessages.ts": [
+"TypeScript:scripts/processDiagnosticMessages.ts": [
 161
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 42
 ]
 }

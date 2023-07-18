@@ -1,8 +1,8 @@
 {
-"Typescript:src/compiler/binder.ts": [
+"TypeScript:src/compiler/binder.ts": [
 392
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 4421,
 9532,
 12349,
@@ -13,34 +13,34 @@
 21548,
 23885
 ],
-"Typescript:src/compiler/commandLineParser.ts": [
+"TypeScript:src/compiler/commandLineParser.ts": [
 954,
 1369
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 1467
 ],
-"Typescript:src/compiler/moduleNameResolver.ts": [
+"TypeScript:src/compiler/moduleNameResolver.ts": [
 171,
 219,
 242,
 431,
 839
 ],
-"Typescript:src/compiler/parser.ts": [
+"TypeScript:src/compiler/parser.ts": [
 5311,
 7492
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 1618
 ],
-"Typescript:src/compiler/transformers/es2015.ts": [
+"TypeScript:src/compiler/transformers/es2015.ts": [
 628
 ],
-"Typescript:src/compiler/transformers/module/module.ts": [
+"TypeScript:src/compiler/transformers/module/module.ts": [
 654
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 713,
 1244,
 1324,
@@ -48,45 +48,45 @@
 2971,
 2999
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 931
 ],
-"Typescript:src/harness/sourceMapRecorder.ts": [
+"TypeScript:src/harness/sourceMapRecorder.ts": [
 251
 ],
-"Typescript:src/server/editorServices.ts": [
+"TypeScript:src/server/editorServices.ts": [
 513,
 1219,
 1304
 ],
-"Typescript:src/server/scriptVersionCache.ts": [
+"TypeScript:src/server/scriptVersionCache.ts": [
 206,
 221
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 911
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 170,
 244
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 547
 ],
-"Typescript:src/services/documentRegistry.ts": [
+"TypeScript:src/services/documentRegistry.ts": [
 192
 ],
-"Typescript:src/services/findAllReferences.ts": [
+"TypeScript:src/services/findAllReferences.ts": [
 828
 ],
-"Typescript:src/services/formatting/formatting.ts": [
+"TypeScript:src/services/formatting/formatting.ts": [
 773
 ],
-"Typescript:src/services/patternMatcher.ts": [
+"TypeScript:src/services/patternMatcher.ts": [
 236,
 581
 ],
-"Typescript:src/services/transpile.ts": [
+"TypeScript:src/services/transpile.ts": [
 147
 ]
 }

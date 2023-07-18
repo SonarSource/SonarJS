@@ -1,16 +1,16 @@
 {
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 1122,
 1187
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 1270,
 1290
 ],
-"Typescript:src/compiler/visitor.ts": [
+"TypeScript:src/compiler/visitor.ts": [
 1134
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 651
 ]
 }

@@ -1,8 +1,8 @@
 {
-"Typescript:src/compiler/binder.ts": [
+"TypeScript:src/compiler/binder.ts": [
 1661
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 872,
 11090,
 14319,
@@ -12,20 +12,20 @@
 22139,
 23820
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 706,
 1976
 ],
-"Typescript:src/compiler/emitter.ts": [
+"TypeScript:src/compiler/emitter.ts": [
 160
 ],
-"Typescript:src/compiler/factory.ts": [
+"TypeScript:src/compiler/factory.ts": [
 3267
 ],
-"Typescript:src/compiler/moduleNameResolver.ts": [
+"TypeScript:src/compiler/moduleNameResolver.ts": [
 371
 ],
-"Typescript:src/compiler/parser.ts": [
+"TypeScript:src/compiler/parser.ts": [
 1508,
 1860,
 3313,
@@ -35,7 +35,7 @@
 5299,
 5840
 ],
-"Typescript:src/compiler/scanner.ts": [
+"TypeScript:src/compiler/scanner.ts": [
 623,
 929,
 971,
@@ -43,60 +43,60 @@
 1645,
 1735
 ],
-"Typescript:src/compiler/sys.ts": [
+"TypeScript:src/compiler/sys.ts": [
 249
 ],
-"Typescript:src/compiler/transformers/module/system.ts": [
+"TypeScript:src/compiler/transformers/module/system.ts": [
 343
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 3151
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 429
 ],
-"Typescript:src/harness/rwcRunner.ts": [
+"TypeScript:src/harness/rwcRunner.ts": [
 96
 ],
-"Typescript:src/harness/sourceMapRecorder.ts": [
+"TypeScript:src/harness/sourceMapRecorder.ts": [
 119
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 196
 ],
-"Typescript:src/services/classifier.ts": [
+"TypeScript:src/services/classifier.ts": [
 645
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 1310,
 1354
 ],
-"Typescript:src/services/formatting/formattingScanner.ts": [
+"TypeScript:src/services/formatting/formattingScanner.ts": [
 243
 ],
-"Typescript:src/services/jsDoc.ts": [
+"TypeScript:src/services/jsDoc.ts": [
 173
 ],
-"Typescript:src/services/jsTyping.ts": [
+"TypeScript:src/services/jsTyping.ts": [
 218
 ],
-"Typescript:src/services/pathCompletions.ts": [
+"TypeScript:src/services/pathCompletions.ts": [
 390
 ],
-"Typescript:src/services/patternMatcher.ts": [
+"TypeScript:src/services/patternMatcher.ts": [
 429
 ],
-"Typescript:src/services/preProcess.ts": [
+"TypeScript:src/services/preProcess.ts": [
 306
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 1568,
 1828
 ],
-"Typescript:src/services/symbolDisplay.ts": [
+"TypeScript:src/services/symbolDisplay.ts": [
 434
 ],
-"Typescript:src/services/utilities.ts": [
+"TypeScript:src/services/utilities.ts": [
 648,
 675
 ]

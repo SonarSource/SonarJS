@@ -1,5 +1,5 @@
 {
-"Typescript:Gulpfile.ts": [
+"TypeScript:Gulpfile.ts": [
 76,
 298,
 302,
@@ -35,16 +35,16 @@
 959,
 963
 ],
-"Typescript:scripts/buildProtocol.ts": [
+"TypeScript:scripts/buildProtocol.ts": [
 145
 ],
-"Typescript:scripts/createBenchmark.ts": [
+"TypeScript:scripts/createBenchmark.ts": [
 108
 ],
-"Typescript:scripts/tslint/nextLineRule.ts": [
+"TypeScript:scripts/tslint/nextLineRule.ts": [
 66
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 139,
 142,
 146,
@@ -53,58 +53,58 @@
 13718,
 14013
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 2307,
 2308
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 1666,
 1919
 ],
-"Typescript:src/harness/compilerRunner.ts": [
+"TypeScript:src/harness/compilerRunner.ts": [
 51,
 52,
 144
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 1463,
 2216,
 3298
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 1371,
 1375,
 1826
 ],
-"Typescript:src/harness/harnessLanguageService.ts": [
+"TypeScript:src/harness/harnessLanguageService.ts": [
 190,
 215,
 262,
 274
 ],
-"Typescript:src/harness/loggedIO.ts": [
+"TypeScript:src/harness/loggedIO.ts": [
 150,
 249,
 283,
 284
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 454,
 457,
 469,
 477,
 523
 ],
-"Typescript:src/harness/rwcRunner.ts": [
+"TypeScript:src/harness/rwcRunner.ts": [
 162
 ],
-"Typescript:src/server/project.ts": [
+"TypeScript:src/server/project.ts": [
 718
 ],
-"Typescript:src/server/scriptVersionCache.ts": [
+"TypeScript:src/server/scriptVersionCache.ts": [
 425
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 425,
 511,
 523,
@@ -163,32 +163,32 @@
 1842,
 1845
 ],
-"Typescript:src/services/documentHighlights.ts": [
+"TypeScript:src/services/documentHighlights.ts": [
 315,
 393
 ],
-"Typescript:src/services/formatting/rules.ts": [
+"TypeScript:src/services/formatting/rules.ts": [
 577,
 581,
 585,
 589
 ],
-"Typescript:src/services/formatting/rulesMap.ts": [
+"TypeScript:src/services/formatting/rulesMap.ts": [
 32,
 46,
 47
 ],
-"Typescript:src/services/pathCompletions.ts": [
+"TypeScript:src/services/pathCompletions.ts": [
 391
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 1137,
 1140,
 1149,
 1152,
 1164
 ],
-"Typescript:src/services/transpile.ts": [
+"TypeScript:src/services/transpile.ts": [
 78
 ]
 }

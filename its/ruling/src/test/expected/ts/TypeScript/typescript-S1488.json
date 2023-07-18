@@ -1,34 +1,34 @@
 {
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 2297,
 2303,
 2309,
 2738,
 15771
 ],
-"Typescript:src/compiler/parser.ts": [
+"TypeScript:src/compiler/parser.ts": [
 7020
 ],
-"Typescript:src/compiler/transformers/es2015.ts": [
+"TypeScript:src/compiler/transformers/es2015.ts": [
 2126
 ],
-"Typescript:src/compiler/transformers/ts.ts": [
+"TypeScript:src/compiler/transformers/ts.ts": [
 2183,
 2202
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 776
 ],
-"Typescript:src/services/codefixes/fixExtendsInterfaceBecomesImplements.ts": [
+"TypeScript:src/services/codefixes/fixExtendsInterfaceBecomesImplements.ts": [
 35
 ],
-"Typescript:src/services/codefixes/helpers.ts": [
+"TypeScript:src/services/codefixes/helpers.ts": [
 78
 ],
-"Typescript:src/services/formatting/rulesMap.ts": [
+"TypeScript:src/services/formatting/rulesMap.ts": [
 39
 ],
-"Typescript:src/services/patternMatcher.ts": [
+"TypeScript:src/services/patternMatcher.ts": [
 742
 ]
 }

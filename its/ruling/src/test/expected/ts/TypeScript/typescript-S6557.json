@@ -1,23 +1,23 @@
 {
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 1691,
 1700,
 1712
 ],
-"Typescript:src/compiler/declarationEmitter.ts": [
+"TypeScript:src/compiler/declarationEmitter.ts": [
 1520
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 551,
 1735
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 2704
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 2898
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 992,
 1001,
 1003,
@@ -25,37 +25,37 @@
 1327,
 1978
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 107,
 111
 ],
-"Typescript:src/server/cancellationToken/cancellationToken.ts": [
+"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
 41
 ],
-"Typescript:src/server/client.ts": [
+"TypeScript:src/server/client.ts": [
 24
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 1204
 ],
-"Typescript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
+"TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 34
 ],
-"Typescript:src/services/codefixes/importFixes.ts": [
+"TypeScript:src/services/codefixes/importFixes.ts": [
 99,
 103,
 497
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 1263
 ],
-"Typescript:src/services/documentRegistry.ts": [
+"TypeScript:src/services/documentRegistry.ts": [
 124
 ],
-"Typescript:src/services/jsTyping.ts": [
+"TypeScript:src/services/jsTyping.ts": [
 234
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 774
 ]
 }

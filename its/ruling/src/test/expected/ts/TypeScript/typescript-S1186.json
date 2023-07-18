@@ -1,9 +1,9 @@
 {
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 1127,
 2209
 ],
-"Typescript:src/harness/harnessLanguageService.ts": [
+"TypeScript:src/harness/harnessLanguageService.ts": [
 168,
 226,
 227,
@@ -16,19 +16,19 @@
 698,
 705
 ],
-"Typescript:src/harness/projectsRunner.ts": [
+"TypeScript:src/harness/projectsRunner.ts": [
 426
 ],
-"Typescript:src/harness/runnerbase.ts": [
+"TypeScript:src/harness/runnerbase.ts": [
 9
 ],
-"Typescript:src/server/scriptVersionCache.ts": [
+"TypeScript:src/server/scriptVersionCache.ts": [
 44
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 1592
 ],
-"Typescript:src/services/textChanges.ts": [
+"TypeScript:src/services/textChanges.ts": [
 561
 ]
 }

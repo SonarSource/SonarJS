@@ -1,15 +1,15 @@
 {
-"Typescript:Gulpfile.ts": [
+"TypeScript:Gulpfile.ts": [
 521,
 1034
 ],
-"Typescript:scripts/authors.ts": [
+"TypeScript:scripts/authors.ts": [
 118
 ],
-"Typescript:scripts/bisect-test.ts": [
+"TypeScript:scripts/bisect-test.ts": [
 10
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 62
 ]
 }

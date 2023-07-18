@@ -1,17 +1,17 @@
 {
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 6514
 ],
-"Typescript:src/compiler/emitter.ts": [
+"TypeScript:src/compiler/emitter.ts": [
 2755
 ],
-"Typescript:src/harness/loggedIO.ts": [
+"TypeScript:src/harness/loggedIO.ts": [
 165
 ],
-"Typescript:src/server/cancellationToken/cancellationToken.ts": [
+"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
 52
 ],
-"Typescript:src/services/shims.ts": [
+"TypeScript:src/services/shims.ts": [
 1021
 ]
 }

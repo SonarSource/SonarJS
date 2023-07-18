@@ -1,8 +1,8 @@
 {
-"Typescript:scripts/configureNightly.ts": [
+"TypeScript:scripts/configureNightly.ts": [
 47
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 21
 ]
 }

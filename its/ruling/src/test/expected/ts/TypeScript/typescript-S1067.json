@@ -1,5 +1,5 @@
 {
-"Typescript:src/compiler/binder.ts": [
+"TypeScript:src/compiler/binder.ts": [
 392,
 705,
 1737,
@@ -8,7 +8,7 @@
 2615,
 2981
 ],
-"Typescript:src/compiler/checker.ts": [
+"TypeScript:src/compiler/checker.ts": [
 736,
 1088,
 1238,
@@ -77,19 +77,19 @@
 24190,
 24367
 ],
-"Typescript:src/compiler/core.ts": [
+"TypeScript:src/compiler/core.ts": [
 658,
 1359
 ],
-"Typescript:src/compiler/declarationEmitter.ts": [
+"TypeScript:src/compiler/declarationEmitter.ts": [
 1009,
 1026,
 1243
 ],
-"Typescript:src/compiler/emitter.ts": [
+"TypeScript:src/compiler/emitter.ts": [
 1238
 ],
-"Typescript:src/compiler/factory.ts": [
+"TypeScript:src/compiler/factory.ts": [
 248,
 284,
 304,
@@ -116,7 +116,7 @@
 1695,
 2081
 ],
-"Typescript:src/compiler/parser.ts": [
+"TypeScript:src/compiler/parser.ts": [
 72,
 86,
 99,
@@ -138,40 +138,40 @@
 5919,
 6285
 ],
-"Typescript:src/compiler/program.ts": [
+"TypeScript:src/compiler/program.ts": [
 1695
 ],
-"Typescript:src/compiler/scanner.ts": [
+"TypeScript:src/compiler/scanner.ts": [
 378,
 756,
 762
 ],
-"Typescript:src/compiler/sourcemap.ts": [
+"TypeScript:src/compiler/sourcemap.ts": [
 276
 ],
-"Typescript:src/compiler/transformers/es2015.ts": [
+"TypeScript:src/compiler/transformers/es2015.ts": [
 343,
 611,
 2126
 ],
-"Typescript:src/compiler/transformers/es2017.ts": [
+"TypeScript:src/compiler/transformers/es2017.ts": [
 409
 ],
-"Typescript:src/compiler/transformers/esnext.ts": [
+"TypeScript:src/compiler/transformers/esnext.ts": [
 814
 ],
-"Typescript:src/compiler/transformers/module/module.ts": [
+"TypeScript:src/compiler/transformers/module/module.ts": [
 1408,
 1445
 ],
-"Typescript:src/compiler/transformers/module/system.ts": [
+"TypeScript:src/compiler/transformers/module/system.ts": [
 1688,
 1723
 ],
-"Typescript:src/compiler/transformers/ts.ts": [
+"TypeScript:src/compiler/transformers/ts.ts": [
 213
 ],
-"Typescript:src/compiler/utilities.ts": [
+"TypeScript:src/compiler/utilities.ts": [
 627,
 1180,
 1577,
@@ -191,43 +191,43 @@
 4093,
 4719
 ],
-"Typescript:src/harness/fourslash.ts": [
+"TypeScript:src/harness/fourslash.ts": [
 1609,
 2534
 ],
-"Typescript:src/harness/harness.ts": [
+"TypeScript:src/harness/harness.ts": [
 192
 ],
-"Typescript:src/harness/runner.ts": [
+"TypeScript:src/harness/runner.ts": [
 75
 ],
-"Typescript:src/harness/sourceMapRecorder.ts": [
+"TypeScript:src/harness/sourceMapRecorder.ts": [
 263
 ],
-"Typescript:src/server/client.ts": [
+"TypeScript:src/server/client.ts": [
 509
 ],
-"Typescript:src/server/server.ts": [
+"TypeScript:src/server/server.ts": [
 38,
 63
 ],
-"Typescript:src/server/session.ts": [
+"TypeScript:src/server/session.ts": [
 1456
 ],
-"Typescript:src/server/typingsCache.ts": [
+"TypeScript:src/server/typingsCache.ts": [
 89
 ],
-"Typescript:src/services/breakpoints.ts": [
+"TypeScript:src/services/breakpoints.ts": [
 267
 ],
-"Typescript:src/services/classifier.ts": [
+"TypeScript:src/services/classifier.ts": [
 227
 ],
-"Typescript:src/services/codefixes/importFixes.ts": [
+"TypeScript:src/services/codefixes/importFixes.ts": [
 278,
 407
 ],
-"Typescript:src/services/completions.ts": [
+"TypeScript:src/services/completions.ts": [
 741,
 749,
 1151,
@@ -235,38 +235,38 @@
 1187,
 1312
 ],
-"Typescript:src/services/findAllReferences.ts": [
+"TypeScript:src/services/findAllReferences.ts": [
 757
 ],
-"Typescript:src/services/formatting/formatting.ts": [
+"TypeScript:src/services/formatting/formatting.ts": [
 1020
 ],
-"Typescript:src/services/formatting/formattingScanner.ts": [
+"TypeScript:src/services/formatting/formattingScanner.ts": [
 176
 ],
-"Typescript:src/services/outliningElementsCollector.ts": [
+"TypeScript:src/services/outliningElementsCollector.ts": [
 107
 ],
-"Typescript:src/services/patternMatcher.ts": [
+"TypeScript:src/services/patternMatcher.ts": [
 564,
 624
 ],
-"Typescript:src/services/preProcess.ts": [
+"TypeScript:src/services/preProcess.ts": [
 312
 ],
-"Typescript:src/services/services.ts": [
+"TypeScript:src/services/services.ts": [
 1118,
 1949,
 2083
 ],
-"Typescript:src/services/symbolDisplay.ts": [
+"TypeScript:src/services/symbolDisplay.ts": [
 392,
 410
 ],
-"Typescript:src/services/textChanges.ts": [
+"TypeScript:src/services/textChanges.ts": [
 145
 ],
-"Typescript:src/services/utilities.ts": [
+"TypeScript:src/services/utilities.ts": [
 165,
 1025
 ]
