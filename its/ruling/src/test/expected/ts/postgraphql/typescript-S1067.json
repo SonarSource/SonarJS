@@ -1,8 +1,8 @@
 {
-"postgraphql:src/interface/type/switchType.ts":[
+"postgraphql:src/interface/type/switchType.ts": [
 48
 ],
-"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts":[
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts": [
 95
 ]
 }

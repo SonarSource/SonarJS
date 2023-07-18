@@ -1,27 +1,27 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 5430
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 1297
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/context.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/context.js": [
 21,
 22
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/image.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/image.js": [
 17
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/markdown.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/markdown.js": [
 91
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/mail/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/mail/index.js": [
 57
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js": [
 27
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js": [
 116
 ]
 }

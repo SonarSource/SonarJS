@@ -1,21 +1,21 @@
 {
-"knockout:src/binding/bindingAttributeSyntax.js":[
+"knockout:src/binding/bindingAttributeSyntax.js": [
 233,
 510
 ],
-"knockout:src/memoization.js":[
+"knockout:src/memoization.js": [
 55
 ],
-"knockout:src/subscribables/mappingHelpers.js":[
+"knockout:src/subscribables/mappingHelpers.js": [
 27
 ],
-"knockout:src/templating/templateRewriting.js":[
+"knockout:src/templating/templateRewriting.js": [
 3
 ],
-"knockout:src/templating/templating.js":[
+"knockout:src/templating/templating.js": [
 209
 ],
-"knockout:src/utils.js":[
+"knockout:src/utils.js": [
 549
 ]
 }

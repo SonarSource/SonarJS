@@ -1,17 +1,17 @@
 {
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 6565,
 8162
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 1804
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 844,
 3752,
 3882
 ],
-"Typescript:src/compiler/types.ts":[
+"Typescript:src/compiler/types.ts": [
 620
 ]
 }

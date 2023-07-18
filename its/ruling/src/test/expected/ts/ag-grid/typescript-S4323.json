@@ -1,27 +1,27 @@
 {
-"ag-grid:src/ts/baseFrameworkFactory.ts":[
+"ag-grid:src/ts/baseFrameworkFactory.ts": [
 15
 ],
-"ag-grid:src/ts/columnController/columnController.ts":[
+"ag-grid:src/ts/columnController/columnController.ts": [
 46,
 59
 ],
-"ag-grid:src/ts/componentProvider.ts":[
+"ag-grid:src/ts/componentProvider.ts": [
 149
 ],
-"ag-grid:src/ts/entities/column.ts":[
+"ag-grid:src/ts/entities/column.ts": [
 97
 ],
-"ag-grid:src/ts/entities/gridOptions.ts":[
+"ag-grid:src/ts/entities/gridOptions.ts": [
 196
 ],
-"ag-grid:src/ts/gridApi.ts":[
+"ag-grid:src/ts/gridApi.ts": [
 45
 ],
-"ag-grid:src/ts/gridOptionsWrapper.ts":[
+"ag-grid:src/ts/gridOptionsWrapper.ts": [
 75
 ],
-"ag-grid:src/ts/interfaces/iFrameworkFactory.ts":[
+"ag-grid:src/ts/interfaces/iFrameworkFactory.ts": [
 9
 ]
 }

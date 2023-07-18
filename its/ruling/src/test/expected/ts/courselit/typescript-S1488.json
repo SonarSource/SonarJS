@@ -1,19 +1,19 @@
 {
-"courselit:apps/web/graphql/courses/logic.ts":[
+"courselit:apps/web/graphql/courses/logic.ts": [
 105,
 213
 ],
-"courselit:apps/web/graphql/design/logic.ts":[
+"courselit:apps/web/graphql/design/logic.ts": [
 67,
 84
 ],
-"courselit:apps/web/graphql/users/logic.ts":[
+"courselit:apps/web/graphql/users/logic.ts": [
 156
 ],
-"courselit:apps/web/graphql/widgets/logic.ts":[
+"courselit:apps/web/graphql/widgets/logic.ts": [
 135
 ],
-"courselit:apps/web/lib/auth.ts":[
+"courselit:apps/web/lib/auth.ts": [
 9
 ]
 }

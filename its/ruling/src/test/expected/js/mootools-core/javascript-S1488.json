@@ -1,14 +1,14 @@
 {
-"mootools-core:Grunt/options/build.js":[
+"mootools-core:Grunt/options/build.js": [
 8
 ],
-"mootools-core:Grunt/options/dist.js":[
+"mootools-core:Grunt/options/dist.js": [
 7
 ],
-"mootools-core:Grunt/options/options.js":[
+"mootools-core:Grunt/options/options.js": [
 10
 ],
-"mootools-core:Grunt/options/specs.js":[
+"mootools-core:Grunt/options/specs.js": [
 7
 ]
 }

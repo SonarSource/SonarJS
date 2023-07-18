@@ -1,8 +1,8 @@
 {
-"qunit:src/core/logging.js":[
+"qunit:src/core/logging.js": [
 12
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 209
 ]
 }

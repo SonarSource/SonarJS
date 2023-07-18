@@ -1,17 +1,17 @@
 {
-"amplify:demo/store/implicit/demo.js":[
+"amplify:demo/store/implicit/demo.js": [
 11
 ],
-"amplify:demo/store/sessionstorage/demo.js":[
+"amplify:demo/store/sessionstorage/demo.js": [
 17
 ],
-"amplify:lib/amplify-vsdoc.js":[
+"amplify:lib/amplify-vsdoc.js": [
 12
 ],
-"amplify:src/amplify-vsdoc.js":[
+"amplify:src/amplify-vsdoc.js": [
 3
 ],
-"amplify:src/core.js":[
+"amplify:src/core.js": [
 3,
 6,
 12,
@@ -19,7 +19,7 @@
 61,
 98
 ],
-"amplify:src/store.js":[
+"amplify:src/store.js": [
 3,
 4,
 29,
@@ -29,7 +29,7 @@
 165,
 251
 ],
-"amplify:test-jquery-versions.js":[
+"amplify:test-jquery-versions.js": [
 2,
 8,
 11,
@@ -37,7 +37,7 @@
 32,
 34
 ],
-"amplify:test-server.js":[
+"amplify:test-server.js": [
 2,
 8
 ]

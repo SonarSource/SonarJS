@@ -1,12 +1,12 @@
 {
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
 324,
 334
 ],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
 216
 ],
-"console:src/views/models/utils.ts":[
+"console:src/views/models/utils.ts": [
 53
 ]
 }

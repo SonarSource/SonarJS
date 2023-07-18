@@ -1,12 +1,12 @@
 {
-"ionic2-auth:app/pages/profile/profile.ts":[
+"ionic2-auth:app/pages/profile/profile.ts": [
 13,
 14,
 17,
 18,
 18
 ],
-"ionic2-auth:app/pages/quotes/quotes.ts":[
+"ionic2-auth:app/pages/quotes/quotes.ts": [
 11
 ]
 }

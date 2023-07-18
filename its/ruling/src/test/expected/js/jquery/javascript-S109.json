@@ -1,26 +1,26 @@
 {
-"jquery:Gruntfile.js":[
+"jquery:Gruntfile.js": [
 174,
 174
 ],
-"jquery:build/release/dist.js":[
+"jquery:build/release/dist.js": [
 52
 ],
-"jquery:build/tasks/build.js":[
+"jquery:build/tasks/build.js": [
 122
 ],
-"jquery:build/tasks/dist.js":[
+"jquery:build/tasks/dist.js": [
 46,
 48,
 48
 ],
-"jquery:build/tasks/testswarm.js":[
+"jquery:build/tasks/testswarm.js": [
 20,
 20,
 20,
 28
 ],
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 465,
 738,
 741,
@@ -29,21 +29,21 @@
 772,
 776
 ],
-"jquery:src/ajax/script.js":[
+"jquery:src/ajax/script.js": [
 55,
 55
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 27,
 27,
 27
 ],
-"jquery:src/attributes/prop.js":[
+"jquery:src/attributes/prop.js": [
 28,
 28,
 28
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 97,
 103,
 276,
@@ -51,11 +51,11 @@
 289,
 289
 ],
-"jquery:src/core/init.js":[
+"jquery:src/core/init.js": [
 33,
 76
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 42,
 42,
 56,
@@ -68,7 +68,7 @@
 385,
 387
 ],
-"jquery:src/css/adjustCSS.js":[
+"jquery:src/css/adjustCSS.js": [
 16,
 23,
 27,
@@ -78,16 +78,16 @@
 59,
 60
 ],
-"jquery:src/css/support.js":[
+"jquery:src/css/support.js": [
 27
 ],
-"jquery:src/data.js":[
+"jquery:src/data.js": [
 112
 ],
-"jquery:src/data/var/acceptData.js":[
+"jquery:src/data/var/acceptData.js": [
 12
 ],
-"jquery:src/deferred.js":[
+"jquery:src/deferred.js": [
 51,
 78,
 79,
@@ -105,22 +105,22 @@
 307,
 314
 ],
-"jquery:src/deprecated.js":[
+"jquery:src/deprecated.js": [
 48
 ],
-"jquery:src/dimensions.js":[
+"jquery:src/dimensions.js": [
 29
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 54,
 54,
 195
 ],
-"jquery:src/effects/Tween.js":[
+"jquery:src/effects/Tween.js": [
 102,
 102
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 156,
 238,
 251,
@@ -129,13 +129,13 @@
 741,
 742
 ],
-"jquery:src/event/trigger.js":[
+"jquery:src/event/trigger.js": [
 27,
 27,
 51,
 51
 ],
-"jquery:src/manipulation.js":[
+"jquery:src/manipulation.js": [
 39,
 53,
 54,
@@ -147,18 +147,18 @@
 322,
 322
 ],
-"jquery:src/manipulation/buildFragment.js":[
+"jquery:src/manipulation/buildFragment.js": [
 39
 ],
-"jquery:src/manipulation/wrapMap.js":[
+"jquery:src/manipulation/wrapMap.js": [
 10,
 11,
 12
 ],
-"jquery:src/offset.js":[
+"jquery:src/offset.js": [
 180
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 116,
 129,
 130,
@@ -217,49 +217,49 @@
 1570,
 1571
 ],
-"jquery:src/selector/contains.js":[
+"jquery:src/selector/contains.js": [
 5,
 14
 ],
-"jquery:src/selector/escapeSelector.js":[
+"jquery:src/selector/escapeSelector.js": [
 16
 ],
-"jquery:src/selector/uniqueSort.js":[
+"jquery:src/selector/uniqueSort.js": [
 59
 ],
-"jquery:src/traversing.js":[
+"jquery:src/traversing.js": [
 51,
 112,
 168
 ],
-"jquery:src/traversing/var/dir.js":[
+"jquery:src/traversing/var/dir.js": [
 7
 ],
-"jquery:test/data/ajax/unreleasedXHR.html":[
+"jquery:test/data/ajax/unreleasedXHR.html": [
 15
 ],
-"jquery:test/data/core/dynamic_ready.html":[
+"jquery:test/data/core/dynamic_ready.html": [
 32
 ],
-"jquery:test/data/event/onbeforeunload.html":[
+"jquery:test/data/event/onbeforeunload.html": [
 17
 ],
-"jquery:test/data/offset/boxes.html":[
+"jquery:test/data/offset/boxes.html": [
 73,
 74
 ],
-"jquery:test/data/offset/fixed.html":[
+"jquery:test/data/offset/fixed.html": [
 19,
 19
 ],
-"jquery:test/data/offset/scroll.html":[
+"jquery:test/data/offset/scroll.html": [
 21,
 21
 ],
-"jquery:test/data/readywait.html":[
+"jquery:test/data/readywait.html": [
 32
 ],
-"jquery:test/delegatetest.html":[
+"jquery:test/delegatetest.html": [
 158,
 203
 ]

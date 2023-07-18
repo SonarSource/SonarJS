@@ -1,84 +1,84 @@
 {
-"knockout:src/binding/bindingAttributeSyntax.js":[
+"knockout:src/binding/bindingAttributeSyntax.js": [
 30,
 355,
 388
 ],
-"knockout:src/binding/defaultBindings/attr.js":[
+"knockout:src/binding/defaultBindings/attr.js": [
 5
 ],
-"knockout:src/binding/defaultBindings/checked.js":[
+"knockout:src/binding/defaultBindings/checked.js": [
 5
 ],
-"knockout:src/binding/defaultBindings/event.js":[
+"knockout:src/binding/defaultBindings/event.js": [
 19
 ],
-"knockout:src/binding/defaultBindings/ifIfnotWith.js":[
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
 4
 ],
-"knockout:src/binding/defaultBindings/options.js":[
+"knockout:src/binding/defaultBindings/options.js": [
 15
 ],
-"knockout:src/binding/defaultBindings/textInput.js":[
+"knockout:src/binding/defaultBindings/textInput.js": [
 1
 ],
-"knockout:src/binding/defaultBindings/value.js":[
+"knockout:src/binding/defaultBindings/value.js": [
 2
 ],
-"knockout:src/binding/editDetection/arrayToDomNodeChildren.js":[
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
 36
 ],
-"knockout:src/binding/editDetection/compareArrays.js":[
+"knockout:src/binding/editDetection/compareArrays.js": [
 37
 ],
-"knockout:src/binding/expressionRewriting.js":[
+"knockout:src/binding/expressionRewriting.js": [
 46,
 113
 ],
-"knockout:src/binding/selectExtensions.js":[
+"knockout:src/binding/selectExtensions.js": [
 23
 ],
-"knockout:src/components/componentBinding.js":[
+"knockout:src/components/componentBinding.js": [
 5
 ],
-"knockout:src/components/customElements.js":[
+"knockout:src/components/customElements.js": [
 1
 ],
-"knockout:src/components/loaderRegistry.js":[
+"knockout:src/components/loaderRegistry.js": [
 88
 ],
-"knockout:src/subscribables/dependentObservable.js":[
+"knockout:src/subscribables/dependentObservable.js": [
 3,
 426
 ],
-"knockout:src/subscribables/observableArray.changeTracking.js":[
+"knockout:src/subscribables/observableArray.changeTracking.js": [
 2
 ],
-"knockout:src/subscribables/subscribable.js":[
+"knockout:src/subscribables/subscribable.js": [
 108
 ],
-"knockout:src/tasks.js":[
+"knockout:src/tasks.js": [
 1
 ],
-"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js":[
+"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
 1
 ],
-"knockout:src/templating/templateSources.js":[
+"knockout:src/templating/templateSources.js": [
 83
 ],
-"knockout:src/templating/templating.js":[
+"knockout:src/templating/templating.js": [
 17,
 134,
 172,
 289
 ],
-"knockout:src/utils.domData.js":[
+"knockout:src/utils.domData.js": [
 2
 ],
-"knockout:src/utils.js":[
+"knockout:src/utils.js": [
 1
 ],
-"knockout:src/virtualElements.js":[
+"knockout:src/virtualElements.js": [
 1
 ]
 }

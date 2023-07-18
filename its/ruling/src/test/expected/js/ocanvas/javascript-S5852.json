@@ -1,15 +1,15 @@
 {
-"ocanvas:scripts/release.js":[
+"ocanvas:scripts/release.js": [
 66,
 73
 ],
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 280
 ],
-"ocanvas:src/mouse.js":[
+"ocanvas:src/mouse.js": [
 212
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 134,
 325,
 330,

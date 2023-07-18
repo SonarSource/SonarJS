@@ -1,42 +1,42 @@
 {
-"searchkit:examples/indexer/mrp-products/config.ts":[
+"searchkit:examples/indexer/mrp-products/config.ts": [
 103
 ],
-"searchkit:packages/searchkit-cli/src/lib.ts":[
+"searchkit:packages/searchkit-cli/src/lib.ts": [
 265
 ],
-"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx":[
+"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
 51,
 59
 ],
-"searchkit:packages/searchkit-client/src/components.tsx":[
+"searchkit:packages/searchkit-client/src/components.tsx": [
 30
 ],
-"searchkit:packages/searchkit-client/src/history.ts":[
+"searchkit:packages/searchkit-client/src/history.ts": [
 64
 ],
-"searchkit:packages/searchkit-client/src/searchkit.tsx":[
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
 199
 ],
-"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx":[
+"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
 49
 ],
-"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
 46
 ],
-"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts":[
+"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
 16
 ],
-"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts":[
+"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
 135,
 140
 ],
-"searchkit:packages/searchkit-schema/tests/Customisations.test.ts":[
+"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
 102,
 173,
 178
 ],
-"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts":[
+"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
 79,
 84,
 119,
@@ -49,7 +49,7 @@
 382,
 387
 ],
-"searchkit:packages/searchkit-schema/tests/Pagination.test.ts":[
+"searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
 56,
 68,
 69,
@@ -60,15 +60,15 @@
 125,
 139
 ],
-"searchkit:packages/searchkit-schema/tests/Query.test.ts":[
+"searchkit:packages/searchkit-schema/tests/Query.test.ts": [
 72,
 76
 ],
-"searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts":[
+"searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
 163,
 168
 ],
-"searchkit:packages/searchkit-schema/tests/VisibleWhen.test.ts":[
+"searchkit:packages/searchkit-schema/tests/VisibleWhen.test.ts": [
 130,
 135,
 281,
@@ -78,7 +78,7 @@
 388,
 392
 ],
-"searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts":[
+"searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts": [
 95,
 100,
 131,
@@ -90,13 +90,13 @@
 240,
 246
 ],
-"searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts":[
+"searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts": [
 121,
 126,
 292,
 298
 ],
-"searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts":[
+"searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts": [
 123,
 128,
 281,
@@ -104,13 +104,13 @@
 478,
 483
 ],
-"searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts":[
+"searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts": [
 97,
 102,
 161,
 166
 ],
-"searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts":[
+"searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts": [
 137,
 142,
 225,
@@ -118,55 +118,55 @@
 342,
 347
 ],
-"searchkit:packages/searchkit-schema/tests/filters/NumericRangeFilter.test.ts":[
+"searchkit:packages/searchkit-schema/tests/filters/NumericRangeFilter.test.ts": [
 92,
 172,
 252
 ],
-"searchkit:packages/searchkit-schema/tests/filters/TermFilter.test.ts":[
+"searchkit:packages/searchkit-schema/tests/filters/TermFilter.test.ts": [
 96
 ],
-"searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts":[
+"searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts": [
 47
 ],
-"searchkit:packages/searchkit-sdk/src/facets/utils/index.ts":[
+"searchkit:packages/searchkit-sdk/src/facets/utils/index.ts": [
 13
 ],
-"searchkit:packages/searchkit-sdk/src/suggestors/CompletionSuggestor.ts":[
+"searchkit:packages/searchkit-sdk/src/suggestors/CompletionSuggestor.ts": [
 28
 ],
-"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts":[
+"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
 34
 ],
-"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts":[
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
 38,
 45,
 46
 ],
-"searchkit:packages/searchkit-sdk/src/transporters/__tests__/ESClientTransporter.test.ts":[
+"searchkit:packages/searchkit-sdk/src/transporters/__tests__/ESClientTransporter.test.ts": [
 34,
 88
 ],
-"searchkit:packages/searchkit-sdk/src/transporters/__tests__/FetchClientTransporter.test.ts":[
+"searchkit:packages/searchkit-sdk/src/transporters/__tests__/FetchClientTransporter.test.ts": [
 33,
 87
 ],
-"searchkit:packages/searchkit-sdk/tests/BaseFilters.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/BaseFilters.test.ts": [
 23,
 113
 ],
-"searchkit:packages/searchkit-sdk/tests/collapse.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/collapse.test.ts": [
 25,
 82
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoDistanceOptionsFacet.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoDistanceOptionsFacet.test.ts": [
 41
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoFilters.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoFilters.test.ts": [
 46,
 114
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/HierarchicalMenuFacet.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/HierarchicalMenuFacet.test.ts": [
 41,
 80,
 143,
@@ -176,31 +176,31 @@
 267,
 280
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/MultiQueryOptionsFacet.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/MultiQueryOptionsFacet.test.ts": [
 43
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/NumericRangeFilter.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/NumericRangeFilter.test.ts": [
 35
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/RangeFacets.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/RangeFacets.test.ts": [
 52,
 151
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/TermValueFilter.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/TermValueFilter.test.ts": [
 34
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/VisibleWhen.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/VisibleWhen.test.ts": [
 49,
 66,
 80,
 89
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/baseFilters.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/baseFilters.test.ts": [
 23,
 95,
 110
 ],
-"searchkit:packages/searchkit-sdk/tests/filters-facets/facets.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/filters-facets/facets.test.ts": [
 31,
 41,
 74,
@@ -211,7 +211,7 @@
 223,
 236
 ],
-"searchkit:packages/searchkit-sdk/tests/hits.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/hits.test.ts": [
 23,
 88,
 100,
@@ -221,22 +221,22 @@
 135,
 154
 ],
-"searchkit:packages/searchkit-sdk/tests/postProcessRequest.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/postProcessRequest.test.ts": [
 28,
 93,
 105
 ],
-"searchkit:packages/searchkit-sdk/tests/sortBy.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/sortBy.test.ts": [
 21,
 39,
 55,
 103,
 119
 ],
-"searchkit:packages/searchkit-sdk/tests/suggestions/CompletionSuggestor.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/suggestions/CompletionSuggestor.test.ts": [
 22
 ],
-"searchkit:packages/searchkit-sdk/tests/suggestions/HitsSuggestor.test.ts":[
+"searchkit:packages/searchkit-sdk/tests/suggestions/HitsSuggestor.test.ts": [
 28,
 63
 ]

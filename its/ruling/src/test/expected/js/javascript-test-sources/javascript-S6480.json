@@ -1,31 +1,31 @@
 {
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/CartContainer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/CartContainer.js": [
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/ProductsContainer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/ProductsContainer.js": [
 17
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Header.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Header.js": [
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/MainSection.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/MainSection.js": [
 51,
 52
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoItem.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoItem.js": [
 34
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js": [
 11
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/containers/App.js": [
 15,
 18,
 21,
 22,
 23
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/projects.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/projects.js": [
 30
 ]
 }

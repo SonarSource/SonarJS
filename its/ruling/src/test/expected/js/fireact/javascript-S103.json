@@ -1,48 +1,48 @@
 {
-"fireact:src/pages/auth/accounts/AddUser/index.js":[
+"fireact:src/pages/auth/accounts/AddUser/index.js": [
 71,
 139
 ],
-"fireact:src/pages/auth/accounts/DeleteAccount/index.js":[
+"fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 65,
 66
 ],
-"fireact:src/pages/auth/accounts/NewAccount/index.js":[
+"fireact:src/pages/auth/accounts/NewAccount/index.js": [
 78
 ],
-"fireact:src/pages/auth/accounts/PaymentList/index.js":[
+"fireact:src/pages/auth/accounts/PaymentList/index.js": [
 126
 ],
-"fireact:src/pages/auth/accounts/PaymentMethod/index.js":[
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 174
 ],
-"fireact:src/pages/auth/accounts/UserList/index.js":[
+"fireact:src/pages/auth/accounts/UserList/index.js": [
 59,
 95
 ],
-"fireact:src/pages/auth/accounts/UserRole/index.js":[
+"fireact:src/pages/auth/accounts/UserRole/index.js": [
 76
 ],
-"fireact:src/pages/auth/accounts/images/ImageCreate.js":[
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
 74
 ],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js":[
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
 108
 ],
-"fireact:src/pages/auth/user/DeleteUser/index.js":[
+"fireact:src/pages/auth/user/DeleteUser/index.js": [
 74
 ],
-"fireact:src/pages/auth/user/UpdateEmail/index.js":[
+"fireact:src/pages/auth/user/UpdateEmail/index.js": [
 98,
 99
 ],
-"fireact:src/pages/auth/user/UpdatePassword/index.js":[
+"fireact:src/pages/auth/user/UpdatePassword/index.js": [
 100,
 105,
 106,
 107
 ],
-"fireact:src/pages/auth/user/UpdatePhone/index.js":[
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
 104,
 137
 ]

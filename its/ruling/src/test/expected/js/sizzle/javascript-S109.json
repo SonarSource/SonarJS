@@ -1,10 +1,10 @@
 {
-"sizzle:speed/speed.js":[
+"sizzle:speed/speed.js": [
 250,
 472,
 582
 ],
-"sizzle:src/sizzle.js":[
+"sizzle:src/sizzle.js": [
 153,
 165,
 166,
@@ -75,11 +75,11 @@
 2330,
 2418
 ],
-"sizzle:tasks/compile.js":[
+"sizzle:tasks/compile.js": [
 23,
 24
 ],
-"sizzle:tasks/ensure_ascii.js":[
+"sizzle:tasks/ensure_ascii.js": [
 33,
 38,
 39

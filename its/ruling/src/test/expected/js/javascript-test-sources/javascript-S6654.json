@@ -1,32 +1,32 @@
 {
-"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
 347,
 351,
 356
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 15419,
 15699,
 15718,
 15725
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
 24
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
 567
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/assert.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
 74
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 461,
 470,
 491,
 492,
 495
 ],
-"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js":[
+"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js": [
 31
 ]
 }

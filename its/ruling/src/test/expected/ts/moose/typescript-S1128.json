@@ -1,17 +1,17 @@
 {
-"moose:main/background.ts":[
+"moose:main/background.ts": [
 1
 ],
-"moose:renderer/components/CastControl/CastControl.tsx":[
+"moose:renderer/components/CastControl/CastControl.tsx": [
 2
 ],
-"moose:renderer/components/Header/Header.tsx":[
+"moose:renderer/components/Header/Header.tsx": [
 15
 ],
-"moose:renderer/components/Message/Message.tsx":[
+"moose:renderer/components/Message/Message.tsx": [
 3
 ],
-"moose:renderer/components/Toast/Toast.tsx":[
+"moose:renderer/components/Toast/Toast.tsx": [
 1
 ]
 }

@@ -1,5 +1,5 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js":[
+"paper.js:examples/Node.js/AnimatedStar.js": [
 4,
 7,
 9,
@@ -13,7 +13,7 @@
 48,
 49
 ],
-"paper.js:examples/Node.js/BooleanOperations.js":[
+"paper.js:examples/Node.js/BooleanOperations.js": [
 4,
 5,
 8,
@@ -23,20 +23,20 @@
 22,
 27
 ],
-"paper.js:examples/Node.js/JSONtoPDF.js":[
+"paper.js:examples/Node.js/JSONtoPDF.js": [
 4,
 5,
 6,
 8
 ],
-"paper.js:examples/Node.js/RasterRemote.js":[
+"paper.js:examples/Node.js/RasterRemote.js": [
 4,
 5,
 7,
 10,
 11
 ],
-"paper.js:examples/Node.js/SvgExport.js":[
+"paper.js:examples/Node.js/SvgExport.js": [
 4,
 5,
 6,
@@ -47,68 +47,68 @@
 31,
 45
 ],
-"paper.js:examples/Node.js/SvgImport.js":[
+"paper.js:examples/Node.js/SvgImport.js": [
 4
 ],
-"paper.js:examples/Node.js/Tadpoles.js":[
+"paper.js:examples/Node.js/Tadpoles.js": [
 4,
 5
 ],
-"paper.js:examples/Worker/Worker.js":[
+"paper.js:examples/Worker/Worker.js": [
 6,
 8,
 9,
 11
 ],
-"paper.js:gulp/tasks/build.js":[
+"paper.js:gulp/tasks/build.js": [
 13,
 23,
 28
 ],
-"paper.js:gulp/tasks/dist.js":[
+"paper.js:gulp/tasks/dist.js": [
 13
 ],
-"paper.js:gulp/tasks/docs.js":[
+"paper.js:gulp/tasks/docs.js": [
 13,
 20,
 33
 ],
-"paper.js:gulp/tasks/jshint.js":[
+"paper.js:gulp/tasks/jshint.js": [
 13
 ],
-"paper.js:gulp/tasks/load.js":[
+"paper.js:gulp/tasks/load.js": [
 13
 ],
-"paper.js:gulp/tasks/minify.js":[
+"paper.js:gulp/tasks/minify.js": [
 13,
 18,
 20
 ],
-"paper.js:gulp/tasks/publish.js":[
+"paper.js:gulp/tasks/publish.js": [
 13,
 25,
 94,
 162
 ],
-"paper.js:gulp/tasks/test.js":[
+"paper.js:gulp/tasks/test.js": [
 13
 ],
-"paper.js:gulp/tasks/watch.js":[
+"paper.js:gulp/tasks/watch.js": [
 13
 ],
-"paper.js:gulp/utils/error.js":[
+"paper.js:gulp/utils/error.js": [
 13,
 18
 ],
-"paper.js:gulp/utils/options.js":[
+"paper.js:gulp/utils/options.js": [
 13,
 27,
 35
 ],
-"paper.js:gulpfile.js":[
+"paper.js:gulpfile.js": [
 13
 ],
-"paper.js:src/anim/Tween.js":[
+"paper.js:src/anim/Tween.js": [
 27,
 121,
 122,
@@ -131,14 +131,14 @@
 386,
 393
 ],
-"paper.js:src/basic/Line.js":[
+"paper.js:src/basic/Line.js": [
 18,
 30,
 142,
 145,
 174
 ],
-"paper.js:src/basic/Matrix.js":[
+"paper.js:src/basic/Matrix.js": [
 41,
 74,
 131,
@@ -168,7 +168,7 @@
 708,
 830
 ],
-"paper.js:src/basic/Point.js":[
+"paper.js:src/basic/Point.js": [
 26,
 133,
 137,
@@ -201,7 +201,7 @@
 1020,
 1035
 ],
-"paper.js:src/basic/Rectangle.js":[
+"paper.js:src/basic/Rectangle.js": [
 20,
 79,
 117,
@@ -239,7 +239,7 @@
 933,
 970
 ],
-"paper.js:src/basic/Size.js":[
+"paper.js:src/basic/Size.js": [
 28,
 96,
 100,
@@ -255,7 +255,7 @@
 543,
 558
 ],
-"paper.js:src/canvas/BlendMode.js":[
+"paper.js:src/canvas/BlendMode.js": [
 13,
 14,
 30,
@@ -274,14 +274,14 @@
 283,
 293
 ],
-"paper.js:src/canvas/CanvasProvider.js":[
+"paper.js:src/canvas/CanvasProvider.js": [
 15,
 21,
 33,
 54,
 60
 ],
-"paper.js:src/canvas/ProxyContext.js":[
+"paper.js:src/canvas/ProxyContext.js": [
 24,
 25,
 48,
@@ -289,7 +289,7 @@
 56,
 72
 ],
-"paper.js:src/core/Base.js":[
+"paper.js:src/core/Base.js": [
 33,
 110,
 135,
@@ -338,7 +338,7 @@
 672,
 675
 ],
-"paper.js:src/core/Emitter.js":[
+"paper.js:src/core/Emitter.js": [
 18,
 26,
 49,
@@ -353,7 +353,7 @@
 146,
 160
 ],
-"paper.js:src/core/PaperScope.js":[
+"paper.js:src/core/PaperScope.js": [
 35,
 63,
 67,
@@ -367,11 +367,11 @@
 285,
 287
 ],
-"paper.js:src/core/PaperScopeItem.js":[
+"paper.js:src/core/PaperScopeItem.js": [
 22,
 40
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 19,
 30,
 48,
@@ -414,7 +414,7 @@
 582,
 596
 ],
-"paper.js:src/dom/DomElement.js":[
+"paper.js:src/dom/DomElement.js": [
 18,
 21,
 23,
@@ -426,7 +426,7 @@
 69,
 121
 ],
-"paper.js:src/dom/DomEvent.js":[
+"paper.js:src/dom/DomEvent.js": [
 18,
 23,
 24,
@@ -441,10 +441,10 @@
 93,
 96
 ],
-"paper.js:src/event/Event.js":[
+"paper.js:src/event/Event.js": [
 20
 ],
-"paper.js:src/event/Key.js":[
+"paper.js:src/event/Key.js": [
 17,
 18,
 70,
@@ -457,23 +457,23 @@
 178,
 187
 ],
-"paper.js:src/event/KeyEvent.js":[
+"paper.js:src/event/KeyEvent.js": [
 23
 ],
-"paper.js:src/event/MouseEvent.js":[
+"paper.js:src/event/MouseEvent.js": [
 26
 ],
-"paper.js:src/export.js":[
+"paper.js:src/export.js": [
 19
 ],
-"paper.js:src/init.js":[
+"paper.js:src/init.js": [
 33
 ],
-"paper.js:src/item/ChangeFlag.js":[
+"paper.js:src/item/ChangeFlag.js": [
 13,
 46
 ],
-"paper.js:src/item/Group.js":[
+"paper.js:src/item/Group.js": [
 22,
 111,
 116,
@@ -486,11 +486,11 @@
 200,
 201
 ],
-"paper.js:src/item/HitResult.js":[
+"paper.js:src/item/HitResult.js": [
 20,
 107
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 23,
 87,
 139,
@@ -657,13 +657,13 @@
 4698,
 4823
 ],
-"paper.js:src/item/ItemSelection.js":[
+"paper.js:src/item/ItemSelection.js": [
 13
 ],
-"paper.js:src/item/Layer.js":[
+"paper.js:src/item/Layer.js": [
 25
 ],
-"paper.js:src/item/Project.js":[
+"paper.js:src/item/Project.js": [
 33,
 91,
 103,
@@ -693,7 +693,7 @@
 889,
 892
 ],
-"paper.js:src/item/Raster.js":[
+"paper.js:src/item/Raster.js": [
 20,
 119,
 131,
@@ -736,7 +736,7 @@
 802,
 816
 ],
-"paper.js:src/item/Shape.js":[
+"paper.js:src/item/Shape.js": [
 20,
 78,
 83,
@@ -768,26 +768,26 @@
 585,
 591
 ],
-"paper.js:src/item/SymbolDefinition.js":[
+"paper.js:src/item/SymbolDefinition.js": [
 22
 ],
-"paper.js:src/item/SymbolItem.js":[
+"paper.js:src/item/SymbolItem.js": [
 21,
 118,
 127,
 128
 ],
-"paper.js:src/load.js":[
+"paper.js:src/load.js": [
 21,
 54
 ],
-"paper.js:src/net/Http.js":[
+"paper.js:src/net/Http.js": [
 13,
 16,
 22,
 32
 ],
-"paper.js:src/node/canvas.js":[
+"paper.js:src/node/canvas.js": [
 19,
 37,
 43,
@@ -795,7 +795,7 @@
 58,
 62
 ],
-"paper.js:src/node/extend.js":[
+"paper.js:src/node/extend.js": [
 13,
 18,
 23,
@@ -807,26 +807,26 @@
 119,
 146
 ],
-"paper.js:src/node/self.js":[
+"paper.js:src/node/self.js": [
 16,
 20,
 24,
 40
 ],
-"paper.js:src/node/xml.js":[
+"paper.js:src/node/xml.js": [
 26,
 29,
 30
 ],
-"paper.js:src/options.js":[
+"paper.js:src/options.js": [
 20,
 23,
 25
 ],
-"paper.js:src/paper.js":[
+"paper.js:src/paper.js": [
 35
 ],
-"paper.js:src/path/CompoundPath.js":[
+"paper.js:src/path/CompoundPath.js": [
 28,
 116,
 123,
@@ -865,7 +865,7 @@
 390,
 392
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 27,
 64,
 151,
@@ -996,7 +996,7 @@
 2292,
 2314
 ],
-"paper.js:src/path/CurveLocation.js":[
+"paper.js:src/path/CurveLocation.js": [
 29,
 45,
 61,
@@ -1039,7 +1039,7 @@
 601,
 602
 ],
-"paper.js:src/path/Path.Constructors.js":[
+"paper.js:src/path/Path.Constructors.js": [
 15,
 24,
 35,
@@ -1056,7 +1056,7 @@
 440,
 448
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 21,
 101,
 148,
@@ -1233,7 +1233,7 @@
 2944,
 2946
 ],
-"paper.js:src/path/PathFitter.js":[
+"paper.js:src/path/PathFitter.js": [
 23,
 25,
 29,
@@ -1273,7 +1273,7 @@
 270,
 271
 ],
-"paper.js:src/path/PathFlattener.js":[
+"paper.js:src/path/PathFlattener.js": [
 18,
 45,
 57,
@@ -1288,7 +1288,7 @@
 152,
 163
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 30,
 59,
 65,
@@ -1392,7 +1392,7 @@
 1404,
 1411
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 22,
 67,
 79,
@@ -1432,7 +1432,7 @@
 729,
 731
 ],
-"paper.js:src/path/Segment.js":[
+"paper.js:src/path/Segment.js": [
 25,
 117,
 153,
@@ -1456,17 +1456,17 @@
 606,
 630
 ],
-"paper.js:src/path/SegmentPoint.js":[
+"paper.js:src/path/SegmentPoint.js": [
 19,
 21,
 30,
 76,
 92
 ],
-"paper.js:src/path/SegmentSelection.js":[
+"paper.js:src/path/SegmentSelection.js": [
 16
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 43,
 45,
 54,
@@ -1525,7 +1525,7 @@
 1248,
 1251
 ],
-"paper.js:src/style/Gradient.js":[
+"paper.js:src/style/Gradient.js": [
 64,
 101,
 120,
@@ -1537,12 +1537,12 @@
 192,
 196
 ],
-"paper.js:src/style/GradientStop.js":[
+"paper.js:src/style/GradientStop.js": [
 19,
 32,
 62
 ],
-"paper.js:src/style/Style.js":[
+"paper.js:src/style/Style.js": [
 70,
 72,
 147,
@@ -1568,14 +1568,14 @@
 368,
 390
 ],
-"paper.js:src/svg/SvgElement.js":[
+"paper.js:src/svg/SvgElement.js": [
 18,
 20,
 38,
 46,
 47
 ],
-"paper.js:src/svg/SvgExport.js":[
+"paper.js:src/svg/SvgExport.js": [
 19,
 23,
 32,
@@ -1621,7 +1621,7 @@
 438,
 446
 ],
-"paper.js:src/svg/SvgImport.js":[
+"paper.js:src/svg/SvgImport.js": [
 22,
 30,
 75,
@@ -1677,11 +1677,11 @@
 700,
 715
 ],
-"paper.js:src/svg/SvgStyles.js":[
+"paper.js:src/svg/SvgStyles.js": [
 13,
 48
 ],
-"paper.js:src/text/PointText.js":[
+"paper.js:src/text/PointText.js": [
 22,
 70,
 75,
@@ -1691,22 +1691,22 @@
 106,
 118
 ],
-"paper.js:src/text/TextItem.js":[
+"paper.js:src/text/TextItem.js": [
 24,
 43
 ],
-"paper.js:src/tool/Tool.js":[
+"paper.js:src/tool/Tool.js": [
 45,
 293,
 305,
 318
 ],
-"paper.js:src/tool/ToolEvent.js":[
+"paper.js:src/tool/ToolEvent.js": [
 24,
 182,
 184
 ],
-"paper.js:src/util/CollisionDetection.js":[
+"paper.js:src/util/CollisionDetection.js": [
 19,
 38,
 39,
@@ -1737,10 +1737,10 @@
 261,
 262
 ],
-"paper.js:src/util/Formatter.js":[
+"paper.js:src/util/Formatter.js": [
 18
 ],
-"paper.js:src/util/Numerical.js":[
+"paper.js:src/util/Numerical.js": [
 18,
 23,
 41,
@@ -1763,11 +1763,11 @@
 378,
 400
 ],
-"paper.js:src/util/UID.js":[
+"paper.js:src/util/UID.js": [
 18,
 31
 ],
-"paper.js:src/view/CanvasView.js":[
+"paper.js:src/view/CanvasView.js": [
 18,
 38,
 45,
@@ -1781,7 +1781,7 @@
 123,
 139
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 22,
 34,
 43,

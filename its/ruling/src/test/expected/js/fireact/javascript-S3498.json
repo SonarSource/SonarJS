@@ -1,5 +1,5 @@
 {
-"fireact:functions/index.js":[
+"fireact:functions/index.js": [
 105,
 106,
 114,
@@ -11,32 +11,32 @@
 278,
 330
 ],
-"fireact:src/components/FirebaseAuth/index.js":[
+"fireact:src/components/FirebaseAuth/index.js": [
 21
 ],
-"fireact:src/components/FirebaseUI/index.js":[
+"fireact:src/components/FirebaseUI/index.js": [
 23,
 40
 ],
-"fireact:src/components/Logo/index.js":[
+"fireact:src/components/Logo/index.js": [
 7
 ],
-"fireact:src/libs/log/index.js":[
+"fireact:src/libs/log/index.js": [
 9
 ],
-"fireact:src/pages/auth/accounts/PaymentMethod/index.js":[
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 84
 ],
-"fireact:src/pages/auth/accounts/Plans/index.js":[
+"fireact:src/pages/auth/accounts/Plans/index.js": [
 155,
 157,
 158
 ],
-"fireact:src/pages/auth/accounts/UserRole/index.js":[
+"fireact:src/pages/auth/accounts/UserRole/index.js": [
 51,
 96
 ],
-"fireact:src/pages/auth/user/UpdatePhone/index.js":[
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
 49,
 52
 ]

@@ -1,14 +1,14 @@
 {
-"sizzle:build/release.js":[
+"sizzle:build/release.js": [
 21,
 24
 ],
-"sizzle:speed/speed.js":[
+"sizzle:speed/speed.js": [
 210,
 212,
 224
 ],
-"sizzle:tasks/karma-tests.js":[
+"sizzle:tasks/karma-tests.js": [
 41
 ]
 }

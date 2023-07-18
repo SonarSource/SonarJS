@@ -1,5 +1,5 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 71,
 520,
 600,
@@ -14,7 +14,7 @@
 1027,
 1033
 ],
-"Typescript:scripts/authors.ts":[
+"Typescript:scripts/authors.ts": [
 86,
 114,
 120,
@@ -29,7 +29,7 @@
 174,
 178
 ],
-"Typescript:scripts/bisect-test.ts":[
+"Typescript:scripts/bisect-test.ts": [
 23,
 26,
 35,
@@ -39,16 +39,16 @@
 46,
 52
 ],
-"Typescript:scripts/buildProtocol.ts":[
+"Typescript:scripts/buildProtocol.ts": [
 177
 ],
-"Typescript:scripts/createBenchmark.ts":[
+"Typescript:scripts/createBenchmark.ts": [
 98,
 104,
 121,
 122
 ],
-"Typescript:scripts/errorCheck.ts":[
+"Typescript:scripts/errorCheck.ts": [
 13,
 41,
 45,
@@ -59,7 +59,7 @@
 80,
 84
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts":[
+"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 23,
 24,
 32,
@@ -76,7 +76,7 @@
 99,
 100
 ],
-"Typescript:scripts/ior.ts":[
+"Typescript:scripts/ior.ts": [
 17,
 29,
 32,
@@ -91,19 +91,19 @@
 113,
 117
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 1032,
 1045,
 1046
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 531,
 608
 ],
-"Typescript:src/harness/instrumenter.ts":[
+"Typescript:src/harness/instrumenter.ts": [
 54
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 215
 ]
 }

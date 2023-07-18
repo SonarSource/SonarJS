@@ -1,23 +1,23 @@
 {
-"paper.js:gulp/tasks/dist.js":[
+"paper.js:gulp/tasks/dist.js": [
 29
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 1329,
 1859,
 1924,
 3075
 ],
-"paper.js:src/path/PathFlattener.js":[
+"paper.js:src/path/PathFlattener.js": [
 86
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 746
 ],
-"paper.js:src/svg/SvgExport.js":[
+"paper.js:src/svg/SvgExport.js": [
 430
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 733
 ]
 }

@@ -1,24 +1,24 @@
 {
-"Joust:ts/Entity.ts":[
+"Joust:ts/Entity.ts": [
 137,
 153
 ],
-"Joust:ts/Launcher.tsx":[
+"Joust:ts/Launcher.tsx": [
 41,
 98
 ],
-"Joust:ts/components/GameWidget.tsx":[
+"Joust:ts/components/GameWidget.tsx": [
 125,
 166
 ],
-"Joust:ts/components/SetupWidget.tsx":[
+"Joust:ts/components/SetupWidget.tsx": [
 170,
 175
 ],
-"Joust:ts/components/game/Player.tsx":[
+"Joust:ts/components/game/Player.tsx": [
 247
 ],
-"Joust:ts/protocol/HSReplayDecoder.ts":[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 125,
 129,
 136,
@@ -29,41 +29,41 @@
 398,
 404
 ],
-"Joust:ts/protocol/KettleDecoder.ts":[
+"Joust:ts/protocol/KettleDecoder.ts": [
 91,
 148,
 151,
 160
 ],
-"Joust:ts/protocol/KettleEncoder.ts":[
+"Joust:ts/protocol/KettleEncoder.ts": [
 71
 ],
-"Joust:ts/state/GameStateHistory.ts":[
+"Joust:ts/state/GameStateHistory.ts": [
 55
 ],
-"Joust:ts/state/mutators/AddEntityMutator.ts":[
+"Joust:ts/state/mutators/AddEntityMutator.ts": [
 14,
 22,
 28
 ],
-"Joust:ts/state/mutators/ClearChoicesMutator.ts":[
+"Joust:ts/state/mutators/ClearChoicesMutator.ts": [
 11
 ],
-"Joust:ts/state/mutators/EnrichDescriptorMutator.ts":[
+"Joust:ts/state/mutators/EnrichDescriptorMutator.ts": [
 15
 ],
-"Joust:ts/state/mutators/HideEntityMutator.ts":[
+"Joust:ts/state/mutators/HideEntityMutator.ts": [
 18
 ],
-"Joust:ts/state/mutators/ReplaceEntityMutator.ts":[
+"Joust:ts/state/mutators/ReplaceEntityMutator.ts": [
 12,
 19,
 25
 ],
-"Joust:ts/state/mutators/ShowEntityMutator.ts":[
+"Joust:ts/state/mutators/ShowEntityMutator.ts": [
 18
 ],
-"Joust:ts/state/mutators/TagChangeMutator.ts":[
+"Joust:ts/state/mutators/TagChangeMutator.ts": [
 21
 ]
 }

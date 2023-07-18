@@ -1,14 +1,14 @@
 {
-"vuetify:packages/vuetify/cypress/templates/generateStories.tsx":[
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 10
 ],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts":[
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
 61
 ],
-"vuetify:packages/vuetify/src/composables/icons.tsx":[
+"vuetify:packages/vuetify/src/composables/icons.tsx": [
 55
 ],
-"vuetify:packages/vuetify/src/directives/color/index.ts":[
+"vuetify:packages/vuetify/src/directives/color/index.ts": [
 17,
 18,
 19,

@@ -1,55 +1,55 @@
 {
-"ag-grid:src/ts/columnController/balancedColumnTreeBuilder.ts":[
+"ag-grid:src/ts/columnController/balancedColumnTreeBuilder.ts": [
 88
 ],
-"ag-grid:src/ts/columnController/columnController.ts":[
+"ag-grid:src/ts/columnController/columnController.ts": [
 427,
 1247,
 1817,
 1993,
 2005
 ],
-"ag-grid:src/ts/columnController/columnUtils.ts":[
+"ag-grid:src/ts/columnController/columnUtils.ts": [
 47
 ],
-"ag-grid:src/ts/columnController/displayedGroupCreator.ts":[
+"ag-grid:src/ts/columnController/displayedGroupCreator.ts": [
 171
 ],
-"ag-grid:src/ts/components/agGridWebComponent.ts":[
+"ag-grid:src/ts/components/agGridWebComponent.ts": [
 79
 ],
-"ag-grid:src/ts/dragAndDrop/dragService.ts":[
+"ag-grid:src/ts/dragAndDrop/dragService.ts": [
 170
 ],
-"ag-grid:src/ts/entities/rowNode.ts":[
+"ag-grid:src/ts/entities/rowNode.ts": [
 278,
 530
 ],
-"ag-grid:src/ts/gridPanel/gridPanel.ts":[
+"ag-grid:src/ts/gridPanel/gridPanel.ts": [
 1840,
 1842
 ],
-"ag-grid:src/ts/headerRendering/moveColumnController.ts":[
+"ag-grid:src/ts/headerRendering/moveColumnController.ts": [
 210,
 244
 ],
-"ag-grid:src/ts/layout/verticalStack.ts":[
+"ag-grid:src/ts/layout/verticalStack.ts": [
 34
 ],
-"ag-grid:src/ts/rowModels/inMemory/flattenStage.ts":[
+"ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
 50,
 67
 ],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts":[
+"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
 335
 ],
-"ag-grid:src/ts/styling/stylingService.ts":[
+"ag-grid:src/ts/styling/stylingService.ts": [
 18
 ],
-"ag-grid:src/ts/templateService.ts":[
+"ag-grid:src/ts/templateService.ts": [
 59
 ],
-"ag-grid:src/ts/utils.ts":[
+"ag-grid:src/ts/utils.ts": [
 100,
 153,
 163,
@@ -57,7 +57,7 @@
 295,
 394
 ],
-"ag-grid:src/ts/widgets/touchListener.ts":[
+"ag-grid:src/ts/widgets/touchListener.ts": [
 43
 ]
 }

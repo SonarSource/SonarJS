@@ -1,5 +1,5 @@
 {
-"mootools-core:Source/Element/Element.js":[
+"mootools-core:Source/Element/Element.js": [
 117,
 315,
 772,
@@ -8,12 +8,12 @@
 1162,
 1175
 ],
-"mootools-core:Source/Fx/Fx.Transitions.js":[
+"mootools-core:Source/Fx/Fx.Transitions.js": [
 72,
 88,
 104
 ],
-"mootools-core:Source/Slick/Slick.Finder.js":[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 216,
 269,
 657,
@@ -21,7 +21,7 @@
 881,
 890
 ],
-"mootools-core:Source/Utilities/JSON.js":[
+"mootools-core:Source/Utilities/JSON.js": [
 49
 ]
 }

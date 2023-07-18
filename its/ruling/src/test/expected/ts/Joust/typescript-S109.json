@@ -1,17 +1,17 @@
 {
-"Joust:ts/Entity.spec.ts":[
+"Joust:ts/Entity.spec.ts": [
 14,
 15,
 21,
 22,
 28
 ],
-"Joust:ts/Launcher.tsx":[
+"Joust:ts/Launcher.tsx": [
 301,
 337,
 417
 ],
-"Joust:ts/Player.spec.ts":[
+"Joust:ts/Player.spec.ts": [
 8,
 8,
 8,
@@ -20,33 +20,33 @@
 14,
 19
 ],
-"Joust:ts/TexturePreloader.ts":[
+"Joust:ts/TexturePreloader.ts": [
 47
 ],
-"Joust:ts/components/EventLog.tsx":[
+"Joust:ts/components/EventLog.tsx": [
 106,
 145,
 251
 ],
-"Joust:ts/components/EventLogLine.tsx":[
+"Joust:ts/components/EventLogLine.tsx": [
 97,
 100
 ],
-"Joust:ts/components/GameWidget.tsx":[
+"Joust:ts/components/GameWidget.tsx": [
 77
 ],
-"Joust:ts/components/GameWrapper.tsx":[
+"Joust:ts/components/GameWrapper.tsx": [
 134
 ],
-"Joust:ts/components/LoadingScreen.tsx":[
+"Joust:ts/components/LoadingScreen.tsx": [
 106,
 113
 ],
-"Joust:ts/components/MessagePicker.tsx":[
+"Joust:ts/components/MessagePicker.tsx": [
 45,
 50
 ],
-"Joust:ts/components/Scrubber.tsx":[
+"Joust:ts/components/Scrubber.tsx": [
 41,
 41,
 41,
@@ -71,17 +71,17 @@
 184,
 187
 ],
-"Joust:ts/components/Timeline.tsx":[
+"Joust:ts/components/Timeline.tsx": [
 153
 ],
-"Joust:ts/components/Turn.tsx":[
+"Joust:ts/components/Turn.tsx": [
 22,
 33,
 40,
 40,
 43
 ],
-"Joust:ts/components/game/Card.tsx":[
+"Joust:ts/components/game/Card.tsx": [
 284,
 300,
 324,
@@ -89,11 +89,11 @@
 335,
 335
 ],
-"Joust:ts/components/game/visuals/RankArt.tsx":[
+"Joust:ts/components/game/visuals/RankArt.tsx": [
 8,
 15
 ],
-"Joust:ts/protocol/HSReplayDecoder.spec.ts":[
+"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
 29,
 48,
 49,
@@ -119,18 +119,18 @@
 151,
 160
 ],
-"Joust:ts/protocol/KettleDecoder.ts":[
+"Joust:ts/protocol/KettleDecoder.ts": [
 59,
 65
 ],
-"Joust:ts/protocol/KettleEncoder.ts":[
+"Joust:ts/protocol/KettleEncoder.ts": [
 37,
 42,
 60,
 63,
 100
 ],
-"Joust:ts/state/GameStateHistory.spec.ts":[
+"Joust:ts/state/GameStateHistory.spec.ts": [
 12,
 13,
 18,
@@ -158,20 +158,20 @@
 177,
 178
 ],
-"Joust:ts/state/GameStateScrubber.ts":[
+"Joust:ts/state/GameStateScrubber.ts": [
 97,
 141,
 308,
 361
 ],
-"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts":[
+"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
 26,
 35
 ],
-"Joust:ts/state/plugins/CoinDetector.ts":[
+"Joust:ts/state/plugins/CoinDetector.ts": [
 30
 ],
-"Joust:ts/state/plugins/Timer.ts":[
+"Joust:ts/state/plugins/Timer.ts": [
 31,
 48,
 60,

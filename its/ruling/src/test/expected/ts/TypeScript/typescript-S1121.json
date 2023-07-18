@@ -1,13 +1,13 @@
 {
-"Typescript:scripts/authors.ts":[
+"Typescript:scripts/authors.ts": [
 40,
 128
 ],
-"Typescript:src/compiler/binder.ts":[
+"Typescript:src/compiler/binder.ts": [
 356,
 367
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 875,
 926,
 953,
@@ -73,13 +73,13 @@
 24405,
 24417
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 1104
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 2233
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 921,
 925,
 929,
@@ -90,7 +90,7 @@
 1146,
 6917
 ],
-"Typescript:src/compiler/program.ts":[
+"Typescript:src/compiler/program.ts": [
 377,
 733,
 741,
@@ -98,7 +98,7 @@
 760,
 859
 ],
-"Typescript:src/compiler/scanner.ts":[
+"Typescript:src/compiler/scanner.ts": [
 1200,
 1236,
 1247,
@@ -171,53 +171,53 @@
 1847,
 1855
 ],
-"Typescript:src/compiler/sourcemap.ts":[
+"Typescript:src/compiler/sourcemap.ts": [
 450
 ],
-"Typescript:src/compiler/tsc.ts":[
+"Typescript:src/compiler/tsc.ts": [
 300
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 146,
 853
 ],
-"Typescript:src/harness/loggedIO.ts":[
+"Typescript:src/harness/loggedIO.ts": [
 97,
 190,
 202
 ],
-"Typescript:src/server/client.ts":[
+"Typescript:src/server/client.ts": [
 492
 ],
-"Typescript:src/server/project.ts":[
+"Typescript:src/server/project.ts": [
 35,
 36
 ],
-"Typescript:src/services/completions.ts":[
+"Typescript:src/services/completions.ts": [
 614,
 618,
 624,
 630
 ],
-"Typescript:src/services/documentHighlights.ts":[
+"Typescript:src/services/documentHighlights.ts": [
 30
 ],
-"Typescript:src/services/documentRegistry.ts":[
+"Typescript:src/services/documentRegistry.ts": [
 118
 ],
-"Typescript:src/services/importTracker.ts":[
+"Typescript:src/services/importTracker.ts": [
 315
 ],
-"Typescript:src/services/patternMatcher.ts":[
+"Typescript:src/services/patternMatcher.ts": [
 193
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 575
 ],
-"Typescript:src/services/shims.ts":[
+"Typescript:src/services/shims.ts": [
 394
 ],
-"Typescript:src/services/textChanges.ts":[
+"Typescript:src/services/textChanges.ts": [
 423
 ]
 }

@@ -1,21 +1,21 @@
 {
-"eigen:src/app/Components/Markdown.tests.tsx":[
+"eigen:src/app/Components/Markdown.tests.tsx": [
 49
 ],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts":[
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
 13,
 248
 ],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts":[
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts": [
 6
 ],
-"eigen:src/app/Scenes/Collection/Screens/CollectionHeader.tests.tsx":[
+"eigen:src/app/Scenes/Collection/Screens/CollectionHeader.tests.tsx": [
 56
 ],
-"eigen:src/app/Scenes/Sales/Components/SaleListItem.tests.tsx":[
+"eigen:src/app/Scenes/Sales/Components/SaleListItem.tests.tsx": [
 52
 ],
-"eigen:src/app/Scenes/Show/ShowContextCard.tests.tsx":[
+"eigen:src/app/Scenes/Show/ShowContextCard.tests.tsx": [
 69,
 72,
 85,
@@ -27,7 +27,7 @@
 162,
 163
 ],
-"eigen:src/app/__fixtures__/CityFixture.ts":[
+"eigen:src/app/__fixtures__/CityFixture.ts": [
 400,
 438,
 475,
@@ -81,12 +81,12 @@
 2271,
 2315
 ],
-"eigen:src/app/tests/MockRelayRenderer.tests.tsx":[
+"eigen:src/app/tests/MockRelayRenderer.tests.tsx": [
 27,
 39,
 56
 ],
-"eigen:src/app/tests/renderRelayTree.tests.tsx":[
+"eigen:src/app/tests/renderRelayTree.tests.tsx": [
 17,
 31,
 72

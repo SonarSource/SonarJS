@@ -1,5 +1,5 @@
 {
-"angular.js:Gruntfile.js":[
+"angular.js:Gruntfile.js": [
 3,
 4,
 5,
@@ -13,10 +13,10 @@
 14,
 15
 ],
-"angular.js:docs/app/e2e/app.scenario.js":[
+"angular.js:docs/app/e2e/app.scenario.js": [
 3
 ],
-"angular.js:docs/config/index.js":[
+"angular.js:docs/config/index.js": [
 3,
 6,
 11,
@@ -39,38 +39,38 @@
 34,
 35
 ],
-"angular.js:docs/config/processors/index-page.js":[
+"angular.js:docs/config/processors/index-page.js": [
 3
 ],
-"angular.js:docs/config/processors/keywords.js":[
+"angular.js:docs/config/processors/keywords.js": [
 3,
 4,
 5
 ],
-"angular.js:docs/config/processors/pages-data.js":[
+"angular.js:docs/config/processors/pages-data.js": [
 3,
 4
 ],
-"angular.js:docs/config/processors/versions-data.js":[
+"angular.js:docs/config/processors/versions-data.js": [
 3,
 4
 ],
-"angular.js:docs/config/services/deployments/production.js":[
+"angular.js:docs/config/services/deployments/production.js": [
 3
 ],
-"angular.js:docs/config/services/errorNamespaceMap.js":[
+"angular.js:docs/config/services/errorNamespaceMap.js": [
 2
 ],
-"angular.js:docs/config/services/getMinerrInfo.js":[
+"angular.js:docs/config/services/getMinerrInfo.js": [
 3
 ],
-"angular.js:docs/config/services/getVersion.js":[
+"angular.js:docs/config/services/getVersion.js": [
 2
 ],
-"angular.js:docs/config/tag-defs/deprecated.spec.js":[
+"angular.js:docs/config/tag-defs/deprecated.spec.js": [
 4
 ],
-"angular.js:docs/gulpfile.js":[
+"angular.js:docs/gulpfile.js": [
 3,
 4,
 5,
@@ -82,63 +82,63 @@
 11,
 12
 ],
-"angular.js:docs/protractor-conf.js":[
+"angular.js:docs/protractor-conf.js": [
 3
 ],
-"angular.js:karma-docs.conf.js":[
+"angular.js:karma-docs.conf.js": [
 3
 ],
-"angular.js:karma-jqlite.conf.js":[
+"angular.js:karma-jqlite.conf.js": [
 3,
 4
 ],
-"angular.js:karma-jquery-2.1.conf.js":[
+"angular.js:karma-jquery-2.1.conf.js": [
 3
 ],
-"angular.js:karma-jquery-2.2.conf.js":[
+"angular.js:karma-jquery-2.2.conf.js": [
 3
 ],
-"angular.js:karma-jquery.conf-factory.js":[
+"angular.js:karma-jquery.conf-factory.js": [
 3,
 4
 ],
-"angular.js:karma-jquery.conf.js":[
+"angular.js:karma-jquery.conf.js": [
 3
 ],
-"angular.js:karma-modules-ngAnimate.conf.js":[
+"angular.js:karma-modules-ngAnimate.conf.js": [
 3,
 4
 ],
-"angular.js:karma-modules-ngMock.conf.js":[
+"angular.js:karma-modules-ngMock.conf.js": [
 3,
 4
 ],
-"angular.js:karma-modules.conf.js":[
+"angular.js:karma-modules.conf.js": [
 3
 ],
-"angular.js:lib/browserstack/start_tunnel.js":[
+"angular.js:lib/browserstack/start_tunnel.js": [
 3,
 4,
 5
 ],
-"angular.js:lib/grunt/plugins.js":[
+"angular.js:lib/grunt/plugins.js": [
 5,
 6
 ],
-"angular.js:lib/grunt/utils.js":[
+"angular.js:lib/grunt/utils.js": [
 3,
 4,
 5,
 6
 ],
-"angular.js:lib/grunt/validate-angular-files.js":[
+"angular.js:lib/grunt/validate-angular-files.js": [
 3,
 4,
 5,
 6,
 7
 ],
-"angular.js:lib/versions/version-info.js":[
+"angular.js:lib/versions/version-info.js": [
 3,
 4,
 5,
@@ -146,25 +146,25 @@
 7,
 9
 ],
-"angular.js:protractor-conf.js":[
+"angular.js:protractor-conf.js": [
 3
 ],
-"angular.js:protractor-travis-conf.js":[
+"angular.js:protractor-travis-conf.js": [
 3
 ],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js":[
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
 3,
 4,
 5
 ],
-"angular.js:scripts/compare-master-to-stable.js":[
+"angular.js:scripts/compare-master-to-stable.js": [
 5,
 6,
 8,
 9,
 10
 ],
-"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js":[
+"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
 3,
 4
 ]

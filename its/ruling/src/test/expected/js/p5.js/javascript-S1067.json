@@ -1,45 +1,45 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 204,
 305,
 408,
 2751,
 3059
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 4063,
 7020
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 466,
 475
 ],
-"p5.js:src/core/init.js":[
+"p5.js:src/core/init.js": [
 20
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 214
 ],
-"p5.js:src/core/shape/vertex.js":[
+"p5.js:src/core/shape/vertex.js": [
 249
 ],
-"p5.js:src/core/shim.js":[
+"p5.js:src/core/shim.js": [
 8
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 1078
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 221
 ],
-"p5.js:src/webgl/p5.RendererGL.Immediate.js":[
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 166
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 708,
 721
 ],
-"p5.js:src/webgl/p5.Shader.js":[
+"p5.js:src/webgl/p5.Shader.js": [
 182,
 473
 ]

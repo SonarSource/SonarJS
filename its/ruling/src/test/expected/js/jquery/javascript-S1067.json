@@ -1,25 +1,25 @@
 {
-"jquery:src/ajax/jsonp.js":[
+"jquery:src/ajax/jsonp.js": [
 24
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 422
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 141
 ],
-"jquery:src/css/adjustCSS.js":[
+"jquery:src/css/adjustCSS.js": [
 19
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 450,
 453
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 259,
 494
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 162,
 621,
 722,
@@ -29,10 +29,10 @@
 1347,
 1570
 ],
-"jquery:src/selector/contains.js":[
+"jquery:src/selector/contains.js": [
 8
 ],
-"jquery:src/serialize.js":[
+"jquery:src/serialize.js": [
 109
 ]
 }

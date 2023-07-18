@@ -1,26 +1,26 @@
 {
-"Typescript:scripts/configureNightly.ts":[
+"Typescript:scripts/configureNightly.ts": [
 68
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 5876,
 5886,
 5887
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 640,
 641,
 642,
 1910
 ],
-"Typescript:src/server/session.ts":[
+"Typescript:src/server/session.ts": [
 953
 ],
-"Typescript:src/services/jsTyping.ts":[
+"Typescript:src/services/jsTyping.ts": [
 192,
 192
 ],
-"Typescript:src/services/pathCompletions.ts":[
+"Typescript:src/services/pathCompletions.ts": [
 498
 ]
 }

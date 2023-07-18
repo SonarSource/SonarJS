@@ -1,5 +1,5 @@
 {
-"Typescript:scripts/word2md.ts":[
+"Typescript:scripts/word2md.ts": [
 57,
 60,
 67,
@@ -7,13 +7,13 @@
 99,
 112
 ],
-"Typescript:src/compiler/types.ts":[
+"Typescript:src/compiler/types.ts": [
 3161
 ],
-"Typescript:src/harness/loggedIO.ts":[
+"Typescript:src/harness/loggedIO.ts": [
 12
 ],
-"Typescript:src/server/protocol.ts":[
+"Typescript:src/server/protocol.ts": [
 1027,
 1101,
 1108,
@@ -23,7 +23,7 @@
 1936,
 2223
 ],
-"Typescript:src/services/types.ts":[
+"Typescript:src/services/types.ts": [
 366
 ]
 }

@@ -1,16 +1,16 @@
 {
-"react-cloud-music:config/paths.js":[
+"react-cloud-music:config/paths.js": [
 31,
 33
 ],
-"react-cloud-music:config/webpack.config.js":[
+"react-cloud-music:config/webpack.config.js": [
 160
 ],
-"react-cloud-music:ts-music/config/paths.js":[
+"react-cloud-music:ts-music/config/paths.js": [
 15,
 17
 ],
-"react-cloud-music:ts-music/config/webpack.config.js":[
+"react-cloud-music:ts-music/config/webpack.config.js": [
 171
 ]
 }

@@ -1,83 +1,83 @@
 {
-"desktop:app/src/cli/commands/clone.ts":[
+"desktop:app/src/cli/commands/clone.ts": [
 36
 ],
-"desktop:app/src/cli/main.ts":[
+"desktop:app/src/cli/main.ts": [
 51
 ],
-"desktop:app/src/lib/actions-log-parser/action-log-parser.ts":[
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 547,
 569
 ],
-"desktop:app/src/lib/git/diff.ts":[
+"desktop:app/src/lib/git/diff.ts": [
 43,
 49,
 157,
 217
 ],
-"desktop:app/src/lib/git/environment.ts":[
+"desktop:app/src/lib/git/environment.ts": [
 100,
 115
 ],
-"desktop:app/src/lib/git/log.ts":[
+"desktop:app/src/lib/git/log.ts": [
 72,
 80
 ],
-"desktop:app/src/lib/git/status.ts":[
+"desktop:app/src/lib/git/status.ts": [
 38
 ],
-"desktop:app/src/lib/git/tag.ts":[
+"desktop:app/src/lib/git/tag.ts": [
 50
 ],
-"desktop:app/src/lib/large-files.ts":[
+"desktop:app/src/lib/large-files.ts": [
 7
 ],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 57
 ],
-"desktop:app/src/lib/markdown-filters/team-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 39
 ],
-"desktop:app/src/lib/shells/win32.ts":[
+"desktop:app/src/lib/shells/win32.ts": [
 206
 ],
-"desktop:app/src/lib/stores/issues-store.ts":[
+"desktop:app/src/lib/stores/issues-store.ts": [
 163
 ],
-"desktop:app/src/lib/stores/repositories-store.ts":[
+"desktop:app/src/lib/stores/repositories-store.ts": [
 153,
 168,
 508
 ],
-"desktop:app/src/ui/add-repository/sanitized-repository-name.ts":[
+"desktop:app/src/ui/add-repository/sanitized-repository-name.ts": [
 2,
 3,
 4
 ],
-"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx":[
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
 325,
 326,
 334,
 335
 ],
-"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx":[
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
 113,
 114
 ],
-"desktop:app/src/ui/history/commit-list.tsx":[
+"desktop:app/src/ui/history/commit-list.tsx": [
 416
 ],
-"desktop:app/src/ui/lib/color-manipulation.ts":[
+"desktop:app/src/ui/lib/color-manipulation.ts": [
 90
 ],
-"desktop:app/src/ui/repositories-list/repository-list-item.tsx":[
+"desktop:app/src/ui/repositories-list/repository-list-item.tsx": [
 215
 ],
-"desktop:script/build-platforms.ts":[
+"desktop:script/build-platforms.ts": [
 67,
 68
 ],
-"desktop:script/build.ts":[
+"desktop:script/build.ts": [
 188,
 195
 ]

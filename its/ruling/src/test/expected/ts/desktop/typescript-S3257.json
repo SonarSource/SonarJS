@@ -1,59 +1,59 @@
 {
-"desktop:app/src/cli/open-desktop.ts":[
+"desktop:app/src/cli/open-desktop.ts": [
 3
 ],
-"desktop:app/src/lib/drag-and-drop-manager.ts":[
+"desktop:app/src/lib/drag-and-drop-manager.ts": [
 18
 ],
-"desktop:app/src/lib/git/cherry-pick.ts":[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 108,
 227,
 231
 ],
-"desktop:app/src/lib/git/commit.ts":[
+"desktop:app/src/lib/git/commit.ts": [
 19
 ],
-"desktop:app/src/lib/git/config.ts":[
+"desktop:app/src/lib/git/config.ts": [
 16,
 66
 ],
-"desktop:app/src/lib/git/diff.ts":[
+"desktop:app/src/lib/git/diff.ts": [
 109,
 149,
 150,
 206,
 344
 ],
-"desktop:app/src/lib/git/interpret-trailers.ts":[
+"desktop:app/src/lib/git/interpret-trailers.ts": [
 156
 ],
-"desktop:app/src/lib/git/merge.ts":[
+"desktop:app/src/lib/git/merge.ts": [
 26
 ],
-"desktop:app/src/lib/git/rebase.ts":[
+"desktop:app/src/lib/git/rebase.ts": [
 152,
 153,
 432,
 543,
 544
 ],
-"desktop:app/src/lib/gravatar.ts":[
+"desktop:app/src/lib/gravatar.ts": [
 9
 ],
-"desktop:app/src/lib/http.ts":[
+"desktop:app/src/lib/http.ts": [
 123
 ],
-"desktop:app/src/lib/ssh/ssh.ts":[
+"desktop:app/src/lib/ssh/ssh.ts": [
 12
 ],
-"desktop:app/src/lib/stats/stats-store.ts":[
+"desktop:app/src/lib/stats/stats-store.ts": [
 69,
 820
 ],
-"desktop:app/src/lib/stores/alive-store.ts":[
+"desktop:app/src/lib/stores/alive-store.ts": [
 60
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 315,
 316,
 318,
@@ -85,40 +85,40 @@
 4758,
 6907
 ],
-"desktop:app/src/lib/stores/git-store.ts":[
+"desktop:app/src/lib/stores/git-store.ts": [
 133,
 315,
 1421,
 1463,
 1464
 ],
-"desktop:app/src/lib/trampoline/trampoline-command-parser.ts":[
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
 21,
 23
 ],
-"desktop:app/src/ui/app-menu/app-menu-bar.tsx":[
+"desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
 95
 ],
-"desktop:app/src/ui/app-menu/app-menu.tsx":[
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
 93
 ],
-"desktop:app/src/ui/app.tsx":[
+"desktop:app/src/ui/app.tsx": [
 665,
 850
 ],
-"desktop:app/src/ui/branches/branch-list.tsx":[
+"desktop:app/src/ui/branches/branch-list.tsx": [
 171
 ],
-"desktop:app/src/ui/branches/pull-request-badge.tsx":[
+"desktop:app/src/ui/branches/pull-request-badge.tsx": [
 37
 ],
-"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx":[
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
 202
 ],
-"desktop:app/src/ui/create-tag/create-tag-dialog.tsx":[
+"desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
 136
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 611,
 852,
 877,
@@ -133,32 +133,32 @@
 3403,
 3825
 ],
-"desktop:app/src/ui/lib/author-input.tsx":[
+"desktop:app/src/ui/lib/author-input.tsx": [
 407
 ],
-"desktop:app/src/ui/lib/draggable.tsx":[
+"desktop:app/src/ui/lib/draggable.tsx": [
 40,
 41
 ],
-"desktop:app/src/ui/lib/filter-list.tsx":[
+"desktop:app/src/ui/lib/filter-list.tsx": [
 291
 ],
-"desktop:app/src/ui/lib/list/list.tsx":[
+"desktop:app/src/ui/lib/list/list.tsx": [
 978
 ],
-"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx":[
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
 64
 ],
-"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx":[
+"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx": [
 14
 ],
-"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx":[
+"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
 61
 ],
-"desktop:app/src/ui/repository.tsx":[
+"desktop:app/src/ui/repository.tsx": [
 116
 ],
-"desktop:script/dist-info.ts":[
+"desktop:script/dist-info.ts": [
 64,
 82
 ]

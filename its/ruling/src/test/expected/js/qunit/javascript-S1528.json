@@ -1,9 +1,9 @@
 {
-"qunit:reporter/diff.js":[
+"qunit:reporter/diff.js": [
 592,
 593
 ],
-"qunit:src/dump.js":[
+"qunit:src/dump.js": [
 27,
 129,
 247

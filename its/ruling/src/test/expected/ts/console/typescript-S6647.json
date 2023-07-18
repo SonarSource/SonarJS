@@ -1,20 +1,20 @@
 {
-"console:src/components/Modal.tsx":[
+"console:src/components/Modal.tsx": [
 13
 ],
-"console:src/components/ProjectSelection/ProjectSelection.tsx":[
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
 169
 ],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupHeader.tsx":[
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupHeader.tsx": [
 28
 ],
-"console:src/views/ProjectRootView/RootRedirectView.tsx":[
+"console:src/views/ProjectRootView/RootRedirectView.tsx": [
 20
 ],
-"console:src/views/Settings/Authentication/TokenRow.tsx":[
+"console:src/views/Settings/Authentication/TokenRow.tsx": [
 25
 ],
-"console:src/views/models/DatabrowserView/HeaderCell.tsx":[
+"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
 26
 ]
 }

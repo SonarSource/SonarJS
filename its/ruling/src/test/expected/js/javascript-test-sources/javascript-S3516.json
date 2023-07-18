@@ -1,16 +1,16 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 1478,
 1563,
 1594,
 1766,
 2007
 ],
-"javascript-test-sources:src/ace/src/mode/d_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/d_highlight_rules.js": [
 203,
 224
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js": [
 39
 ]
 }

@@ -1,66 +1,66 @@
 {
-"Typescript:scripts/authors.ts":[
+"Typescript:scripts/authors.ts": [
 48
 ],
-"Typescript:scripts/createBenchmark.ts":[
+"Typescript:scripts/createBenchmark.ts": [
 105
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts":[
+"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 84,
 92,
 95
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 1063,
 2774,
 22486
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 4208,
 4215,
 4229,
 4236
 ],
-"Typescript:src/compiler/transformers/es2015.ts":[
+"Typescript:src/compiler/transformers/es2015.ts": [
 716,
 735,
 1356,
 1376
 ],
-"Typescript:src/compiler/transformers/module/module.ts":[
+"Typescript:src/compiler/transformers/module/module.ts": [
 507,
 513,
 561,
 694,
 730
 ],
-"Typescript:src/compiler/transformers/module/system.ts":[
+"Typescript:src/compiler/transformers/module/system.ts": [
 233
 ],
-"Typescript:src/compiler/types.ts":[
+"Typescript:src/compiler/types.ts": [
 3749,
 3755
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 1638
 ],
-"Typescript:src/harness/loggedIO.ts":[
+"Typescript:src/harness/loggedIO.ts": [
 318
 ],
-"Typescript:src/harness/projectsRunner.ts":[
+"Typescript:src/harness/projectsRunner.ts": [
 509
 ],
-"Typescript:src/harness/runner.ts":[
+"Typescript:src/harness/runner.ts": [
 190
 ],
-"Typescript:src/harness/rwcRunner.ts":[
+"Typescript:src/harness/rwcRunner.ts": [
 187
 ],
-"Typescript:src/services/formatting/rulesMap.ts":[
+"Typescript:src/services/formatting/rulesMap.ts": [
 22,
 25
 ],
-"Typescript:src/services/preProcess.ts":[
+"Typescript:src/services/preProcess.ts": [
 101,
 111,
 144,

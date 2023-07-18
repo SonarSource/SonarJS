@@ -1,26 +1,26 @@
 {
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
 22
 ],
-"vuetify:packages/vuetify/src/components/VImg/VImg.tsx":[
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 33
 ],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts":[
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
 26
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts":[
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
 43
 ],
-"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts":[
+"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
 26
 ],
-"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts":[
+"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
 29
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
 20
 ],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts":[
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
 28
 ]
 }

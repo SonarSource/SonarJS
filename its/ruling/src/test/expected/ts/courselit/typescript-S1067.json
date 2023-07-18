@@ -1,17 +1,17 @@
 {
-"courselit:apps/web/components/admin/media/media-preview.tsx":[
+"courselit:apps/web/components/admin/media/media-preview.tsx": [
 159
 ],
-"courselit:apps/web/components/public/article.tsx":[
+"courselit:apps/web/components/public/article.tsx": [
 142
 ],
-"courselit:apps/web/components/public/checkout/index.tsx":[
+"courselit:apps/web/components/public/checkout/index.tsx": [
 27
 ],
-"courselit:apps/web/graphql/users/logic.ts":[
+"courselit:apps/web/graphql/users/logic.ts": [
 59
 ],
-"courselit:packages/components-library/src/overview-and-detail/index.tsx":[
+"courselit:packages/components-library/src/overview-and-detail/index.tsx": [
 98
 ]
 }

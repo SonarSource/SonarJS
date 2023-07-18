@@ -1,5 +1,5 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 540,
 567,
 766,
@@ -9,7 +9,7 @@
 2097,
 2165
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 550,
 555,
 568,
@@ -36,7 +36,7 @@
 10734,
 10829
 ],
-"p5.js:src/color/creating_reading.js":[
+"p5.js:src/color/creating_reading.js": [
 55,
 85,
 128,
@@ -48,30 +48,30 @@
 555,
 591
 ],
-"p5.js:src/color/p5.Color.js":[
+"p5.js:src/color/p5.Color.js": [
 1007
 ],
-"p5.js:src/color/setting.js":[
+"p5.js:src/color/setting.js": [
 308
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 296,
 538,
 597
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 1132
 ],
-"p5.js:src/core/preload.js":[
+"p5.js:src/core/preload.js": [
 124
 ],
-"p5.js:src/core/rendering.js":[
+"p5.js:src/core/rendering.js": [
 52,
 143,
 228,
 304
 ],
-"p5.js:src/core/shape/2d_primitives.js":[
+"p5.js:src/core/shape/2d_primitives.js": [
 170,
 245,
 273,
@@ -79,14 +79,14 @@
 620,
 629
 ],
-"p5.js:src/core/shape/attributes.js":[
+"p5.js:src/core/shape/attributes.js": [
 70,
 174,
 248,
 315,
 350
 ],
-"p5.js:src/core/shape/curves.js":[
+"p5.js:src/core/shape/curves.js": [
 132,
 181,
 258,
@@ -95,15 +95,15 @@
 489,
 536
 ],
-"p5.js:src/core/shape/vertex.js":[
+"p5.js:src/core/shape/vertex.js": [
 244,
 600,
 954
 ],
-"p5.js:src/core/shim.js":[
+"p5.js:src/core/shim.js": [
 68
 ],
-"p5.js:src/core/transform.js":[
+"p5.js:src/core/transform.js": [
 144,
 209,
 239,
@@ -114,11 +114,11 @@
 453,
 519
 ],
-"p5.js:src/data/p5.TypedDict.js":[
+"p5.js:src/data/p5.TypedDict.js": [
 44,
 78
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 59,
 130,
 175,
@@ -149,32 +149,32 @@
 2966,
 2971
 ],
-"p5.js:src/events/acceleration.js":[
+"p5.js:src/events/acceleration.js": [
 457,
 501
 ],
-"p5.js:src/events/keyboard.js":[
+"p5.js:src/events/keyboard.js": [
 383
 ],
-"p5.js:src/image/image.js":[
+"p5.js:src/image/image.js": [
 98,
 150,
 292
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 66,
 367,
 650
 ],
-"p5.js:src/image/p5.Image.js":[
+"p5.js:src/image/p5.Image.js": [
 395
 ],
-"p5.js:src/image/pixels.js":[
+"p5.js:src/image/pixels.js": [
 489,
 581,
 735
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 281,
 406,
 702,
@@ -185,7 +185,7 @@
 1622,
 1690
 ],
-"p5.js:src/math/calculation.js":[
+"p5.js:src/math/calculation.js": [
 115,
 317,
 412,
@@ -194,27 +194,27 @@
 812,
 871
 ],
-"p5.js:src/math/math.js":[
+"p5.js:src/math/math.js": [
 42
 ],
-"p5.js:src/math/p5.Vector.js":[
+"p5.js:src/math/p5.Vector.js": [
 54
 ],
-"p5.js:src/math/random.js":[
+"p5.js:src/math/random.js": [
 128
 ],
-"p5.js:src/typography/attributes.js":[
+"p5.js:src/typography/attributes.js": [
 78,
 116,
 148,
 185
 ],
-"p5.js:src/typography/loading_displaying.js":[
+"p5.js:src/typography/loading_displaying.js": [
 86,
 219,
 279
 ],
-"p5.js:src/utilities/string_functions.js":[
+"p5.js:src/utilities/string_functions.js": [
 38,
 79,
 116,
@@ -224,7 +224,7 @@
 514,
 566
 ],
-"p5.js:src/webgl/3d_primitives.js":[
+"p5.js:src/webgl/3d_primitives.js": [
 50,
 128,
 285,
@@ -234,10 +234,10 @@
 883,
 1066
 ],
-"p5.js:src/webgl/interaction.js":[
+"p5.js:src/webgl/interaction.js": [
 51
 ],
-"p5.js:src/webgl/light.js":[
+"p5.js:src/webgl/light.js": [
 71,
 158,
 231,
@@ -246,11 +246,11 @@
 635,
 870
 ],
-"p5.js:src/webgl/loading.js":[
+"p5.js:src/webgl/loading.js": [
 102,
 613
 ],
-"p5.js:src/webgl/material.js":[
+"p5.js:src/webgl/material.js": [
 66,
 175,
 252,
@@ -260,26 +260,26 @@
 716,
 765
 ],
-"p5.js:src/webgl/p5.Matrix.js":[
+"p5.js:src/webgl/p5.Matrix.js": [
 30,
 75,
 419,
 474
 ],
-"p5.js:src/webgl/p5.RendererGL.Immediate.js":[
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 57,
 125
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 642,
 683,
 921,
 969
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 19
 ],
-"p5.js:test/test-reference.html":[
+"p5.js:test/test-reference.html": [
 153
 ]
 }

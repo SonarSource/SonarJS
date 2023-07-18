@@ -1,284 +1,284 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js":[
+"paper.js:examples/Node.js/AnimatedStar.js": [
 0
 ],
-"paper.js:examples/Node.js/BooleanOperations.js":[
+"paper.js:examples/Node.js/BooleanOperations.js": [
 0
 ],
-"paper.js:examples/Node.js/JSONtoPDF.js":[
+"paper.js:examples/Node.js/JSONtoPDF.js": [
 0
 ],
-"paper.js:examples/Node.js/RasterRemote.js":[
+"paper.js:examples/Node.js/RasterRemote.js": [
 0
 ],
-"paper.js:examples/Node.js/SvgExport.js":[
+"paper.js:examples/Node.js/SvgExport.js": [
 0
 ],
-"paper.js:examples/Node.js/SvgImport.js":[
+"paper.js:examples/Node.js/SvgImport.js": [
 0
 ],
-"paper.js:examples/Node.js/Tadpoles.js":[
+"paper.js:examples/Node.js/Tadpoles.js": [
 0
 ],
-"paper.js:examples/Worker/Worker.js":[
+"paper.js:examples/Worker/Worker.js": [
 0
 ],
-"paper.js:gulp/tasks/build.js":[
+"paper.js:gulp/tasks/build.js": [
 0
 ],
-"paper.js:gulp/tasks/dist.js":[
+"paper.js:gulp/tasks/dist.js": [
 0
 ],
-"paper.js:gulp/tasks/docs.js":[
+"paper.js:gulp/tasks/docs.js": [
 0
 ],
-"paper.js:gulp/tasks/jshint.js":[
+"paper.js:gulp/tasks/jshint.js": [
 0
 ],
-"paper.js:gulp/tasks/load.js":[
+"paper.js:gulp/tasks/load.js": [
 0
 ],
-"paper.js:gulp/tasks/minify.js":[
+"paper.js:gulp/tasks/minify.js": [
 0
 ],
-"paper.js:gulp/tasks/publish.js":[
+"paper.js:gulp/tasks/publish.js": [
 0
 ],
-"paper.js:gulp/tasks/test.js":[
+"paper.js:gulp/tasks/test.js": [
 0
 ],
-"paper.js:gulp/tasks/watch.js":[
+"paper.js:gulp/tasks/watch.js": [
 0
 ],
-"paper.js:gulp/typescript/typescript-definition-generator.js":[
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
 0
 ],
-"paper.js:gulp/utils/error.js":[
+"paper.js:gulp/utils/error.js": [
 0
 ],
-"paper.js:gulp/utils/options.js":[
+"paper.js:gulp/utils/options.js": [
 0
 ],
-"paper.js:gulpfile.js":[
+"paper.js:gulpfile.js": [
 0
 ],
-"paper.js:src/anim/Tween.js":[
+"paper.js:src/anim/Tween.js": [
 0
 ],
-"paper.js:src/basic/Line.js":[
+"paper.js:src/basic/Line.js": [
 0
 ],
-"paper.js:src/basic/Matrix.js":[
+"paper.js:src/basic/Matrix.js": [
 0
 ],
-"paper.js:src/basic/Point.js":[
+"paper.js:src/basic/Point.js": [
 0
 ],
-"paper.js:src/basic/Rectangle.js":[
+"paper.js:src/basic/Rectangle.js": [
 0
 ],
-"paper.js:src/basic/Size.js":[
+"paper.js:src/basic/Size.js": [
 0
 ],
-"paper.js:src/canvas/BlendMode.js":[
+"paper.js:src/canvas/BlendMode.js": [
 0
 ],
-"paper.js:src/canvas/CanvasProvider.js":[
+"paper.js:src/canvas/CanvasProvider.js": [
 0
 ],
-"paper.js:src/canvas/ProxyContext.js":[
+"paper.js:src/canvas/ProxyContext.js": [
 0
 ],
-"paper.js:src/constants.js":[
+"paper.js:src/constants.js": [
 0
 ],
-"paper.js:src/core/Base.js":[
+"paper.js:src/core/Base.js": [
 0
 ],
-"paper.js:src/core/Emitter.js":[
+"paper.js:src/core/Emitter.js": [
 0
 ],
-"paper.js:src/core/PaperScope.js":[
+"paper.js:src/core/PaperScope.js": [
 0
 ],
-"paper.js:src/core/PaperScopeItem.js":[
+"paper.js:src/core/PaperScopeItem.js": [
 0
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 0
 ],
-"paper.js:src/docs/global.js":[
+"paper.js:src/docs/global.js": [
 0
 ],
-"paper.js:src/dom/DomElement.js":[
+"paper.js:src/dom/DomElement.js": [
 0
 ],
-"paper.js:src/dom/DomEvent.js":[
+"paper.js:src/dom/DomEvent.js": [
 0
 ],
-"paper.js:src/event/Event.js":[
+"paper.js:src/event/Event.js": [
 0
 ],
-"paper.js:src/event/Key.js":[
+"paper.js:src/event/Key.js": [
 0
 ],
-"paper.js:src/event/KeyEvent.js":[
+"paper.js:src/event/KeyEvent.js": [
 0
 ],
-"paper.js:src/event/MouseEvent.js":[
+"paper.js:src/event/MouseEvent.js": [
 0
 ],
-"paper.js:src/export.js":[
+"paper.js:src/export.js": [
 0
 ],
-"paper.js:src/init.js":[
+"paper.js:src/init.js": [
 0
 ],
-"paper.js:src/item/ChangeFlag.js":[
+"paper.js:src/item/ChangeFlag.js": [
 0
 ],
-"paper.js:src/item/Group.js":[
+"paper.js:src/item/Group.js": [
 0
 ],
-"paper.js:src/item/HitResult.js":[
+"paper.js:src/item/HitResult.js": [
 0
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 0
 ],
-"paper.js:src/item/ItemSelection.js":[
+"paper.js:src/item/ItemSelection.js": [
 0
 ],
-"paper.js:src/item/Layer.js":[
+"paper.js:src/item/Layer.js": [
 0
 ],
-"paper.js:src/item/Project.js":[
+"paper.js:src/item/Project.js": [
 0
 ],
-"paper.js:src/item/Raster.js":[
+"paper.js:src/item/Raster.js": [
 0
 ],
-"paper.js:src/item/Shape.js":[
+"paper.js:src/item/Shape.js": [
 0
 ],
-"paper.js:src/item/SymbolDefinition.js":[
+"paper.js:src/item/SymbolDefinition.js": [
 0
 ],
-"paper.js:src/item/SymbolItem.js":[
+"paper.js:src/item/SymbolItem.js": [
 0
 ],
-"paper.js:src/load.js":[
+"paper.js:src/load.js": [
 0
 ],
-"paper.js:src/net/Http.js":[
+"paper.js:src/net/Http.js": [
 0
 ],
-"paper.js:src/node/canvas.js":[
+"paper.js:src/node/canvas.js": [
 0
 ],
-"paper.js:src/node/extend.js":[
+"paper.js:src/node/extend.js": [
 0
 ],
-"paper.js:src/node/self.js":[
+"paper.js:src/node/self.js": [
 0
 ],
-"paper.js:src/node/xml.js":[
+"paper.js:src/node/xml.js": [
 0
 ],
-"paper.js:src/options.js":[
+"paper.js:src/options.js": [
 0
 ],
-"paper.js:src/paper.js":[
+"paper.js:src/paper.js": [
 0
 ],
-"paper.js:src/path/CompoundPath.js":[
+"paper.js:src/path/CompoundPath.js": [
 0
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 0
 ],
-"paper.js:src/path/CurveLocation.js":[
+"paper.js:src/path/CurveLocation.js": [
 0
 ],
-"paper.js:src/path/Path.Constructors.js":[
+"paper.js:src/path/Path.Constructors.js": [
 0
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 0
 ],
-"paper.js:src/path/PathFitter.js":[
+"paper.js:src/path/PathFitter.js": [
 0
 ],
-"paper.js:src/path/PathFlattener.js":[
+"paper.js:src/path/PathFlattener.js": [
 0
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 0
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 0
 ],
-"paper.js:src/path/Segment.js":[
+"paper.js:src/path/Segment.js": [
 0
 ],
-"paper.js:src/path/SegmentPoint.js":[
+"paper.js:src/path/SegmentPoint.js": [
 0
 ],
-"paper.js:src/path/SegmentSelection.js":[
+"paper.js:src/path/SegmentSelection.js": [
 0
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 0
 ],
-"paper.js:src/style/Gradient.js":[
+"paper.js:src/style/Gradient.js": [
 0
 ],
-"paper.js:src/style/GradientStop.js":[
+"paper.js:src/style/GradientStop.js": [
 0
 ],
-"paper.js:src/style/Style.js":[
+"paper.js:src/style/Style.js": [
 0
 ],
-"paper.js:src/svg/SvgElement.js":[
+"paper.js:src/svg/SvgElement.js": [
 0
 ],
-"paper.js:src/svg/SvgExport.js":[
+"paper.js:src/svg/SvgExport.js": [
 0
 ],
-"paper.js:src/svg/SvgImport.js":[
+"paper.js:src/svg/SvgImport.js": [
 0
 ],
-"paper.js:src/svg/SvgStyles.js":[
+"paper.js:src/svg/SvgStyles.js": [
 0
 ],
-"paper.js:src/text/PointText.js":[
+"paper.js:src/text/PointText.js": [
 0
 ],
-"paper.js:src/text/TextItem.js":[
+"paper.js:src/text/TextItem.js": [
 0
 ],
-"paper.js:src/tool/Tool.js":[
+"paper.js:src/tool/Tool.js": [
 0
 ],
-"paper.js:src/tool/ToolEvent.js":[
+"paper.js:src/tool/ToolEvent.js": [
 0
 ],
-"paper.js:src/util/CollisionDetection.js":[
+"paper.js:src/util/CollisionDetection.js": [
 0
 ],
-"paper.js:src/util/Formatter.js":[
+"paper.js:src/util/Formatter.js": [
 0
 ],
-"paper.js:src/util/Numerical.js":[
+"paper.js:src/util/Numerical.js": [
 0
 ],
-"paper.js:src/util/UID.js":[
+"paper.js:src/util/UID.js": [
 0
 ],
-"paper.js:src/view/CanvasView.js":[
+"paper.js:src/view/CanvasView.js": [
 0
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 0
 ]
 }

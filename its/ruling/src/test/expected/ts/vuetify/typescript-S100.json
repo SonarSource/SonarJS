@@ -1,26 +1,26 @@
 {
-"vuetify:packages/docs/build/api-plugin.ts":[
+"vuetify:packages/docs/build/api-plugin.ts": [
 143
 ],
-"vuetify:packages/docs/build/examples-plugin.ts":[
+"vuetify:packages/docs/build/examples-plugin.ts": [
 7
 ],
-"vuetify:packages/docs/src/composables/codepen.ts":[
+"vuetify:packages/docs/src/composables/codepen.ts": [
 125
 ],
-"vuetify:packages/vuetify/src/composables/transition.ts":[
+"vuetify:packages/vuetify/src/composables/transition.ts": [
 20
 ],
-"vuetify:packages/vuetify/src/framework.ts":[
+"vuetify:packages/vuetify/src/framework.ts": [
 98
 ],
-"vuetify:packages/vuetify/src/services/goto/util.ts":[
+"vuetify:packages/vuetify/src/services/goto/util.ts": [
 42
 ],
-"vuetify:packages/vuetify/src/util/color/APCA.ts":[
+"vuetify:packages/vuetify/src/util/color/APCA.ts": [
 44
 ],
-"vuetify:packages/vuetify/src/util/colorUtils.ts":[
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
 53,
 80,
 93,

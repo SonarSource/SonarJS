@@ -1,11 +1,11 @@
 {
-"rxjs:src/observable/FromEventPatternObservable.ts":[
+"rxjs:src/observable/FromEventPatternObservable.ts": [
 76
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts":[
+"rxjs:src/observable/dom/AjaxObservable.ts": [
 29
 ],
-"rxjs:src/operator/takeWhile.ts":[
+"rxjs:src/operator/takeWhile.ts": [
 82
 ]
 }

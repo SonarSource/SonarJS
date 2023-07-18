@@ -1,13 +1,13 @@
 {
-"mootools-core:Source/Fx/Fx.CSS.js":[
+"mootools-core:Source/Fx/Fx.CSS.js": [
 31,
 35,
 118
 ],
-"mootools-core:Source/Slick/Slick.Parser.js":[
+"mootools-core:Source/Slick/Slick.Parser.js": [
 43
 ],
-"mootools-core:Source/Types/String.js":[
+"mootools-core:Source/Types/String.js": [
 79
 ]
 }

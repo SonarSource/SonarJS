@@ -1,14 +1,14 @@
 {
-"jquery:test/data/cleanScript.html":[
+"jquery:test/data/cleanScript.html": [
 6
 ],
-"jquery:test/data/json_obj.js":[
+"jquery:test/data/json_obj.js": [
 1
 ],
-"jquery:test/karma.context.html":[
+"jquery:test/karma.context.html": [
 20
 ],
-"jquery:test/karma.debug.html":[
+"jquery:test/karma.debug.html": [
 23
 ]
 }

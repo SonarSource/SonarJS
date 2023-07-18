@@ -1,14 +1,14 @@
 {
-"vuetify:packages/docs/src/composables/ad.ts":[
+"vuetify:packages/docs/src/composables/ad.ts": [
 31
 ],
-"vuetify:packages/vuetify/dev/Playground.datatable.vue":[
+"vuetify:packages/vuetify/dev/Playground.datatable.vue": [
 121,
 121,
 123,
 123
 ],
-"vuetify:packages/vuetify/src/util/helpers.ts":[
+"vuetify:packages/vuetify/src/util/helpers.ts": [
 429
 ]
 }

@@ -1,36 +1,36 @@
 {
-"angular.js:Gruntfile.js":[
+"angular.js:Gruntfile.js": [
 41
 ],
-"angular.js:lib/grunt/utils.js":[
+"angular.js:lib/grunt/utils.js": [
 262
 ],
-"angular.js:src/Angular.js":[
+"angular.js:src/Angular.js": [
 345
 ],
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 418,
 421
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 2234
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 646
 ],
-"angular.js:src/ng/directive/ngModelOptions.js":[
+"angular.js:src/ng/directive/ngModelOptions.js": [
 56
 ],
-"angular.js:src/ng/filter/limitTo.js":[
+"angular.js:src/ng/filter/limitTo.js": [
 120
 ],
-"angular.js:src/ng/http.js":[
+"angular.js:src/ng/http.js": [
 1394
 ],
-"angular.js:src/ng/location.js":[
+"angular.js:src/ng/location.js": [
 222
 ],
-"angular.js:src/ng/testability.js":[
+"angular.js:src/ng/testability.js": [
 42
 ]
 }

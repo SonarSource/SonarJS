@@ -1,170 +1,170 @@
 {
-"fireact:functions/index.js":[
+"fireact:functions/index.js": [
 653
 ],
-"fireact:src/components/Breadcrumb/index.js":[
+"fireact:src/components/Breadcrumb/index.js": [
 27
 ],
-"fireact:src/components/DataCreate/index.js":[
+"fireact:src/components/DataCreate/index.js": [
 76
 ],
-"fireact:src/components/DataDelete/index.js":[
+"fireact:src/components/DataDelete/index.js": [
 27
 ],
-"fireact:src/components/DataEdit/index.js":[
+"fireact:src/components/DataEdit/index.js": [
 78
 ],
-"fireact:src/components/DataList/index.js":[
+"fireact:src/components/DataList/index.js": [
 70
 ],
-"fireact:src/components/DataTable/index.js":[
+"fireact:src/components/DataTable/index.js": [
 41
 ],
-"fireact:src/components/FirebaseAuth/firebase.js":[
+"fireact:src/components/FirebaseAuth/firebase.js": [
 11
 ],
-"fireact:src/components/FirebaseAuth/index.js":[
+"fireact:src/components/FirebaseAuth/index.js": [
 43
 ],
-"fireact:src/components/FirebaseUI/index.js":[
+"fireact:src/components/FirebaseUI/index.js": [
 79
 ],
-"fireact:src/components/Form/ButtonRow.js":[
+"fireact:src/components/Form/ButtonRow.js": [
 12
 ],
-"fireact:src/components/Form/Form.js":[
+"fireact:src/components/Form/Form.js": [
 63
 ],
-"fireact:src/components/Form/FormResult.js":[
+"fireact:src/components/Form/FormResult.js": [
 36
 ],
-"fireact:src/components/Form/Input.js":[
+"fireact:src/components/Form/Input.js": [
 88
 ],
-"fireact:src/components/Form/index.js":[
+"fireact:src/components/Form/index.js": [
 11
 ],
-"fireact:src/components/Layout/index.js":[
+"fireact:src/components/Layout/index.js": [
 157
 ],
-"fireact:src/components/Loader/index.js":[
+"fireact:src/components/Loader/index.js": [
 30
 ],
-"fireact:src/components/Logo/index.js":[
+"fireact:src/components/Logo/index.js": [
 12
 ],
-"fireact:src/components/Pagination/index.js":[
+"fireact:src/components/Pagination/index.js": [
 119
 ],
-"fireact:src/components/UserAvatar/index.js":[
+"fireact:src/components/UserAvatar/index.js": [
 20
 ],
-"fireact:src/components/menus/AccountMenu/index.js":[
+"fireact:src/components/menus/AccountMenu/index.js": [
 51
 ],
-"fireact:src/components/menus/AppMenu/index.js":[
+"fireact:src/components/menus/AppMenu/index.js": [
 34
 ],
-"fireact:src/components/menus/UserMenu/index.js":[
+"fireact:src/components/menus/UserMenu/index.js": [
 79
 ],
-"fireact:src/components/routers/AuthRouter/index.js":[
+"fireact:src/components/routers/AuthRouter/index.js": [
 35
 ],
-"fireact:src/components/routers/PublicRouter/index.js":[
+"fireact:src/components/routers/PublicRouter/index.js": [
 19
 ],
-"fireact:src/components/templates/AccountTemplate/index.js":[
+"fireact:src/components/templates/AccountTemplate/index.js": [
 94
 ],
-"fireact:src/components/templates/AppTemplate/index.js":[
+"fireact:src/components/templates/AppTemplate/index.js": [
 15
 ],
-"fireact:src/components/templates/PublicTemplate/index.js":[
+"fireact:src/components/templates/PublicTemplate/index.js": [
 16
 ],
-"fireact:src/components/user/UserPageLayout/index.js":[
+"fireact:src/components/user/UserPageLayout/index.js": [
 46
 ],
-"fireact:src/components/user/UserProfileView/index.js":[
+"fireact:src/components/user/UserProfileView/index.js": [
 137
 ],
-"fireact:src/libs/log/index.js":[
+"fireact:src/libs/log/index.js": [
 28
 ],
-"fireact:src/libs/user/index.js":[
+"fireact:src/libs/user/index.js": [
 60
 ],
-"fireact:src/pages/auth/Home/index.js":[
+"fireact:src/pages/auth/Home/index.js": [
 98
 ],
-"fireact:src/pages/auth/accounts/AddUser/index.js":[
+"fireact:src/pages/auth/accounts/AddUser/index.js": [
 160
 ],
-"fireact:src/pages/auth/accounts/DeleteAccount/index.js":[
+"fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 99
 ],
-"fireact:src/pages/auth/accounts/NewAccount/index.js":[
+"fireact:src/pages/auth/accounts/NewAccount/index.js": [
 94
 ],
-"fireact:src/pages/auth/accounts/Overview/index.js":[
+"fireact:src/pages/auth/accounts/Overview/index.js": [
 38
 ],
-"fireact:src/pages/auth/accounts/PaymentList/index.js":[
+"fireact:src/pages/auth/accounts/PaymentList/index.js": [
 181
 ],
-"fireact:src/pages/auth/accounts/PaymentMethod/index.js":[
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 191
 ],
-"fireact:src/pages/auth/accounts/UserList/index.js":[
+"fireact:src/pages/auth/accounts/UserList/index.js": [
 131
 ],
-"fireact:src/pages/auth/accounts/UserRole/index.js":[
+"fireact:src/pages/auth/accounts/UserRole/index.js": [
 146
 ],
-"fireact:src/pages/auth/accounts/images/ImageCreate.js":[
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
 112
 ],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js":[
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
 148
 ],
-"fireact:src/pages/auth/accounts/images/ImageList.js":[
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
 175
 ],
-"fireact:src/pages/auth/accounts/images/ImagesApis.js":[
+"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
 84
 ],
-"fireact:src/pages/auth/user/DeleteUser/index.js":[
+"fireact:src/pages/auth/user/DeleteUser/index.js": [
 108
 ],
-"fireact:src/pages/auth/user/Invite/index.js":[
+"fireact:src/pages/auth/user/Invite/index.js": [
 108
 ],
-"fireact:src/pages/auth/user/UpdateEmail/index.js":[
+"fireact:src/pages/auth/user/UpdateEmail/index.js": [
 133
 ],
-"fireact:src/pages/auth/user/UpdateName/index.js":[
+"fireact:src/pages/auth/user/UpdateName/index.js": [
 99
 ],
-"fireact:src/pages/auth/user/UpdatePassword/index.js":[
+"fireact:src/pages/auth/user/UpdatePassword/index.js": [
 141
 ],
-"fireact:src/pages/auth/user/UpdatePhone/index.js":[
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
 171
 ],
-"fireact:src/pages/auth/user/UserProfile/index.js":[
+"fireact:src/pages/auth/user/UserProfile/index.js": [
 14
 ],
-"fireact:src/pages/auth/user/VerifyEmail/index.js":[
+"fireact:src/pages/auth/user/VerifyEmail/index.js": [
 101
 ],
-"fireact:src/pages/auth/user/ViewLogs/index.js":[
+"fireact:src/pages/auth/user/ViewLogs/index.js": [
 145
 ],
-"fireact:src/pages/public/PageNotFound/index.js":[
+"fireact:src/pages/public/PageNotFound/index.js": [
 14
 ],
-"fireact:src/pages/public/SignIn/index.js":[
+"fireact:src/pages/public/SignIn/index.js": [
 19
 ]
 }

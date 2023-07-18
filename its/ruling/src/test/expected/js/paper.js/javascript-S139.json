@@ -1,25 +1,25 @@
 {
-"paper.js:gulp/tasks/docs.js":[
+"paper.js:gulp/tasks/docs.js": [
 21,
 22
 ],
-"paper.js:src/basic/Matrix.js":[
+"paper.js:src/basic/Matrix.js": [
 77,
 713
 ],
-"paper.js:src/canvas/CanvasProvider.js":[
+"paper.js:src/canvas/CanvasProvider.js": [
 31
 ],
-"paper.js:src/core/Emitter.js":[
+"paper.js:src/core/Emitter.js": [
 30
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 220,
 236,
 237,
 362
 ],
-"paper.js:src/event/Key.js":[
+"paper.js:src/event/Key.js": [
 45,
 46,
 47,
@@ -27,10 +27,10 @@
 54,
 55
 ],
-"paper.js:src/export.js":[
+"paper.js:src/export.js": [
 47
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 86,
 162,
 835,
@@ -38,28 +38,28 @@
 2285,
 4374
 ],
-"paper.js:src/item/Project.js":[
+"paper.js:src/item/Project.js": [
 37,
 264,
 387,
 874
 ],
-"paper.js:src/item/Raster.js":[
+"paper.js:src/item/Raster.js": [
 28,
 184
 ],
-"paper.js:src/item/Shape.js":[
+"paper.js:src/item/Shape.js": [
 295
 ],
-"paper.js:src/node/extend.js":[
+"paper.js:src/node/extend.js": [
 40,
 90
 ],
-"paper.js:src/path/CompoundPath.js":[
+"paper.js:src/path/CompoundPath.js": [
 148,
 339
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 786,
 789,
 833,
@@ -83,11 +83,11 @@
 2218,
 2222
 ],
-"paper.js:src/path/CurveLocation.js":[
+"paper.js:src/path/CurveLocation.js": [
 68,
 530
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 117,
 144,
 739,
@@ -97,31 +97,31 @@
 2676,
 2709
 ],
-"paper.js:src/path/PathFitter.js":[
+"paper.js:src/path/PathFitter.js": [
 39,
 188
 ],
-"paper.js:src/path/PathFlattener.js":[
+"paper.js:src/path/PathFlattener.js": [
 45,
 46,
 47
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 340,
 546,
 547,
 549,
 550
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 187,
 268,
 281
 ],
-"paper.js:src/path/SegmentSelection.js":[
+"paper.js:src/path/SegmentSelection.js": [
 20
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 97,
 168,
 179,
@@ -131,22 +131,22 @@
 197,
 569
 ],
-"paper.js:src/style/Style.js":[
+"paper.js:src/style/Style.js": [
 116
 ],
-"paper.js:src/svg/SvgStyles.js":[
+"paper.js:src/svg/SvgStyles.js": [
 27
 ],
-"paper.js:src/util/CollisionDetection.js":[
+"paper.js:src/util/CollisionDetection.js": [
 157
 ],
-"paper.js:src/util/Numerical.js":[
+"paper.js:src/util/Numerical.js": [
 81,
 97,
 195,
 283
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 1033,
 1042,
 1043,

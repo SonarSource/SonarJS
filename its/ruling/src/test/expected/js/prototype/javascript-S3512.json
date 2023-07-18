@@ -1,11 +1,11 @@
 {
-"prototype:ext/update_helper/update_helper.js":[
+"prototype:ext/update_helper/update_helper.js": [
 14
 ],
-"prototype:src/prototype/deprecated.js":[
+"prototype:src/prototype/deprecated.js": [
 199
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 204,
 1043,
 2239,
@@ -13,31 +13,31 @@
 2848,
 2850
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 134
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 1463,
 1465
 ],
-"prototype:src/prototype/lang/array.js":[
+"prototype:src/prototype/lang/array.js": [
 404
 ],
-"prototype:src/prototype/lang/enumerable.js":[
+"prototype:src/prototype/lang/enumerable.js": [
 786
 ],
-"prototype:src/prototype/lang/hash.js":[
+"prototype:src/prototype/lang/hash.js": [
 303,
 374
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 679,
 680
 ],
-"prototype:test/console.html":[
+"prototype:test/console.html": [
 31
 ],
-"prototype:test/functional/event.html":[
+"prototype:test/functional/event.html": [
 59,
 127,
 143,

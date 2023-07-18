@@ -1,17 +1,17 @@
 {
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 68,
 582,
 615,
 825
 ],
-"jquery:src/ajax/jsonp.js":[
+"jquery:src/ajax/jsonp.js": [
 14
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 94
 ],
-"jquery:src/attributes/classes.js":[
+"jquery:src/attributes/classes.js": [
 36,
 42,
 77,
@@ -19,50 +19,50 @@
 132,
 171
 ],
-"jquery:src/attributes/val.js":[
+"jquery:src/attributes/val.js": [
 143
 ],
-"jquery:src/callbacks.js":[
+"jquery:src/callbacks.js": [
 76
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 271,
 336
 ],
-"jquery:src/core/ready-no-deferred.js":[
+"jquery:src/core/ready-no-deferred.js": [
 34,
 42
 ],
-"jquery:src/core/ready.js":[
+"jquery:src/core/ready.js": [
 38,
 46
 ],
-"jquery:src/css/adjustCSS.js":[
+"jquery:src/css/adjustCSS.js": [
 35
 ],
-"jquery:src/css/finalPropName.js":[
+"jquery:src/css/finalPropName.js": [
 14
 ],
-"jquery:src/data.js":[
+"jquery:src/data.js": [
 105
 ],
-"jquery:src/data/Data.js":[
+"jquery:src/data/Data.js": [
 7,
 132
 ],
-"jquery:src/deferred.js":[
+"jquery:src/deferred.js": [
 364,
 384
 ],
-"jquery:src/deprecated.js":[
+"jquery:src/deprecated.js": [
 54
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 554,
 595,
 651
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 91,
 133,
 153,
@@ -72,19 +72,19 @@
 323,
 327
 ],
-"jquery:src/event/trigger.js":[
+"jquery:src/event/trigger.js": [
 95
 ],
-"jquery:src/manipulation/buildFragment.js":[
+"jquery:src/manipulation/buildFragment.js": [
 43,
 62,
 85
 ],
-"jquery:src/queue.js":[
+"jquery:src/queue.js": [
 118,
 129
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 247,
 395,
 722,
@@ -107,17 +107,17 @@
 1529,
 1590
 ],
-"jquery:src/selector/uniqueSort.js":[
+"jquery:src/selector/uniqueSort.js": [
 77,
 82
 ],
-"jquery:test/data/ajax/unreleasedXHR.html":[
+"jquery:test/data/ajax/unreleasedXHR.html": [
 17
 ],
-"jquery:test/delegatetest.html":[
+"jquery:test/delegatetest.html": [
 156
 ],
-"jquery:test/hovertest.html":[
+"jquery:test/hovertest.html": [
 103,
 107
 ]

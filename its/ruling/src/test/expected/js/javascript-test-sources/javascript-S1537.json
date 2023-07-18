@@ -1,53 +1,53 @@
 {
-"javascript-test-sources:src/ace/demo/code_lens.html":[
+"javascript-test-sources:src/ace/demo/code_lens.html": [
 73,
 86,
 90,
 103
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
 372
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
 273
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js": [
 50
 ],
-"javascript-test-sources:src/ace/demo/toolbar.html":[
+"javascript-test-sources:src/ace/demo/toolbar.html": [
 34,
 85
 ],
-"javascript-test-sources:src/ace/demo/transform.html":[
+"javascript-test-sources:src/ace/demo/transform.html": [
 99,
 106,
 114,
 121
 ],
-"javascript-test-sources:src/ace/demo/webpack/webpack.config.js":[
+"javascript-test-sources:src/ace/demo/webpack/webpack.config.js": [
 21,
 22
 ],
-"javascript-test-sources:src/ace/kitchen-sink.html":[
+"javascript-test-sources:src/ace/kitchen-sink.html": [
 71,
 101
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 5560
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 5881,
 6739,
 14510,
 16458
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/php/php.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
 261,
 306,
 514,
 831
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 4836,
 4884,
 4929,
@@ -59,46 +59,46 @@
 5054,
 5102
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
 157,
 200
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 40,
 5385,
 5486
 ],
-"javascript-test-sources:src/ace/tool/regexp_tokenizer.js":[
+"javascript-test-sources:src/ace/tool/regexp_tokenizer.js": [
 24
 ],
-"javascript-test-sources:src/ace/tool/update_deps.js":[
+"javascript-test-sources:src/ace/tool/update_deps.js": [
 175
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/factories/tag.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/factories/tag.js": [
 22
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/gulpfile.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/gulpfile.js": [
 8
 ],
-"javascript-test-sources:src/ecmascript6/http/karma.conf.js":[
+"javascript-test-sources:src/ecmascript6/http/karma.conf.js": [
 25
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
 14,
 113,
 192,
 201,
 433
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/clean.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/clean.js": [
 9
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js": [
 16,
 23,
 42
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/js.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/js.js": [
 44,
 45,
 75,
@@ -109,48 +109,48 @@
 120,
 128
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/less.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/less.js": [
 19,
 38,
 41
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/utils/notify.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/utils/notify.js": [
 16,
 27
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/gulpfile.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/gulpfile.js": [
 7,
 26,
 27
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
 47,
 79,
 81,
 256
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/EUCountries.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/EUCountries.es6.js": [
 32
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/config.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/config.es6.js": [
 53
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/constants.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/constants.es6.js": [
 22,
 23
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js": [
 52
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js": [
 11,
 20
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js": [
 14,
 51
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/propTypes.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/propTypes.es6.js": [
 6,
 12,
 18,
@@ -169,17 +169,17 @@
 118,
 119
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js": [
 50,
 61
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
 105,
 140,
 169,
 222
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
 27,
 52,
 82,
@@ -198,31 +198,31 @@
 453,
 475
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js": [
 70,
 78,
 119
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/sideNavAboutMenuItems.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/sideNavAboutMenuItems.es6.js": [
 14
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/buildProps.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/buildProps.es6.js": [
 17
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/components.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/components.es6.js": [
 109
 ],
-"javascript-test-sources:src/ecmascript6/router/karma.conf.js":[
+"javascript-test-sources:src/ecmascript6/router/karma.conf.js": [
 34
 ],
-"javascript-test-sources:src/ecmascript6/router/test-main.js":[
+"javascript-test-sources:src/ecmascript6/router/test-main.js": [
 32
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/api.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/api.es6.js": [
 28,
 33
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
 44,
 104,
 142,
@@ -258,48 +258,48 @@
 1298,
 1313
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/account.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/account.es6.js": [
 15
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js": [
 119
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/comment.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/comment.es6.js": [
 20
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js": [
 15,
 24,
 31,
 32,
 50
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/message.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/message.es6.js": [
 21
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/report.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/report.es6.js": [
 43
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/account.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/account.js": [
 18
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/base.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/base.js": [
 24,
 87
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js": [
 19
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/link.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/link.js": [
 18
 ],
-"javascript-test-sources:src/ecmascript6/templating/protractor-shared.conf.js":[
+"javascript-test-sources:src/ecmascript6/templating/protractor-shared.conf.js": [
 8
 ],
-"javascript-test-sources:src/ecmascript6/templating/protractor.conf.js":[
+"javascript-test-sources:src/ecmascript6/templating/protractor.conf.js": [
 5
 ],
-"javascript-test-sources:src/ecmascript6/templating/src/lib/compiler/selector_config.js":[
+"javascript-test-sources:src/ecmascript6/templating/src/lib/compiler/selector_config.js": [
 7
 ]
 }

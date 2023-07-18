@@ -1,28 +1,28 @@
 {
-"react-cloud-music:config/env.js":[
+"react-cloud-music:config/env.js": [
 3,
 4,
 5
 ],
-"react-cloud-music:config/jest/fileTransform.js":[
+"react-cloud-music:config/jest/fileTransform.js": [
 3,
 4
 ],
-"react-cloud-music:config/modules.js":[
+"react-cloud-music:config/modules.js": [
 3,
 4,
 5,
 6
 ],
-"react-cloud-music:config/paths.js":[
+"react-cloud-music:config/paths.js": [
 3,
 4,
 5
 ],
-"react-cloud-music:config/pnpTs.js":[
+"react-cloud-music:config/pnpTs.js": [
 3
 ],
-"react-cloud-music:config/webpack.config.js":[
+"react-cloud-music:config/webpack.config.js": [
 3,
 4,
 5,
@@ -50,7 +50,7 @@
 27,
 29
 ],
-"react-cloud-music:config/webpackDevServer.config.js":[
+"react-cloud-music:config/webpackDevServer.config.js": [
 3,
 4,
 5,
@@ -58,11 +58,11 @@
 7,
 8
 ],
-"react-cloud-music:rename.js":[
+"react-cloud-music:rename.js": [
 1,
 2
 ],
-"react-cloud-music:scripts/build.js":[
+"react-cloud-music:scripts/build.js": [
 15,
 18,
 19,
@@ -77,7 +77,7 @@
 28,
 51
 ],
-"react-cloud-music:scripts/start.js":[
+"react-cloud-music:scripts/start.js": [
 15,
 18,
 19,
@@ -92,53 +92,53 @@
 33,
 66
 ],
-"react-cloud-music:scripts/test.js":[
+"react-cloud-music:scripts/test.js": [
 16,
 19,
 20
 ],
-"react-cloud-music:server.js":[
+"react-cloud-music:server.js": [
 1,
 2
 ],
-"react-cloud-music:src/api/script.js":[
+"react-cloud-music:src/api/script.js": [
 1
 ],
-"react-cloud-music:src/application/User/Login/style.js":[
+"react-cloud-music:src/application/User/Login/style.js": [
 117
 ],
-"react-cloud-music:ts-music/config/env.js":[
+"react-cloud-music:ts-music/config/env.js": [
 3,
 4,
 5
 ],
-"react-cloud-music:ts-music/config/getHttpsConfig.js":[
+"react-cloud-music:ts-music/config/getHttpsConfig.js": [
 3,
 4,
 5,
 6,
 7
 ],
-"react-cloud-music:ts-music/config/jest/fileTransform.js":[
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
 3,
 4
 ],
-"react-cloud-music:ts-music/config/modules.js":[
+"react-cloud-music:ts-music/config/modules.js": [
 3,
 4,
 5,
 6,
 7
 ],
-"react-cloud-music:ts-music/config/paths.js":[
+"react-cloud-music:ts-music/config/paths.js": [
 3,
 4,
 5
 ],
-"react-cloud-music:ts-music/config/pnpTs.js":[
+"react-cloud-music:ts-music/config/pnpTs.js": [
 3
 ],
-"react-cloud-music:ts-music/config/webpack.config.js":[
+"react-cloud-music:ts-music/config/webpack.config.js": [
 3,
 4,
 5,
@@ -165,7 +165,7 @@
 26,
 28
 ],
-"react-cloud-music:ts-music/config/webpackDevServer.config.js":[
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
 3,
 4,
 5,
@@ -175,7 +175,7 @@
 9,
 10
 ],
-"react-cloud-music:ts-music/scripts/build.js":[
+"react-cloud-music:ts-music/scripts/build.js": [
 15,
 18,
 19,
@@ -190,7 +190,7 @@
 28,
 51
 ],
-"react-cloud-music:ts-music/scripts/start.js":[
+"react-cloud-music:ts-music/scripts/start.js": [
 15,
 18,
 19,
@@ -205,7 +205,7 @@
 33,
 66
 ],
-"react-cloud-music:ts-music/scripts/test.js":[
+"react-cloud-music:ts-music/scripts/test.js": [
 16,
 19,
 20

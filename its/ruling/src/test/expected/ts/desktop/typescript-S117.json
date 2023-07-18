@@ -1,26 +1,26 @@
 {
-"desktop:app/src/lib/api.ts":[
+"desktop:app/src/lib/api.ts": [
 855
 ],
-"desktop:app/src/lib/markdown-filters/video-url-regex.ts":[
+"desktop:app/src/lib/markdown-filters/video-url-regex.ts": [
 3
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 4310
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 716
 ],
-"desktop:app/src/ui/donut.tsx":[
+"desktop:app/src/ui/donut.tsx": [
 87
 ],
-"desktop:app/src/ui/history/commit-list.tsx":[
+"desktop:app/src/ui/history/commit-list.tsx": [
 344
 ],
-"desktop:app/src/ui/main-process-proxy.ts":[
+"desktop:app/src/ui/main-process-proxy.ts": [
 98
 ],
-"desktop:app/src/ui/octicons/octicons.generated.ts":[
+"desktop:app/src/ui/octicons/octicons.generated.ts": [
 1014
 ]
 }

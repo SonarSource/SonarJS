@@ -1,20 +1,20 @@
 {
-"angular.js:docs/config/templates/app/angular-service.template.js":[
+"angular.js:docs/config/templates/app/angular-service.template.js": [
 4
 ],
-"angular.js:docs/config/templates/app/indexPage.template.html":[
+"angular.js:docs/config/templates/app/indexPage.template.html": [
 26
 ],
-"angular.js:docs/config/templates/app/nav-data.template.js":[
+"angular.js:docs/config/templates/app/nav-data.template.js": [
 5
 ],
-"angular.js:docs/config/templates/app/pages-data.template.js":[
+"angular.js:docs/config/templates/app/pages-data.template.js": [
 5
 ],
-"angular.js:docs/config/templates/examples/protractorTests.template.js":[
+"angular.js:docs/config/templates/examples/protractorTests.template.js": [
 4
 ],
-"angular.js:docs/config/templates/examples/template.js":[
+"angular.js:docs/config/templates/examples/template.js": [
 3
 ]
 }

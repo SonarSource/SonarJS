@@ -1,11 +1,11 @@
 {
-"postgraphql:src/graphql/utils/memoize.ts":[
+"postgraphql:src/graphql/utils/memoize.ts": [
 28
 ],
-"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts":[
+"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
 92
 ],
-"postgraphql:src/postgres/utils/__tests__/sql-test.ts":[
+"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
 155
 ]
 }

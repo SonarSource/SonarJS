@@ -1,11 +1,11 @@
 {
-"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx":[
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
 37
 ],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts":[
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
 263
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tests.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tests.tsx": [
 21,
 31
 ]

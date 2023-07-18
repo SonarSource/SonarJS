@@ -1,31 +1,31 @@
 {
-"Typescript:src/compiler/binder.ts":[
+"Typescript:src/compiler/binder.ts": [
 135
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 62,
 68
 ],
-"Typescript:src/compiler/scanner.ts":[
+"Typescript:src/compiler/scanner.ts": [
 6
 ],
-"Typescript:src/compiler/types.ts":[
+"Typescript:src/compiler/types.ts": [
 2361
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 40,
 776
 ],
-"Typescript:src/server/builder.ts":[
+"Typescript:src/server/builder.ts": [
 89
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 35
 ],
-"Typescript:src/server/project.ts":[
+"Typescript:src/server/project.ts": [
 108
 ],
-"Typescript:src/services/formatting/ruleOperationContext.ts":[
+"Typescript:src/services/formatting/ruleOperationContext.ts": [
 7,
 9
 ]

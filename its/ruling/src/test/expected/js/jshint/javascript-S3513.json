@@ -1,19 +1,19 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 4476,
 5330,
 5388
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 202,
 1876,
 1882
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 57,
 65
 ],
-"jshint:tests/helpers/browser/index.html":[
+"jshint:tests/helpers/browser/index.html": [
 23,
 30
 ]

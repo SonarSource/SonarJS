@@ -1,8 +1,8 @@
 {
-"eigen:scripts/algolia-example-galleries-near-me.ts":[
+"eigen:scripts/algolia-example-galleries-near-me.ts": [
 7
 ],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/uploadFileToS3.ts":[
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/uploadFileToS3.ts": [
 14,
 15
 ]

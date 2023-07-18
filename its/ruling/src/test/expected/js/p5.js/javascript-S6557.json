@@ -1,25 +1,25 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 151,
 152
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 214,
 215
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 129,
 720
 ],
-"p5.js:src/core/p5.Element.js":[
+"p5.js:src/core/p5.Element.js": [
 101
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 154,
 1535,
 3399
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 138
 ]
 }

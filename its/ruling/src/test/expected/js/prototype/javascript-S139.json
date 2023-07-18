@@ -1,18 +1,18 @@
 {
-"prototype:ext/update_helper/prototype_update_helper.html":[
+"prototype:ext/update_helper/prototype_update_helper.html": [
 33,
 267
 ],
-"prototype:ext/update_helper/update_helper.js":[
+"prototype:ext/update_helper/update_helper.js": [
 19
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 810
 ],
-"prototype:src/prototype/lang/array.js":[
+"prototype:src/prototype/lang/array.js": [
 187
 ],
-"prototype:test/functional/event.html":[
+"prototype:test/functional/event.html": [
 122
 ]
 }

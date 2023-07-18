@@ -1,20 +1,20 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 386
 ],
-"Typescript:scripts/errorCheck.ts":[
+"Typescript:scripts/errorCheck.ts": [
 62
 ],
-"Typescript:scripts/word2md.ts":[
+"Typescript:scripts/word2md.ts": [
 180
 ],
-"Typescript:src/compiler/sourcemap.ts":[
+"Typescript:src/compiler/sourcemap.ts": [
 98
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 133
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 422
 ]
 }

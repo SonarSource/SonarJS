@@ -1,152 +1,152 @@
 {
-"Typescript:scripts/bisect-test.ts":[
+"Typescript:scripts/bisect-test.ts": [
 56
 ],
-"Typescript:scripts/configureNightly.ts":[
+"Typescript:scripts/configureNightly.ts": [
 73
 ],
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts":[
+"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 161
 ],
-"Typescript:scripts/processDiagnosticMessages.ts":[
+"Typescript:scripts/processDiagnosticMessages.ts": [
 244
 ],
-"Typescript:src/compiler/commandLineParser.ts":[
+"Typescript:src/compiler/commandLineParser.ts": [
 1707
 ],
-"Typescript:src/compiler/comments.ts":[
+"Typescript:src/compiler/comments.ts": [
 429
 ],
-"Typescript:src/compiler/sourcemap.ts":[
+"Typescript:src/compiler/sourcemap.ts": [
 495
 ],
-"Typescript:src/compiler/transformers/jsx.ts":[
+"Typescript:src/compiler/transformers/jsx.ts": [
 539
 ],
-"Typescript:src/harness/loggedIO.ts":[
+"Typescript:src/harness/loggedIO.ts": [
 343
 ],
-"Typescript:src/harness/rwcRunner.ts":[
+"Typescript:src/harness/rwcRunner.ts": [
 262
 ],
-"Typescript:src/harness/typeWriter.ts":[
+"Typescript:src/harness/typeWriter.ts": [
 76
 ],
-"Typescript:src/harness/virtualFileSystem.ts":[
+"Typescript:src/harness/virtualFileSystem.ts": [
 223
 ],
-"Typescript:src/server/builder.ts":[
+"Typescript:src/server/builder.ts": [
 389
 ],
-"Typescript:src/server/lsHost.ts":[
+"Typescript:src/server/lsHost.ts": [
 241
 ],
-"Typescript:src/server/project.ts":[
+"Typescript:src/server/project.ts": [
 1106
 ],
-"Typescript:src/server/scriptInfo.ts":[
+"Typescript:src/server/scriptInfo.ts": [
 379
 ],
-"Typescript:src/server/scriptVersionCache.ts":[
+"Typescript:src/server/scriptVersionCache.ts": [
 948
 ],
-"Typescript:src/server/shared.ts":[
+"Typescript:src/server/shared.ts": [
 27
 ],
-"Typescript:src/server/types.ts":[
+"Typescript:src/server/types.ts": [
 99
 ],
-"Typescript:src/server/typingsCache.ts":[
+"Typescript:src/server/typingsCache.ts": [
 128
 ],
-"Typescript:src/server/typingsInstaller/nodeTypingsInstaller.ts":[
+"Typescript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 186
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts":[
+"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
 438
 ],
-"Typescript:src/server/utilities.ts":[
+"Typescript:src/server/utilities.ts": [
 242
 ],
-"Typescript:src/server/watchGuard/watchGuard.ts":[
+"Typescript:src/server/watchGuard/watchGuard.ts": [
 19
 ],
-"Typescript:src/services/codefixes/disableJsDiagnostics.ts":[
+"Typescript:src/services/codefixes/disableJsDiagnostics.ts": [
 70
 ],
-"Typescript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts":[
+"Typescript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts": [
 52
 ],
-"Typescript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts":[
+"Typescript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts": [
 68
 ],
-"Typescript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts":[
+"Typescript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
 49
 ],
-"Typescript:src/services/codefixes/fixConstructorForDerivedNeedSuperCall.ts":[
+"Typescript:src/services/codefixes/fixConstructorForDerivedNeedSuperCall.ts": [
 23
 ],
-"Typescript:src/services/codefixes/fixForgottenThisPropertyAccess.ts":[
+"Typescript:src/services/codefixes/fixForgottenThisPropertyAccess.ts": [
 20
 ],
-"Typescript:src/services/codefixes/unusedIdentifierFixes.ts":[
+"Typescript:src/services/codefixes/unusedIdentifierFixes.ts": [
 195
 ],
-"Typescript:src/services/formatting/formattingContext.ts":[
+"Typescript:src/services/formatting/formattingContext.ts": [
 101
 ],
-"Typescript:src/services/formatting/formattingRequestKind.ts":[
+"Typescript:src/services/formatting/formattingRequestKind.ts": [
 12
 ],
-"Typescript:src/services/formatting/formattingScanner.ts":[
+"Typescript:src/services/formatting/formattingScanner.ts": [
 305
 ],
-"Typescript:src/services/formatting/references.ts":[
+"Typescript:src/services/formatting/references.ts": [
 12
 ],
-"Typescript:src/services/formatting/rule.ts":[
+"Typescript:src/services/formatting/rule.ts": [
 18
 ],
-"Typescript:src/services/formatting/ruleAction.ts":[
+"Typescript:src/services/formatting/ruleAction.ts": [
 11
 ],
-"Typescript:src/services/formatting/ruleDescriptor.ts":[
+"Typescript:src/services/formatting/ruleDescriptor.ts": [
 30
 ],
-"Typescript:src/services/formatting/ruleFlag.ts":[
+"Typescript:src/services/formatting/ruleFlag.ts": [
 10
 ],
-"Typescript:src/services/formatting/ruleOperation.ts":[
+"Typescript:src/services/formatting/ruleOperation.ts": [
 21
 ],
-"Typescript:src/services/formatting/ruleOperationContext.ts":[
+"Typescript:src/services/formatting/ruleOperationContext.ts": [
 32
 ],
-"Typescript:src/services/formatting/rules.ts":[
+"Typescript:src/services/formatting/rules.ts": [
 942
 ],
-"Typescript:src/services/formatting/rulesMap.ts":[
+"Typescript:src/services/formatting/rulesMap.ts": [
 174
 ],
-"Typescript:src/services/formatting/rulesProvider.ts":[
+"Typescript:src/services/formatting/rulesProvider.ts": [
 38
 ],
-"Typescript:src/services/outliningElementsCollector.ts":[
+"Typescript:src/services/outliningElementsCollector.ts": [
 181
 ],
-"Typescript:src/services/patternMatcher.ts":[
+"Typescript:src/services/patternMatcher.ts": [
 747
 ],
-"Typescript:src/services/shims.ts":[
+"Typescript:src/services/shims.ts": [
 1251
 ],
-"Typescript:src/services/signatureHelp.ts":[
+"Typescript:src/services/signatureHelp.ts": [
 496
 ],
-"Typescript:src/services/textChanges.ts":[
+"Typescript:src/services/textChanges.ts": [
 666
 ],
-"Typescript:src/services/transform.ts":[
+"Typescript:src/services/transform.ts": [
 18
 ]
 }

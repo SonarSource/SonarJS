@@ -1,15 +1,15 @@
 {
-"courselit:apps/web/ui-models/app-message.ts":[
+"courselit:apps/web/ui-models/app-message.ts": [
 10,
 11,
 12
 ],
-"courselit:packages/common-models/src/app-message.ts":[
+"courselit:packages/common-models/src/app-message.ts": [
 10,
 11,
 12
 ],
-"courselit:packages/utils/src/fetch-builder.ts":[
+"courselit:packages/utils/src/fetch-builder.ts": [
 18,
 19,
 20,

@@ -1,5 +1,5 @@
 {
-"ag-grid:src/ts/columnController/columnController.ts":[
+"ag-grid:src/ts/columnController/columnController.ts": [
 46,
 47,
 48,
@@ -55,7 +55,7 @@
 961,
 972
 ],
-"ag-grid:src/ts/entities/column.ts":[
+"ag-grid:src/ts/entities/column.ts": [
 104
 ]
 }

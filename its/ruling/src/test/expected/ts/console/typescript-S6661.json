@@ -1,28 +1,28 @@
 {
-"console:src/components/Datepicker/Datepicker.tsx":[
+"console:src/components/Datepicker/Datepicker.tsx": [
 70
 ],
-"console:src/components/FloatingInput/FloatingInput.tsx":[
+"console:src/components/FloatingInput/FloatingInput.tsx": [
 23
 ],
-"console:src/components/MapProps/MapProps.tsx":[
+"console:src/components/MapProps/MapProps.tsx": [
 14,
 25
 ],
-"console:src/components/Tether/Tether.tsx":[
+"console:src/components/Tether/Tether.tsx": [
 57
 ],
-"console:src/mutations/ModelPermission/AddPermissionMutation.ts":[
+"console:src/mutations/ModelPermission/AddPermissionMutation.ts": [
 48
 ],
-"console:src/mutations/RelationPermission/AddRelationPermission.tsx":[
+"console:src/mutations/RelationPermission/AddRelationPermission.tsx": [
 48
 ],
-"console:src/reducers/codeGeneration.ts":[
+"console:src/reducers/codeGeneration.ts": [
 21,
 25
 ],
-"console:src/reducers/databrowser/data.ts":[
+"console:src/reducers/databrowser/data.ts": [
 29,
 32,
 36,
@@ -41,7 +41,7 @@
 105,
 115
 ],
-"console:src/reducers/databrowser/ui.ts":[
+"console:src/reducers/databrowser/ui.ts": [
 27,
 31,
 35,
@@ -61,18 +61,18 @@
 102,
 106
 ],
-"console:src/reducers/gettingStarted.ts":[
+"console:src/reducers/gettingStarted.ts": [
 23
 ],
-"console:src/reducers/popupSources.ts":[
+"console:src/reducers/popupSources.ts": [
 13,
 17
 ],
-"console:src/reducers/progressIndicator.ts":[
+"console:src/reducers/progressIndicator.ts": [
 12,
 14
 ],
-"console:src/utils/__tests__/valueparser.ts":[
+"console:src/utils/__tests__/valueparser.ts": [
 24,
 33,
 42,
@@ -111,34 +111,34 @@
 378,
 387
 ],
-"console:src/utils/polyfils.ts":[
+"console:src/utils/polyfils.ts": [
 119
 ],
-"console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx":[
+"console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
 162
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx":[
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
 741
 ],
-"console:src/views/SchemaView/SchemaViewer.tsx":[
+"console:src/views/SchemaView/SchemaViewer.tsx": [
 53,
 72
 ],
-"console:src/views/models/DatabrowserView/Cell/NullableCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/NullableCell.tsx": [
 48
 ],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
 107
 ],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
 68,
 69,
 72
 ],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx":[
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 150
 ],
-"console:src/views/models/FieldPopup/FieldPopup.tsx":[
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
 570
 ]
 }

@@ -1,8 +1,8 @@
 {
-"prototype:src/prototype/deprecated.js":[
+"prototype:src/prototype/deprecated.js": [
 162
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 75,
 579,
 580,
@@ -23,7 +23,7 @@
 2984,
 2997
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 211,
 382,
 400,
@@ -47,23 +47,23 @@
 941,
 1011
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 113,
 113,
 122,
 127
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 977
 ],
-"prototype:src/prototype/dom/selector.js":[
+"prototype:src/prototype/dom/selector.js": [
 138
 ],
-"prototype:src/prototype/lang/class.js":[
+"prototype:src/prototype/lang/class.js": [
 159,
 163
 ],
-"prototype:src/prototype/lang/hash.js":[
+"prototype:src/prototype/lang/hash.js": [
 347
 ]
 }

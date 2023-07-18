@@ -1,21 +1,21 @@
 {
-"rxjs:src/operator/bufferTime.ts":[
+"rxjs:src/operator/bufferTime.ts": [
 63
 ],
-"rxjs:src/operator/windowTime.ts":[
+"rxjs:src/operator/windowTime.ts": [
 89
 ],
-"rxjs:src/util/Immediate.ts":[
+"rxjs:src/util/Immediate.ts": [
 116,
 147,
 188,
 206,
 228
 ],
-"rxjs:src/util/not.ts":[
+"rxjs:src/util/not.ts": [
 3
 ],
-"rxjs:src/util/tryCatch.ts":[
+"rxjs:src/util/tryCatch.ts": [
 7
 ]
 }

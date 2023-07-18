@@ -1,58 +1,58 @@
 {
-"javascript-test-sources:src/ace/demo/kitchen-sink/util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/util.js": [
 32
 ],
-"javascript-test-sources:src/ace/src/commands/command_manager.js":[
+"javascript-test-sources:src/ace/src/commands/command_manager.js": [
 53
 ],
-"javascript-test-sources:src/ace/src/config.js":[
+"javascript-test-sources:src/ace/src/config.js": [
 33
 ],
-"javascript-test-sources:src/ace/src/edit_session/folding.js":[
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
 438
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 140
 ],
-"javascript-test-sources:src/ace/src/editor_commands_test.js":[
+"javascript-test-sources:src/ace/src/editor_commands_test.js": [
 342
 ],
-"javascript-test-sources:src/ace/src/ext/hardwrap.js":[
+"javascript-test-sources:src/ace/src/ext/hardwrap.js": [
 7
 ],
-"javascript-test-sources:src/ace/src/ext/textarea.js":[
+"javascript-test-sources:src/ace/src/ext/textarea.js": [
 245
 ],
-"javascript-test-sources:src/ace/src/keyboard/keybinding.js":[
+"javascript-test-sources:src/ace/src/keyboard/keybinding.js": [
 90,
 90
 ],
-"javascript-test-sources:src/ace/src/layer/text.js":[
+"javascript-test-sources:src/ace/src/layer/text.js": [
 650
 ],
-"javascript-test-sources:src/ace/src/lib/dom.js":[
+"javascript-test-sources:src/ace/src/lib/dom.js": [
 164
 ],
-"javascript-test-sources:src/ace/src/mode/javascript_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/javascript_highlight_rules.js": [
 445
 ],
-"javascript-test-sources:src/ace/src/mode/typescript_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/typescript_highlight_rules.js": [
 35
 ],
-"javascript-test-sources:src/ace/src/multi_select.js":[
+"javascript-test-sources:src/ace/src/multi_select.js": [
 436
 ],
-"javascript-test-sources:src/ace/src/search.js":[
+"javascript-test-sources:src/ace/src/search.js": [
 83,
 255,
 256,
 277,
 292
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
 1860
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 31,
 56,
 56,
@@ -68,7 +68,7 @@
 384,
 658
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 1658
 ]
 }

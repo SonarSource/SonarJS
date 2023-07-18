@@ -1,10 +1,10 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 74,
 4121,
 4625
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 366,
 743,
 4058,
@@ -32,19 +32,19 @@
 10268,
 11201
 ],
-"p5.js:src/core/preload.js":[
+"p5.js:src/core/preload.js": [
 1
 ],
-"p5.js:tasks/build/browserify.js":[
+"p5.js:tasks/build/browserify.js": [
 1
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 1
 ],
-"p5.js:tasks/build/eslint-samples.js":[
+"p5.js:tasks/build/eslint-samples.js": [
 1
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 1
 ]
 }

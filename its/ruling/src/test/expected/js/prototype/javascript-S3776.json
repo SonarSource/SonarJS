@@ -1,30 +1,30 @@
 {
-"prototype:src/prototype/ajax/request.js":[
+"prototype:src/prototype/ajax/request.js": [
 230
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 1
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 1
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 102
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 52,
 1407
 ],
-"prototype:src/prototype/lang/array.js":[
+"prototype:src/prototype/lang/array.js": [
 184
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 6
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 488
 ],
-"prototype:src/prototype/lang/template.js":[
+"prototype:src/prototype/lang/template.js": [
 143
 ]
 }

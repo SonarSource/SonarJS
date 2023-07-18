@@ -1,17 +1,17 @@
 {
-"angular.js:Gruntfile.js":[
+"angular.js:Gruntfile.js": [
 333
 ],
-"angular.js:docs/app/src/directives.js":[
+"angular.js:docs/app/src/directives.js": [
 27
 ],
-"angular.js:docs/config/index.js":[
+"angular.js:docs/config/index.js": [
 57
 ],
-"angular.js:docs/config/processors/pages-data.js":[
+"angular.js:docs/config/processors/pages-data.js": [
 49
 ],
-"angular.js:karma-shared.conf.js":[
+"angular.js:karma-shared.conf.js": [
 15,
 16,
 17,
@@ -20,14 +20,14 @@
 20,
 21
 ],
-"angular.js:lib/grunt/utils.js":[
+"angular.js:lib/grunt/utils.js": [
 174,
 175
 ],
-"angular.js:scripts/compare-master-to-stable.js":[
+"angular.js:scripts/compare-master-to-stable.js": [
 78
 ],
-"angular.js:src/Angular.js":[
+"angular.js:src/Angular.js": [
 150,
 151,
 152,
@@ -39,132 +39,132 @@
 1912,
 2050
 ],
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 234,
 332,
 343,
 415,
 424
 ],
-"angular.js:src/ng/cacheFactory.js":[
+"angular.js:src/ng/cacheFactory.js": [
 313,
 314
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 2721,
 2922,
 3075,
 4035
 ],
-"angular.js:src/ng/cookieReader.js":[
+"angular.js:src/ng/cookieReader.js": [
 45
 ],
-"angular.js:src/ng/directive/attrs.js":[
+"angular.js:src/ng/directive/attrs.js": [
 412
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 544,
 602
 ],
-"angular.js:src/ng/directive/ngModel.js":[
+"angular.js:src/ng/directive/ngModel.js": [
 257,
 269,
 270,
 271,
 865
 ],
-"angular.js:src/ng/directive/ngPluralize.js":[
+"angular.js:src/ng/directive/ngPluralize.js": [
 185
 ],
-"angular.js:src/ng/directive/ngRef.js":[
+"angular.js:src/ng/directive/ngRef.js": [
 247
 ],
-"angular.js:src/ng/directive/ngRepeat.js":[
+"angular.js:src/ng/directive/ngRepeat.js": [
 533,
 540,
 544
 ],
-"angular.js:src/ng/directive/select.js":[
+"angular.js:src/ng/directive/select.js": [
 160,
 889
 ],
-"angular.js:src/ng/filter/filters.js":[
+"angular.js:src/ng/filter/filters.js": [
 429
 ],
-"angular.js:src/ng/interpolate.js":[
+"angular.js:src/ng/interpolate.js": [
 282,
 347
 ],
-"angular.js:src/ng/location.js":[
+"angular.js:src/ng/location.js": [
 150,
 844
 ],
-"angular.js:src/ng/parse.js":[
+"angular.js:src/ng/parse.js": [
 1856,
 1871
 ],
-"angular.js:src/ng/raf.js":[
+"angular.js:src/ng/raf.js": [
 22
 ],
-"angular.js:src/ng/rootScope.js":[
+"angular.js:src/ng/rootScope.js": [
 613,
 706,
 792,
 812
 ],
-"angular.js:src/ngAnimate/animateChildrenDirective.js":[
+"angular.js:src/ngAnimate/animateChildrenDirective.js": [
 85
 ],
-"angular.js:src/ngAnimate/animateCss.js":[
+"angular.js:src/ngAnimate/animateCss.js": [
 662
 ],
-"angular.js:src/ngAnimate/animateCssDriver.js":[
+"angular.js:src/ngAnimate/animateCssDriver.js": [
 216
 ],
-"angular.js:src/ngAnimate/animateJs.js":[
+"angular.js:src/ngAnimate/animateJs.js": [
 48
 ],
-"angular.js:src/ngAnimate/animation.js":[
+"angular.js:src/ngAnimate/animation.js": [
 346
 ],
-"angular.js:src/ngAnimate/ngAnimateSwap.js":[
+"angular.js:src/ngAnimate/ngAnimateSwap.js": [
 95
 ],
-"angular.js:src/ngAria/aria.js":[
+"angular.js:src/ngAria/aria.js": [
 260
 ],
-"angular.js:src/ngMessageFormat/messageFormatCommon.js":[
+"angular.js:src/ngMessageFormat/messageFormatCommon.js": [
 44,
 45
 ],
-"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js":[
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
 98,
 99
 ],
-"angular.js:src/ngMessageFormat/messageFormatParser.js":[
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
 294,
 414,
 415
 ],
-"angular.js:src/ngMessages/messages.js":[
+"angular.js:src/ngMessages/messages.js": [
 555,
 599,
 736
 ],
-"angular.js:src/ngMock/angular-mocks.js":[
+"angular.js:src/ngMock/angular-mocks.js": [
 43,
 2192,
 2993,
 3025
 ],
-"angular.js:src/ngResource/resource.js":[
+"angular.js:src/ngResource/resource.js": [
 839,
 841
 ],
-"angular.js:src/ngSanitize/sanitize.js":[
+"angular.js:src/ngSanitize/sanitize.js": [
 537
 ],
-"angular.js:src/ngTouch/directive/ngSwipe.js":[
+"angular.js:src/ngTouch/directive/ngSwipe.js": [
 110
 ]
 }

@@ -1,17 +1,17 @@
 {
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 279,
 282,
 285,
 288
 ],
-"ocanvas:src/displayobjects/ellipse.js":[
+"ocanvas:src/displayobjects/ellipse.js": [
 23,
 27,
 35,
 39
 ],
-"ocanvas:src/utils.js":[
+"ocanvas:src/utils.js": [
 70
 ]
 }

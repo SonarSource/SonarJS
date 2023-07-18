@@ -1,5 +1,5 @@
 {
-"ocanvas:scripts/release.js":[
+"ocanvas:scripts/release.js": [
 14,
 50,
 57,
@@ -7,7 +7,7 @@
 66,
 73
 ],
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 13,
 18,
 39,
@@ -22,17 +22,17 @@
 675,
 676
 ],
-"ocanvas:src/background.js":[
+"ocanvas:src/background.js": [
 95
 ],
-"ocanvas:src/core.js":[
+"ocanvas:src/core.js": [
 53,
 92,
 105,
 240,
 362
 ],
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 22,
 56,
 57,
@@ -42,67 +42,67 @@
 932,
 988
 ],
-"ocanvas:src/displayobjects/arc.js":[
+"ocanvas:src/displayobjects/arc.js": [
 59
 ],
-"ocanvas:src/displayobjects/ellipse.js":[
+"ocanvas:src/displayobjects/ellipse.js": [
 15,
 66,
 119
 ],
-"ocanvas:src/displayobjects/image.js":[
+"ocanvas:src/displayobjects/image.js": [
 11,
 160
 ],
-"ocanvas:src/displayobjects/line.js":[
+"ocanvas:src/displayobjects/line.js": [
 21,
 53,
 73,
 203
 ],
-"ocanvas:src/displayobjects/polygon.js":[
+"ocanvas:src/displayobjects/polygon.js": [
 16,
 84
 ],
-"ocanvas:src/displayobjects/rectangle.js":[
+"ocanvas:src/displayobjects/rectangle.js": [
 30,
 42,
 50,
 184,
 296
 ],
-"ocanvas:src/displayobjects/sprite.js":[
+"ocanvas:src/displayobjects/sprite.js": [
 29,
 80
 ],
-"ocanvas:src/displayobjects/text.js":[
+"ocanvas:src/displayobjects/text.js": [
 42,
 175,
 219,
 232,
 286
 ],
-"ocanvas:src/draw.js":[
+"ocanvas:src/draw.js": [
 198
 ],
-"ocanvas:src/events.js":[
+"ocanvas:src/events.js": [
 360,
 391,
 402
 ],
-"ocanvas:src/keyboard.js":[
+"ocanvas:src/keyboard.js": [
 163
 ],
-"ocanvas:src/mouse.js":[
+"ocanvas:src/mouse.js": [
 25,
 32,
 218
 ],
-"ocanvas:src/scenes.js":[
+"ocanvas:src/scenes.js": [
 98,
 124
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 79,
 91,
 100,
@@ -113,10 +113,10 @@
 609,
 745
 ],
-"ocanvas:src/timeline.js":[
+"ocanvas:src/timeline.js": [
 94
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 53,
 89,
 135,
@@ -125,13 +125,13 @@
 211,
 422
 ],
-"ocanvas:src/touch.js":[
+"ocanvas:src/touch.js": [
 30,
 36,
 149,
 248
 ],
-"ocanvas:src/utils.js":[
+"ocanvas:src/utils.js": [
 53
 ]
 }

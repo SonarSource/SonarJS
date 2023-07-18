@@ -1,32 +1,32 @@
 {
-"rxjs:src/Subject.ts":[
+"rxjs:src/Subject.ts": [
 38
 ],
-"rxjs:src/observable/NeverObservable.ts":[
+"rxjs:src/observable/NeverObservable.ts": [
 46
 ],
-"rxjs:src/operator/dematerialize.ts":[
+"rxjs:src/operator/dematerialize.ts": [
 62
 ],
-"rxjs:src/operator/exhaust.ts":[
+"rxjs:src/operator/exhaust.ts": [
 62
 ],
-"rxjs:src/operator/isEmpty.ts":[
+"rxjs:src/operator/isEmpty.ts": [
 30
 ],
-"rxjs:src/operator/materialize.ts":[
+"rxjs:src/operator/materialize.ts": [
 66
 ],
-"rxjs:src/operator/pairwise.ts":[
+"rxjs:src/operator/pairwise.ts": [
 59
 ],
-"rxjs:src/operator/race.ts":[
+"rxjs:src/operator/race.ts": [
 77
 ],
-"rxjs:src/operator/switch.ts":[
+"rxjs:src/operator/switch.ts": [
 71
 ],
-"rxjs:src/operator/toArray.ts":[
+"rxjs:src/operator/toArray.ts": [
 29
 ]
 }

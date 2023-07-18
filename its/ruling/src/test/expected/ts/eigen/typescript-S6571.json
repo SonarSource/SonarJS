@@ -1,51 +1,51 @@
 {
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts":[
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
 183
 ],
-"eigen:src/app/Components/PrefetchFlatList.tsx":[
+"eigen:src/app/Components/PrefetchFlatList.tsx": [
 8,
 8
 ],
-"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx":[
+"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx": [
 27
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx":[
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx": [
 20
 ],
-"eigen:src/app/Scenes/Collection/Collection.tsx":[
+"eigen:src/app/Scenes/Collection/Collection.tsx": [
 67
 ],
-"eigen:src/app/Scenes/Fair/Fair.tsx":[
+"eigen:src/app/Scenes/Fair/Fair.tsx": [
 192
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
 42
 ],
-"eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts":[
+"eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts": [
 7,
 7
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx":[
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
 8,
 9,
 20,
 21
 ],
-"eigen:src/app/store/GlobalStore.tsx":[
+"eigen:src/app/store/GlobalStore.tsx": [
 186
 ],
-"eigen:src/app/store/VisualClueModel.ts":[
+"eigen:src/app/store/VisualClueModel.ts": [
 10,
 11,
 12
 ],
-"eigen:src/app/utils/plainTextFromTree.ts":[
+"eigen:src/app/utils/plainTextFromTree.ts": [
 3
 ],
-"eigen:src/palette/elements/Select/Select.tsx":[
+"eigen:src/palette/elements/Select/Select.tsx": [
 200
 ],
-"eigen:src/palette/elements/Select/SelectV2.tsx":[
+"eigen:src/palette/elements/Select/SelectV2.tsx": [
 169
 ]
 }

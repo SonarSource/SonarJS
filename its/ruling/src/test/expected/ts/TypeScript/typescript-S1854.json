@@ -1,39 +1,39 @@
 {
-"Typescript:scripts/buildProtocol.ts":[
+"Typescript:scripts/buildProtocol.ts": [
 19
 ],
-"Typescript:src/compiler/binder.ts":[
+"Typescript:src/compiler/binder.ts": [
 2095
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 14647,
 21407,
 22217,
 23314,
 23317
 ],
-"Typescript:src/compiler/scanner.ts":[
+"Typescript:src/compiler/scanner.ts": [
 683
 ],
-"Typescript:src/compiler/transformers/es2017.ts":[
+"Typescript:src/compiler/transformers/es2017.ts": [
 54,
 59
 ],
-"Typescript:src/compiler/transformers/generators.ts":[
+"Typescript:src/compiler/transformers/generators.ts": [
 301,
 306,
 1787
 ],
-"Typescript:src/compiler/tsc.ts":[
+"Typescript:src/compiler/tsc.ts": [
 192
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 860
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 531
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 124
 ]
 }

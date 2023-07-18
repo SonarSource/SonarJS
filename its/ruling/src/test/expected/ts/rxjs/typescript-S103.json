@@ -1,5 +1,5 @@
 {
-"rxjs:src/observable/BoundCallbackObservable.ts":[
+"rxjs:src/observable/BoundCallbackObservable.ts": [
 22,
 23,
 24,
@@ -10,13 +10,13 @@
 31,
 32
 ],
-"rxjs:src/observable/BoundNodeCallbackObservable.ts":[
+"rxjs:src/observable/BoundNodeCallbackObservable.ts": [
 22,
 23,
 24,
 25
 ],
-"rxjs:src/observable/ForkJoinObservable.ts":[
+"rxjs:src/observable/ForkJoinObservable.ts": [
 25,
 26,
 27,
@@ -24,7 +24,7 @@
 32,
 33
 ],
-"rxjs:src/observable/combineLatest.ts":[
+"rxjs:src/observable/combineLatest.ts": [
 11,
 12,
 13,
@@ -33,14 +33,14 @@
 19,
 20
 ],
-"rxjs:src/operator/combineLatest.ts":[
+"rxjs:src/operator/combineLatest.ts": [
 15,
 16,
 17,
 21,
 22
 ],
-"rxjs:src/operator/concat.ts":[
+"rxjs:src/operator/concat.ts": [
 11,
 12,
 13,
@@ -48,21 +48,21 @@
 76,
 77
 ],
-"rxjs:src/operator/concatMap.ts":[
+"rxjs:src/operator/concatMap.ts": [
 6
 ],
-"rxjs:src/operator/concatMapTo.ts":[
+"rxjs:src/operator/concatMapTo.ts": [
 6
 ],
-"rxjs:src/operator/exhaustMap.ts":[
+"rxjs:src/operator/exhaustMap.ts": [
 11
 ],
-"rxjs:src/operator/groupBy.ts":[
+"rxjs:src/operator/groupBy.ts": [
 11,
 12,
 13
 ],
-"rxjs:src/operator/merge.ts":[
+"rxjs:src/operator/merge.ts": [
 14,
 15,
 16,
@@ -77,31 +77,31 @@
 85,
 86
 ],
-"rxjs:src/operator/mergeMap.ts":[
+"rxjs:src/operator/mergeMap.ts": [
 11
 ],
-"rxjs:src/operator/mergeMapTo.ts":[
+"rxjs:src/operator/mergeMapTo.ts": [
 12
 ],
-"rxjs:src/operator/onErrorResumeNext.ts":[
+"rxjs:src/operator/onErrorResumeNext.ts": [
 14,
 15,
 97
 ],
-"rxjs:src/operator/switchMap.ts":[
+"rxjs:src/operator/switchMap.ts": [
 11
 ],
-"rxjs:src/operator/switchMapTo.ts":[
+"rxjs:src/operator/switchMapTo.ts": [
 11
 ],
-"rxjs:src/operator/withLatestFrom.ts":[
+"rxjs:src/operator/withLatestFrom.ts": [
 12,
 13,
 14,
 18,
 19
 ],
-"rxjs:src/operator/zip.ts":[
+"rxjs:src/operator/zip.ts": [
 16,
 17,
 18,

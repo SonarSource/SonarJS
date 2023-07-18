@@ -1,5 +1,5 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 451,
 454,
 1615,
@@ -15,7 +15,7 @@
 4325,
 4394
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 855,
 7020,
 8291,
@@ -23,36 +23,36 @@
 11167,
 12878
 ],
-"p5.js:src/color/setting.js":[
+"p5.js:src/color/setting.js": [
 220
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 229
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 116,
 659
 ],
-"p5.js:src/core/reference.js":[
+"p5.js:src/core/reference.js": [
 225,
 243,
 261,
 361
 ],
-"p5.js:src/core/structure.js":[
+"p5.js:src/core/structure.js": [
 157,
 158,
 248,
 249
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 392,
 406
 ],
-"p5.js:src/webgl/light.js":[
+"p5.js:src/webgl/light.js": [
 379
 ],
-"p5.js:tasks/release/release-p5.js":[
+"p5.js:tasks/release/release-p5.js": [
 6
 ]
 }

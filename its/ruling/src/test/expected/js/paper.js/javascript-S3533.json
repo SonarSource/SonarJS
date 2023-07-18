@@ -1,33 +1,33 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js":[
+"paper.js:examples/Node.js/AnimatedStar.js": [
 4
 ],
-"paper.js:examples/Node.js/BooleanOperations.js":[
+"paper.js:examples/Node.js/BooleanOperations.js": [
 4,
 5
 ],
-"paper.js:examples/Node.js/JSONtoPDF.js":[
+"paper.js:examples/Node.js/JSONtoPDF.js": [
 4,
 5,
 6
 ],
-"paper.js:examples/Node.js/RasterRemote.js":[
+"paper.js:examples/Node.js/RasterRemote.js": [
 4,
 5
 ],
-"paper.js:examples/Node.js/SvgExport.js":[
+"paper.js:examples/Node.js/SvgExport.js": [
 4,
 5,
 6
 ],
-"paper.js:examples/Node.js/SvgImport.js":[
+"paper.js:examples/Node.js/SvgImport.js": [
 4
 ],
-"paper.js:examples/Node.js/Tadpoles.js":[
+"paper.js:examples/Node.js/Tadpoles.js": [
 4,
 5
 ],
-"paper.js:gulp/tasks/build.js":[
+"paper.js:gulp/tasks/build.js": [
 13,
 14,
 15,
@@ -36,13 +36,13 @@
 18,
 19
 ],
-"paper.js:gulp/tasks/dist.js":[
+"paper.js:gulp/tasks/dist.js": [
 13,
 14,
 15,
 16
 ],
-"paper.js:gulp/tasks/docs.js":[
+"paper.js:gulp/tasks/docs.js": [
 13,
 14,
 15,
@@ -50,23 +50,23 @@
 17,
 18
 ],
-"paper.js:gulp/tasks/jshint.js":[
+"paper.js:gulp/tasks/jshint.js": [
 13,
 14,
 15
 ],
-"paper.js:gulp/tasks/load.js":[
+"paper.js:gulp/tasks/load.js": [
 13,
 14,
 15
 ],
-"paper.js:gulp/tasks/minify.js":[
+"paper.js:gulp/tasks/minify.js": [
 13,
 14,
 15,
 16
 ],
-"paper.js:gulp/tasks/publish.js":[
+"paper.js:gulp/tasks/publish.js": [
 13,
 14,
 15,
@@ -79,42 +79,42 @@
 22,
 23
 ],
-"paper.js:gulp/tasks/test.js":[
+"paper.js:gulp/tasks/test.js": [
 13,
 14,
 15,
 16
 ],
-"paper.js:gulp/tasks/watch.js":[
+"paper.js:gulp/tasks/watch.js": [
 13,
 14,
 15
 ],
-"paper.js:gulp/typescript/typescript-definition-generator.js":[
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
 6,
 7
 ],
-"paper.js:gulp/utils/error.js":[
+"paper.js:gulp/utils/error.js": [
 13,
 14
 ],
-"paper.js:gulp/utils/options.js":[
+"paper.js:gulp/utils/options.js": [
 13,
 16,
 17
 ],
-"paper.js:gulpfile.js":[
+"paper.js:gulpfile.js": [
 13,
 14
 ],
-"paper.js:src/init.js":[
+"paper.js:src/init.js": [
 32
 ],
-"paper.js:src/node/extend.js":[
+"paper.js:src/node/extend.js": [
 13,
 14
 ],
-"paper.js:src/node/self.js":[
+"paper.js:src/node/self.js": [
 16
 ]
 }

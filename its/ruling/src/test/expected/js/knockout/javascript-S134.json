@@ -1,54 +1,54 @@
 {
-"knockout:src/binding/bindingAttributeSyntax.js":[
+"knockout:src/binding/bindingAttributeSyntax.js": [
 368,
 469,
 508
 ],
-"knockout:src/binding/defaultBindings/event.js":[
+"knockout:src/binding/defaultBindings/event.js": [
 35
 ],
-"knockout:src/binding/defaultBindings/value.js":[
+"knockout:src/binding/defaultBindings/value.js": [
 99
 ],
-"knockout:src/binding/editDetection/arrayToDomNodeChildren.js":[
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
 104,
 107,
 136,
 139,
 182
 ],
-"knockout:src/binding/editDetection/compareArrays.js":[
+"knockout:src/binding/editDetection/compareArrays.js": [
 7
 ],
-"knockout:src/binding/expressionRewriting.js":[
+"knockout:src/binding/expressionRewriting.js": [
 65,
 73,
 84
 ],
-"knockout:src/components/loaderRegistry.js":[
+"knockout:src/components/loaderRegistry.js": [
 121
 ],
-"knockout:src/subscribables/dependentObservable.js":[
+"knockout:src/subscribables/dependentObservable.js": [
 454
 ],
-"knockout:src/subscribables/subscribable.js":[
+"knockout:src/subscribables/subscribable.js": [
 87
 ],
-"knockout:src/tasks.js":[
+"knockout:src/tasks.js": [
 44,
 52
 ],
-"knockout:src/templating/templateRewriting.js":[
+"knockout:src/templating/templateRewriting.js": [
 15
 ],
-"knockout:src/templating/templating.js":[
+"knockout:src/templating/templating.js": [
 36,
 38
 ],
-"knockout:src/utils.domNodeDisposal.js":[
+"knockout:src/utils.domNodeDisposal.js": [
 47
 ],
-"knockout:src/virtualElements.js":[
+"knockout:src/virtualElements.js": [
 75,
 202
 ]

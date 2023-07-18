@@ -1,8 +1,8 @@
 {
-"Joust:ts/components/DebugApplication.tsx":[
+"Joust:ts/components/DebugApplication.tsx": [
 51
 ],
-"Joust:ts/components/EventLog.tsx":[
+"Joust:ts/components/EventLog.tsx": [
 265,
 269,
 280,
@@ -13,39 +13,39 @@
 382,
 392
 ],
-"Joust:ts/components/EventLogLine.tsx":[
+"Joust:ts/components/EventLogLine.tsx": [
 117,
 136,
 221
 ],
-"Joust:ts/components/LoadingScreen.tsx":[
+"Joust:ts/components/LoadingScreen.tsx": [
 109
 ],
-"Joust:ts/components/game/Card.tsx":[
+"Joust:ts/components/game/Card.tsx": [
 111,
 165,
 241,
 296
 ],
-"Joust:ts/components/game/EntityInPlay.tsx":[
+"Joust:ts/components/game/EntityInPlay.tsx": [
 54
 ],
-"Joust:ts/components/game/Hero.tsx":[
+"Joust:ts/components/game/Hero.tsx": [
 65
 ],
-"Joust:ts/components/game/Minion.tsx":[
+"Joust:ts/components/game/Minion.tsx": [
 36
 ],
-"Joust:ts/components/game/Player.tsx":[
+"Joust:ts/components/game/Player.tsx": [
 337
 ],
-"Joust:ts/components/game/visuals/HeroArt.tsx":[
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
 81
 ],
-"Joust:ts/protocol/HSReplayDecoder.ts":[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 94
 ],
-"Joust:ts/protocol/KettleEncoder.ts":[
+"Joust:ts/protocol/KettleEncoder.ts": [
 59
 ]
 }

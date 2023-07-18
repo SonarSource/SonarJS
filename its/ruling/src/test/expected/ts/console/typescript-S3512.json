@@ -1,36 +1,36 @@
 {
-"console:src/utils/codeGeneration.ts":[
+"console:src/utils/codeGeneration.ts": [
 28,
 85,
 120
 ],
-"console:src/utils/utils.ts":[
+"console:src/utils/utils.ts": [
 146
 ],
-"console:src/views/PermissionsView/PermissionPopup/ast.ts":[
+"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
 28,
 85,
 141
 ],
-"console:src/views/RelationsPopup/CardinalitySelection.tsx":[
+"console:src/views/RelationsPopup/CardinalitySelection.tsx": [
 14,
 23
 ],
-"console:src/views/RelationsPopup/FieldNameInput.tsx":[
+"console:src/views/RelationsPopup/FieldNameInput.tsx": [
 177
 ],
-"console:src/views/RelationsPopup/MutationsInfoBox.tsx":[
+"console:src/views/RelationsPopup/MutationsInfoBox.tsx": [
 60,
 61,
 62
 ],
-"console:src/views/RelationsPopup/RelationInfo.tsx":[
+"console:src/views/RelationsPopup/RelationInfo.tsx": [
 120,
 122,
 145,
 147
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx":[
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
 501,
 514,
 550,
@@ -41,36 +41,36 @@
 596,
 603
 ],
-"console:src/views/SchemaView/SchemaEditor.tsx":[
+"console:src/views/SchemaView/SchemaEditor.tsx": [
 263
 ],
-"console:src/views/SchemaView/SchemaViewer.tsx":[
+"console:src/views/SchemaView/SchemaViewer.tsx": [
 100
 ],
-"console:src/views/Settings/Billing/Billing.tsx":[
+"console:src/views/Settings/Billing/Billing.tsx": [
 142
 ],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx":[
+"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
 77,
 333
 ],
-"console:src/views/Settings/Billing/NodeUsageIndicator.tsx":[
+"console:src/views/Settings/Billing/NodeUsageIndicator.tsx": [
 22,
 23
 ],
-"console:src/views/Settings/Billing/Seats.tsx":[
+"console:src/views/Settings/Billing/Seats.tsx": [
 13
 ],
-"console:src/views/Settings/Billing/Usage.tsx":[
+"console:src/views/Settings/Billing/Usage.tsx": [
 30
 ],
-"console:src/views/Settings/PricingColumn.tsx":[
+"console:src/views/Settings/PricingColumn.tsx": [
 219
 ],
-"console:src/views/Settings/Team/Team.tsx":[
+"console:src/views/Settings/Team/Team.tsx": [
 93
 ],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
 75
 ]
 }

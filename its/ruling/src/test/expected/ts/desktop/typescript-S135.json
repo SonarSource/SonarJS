@@ -1,67 +1,67 @@
 {
-"desktop:app/src/highlighter/index.ts":[
+"desktop:app/src/highlighter/index.ts": [
 616
 ],
-"desktop:app/src/lib/actions-log-parser/action-log-parser.ts":[
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 506
 ],
-"desktop:app/src/lib/ci-checks/ci-checks.ts":[
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
 367,
 498
 ],
-"desktop:app/src/lib/editors/win32.ts":[
+"desktop:app/src/lib/editors/win32.ts": [
 437
 ],
-"desktop:app/src/lib/git/for-each-ref.ts":[
+"desktop:app/src/lib/git/for-each-ref.ts": [
 107
 ],
-"desktop:app/src/lib/git/log.ts":[
+"desktop:app/src/lib/git/log.ts": [
 215
 ],
-"desktop:app/src/lib/git/reorder.ts":[
+"desktop:app/src/lib/git/reorder.ts": [
 64
 ],
-"desktop:app/src/lib/git/squash.ts":[
+"desktop:app/src/lib/git/squash.ts": [
 74
 ],
-"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
 191
 ],
-"desktop:app/src/lib/markdown-filters/emoji-filter.ts":[
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
 70
 ],
-"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
 140
 ],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 103
 ],
-"desktop:app/src/lib/markdown-filters/team-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 89
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 5405
 ],
-"desktop:app/src/lib/stores/commit-status-store.ts":[
+"desktop:app/src/lib/stores/commit-status-store.ts": [
 225
 ],
-"desktop:app/src/lib/stores/git-store.ts":[
+"desktop:app/src/lib/stores/git-store.ts": [
 557,
 784
 ],
-"desktop:app/src/lib/stores/pull-request-store.ts":[
+"desktop:app/src/lib/stores/pull-request-store.ts": [
 268
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx":[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 1089
 ],
-"desktop:app/src/ui/donut.tsx":[
+"desktop:app/src/ui/donut.tsx": [
 68
 ],
-"desktop:app/src/ui/lib/list/selection.ts":[
+"desktop:app/src/ui/lib/list/selection.ts": [
 115
 ],
-"desktop:script/changelog/parser.ts":[
+"desktop:script/changelog/parser.ts": [
 159
 ]
 }

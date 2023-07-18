@@ -1,60 +1,60 @@
 {
-"eigen:src/app/Components/Artist/ArtistAbout/ArtistAboutShows.tests.tsx":[
+"eigen:src/app/Components/Artist/ArtistAbout/ArtistAboutShows.tests.tsx": [
 52,
 71,
 92,
 111
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx":[
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
 181
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx":[
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
 123
 ],
-"eigen:src/app/Components/ArtworkFilter/Filters/useMultiSelect.ts":[
+"eigen:src/app/Components/ArtworkFilter/Filters/useMultiSelect.ts": [
 55
 ],
-"eigen:src/app/Components/Countdown/CountdownTimer.tsx":[
+"eigen:src/app/Components/Countdown/CountdownTimer.tsx": [
 26
 ],
-"eigen:src/app/Scenes/City/CitySectionList.tsx":[
+"eigen:src/app/Scenes/City/CitySectionList.tsx": [
 33,
 84,
 230
 ],
-"eigen:src/app/Scenes/Collection/Collection.tsx":[
+"eigen:src/app/Scenes/Collection/Collection.tsx": [
 68
 ],
-"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/index.tsx":[
+"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/index.tsx": [
 23
 ],
-"eigen:src/app/Scenes/Fair/Fair.tsx":[
+"eigen:src/app/Scenes/Fair/Fair.tsx": [
 193
 ],
-"eigen:src/app/Scenes/Home/Components/ArtworkModuleRail.tsx":[
+"eigen:src/app/Scenes/Home/Components/ArtworkModuleRail.tsx": [
 19
 ],
-"eigen:src/app/Scenes/Home/homeAnalytics.ts":[
+"eigen:src/app/Scenes/Home/homeAnalytics.ts": [
 223
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/SellerReplyEstimate.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/SellerReplyEstimate.tsx": [
 13,
 33
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/MyCollectionArtworkArtistMarket.tsx":[
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/MyCollectionArtworkArtistMarket.tsx": [
 107,
 124
 ],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListItem.tsx":[
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListItem.tsx": [
 16
 ],
-"eigen:src/app/utils/usePreferredThemeTracking.ts":[
+"eigen:src/app/utils/usePreferredThemeTracking.ts": [
 12
 ],
-"eigen:src/palette/elements/Button/Button.tsx":[
+"eigen:src/palette/elements/Button/Button.tsx": [
 101
 ],
-"eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx":[
+"eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 80
 ]
 }

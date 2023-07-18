@@ -1,13 +1,13 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 463,
 6256
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 1325,
 1935
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 26
 ]
 }

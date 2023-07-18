@@ -1,12 +1,12 @@
 {
-"Typescript:src/compiler/transformers/module/module.ts":[
+"Typescript:src/compiler/transformers/module/module.ts": [
 982
 ],
-"Typescript:src/compiler/transformers/module/system.ts":[
+"Typescript:src/compiler/transformers/module/system.ts": [
 916,
 1569
 ],
-"Typescript:src/services/shims.ts":[
+"Typescript:src/services/shims.ts": [
 1220
 ]
 }

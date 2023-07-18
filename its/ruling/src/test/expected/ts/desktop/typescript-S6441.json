@@ -1,50 +1,50 @@
 {
-"desktop:app/src/ui/app-menu/menu-pane.tsx":[
+"desktop:app/src/ui/app-menu/menu-pane.tsx": [
 292
 ],
-"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx":[
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
 307
 ],
-"desktop:app/src/ui/branches/branch-list.tsx":[
+"desktop:app/src/ui/branches/branch-list.tsx": [
 171
 ],
-"desktop:app/src/ui/diff/code-mirror-host.tsx":[
+"desktop:app/src/ui/diff/code-mirror-host.tsx": [
 150
 ],
-"desktop:app/src/ui/lib/author-input.tsx":[
+"desktop:app/src/ui/lib/author-input.tsx": [
 471
 ],
-"desktop:app/src/ui/lib/button.tsx":[
+"desktop:app/src/ui/lib/button.tsx": [
 103,
 110,
 114
 ],
-"desktop:app/src/ui/lib/filter-list.tsx":[
+"desktop:app/src/ui/lib/filter-list.tsx": [
 290
 ],
-"desktop:app/src/ui/lib/list/list.tsx":[
+"desktop:app/src/ui/lib/list/list.tsx": [
 1232
 ],
-"desktop:app/src/ui/lib/ref-name-text-box.tsx":[
+"desktop:app/src/ui/lib/ref-name-text-box.tsx": [
 100
 ],
-"desktop:app/src/ui/lib/text-box.tsx":[
+"desktop:app/src/ui/lib/text-box.tsx": [
 143,
 150,
 162,
 171
 ],
-"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx":[
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
 75
 ],
-"desktop:app/src/ui/repository.tsx":[
+"desktop:app/src/ui/repository.tsx": [
 127
 ],
-"desktop:app/src/ui/toolbar/button.tsx":[
+"desktop:app/src/ui/toolbar/button.tsx": [
 154,
 164
 ],
-"desktop:app/src/ui/toolbar/dropdown.tsx":[
+"desktop:app/src/ui/toolbar/dropdown.tsx": [
 362
 ]
 }

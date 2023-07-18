@@ -1,8 +1,8 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 261
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 1394,
 1438,
 1448,
@@ -25,19 +25,19 @@
 22789,
 22954
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 1328,
 1719,
 1738
 ],
-"Typescript:src/compiler/emitter.ts":[
+"Typescript:src/compiler/emitter.ts": [
 13,
 1678,
 2115,
 2492,
 2619
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 27,
 715,
 728,
@@ -63,57 +63,57 @@
 3197,
 3208
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 477,
 603,
 1854,
 2008,
 5297
 ],
-"Typescript:src/compiler/program.ts":[
+"Typescript:src/compiler/program.ts": [
 82,
 895,
 903
 ],
-"Typescript:src/compiler/scanner.ts":[
+"Typescript:src/compiler/scanner.ts": [
 445
 ],
-"Typescript:src/compiler/sys.ts":[
+"Typescript:src/compiler/sys.ts": [
 225,
 456
 ],
-"Typescript:src/compiler/transformers/destructuring.ts":[
+"Typescript:src/compiler/transformers/destructuring.ts": [
 40,
 143,
 144,
 224
 ],
-"Typescript:src/compiler/transformers/generators.ts":[
+"Typescript:src/compiler/transformers/generators.ts": [
 971
 ],
-"Typescript:src/compiler/transformers/module/module.ts":[
+"Typescript:src/compiler/transformers/module/module.ts": [
 1154,
 1196
 ],
-"Typescript:src/compiler/transformers/module/system.ts":[
+"Typescript:src/compiler/transformers/module/system.ts": [
 1107,
 1119
 ],
-"Typescript:src/compiler/tsc.ts":[
+"Typescript:src/compiler/tsc.ts": [
 318,
 340
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 261,
 2150,
 2204,
 2657,
 3098
 ],
-"Typescript:src/compiler/visitor.ts":[
+"Typescript:src/compiler/visitor.ts": [
 143
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 1083,
 1083,
 2276,
@@ -124,43 +124,43 @@
 3763,
 3771
 ],
-"Typescript:src/harness/harnessLanguageService.ts":[
+"Typescript:src/harness/harnessLanguageService.ts": [
 337,
 340
 ],
-"Typescript:src/harness/sourceMapRecorder.ts":[
+"Typescript:src/harness/sourceMapRecorder.ts": [
 245,
 365
 ],
-"Typescript:src/server/client.ts":[
+"Typescript:src/server/client.ts": [
 468,
 468
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 1203,
 1333
 ],
-"Typescript:src/server/project.ts":[
+"Typescript:src/server/project.ts": [
 365,
 410
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 651
 ],
-"Typescript:src/services/codefixes/importFixes.ts":[
+"Typescript:src/services/codefixes/importFixes.ts": [
 221,
 221
 ],
-"Typescript:src/services/documentRegistry.ts":[
+"Typescript:src/services/documentRegistry.ts": [
 105
 ],
-"Typescript:src/services/formatting/formatting.ts":[
+"Typescript:src/services/formatting/formatting.ts": [
 623
 ],
-"Typescript:src/services/importTracker.ts":[
+"Typescript:src/services/importTracker.ts": [
 128
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 69,
 104,
 241,
@@ -168,7 +168,7 @@
 1488,
 1495
 ],
-"Typescript:src/services/shims.ts":[
+"Typescript:src/services/shims.ts": [
 1007,
 1014
 ]

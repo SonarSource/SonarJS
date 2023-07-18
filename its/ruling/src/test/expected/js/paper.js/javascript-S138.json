@@ -1,34 +1,34 @@
 {
-"paper.js:src/canvas/BlendMode.js":[
+"paper.js:src/canvas/BlendMode.js": [
 13
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 17,
 134
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 1400,
 1731
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 2368
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 29
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 43
 ],
-"paper.js:src/svg/SvgExport.js":[
+"paper.js:src/svg/SvgExport.js": [
 17
 ],
-"paper.js:src/svg/SvgImport.js":[
+"paper.js:src/svg/SvgImport.js": [
 17
 ],
-"paper.js:src/util/Numerical.js":[
+"paper.js:src/util/Numerical.js": [
 18
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 1033
 ]
 }

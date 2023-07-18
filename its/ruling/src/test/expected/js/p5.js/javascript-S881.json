@@ -1,5 +1,5 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 525,
 713,
 2877,
@@ -15,22 +15,22 @@
 3623,
 3708
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 1487,
 1488,
 3013,
 4320,
 8129
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 3221
 ],
-"p5.js:src/image/filters.js":[
+"p5.js:src/image/filters.js": [
 375,
 463,
 506
 ],
-"p5.js:src/image/p5.Image.js":[
+"p5.js:src/image/p5.Image.js": [
 507,
 507,
 508,
@@ -40,17 +40,17 @@
 510,
 510
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 483
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 757,
 882
 ],
-"p5.js:src/utilities/array_functions.js":[
+"p5.js:src/utilities/array_functions.js": [
 219
 ],
-"p5.js:src/webgl/text.js":[
+"p5.js:src/webgl/text.js": [
 128,
 129,
 130,

@@ -1,8 +1,8 @@
 {
-"javascript-test-sources:src/ace/demo/code_lens.html":[
+"javascript-test-sources:src/ace/demo/code_lens.html": [
 61
 ],
-"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html":[
+"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html": [
 30,
 31,
 32,
@@ -12,13 +12,13 @@
 45,
 46
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
 402,
 403,
 404,
 405
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
 21,
 22,
 23,
@@ -36,25 +36,25 @@
 371,
 389
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/util.js": [
 12
 ],
-"javascript-test-sources:src/ace/demo/modelist.html":[
+"javascript-test-sources:src/ace/demo/modelist.html": [
 46
 ],
-"javascript-test-sources:src/ace/demo/r.js/build.js":[
+"javascript-test-sources:src/ace/demo/r.js/build.js": [
 20
 ],
-"javascript-test-sources:src/ace/demo/r.js/editor.html":[
+"javascript-test-sources:src/ace/demo/r.js/editor.html": [
 29,
 30
 ],
-"javascript-test-sources:src/ace/demo/requirejs+build.html":[
+"javascript-test-sources:src/ace/demo/requirejs+build.html": [
 33,
 42,
 45
 ],
-"javascript-test-sources:src/ace/demo/scrollable-page.html":[
+"javascript-test-sources:src/ace/demo/scrollable-page.html": [
 97,
 98,
 99,
@@ -79,66 +79,66 @@
 150,
 154
 ],
-"javascript-test-sources:src/ace/demo/settings_menu.html":[
+"javascript-test-sources:src/ace/demo/settings_menu.html": [
 44
 ],
-"javascript-test-sources:src/ace/demo/shadow-dom.html":[
+"javascript-test-sources:src/ace/demo/shadow-dom.html": [
 101,
 109
 ],
-"javascript-test-sources:src/ace/demo/show_own_source.js":[
+"javascript-test-sources:src/ace/demo/show_own_source.js": [
 3,
 5,
 8,
 15
 ],
-"javascript-test-sources:src/ace/demo/static-highlighter.html":[
+"javascript-test-sources:src/ace/demo/static-highlighter.html": [
 62,
 63,
 79
 ],
-"javascript-test-sources:src/ace/demo/toolbar.html":[
+"javascript-test-sources:src/ace/demo/toolbar.html": [
 43,
 76,
 83,
 87
 ],
-"javascript-test-sources:src/ace/demo/webpack/demo.js":[
+"javascript-test-sources:src/ace/demo/webpack/demo.js": [
 4,
 6,
 25,
 27,
 29
 ],
-"javascript-test-sources:src/ace/doc/site/js/main.js":[
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
 183,
 184,
 195,
 197
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js": [
 22,
 65,
 73,
 83,
 95
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js": [
 19,
 23
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js": [
 44,
 48,
 112
 ],
-"javascript-test-sources:src/ace/experiments/animate_folding.html":[
+"javascript-test-sources:src/ace/experiments/animate_folding.html": [
 168,
 200,
 239,
 244
 ],
-"javascript-test-sources:src/ace/experiments/cut_copy.html":[
+"javascript-test-sources:src/ace/experiments/cut_copy.html": [
 51,
 85,
 86,
@@ -151,14 +151,14 @@
 104,
 107
 ],
-"javascript-test-sources:src/ace/experiments/debug_mem_leak.html":[
+"javascript-test-sources:src/ace/experiments/debug_mem_leak.html": [
 19,
 43,
 44,
 48,
 56
 ],
-"javascript-test-sources:src/ace/experiments/dom.html":[
+"javascript-test-sources:src/ace/experiments/dom.html": [
 16,
 18,
 19,
@@ -294,11 +294,11 @@
 395,
 396
 ],
-"javascript-test-sources:src/ace/kitchen-sink.html":[
+"javascript-test-sources:src/ace/kitchen-sink.html": [
 103,
 104
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 55,
 55,
 55,
@@ -306,7 +306,7 @@
 55,
 55
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 2,
 2,
 2,
@@ -331,7 +331,7 @@
 10440,
 10443
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 66,
 67,
 68,
@@ -386,7 +386,7 @@
 19338,
 19340
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/php/php.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
 23,
 24,
 25,
@@ -537,7 +537,7 @@
 170,
 171
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js": [
 18,
 20,
 36,
@@ -561,7 +561,7 @@
 244,
 245
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
 90,
 134,
 149,
@@ -577,7 +577,7 @@
 910,
 913
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
 6,
 31,
 36,
@@ -625,13 +625,13 @@
 561,
 579
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
 1589
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
 1589
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 141,
 147,
 367,
@@ -671,7 +671,7 @@
 7137,
 7142
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
 227,
 228,
 243,
@@ -699,7 +699,7 @@
 290,
 292
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 77,
 294,
 303,
@@ -759,10 +759,10 @@
 4827,
 4909
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/assert.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
 59
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/async.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
 8,
 14,
 16,
@@ -1002,12 +1002,12 @@
 523,
 526
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/index.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/index.js": [
 8,
 9,
 10
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/test.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/test.js": [
 8,
 9,
 10,
@@ -1095,7 +1095,7 @@
 191,
 192
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/utils.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/utils.js": [
 8,
 15,
 16,
@@ -1122,15 +1122,15 @@
 60,
 62
 ],
-"javascript-test-sources:src/ace/src/test/tests.html":[
+"javascript-test-sources:src/ace/src/test/tests.html": [
 42,
 43
 ],
-"javascript-test-sources:src/ace/tool/add_mode.js":[
+"javascript-test-sources:src/ace/tool/add_mode.js": [
 75,
 88
 ],
-"javascript-test-sources:src/ace/tool/lib.js":[
+"javascript-test-sources:src/ace/tool/lib.js": [
 54,
 56,
 60,
@@ -1141,10 +1141,10 @@
 103,
 140
 ],
-"javascript-test-sources:src/ace/tool/mode_creator.html":[
+"javascript-test-sources:src/ace/tool/mode_creator.html": [
 95
 ],
-"javascript-test-sources:src/ace/tool/perf-test.html":[
+"javascript-test-sources:src/ace/tool/perf-test.html": [
 61,
 66,
 70,
@@ -1191,7 +1191,7 @@
 154,
 155
 ],
-"javascript-test-sources:src/ace/tool/regexp_tokenizer.js":[
+"javascript-test-sources:src/ace/tool/regexp_tokenizer.js": [
 8,
 46,
 48,
@@ -1208,7 +1208,7 @@
 108,
 108
 ],
-"javascript-test-sources:src/ace/tool/regexp_tokenizer_test.js":[
+"javascript-test-sources:src/ace/tool/regexp_tokenizer_test.js": [
 10,
 11,
 12,
@@ -1217,14 +1217,14 @@
 24,
 30
 ],
-"javascript-test-sources:src/ace/tool/tmlanguage.js":[
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
 13,
 232,
 233,
 239,
 252
 ],
-"javascript-test-sources:src/ace/tool/tmsnippets.js":[
+"javascript-test-sources:src/ace/tool/tmsnippets.js": [
 1,
 2,
 8,
@@ -1261,7 +1261,7 @@
 80,
 82
 ],
-"javascript-test-sources:src/ace/tool/tmtheme.js":[
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
 10,
 154,
 155,
@@ -1273,7 +1273,7 @@
 360,
 373
 ],
-"javascript-test-sources:src/ace/tool/unicode.js":[
+"javascript-test-sources:src/ace/tool/unicode.js": [
 107,
 128,
 129,
@@ -1281,7 +1281,7 @@
 170,
 178
 ],
-"javascript-test-sources:src/ace/tool/update_deps.js":[
+"javascript-test-sources:src/ace/tool/update_deps.js": [
 38,
 107,
 132,
@@ -1304,20 +1304,20 @@
 300,
 305
 ],
-"javascript-test-sources:src/ace/version.js":[
+"javascript-test-sources:src/ace/version.js": [
 4
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/lexer.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/lexer.spec.js": [
 16
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 951,
 955,
 959,
 963,
 971
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
 59,
 97,
 98,
@@ -1341,43 +1341,43 @@
 277,
 284
 ],
-"javascript-test-sources:src/ecmascript6/http/test/ConnectionMock.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/ConnectionMock.spec.js": [
 109,
 109,
 113,
 155
 ],
-"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js": [
 21,
 133,
 233
 ],
-"javascript-test-sources:src/ecmascript6/http/test/IInterceptResolution.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/IInterceptResolution.spec.js": [
 23
 ],
-"javascript-test-sources:src/ecmascript6/http/test/IRequest.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/IRequest.spec.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/http/test/IResponse.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/IResponse.spec.js": [
 13,
 63,
 69
 ],
-"javascript-test-sources:src/ecmascript6/http/test/JSONPConnection.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/JSONPConnection.spec.js": [
 84
 ],
-"javascript-test-sources:src/ecmascript6/http/test/QueryParams.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/QueryParams.spec.js": [
 24,
 31
 ],
-"javascript-test-sources:src/ecmascript6/http/test/XHRConnection.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/XHRConnection.spec.js": [
 77,
 170
 ],
-"javascript-test-sources:src/ecmascript6/http/test/mocks/HttpResponse.js":[
+"javascript-test-sources:src/ecmascript6/http/test/mocks/HttpResponse.js": [
 23
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
 60,
 174,
 294,
@@ -1385,25 +1385,25 @@
 313,
 428
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/trackingEvents.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/trackingEvents.es6.js": [
 2
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/js.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/js.js": [
 140
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
 20,
 28,
 36
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/config.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/config.es6.js": [
 3,
 14
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js": [
 52
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/timing.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/timing.es6.js": [
 28,
 29,
 30,
@@ -1415,25 +1415,25 @@
 36,
 37
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js": [
 62
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
 205,
 384,
 390
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
 265,
 515
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js": [
 2,
 71,
 120,
 123
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/actions/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/actions/index.js": [
 1,
 3,
 4,
@@ -1453,18 +1453,18 @@
 61,
 63
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Picker.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Picker.js": [
 1,
 5,
 19,
 29
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Posts.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Posts.js": [
 1,
 11,
 17
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/containers/App.js": [
 1,
 2,
 3,
@@ -1490,7 +1490,7 @@
 99,
 102
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/index.js": [
 1,
 2,
 3,
@@ -1500,7 +1500,7 @@
 8,
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/reducers/index.js": [
 1,
 5,
 10,
@@ -1514,7 +1514,7 @@
 59,
 61
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/server.js": [
 1,
 2,
 3,
@@ -1530,7 +1530,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/store/configureStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/store/configureStore.js": [
 1,
 2,
 3,
@@ -1542,7 +1542,7 @@
 19,
 22
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/async/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/webpack.config.js": [
 1,
 2,
 28,
@@ -1552,7 +1552,7 @@
 38,
 44
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/buildAll.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/buildAll.js": [
 5,
 6,
 7,
@@ -1565,7 +1565,7 @@
 30,
 33
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/actions/counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/actions/counter.js": [
 1,
 2,
 7,
@@ -1578,14 +1578,14 @@
 32,
 33
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/components/Counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/components/Counter.js": [
 1,
 5,
 18,
 28,
 30
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/containers/App.js": [
 1,
 2,
 3,
@@ -1594,7 +1594,7 @@
 13,
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/index.js": [
 1,
 2,
 3,
@@ -1603,19 +1603,19 @@
 7,
 14
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/reducers/counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/reducers/counter.js": [
 1,
 6,
 8,
 10
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/reducers/index.js": [
 1,
 2,
 6,
 8
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/server.js": [
 1,
 2,
 3,
@@ -1631,7 +1631,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/store/configureStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/store/configureStore.js": [
 1,
 2,
 3,
@@ -1642,7 +1642,7 @@
 17,
 20
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/actions/counter.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/actions/counter.spec.js": [
 1,
 2,
 3,
@@ -1677,7 +1677,7 @@
 75,
 76
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/components/Counter.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/components/Counter.spec.js": [
 1,
 2,
 3,
@@ -1706,7 +1706,7 @@
 50,
 51
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/containers/App.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/containers/App.spec.js": [
 1,
 2,
 3,
@@ -1738,7 +1738,7 @@
 52,
 53
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/reducers/counter.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/reducers/counter.spec.js": [
 1,
 2,
 3,
@@ -1753,13 +1753,13 @@
 22,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/setup.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/setup.js": [
 1,
 3,
 4,
 5
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/counter/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/webpack.config.js": [
 1,
 2,
 30,
@@ -1769,7 +1769,7 @@
 40,
 46
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/actions/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/actions/index.js": [
 1,
 3,
 4,
@@ -1806,7 +1806,7 @@
 131,
 137
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/Explore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/Explore.js": [
 1,
 3,
 7,
@@ -1820,7 +1820,7 @@
 57,
 64
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/List.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/List.js": [
 1,
 5,
 12,
@@ -1833,7 +1833,7 @@
 48,
 53
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/Repo.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/Repo.js": [
 1,
 2,
 7,
@@ -1842,14 +1842,14 @@
 26,
 38
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/User.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/components/User.js": [
 1,
 2,
 6,
 17,
 27
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/App.js": [
 1,
 2,
 3,
@@ -1870,14 +1870,14 @@
 69,
 75
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/DevTools.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/DevTools.js": [
 1,
 2,
 3,
 4,
 11
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/RepoPage.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/RepoPage.js": [
 1,
 2,
 3,
@@ -1907,7 +1907,7 @@
 93,
 99
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.dev.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.dev.js": [
 1,
 2,
 3,
@@ -1916,11 +1916,11 @@
 16,
 22
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.js": [
 2,
 4
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.prod.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/Root.prod.js": [
 1,
 2,
 3,
@@ -1928,7 +1928,7 @@
 12,
 18
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/UserPage.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/containers/UserPage.js": [
 1,
 2,
 3,
@@ -1959,7 +1959,7 @@
 92,
 98
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/index.js": [
 1,
 2,
 3,
@@ -1968,7 +1968,7 @@
 7,
 12
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/middleware/api.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/middleware/api.js": [
 1,
 2,
 3,
@@ -2006,7 +2006,7 @@
 122,
 123
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/reducers/index.js": [
 1,
 2,
 3,
@@ -2022,7 +2022,7 @@
 54,
 56
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/reducers/paginate.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/reducers/paginate.js": [
 1,
 2,
 8,
@@ -2039,7 +2039,7 @@
 59,
 61
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/routes.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/routes.js": [
 1,
 2,
 3,
@@ -2047,7 +2047,7 @@
 5,
 14
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/server.js": [
 1,
 2,
 3,
@@ -2063,7 +2063,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.dev.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.dev.js": [
 1,
 2,
 3,
@@ -2080,11 +2080,11 @@
 26,
 29
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.js": [
 2,
 4
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.prod.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/store/configureStore.prod.js": [
 1,
 2,
 3,
@@ -2095,7 +2095,7 @@
 12,
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/real-world/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/real-world/webpack.config.js": [
 1,
 2,
 28,
@@ -2105,7 +2105,7 @@
 38,
 44
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/actions/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/actions/index.js": [
 1,
 2,
 8,
@@ -2121,14 +2121,14 @@
 48,
 49
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/api/shop.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/api/shop.js": [
 4,
 6,
 10,
 14,
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/Cart.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/Cart.js": [
 1,
 2,
 6,
@@ -2137,38 +2137,38 @@
 29,
 37
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/Product.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/Product.js": [
 1,
 5,
 6,
 14
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/ProductItem.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/ProductItem.js": [
 1,
 2,
 6,
 20,
 31
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/ProductsList.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/components/ProductsList.js": [
 1,
 10,
 17
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/constants/ActionTypes.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/constants/ActionTypes.js": [
 1,
 2,
 3,
 4,
 5
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/App.js": [
 1,
 2,
 3,
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/CartContainer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/CartContainer.js": [
 1,
 2,
 3,
@@ -2181,7 +2181,7 @@
 36,
 41
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/ProductsContainer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/ProductsContainer.js": [
 1,
 2,
 3,
@@ -2194,7 +2194,7 @@
 37,
 43
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/index.js": [
 1,
 2,
 3,
@@ -2210,7 +2210,7 @@
 18,
 25
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/cart.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/cart.js": [
 5,
 10,
 16,
@@ -2225,7 +2225,7 @@
 52,
 56
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/index.js": [
 1,
 2,
 3,
@@ -2233,7 +2233,7 @@
 16,
 22
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/products.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/reducers/products.js": [
 1,
 2,
 10,
@@ -2250,7 +2250,7 @@
 53,
 57
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/server.js": [
 1,
 2,
 3,
@@ -2266,7 +2266,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/webpack.config.js": [
 1,
 2,
 34,
@@ -2276,7 +2276,7 @@
 44,
 50
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/testAll.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/testAll.js": [
 5,
 6,
 7,
@@ -2289,7 +2289,7 @@
 30,
 33
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/actions/todos.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/actions/todos.js": [
 1,
 4,
 8,
@@ -2298,7 +2298,7 @@
 20,
 24
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Footer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Footer.js": [
 1,
 2,
 3,
@@ -2315,7 +2315,7 @@
 71,
 73
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Header.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/Header.js": [
 1,
 2,
 7,
@@ -2323,7 +2323,7 @@
 25,
 27
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/MainSection.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/MainSection.js": [
 1,
 2,
 3,
@@ -2348,7 +2348,7 @@
 84,
 86
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoItem.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoItem.js": [
 1,
 2,
 3,
@@ -2366,7 +2366,7 @@
 68,
 70
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoTextInput.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoTextInput.js": [
 1,
 2,
 6,
@@ -2380,7 +2380,7 @@
 56,
 58
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/constants/ActionTypes.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/constants/ActionTypes.js": [
 1,
 2,
 3,
@@ -2388,12 +2388,12 @@
 5,
 6
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/constants/TodoFilters.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/constants/TodoFilters.js": [
 1,
 2,
 3
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/containers/App.js": [
 1,
 2,
 3,
@@ -2407,7 +2407,7 @@
 34,
 40
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/index.js": [
 1,
 2,
 3,
@@ -2418,13 +2418,13 @@
 9,
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/index.js": [
 1,
 2,
 6,
 8
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/todos.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/todos.js": [
 1,
 9,
 21,
@@ -2436,7 +2436,7 @@
 49,
 52
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/server.js": [
 1,
 2,
 3,
@@ -2452,7 +2452,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/store/configureStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/store/configureStore.js": [
 1,
 2,
 5,
@@ -2461,7 +2461,7 @@
 12,
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/actions/todos.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/actions/todos.spec.js": [
 1,
 2,
 3,
@@ -2479,7 +2479,7 @@
 45,
 46
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Footer.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Footer.spec.js": [
 1,
 2,
 3,
@@ -2539,7 +2539,7 @@
 101,
 102
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Header.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Header.spec.js": [
 1,
 2,
 3,
@@ -2570,7 +2570,7 @@
 49,
 50
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js": [
 1,
 2,
 3,
@@ -2648,7 +2648,7 @@
 144,
 145
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoItem.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoItem.spec.js": [
 1,
 2,
 3,
@@ -2718,7 +2718,7 @@
 119,
 120
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoTextInput.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoTextInput.spec.js": [
 1,
 2,
 3,
@@ -2765,7 +2765,7 @@
 82,
 83
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/reducers/todos.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/reducers/todos.spec.js": [
 1,
 2,
 3,
@@ -2790,13 +2790,13 @@
 284,
 285
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/setup.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/setup.js": [
 1,
 3,
 4,
 5
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/webpack.config.js": [
 1,
 2,
 32,
@@ -2806,7 +2806,7 @@
 42,
 48
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/actions.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/actions.js": [
 1,
 2,
 3,
@@ -2815,7 +2815,7 @@
 16,
 20
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/AddTodo.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/AddTodo.js": [
 1,
 5,
 6,
@@ -2825,7 +2825,7 @@
 24,
 30
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/Footer.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/Footer.js": [
 1,
 6,
 11,
@@ -2836,18 +2836,18 @@
 49,
 64
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/Todo.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/Todo.js": [
 1,
 14,
 22
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js": [
 1,
 2,
 14,
 24
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/containers/App.js": [
 1,
 2,
 3,
@@ -2864,7 +2864,7 @@
 64,
 67
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/index.js": [
 1,
 2,
 3,
@@ -2875,7 +2875,7 @@
 10,
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/reducers.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/reducers.js": [
 1,
 2,
 4,
@@ -2888,7 +2888,7 @@
 42,
 44
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/server.js": [
 1,
 2,
 3,
@@ -2904,7 +2904,7 @@
 21,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/webpack.config.js": [
 1,
 2,
 28,
@@ -2914,7 +2914,7 @@
 38,
 44
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/client/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/client/index.js": [
 1,
 2,
 3,
@@ -2926,7 +2926,7 @@
 10,
 17
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/actions/counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/actions/counter.js": [
 1,
 2,
 3,
@@ -2941,19 +2941,19 @@
 40,
 41
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/api/counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/api/counter.js": [
 2,
 8,
 9
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/components/Counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/components/Counter.js": [
 1,
 5,
 18,
 28,
 30
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/containers/App.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/containers/App.js": [
 1,
 2,
 3,
@@ -2962,20 +2962,20 @@
 13,
 16
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/reducers/counter.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/reducers/counter.js": [
 1,
 6,
 8,
 10,
 12
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/reducers/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/reducers/index.js": [
 1,
 2,
 6,
 8
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/store/configureStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/common/store/configureStore.js": [
 1,
 2,
 3,
@@ -2986,14 +2986,14 @@
 17,
 20
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/index.js": [
 1
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/server/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/server/index.js": [
 1,
 2
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/server/server.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/server/server.js": [
 3,
 4,
 5,
@@ -3026,7 +3026,7 @@
 81,
 83
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/universal/webpack.config.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/webpack.config.js": [
 1,
 2,
 52,
@@ -3036,7 +3036,7 @@
 61,
 67
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/createStore.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/createStore.js": [
 1,
 11,
 35,
@@ -3065,7 +3065,7 @@
 148,
 155
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/index.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/index.js": [
 1,
 2,
 3,
@@ -3073,7 +3073,7 @@
 5,
 13
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/applyMiddleware.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/applyMiddleware.js": [
 1,
 21,
 22,
@@ -3084,14 +3084,14 @@
 35,
 36
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/bindActionCreators.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/bindActionCreators.js": [
 1,
 4,
 30,
 37,
 42
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/combineReducers.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/combineReducers.js": [
 1,
 2,
 3,
@@ -3130,10 +3130,10 @@
 135,
 136
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/compose.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/compose.js": [
 9
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/isPlainObject.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/isPlainObject.js": [
 1,
 2,
 10,
@@ -3142,17 +3142,17 @@
 19,
 23
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/mapValues.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/mapValues.js": [
 10,
 11,
 12
 ],
-"javascript-test-sources:src/ecmascript6/redux/src/utils/pick.js":[
+"javascript-test-sources:src/ecmascript6/redux/src/utils/pick.js": [
 11,
 13,
 14
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/createStore.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/createStore.spec.js": [
 1,
 2,
 3,
@@ -3312,7 +3312,7 @@
 389,
 390
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/actionCreators.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/actionCreators.js": [
 1,
 4,
 9,
@@ -3324,16 +3324,16 @@
 32,
 38
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/actionTypes.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/actionTypes.js": [
 1,
 2,
 3,
 4
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/middleware.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/middleware.js": [
 5
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js": [
 1,
 7,
 19,
@@ -3346,7 +3346,7 @@
 52,
 54
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/applyMiddleware.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/applyMiddleware.spec.js": [
 1,
 2,
 3,
@@ -3384,7 +3384,7 @@
 96,
 97
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/bindActionCreators.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/bindActionCreators.spec.js": [
 1,
 2,
 3,
@@ -3415,7 +3415,7 @@
 66,
 67
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/combineReducers.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/combineReducers.spec.js": [
 1,
 2,
 3,
@@ -3506,7 +3506,7 @@
 237,
 238
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/compose.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/compose.spec.js": [
 1,
 2,
 7,
@@ -3526,7 +3526,7 @@
 24,
 25
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/isPlainObject.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/isPlainObject.spec.js": [
 1,
 2,
 3,
@@ -3543,7 +3543,7 @@
 21,
 22
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/mapValues.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/mapValues.spec.js": [
 1,
 2,
 9,
@@ -3551,7 +3551,7 @@
 14,
 15
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/pick.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/pick.spec.js": [
 1,
 2,
 9,
@@ -3559,16 +3559,16 @@
 15,
 16
 ],
-"javascript-test-sources:src/ecmascript6/router/examples/hello/jsonp.js":[
+"javascript-test-sources:src/ecmascript6/router/examples/hello/jsonp.js": [
 15
 ],
-"javascript-test-sources:src/ecmascript6/router/examples/http.js":[
+"javascript-test-sources:src/ecmascript6/router/examples/http.js": [
 20
 ],
-"javascript-test-sources:src/ecmascript6/router/src/activation.js":[
+"javascript-test-sources:src/ecmascript6/router/src/activation.js": [
 103
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
 45,
 60,
 63,
@@ -3598,48 +3598,48 @@
 1114,
 1284
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js": [
 121
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/vote.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/vote.es6.js": [
 14
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/account.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/account.js": [
 10
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/base.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/base.js": [
 10,
 88
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js": [
 10
 ],
-"javascript-test-sources:src/ecmascript6/snoode/test/models/link.js":[
+"javascript-test-sources:src/ecmascript6/snoode/test/models/link.js": [
 10
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/system/item-log-level.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/system/item-log-level.js": [
 32
 ],
-"javascript-test-sources:src/ecmascript6/templating/src/lib/compiler/selector_config.js":[
+"javascript-test-sources:src/ecmascript6/templating/src/lib/compiler/selector_config.js": [
 1
 ],
-"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js":[
+"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js": [
 20,
 43
 ],
-"javascript-test-sources:src/ecmascript6/templating/test/example/greet.spec.js":[
+"javascript-test-sources:src/ecmascript6/templating/test/example/greet.spec.js": [
 7
 ],
-"javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js":[
+"javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js": [
 34
 ],
-"javascript-test-sources:src/ecmascript6/templating/test/lib/util/document_ready.spec.js":[
+"javascript-test-sources:src/ecmascript6/templating/test/lib/util/document_ready.spec.js": [
 17
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/karma.conf.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/karma.conf.js": [
 50
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/dirtychecking.spec.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/dirtychecking.spec.js": [
 7,
 20,
 29,
@@ -3648,14 +3648,14 @@
 452,
 485
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/matchers.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/matchers.js": [
 111,
 124
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/observer.spec.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/observer.spec.js": [
 20
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
 51,
 94,
 443,

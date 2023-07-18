@@ -1,11 +1,11 @@
 {
-"Joust:ts/components/GameWidget.tsx":[
+"Joust:ts/components/GameWidget.tsx": [
 332
 ],
-"Joust:ts/components/game/EntityInPlay.tsx":[
+"Joust:ts/components/game/EntityInPlay.tsx": [
 75
 ],
-"Joust:ts/state/plugins/Timer.ts":[
+"Joust:ts/state/plugins/Timer.ts": [
 29,
 109,
 153,

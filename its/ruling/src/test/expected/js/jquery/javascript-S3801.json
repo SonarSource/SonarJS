@@ -1,70 +1,70 @@
 {
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 93,
 134
 ],
-"jquery:src/ajax/jsonp.js":[
+"jquery:src/ajax/jsonp.js": [
 21
 ],
-"jquery:src/ajax/script.js":[
+"jquery:src/ajax/script.js": [
 41
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 22,
 69
 ],
-"jquery:src/attributes/prop.js":[
+"jquery:src/attributes/prop.js": [
 23
 ],
-"jquery:src/attributes/val.js":[
+"jquery:src/attributes/val.js": [
 10,
 166
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 190,
 202,
 320
 ],
-"jquery:src/css/finalPropName.js":[
+"jquery:src/css/finalPropName.js": [
 8
 ],
-"jquery:src/data.js":[
+"jquery:src/data.js": [
 131
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 66
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 294,
 419,
 424,
 533,
 610
 ],
-"jquery:src/event/trigger.js":[
+"jquery:src/event/trigger.js": [
 17,
 186
 ],
-"jquery:src/manipulation.js":[
+"jquery:src/manipulation.js": [
 373
 ],
-"jquery:src/offset.js":[
+"jquery:src/offset.js": [
 65,
 102,
 174
 ],
-"jquery:src/queue.js":[
+"jquery:src/queue.js": [
 8
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 480,
 497,
 681
 ],
-"jquery:src/traversing.js":[
+"jquery:src/traversing.js": [
 28
 ],
-"jquery:src/traversing/findFilter.js":[
+"jquery:src/traversing/findFilter.js": [
 56
 ]
 }

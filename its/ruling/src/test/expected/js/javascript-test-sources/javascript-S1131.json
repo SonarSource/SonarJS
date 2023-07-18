@@ -1,5 +1,5 @@
 {
-"javascript-test-sources:src/ace/Makefile.dryice.js":[
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
 92,
 110,
 166,
@@ -38,19 +38,19 @@
 758,
 775
 ],
-"javascript-test-sources:src/ace/demo/autoresize.html":[
+"javascript-test-sources:src/ace/demo/autoresize.html": [
 58
 ],
-"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html":[
+"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html": [
 33
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
 265,
 455,
 457,
 523
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
 10,
 41,
 62,
@@ -76,7 +76,7 @@
 351,
 391
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/inline_editor.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/inline_editor.js": [
 23,
 26,
 27,
@@ -86,16 +86,16 @@
 59,
 64
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/token_tooltip.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/token_tooltip.js": [
 28,
 31,
 85
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/util.js": [
 146,
 168
 ],
-"javascript-test-sources:src/ace/demo/shadow-dom.html":[
+"javascript-test-sources:src/ace/demo/shadow-dom.html": [
 49,
 51,
 55,
@@ -108,22 +108,22 @@
 104,
 116
 ],
-"javascript-test-sources:src/ace/demo/static-highlighter.html":[
+"javascript-test-sources:src/ace/demo/static-highlighter.html": [
 76
 ],
-"javascript-test-sources:src/ace/demo/static-highlighter/client.html":[
+"javascript-test-sources:src/ace/demo/static-highlighter/client.html": [
 44
 ],
-"javascript-test-sources:src/ace/demo/static-highlighter/server.js":[
+"javascript-test-sources:src/ace/demo/static-highlighter/server.js": [
 2,
 37
 ],
-"javascript-test-sources:src/ace/demo/toolbar.html":[
+"javascript-test-sources:src/ace/demo/toolbar.html": [
 45,
 54,
 88
 ],
-"javascript-test-sources:src/ace/demo/transform.html":[
+"javascript-test-sources:src/ace/demo/transform.html": [
 94,
 101,
 108,
@@ -131,10 +131,10 @@
 124,
 125
 ],
-"javascript-test-sources:src/ace/demo/webpack/webpack.config.js":[
+"javascript-test-sources:src/ace/demo/webpack/webpack.config.js": [
 20
 ],
-"javascript-test-sources:src/ace/doc/build.js":[
+"javascript-test-sources:src/ace/doc/build.js": [
 14,
 18,
 20,
@@ -143,10 +143,10 @@
 53,
 58
 ],
-"javascript-test-sources:src/ace/doc/site/js/ga.js":[
+"javascript-test-sources:src/ace/doc/site/js/ga.js": [
 4
 ],
-"javascript-test-sources:src/ace/doc/site/js/main.js":[
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
 13,
 19,
 26,
@@ -164,7 +164,7 @@
 168,
 176
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/clicker.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/clicker.js": [
 17,
 19,
 24,
@@ -177,13 +177,13 @@
 63,
 65
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js": [
 3,
 6,
 9,
 14
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js": [
 12,
 23,
 35,
@@ -196,7 +196,7 @@
 90,
 97
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js": [
 1,
 2,
 5,
@@ -206,12 +206,12 @@
 22,
 23
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js": [
 86,
 90,
 94
 ],
-"javascript-test-sources:src/ace/experiments/animate_folding.html":[
+"javascript-test-sources:src/ace/experiments/animate_folding.html": [
 118,
 125,
 126,
@@ -239,22 +239,22 @@
 240,
 242
 ],
-"javascript-test-sources:src/ace/experiments/basic_animation.html":[
+"javascript-test-sources:src/ace/experiments/basic_animation.html": [
 185
 ],
-"javascript-test-sources:src/ace/experiments/capture.html":[
+"javascript-test-sources:src/ace/experiments/capture.html": [
 29,
 42
 ],
-"javascript-test-sources:src/ace/experiments/cut_copy.html":[
+"javascript-test-sources:src/ace/experiments/cut_copy.html": [
 65,
 69,
 140
 ],
-"javascript-test-sources:src/ace/experiments/debug_mem_leak.html":[
+"javascript-test-sources:src/ace/experiments/debug_mem_leak.html": [
 55
 ],
-"javascript-test-sources:src/ace/experiments/dom.html":[
+"javascript-test-sources:src/ace/experiments/dom.html": [
 24,
 50,
 58,
@@ -278,42 +278,42 @@
 389,
 400
 ],
-"javascript-test-sources:src/ace/experiments/triple_click.html":[
+"javascript-test-sources:src/ace/experiments/triple_click.html": [
 30
 ],
-"javascript-test-sources:src/ace/experiments/worker.html":[
+"javascript-test-sources:src/ace/experiments/worker.html": [
 29
 ],
-"javascript-test-sources:src/ace/kitchen-sink.html":[
+"javascript-test-sources:src/ace/kitchen-sink.html": [
 73,
 106
 ],
-"javascript-test-sources:src/ace/lib/ace/loader_build.js":[
+"javascript-test-sources:src/ace/lib/ace/loader_build.js": [
 20,
 36,
 45
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/coffee/parser_test.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/coffee/parser_test.js": [
 6,
 17,
 61,
 67
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/coffee_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/coffee_worker.js": [
 6,
 17
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/css_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css_worker.js": [
 6,
 17,
 74
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/css_worker_test.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css_worker_test.js": [
 6,
 17,
 55
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 5810,
 6052,
 6062,
@@ -336,30 +336,30 @@
 6590,
 6628
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html_worker.js": [
 6,
 17
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker.js": [
 6,
 17
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker_test.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker_test.js": [
 6,
 17,
 84,
 91,
 96
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/json_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/json_worker.js": [
 6,
 17
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/json_worker_test.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/json_worker_test.js": [
 6,
 17
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/jsoniq.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/jsoniq.js": [
 43,
 50,
 89,
@@ -370,17 +370,17 @@
 123,
 168
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/lua_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/lua_worker.js": [
 6,
 17,
 50
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/php_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/php_worker.js": [
 6,
 17,
 49
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js": [
 9,
 11,
 22,
@@ -391,7 +391,7 @@
 164,
 172
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
 15,
 24,
 54,
@@ -414,12 +414,12 @@
 530,
 553
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml_worker.js": [
 6,
 17,
 85
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery.js": [
 6,
 17,
 52,
@@ -436,7 +436,7 @@
 210,
 211
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
 4364,
 4372,
 4377,
@@ -449,7 +449,7 @@
 4439,
 4443
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
 4204,
 4209,
 4231,
@@ -462,14 +462,14 @@
 4275,
 4434
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery_worker.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery_worker.js": [
 6,
 17,
 30,
 33,
 95
 ],
-"javascript-test-sources:src/ace/lib/ace/worker/mirror.js":[
+"javascript-test-sources:src/ace/lib/ace/worker/mirror.js": [
 6,
 10,
 12,
@@ -483,7 +483,7 @@
 67,
 71
 ],
-"javascript-test-sources:src/ace/lib/ace/worker/worker.js":[
+"javascript-test-sources:src/ace/lib/ace/worker/worker.js": [
 14,
 26,
 42,
@@ -500,13 +500,13 @@
 188,
 190
 ],
-"javascript-test-sources:src/ace/lib/ace/worker/worker_client.js":[
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client.js": [
 136
 ],
-"javascript-test-sources:src/ace/lib/ace/worker/worker_client_v2.js":[
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client_v2.js": [
 95
 ],
-"javascript-test-sources:src/ace/src/ace_test.js":[
+"javascript-test-sources:src/ace/src/ace_test.js": [
 18,
 22,
 31,
@@ -518,7 +518,7 @@
 82,
 86
 ],
-"javascript-test-sources:src/ace/src/anchor.js":[
+"javascript-test-sources:src/ace/src/anchor.js": [
 26,
 81,
 85,
@@ -528,7 +528,7 @@
 114,
 117
 ],
-"javascript-test-sources:src/ace/src/anchor_test.js":[
+"javascript-test-sources:src/ace/src/anchor_test.js": [
 17,
 21,
 25,
@@ -574,29 +574,29 @@
 179,
 182
 ],
-"javascript-test-sources:src/ace/src/apply_delta.js":[
+"javascript-test-sources:src/ace/src/apply_delta.js": [
 17,
 30,
 35,
 47
 ],
-"javascript-test-sources:src/ace/src/autocomplete.js":[
+"javascript-test-sources:src/ace/src/autocomplete.js": [
 59,
 256,
 322,
 416,
 491
 ],
-"javascript-test-sources:src/ace/src/autocomplete/popup.js":[
+"javascript-test-sources:src/ace/src/autocomplete/popup.js": [
 162,
 166,
 183
 ],
-"javascript-test-sources:src/ace/src/autocomplete/text_completer.js":[
+"javascript-test-sources:src/ace/src/autocomplete/text_completer.js": [
 2,
 18
 ],
-"javascript-test-sources:src/ace/src/autocomplete_test.js":[
+"javascript-test-sources:src/ace/src/autocomplete_test.js": [
 24,
 27,
 34,
@@ -604,7 +604,7 @@
 51,
 55
 ],
-"javascript-test-sources:src/ace/src/background_tokenizer.js":[
+"javascript-test-sources:src/ace/src/background_tokenizer.js": [
 8,
 9,
 43,
@@ -612,7 +612,7 @@
 65,
 101
 ],
-"javascript-test-sources:src/ace/src/background_tokenizer_test.js":[
+"javascript-test-sources:src/ace/src/background_tokenizer_test.js": [
 32,
 33,
 36,
@@ -628,7 +628,7 @@
 88,
 104
 ],
-"javascript-test-sources:src/ace/src/bidihandler.js":[
+"javascript-test-sources:src/ace/src/bidihandler.js": [
 69,
 110,
 140,
@@ -641,21 +641,21 @@
 315,
 325
 ],
-"javascript-test-sources:src/ace/src/clipboard.js":[
+"javascript-test-sources:src/ace/src/clipboard.js": [
 4
 ],
-"javascript-test-sources:src/ace/src/commands/default_commands.js":[
+"javascript-test-sources:src/ace/src/commands/default_commands.js": [
 119,
 156,
 163,
 597
 ],
-"javascript-test-sources:src/ace/src/config.js":[
+"javascript-test-sources:src/ace/src/config.js": [
 52,
 124,
 131
 ],
-"javascript-test-sources:src/ace/src/config_test.js":[
+"javascript-test-sources:src/ace/src/config_test.js": [
 17,
 21,
 24,
@@ -670,7 +670,7 @@
 83,
 88
 ],
-"javascript-test-sources:src/ace/src/document.js":[
+"javascript-test-sources:src/ace/src/document.js": [
 10,
 59,
 69,
@@ -728,7 +728,7 @@
 621,
 648
 ],
-"javascript-test-sources:src/ace/src/document_test.js":[
+"javascript-test-sources:src/ace/src/document_test.js": [
 73,
 88,
 298,
@@ -736,7 +736,7 @@
 326,
 335
 ],
-"javascript-test-sources:src/ace/src/edit_session.js":[
+"javascript-test-sources:src/ace/src/edit_session.js": [
 126,
 251,
 354,
@@ -764,7 +764,7 @@
 2463,
 2487
 ],
-"javascript-test-sources:src/ace/src/edit_session/bracket_match.js":[
+"javascript-test-sources:src/ace/src/edit_session/bracket_match.js": [
 24,
 61,
 123,
@@ -775,15 +775,15 @@
 166,
 223
 ],
-"javascript-test-sources:src/ace/src/edit_session/fold.js":[
+"javascript-test-sources:src/ace/src/edit_session/fold.js": [
 84
 ],
-"javascript-test-sources:src/ace/src/edit_session/fold_line.js":[
+"javascript-test-sources:src/ace/src/edit_session/fold_line.js": [
 165,
 168,
 172
 ],
-"javascript-test-sources:src/ace/src/edit_session/folding.js":[
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
 92,
 99,
 237,
@@ -820,7 +820,7 @@
 825,
 831
 ],
-"javascript-test-sources:src/ace/src/edit_session_test.js":[
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
 360,
 366,
 396,
@@ -835,7 +835,7 @@
 1090,
 1107
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 66,
 72,
 95,
@@ -884,7 +884,7 @@
 2761,
 2803
 ],
-"javascript-test-sources:src/ace/src/editor_change_document_test.js":[
+"javascript-test-sources:src/ace/src/editor_change_document_test.js": [
 22,
 23,
 126,
@@ -894,14 +894,14 @@
 139,
 145
 ],
-"javascript-test-sources:src/ace/src/editor_commands_test.js":[
+"javascript-test-sources:src/ace/src/editor_commands_test.js": [
 42
 ],
-"javascript-test-sources:src/ace/src/editor_navigation_test.js":[
+"javascript-test-sources:src/ace/src/editor_navigation_test.js": [
 148,
 154
 ],
-"javascript-test-sources:src/ace/src/editor_text_edit_test.js":[
+"javascript-test-sources:src/ace/src/editor_text_edit_test.js": [
 96,
 123,
 164,
@@ -924,22 +924,22 @@
 476,
 479
 ],
-"javascript-test-sources:src/ace/src/ext/beautify.js":[
+"javascript-test-sources:src/ace/src/ext/beautify.js": [
 59,
 68,
 74,
 338,
 377
 ],
-"javascript-test-sources:src/ace/src/ext/beautify_test.js":[
+"javascript-test-sources:src/ace/src/ext/beautify_test.js": [
 309,
 314,
 399
 ],
-"javascript-test-sources:src/ace/src/ext/code_lens.js":[
+"javascript-test-sources:src/ace/src/ext/code_lens.js": [
 168
 ],
-"javascript-test-sources:src/ace/src/ext/emmet.js":[
+"javascript-test-sources:src/ace/src/ext/emmet.js": [
 135,
 136,
 141,
@@ -949,11 +949,11 @@
 331,
 338
 ],
-"javascript-test-sources:src/ace/src/ext/emmet_test.js":[
+"javascript-test-sources:src/ace/src/ext/emmet_test.js": [
 20,
 24
 ],
-"javascript-test-sources:src/ace/src/ext/error_marker.js":[
+"javascript-test-sources:src/ace/src/ext/error_marker.js": [
 29,
 33,
 38,
@@ -972,18 +972,18 @@
 144,
 146
 ],
-"javascript-test-sources:src/ace/src/ext/error_marker_test.js":[
+"javascript-test-sources:src/ace/src/ext/error_marker_test.js": [
 2,
 42,
 45
 ],
-"javascript-test-sources:src/ace/src/ext/hardwrap.js":[
+"javascript-test-sources:src/ace/src/ext/hardwrap.js": [
 8,
 11,
 13,
 96
 ],
-"javascript-test-sources:src/ace/src/ext/hardwrap_test.js":[
+"javascript-test-sources:src/ace/src/ext/hardwrap_test.js": [
 31,
 35,
 39,
@@ -992,19 +992,19 @@
 52,
 57
 ],
-"javascript-test-sources:src/ace/src/ext/keybinding_menu.js":[
+"javascript-test-sources:src/ace/src/ext/keybinding_menu.js": [
 30
 ],
-"javascript-test-sources:src/ace/src/ext/language_tools.js":[
+"javascript-test-sources:src/ace/src/ext/language_tools.js": [
 104
 ],
-"javascript-test-sources:src/ace/src/ext/menu_tools/get_editor_keyboard_shortcuts.js":[
+"javascript-test-sources:src/ace/src/ext/menu_tools/get_editor_keyboard_shortcuts.js": [
 51
 ],
-"javascript-test-sources:src/ace/src/ext/menu_tools/overlay_page.js":[
+"javascript-test-sources:src/ace/src/ext/menu_tools/overlay_page.js": [
 52
 ],
-"javascript-test-sources:src/ace/src/ext/options.js":[
+"javascript-test-sources:src/ace/src/ext/options.js": [
 19,
 20,
 210,
@@ -1029,7 +1029,7 @@
 362,
 368
 ],
-"javascript-test-sources:src/ace/src/ext/prompt.js":[
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
 4,
 6,
 228,
@@ -1037,12 +1037,12 @@
 271,
 272
 ],
-"javascript-test-sources:src/ace/src/ext/rtl.js":[
+"javascript-test-sources:src/ace/src/ext/rtl.js": [
 59,
 65,
 66
 ],
-"javascript-test-sources:src/ace/src/ext/searchbox.js":[
+"javascript-test-sources:src/ace/src/ext/searchbox.js": [
 40,
 54,
 72,
@@ -1058,7 +1058,7 @@
 338,
 343
 ],
-"javascript-test-sources:src/ace/src/ext/static_highlight.js":[
+"javascript-test-sources:src/ace/src/ext/static_highlight.js": [
 43,
 72,
 92,
@@ -1066,28 +1066,28 @@
 192,
 200
 ],
-"javascript-test-sources:src/ace/src/ext/static_highlight_test.js":[
+"javascript-test-sources:src/ace/src/ext/static_highlight_test.js": [
 93,
 104,
 112,
 116,
 119
 ],
-"javascript-test-sources:src/ace/src/ext/statusbar.js":[
+"javascript-test-sources:src/ace/src/ext/statusbar.js": [
 15,
 31,
 34,
 39
 ],
-"javascript-test-sources:src/ace/src/ext/textarea.js":[
+"javascript-test-sources:src/ace/src/ext/textarea.js": [
 290
 ],
-"javascript-test-sources:src/ace/src/ext/whitespace.js":[
+"javascript-test-sources:src/ace/src/ext/whitespace.js": [
 27,
 36,
 97
 ],
-"javascript-test-sources:src/ace/src/ext/whitespace_test.js":[
+"javascript-test-sources:src/ace/src/ext/whitespace_test.js": [
 28,
 32,
 38,
@@ -1109,17 +1109,17 @@
 184,
 194
 ],
-"javascript-test-sources:src/ace/src/incremental_search.js":[
+"javascript-test-sources:src/ace/src/incremental_search.js": [
 73
 ],
-"javascript-test-sources:src/ace/src/keyboard/emacs.js":[
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
 285,
 505
 ],
-"javascript-test-sources:src/ace/src/keyboard/emacs_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/emacs_test.js": [
 114
 ],
-"javascript-test-sources:src/ace/src/keyboard/hash_handler.js":[
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
 23,
 69,
 88,
@@ -1131,7 +1131,7 @@
 207,
 216
 ],
-"javascript-test-sources:src/ace/src/keyboard/keybinding.js":[
+"javascript-test-sources:src/ace/src/keyboard/keybinding.js": [
 61,
 81,
 89,
@@ -1139,7 +1139,7 @@
 102,
 105
 ],
-"javascript-test-sources:src/ace/src/keyboard/sublime.js":[
+"javascript-test-sources:src/ace/src/keyboard/sublime.js": [
 44,
 56,
 196,
@@ -1158,13 +1158,13 @@
 371,
 407
 ],
-"javascript-test-sources:src/ace/src/keyboard/sublime_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/sublime_test.js": [
 28
 ],
-"javascript-test-sources:src/ace/src/keyboard/textarea.js":[
+"javascript-test-sources:src/ace/src/keyboard/textarea.js": [
 37
 ],
-"javascript-test-sources:src/ace/src/keyboard/textinput.js":[
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
 36,
 42,
 47,
@@ -1212,7 +1212,7 @@
 690,
 697
 ],
-"javascript-test-sources:src/ace/src/keyboard/textinput_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/textinput_test.js": [
 2,
 28,
 32,
@@ -1237,7 +1237,7 @@
 630,
 656
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 945,
 3570,
 4798,
@@ -1253,21 +1253,21 @@
 7163,
 7192
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
 2,
 52,
 66,
 78,
 81
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 47,
 2651
 ],
-"javascript-test-sources:src/ace/src/keyboard/vscode.js":[
+"javascript-test-sources:src/ace/src/keyboard/vscode.js": [
 249
 ],
-"javascript-test-sources:src/ace/src/layer/cursor.js":[
+"javascript-test-sources:src/ace/src/layer/cursor.js": [
 9,
 22,
 41,
@@ -1277,10 +1277,10 @@
 191,
 215
 ],
-"javascript-test-sources:src/ace/src/layer/font_metrics.js":[
+"javascript-test-sources:src/ace/src/layer/font_metrics.js": [
 163
 ],
-"javascript-test-sources:src/ace/src/layer/gutter.js":[
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
 14,
 19,
 57,
@@ -1326,7 +1326,7 @@
 414,
 417
 ],
-"javascript-test-sources:src/ace/src/layer/lines.js":[
+"javascript-test-sources:src/ace/src/layer/lines.js": [
 9,
 16,
 19,
@@ -1348,7 +1348,7 @@
 117,
 120
 ],
-"javascript-test-sources:src/ace/src/layer/marker.js":[
+"javascript-test-sources:src/ace/src/layer/marker.js": [
 22,
 26,
 89,
@@ -1357,7 +1357,7 @@
 156,
 216
 ],
-"javascript-test-sources:src/ace/src/layer/text_test.js":[
+"javascript-test-sources:src/ace/src/layer/text_test.js": [
 31,
 35,
 41,
@@ -1367,11 +1367,11 @@
 79,
 85
 ],
-"javascript-test-sources:src/ace/src/lib/app_config.js":[
+"javascript-test-sources:src/ace/src/lib/app_config.js": [
 128,
 131
 ],
-"javascript-test-sources:src/ace/src/lib/bidiutil.js":[
+"javascript-test-sources:src/ace/src/lib/bidiutil.js": [
 164,
 219,
 248,
@@ -1390,7 +1390,7 @@
 365,
 371
 ],
-"javascript-test-sources:src/ace/src/lib/dom.js":[
+"javascript-test-sources:src/ace/src/lib/dom.js": [
 3,
 13,
 27,
@@ -1399,7 +1399,7 @@
 202,
 205
 ],
-"javascript-test-sources:src/ace/src/lib/event.js":[
+"javascript-test-sources:src/ace/src/lib/event.js": [
 13,
 14,
 93,
@@ -1413,29 +1413,29 @@
 296,
 317
 ],
-"javascript-test-sources:src/ace/src/lib/event_emitter.js":[
+"javascript-test-sources:src/ace/src/lib/event_emitter.js": [
 33,
 67,
 75,
 85
 ],
-"javascript-test-sources:src/ace/src/lib/keys.js":[
+"javascript-test-sources:src/ace/src/lib/keys.js": [
 50,
 137,
 140
 ],
-"javascript-test-sources:src/ace/src/lib/lang.js":[
+"javascript-test-sources:src/ace/src/lib/lang.js": [
 47,
 66,
 149
 ],
-"javascript-test-sources:src/ace/src/lib/useragent.js":[
+"javascript-test-sources:src/ace/src/lib/useragent.js": [
 46,
 50,
 56,
 59
 ],
-"javascript-test-sources:src/ace/src/line_widgets.js":[
+"javascript-test-sources:src/ace/src/line_widgets.js": [
 15,
 26,
 42,
@@ -1472,7 +1472,7 @@
 347,
 355
 ],
-"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js":[
+"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js": [
 48,
 52,
 56,
@@ -1494,13 +1494,13 @@
 218,
 266
 ],
-"javascript-test-sources:src/ace/src/mode/abap.js":[
+"javascript-test-sources:src/ace/src/mode/abap.js": [
 17,
 19,
 23,
 24
 ],
-"javascript-test-sources:src/ace/src/mode/abap_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/abap_highlight_rules.js": [
 19,
 46,
 48,
@@ -1509,10 +1509,10 @@
 82,
 83
 ],
-"javascript-test-sources:src/ace/src/mode/abc.js":[
+"javascript-test-sources:src/ace/src/mode/abc.js": [
 21
 ],
-"javascript-test-sources:src/ace/src/mode/actionscript_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/actionscript_highlight_rules.js": [
 16,
 33,
 42,
@@ -1524,7 +1524,7 @@
 88,
 97
 ],
-"javascript-test-sources:src/ace/src/mode/alda_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/alda_highlight_rules.js": [
 8,
 11,
 15,
@@ -1534,7 +1534,7 @@
 146,
 148
 ],
-"javascript-test-sources:src/ace/src/mode/apache_conf_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/apache_conf_highlight_rules.js": [
 16,
 17,
 22,
@@ -1551,7 +1551,7 @@
 174,
 178
 ],
-"javascript-test-sources:src/ace/src/mode/apex_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/apex_highlight_rules.js": [
 33,
 53,
 76,
@@ -1563,15 +1563,15 @@
 186,
 220
 ],
-"javascript-test-sources:src/ace/src/mode/asciidoc.js":[
+"javascript-test-sources:src/ace/src/mode/asciidoc.js": [
 10,
 11
 ],
-"javascript-test-sources:src/ace/src/mode/asciidoc_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/asciidoc_highlight_rules.js": [
 144,
 147
 ],
-"javascript-test-sources:src/ace/src/mode/assembly_x86_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/assembly_x86_highlight_rules.js": [
 16,
 35,
 40,
@@ -1580,18 +1580,18 @@
 69,
 71
 ],
-"javascript-test-sources:src/ace/src/mode/batchfile_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/batchfile_highlight_rules.js": [
 16,
 42,
 54
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour.js": [
 18,
 26,
 32,
 41
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/behaviour_test.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/behaviour_test.js": [
 55,
 56,
 63,
@@ -1622,7 +1622,7 @@
 259,
 276
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/cstyle.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/cstyle.js": [
 226,
 239,
 245,
@@ -1631,7 +1631,7 @@
 302,
 312
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/liquid.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/liquid.js": [
 2,
 8,
 12,
@@ -1643,21 +1643,21 @@
 83,
 87
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/xml.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/xml.js": [
 95
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js": [
 21,
 23,
 26
 ],
-"javascript-test-sources:src/ace/src/mode/bibtex_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/bibtex_highlight_rules.js": [
 178
 ],
-"javascript-test-sources:src/ace/src/mode/c9search.js":[
+"javascript-test-sources:src/ace/src/mode/c9search.js": [
 17
 ],
-"javascript-test-sources:src/ace/src/mode/c9search_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/c9search_highlight_rules.js": [
 32,
 41,
 70,
@@ -1666,7 +1666,7 @@
 122,
 131
 ],
-"javascript-test-sources:src/ace/src/mode/c_cpp_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/c_cpp_highlight_rules.js": [
 16,
 57,
 61,
@@ -1674,7 +1674,7 @@
 93,
 175
 ],
-"javascript-test-sources:src/ace/src/mode/coffee.js":[
+"javascript-test-sources:src/ace/src/mode/coffee.js": [
 20,
 43,
 46,
@@ -1686,23 +1686,23 @@
 72,
 76
 ],
-"javascript-test-sources:src/ace/src/mode/coffee_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/coffee_highlight_rules.js": [
 148,
 149
 ],
-"javascript-test-sources:src/ace/src/mode/coldfusion.js":[
+"javascript-test-sources:src/ace/src/mode/coldfusion.js": [
 12
 ],
-"javascript-test-sources:src/ace/src/mode/coldfusion_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/coldfusion_highlight_rules.js": [
 20,
 29,
 30,
 46
 ],
-"javascript-test-sources:src/ace/src/mode/coldfusion_test.js":[
+"javascript-test-sources:src/ace/src/mode/coldfusion_test.js": [
 13
 ],
-"javascript-test-sources:src/ace/src/mode/csharp.js":[
+"javascript-test-sources:src/ace/src/mode/csharp.js": [
 19,
 22,
 25,
@@ -1711,11 +1711,11 @@
 39,
 46
 ],
-"javascript-test-sources:src/ace/src/mode/css_test.js":[
+"javascript-test-sources:src/ace/src/mode/css_test.js": [
 12,
 14
 ],
-"javascript-test-sources:src/ace/src/mode/d_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/d_highlight_rules.js": [
 18,
 31,
 35,
@@ -1731,10 +1731,10 @@
 248,
 254
 ],
-"javascript-test-sources:src/ace/src/mode/dart.js":[
+"javascript-test-sources:src/ace/src/mode/dart.js": [
 19
 ],
-"javascript-test-sources:src/ace/src/mode/dart_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/dart_highlight_rules.js": [
 101,
 106,
 111,
@@ -1742,19 +1742,19 @@
 132,
 136
 ],
-"javascript-test-sources:src/ace/src/mode/doc_comment_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/doc_comment_highlight_rules.js": [
 11
 ],
-"javascript-test-sources:src/ace/src/mode/dockerfile.js":[
+"javascript-test-sources:src/ace/src/mode/dockerfile.js": [
 10
 ],
-"javascript-test-sources:src/ace/src/mode/dockerfile_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/dockerfile_highlight_rules.js": [
 20
 ],
-"javascript-test-sources:src/ace/src/mode/edifact.js":[
+"javascript-test-sources:src/ace/src/mode/edifact.js": [
 8
 ],
-"javascript-test-sources:src/ace/src/mode/edifact_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/edifact_highlight_rules.js": [
 2,
 6,
 8,
@@ -1769,13 +1769,13 @@
 86,
 88
 ],
-"javascript-test-sources:src/ace/src/mode/ejs.js":[
+"javascript-test-sources:src/ace/src/mode/ejs.js": [
 9,
 22,
 32,
 50
 ],
-"javascript-test-sources:src/ace/src/mode/elixir_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/elixir_highlight_rules.js": [
 16,
 17,
 25,
@@ -1819,7 +1819,7 @@
 379,
 385
 ],
-"javascript-test-sources:src/ace/src/mode/elm_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/elm_highlight_rules.js": [
 14,
 16,
 48,
@@ -1829,7 +1829,7 @@
 101,
 129
 ],
-"javascript-test-sources:src/ace/src/mode/erlang_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/erlang_highlight_rules.js": [
 16,
 26,
 29,
@@ -1974,12 +1974,12 @@
 828,
 831
 ],
-"javascript-test-sources:src/ace/src/mode/folding/c9search.js":[
+"javascript-test-sources:src/ace/src/mode/folding/c9search.js": [
 14,
 21,
 47
 ],
-"javascript-test-sources:src/ace/src/mode/folding/csharp.js":[
+"javascript-test-sources:src/ace/src/mode/folding/csharp.js": [
 24,
 29,
 41,
@@ -1988,7 +1988,7 @@
 76,
 81
 ],
-"javascript-test-sources:src/ace/src/mode/folding/cstyle.js":[
+"javascript-test-sources:src/ace/src/mode/folding/cstyle.js": [
 20,
 26,
 29,
@@ -2008,7 +2008,7 @@
 131,
 140
 ],
-"javascript-test-sources:src/ace/src/mode/folding/cstyle_test.js":[
+"javascript-test-sources:src/ace/src/mode/folding/cstyle_test.js": [
 18,
 22,
 26,
@@ -2020,14 +2020,14 @@
 64,
 68
 ],
-"javascript-test-sources:src/ace/src/mode/folding/drools.js":[
+"javascript-test-sources:src/ace/src/mode/folding/drools.js": [
 14,
 32
 ],
-"javascript-test-sources:src/ace/src/mode/folding/fold_mode_test.js":[
+"javascript-test-sources:src/ace/src/mode/folding/fold_mode_test.js": [
 35
 ],
-"javascript-test-sources:src/ace/src/mode/folding/html_test.js":[
+"javascript-test-sources:src/ace/src/mode/folding/html_test.js": [
 20,
 24,
 30,
@@ -2054,36 +2054,36 @@
 140,
 147
 ],
-"javascript-test-sources:src/ace/src/mode/folding/ini.js":[
+"javascript-test-sources:src/ace/src/mode/folding/ini.js": [
 18,
 20,
 22,
 24
 ],
-"javascript-test-sources:src/ace/src/mode/folding/java.js":[
+"javascript-test-sources:src/ace/src/mode/folding/java.js": [
 24
 ],
-"javascript-test-sources:src/ace/src/mode/folding/latex.js":[
+"javascript-test-sources:src/ace/src/mode/folding/latex.js": [
 94,
 99
 ],
-"javascript-test-sources:src/ace/src/mode/folding/mixed.js":[
+"javascript-test-sources:src/ace/src/mode/folding/mixed.js": [
 16,
 24,
 40,
 43,
 46
 ],
-"javascript-test-sources:src/ace/src/mode/folding/pythonic_test.js":[
+"javascript-test-sources:src/ace/src/mode/folding/pythonic_test.js": [
 62
 ],
-"javascript-test-sources:src/ace/src/mode/folding/sql.js":[
+"javascript-test-sources:src/ace/src/mode/folding/sql.js": [
 11,
 12,
 14,
 17
 ],
-"javascript-test-sources:src/ace/src/mode/folding/sqlserver.js":[
+"javascript-test-sources:src/ace/src/mode/folding/sqlserver.js": [
 12,
 13,
 15,
@@ -2098,11 +2098,11 @@
 60,
 69
 ],
-"javascript-test-sources:src/ace/src/mode/folding/xml.js":[
+"javascript-test-sources:src/ace/src/mode/folding/xml.js": [
 13,
 48
 ],
-"javascript-test-sources:src/ace/src/mode/folding/xml_test.js":[
+"javascript-test-sources:src/ace/src/mode/folding/xml_test.js": [
 18,
 22,
 26,
@@ -2115,68 +2115,68 @@
 62,
 68
 ],
-"javascript-test-sources:src/ace/src/mode/forth_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/forth_highlight_rules.js": [
 118
 ],
-"javascript-test-sources:src/ace/src/mode/fortran_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/fortran_highlight_rules.js": [
 11,
 12,
 23,
 59,
 62
 ],
-"javascript-test-sources:src/ace/src/mode/gherkin.js":[
+"javascript-test-sources:src/ace/src/mode/gherkin.js": [
 21,
 29,
 38,
 40
 ],
-"javascript-test-sources:src/ace/src/mode/gherkin_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/gherkin_highlight_rules.js": [
 18,
 25
 ],
-"javascript-test-sources:src/ace/src/mode/gitignore_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/gitignore_highlight_rules.js": [
 18
 ],
-"javascript-test-sources:src/ace/src/mode/glsl.js":[
+"javascript-test-sources:src/ace/src/mode/glsl.js": [
 13
 ],
-"javascript-test-sources:src/ace/src/mode/golang.js":[
+"javascript-test-sources:src/ace/src/mode/golang.js": [
 17,
 31
 ],
-"javascript-test-sources:src/ace/src/mode/golang_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/golang_highlight_rules.js": [
 27,
 53,
 71
 ],
-"javascript-test-sources:src/ace/src/mode/haml.js":[
+"javascript-test-sources:src/ace/src/mode/haml.js": [
 21
 ],
-"javascript-test-sources:src/ace/src/mode/haxe.js":[
+"javascript-test-sources:src/ace/src/mode/haxe.js": [
 12,
 22
 ],
-"javascript-test-sources:src/ace/src/mode/html.js":[
+"javascript-test-sources:src/ace/src/mode/html.js": [
 23,
 28
 ],
-"javascript-test-sources:src/ace/src/mode/html_completions.js":[
+"javascript-test-sources:src/ace/src/mode/html_completions.js": [
 251,
 255,
 295
 ],
-"javascript-test-sources:src/ace/src/mode/html_elixir.js":[
+"javascript-test-sources:src/ace/src/mode/html_elixir.js": [
 11
 ],
-"javascript-test-sources:src/ace/src/mode/html_ruby.js":[
+"javascript-test-sources:src/ace/src/mode/html_ruby.js": [
 11,
 12
 ],
-"javascript-test-sources:src/ace/src/mode/html_test.js":[
+"javascript-test-sources:src/ace/src/mode/html_test.js": [
 13
 ],
-"javascript-test-sources:src/ace/src/mode/io_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/io_highlight_rules.js": [
 16,
 21,
 28,
@@ -2185,13 +2185,13 @@
 59,
 70
 ],
-"javascript-test-sources:src/ace/src/mode/jack_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/jack_highlight_rules.js": [
 105
 ],
-"javascript-test-sources:src/ace/src/mode/jade.js":[
+"javascript-test-sources:src/ace/src/mode/jade.js": [
 15
 ],
-"javascript-test-sources:src/ace/src/mode/jade_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/jade_highlight_rules.js": [
 16,
 36,
 138,
@@ -2199,17 +2199,17 @@
 192,
 214
 ],
-"javascript-test-sources:src/ace/src/mode/java.js":[
+"javascript-test-sources:src/ace/src/mode/java.js": [
 16
 ],
-"javascript-test-sources:src/ace/src/mode/java_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/java_highlight_rules.js": [
 103,
 151
 ],
-"javascript-test-sources:src/ace/src/mode/javascript.js":[
+"javascript-test-sources:src/ace/src/mode/javascript.js": [
 13
 ],
-"javascript-test-sources:src/ace/src/mode/javascript_test.js":[
+"javascript-test-sources:src/ace/src/mode/javascript_test.js": [
 13,
 41,
 49,
@@ -2220,28 +2220,28 @@
 105,
 120
 ],
-"javascript-test-sources:src/ace/src/mode/js_regex_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/js_regex_highlight_rules.js": [
 24,
 52,
 86
 ],
-"javascript-test-sources:src/ace/src/mode/json.js":[
+"javascript-test-sources:src/ace/src/mode/json.js": [
 23
 ],
-"javascript-test-sources:src/ace/src/mode/json_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/json_highlight_rules.js": [
 74
 ],
-"javascript-test-sources:src/ace/src/mode/jssm_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/jssm_highlight_rules.js": [
 148
 ],
-"javascript-test-sources:src/ace/src/mode/jsx_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/jsx_highlight_rules.js": [
 15,
 19,
 26,
 28,
 110
 ],
-"javascript-test-sources:src/ace/src/mode/julia_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/julia_highlight_rules.js": [
 16,
 25,
 28,
@@ -2260,11 +2260,11 @@
 114,
 124
 ],
-"javascript-test-sources:src/ace/src/mode/latex.js":[
+"javascript-test-sources:src/ace/src/mode/latex.js": [
 18,
 22
 ],
-"javascript-test-sources:src/ace/src/mode/latex_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/latex_highlight_rules.js": [
 6,
 10,
 76,
@@ -2272,43 +2272,43 @@
 78,
 97
 ],
-"javascript-test-sources:src/ace/src/mode/less.js":[
+"javascript-test-sources:src/ace/src/mode/less.js": [
 25
 ],
-"javascript-test-sources:src/ace/src/mode/less_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/less_highlight_rules.js": [
 10,
 23
 ],
-"javascript-test-sources:src/ace/src/mode/liquid.js":[
+"javascript-test-sources:src/ace/src/mode/liquid.js": [
 21
 ],
-"javascript-test-sources:src/ace/src/mode/liquid_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/liquid_highlight_rules.js": [
 25
 ],
-"javascript-test-sources:src/ace/src/mode/lisp.js":[
+"javascript-test-sources:src/ace/src/mode/lisp.js": [
 18,
 20
 ],
-"javascript-test-sources:src/ace/src/mode/lisp_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/lisp_highlight_rules.js": [
 25,
 47
 ],
-"javascript-test-sources:src/ace/src/mode/logiql.js":[
+"javascript-test-sources:src/ace/src/mode/logiql.js": [
 30,
 47
 ],
-"javascript-test-sources:src/ace/src/mode/logiql_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/logiql_highlight_rules.js": [
 12,
 15,
 31,
 58,
 81
 ],
-"javascript-test-sources:src/ace/src/mode/logiql_test.js":[
+"javascript-test-sources:src/ace/src/mode/logiql_test.js": [
 12,
 26
 ],
-"javascript-test-sources:src/ace/src/mode/logtalk_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/logtalk_highlight_rules.js": [
 22,
 25,
 31,
@@ -2321,7 +2321,7 @@
 172,
 186
 ],
-"javascript-test-sources:src/ace/src/mode/lua.js":[
+"javascript-test-sources:src/ace/src/mode/lua.js": [
 12,
 19,
 22,
@@ -2329,30 +2329,30 @@
 137,
 141
 ],
-"javascript-test-sources:src/ace/src/mode/lua_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/lua_highlight_rules.js": [
 115,
 152
 ],
-"javascript-test-sources:src/ace/src/mode/luapage.js":[
+"javascript-test-sources:src/ace/src/mode/luapage.js": [
 10
 ],
-"javascript-test-sources:src/ace/src/mode/makefile.js":[
+"javascript-test-sources:src/ace/src/mode/makefile.js": [
 20,
 21,
 23
 ],
-"javascript-test-sources:src/ace/src/mode/makefile_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/makefile_highlight_rules.js": [
 19,
 56,
 60
 ],
-"javascript-test-sources:src/ace/src/mode/markdown_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/markdown_highlight_rules.js": [
 40
 ],
-"javascript-test-sources:src/ace/src/mode/mask.js":[
+"javascript-test-sources:src/ace/src/mode/mask.js": [
 19
 ],
-"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js": [
 40,
 41,
 42,
@@ -2370,28 +2370,28 @@
 181,
 190
 ],
-"javascript-test-sources:src/ace/src/mode/matlab_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/matlab_highlight_rules.js": [
 137,
 157,
 224
 ],
-"javascript-test-sources:src/ace/src/mode/mediawiki_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/mediawiki_highlight_rules.js": [
 548
 ],
-"javascript-test-sources:src/ace/src/mode/mysql.js":[
+"javascript-test-sources:src/ace/src/mode/mysql.js": [
 11
 ],
-"javascript-test-sources:src/ace/src/mode/mysql_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/mysql_highlight_rules.js": [
 22,
 40
 ],
-"javascript-test-sources:src/ace/src/mode/nix.js":[
+"javascript-test-sources:src/ace/src/mode/nix.js": [
 20
 ],
-"javascript-test-sources:src/ace/src/mode/nsis_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/nsis_highlight_rules.js": [
 127
 ],
-"javascript-test-sources:src/ace/src/mode/objectivec_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/objectivec_highlight_rules.js": [
 13,
 32,
 42,
@@ -2399,47 +2399,47 @@
 54,
 317
 ],
-"javascript-test-sources:src/ace/src/mode/ocaml.js":[
+"javascript-test-sources:src/ace/src/mode/ocaml.js": [
 12
 ],
-"javascript-test-sources:src/ace/src/mode/pascal.js":[
+"javascript-test-sources:src/ace/src/mode/pascal.js": [
 21,
 27
 ],
-"javascript-test-sources:src/ace/src/mode/perl.js":[
+"javascript-test-sources:src/ace/src/mode/perl.js": [
 11
 ],
-"javascript-test-sources:src/ace/src/mode/perl_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/perl_highlight_rules.js": [
 120
 ],
-"javascript-test-sources:src/ace/src/mode/pgsql.js":[
+"javascript-test-sources:src/ace/src/mode/pgsql.js": [
 15
 ],
-"javascript-test-sources:src/ace/src/mode/php_completions.js":[
+"javascript-test-sources:src/ace/src/mode/php_completions.js": [
 10368,
 10394
 ],
-"javascript-test-sources:src/ace/src/mode/php_laravel_blade_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/php_laravel_blade_highlight_rules.js": [
 32
 ],
-"javascript-test-sources:src/ace/src/mode/php_test.js":[
+"javascript-test-sources:src/ace/src/mode/php_test.js": [
 20
 ],
-"javascript-test-sources:src/ace/src/mode/pig_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/pig_highlight_rules.js": [
 133
 ],
-"javascript-test-sources:src/ace/src/mode/powershell.js":[
+"javascript-test-sources:src/ace/src/mode/powershell.js": [
 22,
 32
 ],
-"javascript-test-sources:src/ace/src/mode/powershell_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/powershell_highlight_rules.js": [
 169,
 170
 ],
-"javascript-test-sources:src/ace/src/mode/prisma_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/prisma_highlight_rules.js": [
 314
 ],
-"javascript-test-sources:src/ace/src/mode/prolog_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/prolog_highlight_rules.js": [
 16,
 22,
 28,
@@ -2476,10 +2476,10 @@
 187,
 192
 ],
-"javascript-test-sources:src/ace/src/mode/puppet.js":[
+"javascript-test-sources:src/ace/src/mode/puppet.js": [
 24
 ],
-"javascript-test-sources:src/ace/src/mode/python.js":[
+"javascript-test-sources:src/ace/src/mode/python.js": [
 47,
 53,
 56,
@@ -2487,14 +2487,14 @@
 64,
 71
 ],
-"javascript-test-sources:src/ace/src/mode/python_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/python_highlight_rules.js": [
 87
 ],
-"javascript-test-sources:src/ace/src/mode/python_test.js":[
+"javascript-test-sources:src/ace/src/mode/python_test.js": [
 13,
 35
 ],
-"javascript-test-sources:src/ace/src/mode/raku_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/raku_highlight_rules.js": [
 153,
 168,
 170,
@@ -2506,10 +2506,10 @@
 277,
 297
 ],
-"javascript-test-sources:src/ace/src/mode/razor.js":[
+"javascript-test-sources:src/ace/src/mode/razor.js": [
 23
 ],
-"javascript-test-sources:src/ace/src/mode/razor_completions.js":[
+"javascript-test-sources:src/ace/src/mode/razor_completions.js": [
 30,
 38,
 41,
@@ -2518,10 +2518,10 @@
 54,
 56
 ],
-"javascript-test-sources:src/ace/src/mode/rdoc_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/rdoc_highlight_rules.js": [
 79
 ],
-"javascript-test-sources:src/ace/src/mode/red_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/red_highlight_rules.js": [
 11,
 15,
 43,
@@ -2540,10 +2540,10 @@
 172,
 173
 ],
-"javascript-test-sources:src/ace/src/mode/redshift.js":[
+"javascript-test-sources:src/ace/src/mode/redshift.js": [
 15
 ],
-"javascript-test-sources:src/ace/src/mode/redshift_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/redshift_highlight_rules.js": [
 12,
 13,
 14,
@@ -2555,41 +2555,41 @@
 26,
 27
 ],
-"javascript-test-sources:src/ace/src/mode/rhtml.js":[
+"javascript-test-sources:src/ace/src/mode/rhtml.js": [
 44,
 71
 ],
-"javascript-test-sources:src/ace/src/mode/robot.js":[
+"javascript-test-sources:src/ace/src/mode/robot.js": [
 2
 ],
-"javascript-test-sources:src/ace/src/mode/sass.js":[
+"javascript-test-sources:src/ace/src/mode/sass.js": [
 15
 ],
-"javascript-test-sources:src/ace/src/mode/sass_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sass_highlight_rules.js": [
 25
 ],
-"javascript-test-sources:src/ace/src/mode/scad_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/scad_highlight_rules.js": [
 102
 ],
-"javascript-test-sources:src/ace/src/mode/scheme.js":[
+"javascript-test-sources:src/ace/src/mode/scheme.js": [
 16,
 93
 ],
-"javascript-test-sources:src/ace/src/mode/scheme_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/scheme_highlight_rules.js": [
 22,
 44
 ],
-"javascript-test-sources:src/ace/src/mode/scrypt.js":[
+"javascript-test-sources:src/ace/src/mode/scrypt.js": [
 24
 ],
-"javascript-test-sources:src/ace/src/mode/scrypt_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/scrypt_highlight_rules.js": [
 99
 ],
-"javascript-test-sources:src/ace/src/mode/scss.js":[
+"javascript-test-sources:src/ace/src/mode/scss.js": [
 22,
 50
 ],
-"javascript-test-sources:src/ace/src/mode/scss_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/scss_highlight_rules.js": [
 9,
 14,
 15,
@@ -2604,23 +2604,23 @@
 35,
 36
 ],
-"javascript-test-sources:src/ace/src/mode/sh.js":[
+"javascript-test-sources:src/ace/src/mode/sh.js": [
 19
 ],
-"javascript-test-sources:src/ace/src/mode/sh_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sh_highlight_rules.js": [
 211
 ],
-"javascript-test-sources:src/ace/src/mode/sjs_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sjs_highlight_rules.js": [
 119,
 183
 ],
-"javascript-test-sources:src/ace/src/mode/slim_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/slim_highlight_rules.js": [
 45
 ],
-"javascript-test-sources:src/ace/src/mode/smarty.js":[
+"javascript-test-sources:src/ace/src/mode/smarty.js": [
 15
 ],
-"javascript-test-sources:src/ace/src/mode/smarty_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/smarty_highlight_rules.js": [
 14,
 17,
 20,
@@ -2640,16 +2640,16 @@
 89,
 94
 ],
-"javascript-test-sources:src/ace/src/mode/smithy.js":[
+"javascript-test-sources:src/ace/src/mode/smithy.js": [
 30
 ],
-"javascript-test-sources:src/ace/src/mode/smithy_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/smithy_highlight_rules.js": [
 274
 ],
-"javascript-test-sources:src/ace/src/mode/snippets.js":[
+"javascript-test-sources:src/ace/src/mode/snippets.js": [
 89
 ],
-"javascript-test-sources:src/ace/src/mode/soy_template_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/soy_template_highlight_rules.js": [
 18,
 34,
 35,
@@ -2709,23 +2709,23 @@
 300,
 308
 ],
-"javascript-test-sources:src/ace/src/mode/space.js":[
+"javascript-test-sources:src/ace/src/mode/space.js": [
 16
 ],
-"javascript-test-sources:src/ace/src/mode/space_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/space_highlight_rules.js": [
 49
 ],
-"javascript-test-sources:src/ace/src/mode/sparql_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sparql_highlight_rules.js": [
 145
 ],
-"javascript-test-sources:src/ace/src/mode/sql_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sql_highlight_rules.js": [
 19
 ],
-"javascript-test-sources:src/ace/src/mode/sqlserver.js":[
+"javascript-test-sources:src/ace/src/mode/sqlserver.js": [
 18,
 25
 ],
-"javascript-test-sources:src/ace/src/mode/sqlserver_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/sqlserver_highlight_rules.js": [
 17,
 53,
 57,
@@ -2748,10 +2748,10 @@
 174,
 194
 ],
-"javascript-test-sources:src/ace/src/mode/stylus.js":[
+"javascript-test-sources:src/ace/src/mode/stylus.js": [
 22
 ],
-"javascript-test-sources:src/ace/src/mode/stylus_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/stylus_highlight_rules.js": [
 60,
 68,
 72,
@@ -2763,16 +2763,16 @@
 144,
 149
 ],
-"javascript-test-sources:src/ace/src/mode/svg.js":[
+"javascript-test-sources:src/ace/src/mode/svg.js": [
 13,
 15,
 19,
 32
 ],
-"javascript-test-sources:src/ace/src/mode/swift.js":[
+"javascript-test-sources:src/ace/src/mode/swift.js": [
 25
 ],
-"javascript-test-sources:src/ace/src/mode/swift_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/swift_highlight_rules.js": [
 27,
 48,
 57,
@@ -2787,20 +2787,20 @@
 157,
 162
 ],
-"javascript-test-sources:src/ace/src/mode/tcl.js":[
+"javascript-test-sources:src/ace/src/mode/tcl.js": [
 31
 ],
-"javascript-test-sources:src/ace/src/mode/tcl_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/tcl_highlight_rules.js": [
 75,
 104,
 114,
 120,
 129
 ],
-"javascript-test-sources:src/ace/src/mode/terraform.js":[
+"javascript-test-sources:src/ace/src/mode/terraform.js": [
 24
 ],
-"javascript-test-sources:src/ace/src/mode/text.js":[
+"javascript-test-sources:src/ace/src/mode/text.js": [
 86,
 109,
 253,
@@ -2809,28 +2809,28 @@
 320,
 337
 ],
-"javascript-test-sources:src/ace/src/mode/text_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/text_highlight_rules.js": [
 167,
 189
 ],
-"javascript-test-sources:src/ace/src/mode/textile.js":[
+"javascript-test-sources:src/ace/src/mode/textile.js": [
 20,
 31
 ],
-"javascript-test-sources:src/ace/src/mode/turtle_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/turtle_highlight_rules.js": [
 121
 ],
-"javascript-test-sources:src/ace/src/mode/typescript.js":[
+"javascript-test-sources:src/ace/src/mode/typescript.js": [
 16
 ],
-"javascript-test-sources:src/ace/src/mode/typescript_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/typescript_highlight_rules.js": [
 28,
 36
 ],
-"javascript-test-sources:src/ace/src/mode/vala.js":[
+"javascript-test-sources:src/ace/src/mode/vala.js": [
 18
 ],
-"javascript-test-sources:src/ace/src/mode/vala_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/vala_highlight_rules.js": [
 16,
 17,
 26,
@@ -2905,7 +2905,7 @@
 410,
 414
 ],
-"javascript-test-sources:src/ace/src/mode/vhdl_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/vhdl_highlight_rules.js": [
 9,
 21,
 25,
@@ -2914,22 +2914,22 @@
 65,
 80
 ],
-"javascript-test-sources:src/ace/src/mode/wollok.js":[
+"javascript-test-sources:src/ace/src/mode/wollok.js": [
 14
 ],
-"javascript-test-sources:src/ace/src/mode/xml.js":[
+"javascript-test-sources:src/ace/src/mode/xml.js": [
 39
 ],
-"javascript-test-sources:src/ace/src/mode/yaml.js":[
+"javascript-test-sources:src/ace/src/mode/yaml.js": [
 21
 ],
-"javascript-test-sources:src/ace/src/mode/yaml_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/yaml_highlight_rules.js": [
 50
 ],
-"javascript-test-sources:src/ace/src/mouse/default_gutter_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/default_gutter_handler.js": [
 125
 ],
-"javascript-test-sources:src/ace/src/mouse/default_handlers.js":[
+"javascript-test-sources:src/ace/src/mouse/default_handlers.js": [
 211,
 213,
 216,
@@ -2939,10 +2939,10 @@
 237,
 251
 ],
-"javascript-test-sources:src/ace/src/mouse/fold_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/fold_handler.js": [
 20
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_event.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_event.js": [
 12,
 18,
 23,
@@ -2961,11 +2961,11 @@
 91,
 95
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler.js": [
 98,
 154
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
 73,
 75,
 84,
@@ -3001,7 +3001,7 @@
 261,
 264
 ],
-"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js": [
 16,
 24,
 30,
@@ -3016,7 +3016,7 @@
 137,
 140
 ],
-"javascript-test-sources:src/ace/src/mouse/touch_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
 22,
 153,
 165,
@@ -3026,7 +3026,7 @@
 198,
 209
 ],
-"javascript-test-sources:src/ace/src/multi_select.js":[
+"javascript-test-sources:src/ace/src/multi_select.js": [
 37,
 193,
 224,
@@ -3056,7 +3056,7 @@
 700,
 714
 ],
-"javascript-test-sources:src/ace/src/multi_select_test.js":[
+"javascript-test-sources:src/ace/src/multi_select_test.js": [
 37,
 179,
 189,
@@ -3083,7 +3083,7 @@
 342,
 352
 ],
-"javascript-test-sources:src/ace/src/placeholder.js":[
+"javascript-test-sources:src/ace/src/placeholder.js": [
 19,
 33,
 39,
@@ -3105,7 +3105,7 @@
 210,
 213
 ],
-"javascript-test-sources:src/ace/src/placeholder_test.js":[
+"javascript-test-sources:src/ace/src/placeholder_test.js": [
 22,
 24,
 39,
@@ -3120,7 +3120,7 @@
 101,
 107
 ],
-"javascript-test-sources:src/ace/src/range_list.js":[
+"javascript-test-sources:src/ace/src/range_list.js": [
 66,
 70,
 92,
@@ -3132,10 +3132,10 @@
 227,
 230
 ],
-"javascript-test-sources:src/ace/src/range_list_test.js":[
+"javascript-test-sources:src/ace/src/range_list_test.js": [
 44
 ],
-"javascript-test-sources:src/ace/src/range_test.js":[
+"javascript-test-sources:src/ace/src/range_test.js": [
 12,
 14,
 133,
@@ -3143,17 +3143,17 @@
 144,
 147
 ],
-"javascript-test-sources:src/ace/src/renderloop.js":[
+"javascript-test-sources:src/ace/src/renderloop.js": [
 5,
 29
 ],
-"javascript-test-sources:src/ace/src/scrollbar.js":[
+"javascript-test-sources:src/ace/src/scrollbar.js": [
 73,
 74,
 125,
 177
 ],
-"javascript-test-sources:src/ace/src/search.js":[
+"javascript-test-sources:src/ace/src/search.js": [
 15,
 28,
 41,
@@ -3171,10 +3171,10 @@
 268,
 299
 ],
-"javascript-test-sources:src/ace/src/search_highlight.js":[
+"javascript-test-sources:src/ace/src/search_highlight.js": [
 16
 ],
-"javascript-test-sources:src/ace/src/search_test.js":[
+"javascript-test-sources:src/ace/src/search_test.js": [
 305,
 306,
 430,
@@ -3184,7 +3184,7 @@
 475,
 480
 ],
-"javascript-test-sources:src/ace/src/selection.js":[
+"javascript-test-sources:src/ace/src/selection.js": [
 23,
 29,
 107,
@@ -3194,7 +3194,7 @@
 748,
 750
 ],
-"javascript-test-sources:src/ace/src/selection_test.js":[
+"javascript-test-sources:src/ace/src/selection_test.js": [
 18,
 77,
 99,
@@ -3213,7 +3213,7 @@
 549,
 554
 ],
-"javascript-test-sources:src/ace/src/snippets.js":[
+"javascript-test-sources:src/ace/src/snippets.js": [
 97,
 101,
 113,
@@ -3246,10 +3246,10 @@
 897,
 927
 ],
-"javascript-test-sources:src/ace/src/snippets/edifact.js":[
+"javascript-test-sources:src/ace/src/snippets/edifact.js": [
 2
 ],
-"javascript-test-sources:src/ace/src/snippets_test.js":[
+"javascript-test-sources:src/ace/src/snippets_test.js": [
 26,
 47,
 80,
@@ -3264,7 +3264,7 @@
 303,
 312
 ],
-"javascript-test-sources:src/ace/src/split.js":[
+"javascript-test-sources:src/ace/src/split.js": [
 11,
 87,
 106,
@@ -3292,14 +3292,14 @@
 247,
 261
 ],
-"javascript-test-sources:src/ace/src/test/all_browser.js":[
+"javascript-test-sources:src/ace/src/test/all_browser.js": [
 100
 ],
-"javascript-test-sources:src/ace/src/test/assertions.js":[
+"javascript-test-sources:src/ace/src/test/assertions.js": [
 4,
 16
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/async.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
 27,
 29,
 47,
@@ -3362,10 +3362,10 @@
 485,
 525
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/index.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/index.js": [
 7
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/test.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/test.js": [
 19,
 25,
 48,
@@ -3391,7 +3391,7 @@
 164,
 165
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/utils.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/utils.js": [
 18,
 22,
 24,
@@ -3402,12 +3402,12 @@
 55,
 61
 ],
-"javascript-test-sources:src/ace/src/test/benchmark.js":[
+"javascript-test-sources:src/ace/src/test/benchmark.js": [
 13,
 17,
 29
 ],
-"javascript-test-sources:src/ace/src/test/mockdom.js":[
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
 11,
 164,
 181,
@@ -3425,7 +3425,7 @@
 877,
 878
 ],
-"javascript-test-sources:src/ace/src/test/mockdom_test.js":[
+"javascript-test-sources:src/ace/src/test/mockdom_test.js": [
 16,
 19,
 21,
@@ -3441,7 +3441,7 @@
 77,
 82
 ],
-"javascript-test-sources:src/ace/src/test/user.js":[
+"javascript-test-sources:src/ace/src/test/user.js": [
 75,
 91,
 104,
@@ -3451,10 +3451,10 @@
 126,
 175
 ],
-"javascript-test-sources:src/ace/src/theme/one_dark.js":[
+"javascript-test-sources:src/ace/src/theme/one_dark.js": [
 4
 ],
-"javascript-test-sources:src/ace/src/token_iterator.js":[
+"javascript-test-sources:src/ace/src/token_iterator.js": [
 6,
 30,
 34,
@@ -3477,7 +3477,7 @@
 123,
 133
 ],
-"javascript-test-sources:src/ace/src/tokenizer.js":[
+"javascript-test-sources:src/ace/src/tokenizer.js": [
 52,
 92,
 97,
@@ -3489,23 +3489,23 @@
 334,
 336
 ],
-"javascript-test-sources:src/ace/src/tokenizer_dev.js":[
+"javascript-test-sources:src/ace/src/tokenizer_dev.js": [
 44,
 51,
 53,
 74
 ],
-"javascript-test-sources:src/ace/src/tokenizer_test.js":[
+"javascript-test-sources:src/ace/src/tokenizer_test.js": [
 32,
 35,
 37,
 41,
 59
 ],
-"javascript-test-sources:src/ace/src/tooltip.js":[
+"javascript-test-sources:src/ace/src/tooltip.js": [
 106
 ],
-"javascript-test-sources:src/ace/src/undomanager.js":[
+"javascript-test-sources:src/ace/src/undomanager.js": [
 10,
 21,
 51,
@@ -3553,11 +3553,11 @@
 526,
 555
 ],
-"javascript-test-sources:src/ace/src/undomanager_test.js":[
+"javascript-test-sources:src/ace/src/undomanager_test.js": [
 36,
 80
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
 27,
 48,
 58,
@@ -3629,7 +3629,7 @@
 1748,
 1827
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer_test.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer_test.js": [
 74,
 78,
 80,
@@ -3647,16 +3647,16 @@
 163,
 172
 ],
-"javascript-test-sources:src/ace/static.js":[
+"javascript-test-sources:src/ace/static.js": [
 23,
 40,
 79
 ],
-"javascript-test-sources:src/ace/tool/add_mode.js":[
+"javascript-test-sources:src/ace/tool/add_mode.js": [
 86,
 96
 ],
-"javascript-test-sources:src/ace/tool/lib.js":[
+"javascript-test-sources:src/ace/tool/lib.js": [
 45,
 55,
 73,
@@ -3664,13 +3664,13 @@
 117,
 160
 ],
-"javascript-test-sources:src/ace/tool/perf-test.html":[
+"javascript-test-sources:src/ace/tool/perf-test.html": [
 144
 ],
-"javascript-test-sources:src/ace/tool/regexp_tokenizer_test.js":[
+"javascript-test-sources:src/ace/tool/regexp_tokenizer_test.js": [
 22
 ],
-"javascript-test-sources:src/ace/tool/tmlanguage.js":[
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
 464,
 528,
 529,
@@ -3682,13 +3682,13 @@
 635,
 648
 ],
-"javascript-test-sources:src/ace/tool/tmsnippets.js":[
+"javascript-test-sources:src/ace/tool/tmsnippets.js": [
 23,
 42,
 64,
 65
 ],
-"javascript-test-sources:src/ace/tool/tmtheme.js":[
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
 66,
 129,
 137,
@@ -3702,7 +3702,7 @@
 363,
 419
 ],
-"javascript-test-sources:src/ace/tool/unicode.js":[
+"javascript-test-sources:src/ace/tool/unicode.js": [
 115,
 124,
 147,
@@ -3713,7 +3713,7 @@
 155,
 160
 ],
-"javascript-test-sources:src/ace/tool/update_deps.js":[
+"javascript-test-sources:src/ace/tool/update_deps.js": [
 24,
 45,
 110,
@@ -3724,15 +3724,15 @@
 246,
 303
 ],
-"javascript-test-sources:src/ace/tool/wrap_keyword_regexp.js":[
+"javascript-test-sources:src/ace/tool/wrap_keyword_regexp.js": [
 2,
 5
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/lexer.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/lexer.spec.js": [
 3,
 223
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 76,
 800,
 812,
@@ -3740,7 +3740,7 @@
 855,
 907
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
 44,
 49,
 60,
@@ -3748,19 +3748,19 @@
 195,
 235
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js": [
 7
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/test/lib/formatDifference.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/test/lib/formatDifference.es6.js": [
 21
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/todos.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/reducers/todos.js": [
 19
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js": [
 107
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/createStore.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/createStore.spec.js": [
 93,
 143,
 147,
@@ -3770,16 +3770,16 @@
 179,
 183
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/helpers/reducers.js": [
 13,
 14
 ],
-"javascript-test-sources:src/ecmascript6/redux/test/utils/applyMiddleware.spec.js":[
+"javascript-test-sources:src/ecmascript6/redux/test/utils/applyMiddleware.spec.js": [
 72,
 84,
 88
 ],
-"javascript-test-sources:src/ecmascript6/router/examples/http.js":[
+"javascript-test-sources:src/ecmascript6/router/examples/http.js": [
 9,
 10,
 12,
@@ -3787,16 +3787,16 @@
 14,
 15
 ],
-"javascript-test-sources:src/ecmascript6/router/src/activation.js":[
+"javascript-test-sources:src/ecmascript6/router/src/activation.js": [
 151,
 162,
 163,
 164
 ],
-"javascript-test-sources:src/ecmascript6/router/src/navigationPlan.js":[
+"javascript-test-sources:src/ecmascript6/router/src/navigationPlan.js": [
 44
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
 1077
 ]
 }

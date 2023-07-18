@@ -1,28 +1,28 @@
 {
-"ocanvas:scripts/release.js":[
+"ocanvas:scripts/release.js": [
 4
 ],
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 110,
 114,
 466,
 466,
 819
 ],
-"ocanvas:src/displayobjects/image.js":[
+"ocanvas:src/displayobjects/image.js": [
 90,
 91,
 92,
 92
 ],
-"ocanvas:src/displayobjects/sprite.js":[
+"ocanvas:src/displayobjects/sprite.js": [
 60,
 60,
 60,
 108,
 108
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 11,
 38,
 38,
@@ -43,7 +43,7 @@
 641,
 710
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 237
 ]
 }

@@ -1,11 +1,11 @@
 {
-"postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts":[
+"postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
 46
 ],
-"postgraphql:src/postgres/inventory/conditionToSql.ts":[
+"postgraphql:src/postgres/inventory/conditionToSql.ts": [
 30
 ],
-"postgraphql:src/postgres/inventory/type/PgRangeType.ts":[
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
 183
 ]
 }

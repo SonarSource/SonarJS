@@ -1,11 +1,11 @@
 {
-"sizzle:Gruntfile.js":[
+"sizzle:Gruntfile.js": [
 266
 ],
-"sizzle:speed/data/selector.html":[
+"sizzle:speed/data/selector.html": [
 3293
 ],
-"sizzle:speed/speed.js":[
+"sizzle:speed/speed.js": [
 31,
 54,
 134,
@@ -13,7 +13,7 @@
 375,
 470
 ],
-"sizzle:src/sizzle.js":[
+"sizzle:src/sizzle.js": [
 155,
 164,
 216,
@@ -85,7 +85,7 @@
 2445,
 2446
 ],
-"sizzle:tasks/karma-tests.js":[
+"sizzle:tasks/karma-tests.js": [
 14
 ]
 }

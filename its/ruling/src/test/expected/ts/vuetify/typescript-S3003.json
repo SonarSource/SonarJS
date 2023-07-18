@@ -1,16 +1,16 @@
 {
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
 266
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
 56
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
 90,
 209,
 210
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
 8,
 9
 ]

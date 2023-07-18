@@ -1,84 +1,84 @@
 {
-"console:src/routes.tsx":[
+"console:src/routes.tsx": [
 117
 ],
-"console:src/utils/relay.ts":[
+"console:src/utils/relay.ts": [
 39
 ],
-"console:src/utils/valueparser.ts":[
+"console:src/utils/valueparser.ts": [
 93
 ],
-"console:src/views/ActionsView/ActionBoxes.tsx":[
+"console:src/views/ActionsView/ActionBoxes.tsx": [
 73
 ],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx":[
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
 587
 ],
-"console:src/views/FunctionsView/FunctionRow.tsx":[
+"console:src/views/FunctionsView/FunctionRow.tsx": [
 186
 ],
-"console:src/views/Integrations/Algolia/AlgoliaView.tsx":[
+"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
 63,
 134
 ],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx":[
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
 30
 ],
-"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx":[
+"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
 113
 ],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx":[
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 512,
 512,
 513
 ],
-"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx":[
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
 428,
 428,
 429
 ],
-"console:src/views/ProjectRootView/SideNav.tsx":[
+"console:src/views/ProjectRootView/SideNav.tsx": [
 413,
 544
 ],
-"console:src/views/RelationsPopup/ModelSelectionBox.tsx":[
+"console:src/views/RelationsPopup/ModelSelectionBox.tsx": [
 37
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx":[
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
 284,
 285,
 286
 ],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx":[
+"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
 66,
 67
 ],
-"console:src/views/Settings/Billing/Billing.tsx":[
+"console:src/views/Settings/Billing/Billing.tsx": [
 111
 ],
-"console:src/views/Settings/General/ProjectInfo.tsx":[
+"console:src/views/Settings/General/ProjectInfo.tsx": [
 169,
 193,
 195
 ],
-"console:src/views/account/AccountView/SettingsTab.tsx":[
+"console:src/views/account/AccountView/SettingsTab.tsx": [
 41
 ],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx":[
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
 173
 ],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
 308,
 394
 ],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx":[
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
 176,
 214
 ],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx":[
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
 240
 ],
-"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx":[
+"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
 123,
 141
 ]

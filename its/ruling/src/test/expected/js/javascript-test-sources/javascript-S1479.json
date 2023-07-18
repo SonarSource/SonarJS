@@ -1,13 +1,13 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 430
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
 146,
 697,
 1044
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
 146,
 697,
 1044

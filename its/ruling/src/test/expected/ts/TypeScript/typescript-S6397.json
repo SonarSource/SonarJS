@@ -1,13 +1,13 @@
 {
-"Typescript:scripts/processDiagnosticMessages.ts":[
+"Typescript:scripts/processDiagnosticMessages.ts": [
 101,
 119
 ],
-"Typescript:src/compiler/commandLineParser.ts":[
+"Typescript:src/compiler/commandLineParser.ts": [
 1399,
 1399
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 1729
 ]
 }

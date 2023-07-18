@@ -1,12 +1,12 @@
 {
-"javascript-test-sources:src/ace/lib/ace/loader_build.js":[
+"javascript-test-sources:src/ace/lib/ace/loader_build.js": [
 37
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 6263,
 6268
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 6,
 15,
 30,
@@ -31,7 +31,7 @@
 9663,
 9966
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 30,
 254,
 931,
@@ -70,15 +70,15 @@
 18471,
 18774
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/php/php.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
 1186,
 1260
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
 406,
 786
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
 325,
 335,
 351,
@@ -97,48 +97,48 @@
 5234,
 5273
 ],
-"javascript-test-sources:src/ace/src/autocomplete.js":[
+"javascript-test-sources:src/ace/src/autocomplete.js": [
 120
 ],
-"javascript-test-sources:src/ace/src/bidihandler.js":[
+"javascript-test-sources:src/ace/src/bidihandler.js": [
 337
 ],
-"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js":[
+"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js": [
 166
 ],
-"javascript-test-sources:src/ace/src/config.js":[
+"javascript-test-sources:src/ace/src/config.js": [
 131
 ],
-"javascript-test-sources:src/ace/src/document.js":[
+"javascript-test-sources:src/ace/src/document.js": [
 560
 ],
-"javascript-test-sources:src/ace/src/edit_session.js":[
+"javascript-test-sources:src/ace/src/edit_session.js": [
 2389
 ],
-"javascript-test-sources:src/ace/src/edit_session/bracket_match.js":[
+"javascript-test-sources:src/ace/src/edit_session/bracket_match.js": [
 347,
 438
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 2683
 ],
-"javascript-test-sources:src/ace/src/ext/beautify.js":[
+"javascript-test-sources:src/ace/src/ext/beautify.js": [
 274,
 359
 ],
-"javascript-test-sources:src/ace/src/keyboard/hash_handler.js":[
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
 90
 ],
-"javascript-test-sources:src/ace/src/keyboard/keybinding.js":[
+"javascript-test-sources:src/ace/src/keyboard/keybinding.js": [
 89
 ],
-"javascript-test-sources:src/ace/src/keyboard/textinput.js":[
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
 239,
 303,
 314,
 343
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 190,
 257,
 1657,
@@ -150,76 +150,76 @@
 6099,
 6117
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 5476
 ],
-"javascript-test-sources:src/ace/src/layer/gutter.js":[
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
 293
 ],
-"javascript-test-sources:src/ace/src/lib/bidiutil.js":[
+"javascript-test-sources:src/ace/src/lib/bidiutil.js": [
 182,
 325
 ],
-"javascript-test-sources:src/ace/src/lib/event.js":[
+"javascript-test-sources:src/ace/src/lib/event.js": [
 72,
 263,
 324
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/liquid.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/liquid.js": [
 22
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/xml.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/xml.js": [
 49,
 77
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js": [
 38
 ],
-"javascript-test-sources:src/ace/src/mode/folding/ruby.js":[
+"javascript-test-sources:src/ace/src/mode/folding/ruby.js": [
 48
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler.js": [
 23
 ],
-"javascript-test-sources:src/ace/src/mouse/touch_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
 30
 ],
-"javascript-test-sources:src/ace/src/search.js":[
+"javascript-test-sources:src/ace/src/search.js": [
 82
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/assert.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
 291
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
 812,
 832
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js": [
 50
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-route.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-route.js": [
 53
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/isNumber.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/isNumber.js": [
 6
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
 349,
 354
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth.js": [
 54
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
 446
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js": [
 69
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/update-check.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/update-check.js": [
 97
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 179,
 770,
 1027,
@@ -228,10 +228,10 @@
 3265,
 3270
 ],
-"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js":[
+"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js": [
 79
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-menu.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-menu.js": [
 37
 ]
 }

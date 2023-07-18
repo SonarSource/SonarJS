@@ -1,8 +1,8 @@
 {
-"prototype:src/prototype/ajax/updater.js":[
+"prototype:src/prototype/ajax/updater.js": [
 116
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 599,
 800,
 1082,
@@ -18,22 +18,22 @@
 2770,
 2997
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 204
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 990
 ],
-"prototype:src/prototype/lang/enumerable.js":[
+"prototype:src/prototype/lang/enumerable.js": [
 253
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 396
 ],
-"prototype:src/prototype/lang/hash.js":[
+"prototype:src/prototype/lang/hash.js": [
 127
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 493
 ]
 }

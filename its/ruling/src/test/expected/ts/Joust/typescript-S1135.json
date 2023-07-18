@@ -1,11 +1,11 @@
 {
-"Joust:ts/components/game/visuals/WeaponArt.tsx":[
+"Joust:ts/components/game/visuals/WeaponArt.tsx": [
 20
 ],
-"Joust:ts/protocol/KettleDecoder.ts":[
+"Joust:ts/protocol/KettleDecoder.ts": [
 157
 ],
-"Joust:ts/protocol/KettleEncoder.ts":[
+"Joust:ts/protocol/KettleEncoder.ts": [
 97
 ]
 }

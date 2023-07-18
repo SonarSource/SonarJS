@@ -1,5 +1,5 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 122,
 408,
 573,
@@ -24,7 +24,7 @@
 4917,
 4926
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 336,
 370,
 375,
@@ -90,14 +90,14 @@
 11555,
 11590
 ],
-"p5.js:src/color/color_conversion.js":[
+"p5.js:src/color/color_conversion.js": [
 157,
 211,
 218,
 256,
 263
 ],
-"p5.js:src/color/p5.Color.js":[
+"p5.js:src/color/p5.Color.js": [
 832,
 905,
 930,
@@ -105,32 +105,32 @@
 960,
 967
 ],
-"p5.js:src/color/setting.js":[
+"p5.js:src/color/setting.js": [
 328
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 206,
 649,
 661
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 123,
 464,
 500,
 524,
 652
 ],
-"p5.js:src/core/helpers.js":[
+"p5.js:src/core/helpers.js": [
 14
 ],
-"p5.js:src/core/p5.Element.js":[
+"p5.js:src/core/p5.Element.js": [
 105
 ],
-"p5.js:src/core/p5.Renderer.js":[
+"p5.js:src/core/p5.Renderer.js": [
 230,
 317
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 326,
 480,
 500,
@@ -140,18 +140,18 @@
 613,
 700
 ],
-"p5.js:src/core/shape/2d_primitives.js":[
+"p5.js:src/core/shape/2d_primitives.js": [
 296
 ],
-"p5.js:src/core/transform.js":[
+"p5.js:src/core/transform.js": [
 362,
 370
 ],
-"p5.js:src/data/local_storage.js":[
+"p5.js:src/data/local_storage.js": [
 74,
 141
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 159,
 505,
 785,
@@ -162,33 +162,33 @@
 1723,
 2031
 ],
-"p5.js:src/events/acceleration.js":[
+"p5.js:src/events/acceleration.js": [
 647,
 671,
 691,
 713
 ],
-"p5.js:src/events/mouse.js":[
+"p5.js:src/events/mouse.js": [
 468,
 621,
 701,
 779
 ],
-"p5.js:src/events/touch.js":[
+"p5.js:src/events/touch.js": [
 140,
 216,
 291
 ],
-"p5.js:src/image/image.js":[
+"p5.js:src/image/image.js": [
 202
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 209
 ],
-"p5.js:src/image/p5.Image.js":[
+"p5.js:src/image/p5.Image.js": [
 486
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 142,
 253,
 409,
@@ -199,11 +199,11 @@
 1107,
 1516
 ],
-"p5.js:src/math/calculation.js":[
+"p5.js:src/math/calculation.js": [
 178,
 876
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 309,
 345,
 405,
@@ -211,7 +211,7 @@
 1112,
 1125
 ],
-"p5.js:src/utilities/conversion.js":[
+"p5.js:src/utilities/conversion.js": [
 83,
 141,
 177,
@@ -219,10 +219,10 @@
 240,
 278
 ],
-"p5.js:src/utilities/string_functions.js":[
+"p5.js:src/utilities/string_functions.js": [
 299
 ],
-"p5.js:src/webgl/3d_primitives.js":[
+"p5.js:src/webgl/3d_primitives.js": [
 886,
 892,
 1391,
@@ -230,43 +230,43 @@
 1550,
 1649
 ],
-"p5.js:src/webgl/interaction.js":[
+"p5.js:src/webgl/interaction.js": [
 111
 ],
-"p5.js:src/webgl/light.js":[
+"p5.js:src/webgl/light.js": [
 738,
 765,
 821
 ],
-"p5.js:src/webgl/loading.js":[
+"p5.js:src/webgl/loading.js": [
 219
 ],
-"p5.js:src/webgl/p5.Camera.js":[
+"p5.js:src/webgl/p5.Camera.js": [
 1224
 ],
-"p5.js:src/webgl/p5.Matrix.js":[
+"p5.js:src/webgl/p5.Matrix.js": [
 74,
 171,
 226,
 533,
 570
 ],
-"p5.js:src/webgl/p5.RendererGL.Immediate.js":[
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 62,
 84
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 497,
 720,
 1092,
 1116
 ],
-"p5.js:src/webgl/p5.Texture.js":[
+"p5.js:src/webgl/p5.Texture.js": [
 70,
 157,
 183
 ],
-"p5.js:tasks/build/eslint-samples.js":[
+"p5.js:tasks/build/eslint-samples.js": [
 33
 ]
 }

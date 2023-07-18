@@ -1,17 +1,17 @@
 {
-"fireact:src/components/templates/AccountTemplate/index.js":[
+"fireact:src/components/templates/AccountTemplate/index.js": [
 64
 ],
-"fireact:src/pages/auth/accounts/AddUser/index.js":[
+"fireact:src/pages/auth/accounts/AddUser/index.js": [
 63
 ],
-"fireact:src/pages/auth/accounts/PaymentMethod/index.js":[
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 136
 ],
-"fireact:src/pages/auth/user/UpdateEmail/index.js":[
+"fireact:src/pages/auth/user/UpdateEmail/index.js": [
 93
 ],
-"fireact:src/pages/auth/user/UpdatePassword/index.js":[
+"fireact:src/pages/auth/user/UpdatePassword/index.js": [
 100
 ]
 }

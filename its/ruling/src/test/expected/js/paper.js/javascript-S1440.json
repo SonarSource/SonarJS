@@ -1,22 +1,22 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js":[
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
 27
 ],
-"paper.js:src/core/Base.js":[
+"paper.js:src/core/Base.js": [
 539,
 580
 ],
-"paper.js:src/core/Emitter.js":[
+"paper.js:src/core/Emitter.js": [
 93
 ],
-"paper.js:src/core/PaperScopeItem.js":[
+"paper.js:src/core/PaperScopeItem.js": [
 57
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 100,
 101
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 157,
 423,
 674,
@@ -25,35 +25,35 @@
 2719,
 2948
 ],
-"paper.js:src/item/Project.js":[
+"paper.js:src/item/Project.js": [
 852
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 867,
 867,
 2282,
 2291
 ],
-"paper.js:src/path/Path.Constructors.js":[
+"paper.js:src/path/Path.Constructors.js": [
 25,
 343
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 282,
 1584,
 2193,
 2193
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 88,
 113,
 635,
 1222
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 116
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 77,
 166,
 167,
@@ -61,16 +61,16 @@
 196,
 898
 ],
-"paper.js:src/style/Gradient.js":[
+"paper.js:src/style/Gradient.js": [
 121
 ],
-"paper.js:src/style/GradientStop.js":[
+"paper.js:src/style/GradientStop.js": [
 188
 ],
-"paper.js:src/svg/SvgExport.js":[
+"paper.js:src/svg/SvgExport.js": [
 103
 ],
-"paper.js:src/tool/Tool.js":[
+"paper.js:src/tool/Tool.js": [
 121
 ]
 }

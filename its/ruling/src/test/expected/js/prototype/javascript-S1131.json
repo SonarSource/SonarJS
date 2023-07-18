@@ -1,5 +1,5 @@
 {
-"prototype:ext/update_helper/prototype_update_helper.html":[
+"prototype:ext/update_helper/prototype_update_helper.html": [
 37,
 41,
 51,
@@ -63,7 +63,7 @@
 330,
 336
 ],
-"prototype:ext/update_helper/prototype_update_helper.js":[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 4,
 8,
 11,
@@ -129,7 +129,7 @@
 388,
 416
 ],
-"prototype:ext/update_helper/update_helper.js":[
+"prototype:ext/update_helper/update_helper.js": [
 2,
 4,
 8,
@@ -140,7 +140,7 @@
 52,
 65
 ],
-"prototype:src/prototype/ajax/periodical_updater.js":[
+"prototype:src/prototype/ajax/periodical_updater.js": [
 60,
 62,
 64,
@@ -156,7 +156,7 @@
 198,
 200
 ],
-"prototype:src/prototype/lang/enumerable.js":[
+"prototype:src/prototype/lang/enumerable.js": [
 33,
 35,
 40,
@@ -169,14 +169,14 @@
 65,
 68
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 121,
 124,
 132,
 401,
 411
 ],
-"prototype:src/prototype/lang/hash.js":[
+"prototype:src/prototype/lang/hash.js": [
 3,
 8,
 11,
@@ -187,7 +187,7 @@
 348,
 359
 ],
-"prototype:src/prototype/lang/range.js":[
+"prototype:src/prototype/lang/range.js": [
 27,
 30,
 31,
@@ -209,7 +209,7 @@
 136,
 139
 ],
-"prototype:src/prototype/lang/template.js":[
+"prototype:src/prototype/lang/template.js": [
 125,
 127,
 130,
@@ -218,7 +218,7 @@
 139,
 155
 ],
-"prototype:test/browser.html":[
+"prototype:test/browser.html": [
 91,
 95,
 100,
@@ -243,7 +243,7 @@
 201,
 209
 ],
-"prototype:test/console.html":[
+"prototype:test/console.html": [
 19,
 28,
 30,

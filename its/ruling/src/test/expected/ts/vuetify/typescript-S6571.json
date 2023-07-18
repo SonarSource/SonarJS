@@ -1,16 +1,16 @@
 {
-"vuetify:packages/api-generator/src/utils.ts":[
+"vuetify:packages/api-generator/src/utils.ts": [
 12
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx":[
+"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 29
 ],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts":[
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
 147,
 150,
 153
 ],
-"vuetify:packages/vuetify/src/util/defineComponent.tsx":[
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
 210,
 214
 ]

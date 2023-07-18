@@ -1,20 +1,20 @@
 {
-"jshint:src/cli.js":[
+"jshint:src/cli.js": [
 705
 ],
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 1048,
 1075,
 2442,
 3895
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 231,
 476,
 478,
 966
 ],
-"jshint:src/reporters/checkstyle.js":[
+"jshint:src/reporters/checkstyle.js": [
 45
 ]
 }

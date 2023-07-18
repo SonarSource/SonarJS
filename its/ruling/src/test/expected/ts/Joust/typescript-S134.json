@@ -1,17 +1,17 @@
 {
-"Joust:ts/components/game/EntityInPlay.tsx":[
+"Joust:ts/components/game/EntityInPlay.tsx": [
 56,
 64,
 69,
 76
 ],
-"Joust:ts/components/game/Player.tsx":[
+"Joust:ts/components/game/Player.tsx": [
 69,
 84,
 103,
 106
 ],
-"Joust:ts/state/plugins/Timer.ts":[
+"Joust:ts/state/plugins/Timer.ts": [
 64,
 111,
 143

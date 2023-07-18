@@ -1,8 +1,8 @@
 {
-"jquery:build/tasks/lib/rollup-plugin-file-overrides.js":[
+"jquery:build/tasks/lib/rollup-plugin-file-overrides.js": [
 10
 ],
-"jquery:build/tasks/node_smoke_tests.js":[
+"jquery:build/tasks/node_smoke_tests.js": [
 3,
 16,
 20

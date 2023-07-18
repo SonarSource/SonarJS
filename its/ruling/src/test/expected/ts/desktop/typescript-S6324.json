@@ -1,15 +1,15 @@
 {
-"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts":[
+"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts": [
 21
 ],
-"desktop:app/src/lib/sanitize-ref-name.ts":[
+"desktop:app/src/lib/sanitize-ref-name.ts": [
 6
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 284,
 284
 ],
-"desktop:app/src/ui/lib/identifier-rules.ts":[
+"desktop:app/src/ui/lib/identifier-rules.ts": [
 5
 ]
 }

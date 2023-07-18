@@ -1,14 +1,14 @@
 {
-"knockout:src/binding/defaultBindings/checked.js":[
+"knockout:src/binding/defaultBindings/checked.js": [
 130
 ],
-"knockout:src/binding/defaultBindings/ifIfnotWith.js":[
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
 81
 ],
-"knockout:src/binding/defaultBindings/textInput.js":[
+"knockout:src/binding/defaultBindings/textInput.js": [
 203
 ],
-"knockout:src/components/customElements.js":[
+"knockout:src/components/customElements.js": [
 115
 ]
 }

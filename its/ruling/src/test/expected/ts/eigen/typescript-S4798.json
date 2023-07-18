@@ -1,14 +1,14 @@
 {
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tests.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tests.tsx": [
 17
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tsx": [
 32
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/PurchaseModal.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/PurchaseModal.tsx": [
 32
 ],
-"eigen:src/shared/hooks/useOffscreenStyle.ts":[
+"eigen:src/shared/hooks/useOffscreenStyle.ts": [
 3
 ]
 }

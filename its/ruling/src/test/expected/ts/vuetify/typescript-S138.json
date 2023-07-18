@@ -1,117 +1,117 @@
 {
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx":[
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 105
 ],
-"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
 52
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts": [
 31
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts": [
 29
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
 7
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx":[
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 107
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox-multiple.spec.ts":[
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox-multiple.spec.ts": [
 14
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
 7
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts":[
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts": [
 13
 ],
-"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts":[
+"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
 11
 ],
-"vuetify:packages/vuetify/src/components/VDataIterator/__tests__/VDataIterator.spec.ts":[
+"vuetify:packages/vuetify/src/components/VDataIterator/__tests__/VDataIterator.spec.ts": [
 27
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts": [
 24
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.month.spec.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.month.spec.ts": [
 24
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerDateTable.spec.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerDateTable.spec.ts": [
 13
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts": [
 14
 ],
-"vuetify:packages/vuetify/src/components/VField/VField.tsx":[
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 116
 ],
-"vuetify:packages/vuetify/src/components/VImg/VImg.tsx":[
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 86
 ],
-"vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts":[
+"vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts": [
 17
 ],
-"vuetify:packages/vuetify/src/components/VOtpInput/__tests__/VOtpInput.spec.ts":[
+"vuetify:packages/vuetify/src/components/VOtpInput/__tests__/VOtpInput.spec.ts": [
 11
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts":[
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 149
 ],
-"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx":[
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
 127
 ],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx":[
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 111
 ],
-"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
 8
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx":[
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 82
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
 9
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/__tests__/VSparkline.spec.ts":[
+"vuetify:packages/vuetify/src/components/VSparkline/__tests__/VSparkline.spec.ts": [
 13
 ],
-"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperContent.spec.ts":[
+"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperContent.spec.ts": [
 24
 ],
-"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx":[
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 69
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
 19,
 28
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerClock.spec.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerClock.spec.ts": [
 12
 ],
-"vuetify:packages/vuetify/src/components/VTimeline/__tests__/VTimeline.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VTimeline/__tests__/VTimeline.spec.cy.tsx": [
 17
 ],
-"vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts":[
+"vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts": [
 22
 ],
-"vuetify:packages/vuetify/src/components/VWindow/__tests__/VWindow.spec.cy.tsx":[
+"vuetify:packages/vuetify/src/components/VWindow/__tests__/VWindow.spec.cy.tsx": [
 5
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/display.spec.ts":[
+"vuetify:packages/vuetify/src/composables/__tests__/display.spec.ts": [
 25
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts":[
+"vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
 8
 ],
-"vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts":[
+"vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts": [
 6
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts":[
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts": [
 125
 ],
-"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts":[
+"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
 16
 ]
 }

@@ -1,8 +1,8 @@
 {
-"Typescript:scripts/buildProtocol.ts":[
+"Typescript:scripts/buildProtocol.ts": [
 81
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 8105,
 19257,
 21459,
@@ -12,32 +12,32 @@
 22995,
 23142
 ],
-"Typescript:src/compiler/declarationEmitter.ts":[
+"Typescript:src/compiler/declarationEmitter.ts": [
 830,
 1229
 ],
-"Typescript:src/compiler/emitter.ts":[
+"Typescript:src/compiler/emitter.ts": [
 1611
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 75,
 2184
 ],
-"Typescript:src/compiler/program.ts":[
+"Typescript:src/compiler/program.ts": [
 1125
 ],
-"Typescript:src/compiler/transformers/es2017.ts":[
+"Typescript:src/compiler/transformers/es2017.ts": [
 206
 ],
-"Typescript:src/compiler/transformers/esnext.ts":[
+"Typescript:src/compiler/transformers/esnext.ts": [
 612,
 656
 ],
-"Typescript:src/compiler/transformers/ts.ts":[
+"Typescript:src/compiler/transformers/ts.ts": [
 50,
 127
 ],
-"Typescript:src/compiler/types.ts":[
+"Typescript:src/compiler/types.ts": [
 593,
 671,
 859,
@@ -47,37 +47,37 @@
 2774,
 3595
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 2567
 ],
-"Typescript:src/compiler/visitor.ts":[
+"Typescript:src/compiler/visitor.ts": [
 1092
 ],
-"Typescript:src/harness/harnessLanguageService.ts":[
+"Typescript:src/harness/harnessLanguageService.ts": [
 583
 ],
-"Typescript:src/server/client.ts":[
+"Typescript:src/server/client.ts": [
 133
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 324
 ],
-"Typescript:src/server/types.ts":[
+"Typescript:src/server/types.ts": [
 53
 ],
-"Typescript:src/server/typingsInstaller/nodeTypingsInstaller.ts":[
+"Typescript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 134
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts":[
+"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
 430
 ],
-"Typescript:src/services/formatting/smartIndenter.ts":[
+"Typescript:src/services/formatting/smartIndenter.ts": [
 372
 ],
-"Typescript:src/services/navigationBar.ts":[
+"Typescript:src/services/navigationBar.ts": [
 619
 ],
-"Typescript:src/services/utilities.ts":[
+"Typescript:src/services/utilities.ts": [
 531
 ]
 }

@@ -1,22 +1,22 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 412
 ],
-"Typescript:scripts/authors.ts":[
+"Typescript:scripts/authors.ts": [
 22,
 115
 ],
-"Typescript:scripts/configureNightly.ts":[
+"Typescript:scripts/configureNightly.ts": [
 33
 ],
-"Typescript:scripts/errorCheck.ts":[
+"Typescript:scripts/errorCheck.ts": [
 19,
 55
 ],
-"Typescript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts":[
+"Typescript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
 27
 ],
-"Typescript:src/compiler/commandLineParser.ts":[
+"Typescript:src/compiler/commandLineParser.ts": [
 1399,
 1413,
 1428,
@@ -24,22 +24,22 @@
 1458,
 1472
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 1214
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 5876,
 5886,
 5887,
 5898
 ],
-"Typescript:src/compiler/program.ts":[
+"Typescript:src/compiler/program.ts": [
 7
 ],
-"Typescript:src/compiler/transformers/jsx.ts":[
+"Typescript:src/compiler/transformers/jsx.ts": [
 228
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 640,
 641,
 642,
@@ -48,39 +48,39 @@
 3002,
 4602
 ],
-"Typescript:src/compiler/visitor.ts":[
+"Typescript:src/compiler/visitor.ts": [
 1551
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 2908
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 445,
 1506,
 1729
 ],
-"Typescript:src/harness/rwcRunner.ts":[
+"Typescript:src/harness/rwcRunner.ts": [
 39
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 85,
 90,
 102,
 1486
 ],
-"Typescript:src/server/typingsInstaller/typingsInstaller.ts":[
+"Typescript:src/server/typingsInstaller/typingsInstaller.ts": [
 66
 ],
-"Typescript:src/server/utilities.ts":[
+"Typescript:src/server/utilities.ts": [
 183
 ],
-"Typescript:src/services/completions.ts":[
+"Typescript:src/services/completions.ts": [
 390
 ],
-"Typescript:src/services/pathCompletions.ts":[
+"Typescript:src/services/pathCompletions.ts": [
 498
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 1887,
 1906,
 1907,

@@ -1,5 +1,5 @@
 {
-"qunit:Gruntfile.js":[
+"qunit:Gruntfile.js": [
 3,
 4,
 5,
@@ -166,7 +166,7 @@
 301,
 301
 ],
-"qunit:bin/qunit.js":[
+"qunit:bin/qunit.js": [
 3,
 5,
 6,
@@ -189,12 +189,12 @@
 38,
 38
 ],
-"qunit:build/coverage-bridge.js":[
+"qunit:build/coverage-bridge.js": [
 6,
 7,
 20
 ],
-"qunit:build/release.js":[
+"qunit:build/release.js": [
 4,
 8,
 10,
@@ -218,13 +218,13 @@
 20,
 27
 ],
-"qunit:build/tasks/livereload.js":[
+"qunit:build/tasks/livereload.js": [
 2,
 6,
 11,
 15
 ],
-"qunit:build/tasks/test-on-node.js":[
+"qunit:build/tasks/test-on-node.js": [
 2,
 4,
 7,
@@ -246,7 +246,7 @@
 115,
 116
 ],
-"qunit:reporter/diff.js":[
+"qunit:reporter/diff.js": [
 1,
 2,
 66,
@@ -275,7 +275,7 @@
 1106,
 1110
 ],
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 1,
 2,
 3,
@@ -577,11 +577,11 @@
 1010,
 1059
 ],
-"qunit:reporter/reporter.js":[
+"qunit:reporter/reporter.js": [
 1,
 2
 ],
-"qunit:reporter/urlparams.js":[
+"qunit:reporter/urlparams.js": [
 1,
 2,
 7,
@@ -602,7 +602,7 @@
 87,
 100
 ],
-"qunit:rollup.config.js":[
+"qunit:rollup.config.js": [
 3,
 4,
 7,
@@ -611,7 +611,7 @@
 27,
 30
 ],
-"qunit:runner/fixture.js":[
+"qunit:runner/fixture.js": [
 1,
 2,
 6,
@@ -624,10 +624,10 @@
 41,
 41
 ],
-"qunit:runner/runner.js":[
+"qunit:runner/runner.js": [
 1
 ],
-"qunit:src/assert.js":[
+"qunit:src/assert.js": [
 1,
 2,
 3,
@@ -683,7 +683,7 @@
 468,
 477
 ],
-"qunit:src/cli/find-reporter.js":[
+"qunit:src/cli/find-reporter.js": [
 1,
 3,
 4,
@@ -696,10 +696,10 @@
 72,
 74
 ],
-"qunit:src/cli/require-from-cwd.js":[
+"qunit:src/cli/require-from-cwd.js": [
 1
 ],
-"qunit:src/cli/require-qunit.js":[
+"qunit:src/cli/require-qunit.js": [
 1,
 9,
 16,
@@ -708,7 +708,7 @@
 23,
 25
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 1,
 3,
 5,
@@ -737,7 +737,7 @@
 177,
 178
 ],
-"qunit:src/cli/utils.js":[
+"qunit:src/cli/utils.js": [
 1,
 3,
 4,
@@ -751,7 +751,7 @@
 79,
 79
 ],
-"qunit:src/core.js":[
+"qunit:src/core.js": [
 1,
 3,
 4,
@@ -780,12 +780,12 @@
 175,
 176
 ],
-"qunit:src/core/config.js":[
+"qunit:src/core/config.js": [
 1,
 2,
 45
 ],
-"qunit:src/core/logging.js":[
+"qunit:src/core/logging.js": [
 1,
 2,
 3,
@@ -801,7 +801,7 @@
 29,
 44
 ],
-"qunit:src/core/on-unhandled-rejection.js":[
+"qunit:src/core/on-unhandled-rejection.js": [
 1,
 3,
 4,
@@ -809,7 +809,7 @@
 11,
 20
 ],
-"qunit:src/core/onerror.js":[
+"qunit:src/core/onerror.js": [
 1,
 3,
 4,
@@ -817,7 +817,7 @@
 21,
 24
 ],
-"qunit:src/core/processing-queue.js":[
+"qunit:src/core/processing-queue.js": [
 1,
 6,
 9,
@@ -830,14 +830,14 @@
 191,
 203
 ],
-"qunit:src/core/stacktrace.js":[
+"qunit:src/core/stacktrace.js": [
 3,
 4,
 5,
 13,
 26
 ],
-"qunit:src/core/utilities.js":[
+"qunit:src/core/utilities.js": [
 1,
 2,
 18,
@@ -864,7 +864,7 @@
 143,
 155
 ],
-"qunit:src/dump.js":[
+"qunit:src/dump.js": [
 1,
 2,
 8,
@@ -945,7 +945,7 @@
 268,
 278
 ],
-"qunit:src/equiv.js":[
+"qunit:src/equiv.js": [
 1,
 23,
 26,
@@ -972,7 +972,7 @@
 271,
 272
 ],
-"qunit:src/events.js":[
+"qunit:src/events.js": [
 1,
 5,
 6,
@@ -989,7 +989,7 @@
 55,
 56
 ],
-"qunit:src/export.js":[
+"qunit:src/export.js": [
 2,
 3,
 11,
@@ -997,15 +997,15 @@
 26,
 30
 ],
-"qunit:src/globals.js":[
+"qunit:src/globals.js": [
 1,
 13
 ],
-"qunit:src/logger.js":[
+"qunit:src/logger.js": [
 1,
 18
 ],
-"qunit:src/module.js":[
+"qunit:src/module.js": [
 1,
 3,
 5,
@@ -1023,16 +1023,16 @@
 75,
 87
 ],
-"qunit:src/promise.js":[
+"qunit:src/promise.js": [
 1,
 3
 ],
-"qunit:src/qunit.js":[
+"qunit:src/qunit.js": [
 1,
 2,
 3
 ],
-"qunit:src/reports/suite.js":[
+"qunit:src/reports/suite.js": [
 1,
 45,
 48,
@@ -1041,7 +1041,7 @@
 107,
 109
 ],
-"qunit:src/reports/test.js":[
+"qunit:src/reports/test.js": [
 1,
 26,
 41,
@@ -1053,7 +1053,7 @@
 79,
 81
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 1,
 3,
 4,
@@ -1129,17 +1129,17 @@
 759,
 803
 ],
-"qunit:test/amd.html":[
+"qunit:test/amd.html": [
 16,
 20,
 20
 ],
-"qunit:test/autostart.html":[
+"qunit:test/autostart.html": [
 28,
 29,
 30
 ],
-"qunit:test/headless.html":[
+"qunit:test/headless.html": [
 18,
 18,
 18,
@@ -1148,12 +1148,12 @@
 18,
 18
 ],
-"qunit:test/overload.html":[
+"qunit:test/overload.html": [
 10,
 11,
 12
 ],
-"qunit:test/reorderError1.html":[
+"qunit:test/reorderError1.html": [
 17,
 18,
 21,
@@ -1164,7 +1164,7 @@
 33,
 34
 ],
-"qunit:test/reorderError2.html":[
+"qunit:test/reorderError2.html": [
 17,
 18,
 21,
@@ -1174,7 +1174,7 @@
 30,
 31
 ],
-"qunit:test/reporter-html/no-qunit-element.html":[
+"qunit:test/reporter-html/no-qunit-element.html": [
 10,
 13,
 15

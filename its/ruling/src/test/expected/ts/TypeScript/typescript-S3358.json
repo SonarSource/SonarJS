@@ -1,5 +1,5 @@
 {
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 4161,
 5395,
 5399,
@@ -84,13 +84,13 @@
 20002,
 23500
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 836,
 1339,
 1524,
 1917
 ],
-"Typescript:src/compiler/declarationEmitter.ts":[
+"Typescript:src/compiler/declarationEmitter.ts": [
 1263,
 1275,
 1282,
@@ -105,91 +105,91 @@
 1705,
 1719
 ],
-"Typescript:src/compiler/emitter.ts":[
+"Typescript:src/compiler/emitter.ts": [
 1544
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 1097,
 4228,
 4346,
 4347
 ],
-"Typescript:src/compiler/performance.ts":[
+"Typescript:src/compiler/performance.ts": [
 5
 ],
-"Typescript:src/compiler/transformers/generators.ts":[
+"Typescript:src/compiler/transformers/generators.ts": [
 1002,
 1021
 ],
-"Typescript:src/compiler/transformers/module/module.ts":[
+"Typescript:src/compiler/transformers/module/module.ts": [
 1456
 ],
-"Typescript:src/compiler/transformers/ts.ts":[
+"Typescript:src/compiler/transformers/ts.ts": [
 1246,
 1396,
 1612
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 1569,
 1688,
 4258
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 1609,
 1609,
 1609
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 961
 ],
-"Typescript:src/harness/projectsRunner.ts":[
+"Typescript:src/harness/projectsRunner.ts": [
 82,
 329
 ],
-"Typescript:src/harness/runner.ts":[
+"Typescript:src/harness/runner.ts": [
 77,
 79
 ],
-"Typescript:src/server/builder.ts":[
+"Typescript:src/server/builder.ts": [
 193
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 289,
 489
 ],
-"Typescript:src/server/session.ts":[
+"Typescript:src/server/session.ts": [
 1366,
 1393,
 1540
 ],
-"Typescript:src/services/codefixes/importFixes.ts":[
+"Typescript:src/services/codefixes/importFixes.ts": [
 115,
 379
 ],
-"Typescript:src/services/formatting/formattingScanner.ts":[
+"Typescript:src/services/formatting/formattingScanner.ts": [
 178,
 180,
 182,
 184
 ],
-"Typescript:src/services/importTracker.ts":[
+"Typescript:src/services/importTracker.ts": [
 498
 ],
-"Typescript:src/services/navigationBar.ts":[
+"Typescript:src/services/navigationBar.ts": [
 367
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 39,
 969
 ],
-"Typescript:src/services/signatureHelp.ts":[
+"Typescript:src/services/signatureHelp.ts": [
 68
 ],
-"Typescript:src/services/textChanges.ts":[
+"Typescript:src/services/textChanges.ts": [
 467,
 473
 ],
-"Typescript:src/services/utilities.ts":[
+"Typescript:src/services/utilities.ts": [
 363
 ]
 }

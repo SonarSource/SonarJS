@@ -1,8 +1,8 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 4350
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 1700,
 5977,
 6719,
@@ -10,13 +10,13 @@
 6904,
 6990
 ],
-"p5.js:src/core/init.js":[
+"p5.js:src/core/init.js": [
 16
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 232
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 326,
 500,
 577,
@@ -25,28 +25,28 @@
 888,
 1125
 ],
-"p5.js:src/core/shape/attributes.js":[
+"p5.js:src/core/shape/attributes.js": [
 109,
 214
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 2060
 ],
-"p5.js:src/events/acceleration.js":[
+"p5.js:src/events/acceleration.js": [
 651
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 556,
 1866
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 669
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 497,
 1079
 ],
-"p5.js:src/webgl/p5.Texture.js":[
+"p5.js:src/webgl/p5.Texture.js": [
 183
 ]
 }

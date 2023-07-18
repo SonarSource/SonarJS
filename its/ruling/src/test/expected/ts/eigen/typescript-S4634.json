@@ -1,26 +1,26 @@
 {
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
 21
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
 22
 ],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx":[
+"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
 24
 ],
-"eigen:src/app/Scenes/MyCollection/Components/MyCollectionImageView.tests.tsx":[
+"eigen:src/app/Scenes/MyCollection/Components/MyCollectionImageView.tests.tsx": [
 34,
 56
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/ArtworkList/MyCollectionArtworkGridItem.tests.tsx":[
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkList/MyCollectionArtworkGridItem.tests.tsx": [
 107
 ],
-"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts":[
+"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
 41,
 70,
 96
 ],
-"eigen:src/app/tests/fetchMockHelpers.ts":[
+"eigen:src/app/tests/fetchMockHelpers.ts": [
 4
 ]
 }

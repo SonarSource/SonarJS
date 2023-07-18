@@ -1,16 +1,16 @@
 {
-"paper.js:examples/Scripts/BooleanOperations.html":[
+"paper.js:examples/Scripts/BooleanOperations.html": [
 368,
 403,
 429
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 24
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 1423
 ],
-"paper.js:src/util/CollisionDetection.js":[
+"paper.js:src/util/CollisionDetection.js": [
 264
 ]
 }

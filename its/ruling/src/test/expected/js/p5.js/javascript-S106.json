@@ -1,14 +1,14 @@
 {
-"p5.js:docs/preprocessor.js":[
+"p5.js:docs/preprocessor.js": [
 16,
 85,
 251
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 3713,
 3852
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 994,
 1856,
 1868,
@@ -37,34 +37,34 @@
 11167,
 12696
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 47
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 93,
 128,
 130,
 134,
 761
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 604
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 212
 ],
-"p5.js:src/core/rendering.js":[
+"p5.js:src/core/rendering.js": [
 307
 ],
-"p5.js:src/core/structure.js":[
+"p5.js:src/core/structure.js": [
 299
 ],
-"p5.js:src/data/local_storage.js":[
+"p5.js:src/data/local_storage.js": [
 63,
 138,
 218
 ],
-"p5.js:src/data/p5.TypedDict.js":[
+"p5.js:src/data/p5.TypedDict.js": [
 170,
 198,
 242,
@@ -73,38 +73,38 @@
 516,
 544
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 1038,
 1327,
 2205,
 2360,
 3265
 ],
-"p5.js:src/events/mouse.js":[
+"p5.js:src/events/mouse.js": [
 1039
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 79,
 103,
 129,
 175
 ],
-"p5.js:src/image/p5.Image.js":[
+"p5.js:src/image/p5.Image.js": [
 981
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 579,
 1175
 ],
-"p5.js:src/math/p5.Vector.js":[
+"p5.js:src/math/p5.Vector.js": [
 482,
 556,
 563
 ],
-"p5.js:src/typography/loading_displaying.js":[
+"p5.js:src/typography/loading_displaying.js": [
 96
 ],
-"p5.js:src/webgl/3d_primitives.js":[
+"p5.js:src/webgl/3d_primitives.js": [
 85,
 200,
 541,
@@ -113,7 +113,7 @@
 940,
 1161
 ],
-"p5.js:src/webgl/light.js":[
+"p5.js:src/webgl/light.js": [
 459,
 466,
 473,
@@ -121,7 +121,7 @@
 786,
 818
 ],
-"p5.js:src/webgl/loading.js":[
+"p5.js:src/webgl/loading.js": [
 162,
 292,
 470,
@@ -138,27 +138,27 @@
 562,
 572
 ],
-"p5.js:src/webgl/material.js":[
+"p5.js:src/webgl/material.js": [
 68,
 493,
 852,
 862,
 868
 ],
-"p5.js:src/webgl/p5.Camera.js":[
+"p5.js:src/webgl/p5.Camera.js": [
 439,
 446
 ],
-"p5.js:src/webgl/p5.Geometry.js":[
+"p5.js:src/webgl/p5.Geometry.js": [
 105
 ],
-"p5.js:src/webgl/p5.Matrix.js":[
+"p5.js:src/webgl/p5.Matrix.js": [
 352
 ],
-"p5.js:src/webgl/p5.RendererGL.Immediate.js":[
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 86
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 479,
 511,
 690,
@@ -170,36 +170,36 @@
 1452,
 1453
 ],
-"p5.js:src/webgl/p5.Shader.js":[
+"p5.js:src/webgl/p5.Shader.js": [
 65,
 79,
 92,
 530
 ],
-"p5.js:src/webgl/p5.Texture.js":[
+"p5.js:src/webgl/p5.Texture.js": [
 301,
 310,
 324,
 333
 ],
-"p5.js:src/webgl/text.js":[
+"p5.js:src/webgl/text.js": [
 626,
 636
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 59
 ],
-"p5.js:tasks/build/eslint-samples.js":[
+"p5.js:tasks/build/eslint-samples.js": [
 34
 ],
-"p5.js:tasks/release/release-bower.js":[
+"p5.js:tasks/release/release-bower.js": [
 21,
 41,
 59,
 71,
 79
 ],
-"p5.js:tasks/release/release-docs.js":[
+"p5.js:tasks/release/release-docs.js": [
 20,
 29,
 38,
@@ -208,18 +208,18 @@
 67,
 74
 ],
-"p5.js:tasks/release/release-github.js":[
+"p5.js:tasks/release/release-github.js": [
 63,
 80,
 84,
 93,
 103
 ],
-"p5.js:tasks/test/mocha-chrome.js":[
+"p5.js:tasks/test/mocha-chrome.js": [
 54,
 98
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 206,
 212,
 237

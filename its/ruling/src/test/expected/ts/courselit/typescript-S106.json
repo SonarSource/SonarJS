@@ -1,27 +1,27 @@
 {
-"courselit:apps/web/lib/passport-magic-link.ts":[
+"courselit:apps/web/lib/passport-magic-link.ts": [
 35
 ],
-"courselit:apps/web/pages/_app.tsx":[
+"courselit:apps/web/pages/_app.tsx": [
 46,
 102
 ],
-"courselit:apps/web/pages/api/media/index.ts":[
+"courselit:apps/web/pages/api/media/index.ts": [
 51
 ],
-"courselit:apps/web/pages/api/media/presigned.ts":[
+"courselit:apps/web/pages/api/media/presigned.ts": [
 44
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts":[
+"courselit:apps/web/pages/api/payment/initiate.ts": [
 103
 ],
-"courselit:apps/web/pages/api/payment/verify.ts":[
+"courselit:apps/web/pages/api/payment/verify.ts": [
 58
 ],
-"courselit:apps/web/pages/index.tsx":[
+"courselit:apps/web/pages/index.tsx": [
 99
 ],
-"courselit:apps/web/services/mail.ts":[
+"courselit:apps/web/services/mail.ts": [
 29
 ]
 }

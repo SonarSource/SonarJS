@@ -1,9 +1,9 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 127,
 178
 ],
-"jshint:src/state.js":[
+"jshint:src/state.js": [
 40
 ]
 }

@@ -1,22 +1,22 @@
 {
-"desktop:app/src/lib/api.ts":[
+"desktop:app/src/lib/api.ts": [
 504
 ],
-"desktop:app/src/lib/databases/repositories-database.ts":[
+"desktop:app/src/lib/databases/repositories-database.ts": [
 36
 ],
-"desktop:app/src/lib/git/config.ts":[
+"desktop:app/src/lib/git/config.ts": [
 67
 ],
-"desktop:app/src/models/app-menu.ts":[
+"desktop:app/src/models/app-menu.ts": [
 168,
 312,
 341
 ],
-"desktop:app/src/ui/lib/text-box.tsx":[
+"desktop:app/src/ui/lib/text-box.tsx": [
 48
 ],
-"desktop:app/src/ui/lib/two-factor-authentication.tsx":[
+"desktop:app/src/ui/lib/two-factor-authentication.tsx": [
 20
 ]
 }

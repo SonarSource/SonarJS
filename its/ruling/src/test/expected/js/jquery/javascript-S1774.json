@@ -1,11 +1,11 @@
 {
-"jquery:build/release/cdn.js":[
+"jquery:build/release/cdn.js": [
 88
 ],
-"jquery:build/release/dist.js":[
+"jquery:build/release/dist.js": [
 136
 ],
-"jquery:build/tasks/build.js":[
+"jquery:build/tasks/build.js": [
 81,
 169,
 221,
@@ -13,7 +13,7 @@
 304,
 324
 ],
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 120,
 276,
 369,
@@ -28,29 +28,29 @@
 814,
 815
 ],
-"jquery:src/ajax/jsonp.js":[
+"jquery:src/ajax/jsonp.js": [
 24,
 36,
 44
 ],
-"jquery:src/ajax/load.js":[
+"jquery:src/ajax/load.js": [
 51
 ],
-"jquery:src/ajax/script.js":[
+"jquery:src/ajax/script.js": [
 55
 ],
-"jquery:src/ajax/xhr.js":[
+"jquery:src/ajax/xhr.js": [
 79
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 64,
 109
 ],
-"jquery:src/attributes/classes.js":[
+"jquery:src/attributes/classes.js": [
 110,
 157
 ],
-"jquery:src/attributes/val.js":[
+"jquery:src/attributes/val.js": [
 34,
 64,
 84,
@@ -58,37 +58,37 @@
 101,
 107
 ],
-"jquery:src/callbacks.js":[
+"jquery:src/callbacks.js": [
 40,
 163,
 206
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 55,
 109,
 110,
 306,
 318
 ],
-"jquery:src/core/access.js":[
+"jquery:src/core/access.js": [
 45,
 62
 ],
-"jquery:src/core/init.js":[
+"jquery:src/core/init.js": [
 47,
 53,
 106
 ],
-"jquery:src/core/ready-no-deferred.js":[
+"jquery:src/core/ready-no-deferred.js": [
 34
 ],
-"jquery:src/core/ready.js":[
+"jquery:src/core/ready.js": [
 38
 ],
-"jquery:src/core/toType.js":[
+"jquery:src/core/toType.js": [
 9
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 39,
 47,
 52,
@@ -101,23 +101,23 @@
 383,
 417
 ],
-"jquery:src/css/adjustCSS.js":[
+"jquery:src/css/adjustCSS.js": [
 8,
 16,
 58
 ],
-"jquery:src/css/curCSS.js":[
+"jquery:src/css/curCSS.js": [
 19
 ],
-"jquery:src/css/showHide.js":[
+"jquery:src/css/showHide.js": [
 87
 ],
-"jquery:src/data/Data.js":[
+"jquery:src/data/Data.js": [
 67,
 102,
 125
 ],
-"jquery:src/deferred.js":[
+"jquery:src/deferred.js": [
 94,
 182,
 236,
@@ -127,17 +127,17 @@
 320,
 363
 ],
-"jquery:src/deprecated.js":[
+"jquery:src/deprecated.js": [
 22,
 68
 ],
-"jquery:src/dimensions.js":[
+"jquery:src/dimensions.js": [
 15,
 23,
 41,
 48
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 53,
 121,
 182,
@@ -148,12 +148,12 @@
 582,
 618
 ],
-"jquery:src/effects/Tween.js":[
+"jquery:src/effects/Tween.js": [
 21,
 26,
 77
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 145,
 167,
 249,
@@ -164,10 +164,10 @@
 728,
 825
 ],
-"jquery:src/event/alias.js":[
+"jquery:src/event/alias.js": [
 13
 ],
-"jquery:src/event/trigger.js":[
+"jquery:src/event/trigger.js": [
 21,
 22,
 46,
@@ -176,7 +176,7 @@
 64,
 97
 ],
-"jquery:src/manipulation.js":[
+"jquery:src/manipulation.js": [
 39,
 182,
 301,
@@ -184,22 +184,22 @@
 365,
 445
 ],
-"jquery:src/manipulation/buildFragment.js":[
+"jquery:src/manipulation/buildFragment.js": [
 26
 ],
-"jquery:src/offset.js":[
+"jquery:src/offset.js": [
 69,
 185,
 190,
 191
 ],
-"jquery:src/queue.js":[
+"jquery:src/queue.js": [
 87
 ],
-"jquery:src/queue/delay.js":[
+"jquery:src/queue/delay.js": [
 9
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 128,
 157,
 248,
@@ -234,21 +234,21 @@
 1511,
 1589
 ],
-"jquery:src/selector/contains.js":[
+"jquery:src/selector/contains.js": [
 5,
 12
 ],
-"jquery:src/selector/uniqueSort.js":[
+"jquery:src/selector/uniqueSort.js": [
 27,
 59
 ],
-"jquery:src/serialize.js":[
+"jquery:src/serialize.js": [
 31,
 61,
 66,
 103
 ],
-"jquery:src/traversing.js":[
+"jquery:src/traversing.js": [
 51,
 65,
 73,
@@ -256,28 +256,28 @@
 98,
 112
 ],
-"jquery:src/traversing/findFilter.js":[
+"jquery:src/traversing/findFilter.js": [
 41,
 71,
 85
 ],
-"jquery:src/var/flat.js":[
+"jquery:src/var/flat.js": [
 5
 ],
-"jquery:src/wrap.js":[
+"jquery:src/wrap.js": [
 61
 ],
-"jquery:src/wrapper.js":[
+"jquery:src/wrapper.js": [
 24,
 37
 ],
-"jquery:test/data/manipulation/iframe-denied.html":[
+"jquery:test/data/manipulation/iframe-denied.html": [
 32
 ],
-"jquery:test/delegatetest.html":[
+"jquery:test/delegatetest.html": [
 154
 ],
-"jquery:test/localfile.html":[
+"jquery:test/localfile.html": [
 59
 ]
 }

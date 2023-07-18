@@ -1,14 +1,14 @@
 {
-"desktop:app/src/lib/git/reflog.ts":[
+"desktop:app/src/lib/git/reflog.ts": [
 68
 ],
-"desktop:app/src/lib/remote-parsing.ts":[
+"desktop:app/src/lib/remote-parsing.ts": [
 30,
 34,
 38,
 42
 ],
-"desktop:script/build.ts":[
+"desktop:script/build.ts": [
 197,
 198,
 199,

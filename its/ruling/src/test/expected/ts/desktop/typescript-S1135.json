@@ -1,80 +1,80 @@
 {
-"desktop:app/src/lib/branch.ts":[
+"desktop:app/src/lib/branch.ts": [
 30
 ],
-"desktop:app/src/lib/diff-parser.ts":[
+"desktop:app/src/lib/diff-parser.ts": [
 175
 ],
-"desktop:app/src/lib/git/cherry-pick.ts":[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 233
 ],
-"desktop:app/src/lib/git/diff.ts":[
+"desktop:app/src/lib/git/diff.ts": [
 443
 ],
-"desktop:app/src/lib/git/for-each-ref.ts":[
+"desktop:app/src/lib/git/for-each-ref.ts": [
 31
 ],
-"desktop:app/src/lib/git/rebase.ts":[
+"desktop:app/src/lib/git/rebase.ts": [
 527,
 528,
 530,
 576
 ],
-"desktop:app/src/lib/git/stash.ts":[
+"desktop:app/src/lib/git/stash.ts": [
 261
 ],
-"desktop:app/src/lib/patch-formatter.ts":[
+"desktop:app/src/lib/patch-formatter.ts": [
 243
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 1358,
 1820,
 3681
 ],
-"desktop:app/src/lib/stores/git-store.ts":[
+"desktop:app/src/lib/stores/git-store.ts": [
 1061
 ],
-"desktop:app/src/main-process/alive-origin-filter.ts":[
+"desktop:app/src/main-process/alive-origin-filter.ts": [
 18
 ],
-"desktop:app/src/main-process/app-window.ts":[
+"desktop:app/src/main-process/app-window.ts": [
 174
 ],
-"desktop:app/src/ui/changes/changes-list.tsx":[
+"desktop:app/src/ui/changes/changes-list.tsx": [
 686
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 784,
 2452,
 3553,
 3578,
 3799
 ],
-"desktop:app/src/ui/history/commit-list-item.tsx":[
+"desktop:app/src/ui/history/commit-list-item.tsx": [
 406
 ],
-"desktop:app/src/ui/index.tsx":[
+"desktop:app/src/ui/index.tsx": [
 113
 ],
-"desktop:app/src/ui/lib/text-box.tsx":[
+"desktop:app/src/ui/lib/text-box.tsx": [
 199
 ],
-"desktop:app/src/ui/preferences/integrations.tsx":[
+"desktop:app/src/ui/preferences/integrations.tsx": [
 94
 ],
-"desktop:app/src/ui/toolbar/branch-dropdown.tsx":[
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 140
 ],
-"desktop:app/src/ui/toolbar/dropdown.tsx":[
+"desktop:app/src/ui/toolbar/dropdown.tsx": [
 208
 ],
-"desktop:app/src/ui/tutorial/tutorial-panel.tsx":[
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
 59
 ],
-"desktop:script/build.ts":[
+"desktop:script/build.ts": [
 188
 ],
-"desktop:script/dist-info.ts":[
+"desktop:script/dist-info.ts": [
 159
 ]
 }

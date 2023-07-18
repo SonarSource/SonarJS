@@ -1,14 +1,14 @@
 {
-"console:src/views/FunctionsView/FunctionLogs/Log.tsx":[
+"console:src/views/FunctionsView/FunctionLogs/Log.tsx": [
 129
 ],
-"console:src/views/ProjectRootView/EndpointPopup.tsx":[
+"console:src/views/ProjectRootView/EndpointPopup.tsx": [
 300
 ],
-"console:src/views/SchemaView/EnumsOverview/EnumsOverview.tsx":[
+"console:src/views/SchemaView/EnumsOverview/EnumsOverview.tsx": [
 76
 ],
-"console:src/views/models/DatabrowserView/NewRowInactive.tsx":[
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
 136
 ]
 }

@@ -1,67 +1,67 @@
 {
-"eigen:src/app/AppRegistry.tsx":[
+"eigen:src/app/AppRegistry.tsx": [
 212
 ],
-"eigen:src/app/Components/AnimatableHeader/AnimatableHeaderProvider.tsx":[
+"eigen:src/app/Components/AnimatableHeader/AnimatableHeaderProvider.tsx": [
 18
 ],
-"eigen:src/app/Components/FancyModal/FancyModal.tsx":[
+"eigen:src/app/Components/FancyModal/FancyModal.tsx": [
 81
 ],
-"eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx":[
+"eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx": [
 105
 ],
-"eigen:src/app/Components/Portal.tsx":[
+"eigen:src/app/Components/Portal.tsx": [
 35
 ],
-"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx":[
+"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx": [
 113,
 146
 ],
-"eigen:src/app/Components/Toast/toastHook.tsx":[
+"eigen:src/app/Components/Toast/toastHook.tsx": [
 51
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateScreen.tsx":[
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateScreen.tsx": [
 128
 ],
-"eigen:src/app/Scenes/MyProfile/MyProfileProvider.tsx":[
+"eigen:src/app/Scenes/MyProfile/MyProfileProvider.tsx": [
 18
 ],
-"eigen:src/app/Scenes/Onboarding/Onboarding.tsx":[
+"eigen:src/app/Scenes/Onboarding/Onboarding.tsx": [
 111
 ],
-"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx":[
+"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
 105
 ],
-"eigen:src/app/Scenes/Search/RecentSearches.tests.tsx":[
+"eigen:src/app/Scenes/Search/RecentSearches.tests.tsx": [
 78
 ],
-"eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx":[
+"eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx": [
 37
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx":[
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
 44
 ],
-"eigen:src/app/navigation/NavStack.tsx":[
+"eigen:src/app/navigation/NavStack.tsx": [
 38,
 41
 ],
-"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx":[
+"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
 68
 ],
-"eigen:src/app/utils/Context.tsx":[
+"eigen:src/app/utils/Context.tsx": [
 25
 ],
-"eigen:src/app/utils/experiments/UnleashProvider.tsx":[
+"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
 47
 ],
-"eigen:src/app/utils/placeholders.tsx":[
+"eigen:src/app/utils/placeholders.tsx": [
 61
 ],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx":[
+"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
 42
 ],
-"eigen:src/shared/hooks/useScreenDimensions.tsx":[
+"eigen:src/shared/hooks/useScreenDimensions.tsx": [
 53
 ]
 }

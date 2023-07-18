@@ -1,5 +1,5 @@
 {
-"ionic2-auth:app/pages/profile/profile.ts":[
+"ionic2-auth:app/pages/profile/profile.ts": [
 15,
 22,
 23,
@@ -8,12 +8,12 @@
 48,
 53
 ],
-"ionic2-auth:app/pages/quotes/quotes.ts":[
+"ionic2-auth:app/pages/quotes/quotes.ts": [
 14,
 16,
 26
 ],
-"ionic2-auth:app/services/auth/auth.ts":[
+"ionic2-auth:app/services/auth/auth.ts": [
 7
 ]
 }

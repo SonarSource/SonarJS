@@ -1,26 +1,26 @@
 {
-"vuetify:packages/docs/src/components/app/Toc.vue":[
+"vuetify:packages/docs/src/components/app/Toc.vue": [
 236
 ],
-"vuetify:packages/docs/src/components/examples/Example.vue":[
+"vuetify:packages/docs/src/components/examples/Example.vue": [
 137
 ],
-"vuetify:packages/docs/src/store/user.ts":[
+"vuetify:packages/docs/src/store/user.ts": [
 69
 ],
-"vuetify:packages/docs/src/util/helpers.ts":[
+"vuetify:packages/docs/src/util/helpers.ts": [
 154
 ],
-"vuetify:packages/docs/vite.config.ts":[
+"vuetify:packages/docs/vite.config.ts": [
 203
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx":[
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 382
 ],
-"vuetify:packages/vuetify/src/components/VAvatar/VAvatar.tsx":[
+"vuetify:packages/vuetify/src/components/VAvatar/VAvatar.tsx": [
 68
 ],
-"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx":[
+"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
 71,
 72,
 76,
@@ -28,44 +28,44 @@
 134,
 135
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
 83
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
 52,
 52
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
 12
 ],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx":[
+"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
 228,
 229,
 262,
 263
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx":[
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 472
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
 325,
 389
 ],
-"vuetify:packages/vuetify/src/components/VDivider/VDivider.tsx":[
+"vuetify:packages/vuetify/src/components/VDivider/VDivider.tsx": [
 62
 ],
-"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx":[
+"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
 114,
 238
 ],
-"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx":[
+"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 78
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx":[
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
 112,
 156
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts":[
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 41,
 42,
 43,
@@ -82,12 +82,12 @@
 170,
 171
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts":[
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 161,
 332,
 333
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/util/point.ts":[
+"vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
 43,
 44,
 48,
@@ -95,39 +95,39 @@
 61,
 62
 ],
-"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.tsx":[
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.tsx": [
 63
 ],
-"vuetify:packages/vuetify/src/components/VRating/VRating.tsx":[
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
 195
 ],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx":[
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 336
 ],
-"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx":[
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
 70
 ],
-"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx":[
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 75
 ],
-"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx":[
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
 97
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts":[
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
 374
 ],
-"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx":[
+"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 89,
 90,
 90
 ],
-"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx":[
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 110
 ],
-"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx":[
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 110
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
 272,
 278,
 280,
@@ -137,73 +137,73 @@
 305,
 313
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
 45
 ],
-"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx":[
+"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 79
 ],
-"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx":[
+"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 92,
 93,
 94
 ],
-"vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx":[
+"vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 170,
 184
 ],
-"vuetify:packages/vuetify/src/composables/color.ts":[
+"vuetify:packages/vuetify/src/composables/color.ts": [
 54,
 72
 ],
-"vuetify:packages/vuetify/src/composables/display.ts":[
+"vuetify:packages/vuetify/src/composables/display.ts": [
 172,
 173,
 174,
 175
 ],
-"vuetify:packages/vuetify/src/composables/form.ts":[
+"vuetify:packages/vuetify/src/composables/form.ts": [
 138
 ],
-"vuetify:packages/vuetify/src/composables/items.ts":[
+"vuetify:packages/vuetify/src/composables/items.ts": [
 60,
 61
 ],
-"vuetify:packages/vuetify/src/composables/layout.ts":[
+"vuetify:packages/vuetify/src/composables/layout.ts": [
 311,
 319
 ],
-"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts":[
+"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
 161
 ],
-"vuetify:packages/vuetify/src/composables/teleport.ts":[
+"vuetify:packages/vuetify/src/composables/teleport.ts": [
 16
 ],
-"vuetify:packages/vuetify/src/composables/touch.ts":[
+"vuetify:packages/vuetify/src/composables/touch.ts": [
 97,
 98,
 99
 ],
-"vuetify:packages/vuetify/src/directives/scroll/index.ts":[
+"vuetify:packages/vuetify/src/directives/scroll/index.ts": [
 21
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx":[
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
 57
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts":[
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
 40
 ],
-"vuetify:packages/vuetify/src/util/anchor.ts":[
+"vuetify:packages/vuetify/src/util/anchor.ts": [
 25
 ],
-"vuetify:packages/vuetify/src/util/color/APCA.ts":[
+"vuetify:packages/vuetify/src/util/color/APCA.ts": [
 82,
 92
 ],
-"vuetify:packages/vuetify/src/util/console.ts":[
+"vuetify:packages/vuetify/src/util/console.ts": [
 67
 ],
-"vuetify:packages/vuetify/src/util/helpers.ts":[
+"vuetify:packages/vuetify/src/util/helpers.ts": [
 281
 ]
 }

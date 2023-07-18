@@ -1,5 +1,5 @@
 {
-"jira-clone:client/src/Project/IssueSearch/NoResultsSvg.jsx":[
+"jira-clone:client/src/Project/IssueSearch/NoResultsSvg.jsx": [
 28,
 34,
 40,
@@ -9,10 +9,10 @@
 62,
 67
 ],
-"jira-clone:client/src/shared/components/Logo.jsx":[
+"jira-clone:client/src/shared/components/Logo.jsx": [
 43
 ],
-"jira-clone:client/src/shared/components/ProjectAvatar.jsx":[
+"jira-clone:client/src/shared/components/ProjectAvatar.jsx": [
 37,
 42,
 55,

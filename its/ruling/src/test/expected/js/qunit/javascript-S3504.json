@@ -1,5 +1,5 @@
 {
-"qunit:Gruntfile.js":[
+"qunit:Gruntfile.js": [
 3,
 4,
 5,
@@ -12,15 +12,15 @@
 272,
 273
 ],
-"qunit:build/release.js":[
+"qunit:build/release.js": [
 4
 ],
-"qunit:build/tasks/livereload.js":[
+"qunit:build/tasks/livereload.js": [
 2,
 3,
 8
 ],
-"qunit:build/tasks/test-on-node.js":[
+"qunit:build/tasks/test-on-node.js": [
 4,
 8,
 14,
@@ -35,7 +35,7 @@
 123,
 145
 ],
-"qunit:reporter/diff.js":[
+"qunit:reporter/diff.js": [
 43,
 58,
 116,
@@ -56,7 +56,7 @@
 1022,
 1163
 ],
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 46,
 64,
 89,
@@ -97,7 +97,7 @@
 1016,
 1022
 ],
-"qunit:reporter/urlparams.js":[
+"qunit:reporter/urlparams.js": [
 7,
 12,
 57,
@@ -106,43 +106,43 @@
 77,
 78
 ],
-"qunit:rollup.config.js":[
+"qunit:rollup.config.js": [
 3,
 4
 ],
-"qunit:runner/fixture.js":[
+"qunit:runner/fixture.js": [
 10,
 21,
 35,
 36,
 40
 ],
-"qunit:src/core.js":[
+"qunit:src/core.js": [
 30,
 31,
 53,
 152
 ],
-"qunit:src/core/config.js":[
+"qunit:src/core/config.js": [
 65
 ],
-"qunit:src/core/logging.js":[
+"qunit:src/core/logging.js": [
 7,
 12,
 38
 ],
-"qunit:src/core/stacktrace.js":[
+"qunit:src/core/stacktrace.js": [
 3,
 10,
 34
 ],
-"qunit:src/core/utilities.js":[
+"qunit:src/core/utilities.js": [
 41,
 76,
 88,
 111
 ],
-"qunit:src/dump.js":[
+"qunit:src/dump.js": [
 14,
 26,
 56,
@@ -154,7 +154,7 @@
 208,
 240
 ],
-"qunit:src/equiv.js":[
+"qunit:src/equiv.js": [
 10,
 12,
 34,
@@ -169,10 +169,10 @@
 296,
 310
 ],
-"qunit:src/globals.js":[
+"qunit:src/globals.js": [
 13
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 29,
 101,
 122,

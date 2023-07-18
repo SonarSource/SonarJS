@@ -1,42 +1,42 @@
 {
-"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts":[
+"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
 42
 ],
-"postgraphql:src/graphql/schema/createGqlSchema.ts":[
+"postgraphql:src/graphql/schema/createGqlSchema.ts": [
 36,
 37,
 38,
 40,
 41
 ],
-"postgraphql:src/graphql/schema/createMutationGqlField.ts":[
+"postgraphql:src/graphql/schema/createMutationGqlField.ts": [
 76
 ],
-"postgraphql:src/graphql/schema/createMutationPayloadGqlType.ts":[
+"postgraphql:src/graphql/schema/createMutationPayloadGqlType.ts": [
 35
 ],
-"postgraphql:src/postgraphql/postgraphql.ts":[
+"postgraphql:src/postgraphql/postgraphql.ts": [
 58,
 82
 ],
-"postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts":[
+"postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts": [
 51,
 137
 ],
-"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts":[
+"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 18
 ],
-"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts":[
+"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
 200
 ],
-"postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts":[
+"postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts": [
 106,
 111
 ],
-"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts":[
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts": [
 34
 ],
-"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts":[
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts": [
 95,
 100,
 100,
@@ -45,10 +45,10 @@
 116,
 155
 ],
-"postgraphql:src/postgres/inventory/type/PgClassType.ts":[
+"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
 26
 ],
-"postgraphql:src/postgres/inventory/type/PgRangeType.ts":[
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
 51
 ]
 }

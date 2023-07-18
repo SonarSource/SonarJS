@@ -1,11 +1,11 @@
 {
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 5257
 ],
-"Typescript:src/compiler/commandLineParser.ts":[
+"Typescript:src/compiler/commandLineParser.ts": [
 1485
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 247,
 330,
 344,
@@ -13,25 +13,25 @@
 1421,
 1434
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 7170
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 2837
 ],
-"Typescript:src/server/project.ts":[
+"Typescript:src/server/project.ts": [
 183,
 846
 ],
-"Typescript:src/services/documentRegistry.ts":[
+"Typescript:src/services/documentRegistry.ts": [
 163
 ],
-"Typescript:src/services/formatting/formatting.ts":[
+"Typescript:src/services/formatting/formatting.ts": [
 353,
 615,
 871
 ],
-"Typescript:src/services/pathCompletions.ts":[
+"Typescript:src/services/pathCompletions.ts": [
 55,
 72
 ]

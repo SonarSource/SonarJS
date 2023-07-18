@@ -1,71 +1,71 @@
 {
-"react-cloud-music:config/env.js":[
+"react-cloud-music:config/env.js": [
 1
 ],
-"react-cloud-music:config/jest/cssTransform.js":[
+"react-cloud-music:config/jest/cssTransform.js": [
 1
 ],
-"react-cloud-music:config/jest/fileTransform.js":[
+"react-cloud-music:config/jest/fileTransform.js": [
 1
 ],
-"react-cloud-music:config/modules.js":[
+"react-cloud-music:config/modules.js": [
 1
 ],
-"react-cloud-music:config/paths.js":[
+"react-cloud-music:config/paths.js": [
 1
 ],
-"react-cloud-music:config/pnpTs.js":[
+"react-cloud-music:config/pnpTs.js": [
 1
 ],
-"react-cloud-music:config/webpack.config.js":[
+"react-cloud-music:config/webpack.config.js": [
 1
 ],
-"react-cloud-music:config/webpackDevServer.config.js":[
+"react-cloud-music:config/webpackDevServer.config.js": [
 1
 ],
-"react-cloud-music:scripts/build.js":[
+"react-cloud-music:scripts/build.js": [
 1
 ],
-"react-cloud-music:scripts/start.js":[
+"react-cloud-music:scripts/start.js": [
 1
 ],
-"react-cloud-music:scripts/test.js":[
+"react-cloud-music:scripts/test.js": [
 1
 ],
-"react-cloud-music:ts-music/config/env.js":[
+"react-cloud-music:ts-music/config/env.js": [
 1
 ],
-"react-cloud-music:ts-music/config/getHttpsConfig.js":[
+"react-cloud-music:ts-music/config/getHttpsConfig.js": [
 1
 ],
-"react-cloud-music:ts-music/config/jest/cssTransform.js":[
+"react-cloud-music:ts-music/config/jest/cssTransform.js": [
 1
 ],
-"react-cloud-music:ts-music/config/jest/fileTransform.js":[
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
 1
 ],
-"react-cloud-music:ts-music/config/modules.js":[
+"react-cloud-music:ts-music/config/modules.js": [
 1
 ],
-"react-cloud-music:ts-music/config/paths.js":[
+"react-cloud-music:ts-music/config/paths.js": [
 1
 ],
-"react-cloud-music:ts-music/config/pnpTs.js":[
+"react-cloud-music:ts-music/config/pnpTs.js": [
 1
 ],
-"react-cloud-music:ts-music/config/webpack.config.js":[
+"react-cloud-music:ts-music/config/webpack.config.js": [
 1
 ],
-"react-cloud-music:ts-music/config/webpackDevServer.config.js":[
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
 1
 ],
-"react-cloud-music:ts-music/scripts/build.js":[
+"react-cloud-music:ts-music/scripts/build.js": [
 1
 ],
-"react-cloud-music:ts-music/scripts/start.js":[
+"react-cloud-music:ts-music/scripts/start.js": [
 1
 ],
-"react-cloud-music:ts-music/scripts/test.js":[
+"react-cloud-music:ts-music/scripts/test.js": [
 1
 ]
 }

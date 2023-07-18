@@ -1,12 +1,12 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 1283,
 6043
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 98
 ],
-"jshint:src/name-stack.js":[
+"jshint:src/name-stack.js": [
 23
 ]
 }

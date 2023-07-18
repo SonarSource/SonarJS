@@ -1,26 +1,26 @@
 {
-"mootools-core:Grunt/options/build.js":[
+"mootools-core:Grunt/options/build.js": [
 1
 ],
-"mootools-core:Grunt/options/dist.js":[
+"mootools-core:Grunt/options/dist.js": [
 1
 ],
-"mootools-core:Grunt/options/options.js":[
+"mootools-core:Grunt/options/options.js": [
 1
 ],
-"mootools-core:Grunt/options/specs.js":[
+"mootools-core:Grunt/options/specs.js": [
 1
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js":[
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
 29
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js":[
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
 1
 ],
-"mootools-core:Grunt/tasks/tasks.js":[
+"mootools-core:Grunt/tasks/tasks.js": [
 1
 ],
-"mootools-core:Gruntfile.js":[
+"mootools-core:Gruntfile.js": [
 1
 ]
 }

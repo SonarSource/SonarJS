@@ -1,11 +1,11 @@
 {
-"rxjs:src/observable/GenerateObservable.ts":[
+"rxjs:src/observable/GenerateObservable.ts": [
 177
 ],
-"rxjs:src/operator/bufferCount.ts":[
+"rxjs:src/operator/bufferCount.ts": [
 84
 ],
-"rxjs:src/operator/bufferTime.ts":[
+"rxjs:src/operator/bufferTime.ts": [
 143
 ]
 }

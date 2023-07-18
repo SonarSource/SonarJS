@@ -1,24 +1,24 @@
 {
-"react-cloud-music:scripts/build.js":[
+"react-cloud-music:scripts/build.js": [
 129
 ],
-"react-cloud-music:scripts/start.js":[
+"react-cloud-music:scripts/start.js": [
 123
 ],
-"react-cloud-music:src/application/Player/normal-player/style.js":[
+"react-cloud-music:src/application/Player/normal-player/style.js": [
 195,
 196
 ],
-"react-cloud-music:src/application/Player/store/actionCreators.js":[
+"react-cloud-music:src/application/Player/store/actionCreators.js": [
 1
 ],
-"react-cloud-music:src/application/Singers/index.jsx":[
+"react-cloud-music:src/application/Singers/index.jsx": [
 12
 ],
-"react-cloud-music:ts-music/scripts/build.js":[
+"react-cloud-music:ts-music/scripts/build.js": [
 139
 ],
-"react-cloud-music:ts-music/scripts/start.js":[
+"react-cloud-music:ts-music/scripts/start.js": [
 135
 ]
 }

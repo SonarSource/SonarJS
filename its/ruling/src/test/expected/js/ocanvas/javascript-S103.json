@@ -1,15 +1,15 @@
 {
-"ocanvas:src/displayobjects/rectangle.js":[
+"ocanvas:src/displayobjects/rectangle.js": [
 261,
 263
 ],
-"ocanvas:src/events.js":[
+"ocanvas:src/events.js": [
 337
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 740
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 115,
 157,
 172,

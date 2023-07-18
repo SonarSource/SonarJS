@@ -1,49 +1,49 @@
 {
-"qunit:build/tasks/test-on-node.js":[
+"qunit:build/tasks/test-on-node.js": [
 17,
 17
 ],
-"qunit:reporter/diff.js":[
+"qunit:reporter/diff.js": [
 431,
 431
 ],
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 23,
 271,
 471,
 740
 ],
-"qunit:reporter/urlparams.js":[
+"qunit:reporter/urlparams.js": [
 76
 ],
-"qunit:src/assert.js":[
+"qunit:src/assert.js": [
 363,
 380
 ],
-"qunit:src/cli/find-reporter.js":[
+"qunit:src/cli/find-reporter.js": [
 70
 ],
-"qunit:src/cli/require-qunit.js":[
+"qunit:src/cli/require-qunit.js": [
 19
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 147
 ],
-"qunit:src/core/logging.js":[
+"qunit:src/core/logging.js": [
 11
 ],
-"qunit:src/module.js":[
+"qunit:src/module.js": [
 20,
 56,
 85,
 85,
 91
 ],
-"qunit:src/reports/suite.js":[
+"qunit:src/reports/suite.js": [
 79,
 88
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 184,
 246,
 295,

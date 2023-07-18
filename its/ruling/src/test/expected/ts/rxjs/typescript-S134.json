@@ -1,20 +1,20 @@
 {
-"rxjs:src/Subscription.ts":[
+"rxjs:src/Subscription.ts": [
 112
 ],
-"rxjs:src/observable/BoundCallbackObservable.ts":[
+"rxjs:src/observable/BoundCallbackObservable.ts": [
 206
 ],
-"rxjs:src/observable/BoundNodeCallbackObservable.ts":[
+"rxjs:src/observable/BoundNodeCallbackObservable.ts": [
 189
 ],
-"rxjs:src/observable/IteratorObservable.ts":[
+"rxjs:src/observable/IteratorObservable.ts": [
 77
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts":[
+"rxjs:src/observable/dom/AjaxObservable.ts": [
 44
 ],
-"rxjs:src/symbol/iterator.ts":[
+"rxjs:src/symbol/iterator.ts": [
 24
 ]
 }

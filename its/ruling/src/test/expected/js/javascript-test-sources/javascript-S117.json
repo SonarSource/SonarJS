@@ -1,13 +1,13 @@
 {
-"javascript-test-sources:src/ace/doc/site/js/main.js":[
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
 2,
 96
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js": [
 2,
 8
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 3,
 300,
 488,
@@ -31,7 +31,7 @@
 10435,
 10439
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 25,
 49,
 51,
@@ -72,24 +72,24 @@
 19337,
 19339
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
 25,
 4231,
 4366
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
 25,
 4198,
 4299
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
 3887,
 3887
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 1344
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 4927,
 4991,
 4996,
@@ -99,36 +99,36 @@
 5725,
 5732
 ],
-"javascript-test-sources:src/ace/src/lib/bidiutil.js":[
+"javascript-test-sources:src/ace/src/lib/bidiutil.js": [
 6,
 6,
 6,
 8,
 18
 ],
-"javascript-test-sources:src/ace/src/mode/ada.js":[
+"javascript-test-sources:src/ace/src/mode/ada.js": [
 40
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/cstyle.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/cstyle.js": [
 100,
 102
 ],
-"javascript-test-sources:src/ace/src/mode/c_cpp.js":[
+"javascript-test-sources:src/ace/src/mode/c_cpp.js": [
 5
 ],
-"javascript-test-sources:src/ace/src/mode/c_cpp_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/c_cpp_highlight_rules.js": [
 10
 ],
-"javascript-test-sources:src/ace/src/mode/glsl_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/glsl_highlight_rules.js": [
 4
 ],
-"javascript-test-sources:src/ace/src/mode/ion_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/ion_highlight_rules.js": [
 13,
 15,
 18,
 21
 ],
-"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js": [
 13,
 14,
 15,
@@ -145,10 +145,10 @@
 27,
 28
 ],
-"javascript-test-sources:src/ace/src/mode/objectivec_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/objectivec_highlight_rules.js": [
 5
 ],
-"javascript-test-sources:src/ace/src/mode/partiql_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/partiql_highlight_rules.js": [
 14,
 16,
 18,
@@ -163,7 +163,7 @@
 60,
 63
 ],
-"javascript-test-sources:src/ace/src/mode/raku_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/raku_highlight_rules.js": [
 152,
 154,
 176,
@@ -175,50 +175,50 @@
 195,
 199
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
 1336
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/body_class.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/body_class.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_foot.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_foot.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/input_password.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/input_password.js": [
 11
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/page_url.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/page_url.js": [
 15
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/post_class.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/post_class.js": [
 11
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/data-generator.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/data-generator.js": [
 239,
 241,
 244,
 275
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/circle.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/circle.js": [
 3
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js": [
 3
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 1,
 4
 ],
-"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
 186
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
 1
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js": [
 326
 ]
 }

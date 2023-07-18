@@ -1,9 +1,9 @@
 {
-"qunit:Gruntfile.js":[
+"qunit:Gruntfile.js": [
 16,
 17
 ],
-"qunit:reporter/diff.js":[
+"qunit:reporter/diff.js": [
 62,
 142,
 175,
@@ -43,57 +43,57 @@
 845,
 846
 ],
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 438,
 439
 ],
-"qunit:reporter/urlparams.js":[
+"qunit:reporter/urlparams.js": [
 30,
 30
 ],
-"qunit:src/assert.js":[
+"qunit:src/assert.js": [
 94,
 136,
 466
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 34,
 34
 ],
-"qunit:src/core.js":[
+"qunit:src/core.js": [
 116
 ],
-"qunit:src/core/on-unhandled-rejection.js":[
+"qunit:src/core/on-unhandled-rejection.js": [
 13
 ],
-"qunit:src/core/processing-queue.js":[
+"qunit:src/core/processing-queue.js": [
 143,
 144,
 145,
 149,
 152
 ],
-"qunit:src/core/stacktrace.js":[
+"qunit:src/core/stacktrace.js": [
 8
 ],
-"qunit:src/core/utilities.js":[
+"qunit:src/core/utilities.js": [
 147,
 153,
 153,
 154,
 158
 ],
-"qunit:src/dump.js":[
+"qunit:src/dump.js": [
 98,
 231,
 231,
 251
 ],
-"qunit:src/equiv.js":[
+"qunit:src/equiv.js": [
 313,
 336
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 118,
 193,
 222,
@@ -105,7 +105,7 @@
 804,
 820
 ],
-"qunit:test/reporter-html/no-qunit-element.html":[
+"qunit:test/reporter-html/no-qunit-element.html": [
 11
 ]
 }

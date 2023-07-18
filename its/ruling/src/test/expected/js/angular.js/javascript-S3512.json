@@ -1,5 +1,5 @@
 {
-"angular.js:Gruntfile.js":[
+"angular.js:Gruntfile.js": [
 21,
 29,
 42,
@@ -7,26 +7,26 @@
 420,
 435
 ],
-"angular.js:benchmarks/largetable-bp/app.js":[
+"angular.js:benchmarks/largetable-bp/app.js": [
 123
 ],
-"angular.js:benchmarks/ng-options-bp/app.js":[
+"angular.js:benchmarks/ng-options-bp/app.js": [
 25
 ],
-"angular.js:benchmarks/parsed-expressions-bp/app.js":[
+"angular.js:benchmarks/parsed-expressions-bp/app.js": [
 61,
 62,
 63
 ],
-"angular.js:docs/app/src/docs.js":[
+"angular.js:docs/app/src/docs.js": [
 42,
 68
 ],
-"angular.js:docs/app/src/errors.js":[
+"angular.js:docs/app/src/errors.js": [
 20,
 30
 ],
-"angular.js:docs/app/src/examples.js":[
+"angular.js:docs/app/src/examples.js": [
 64,
 66,
 77,
@@ -35,7 +35,7 @@
 152,
 182
 ],
-"angular.js:docs/app/test/errorsSpec.js":[
+"angular.js:docs/app/test/errorsSpec.js": [
 49,
 51,
 52,
@@ -44,41 +44,41 @@
 87,
 97
 ],
-"angular.js:docs/config/index.js":[
+"angular.js:docs/config/index.js": [
 138,
 139
 ],
-"angular.js:docs/config/inline-tag-defs/type.js":[
+"angular.js:docs/config/inline-tag-defs/type.js": [
 15
 ],
-"angular.js:docs/config/processors/error-docs.js":[
+"angular.js:docs/config/processors/error-docs.js": [
 20,
 33
 ],
-"angular.js:docs/config/processors/keywords.js":[
+"angular.js:docs/config/processors/keywords.js": [
 45,
 63
 ],
-"angular.js:docs/config/processors/versions-data.js":[
+"angular.js:docs/config/processors/versions-data.js": [
 69,
 111,
 117
 ],
-"angular.js:docs/config/services/deployments/debug.js":[
+"angular.js:docs/config/services/deployments/debug.js": [
 20,
 22,
 23,
 24,
 32
 ],
-"angular.js:docs/config/services/deployments/default.js":[
+"angular.js:docs/config/services/deployments/default.js": [
 20,
 22,
 23,
 24,
 32
 ],
-"angular.js:docs/config/services/deployments/jquery.js":[
+"angular.js:docs/config/services/deployments/jquery.js": [
 9,
 16,
 24,
@@ -87,7 +87,7 @@
 28,
 36
 ],
-"angular.js:docs/config/services/deployments/production.js":[
+"angular.js:docs/config/services/deployments/production.js": [
 19,
 38,
 40,
@@ -95,44 +95,44 @@
 42,
 50
 ],
-"angular.js:docs/config/services/deployments/test.js":[
+"angular.js:docs/config/services/deployments/test.js": [
 21,
 23,
 24,
 25,
 33
 ],
-"angular.js:docs/config/tag-defs/deprecated.js":[
+"angular.js:docs/config/tag-defs/deprecated.js": [
 23,
 35
 ],
-"angular.js:docs/config/templates/examples/index.template.html":[
+"angular.js:docs/config/templates/examples/index.template.html": [
 14
 ],
-"angular.js:docs/gulpfile.js":[
+"angular.js:docs/gulpfile.js": [
 62,
 62,
 63,
 140
 ],
-"angular.js:karma-jquery.conf-factory.js":[
+"angular.js:karma-jquery.conf-factory.js": [
 12
 ],
-"angular.js:karma-shared.conf.js":[
+"angular.js:karma-shared.conf.js": [
 173,
 193
 ],
-"angular.js:lib/grunt/utils.js":[
+"angular.js:lib/grunt/utils.js": [
 113,
 163,
 180,
 195,
 219
 ],
-"angular.js:lib/grunt/validate-angular-files.js":[
+"angular.js:lib/grunt/validate-angular-files.js": [
 27
 ],
-"angular.js:lib/versions/version-info.js":[
+"angular.js:lib/versions/version-info.js": [
 60,
 128,
 157,
@@ -140,26 +140,26 @@
 233,
 234
 ],
-"angular.js:protractor-jenkins-conf.js":[
+"angular.js:protractor-jenkins-conf.js": [
 34
 ],
-"angular.js:scripts/compare-master-to-stable.js":[
+"angular.js:scripts/compare-master-to-stable.js": [
 74
 ],
-"angular.js:src/Angular.js":[
+"angular.js:src/Angular.js": [
 1204,
 1717
 ],
-"angular.js:src/apis.js":[
+"angular.js:src/apis.js": [
 27,
 29
 ],
-"angular.js:src/auto/injector.js":[
+"angular.js:src/auto/injector.js": [
 88,
 861,
 880
 ],
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 436,
 437,
 442,
@@ -169,16 +169,16 @@
 504,
 583
 ],
-"angular.js:src/minErr.js":[
+"angular.js:src/minErr.js": [
 104,
 125,
 129
 ],
-"angular.js:src/ng/animate.js":[
+"angular.js:src/ng/animate.js": [
 13,
 304
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 1929,
 2307,
 2364,
@@ -191,24 +191,24 @@
 3764,
 3806
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 270
 ],
-"angular.js:src/ng/directive/ngPluralize.js":[
+"angular.js:src/ng/directive/ngPluralize.js": [
 191,
 224
 ],
-"angular.js:src/ng/directive/ngRef.js":[
+"angular.js:src/ng/directive/ngRef.js": [
 266,
 278
 ],
-"angular.js:src/ng/directive/select.js":[
+"angular.js:src/ng/directive/select.js": [
 201
 ],
-"angular.js:src/ng/directive/validators.js":[
+"angular.js:src/ng/directive/validators.js": [
 424
 ],
-"angular.js:src/ng/http.js":[
+"angular.js:src/ng/http.js": [
 47,
 50,
 115,
@@ -216,11 +216,11 @@
 178,
 1531
 ],
-"angular.js:src/ng/log.js":[
+"angular.js:src/ng/log.js": [
 146,
 149
 ],
-"angular.js:src/ng/parse.js":[
+"angular.js:src/ng/parse.js": [
 174,
 243,
 567,
@@ -251,54 +251,54 @@
 1215,
 1239
 ],
-"angular.js:src/ng/sce.js":[
+"angular.js:src/ng/sce.js": [
 66,
 71
 ],
-"angular.js:src/ng/testability.js":[
+"angular.js:src/ng/testability.js": [
 37,
 68
 ],
-"angular.js:src/ng/urlUtils.js":[
+"angular.js:src/ng/urlUtils.js": [
 84
 ],
-"angular.js:src/ngAnimate/animateCss.js":[
+"angular.js:src/ngAnimate/animateCss.js": [
 490,
 882
 ],
-"angular.js:src/ngAnimate/animateCssDriver.js":[
+"angular.js:src/ngAnimate/animateCssDriver.js": [
 164,
 165
 ],
-"angular.js:src/ngAnimate/animateJs.js":[
+"angular.js:src/ngAnimate/animateJs.js": [
 50
 ],
-"angular.js:src/ngAnimate/animateQueue.js":[
+"angular.js:src/ngAnimate/animateQueue.js": [
 609
 ],
-"angular.js:src/ngAnimate/animation.js":[
+"angular.js:src/ngAnimate/animation.js": [
 141,
 271
 ],
-"angular.js:src/ngAnimate/shared.js":[
+"angular.js:src/ngAnimate/shared.js": [
 72,
 205,
 206,
 348,
 356
 ],
-"angular.js:src/ngCookies/cookieWriter.js":[
+"angular.js:src/ngCookies/cookieWriter.js": [
 31,
 44
 ],
-"angular.js:src/ngMessageFormat/messageFormatParser.js":[
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
 223,
 254
 ],
-"angular.js:src/ngMessages/messages.js":[
+"angular.js:src/ngMessages/messages.js": [
 624
 ],
-"angular.js:src/ngMock/angular-mocks.js":[
+"angular.js:src/ngMock/angular-mocks.js": [
 179,
 199,
 403,
@@ -321,20 +321,20 @@
 2383,
 3361
 ],
-"angular.js:src/ngResource/resource.js":[
+"angular.js:src/ngResource/resource.js": [
 616,
 618,
 637,
 641
 ],
-"angular.js:src/ngSanitize/filter/linky.js":[
+"angular.js:src/ngSanitize/filter/linky.js": [
 182
 ],
-"angular.js:src/ngSanitize/sanitize.js":[
+"angular.js:src/ngSanitize/sanitize.js": [
 590,
 593
 ],
-"angular.js:src/routeToRegExp.js":[
+"angular.js:src/routeToRegExp.js": [
 42
 ]
 }

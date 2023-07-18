@@ -1,17 +1,17 @@
 {
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 686
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 50
 ],
-"qunit:src/events.js":[
+"qunit:src/events.js": [
 35
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 252
 ],
-"qunit:test/headless.html":[
+"qunit:test/headless.html": [
 19
 ]
 }

@@ -1,5 +1,5 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 121,
 153,
 469,
@@ -8,33 +8,33 @@
 653,
 719
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 15047
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 3183
 ],
-"Typescript:src/compiler/transformer.ts":[
+"Typescript:src/compiler/transformer.ts": [
 175,
 239,
 240
 ],
-"Typescript:src/compiler/visitor.ts":[
+"Typescript:src/compiler/visitor.ts": [
 1504
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 2106
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 923
 ],
-"Typescript:src/server/client.ts":[
+"Typescript:src/server/client.ts": [
 763
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 621
 ],
-"Typescript:src/services/jsTyping.ts":[
+"Typescript:src/services/jsTyping.ts": [
 96
 ]
 }

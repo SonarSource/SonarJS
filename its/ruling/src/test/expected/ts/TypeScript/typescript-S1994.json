@@ -1,8 +1,8 @@
 {
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 2940
 ],
-"Typescript:src/harness/sourceMapRecorder.ts":[
+"Typescript:src/harness/sourceMapRecorder.ts": [
 89
 ]
 }

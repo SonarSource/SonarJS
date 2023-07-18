@@ -1,8 +1,8 @@
 {
-"jshint:src/cli.js":[
+"jshint:src/cli.js": [
 370
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 61
 ]
 }

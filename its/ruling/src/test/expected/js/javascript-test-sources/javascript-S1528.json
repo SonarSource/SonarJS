@@ -1,80 +1,80 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 10127,
 10134
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 18931,
 18938,
 19284
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
 918,
 1136,
 1137,
 3763,
 3786
 ],
-"javascript-test-sources:src/ace/src/edit_session_test.js":[
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
 1091
 ],
-"javascript-test-sources:src/ace/src/editor_navigation_test.js":[
+"javascript-test-sources:src/ace/src/editor_navigation_test.js": [
 15,
 16
 ],
-"javascript-test-sources:src/ace/src/keyboard/emacs.js":[
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
 213
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 1425,
 3684,
 3807,
 3846,
 4031
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 3879,
 3907,
 3919,
 3929
 ],
-"javascript-test-sources:src/ace/src/layer/gutter.js":[
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
 87
 ],
-"javascript-test-sources:src/ace/src/lib/bidiutil.js":[
+"javascript-test-sources:src/ace/src/lib/bidiutil.js": [
 310,
 311
 ],
-"javascript-test-sources:src/ace/src/line_widgets.js":[
+"javascript-test-sources:src/ace/src/line_widgets.js": [
 128,
 159
 ],
-"javascript-test-sources:src/ace/src/mode/asciidoc.js":[
+"javascript-test-sources:src/ace/src/mode/asciidoc.js": [
 21
 ],
-"javascript-test-sources:src/ace/src/selection_test.js":[
+"javascript-test-sources:src/ace/src/selection_test.js": [
 14,
 15
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/ed-editor-shortcuts.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/ed-editor-shortcuts.js": [
 95
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/acceptance/team-test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/acceptance/team-test.js": [
 263,
 299,
 315
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-tag-settings-form-test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-tag-settings-form-test.js": [
 244,
 257,
 275
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/controllers/post-settings-menu-test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/controllers/post-settings-menu-test.js": [
 166,
 201,
 255
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/validators/tag-settings-test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/validators/tag-settings-test.js": [
 59,
 123,
 145,
@@ -86,30 +86,30 @@
 272,
 289
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js": [
 532,
 577
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/settings_test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/settings_test.js": [
 87,
 96
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/team_test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/team_test.js": [
 269,
 307
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/import_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/import_spec.js": [
 241,
 405
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 922,
 1930
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js": [
 205
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
 575,
 576,
 600,

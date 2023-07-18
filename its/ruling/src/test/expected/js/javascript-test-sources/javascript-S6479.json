@@ -1,46 +1,46 @@
 {
-"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Posts.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/async/components/Posts.js": [
 8
 ],
-"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js":[
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/TodoList.js": [
 10
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/timeline-chart.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/timeline-chart.js": [
 87
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/bar-chart.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/bar-chart.js": [
 40,
 53,
 64
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/bubble-chart.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/bubble-chart.js": [
 97,
 112,
 127,
 142,
 177
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/donut-chart.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/donut-chart.js": [
 48
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/histogram.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/histogram.js": [
 41,
 54,
 63
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/line-chart.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/line-chart.js": [
 66,
 79,
 92,
 105
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/treemap.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/treemap.js": [
 99
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/word-cloud.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/word-cloud.js": [
 53
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-breadcrumbs.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-breadcrumbs.js": [
 12
 ]
 }

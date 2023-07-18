@@ -1,50 +1,50 @@
 {
-"Typescript:src/compiler/binder.ts":[
+"Typescript:src/compiler/binder.ts": [
 185
 ],
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 60,
 61,
 62
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 834
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 1112
 ],
-"Typescript:src/compiler/program.ts":[
+"Typescript:src/compiler/program.ts": [
 1839
 ],
-"Typescript:src/compiler/transformers/ts.ts":[
+"Typescript:src/compiler/transformers/ts.ts": [
 475
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 1144
 ],
-"Typescript:src/harness/projectsRunner.ts":[
+"Typescript:src/harness/projectsRunner.ts": [
 159
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 980,
 1008
 ],
-"Typescript:src/server/scriptInfo.ts":[
+"Typescript:src/server/scriptInfo.ts": [
 129
 ],
-"Typescript:src/server/server.ts":[
+"Typescript:src/server/server.ts": [
 455
 ],
-"Typescript:src/server/session.ts":[
+"Typescript:src/server/session.ts": [
 1009,
 1505,
 1509
 ],
-"Typescript:src/services/patternMatcher.ts":[
+"Typescript:src/services/patternMatcher.ts": [
 448,
 453
 ],
-"Typescript:src/services/textChanges.ts":[
+"Typescript:src/services/textChanges.ts": [
 465,
 471
 ]

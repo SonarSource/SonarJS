@@ -1,24 +1,24 @@
 {
-"p5.js:Gruntfile.js":[
+"p5.js:Gruntfile.js": [
 96
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 73,
 461
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 1
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 74
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 36
 ],
-"p5.js:src/core/p5.Renderer2D.js":[
+"p5.js:src/core/p5.Renderer2D.js": [
 718
 ],
-"p5.js:src/webgl/text.js":[
+"p5.js:src/webgl/text.js": [
 144,
 167
 ]

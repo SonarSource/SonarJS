@@ -1,9 +1,9 @@
 {
-"javascript-test-sources:src/ace/tool/update_deps.js":[
+"javascript-test-sources:src/ace/tool/update_deps.js": [
 219,
 220
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
 262
 ]
 }

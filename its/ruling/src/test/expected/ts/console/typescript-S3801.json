@@ -1,54 +1,54 @@
 {
-"console:src/components/onboarding/Steps.tsx":[
+"console:src/components/onboarding/Steps.tsx": [
 38
 ],
-"console:src/utils/location.ts":[
+"console:src/utils/location.ts": [
 1
 ],
-"console:src/views/ActionsView/ActionsView.tsx":[
+"console:src/views/ActionsView/ActionsView.tsx": [
 38
 ],
-"console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx":[
+"console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx": [
 30
 ],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx":[
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
 453,
 470
 ],
-"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx":[
+"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
 271
 ],
-"console:src/views/Integrations/Algolia/AlgoliaView.tsx":[
+"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
 168
 ],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx":[
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 336
 ],
-"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx":[
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
 307
 ],
-"console:src/views/ProjectRootView/AddProjectPopup.tsx":[
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
 222
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx":[
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
 612
 ],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx":[
+"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
 286
 ],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx":[
+"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
 334
 ],
-"console:src/views/Settings/Team/MemberRow.tsx":[
+"console:src/views/Settings/Team/MemberRow.tsx": [
 91
 ],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx":[
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
 444
 ],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx":[
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 317
 ],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx":[
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
 67
 ]
 }

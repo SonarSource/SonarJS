@@ -1,22 +1,22 @@
 {
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 762,
 1091
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 4202
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 636
 ],
-"angular.js:src/ng/location.js":[
+"angular.js:src/ng/location.js": [
 654
 ],
-"angular.js:src/ng/sce.js":[
+"angular.js:src/ng/sce.js": [
 301,
 304
 ],
-"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js":[
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
 26,
 38,
 50,
@@ -27,7 +27,7 @@
 123,
 129
 ],
-"angular.js:src/ngMessageFormat/messageFormatParser.js":[
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
 75,
 80,
 92,
@@ -59,7 +59,7 @@
 420,
 448
 ],
-"angular.js:src/ngMessageFormat/messageFormatSelector.js":[
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
 31,
 35,
 39,
@@ -69,7 +69,7 @@
 91,
 110
 ],
-"angular.js:src/ngResource/resource.js":[
+"angular.js:src/ngResource/resource.js": [
 700
 ]
 }

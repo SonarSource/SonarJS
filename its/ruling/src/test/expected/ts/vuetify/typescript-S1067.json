@@ -1,104 +1,104 @@
 {
-"vuetify:packages/api-generator/src/utils.ts":[
+"vuetify:packages/api-generator/src/utils.ts": [
 82
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx":[
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 261
 ],
-"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx":[
+"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
 75
 ],
-"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx":[
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
 138
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
 413
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
 10
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
 79,
 110
 ],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx":[
+"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
 123
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx":[
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 342
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
 283
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
 81
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
 209
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts":[
+"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
 7
 ],
-"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx":[
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 55
 ],
-"vuetify:packages/vuetify/src/components/VField/VField.tsx":[
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 135
 ],
-"vuetify:packages/vuetify/src/components/VList/VListItem.tsx":[
+"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
 118
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx":[
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
 264
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts":[
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 40,
 50,
 67,
 73,
 168
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts":[
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 327
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx":[
+"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 76,
 186
 ],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx":[
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 218
 ],
-"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx":[
+"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 89
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts":[
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
 138,
 171,
 276
 ],
-"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx":[
+"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
 67
 ],
-"vuetify:packages/vuetify/src/composables/display.ts":[
+"vuetify:packages/vuetify/src/composables/display.ts": [
 168,
 171
 ],
-"vuetify:packages/vuetify/src/composables/items.ts":[
+"vuetify:packages/vuetify/src/composables/items.ts": [
 59
 ],
-"vuetify:packages/vuetify/src/composables/touch.ts":[
+"vuetify:packages/vuetify/src/composables/touch.ts": [
 96
 ],
-"vuetify:packages/vuetify/src/directives/intersect/index.ts":[
+"vuetify:packages/vuetify/src/directives/intersect/index.ts": [
 44
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx":[
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
 95
 ],
-"vuetify:packages/vuetify/src/util/console.ts":[
+"vuetify:packages/vuetify/src/util/console.ts": [
 65
 ],
-"vuetify:packages/vuetify/src/util/helpers.ts":[
+"vuetify:packages/vuetify/src/util/helpers.ts": [
 551
 ]
 }

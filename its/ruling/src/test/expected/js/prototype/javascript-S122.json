@@ -1,35 +1,35 @@
 {
-"prototype:src/prototype/ajax/request.js":[
+"prototype:src/prototype/ajax/request.js": [
 262
 ],
-"prototype:src/prototype/ajax/updater.js":[
+"prototype:src/prototype/ajax/updater.js": [
 119
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 754,
 2139
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 102,
 111,
 124,
 1240
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 123,
 124,
 141
 ],
-"prototype:src/prototype/lang/class.js":[
+"prototype:src/prototype/lang/class.js": [
 148,
 160,
 164
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 36,
 408
 ],
-"prototype:test/functional/event.html":[
+"prototype:test/functional/event.html": [
 239,
 270
 ]

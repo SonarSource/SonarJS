@@ -1,11 +1,11 @@
 {
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 193
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 42
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 1461
 ]
 }

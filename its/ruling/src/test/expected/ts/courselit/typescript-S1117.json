@@ -1,20 +1,20 @@
 {
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx":[
+"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
 244
 ],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx":[
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
 153
 ],
-"courselit:apps/web/components/admin/design/themes-manager/index.tsx":[
+"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
 218
 ],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx":[
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
 164
 ],
-"courselit:apps/web/graphql/courses/logic.ts":[
+"courselit:apps/web/graphql/courses/logic.ts": [
 349
 ],
-"courselit:apps/web/ui-config/widgets.tsx":[
+"courselit:apps/web/ui-config/widgets.tsx": [
 10
 ]
 }

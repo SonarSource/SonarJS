@@ -1,8 +1,8 @@
 {
-"mootools-core:Grunt/plugins/karma/syn/index.js":[
+"mootools-core:Grunt/plugins/karma/syn/index.js": [
 3
 ],
-"mootools-core:Source/Element/Element.js":[
+"mootools-core:Source/Element/Element.js": [
 290,
 314,
 324,
@@ -26,7 +26,7 @@
 1069,
 1126
 ],
-"mootools-core:Source/Slick/Slick.Finder.js":[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 419,
 547,
 551,
@@ -44,7 +44,7 @@
 727,
 735
 ],
-"mootools-core:Source/Slick/Slick.Parser.js":[
+"mootools-core:Source/Slick/Slick.Parser.js": [
 176
 ]
 }

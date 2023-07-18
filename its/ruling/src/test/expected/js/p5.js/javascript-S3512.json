@@ -1,5 +1,5 @@
 {
-"p5.js:docs/preprocessor.js":[
+"p5.js:docs/preprocessor.js": [
 17,
 66,
 97,
@@ -8,7 +8,7 @@
 159,
 251
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 262,
 271,
 272,
@@ -30,12 +30,12 @@
 4814,
 4816
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 28,
 191,
 192
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 855,
 965,
 981,
@@ -56,7 +56,7 @@
 10111,
 10116
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 378,
 818,
 819,
@@ -70,23 +70,23 @@
 1726,
 1780
 ],
-"p5.js:src/math/calculation.js":[
+"p5.js:src/math/calculation.js": [
 712,
 712
 ],
-"p5.js:tasks/build/browserify.js":[
+"p5.js:tasks/build/browserify.js": [
 79
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 109
 ],
-"p5.js:tasks/release/release-github.js":[
+"p5.js:tasks/release/release-github.js": [
 32
 ],
-"p5.js:test/test-reference.html":[
+"p5.js:test/test-reference.html": [
 192
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 85
 ]
 }

@@ -1,18 +1,18 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 3645,
 4300
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 13
 ],
-"jshint:src/reporters/default.js":[
+"jshint:src/reporters/default.js": [
 12
 ],
-"jshint:src/reporters/unix.js":[
+"jshint:src/reporters/unix.js": [
 16
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 732
 ]
 }

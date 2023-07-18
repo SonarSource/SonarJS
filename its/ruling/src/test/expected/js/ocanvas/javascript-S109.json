@@ -1,8 +1,8 @@
 {
-"ocanvas:scripts/release.js":[
+"ocanvas:scripts/release.js": [
 20
 ],
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 229,
 237,
 238,
@@ -137,10 +137,10 @@
 664,
 664
 ],
-"ocanvas:src/background.js":[
+"ocanvas:src/background.js": [
 63
 ],
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 83,
 118,
 132,
@@ -155,19 +155,19 @@
 715,
 726
 ],
-"ocanvas:src/displayobjects/arc.js":[
+"ocanvas:src/displayobjects/arc.js": [
 34,
 34
 ],
-"ocanvas:src/displayobjects/ellipse.js":[
+"ocanvas:src/displayobjects/ellipse.js": [
 80,
 88,
 88
 ],
-"ocanvas:src/displayobjects/image.js":[
+"ocanvas:src/displayobjects/image.js": [
 142
 ],
-"ocanvas:src/displayobjects/line.js":[
+"ocanvas:src/displayobjects/line.js": [
 92,
 93,
 117,
@@ -177,13 +177,13 @@
 178,
 179
 ],
-"ocanvas:src/displayobjects/polygon.js":[
+"ocanvas:src/displayobjects/polygon.js": [
 21,
 26,
 50,
 51
 ],
-"ocanvas:src/displayobjects/rectangle.js":[
+"ocanvas:src/displayobjects/rectangle.js": [
 121,
 129,
 137,
@@ -199,10 +199,10 @@
 263,
 263
 ],
-"ocanvas:src/displayobjects/sprite.js":[
+"ocanvas:src/displayobjects/sprite.js": [
 184
 ],
-"ocanvas:src/displayobjects/text.js":[
+"ocanvas:src/displayobjects/text.js": [
 210,
 218,
 227,
@@ -214,13 +214,13 @@
 267,
 277
 ],
-"ocanvas:src/draw.js":[
+"ocanvas:src/draw.js": [
 134
 ],
-"ocanvas:src/keyboard.js":[
+"ocanvas:src/keyboard.js": [
 67
 ],
-"ocanvas:src/mouse.js":[
+"ocanvas:src/mouse.js": [
 213,
 213,
 214,
@@ -228,7 +228,7 @@
 214,
 214
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 42,
 63,
 68,
@@ -320,10 +320,10 @@
 740,
 740
 ],
-"ocanvas:src/timeline.js":[
+"ocanvas:src/timeline.js": [
 71
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 66,
 66,
 67,
@@ -411,10 +411,10 @@
 417,
 417
 ],
-"ocanvas:src/touch.js":[
+"ocanvas:src/touch.js": [
 155
 ],
-"ocanvas:src/utils.js":[
+"ocanvas:src/utils.js": [
 106
 ]
 }

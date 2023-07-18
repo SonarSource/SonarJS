@@ -1,15 +1,15 @@
 {
-"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts":[
+"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
 18,
 40,
 50,
 58,
 117
 ],
-"postgraphql:src/graphql/schema/createMutationPayloadGqlType.ts":[
+"postgraphql:src/graphql/schema/createMutationPayloadGqlType.ts": [
 46
 ],
-"postgraphql:src/interface/__ideas__/01-new-types.ts":[
+"postgraphql:src/interface/__ideas__/01-new-types.ts": [
 74,
 80,
 81,
@@ -17,7 +17,7 @@
 83,
 84
 ],
-"postgraphql:src/interface/type/switchType.ts":[
+"postgraphql:src/interface/type/switchType.ts": [
 54,
 54,
 55,
@@ -27,18 +27,18 @@
 59,
 60
 ],
-"postgraphql:src/postgraphql/cli.ts":[
+"postgraphql:src/postgraphql/cli.ts": [
 85
 ],
-"postgraphql:src/postgraphql/watch/watchPgSchemas.ts":[
+"postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
 60
 ],
-"postgraphql:src/postgraphql/withPostGraphQLContext.ts":[
+"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
 206,
 206,
 215
 ],
-"postgraphql:src/postgres/utils/__tests__/sql-test.ts":[
+"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
 28,
 29,
 30,

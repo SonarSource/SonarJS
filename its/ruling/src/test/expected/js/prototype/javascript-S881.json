@@ -1,8 +1,8 @@
 {
-"prototype:src/prototype/deprecated.js":[
+"prototype:src/prototype/deprecated.js": [
 239
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 581,
 1045,
 1088,
@@ -11,23 +11,23 @@
 2139,
 2719
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 388,
 426,
 447,
 789,
 805
 ],
-"prototype:src/prototype/dom/selector.js":[
+"prototype:src/prototype/dom/selector.js": [
 141
 ],
-"prototype:src/prototype/lang/array.js":[
+"prototype:src/prototype/lang/array.js": [
 63
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 11
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 168
 ]
 }

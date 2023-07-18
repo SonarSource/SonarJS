@@ -1,23 +1,23 @@
 {
-"Typescript:src/compiler/comments.ts":[
+"Typescript:src/compiler/comments.ts": [
 422,
 423
 ],
-"Typescript:src/harness/fourslashRunner.ts":[
+"Typescript:src/harness/fourslashRunner.ts": [
 61,
 61
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 670,
 670,
 680,
 1506
 ],
-"Typescript:src/services/codefixes/importFixes.ts":[
+"Typescript:src/services/codefixes/importFixes.ts": [
 110,
 111
 ],
-"Typescript:src/services/completions.ts":[
+"Typescript:src/services/completions.ts": [
 390
 ]
 }

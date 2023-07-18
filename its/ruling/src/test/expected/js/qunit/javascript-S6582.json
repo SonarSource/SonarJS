@@ -1,5 +1,5 @@
 {
-"qunit:reporter/html.js":[
+"qunit:reporter/html.js": [
 103,
 119,
 470,
@@ -7,45 +7,45 @@
 1004,
 1048
 ],
-"qunit:src/assert.js":[
+"qunit:src/assert.js": [
 361
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 84
 ],
-"qunit:src/cli/utils.js":[
+"qunit:src/cli/utils.js": [
 69
 ],
-"qunit:src/core/config.js":[
+"qunit:src/core/config.js": [
 65,
 68
 ],
-"qunit:src/core/processing-queue.js":[
+"qunit:src/core/processing-queue.js": [
 170,
 174,
 178,
 182
 ],
-"qunit:src/core/stacktrace.js":[
+"qunit:src/core/stacktrace.js": [
 12
 ],
-"qunit:src/core/utilities.js":[
+"qunit:src/core/utilities.js": [
 35,
 112
 ],
-"qunit:src/export.js":[
+"qunit:src/export.js": [
 10,
 38
 ],
-"qunit:src/globals.js":[
+"qunit:src/globals.js": [
 9,
 10
 ],
-"qunit:src/module.js":[
+"qunit:src/module.js": [
 17,
 18
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 538,
 556,
 576

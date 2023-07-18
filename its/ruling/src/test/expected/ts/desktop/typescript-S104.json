@@ -1,29 +1,29 @@
 {
-"desktop:app/src/lib/api.ts":[
+"desktop:app/src/lib/api.ts": [
 0
 ],
-"desktop:app/src/lib/stats/stats-store.ts":[
+"desktop:app/src/lib/stats/stats-store.ts": [
 0
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 0
 ],
-"desktop:app/src/lib/stores/git-store.ts":[
+"desktop:app/src/lib/stores/git-store.ts": [
 0
 ],
-"desktop:app/src/ui/app.tsx":[
+"desktop:app/src/ui/app.tsx": [
 0
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx":[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 0
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 0
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 0
 ],
-"desktop:app/src/ui/octicons/octicons.generated.ts":[
+"desktop:app/src/ui/octicons/octicons.generated.ts": [
 0
 ]
 }

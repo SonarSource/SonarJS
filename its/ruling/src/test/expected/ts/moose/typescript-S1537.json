@@ -1,32 +1,32 @@
 {
-"moose:main/background.ts":[
+"moose:main/background.ts": [
 47,
 57,
 61,
 67
 ],
-"moose:main/controllers/delete.ts":[
+"moose:main/controllers/delete.ts": [
 17,
 25,
 30
 ],
-"moose:main/controllers/details.ts":[
+"moose:main/controllers/details.ts": [
 34,
 55,
 57,
 92
 ],
-"moose:main/controllers/subtitles.ts":[
+"moose:main/controllers/subtitles.ts": [
 26,
 38,
 39,
 78,
 87
 ],
-"moose:main/enums/FileType.ts":[
+"moose:main/enums/FileType.ts": [
 1
 ],
-"moose:main/helpers/Description.ts":[
+"moose:main/helpers/Description.ts": [
 21,
 35,
 49,
@@ -38,7 +38,7 @@
 87,
 89
 ],
-"moose:main/helpers/createWindow.ts":[
+"moose:main/helpers/createWindow.ts": [
 4,
 19,
 33,
@@ -46,10 +46,10 @@
 80,
 81
 ],
-"moose:main/modules/cast.ts":[
+"moose:main/modules/cast.ts": [
 15
 ],
-"moose:main/modules/menu.ts":[
+"moose:main/modules/menu.ts": [
 15,
 19,
 32,
@@ -58,41 +58,41 @@
 39,
 40
 ],
-"moose:main/modules/playOnVlc.ts":[
+"moose:main/modules/playOnVlc.ts": [
 21
 ],
-"moose:main/modules/progress.ts":[
+"moose:main/modules/progress.ts": [
 13,
 32,
 44
 ],
-"moose:main/utils/analytics.ts":[
+"moose:main/utils/analytics.ts": [
 10,
 11
 ],
-"moose:main/utils/autoUpdate.ts":[
+"moose:main/utils/autoUpdate.ts": [
 14,
 26
 ],
-"moose:main/utils/opensubtitle-hash.ts":[
+"moose:main/utils/opensubtitle-hash.ts": [
 26
 ],
-"moose:renderer/components/Cast/Cast.tsx":[
+"moose:renderer/components/Cast/Cast.tsx": [
 10
 ],
-"moose:renderer/components/Container/Container.tsx":[
+"moose:renderer/components/Container/Container.tsx": [
 13,
 76,
 155
 ],
-"moose:renderer/components/Downloads/Downloads.tsx":[
+"moose:renderer/components/Downloads/Downloads.tsx": [
 7,
 45,
 49,
 77,
 142
 ],
-"moose:renderer/components/Downloads/makeData.tsx":[
+"moose:renderer/components/Downloads/makeData.tsx": [
 7,
 11,
 15,
@@ -102,14 +102,14 @@
 32,
 33
 ],
-"moose:renderer/components/DragAndDrop/DragAndDrop.tsx":[
+"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
 48
 ],
-"moose:renderer/components/DropUI/DropUI.tsx":[
+"moose:renderer/components/DropUI/DropUI.tsx": [
 18,
 30
 ],
-"moose:renderer/components/FilesList/FilesList.tsx":[
+"moose:renderer/components/FilesList/FilesList.tsx": [
 8,
 56,
 60,
@@ -119,57 +119,57 @@
 95,
 138
 ],
-"moose:renderer/components/Header/Header.tsx":[
+"moose:renderer/components/Header/Header.tsx": [
 44,
 45,
 47,
 73,
 118
 ],
-"moose:renderer/components/Modal/Modal.tsx":[
+"moose:renderer/components/Modal/Modal.tsx": [
 20,
 53,
 66
 ],
-"moose:renderer/components/Player/Player.tsx":[
+"moose:renderer/components/Player/Player.tsx": [
 18,
 38,
 39,
 105
 ],
-"moose:renderer/components/Settings/Settings.tsx":[
+"moose:renderer/components/Settings/Settings.tsx": [
 27,
 39,
 68
 ],
-"moose:renderer/components/Toast/Toast.tsx":[
+"moose:renderer/components/Toast/Toast.tsx": [
 25
 ],
-"moose:renderer/components/TorrentDetails/TorrentDetails.tsx":[
+"moose:renderer/components/TorrentDetails/TorrentDetails.tsx": [
 48,
 62,
 112
 ],
-"moose:renderer/contexts/SelectedCast.ts":[
+"moose:renderer/contexts/SelectedCast.ts": [
 11
 ],
-"moose:renderer/contexts/SelectedFileContext.ts":[
+"moose:renderer/contexts/SelectedFileContext.ts": [
 13
 ],
-"moose:renderer/enums/Channels.ts":[
+"moose:renderer/enums/Channels.ts": [
 1
 ],
-"moose:renderer/enums/FileType.ts":[
+"moose:renderer/enums/FileType.ts": [
 1
 ],
-"moose:renderer/pages/home.tsx":[
+"moose:renderer/pages/home.tsx": [
 9,
 20
 ],
-"moose:renderer/pages/settings.tsx":[
+"moose:renderer/pages/settings.tsx": [
 7
 ],
-"moose:renderer/utils/animations.ts":[
+"moose:renderer/utils/animations.ts": [
 23,
 25,
 32,
@@ -182,20 +182,20 @@
 60,
 71
 ],
-"moose:renderer/utils/getSubtitlesFromTorrent.ts":[
+"moose:renderer/utils/getSubtitlesFromTorrent.ts": [
 8,
 26
 ],
-"moose:renderer/utils/parseFileInfo.ts":[
+"moose:renderer/utils/parseFileInfo.ts": [
 16,
 27
 ],
-"moose:renderer/utils/store.ts":[
+"moose:renderer/utils/store.ts": [
 16,
 19,
 20
 ],
-"moose:renderer/utils/url.ts":[
+"moose:renderer/utils/url.ts": [
 14,
 33,
 34,
@@ -205,22 +205,22 @@
 76,
 78
 ],
-"moose:sample/descriptions.ts":[
+"moose:sample/descriptions.ts": [
 14,
 15
 ],
-"moose:sample/results.ts":[
+"moose:sample/results.ts": [
 7,
 12,
 13
 ],
-"moose:shared/constants/CastDeviceType.ts":[
+"moose:shared/constants/CastDeviceType.ts": [
 3
 ],
-"moose:shared/constants/CastEvents.ts":[
+"moose:shared/constants/CastEvents.ts": [
 10
 ],
-"moose:website/src/pages/index.tsx":[
+"moose:website/src/pages/index.tsx": [
 11,
 18,
 21,

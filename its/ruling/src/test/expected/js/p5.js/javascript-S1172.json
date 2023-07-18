@@ -1,5 +1,5 @@
 {
-"p5.js:Gruntfile.js":[
+"p5.js:Gruntfile.js": [
 333,
 333,
 339,
@@ -10,13 +10,13 @@
 387,
 393
 ],
-"p5.js:docs/preprocessor.js":[
+"p5.js:docs/preprocessor.js": [
 245,
 267,
 268,
 268
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 268,
 289,
 345,
@@ -42,12 +42,12 @@
 4908,
 4935
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 88,
 139,
 240
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 279,
 1000,
 9276,
@@ -62,28 +62,28 @@
 12040,
 12040
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 36
 ],
-"p5.js:src/core/shim.js":[
+"p5.js:src/core/shim.js": [
 13
 ],
-"p5.js:src/data/p5.TypedDict.js":[
+"p5.js:src/data/p5.TypedDict.js": [
 398
 ],
-"p5.js:src/events/keyboard.js":[
+"p5.js:src/events/keyboard.js": [
 306
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 93
 ],
-"p5.js:src/io/p5.Table.js":[
+"p5.js:src/io/p5.Table.js": [
 42
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 113
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 61,
 688,
 693,
@@ -92,7 +92,7 @@
 1456,
 1460
 ],
-"p5.js:tasks/release/release-bower.js":[
+"p5.js:tasks/release/release-bower.js": [
 26,
 37,
 37,
@@ -101,18 +101,18 @@
 57,
 64
 ],
-"p5.js:tasks/release/release-docs.js":[
+"p5.js:tasks/release/release-docs.js": [
 25,
 44,
 63
 ],
-"p5.js:tasks/release/release-github.js":[
+"p5.js:tasks/release/release-github.js": [
 8,
 76,
 76,
 94
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 134
 ]
 }

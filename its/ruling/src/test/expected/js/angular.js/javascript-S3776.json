@@ -1,150 +1,150 @@
 {
-"angular.js:docs/config/processors/keywords.js":[
+"angular.js:docs/config/processors/keywords.js": [
 28
 ],
-"angular.js:lib/grunt/utils.js":[
+"angular.js:lib/grunt/utils.js": [
 244
 ],
-"angular.js:lib/grunt/validate-angular-files.js":[
+"angular.js:lib/grunt/validate-angular-files.js": [
 11
 ],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js":[
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
 12
 ],
-"angular.js:src/Angular.js":[
+"angular.js:src/Angular.js": [
 235,
 324,
 870,
 1083
 ],
-"angular.js:src/auto/injector.js":[
+"angular.js:src/auto/injector.js": [
 93,
 820,
 874
 ],
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 336,
 405,
 477,
 680,
 762
 ],
-"angular.js:src/loader.js":[
+"angular.js:src/loader.js": [
 26
 ],
-"angular.js:src/ng/anchorScroll.js":[
+"angular.js:src/ng/anchorScroll.js": [
 174
 ],
-"angular.js:src/ng/animate.js":[
+"angular.js:src/ng/animate.js": [
 67,
 314
 ],
-"angular.js:src/ng/animateCss.js":[
+"angular.js:src/ng/animateCss.js": [
 18
 ],
-"angular.js:src/ng/animateRunner.js":[
+"angular.js:src/ng/animateRunner.js": [
 36
 ],
-"angular.js:src/ng/browser.js":[
+"angular.js:src/ng/browser.js": [
 34
 ],
-"angular.js:src/ng/cacheFactory.js":[
+"angular.js:src/ng/cacheFactory.js": [
 87
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 1511,
 1638,
 1997,
 4280,
 4296
 ],
-"angular.js:src/ng/controller.js":[
+"angular.js:src/ng/controller.js": [
 57
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 540
 ],
-"angular.js:src/ng/directive/input.js":[
+"angular.js:src/ng/directive/input.js": [
 1291,
 1444,
 1502,
 1724,
 1789
 ],
-"angular.js:src/ng/directive/ngClass.js":[
+"angular.js:src/ng/directive/ngClass.js": [
 13
 ],
-"angular.js:src/ng/directive/ngIf.js":[
+"angular.js:src/ng/directive/ngIf.js": [
 89
 ],
-"angular.js:src/ng/directive/ngInclude.js":[
+"angular.js:src/ng/directive/ngInclude.js": [
 195
 ],
-"angular.js:src/ng/directive/ngList.js":[
+"angular.js:src/ng/directive/ngList.js": [
 98
 ],
-"angular.js:src/ng/directive/ngModel.js":[
+"angular.js:src/ng/directive/ngModel.js": [
 601,
 727
 ],
-"angular.js:src/ng/directive/ngOptions.js":[
+"angular.js:src/ng/directive/ngOptions.js": [
 253,
 416
 ],
-"angular.js:src/ng/directive/ngPluralize.js":[
+"angular.js:src/ng/directive/ngPluralize.js": [
 183
 ],
-"angular.js:src/ng/directive/ngRef.js":[
+"angular.js:src/ng/directive/ngRef.js": [
 249
 ],
-"angular.js:src/ng/directive/ngRepeat.js":[
+"angular.js:src/ng/directive/ngRepeat.js": [
 472
 ],
-"angular.js:src/ng/directive/ngTransclude.js":[
+"angular.js:src/ng/directive/ngTransclude.js": [
 165
 ],
-"angular.js:src/ng/directive/select.js":[
+"angular.js:src/ng/directive/select.js": [
 382,
 755
 ],
-"angular.js:src/ng/directive/validators.js":[
+"angular.js:src/ng/directive/validators.js": [
 180
 ],
-"angular.js:src/ng/filter/filter.js":[
+"angular.js:src/ng/filter/filter.js": [
 177,
 214
 ],
-"angular.js:src/ng/filter/filters.js":[
+"angular.js:src/ng/filter/filters.js": [
 217,
 292,
 611
 ],
-"angular.js:src/ng/filter/orderBy.js":[
+"angular.js:src/ng/filter/orderBy.js": [
 615,
 674
 ],
-"angular.js:src/ng/http.js":[
+"angular.js:src/ng/http.js": [
 105,
 136,
 432
 ],
-"angular.js:src/ng/httpBackend.js":[
+"angular.js:src/ng/httpBackend.js": [
 59
 ],
-"angular.js:src/ng/interpolate.js":[
+"angular.js:src/ng/interpolate.js": [
 98
 ],
-"angular.js:src/ng/intervalFactory.js":[
+"angular.js:src/ng/intervalFactory.js": [
 6
 ],
-"angular.js:src/ng/location.js":[
+"angular.js:src/ng/location.js": [
 204,
 841
 ],
-"angular.js:src/ng/log.js":[
+"angular.js:src/ng/log.js": [
 77
 ],
-"angular.js:src/ng/parse.js":[
+"angular.js:src/ng/parse.js": [
 70,
 180,
 513,
@@ -153,77 +153,77 @@
 1312,
 1781
 ],
-"angular.js:src/ng/rootScope.js":[
+"angular.js:src/ng/rootScope.js": [
 101
 ],
-"angular.js:src/ng/sce.js":[
+"angular.js:src/ng/sce.js": [
 250
 ],
-"angular.js:src/ng/sniffer.js":[
+"angular.js:src/ng/sniffer.js": [
 21
 ],
-"angular.js:src/ng/testability.js":[
+"angular.js:src/ng/testability.js": [
 6
 ],
-"angular.js:src/ng/timeout.js":[
+"angular.js:src/ng/timeout.js": [
 8
 ],
-"angular.js:src/ngAnimate/animateCss.js":[
+"angular.js:src/ngAnimate/animateCss.js": [
 328
 ],
-"angular.js:src/ngAnimate/animateCssDriver.js":[
+"angular.js:src/ngAnimate/animateCssDriver.js": [
 17
 ],
-"angular.js:src/ngAnimate/animateJs.js":[
+"angular.js:src/ngAnimate/animateJs.js": [
 9
 ],
-"angular.js:src/ngAnimate/animateJsDriver.js":[
+"angular.js:src/ngAnimate/animateJsDriver.js": [
 5
 ],
-"angular.js:src/ngAnimate/animateQueue.js":[
+"angular.js:src/ngAnimate/animateQueue.js": [
 115
 ],
-"angular.js:src/ngAnimate/animation.js":[
+"angular.js:src/ngAnimate/animation.js": [
 26
 ],
-"angular.js:src/ngAria/aria.js":[
+"angular.js:src/ngAria/aria.js": [
 261,
 371
 ],
-"angular.js:src/ngMessages/messages.js":[
+"angular.js:src/ngMessages/messages.js": [
 376,
 732
 ],
-"angular.js:src/ngMock/angular-mocks.js":[
+"angular.js:src/ngMock/angular-mocks.js": [
 588,
 1465,
 1980,
 3044
 ],
-"angular.js:src/ngMock/browserTrigger.js":[
+"angular.js:src/ngMock/browserTrigger.js": [
 59
 ],
-"angular.js:src/ngParseExt/ucd.js":[
+"angular.js:src/ngParseExt/ucd.js": [
 6,
 564
 ],
-"angular.js:src/ngResource/resource.js":[
+"angular.js:src/ngResource/resource.js": [
 583
 ],
-"angular.js:src/ngRoute/directive/ngView.js":[
+"angular.js:src/ngRoute/directive/ngView.js": [
 187
 ],
-"angular.js:src/ngRoute/route.js":[
+"angular.js:src/ngRoute/route.js": [
 328
 ],
-"angular.js:src/ngSanitize/filter/linky.js":[
+"angular.js:src/ngSanitize/filter/linky.js": [
 141
 ],
-"angular.js:src/ngSanitize/sanitize.js":[
+"angular.js:src/ngSanitize/sanitize.js": [
 508,
 609
 ],
-"angular.js:src/ngTouch/swipe.js":[
+"angular.js:src/ngTouch/swipe.js": [
 108
 ]
 }

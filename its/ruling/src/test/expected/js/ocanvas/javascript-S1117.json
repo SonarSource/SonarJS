@@ -1,11 +1,11 @@
 {
-"ocanvas:scripts/release.js":[
+"ocanvas:scripts/release.js": [
 96,
 96,
 110,
 110
 ],
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 30,
 103,
 146,
@@ -17,7 +17,7 @@
 377,
 408
 ],
-"ocanvas:src/displayobjects/text.js":[
+"ocanvas:src/displayobjects/text.js": [
 9,
 96
 ]

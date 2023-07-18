@@ -1,14 +1,14 @@
 {
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 3520
 ],
-"Typescript:src/harness/harnessLanguageService.ts":[
+"Typescript:src/harness/harnessLanguageService.ts": [
 567
 ],
-"Typescript:src/harness/runnerbase.ts":[
+"Typescript:src/harness/runnerbase.ts": [
 9
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 513
 ]
 }

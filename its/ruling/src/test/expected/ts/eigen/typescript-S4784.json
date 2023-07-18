@@ -1,29 +1,29 @@
 {
-"eigen:src/app/Components/ArtworkFilter/Filters/CustomSizeInputs.tsx":[
+"eigen:src/app/Components/ArtworkFilter/Filters/CustomSizeInputs.tsx": [
 21
 ],
-"eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx":[
+"eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx": [
 74
 ],
-"eigen:src/app/Scenes/Feature/components/FeatureMarkdown.tsx":[
+"eigen:src/app/Scenes/Feature/components/FeatureMarkdown.tsx": [
 16
 ],
-"eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts":[
+"eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
 55
 ],
-"eigen:src/app/Scenes/VanityURL/VanityURLPossibleRedirect.tsx":[
+"eigen:src/app/Scenes/VanityURL/VanityURLPossibleRedirect.tsx": [
 11
 ],
-"eigen:src/app/navigation/RouteMatcher.ts":[
+"eigen:src/app/navigation/RouteMatcher.ts": [
 15
 ],
-"eigen:src/app/utils/renderMarkdown.tsx":[
+"eigen:src/app/utils/renderMarkdown.tsx": [
 78
 ],
-"eigen:src/setupJest.ts":[
+"eigen:src/setupJest.ts": [
 27
 ],
-"eigen:src/shared/utils/normalizeText.ts":[
+"eigen:src/shared/utils/normalizeText.ts": [
 257
 ]
 }

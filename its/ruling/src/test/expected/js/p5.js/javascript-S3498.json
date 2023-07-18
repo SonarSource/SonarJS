@@ -1,5 +1,5 @@
 {
-"p5.js:Gruntfile.js":[
+"p5.js:Gruntfile.js": [
 115,
 128,
 259,
@@ -10,10 +10,10 @@
 386,
 387
 ],
-"p5.js:docs/documented-method.js":[
+"p5.js:docs/documented-method.js": [
 38
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 39,
 90,
 106,
@@ -138,10 +138,10 @@
 4795,
 4807
 ],
-"p5.js:karma.conf.js":[
+"p5.js:karma.conf.js": [
 31
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 492,
 505,
 695,
@@ -244,11 +244,11 @@
 12299,
 12302
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 2277,
 2283
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 90,
 96,
 106,

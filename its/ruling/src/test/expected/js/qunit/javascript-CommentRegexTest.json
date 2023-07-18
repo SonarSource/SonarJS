@@ -1,15 +1,15 @@
 {
-"qunit:src/cli/require-from-cwd.js":[
+"qunit:src/cli/require-from-cwd.js": [
 5
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 42
 ],
-"qunit:src/module.js":[
+"qunit:src/module.js": [
 30,
 33
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 42,
 43,
 46

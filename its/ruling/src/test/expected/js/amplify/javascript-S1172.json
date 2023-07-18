@@ -1,9 +1,9 @@
 {
-"amplify:demo/core/priority/demo.js":[
+"amplify:demo/core/priority/demo.js": [
 4,
 18
 ],
-"amplify:lib/amplify-vsdoc.js":[
+"amplify:lib/amplify-vsdoc.js": [
 14,
 43,
 43,
@@ -17,7 +17,7 @@
 106,
 113
 ],
-"amplify:src/amplify-vsdoc.js":[
+"amplify:src/amplify-vsdoc.js": [
 5,
 34,
 34,
@@ -31,7 +31,7 @@
 97,
 104
 ],
-"amplify:src/core.js":[
+"amplify:src/core.js": [
 1
 ]
 }

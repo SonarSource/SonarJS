@@ -1,23 +1,23 @@
 {
-"qunit:build/coverage-bridge.js":[
+"qunit:build/coverage-bridge.js": [
 13
 ],
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 148
 ],
-"qunit:src/cli/utils.js":[
+"qunit:src/cli/utils.js": [
 9
 ],
-"qunit:src/equiv.js":[
+"qunit:src/equiv.js": [
 336
 ],
-"qunit:src/module.js":[
+"qunit:src/module.js": [
 114
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 640
 ],
-"qunit:test/headless.html":[
+"qunit:test/headless.html": [
 14
 ]
 }

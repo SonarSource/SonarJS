@@ -1,11 +1,11 @@
 {
-"Joust:ts/components/EventLogLine.tsx":[
+"Joust:ts/components/EventLogLine.tsx": [
 93
 ],
-"Joust:ts/components/game/Card.tsx":[
+"Joust:ts/components/game/Card.tsx": [
 317
 ],
-"Joust:ts/protocol/HSReplayDecoder.ts":[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 81,
 124
 ]

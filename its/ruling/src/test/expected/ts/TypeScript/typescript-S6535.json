@@ -1,59 +1,59 @@
 {
-"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts":[
+"Typescript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 143,
 143
 ],
-"Typescript:scripts/processDiagnosticMessages.ts":[
+"Typescript:scripts/processDiagnosticMessages.ts": [
 101,
 119
 ],
-"Typescript:src/compiler/core.ts":[
+"Typescript:src/compiler/core.ts": [
 1792
 ],
-"Typescript:src/compiler/scanner.ts":[
+"Typescript:src/compiler/scanner.ts": [
 1054
 ],
-"Typescript:src/compiler/utilities.ts":[
+"Typescript:src/compiler/utilities.ts": [
 2423,
 4602
 ],
-"Typescript:src/compiler/visitor.ts":[
+"Typescript:src/compiler/visitor.ts": [
 1551
 ],
-"Typescript:src/harness/compilerRunner.ts":[
+"Typescript:src/harness/compilerRunner.ts": [
 73
 ],
-"Typescript:src/harness/fourslash.ts":[
+"Typescript:src/harness/fourslash.ts": [
 107,
 852,
 852,
 2836
 ],
-"Typescript:src/harness/fourslashRunner.ts":[
+"Typescript:src/harness/fourslashRunner.ts": [
 55
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 1729
 ],
-"Typescript:src/harness/projectsRunner.ts":[
+"Typescript:src/harness/projectsRunner.ts": [
 77
 ],
-"Typescript:src/harness/runner.ts":[
+"Typescript:src/harness/runner.ts": [
 38,
 38
 ],
-"Typescript:src/server/editorServices.ts":[
+"Typescript:src/server/editorServices.ts": [
 1486
 ],
-"Typescript:src/services/codefixes/importFixes.ts":[
+"Typescript:src/services/codefixes/importFixes.ts": [
 447
 ],
-"Typescript:src/services/completions.ts":[
+"Typescript:src/services/completions.ts": [
 390,
 390,
 390
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 1887,
 1887,
 1887,

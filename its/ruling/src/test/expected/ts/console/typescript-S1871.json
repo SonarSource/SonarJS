@@ -1,16 +1,16 @@
 {
-"console:src/actions/gettingStarted.tsx":[
+"console:src/actions/gettingStarted.tsx": [
 219,
 223,
 227
 ],
-"console:src/views/Settings/Billing/CreditCardBack.tsx":[
+"console:src/views/Settings/Billing/CreditCardBack.tsx": [
 64
 ],
-"console:src/views/models/FieldPopup/EditValueInput.tsx":[
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
 154
 ],
-"console:src/views/models/FieldPopup/FieldLabel.tsx":[
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
 175
 ]
 }

@@ -1,11 +1,11 @@
 {
-"jquery:build/tasks/build.js":[
+"jquery:build/tasks/build.js": [
 67
 ],
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 137
 ],
-"jquery:test/delegatetest.html":[
+"jquery:test/delegatetest.html": [
 168
 ]
 }

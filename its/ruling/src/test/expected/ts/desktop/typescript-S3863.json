@@ -1,50 +1,50 @@
 {
-"desktop:app/src/lib/notifications/show-notification.ts":[
+"desktop:app/src/lib/notifications/show-notification.ts": [
 3
 ],
-"desktop:app/src/lib/stats/stats-store.ts":[
+"desktop:app/src/lib/stats/stats-store.ts": [
 28
 ],
-"desktop:app/src/ui/changes/changes-list.tsx":[
+"desktop:app/src/ui/changes/changes-list.tsx": [
 36
 ],
-"desktop:app/src/ui/changes/commit-message.tsx":[
+"desktop:app/src/ui/changes/commit-message.tsx": [
 26
 ],
-"desktop:app/src/ui/changes/no-changes.tsx":[
+"desktop:app/src/ui/changes/no-changes.tsx": [
 19
 ],
-"desktop:app/src/ui/create-branch/create-branch-dialog.tsx":[
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
 30
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx":[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 59
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 43
 ],
-"desktop:app/src/ui/history/commit-list-item.tsx":[
+"desktop:app/src/ui/history/commit-list-item.tsx": [
 12
 ],
-"desktop:app/src/ui/history/selected-commit.tsx":[
+"desktop:app/src/ui/history/selected-commit.tsx": [
 32
 ],
-"desktop:app/src/ui/index.tsx":[
+"desktop:app/src/ui/index.tsx": [
 40
 ],
-"desktop:app/src/ui/lib/app-proxy.ts":[
+"desktop:app/src/ui/lib/app-proxy.ts": [
 2
 ],
-"desktop:app/src/ui/lib/author-input.tsx":[
+"desktop:app/src/ui/lib/author-input.tsx": [
 17
 ],
-"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx":[
+"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
 25
 ],
-"desktop:app/src/ui/repositories-list/repositories-list.tsx":[
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
 20
 ],
-"desktop:app/src/ui/tutorial/done.tsx":[
+"desktop:app/src/ui/tutorial/done.tsx": [
 10
 ]
 }

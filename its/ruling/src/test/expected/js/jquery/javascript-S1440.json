@@ -1,18 +1,18 @@
 {
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 426,
 441,
 1417,
 1429
 ],
-"jquery:src/selector/uniqueSort.js":[
+"jquery:src/selector/uniqueSort.js": [
 27,
 41,
 41,
 50,
 50
 ],
-"jquery:test/delegatetest.html":[
+"jquery:test/delegatetest.html": [
 175,
 179
 ]

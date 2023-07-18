@@ -1,50 +1,50 @@
 {
-"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
 409
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 53
 ],
-"javascript-test-sources:src/ace/src/incremental_search_test.js":[
+"javascript-test-sources:src/ace/src/incremental_search_test.js": [
 45
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler.js": [
 16,
 17,
 18
 ],
-"javascript-test-sources:src/ace/src/placeholder_test.js":[
+"javascript-test-sources:src/ace/src/placeholder_test.js": [
 23,
 40
 ],
-"javascript-test-sources:src/ace/tool/mode_creator.js":[
+"javascript-test-sources:src/ace/tool/mode_creator.js": [
 38
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/groups-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/groups-view.js": [
 26
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/users-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/users-view.js": [
 26
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/users-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/users-view.js": [
 10
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/groups-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/groups-view.js": [
 16
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/users-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/users-view.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/groups-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/groups-view.js": [
 15
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/users-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/users-view.js": [
 13
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-projects-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-projects-view.js": [
 11
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/groups-view.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/groups-view.js": [
 10
 ]
 }

@@ -1,36 +1,36 @@
 {
-"vuetify:packages/api-generator/src/index.ts":[
+"vuetify:packages/api-generator/src/index.ts": [
 114,
 136
 ],
-"vuetify:packages/api-generator/src/utils.ts":[
+"vuetify:packages/api-generator/src/utils.ts": [
 105
 ],
-"vuetify:packages/api-generator/src/worker.ts":[
+"vuetify:packages/api-generator/src/worker.ts": [
 12,
 32
 ],
-"vuetify:packages/docs/src/components/api/Section.vue":[
+"vuetify:packages/docs/src/components/api/Section.vue": [
 80
 ],
-"vuetify:packages/docs/src/components/examples/Example.vue":[
+"vuetify:packages/docs/src/components/examples/Example.vue": [
 170
 ],
-"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue":[
+"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
 207
 ],
-"vuetify:packages/docs/src/main.ts":[
+"vuetify:packages/docs/src/main.ts": [
 99,
 102,
 109
 ],
-"vuetify:packages/docs/src/plugins/pwa.ts":[
+"vuetify:packages/docs/src/plugins/pwa.ts": [
 42
 ],
-"vuetify:packages/vuetify/src/composables/validation.ts":[
+"vuetify:packages/vuetify/src/composables/validation.ts": [
 171
 ],
-"vuetify:packages/vuetify/src/util/console.ts":[
+"vuetify:packages/vuetify/src/util/console.ts": [
 34,
 39
 ]

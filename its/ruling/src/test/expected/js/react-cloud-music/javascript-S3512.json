@@ -1,23 +1,23 @@
 {
-"react-cloud-music:scripts/build.js":[
+"react-cloud-music:scripts/build.js": [
 73,
 78
 ],
-"react-cloud-music:server.js":[
+"react-cloud-music:server.js": [
 19
 ],
-"react-cloud-music:src/application/Search/index.jsx":[
+"react-cloud-music:src/application/Search/index.jsx": [
 98,
 122
 ],
-"react-cloud-music:src/application/Singers/index.jsx":[
+"react-cloud-music:src/application/Singers/index.jsx": [
 64
 ],
-"react-cloud-music:src/assets/border.js":[
+"react-cloud-music:src/assets/border.js": [
 45,
 57
 ],
-"react-cloud-music:ts-music/scripts/build.js":[
+"react-cloud-music:ts-music/scripts/build.js": [
 73,
 78
 ]

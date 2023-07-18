@@ -1,68 +1,68 @@
 {
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 2
 ],
-"ocanvas:src/background.js":[
+"ocanvas:src/background.js": [
 3
 ],
-"ocanvas:src/core.js":[
+"ocanvas:src/core.js": [
 3
 ],
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 3
 ],
-"ocanvas:src/displayobjects/arc.js":[
+"ocanvas:src/displayobjects/arc.js": [
 3
 ],
-"ocanvas:src/displayobjects/ellipse.js":[
+"ocanvas:src/displayobjects/ellipse.js": [
 3
 ],
-"ocanvas:src/displayobjects/image.js":[
+"ocanvas:src/displayobjects/image.js": [
 3
 ],
-"ocanvas:src/displayobjects/line.js":[
+"ocanvas:src/displayobjects/line.js": [
 3
 ],
-"ocanvas:src/displayobjects/polygon.js":[
+"ocanvas:src/displayobjects/polygon.js": [
 3
 ],
-"ocanvas:src/displayobjects/rectangle.js":[
+"ocanvas:src/displayobjects/rectangle.js": [
 3
 ],
-"ocanvas:src/displayobjects/sprite.js":[
+"ocanvas:src/displayobjects/sprite.js": [
 3
 ],
-"ocanvas:src/displayobjects/text.js":[
+"ocanvas:src/displayobjects/text.js": [
 3
 ],
-"ocanvas:src/draw.js":[
+"ocanvas:src/draw.js": [
 3
 ],
-"ocanvas:src/events.js":[
+"ocanvas:src/events.js": [
 3
 ],
-"ocanvas:src/keyboard.js":[
+"ocanvas:src/keyboard.js": [
 3
 ],
-"ocanvas:src/mouse.js":[
+"ocanvas:src/mouse.js": [
 3
 ],
-"ocanvas:src/scenes.js":[
+"ocanvas:src/scenes.js": [
 3
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 3
 ],
-"ocanvas:src/timeline.js":[
+"ocanvas:src/timeline.js": [
 3
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 3
 ],
-"ocanvas:src/touch.js":[
+"ocanvas:src/touch.js": [
 3
 ],
-"ocanvas:src/utils.js":[
+"ocanvas:src/utils.js": [
 3
 ]
 }

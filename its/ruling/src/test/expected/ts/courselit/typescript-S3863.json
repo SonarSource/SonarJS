@@ -1,35 +1,35 @@
 {
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx":[
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
 17
 ],
-"courselit:apps/web/components/admin/media/media-preview.tsx":[
+"courselit:apps/web/components/admin/media/media-preview.tsx": [
 26
 ],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx":[
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
 12
 ],
-"courselit:apps/web/components/public/base-layout/header.tsx":[
+"courselit:apps/web/components/public/base-layout/header.tsx": [
 6
 ],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx":[
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
 12
 ],
-"courselit:apps/web/components/public/base-layout/scaffold/index.tsx":[
+"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
 10
 ],
-"courselit:apps/web/graphql/lessons/logic.ts":[
+"courselit:apps/web/graphql/lessons/logic.ts": [
 16
 ],
-"courselit:apps/web/lib/passport-magic-link.ts":[
+"courselit:apps/web/lib/passport-magic-link.ts": [
 3
 ],
-"courselit:apps/web/pages/_app.tsx":[
+"courselit:apps/web/pages/_app.tsx": [
 20
 ],
-"courselit:apps/web/pages/profile/[id].tsx":[
+"courselit:apps/web/pages/profile/[id].tsx": [
 23
 ],
-"courselit:packages/state-management/src/store.ts":[
+"courselit:packages/state-management/src/store.ts": [
 3
 ]
 }

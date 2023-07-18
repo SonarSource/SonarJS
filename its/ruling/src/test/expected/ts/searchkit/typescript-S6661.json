@@ -1,21 +1,21 @@
 {
-"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx":[
+"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
 25
 ],
-"searchkit:packages/searchkit-client/src/searchkit.tsx":[
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
 179,
 242
 ],
-"searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/__tests__/index.test.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/__tests__/index.test.tsx": [
 8
 ],
-"searchkit:packages/searchkit-elastic-ui/src/ResetSearchButton/__tests__/index.test.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/ResetSearchButton/__tests__/index.test.tsx": [
 6
 ],
-"searchkit:packages/searchkit-elastic-ui/src/SearchBar/__tests__/index.test.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/SearchBar/__tests__/index.test.tsx": [
 8
 ],
-"searchkit:packages/searchkit-elastic-ui/src/SortingSelector/__tests__/index.test.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/SortingSelector/__tests__/index.test.tsx": [
 8
 ]
 }

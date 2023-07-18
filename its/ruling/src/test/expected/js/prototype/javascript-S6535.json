@@ -1,18 +1,18 @@
 {
-"prototype:src/prototype/ajax/request.js":[
+"prototype:src/prototype/ajax/request.js": [
 324
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 39
 ],
-"prototype:src/prototype/lang/regexp.js":[
+"prototype:src/prototype/lang/regexp.js": [
 26
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 718,
 719
 ],
-"prototype:src/prototype/prototype.js":[
+"prototype:src/prototype/prototype.js": [
 123
 ]
 }

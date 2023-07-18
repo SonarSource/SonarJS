@@ -1,12 +1,12 @@
 {
-"console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx":[
+"console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx": [
 37
 ],
-"console:src/utils/__tests__/utils.ts":[
+"console:src/utils/__tests__/utils.ts": [
 7,
 37
 ],
-"console:src/views/ActionsView/ActionHandlerBox.tsx":[
+"console:src/views/ActionsView/ActionHandlerBox.tsx": [
 70
 ]
 }

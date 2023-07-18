@@ -1,27 +1,27 @@
 {
-"Typescript:src/compiler/checker.ts":[
+"Typescript:src/compiler/checker.ts": [
 10357
 ],
-"Typescript:src/compiler/emitter.ts":[
+"Typescript:src/compiler/emitter.ts": [
 1800,
 1963
 ],
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 3479
 ],
-"Typescript:src/compiler/parser.ts":[
+"Typescript:src/compiler/parser.ts": [
 6545
 ],
-"Typescript:src/compiler/transformers/generators.ts":[
+"Typescript:src/compiler/transformers/generators.ts": [
 1400
 ],
-"Typescript:src/server/session.ts":[
+"Typescript:src/server/session.ts": [
 1468
 ],
-"Typescript:src/services/classifier.ts":[
+"Typescript:src/services/classifier.ts": [
 637
 ],
-"Typescript:src/services/services.ts":[
+"Typescript:src/services/services.ts": [
 1036
 ]
 }

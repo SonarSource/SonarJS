@@ -1,5 +1,5 @@
 {
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 388,
 482,
 822,
@@ -11,28 +11,28 @@
 8146,
 12687
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 446,
 455,
 470,
 537
 ],
-"p5.js:src/core/p5.Graphics.js":[
+"p5.js:src/core/p5.Graphics.js": [
 179
 ],
-"p5.js:src/core/rendering.js":[
+"p5.js:src/core/rendering.js": [
 147,
 157
 ],
-"p5.js:src/data/p5.TypedDict.js":[
+"p5.js:src/data/p5.TypedDict.js": [
 208,
 319,
 354
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 2098
 ],
-"p5.js:tasks/release/release-github.js":[
+"p5.js:tasks/release/release-github.js": [
 106
 ]
 }

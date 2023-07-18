@@ -1,21 +1,21 @@
 {
-"qunit:src/cli/run.js":[
+"qunit:src/cli/run.js": [
 155
 ],
-"qunit:src/cli/utils.js":[
+"qunit:src/cli/utils.js": [
 26,
 33,
 40,
 51,
 52
 ],
-"qunit:src/core/logging.js":[
+"qunit:src/core/logging.js": [
 51
 ],
-"qunit:src/reports/suite.js":[
+"qunit:src/reports/suite.js": [
 88
 ],
-"qunit:src/test.js":[
+"qunit:src/test.js": [
 359
 ]
 }

@@ -1,5 +1,5 @@
 {
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_upload_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_upload_spec.js": [
 40,
 57,
 74,
@@ -7,7 +7,7 @@
 101,
 113
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/importer_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/importer_spec.js": [
 125,
 133
 ]

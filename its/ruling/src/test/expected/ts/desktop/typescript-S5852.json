@@ -1,72 +1,72 @@
 {
-"desktop:app/src/crash/crash-app.tsx":[
+"desktop:app/src/crash/crash-app.tsx": [
 65
 ],
-"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts":[
+"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts": [
 8
 ],
-"desktop:app/src/lib/api.ts":[
+"desktop:app/src/lib/api.ts": [
 553
 ],
-"desktop:app/src/lib/format-commit-message.ts":[
+"desktop:app/src/lib/format-commit-message.ts": [
 31
 ],
-"desktop:app/src/lib/git/cherry-pick.ts":[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 75
 ],
-"desktop:app/src/lib/git/diff-check.ts":[
+"desktop:app/src/lib/git/diff-check.ts": [
 42
 ],
-"desktop:app/src/lib/git/reflog.ts":[
+"desktop:app/src/lib/git/reflog.ts": [
 15,
 15
 ],
-"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts":[
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
 40,
 75
 ],
-"desktop:app/src/lib/markdown-filters/issue-link-filter.ts":[
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
 14,
 19,
 82
 ],
-"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
 10
 ],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 37
 ],
-"desktop:app/src/lib/parse-pac-string.ts":[
+"desktop:app/src/lib/parse-pac-string.ts": [
 66
 ],
-"desktop:app/src/lib/remote-parsing.ts":[
+"desktop:app/src/lib/remote-parsing.ts": [
 30,
 34,
 38,
 42
 ],
-"desktop:app/src/lib/remove-remote-prefix.ts":[
+"desktop:app/src/lib/remove-remote-prefix.ts": [
 10
 ],
-"desktop:app/src/lib/shell.ts":[
+"desktop:app/src/lib/shell.ts": [
 60
 ],
-"desktop:app/src/lib/trampoline/trampoline-askpass-handler.ts":[
+"desktop:app/src/lib/trampoline/trampoline-askpass-handler.ts": [
 92
 ],
-"desktop:app/src/lib/trampoline/trampoline-command-parser.ts":[
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
 73
 ],
-"desktop:app/src/models/branch.ts":[
+"desktop:app/src/models/branch.ts": [
 73
 ],
-"desktop:app/src/models/git-author.ts":[
+"desktop:app/src/models/git-author.ts": [
 3
 ],
-"desktop:app/src/ui/dispatcher/error-handlers.ts":[
+"desktop:app/src/ui/dispatcher/error-handlers.ts": [
 474
 ],
-"desktop:script/changelog/parser.ts":[
+"desktop:script/changelog/parser.ts": [
 19
 ]
 }

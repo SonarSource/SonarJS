@@ -1,8 +1,8 @@
 {
-"jshint:scripts/build.js":[
+"jshint:scripts/build.js": [
 11
 ],
-"jshint:src/cli.js":[
+"jshint:src/cli.js": [
 100,
 232,
 303,
@@ -11,7 +11,7 @@
 528,
 544
 ],
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 382,
 552,
 1494,
@@ -30,12 +30,12 @@
 6060,
 6090
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 391,
 1509,
 1702
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 188
 ]
 }

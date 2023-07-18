@@ -1,11 +1,11 @@
 {
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 8
 ],
-"jquery:src/core/toType.js":[
+"jquery:src/core/toType.js": [
 2
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 115
 ]
 }

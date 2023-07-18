@@ -1,18 +1,18 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 7610,
 7629,
 7629
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 373,
 373,
 376
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 3895
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 5403,
 5403,
 5410,
@@ -20,11 +20,11 @@
 5417,
 5417
 ],
-"javascript-test-sources:src/ace/src/mode/text.js":[
+"javascript-test-sources:src/ace/src/mode/text.js": [
 256,
 256
 ],
-"javascript-test-sources:src/ace/src/test/user.js":[
+"javascript-test-sources:src/ace/src/test/user.js": [
 35,
 35,
 39,
@@ -32,10 +32,10 @@
 44,
 44
 ],
-"javascript-test-sources:src/ace/tool/tmtheme.js":[
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
 338
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 1943
 ]
 }

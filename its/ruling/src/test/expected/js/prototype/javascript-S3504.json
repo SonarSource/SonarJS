@@ -1,5 +1,5 @@
 {
-"prototype:ext/update_helper/prototype_update_helper.js":[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 23,
 340,
 342,
@@ -9,17 +9,17 @@
 402,
 412
 ],
-"prototype:ext/update_helper/update_helper.js":[
+"prototype:ext/update_helper/update_helper.js": [
 11,
 17,
 22,
 29,
 57
 ],
-"prototype:src/prototype/ajax/ajax.js":[
+"prototype:src/prototype/ajax/ajax.js": [
 5
 ],
-"prototype:src/prototype/ajax/request.js":[
+"prototype:src/prototype/ajax/request.js": [
 182,
 194,
 225,
@@ -32,18 +32,18 @@
 302,
 324
 ],
-"prototype:src/prototype/ajax/response.js":[
+"prototype:src/prototype/ajax/response.js": [
 68,
 79,
 152,
 180
 ],
-"prototype:src/prototype/ajax/updater.js":[
+"prototype:src/prototype/ajax/updater.js": [
 101,
 111,
 119
 ],
-"prototype:src/prototype/deprecated.js":[
+"prototype:src/prototype/deprecated.js": [
 5,
 11,
 29,
@@ -58,7 +58,7 @@
 237,
 252
 ],
-"prototype:src/prototype/dom/dom.js":[
+"prototype:src/prototype/dom/dom.js": [
 3,
 4,
 9,
@@ -149,7 +149,7 @@
 3007,
 3008
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 65,
 66,
 67,
@@ -196,7 +196,7 @@
 1233,
 1254
 ],
-"prototype:src/prototype/dom/form.js":[
+"prototype:src/prototype/dom/form.js": [
 14,
 109,
 126,
@@ -225,7 +225,7 @@
 880,
 1000
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 6,
 20,
 23,
@@ -311,7 +311,7 @@
 1599,
 1601
 ],
-"prototype:src/prototype/dom/selector.js":[
+"prototype:src/prototype/dom/selector.js": [
 86,
 87,
 100,
@@ -319,21 +319,21 @@
 150,
 160
 ],
-"prototype:src/prototype/lang.js":[
+"prototype:src/prototype/lang.js": [
 22,
 67,
 69,
 71,
 72
 ],
-"prototype:src/prototype/lang/array.js":[
+"prototype:src/prototype/lang/array.js": [
 62,
 185,
 197,
 298,
 430
 ],
-"prototype:src/prototype/lang/class.js":[
+"prototype:src/prototype/lang/class.js": [
 11,
 45,
 63,
@@ -342,7 +342,7 @@
 143,
 146
 ],
-"prototype:src/prototype/lang/enumerable.js":[
+"prototype:src/prototype/lang/enumerable.js": [
 119,
 121,
 182,
@@ -363,7 +363,7 @@
 761,
 765
 ],
-"prototype:src/prototype/lang/function.js":[
+"prototype:src/prototype/lang/function.js": [
 7,
 10,
 39,
@@ -384,7 +384,7 @@
 397,
 402
 ],
-"prototype:src/prototype/lang/hash.js":[
+"prototype:src/prototype/lang/hash.js": [
 46,
 97,
 98,
@@ -395,17 +395,17 @@
 356,
 357
 ],
-"prototype:src/prototype/lang/number.js":[
+"prototype:src/prototype/lang/number.js": [
 102
 ],
-"prototype:src/prototype/lang/periodical_executer.js":[
+"prototype:src/prototype/lang/periodical_executer.js": [
 22
 ],
-"prototype:src/prototype/lang/range.js":[
+"prototype:src/prototype/lang/range.js": [
 85,
 111
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 35,
 95,
 338,
@@ -423,13 +423,13 @@
 761,
 838
 ],
-"prototype:src/prototype/lang/template.js":[
+"prototype:src/prototype/lang/template.js": [
 106,
 150,
 153,
 160
 ],
-"prototype:src/prototype/prototype.js":[
+"prototype:src/prototype/prototype.js": [
 54,
 77,
 80

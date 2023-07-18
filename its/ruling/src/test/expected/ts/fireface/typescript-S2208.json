@@ -1,11 +1,11 @@
 {
-"fireface:src/avatar/avatar.component.ts":[
+"fireface:src/avatar/avatar.component.ts": [
 3
 ],
-"fireface:src/common/asset.service.ts":[
+"fireface:src/common/asset.service.ts": [
 2
 ],
-"fireface:src/create/create.component.ts":[
+"fireface:src/create/create.component.ts": [
 5,
 13
 ]

@@ -1,25 +1,25 @@
 {
-"ocanvas:src/animation.js":[
+"ocanvas:src/animation.js": [
 668
 ],
-"ocanvas:src/displayobject.js":[
+"ocanvas:src/displayobject.js": [
 132
 ],
-"ocanvas:src/displayobjects/text.js":[
+"ocanvas:src/displayobjects/text.js": [
 15
 ],
-"ocanvas:src/events.js":[
+"ocanvas:src/events.js": [
 345
 ],
-"ocanvas:src/keyboard.js":[
+"ocanvas:src/keyboard.js": [
 97,
 109
 ],
-"ocanvas:src/style.js":[
+"ocanvas:src/style.js": [
 628,
 628
 ],
-"ocanvas:src/tools.js":[
+"ocanvas:src/tools.js": [
 170,
 230,
 230,

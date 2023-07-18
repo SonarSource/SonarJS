@@ -1,29 +1,29 @@
 {
-"jquery:src/core/nodeName.js":[
+"jquery:src/core/nodeName.js": [
 5
 ],
-"jquery:src/css/isAutoPx.js":[
+"jquery:src/css/isAutoPx.js": [
 33
 ],
-"jquery:src/css/var/getStyles.js":[
+"jquery:src/css/var/getStyles.js": [
 15
 ],
-"jquery:src/css/var/isHiddenWithinTree.js":[
+"jquery:src/css/var/isHiddenWithinTree.js": [
 20
 ],
-"jquery:src/css/var/swap.js":[
+"jquery:src/css/var/swap.js": [
 20
 ],
-"jquery:src/data/var/acceptData.js":[
+"jquery:src/data/var/acceptData.js": [
 13
 ],
-"jquery:src/traversing/var/dir.js":[
+"jquery:src/traversing/var/dir.js": [
 16
 ],
-"jquery:src/traversing/var/siblings.js":[
+"jquery:src/traversing/var/siblings.js": [
 11
 ],
-"jquery:src/var/isWindow.js":[
+"jquery:src/var/isWindow.js": [
 3
 ]
 }

@@ -1,37 +1,37 @@
 {
-"vuetify:packages/api-generator/src/helpers/sass.ts":[
+"vuetify:packages/api-generator/src/helpers/sass.ts": [
 6
 ],
-"vuetify:packages/api-generator/src/types.ts":[
+"vuetify:packages/api-generator/src/types.ts": [
 195,
 196,
 336
 ],
-"vuetify:packages/api-generator/src/utils.ts":[
+"vuetify:packages/api-generator/src/utils.ts": [
 6
 ],
-"vuetify:packages/docs/src/components/api/utils.ts":[
+"vuetify:packages/docs/src/components/api/utils.ts": [
 29
 ],
-"vuetify:packages/docs/src/components/app/Markup.vue":[
+"vuetify:packages/docs/src/components/app/Markup.vue": [
 95
 ],
-"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue":[
+"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
 169
 ],
-"vuetify:packages/docs/src/composables/codepen.ts":[
+"vuetify:packages/docs/src/composables/codepen.ts": [
 90
 ],
-"vuetify:packages/docs/src/util/markdown-it.ts":[
+"vuetify:packages/docs/src/util/markdown-it.ts": [
 32
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts":[
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
 21
 ],
-"vuetify:packages/vuetify/src/util/colorUtils.ts":[
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
 204
 ],
-"vuetify:packages/vuetify/src/util/console.ts":[
+"vuetify:packages/vuetify/src/util/console.ts": [
 73
 ]
 }

@@ -1,13 +1,13 @@
 {
-"sizzle:Gruntfile.js":[
+"sizzle:Gruntfile.js": [
 110
 ],
-"sizzle:build/release.js":[
+"sizzle:build/release.js": [
 14,
 20,
 23
 ],
-"sizzle:src/sizzle.js":[
+"sizzle:src/sizzle.js": [
 1255,
 1269,
 1305,

@@ -1,14 +1,14 @@
 {
-"rxjs:src/observable/ForkJoinObservable.ts":[
+"rxjs:src/observable/ForkJoinObservable.ts": [
 97
 ],
-"rxjs:src/operator/skipLast.ts":[
+"rxjs:src/operator/skipLast.ts": [
 72
 ],
-"rxjs:src/operator/takeLast.ts":[
+"rxjs:src/operator/takeLast.ts": [
 70
 ],
-"rxjs:src/operator/withLatestFrom.ts":[
+"rxjs:src/operator/withLatestFrom.ts": [
 96
 ]
 }

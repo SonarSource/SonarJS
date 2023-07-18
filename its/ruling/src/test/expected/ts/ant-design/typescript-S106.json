@@ -1,12 +1,12 @@
 {
-"ant-design:components/_util/ActionButton.tsx":[
+"ant-design:components/_util/ActionButton.tsx": [
 56
 ],
-"ant-design:components/alert/__tests__/index.test.tsx":[
+"ant-design:components/alert/__tests__/index.test.tsx": [
 100,
 112
 ],
-"ant-design:components/index.tsx":[
+"ant-design:components/index.tsx": [
 8,
 12
 ]

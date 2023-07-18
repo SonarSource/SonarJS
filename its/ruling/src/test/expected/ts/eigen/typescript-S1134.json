@@ -1,118 +1,118 @@
 {
-"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx":[
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
 13
 ],
-"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx":[
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
 202,
 327
 ],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx":[
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 366
 ],
-"eigen:src/app/Components/Bidding/Screens/Registration.tsx":[
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 312
 ],
-"eigen:src/app/Components/EntityList/Components/EntityItem.tsx":[
+"eigen:src/app/Components/EntityList/Components/EntityItem.tsx": [
 32
 ],
-"eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx":[
+"eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx": [
 43
 ],
-"eigen:src/app/Scenes/Artwork/Components/CreateArtworkAlertButtonsSection.tsx":[
+"eigen:src/app/Scenes/Artwork/Components/CreateArtworkAlertButtonsSection.tsx": [
 26
 ],
-"eigen:src/app/Scenes/Artwork/Components/FollowArtistLink.tsx":[
+"eigen:src/app/Scenes/Artwork/Components/FollowArtistLink.tsx": [
 43
 ],
-"eigen:src/app/Scenes/ArtworkAttributionClassFAQ/ArtworkAttributionClassFAQ.tests.tsx":[
+"eigen:src/app/Scenes/ArtworkAttributionClassFAQ/ArtworkAttributionClassFAQ.tests.tsx": [
 28
 ],
-"eigen:src/app/Scenes/City/CityBMWList.tsx":[
+"eigen:src/app/Scenes/City/CityBMWList.tsx": [
 43
 ],
-"eigen:src/app/Scenes/City/CityFairList.tsx":[
+"eigen:src/app/Scenes/City/CityFairList.tsx": [
 45
 ],
-"eigen:src/app/Scenes/City/CitySavedList.tsx":[
+"eigen:src/app/Scenes/City/CitySavedList.tsx": [
 46
 ],
-"eigen:src/app/Scenes/City/CitySectionList.tsx":[
+"eigen:src/app/Scenes/City/CitySectionList.tsx": [
 69
 ],
-"eigen:src/app/Scenes/City/Components/EventList.tsx":[
+"eigen:src/app/Scenes/City/Components/EventList.tsx": [
 20
 ],
-"eigen:src/app/Scenes/Favorites/FavoriteArtists.tsx":[
+"eigen:src/app/Scenes/Favorites/FavoriteArtists.tsx": [
 44,
 55
 ],
-"eigen:src/app/Scenes/Favorites/FavoriteArtworks.tsx":[
+"eigen:src/app/Scenes/Favorites/FavoriteArtworks.tsx": [
 59,
 70
 ],
-"eigen:src/app/Scenes/Favorites/FavoriteCategories.tsx":[
+"eigen:src/app/Scenes/Favorites/FavoriteCategories.tsx": [
 44,
 55
 ],
-"eigen:src/app/Scenes/Favorites/FavoriteShows.tsx":[
+"eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
 43,
 54
 ],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/index.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/ActiveBids/index.tsx": [
 59
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 44,
 59
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx":[
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
 108,
 131
 ],
-"eigen:src/app/Scenes/Map/Components/ShowCard.tsx":[
+"eigen:src/app/Scenes/Map/Components/ShowCard.tsx": [
 63
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tests.tsx":[
+"eigen:src/app/Scenes/Map/GlobalMap.tests.tsx": [
 21
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx":[
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 782,
 788
 ],
-"eigen:src/app/Scenes/MyBids/MyBids.tsx":[
+"eigen:src/app/Scenes/MyBids/MyBids.tsx": [
 37
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkAbout/MyCollectionArtworkAboutWork.tsx":[
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkAbout/MyCollectionArtworkAboutWork.tsx": [
 37
 ],
-"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx":[
+"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
 183
 ],
-"eigen:src/app/Scenes/Partner/Components/PartnerOverview.tsx":[
+"eigen:src/app/Scenes/Partner/Components/PartnerOverview.tsx": [
 60
 ],
-"eigen:src/app/Scenes/Partner/Components/PartnerShows.tsx":[
+"eigen:src/app/Scenes/Partner/Components/PartnerShows.tsx": [
 145
 ],
-"eigen:src/app/Scenes/Partner/Components/PartnerShowsRail.tsx":[
+"eigen:src/app/Scenes/Partner/Components/PartnerShowsRail.tsx": [
 28
 ],
-"eigen:src/app/Scenes/Partner/Screens/PartnerLocations.tsx":[
+"eigen:src/app/Scenes/Partner/Screens/PartnerLocations.tsx": [
 28
 ],
-"eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx":[
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx": [
 116
 ],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts":[
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
 73
 ],
-"eigen:src/app/tests/MockRelayRendererFixtures.tsx":[
+"eigen:src/app/tests/MockRelayRendererFixtures.tsx": [
 32
 ],
-"eigen:src/app/tests/renderRelayTree.tests.tsx":[
+"eigen:src/app/tests/renderRelayTree.tests.tsx": [
 64
 ],
-"eigen:src/app/utils/platformUtil.ts":[
+"eigen:src/app/utils/platformUtil.ts": [
 4
 ]
 }

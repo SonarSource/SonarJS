@@ -1,8 +1,8 @@
 {
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 662
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 476
 ]
 }

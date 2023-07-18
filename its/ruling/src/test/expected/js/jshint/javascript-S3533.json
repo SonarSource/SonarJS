@@ -1,18 +1,18 @@
 {
-"jshint:scripts/build.js":[
+"jshint:scripts/build.js": [
 3,
 4,
 5
 ],
-"jshint:scripts/generate-identifier-data.js":[
+"jshint:scripts/generate-identifier-data.js": [
 5,
 70
 ],
-"jshint:scripts/remove-dev-dependencies.js":[
+"jshint:scripts/remove-dev-dependencies.js": [
 13,
 14
 ],
-"jshint:src/cli.js":[
+"jshint:src/cli.js": [
 3,
 4,
 5,
@@ -25,7 +25,7 @@
 12,
 13
 ],
-"jshint:src/jshint.js":[
+"jshint:src/jshint.js": [
 34,
 35,
 36,
@@ -39,7 +39,7 @@
 44,
 49
 ],
-"jshint:src/lex.js":[
+"jshint:src/lex.js": [
 7,
 8,
 9,
@@ -48,14 +48,14 @@
 15,
 16
 ],
-"jshint:src/messages.js":[
+"jshint:src/messages.js": [
 3
 ],
-"jshint:src/scope-manager.js":[
+"jshint:src/scope-manager.js": [
 3,
 4
 ],
-"jshint:src/state.js":[
+"jshint:src/state.js": [
 2
 ]
 }

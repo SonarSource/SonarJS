@@ -1,9 +1,9 @@
 {
-"p5.js:docs/preprocessor.js":[
+"p5.js:docs/preprocessor.js": [
 188,
 268
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 296,
 606,
 674,
@@ -35,13 +35,13 @@
 4730,
 4863
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 38,
 126,
 152,
 241
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 341,
 670,
 1000,
@@ -68,49 +68,49 @@
 10089,
 12408
 ],
-"p5.js:src/color/color_conversion.js":[
+"p5.js:src/color/color_conversion.js": [
 153,
 153,
 153
 ],
-"p5.js:src/color/creating_reading.js":[
+"p5.js:src/color/creating_reading.js": [
 471
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 320
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 250,
 253
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 826,
 840
 ],
-"p5.js:src/image/loading_displaying.js":[
+"p5.js:src/image/loading_displaying.js": [
 93,
 167
 ],
-"p5.js:src/math/noise.js":[
+"p5.js:src/math/noise.js": [
 287
 ],
-"p5.js:src/math/random.js":[
+"p5.js:src/math/random.js": [
 228
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 813,
 813,
 888,
 974
 ],
-"p5.js:src/utilities/conversion.js":[
+"p5.js:src/utilities/conversion.js": [
 84,
 274
 ],
-"p5.js:src/webgl/p5.RendererGL.js":[
+"p5.js:src/webgl/p5.RendererGL.js": [
 693
 ],
-"p5.js:src/webgl/text.js":[
+"p5.js:src/webgl/text.js": [
 199,
 199,
 212,
@@ -124,16 +124,16 @@
 581,
 583
 ],
-"p5.js:tasks/release/release-bower.js":[
+"p5.js:tasks/release/release-bower.js": [
 42,
 42,
 60,
 60
 ],
-"p5.js:test/test.html":[
+"p5.js:test/test.html": [
 47
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 35
 ]
 }

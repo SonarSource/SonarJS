@@ -1,5 +1,5 @@
 {
-"desktop:app/src/cli/commands/help.ts":[
+"desktop:app/src/cli/commands/help.ts": [
 20,
 27,
 36,
@@ -11,50 +11,50 @@
 54,
 69
 ],
-"desktop:app/src/cli/commands/open.ts":[
+"desktop:app/src/cli/commands/open.ts": [
 28
 ],
-"desktop:app/src/cli/main.ts":[
+"desktop:app/src/cli/main.ts": [
 45,
 47,
 51
 ],
-"desktop:app/src/cli/util.ts":[
+"desktop:app/src/cli/util.ts": [
 33
 ],
-"desktop:app/src/lib/logging/renderer/install.ts":[
+"desktop:app/src/lib/logging/renderer/install.ts": [
 20,
 24,
 32
 ],
-"desktop:app/src/main-process/desktop-console-transport.ts":[
+"desktop:app/src/main-process/desktop-console-transport.ts": [
 5,
 6,
 8,
 33
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts":[
+"desktop:app/src/main-process/desktop-file-transport.ts": [
 22
 ],
-"desktop:app/src/models/app-menu.ts":[
+"desktop:app/src/models/app-menu.ts": [
 145
 ],
-"desktop:app/src/ui/changes/sidebar.tsx":[
+"desktop:app/src/ui/changes/sidebar.tsx": [
 186,
 261
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 466
 ],
-"desktop:app/src/ui/index.tsx":[
+"desktop:app/src/ui/index.tsx": [
 129,
 132
 ],
-"desktop:app/src/ui/lib/id-pool.ts":[
+"desktop:app/src/ui/lib/id-pool.ts": [
 39,
 64
 ],
-"desktop:script/build.ts":[
+"desktop:script/build.ts": [
 68,
 70,
 73,
@@ -76,21 +76,21 @@
 356,
 384
 ],
-"desktop:script/changelog/parser.ts":[
+"desktop:script/changelog/parser.ts": [
 136
 ],
-"desktop:script/draft-release/draft-pull-request.ts":[
+"desktop:script/draft-release/draft-pull-request.ts": [
 25,
 31,
 35,
 40,
 43
 ],
-"desktop:script/draft-release/index.ts":[
+"desktop:script/draft-release/index.ts": [
 6,
 11
 ],
-"desktop:script/draft-release/run.ts":[
+"desktop:script/draft-release/run.ts": [
 64,
 113,
 114,
@@ -107,11 +107,11 @@
 212,
 220
 ],
-"desktop:script/generate-octicons.ts":[
+"desktop:script/generate-octicons.ts": [
 99,
 130
 ],
-"desktop:script/package.ts":[
+"desktop:script/package.ts": [
 31,
 39,
 56,
@@ -122,7 +122,7 @@
 122,
 147
 ],
-"desktop:script/publish.ts":[
+"desktop:script/publish.ts": [
 8,
 14,
 20,
@@ -133,29 +133,29 @@
 68,
 181
 ],
-"desktop:script/run.ts":[
+"desktop:script/run.ts": [
 23
 ],
-"desktop:script/start.ts":[
+"desktop:script/start.ts": [
 28,
 62,
 66
 ],
-"desktop:script/test-review.ts":[
+"desktop:script/test-review.ts": [
 8,
 10
 ],
-"desktop:script/test-setup.ts":[
+"desktop:script/test-setup.ts": [
 13,
 18,
 22,
 26
 ],
-"desktop:script/validate-changelog.ts":[
+"desktop:script/validate-changelog.ts": [
 9,
 80
 ],
-"desktop:script/validate-sass/validate-all.ts":[
+"desktop:script/validate-sass/validate-all.ts": [
 12,
 23,
 29,

@@ -1,62 +1,62 @@
 {
-"amplify:demo/core/context/demo.js":[
+"amplify:demo/core/context/demo.js": [
 0
 ],
-"amplify:demo/core/data/demo.js":[
+"amplify:demo/core/data/demo.js": [
 0
 ],
-"amplify:demo/core/nodata/demo.js":[
+"amplify:demo/core/nodata/demo.js": [
 0
 ],
-"amplify:demo/core/priority/demo.js":[
+"amplify:demo/core/priority/demo.js": [
 0
 ],
-"amplify:demo/store/implicit/demo.js":[
+"amplify:demo/store/implicit/demo.js": [
 0
 ],
-"amplify:demo/store/sessionstorage/demo.js":[
+"amplify:demo/store/sessionstorage/demo.js": [
 0
 ],
-"amplify:header.js":[
+"amplify:header.js": [
 0
 ],
-"amplify:lib/amplify-vsdoc.js":[
+"amplify:lib/amplify-vsdoc.js": [
 0
 ],
-"amplify:src/amplify-vsdoc.js":[
+"amplify:src/amplify-vsdoc.js": [
 0
 ],
-"amplify:src/amplify.core.js":[
+"amplify:src/amplify.core.js": [
 0
 ],
-"amplify:src/amplify.js":[
+"amplify:src/amplify.js": [
 0
 ],
-"amplify:src/amplify.request.js":[
+"amplify:src/amplify.request.js": [
 0
 ],
-"amplify:src/amplify.store.js":[
+"amplify:src/amplify.store.js": [
 0
 ],
-"amplify:src/core-header.js":[
+"amplify:src/core-header.js": [
 0
 ],
-"amplify:src/core.js":[
+"amplify:src/core.js": [
 0
 ],
-"amplify:src/request-header.js":[
+"amplify:src/request-header.js": [
 0
 ],
-"amplify:src/store-header.js":[
+"amplify:src/store-header.js": [
 0
 ],
-"amplify:src/store.js":[
+"amplify:src/store.js": [
 0
 ],
-"amplify:test-jquery-versions.js":[
+"amplify:test-jquery-versions.js": [
 0
 ],
-"amplify:test-server.js":[
+"amplify:test-server.js": [
 0
 ]
 }

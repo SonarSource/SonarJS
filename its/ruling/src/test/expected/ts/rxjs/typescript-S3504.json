@@ -1,9 +1,9 @@
 {
-"rxjs:src/testing/HotObservable.ts":[
+"rxjs:src/testing/HotObservable.ts": [
 40,
 42
 ],
-"rxjs:src/util/root.ts":[
+"rxjs:src/util/root.ts": [
 11
 ]
 }

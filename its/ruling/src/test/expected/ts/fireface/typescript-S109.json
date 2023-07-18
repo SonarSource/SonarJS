@@ -1,8 +1,8 @@
 {
-"fireface:src/avatar/avatar.component.ts":[
+"fireface:src/avatar/avatar.component.ts": [
 54
 ],
-"fireface:src/create/create.component.ts":[
+"fireface:src/create/create.component.ts": [
 101,
 163,
 187,
@@ -15,7 +15,7 @@
 194,
 194
 ],
-"fireface:src/storage/storage.component.ts":[
+"fireface:src/storage/storage.component.ts": [
 118
 ]
 }

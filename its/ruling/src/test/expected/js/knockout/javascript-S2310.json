@@ -1,14 +1,14 @@
 {
-"knockout:src/binding/editDetection/compareArrays.js":[
+"knockout:src/binding/editDetection/compareArrays.js": [
 11
 ],
-"knockout:src/binding/expressionRewriting.js":[
+"knockout:src/binding/expressionRewriting.js": [
 88
 ],
-"knockout:src/subscribables/observableArray.js":[
+"knockout:src/subscribables/observableArray.js": [
 28
 ],
-"knockout:src/utils.domNodeDisposal.js":[
+"knockout:src/utils.domNodeDisposal.js": [
 47
 ]
 }

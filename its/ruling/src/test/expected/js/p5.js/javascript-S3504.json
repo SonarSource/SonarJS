@@ -1,20 +1,20 @@
 {
-"p5.js:bench/math/random-fe-off.bench.js":[
+"p5.js:bench/math/random-fe-off.bench.js": [
 4
 ],
-"p5.js:bench/math/random-fe-on.bench.js":[
+"p5.js:bench/math/random-fe-on.bench.js": [
 4
 ],
-"p5.js:bench/math/sin.bench.js":[
+"p5.js:bench/math/sin.bench.js": [
 4
 ],
-"p5.js:docs/preprocessor.js":[
+"p5.js:docs/preprocessor.js": [
 63,
 83,
 119,
 188
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 40,
 41,
 76,
@@ -430,7 +430,7 @@
 4896,
 4897
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 1,
 3,
 4,
@@ -467,18 +467,18 @@
 252,
 255
 ],
-"p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js":[
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js": [
 1,
 7
 ],
-"p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js":[
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js": [
 1,
 6
 ],
-"p5.js:karma.conf.js":[
+"p5.js:karma.conf.js": [
 32
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 76,
 113,
 119,
@@ -1404,7 +1404,7 @@
 12873,
 12876
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 60,
 61,
 131,
@@ -1525,13 +1525,13 @@
 3389,
 3404
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 47,
 48,
 49,
 54
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 142
 ]
 }

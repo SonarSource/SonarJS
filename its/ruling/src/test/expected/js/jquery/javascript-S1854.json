@@ -1,11 +1,11 @@
 {
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 228
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 719
 ],
-"jquery:test/data/ajax/unreleasedXHR.html":[
+"jquery:test/data/ajax/unreleasedXHR.html": [
 12
 ]
 }

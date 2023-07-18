@@ -1,5 +1,5 @@
 {
-"angular.js:src/ng/parse.js":[
+"angular.js:src/ng/parse.js": [
 1391,
 1464,
 1478,
@@ -15,7 +15,7 @@
 1542,
 1548
 ],
-"angular.js:src/ngMock/angular-mocks.js":[
+"angular.js:src/ngMock/angular-mocks.js": [
 432
 ]
 }

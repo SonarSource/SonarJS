@@ -1,12 +1,12 @@
 {
-"Joust:ts/components/DebugApplication.tsx":[
+"Joust:ts/components/DebugApplication.tsx": [
 54,
 63,
 66,
 67,
 71
 ],
-"Joust:ts/components/GameWidget.tsx":[
+"Joust:ts/components/GameWidget.tsx": [
 266,
 277,
 278,
@@ -14,13 +14,13 @@
 287,
 294
 ],
-"Joust:ts/components/Scrubber.tsx":[
+"Joust:ts/components/Scrubber.tsx": [
 245,
 305,
 317,
 318
 ],
-"Joust:ts/components/Settings.tsx":[
+"Joust:ts/components/Settings.tsx": [
 29
 ]
 }

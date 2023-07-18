@@ -1,10 +1,10 @@
 {
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 5022,
 5025,
 12967
 ],
-"javascript-test-sources:src/ace/src/mode/livescript.js":[
+"javascript-test-sources:src/ace/src/mode/livescript.js": [
 30,
 34
 ]

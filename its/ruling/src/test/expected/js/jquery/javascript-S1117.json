@@ -1,68 +1,68 @@
 {
-"jquery:build/release/cdn.js":[
+"jquery:build/release/cdn.js": [
 62,
 104,
 108
 ],
-"jquery:build/tasks/build.js":[
+"jquery:build/tasks/build.js": [
 118,
 315
 ],
-"jquery:build/tasks/dist.js":[
+"jquery:build/tasks/dist.js": [
 31
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 116
 ],
-"jquery:src/attributes/classes.js":[
+"jquery:src/attributes/classes.js": [
 28,
 65
 ],
-"jquery:src/attributes/val.js":[
+"jquery:src/attributes/val.js": [
 63
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 300,
 317
 ],
-"jquery:src/core/access.js":[
+"jquery:src/core/access.js": [
 36
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 401,
 401
 ],
-"jquery:src/data.js":[
+"jquery:src/data.js": [
 131,
 132
 ],
-"jquery:src/deferred.js":[
+"jquery:src/deferred.js": [
 38,
 104,
 360
 ],
-"jquery:src/dimensions.js":[
+"jquery:src/dimensions.js": [
 17,
 17
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 304,
 305,
 346,
 350
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 519
 ],
-"jquery:src/manipulation.js":[
+"jquery:src/manipulation.js": [
 300,
 373
 ],
-"jquery:src/offset.js":[
+"jquery:src/offset.js": [
 174,
 174
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 27,
 28,
 153,
@@ -87,13 +87,13 @@
 1558,
 1558
 ],
-"jquery:src/serialize.js":[
+"jquery:src/serialize.js": [
 121
 ],
-"jquery:src/traversing.js":[
+"jquery:src/traversing.js": [
 104
 ],
-"jquery:src/traversing/findFilter.js":[
+"jquery:src/traversing/findFilter.js": [
 44
 ]
 }

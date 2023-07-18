@@ -1,19 +1,19 @@
 {
-"angular.js:docs/app/src/examples.js":[
+"angular.js:docs/app/src/examples.js": [
 110,
 111
 ],
-"angular.js:docs/config/processors/keywords.js":[
+"angular.js:docs/config/processors/keywords.js": [
 16
 ],
-"angular.js:src/Angular.js":[
+"angular.js:src/Angular.js": [
 1265
 ],
-"angular.js:src/jqLite.js":[
+"angular.js:src/jqLite.js": [
 332,
 398
 ],
-"angular.js:src/ng/compile.js":[
+"angular.js:src/ng/compile.js": [
 2018,
 2031,
 2919,
@@ -23,31 +23,31 @@
 4118,
 4183
 ],
-"angular.js:src/ng/directive/form.js":[
+"angular.js:src/ng/directive/form.js": [
 79,
 656,
 671,
 696
 ],
-"angular.js:src/ng/directive/ngModel.js":[
+"angular.js:src/ng/directive/ngModel.js": [
 257,
 271,
 284,
 1055
 ],
-"angular.js:src/ng/directive/ngOptions.js":[
+"angular.js:src/ng/directive/ngOptions.js": [
 581
 ],
-"angular.js:src/ng/directive/ngRepeat.js":[
+"angular.js:src/ng/directive/ngRepeat.js": [
 590,
 590,
 598
 ],
-"angular.js:src/ng/directive/select.js":[
+"angular.js:src/ng/directive/select.js": [
 183,
 289
 ],
-"angular.js:src/ng/parse.js":[
+"angular.js:src/ng/parse.js": [
 857,
 1363,
 1363,
@@ -55,16 +55,16 @@
 1572,
 1732
 ],
-"angular.js:src/ng/q.js":[
+"angular.js:src/ng/q.js": [
 351
 ],
-"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js":[
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
 115
 ],
-"angular.js:src/ngMessageFormat/messageFormatSelector.js":[
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
 54
 ],
-"angular.js:src/ngMock/angular-mocks.js":[
+"angular.js:src/ngMock/angular-mocks.js": [
 1602,
 1610,
 2256

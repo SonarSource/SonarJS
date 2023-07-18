@@ -1,28 +1,28 @@
 {
-"ant-design:components/affix/index.tsx":[
+"ant-design:components/affix/index.tsx": [
 209,
 210
 ],
-"ant-design:components/alert/ErrorBoundary.tsx":[
+"ant-design:components/alert/ErrorBoundary.tsx": [
 20
 ],
-"ant-design:components/button/button.tsx":[
+"ant-design:components/button/button.tsx": [
 244
 ],
-"ant-design:components/message/index.tsx":[
+"ant-design:components/message/index.tsx": [
 246
 ],
-"ant-design:components/statistic/Countdown.tsx":[
+"ant-design:components/statistic/Countdown.tsx": [
 70,
 88
 ],
-"ant-design:components/table/hooks/useSorter.tsx":[
+"ant-design:components/table/hooks/useSorter.tsx": [
 258
 ],
-"ant-design:components/upload/Upload.tsx":[
+"ant-design:components/upload/Upload.tsx": [
 309
 ],
-"ant-design:site/theme/template/Color/ColorPicker.tsx":[
+"ant-design:site/theme/template/Color/ColorPicker.tsx": [
 33
 ]
 }

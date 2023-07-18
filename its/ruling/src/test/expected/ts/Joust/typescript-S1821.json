@@ -1,5 +1,5 @@
 {
-"Joust:ts/components/EventLog.tsx":[
+"Joust:ts/components/EventLog.tsx": [
 269,
 348,
 360,
@@ -7,10 +7,10 @@
 382,
 392
 ],
-"Joust:ts/protocol/KettleDecoder.ts":[
+"Joust:ts/protocol/KettleDecoder.ts": [
 146
 ],
-"Joust:ts/state/plugins/Timer.ts":[
+"Joust:ts/state/plugins/Timer.ts": [
 76
 ]
 }

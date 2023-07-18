@@ -1,20 +1,20 @@
 {
-"Typescript:Gulpfile.ts":[
+"Typescript:Gulpfile.ts": [
 35
 ],
-"Typescript:scripts/errorCheck.ts":[
+"Typescript:scripts/errorCheck.ts": [
 2,
 3,
 4
 ],
-"Typescript:src/harness/harness.ts":[
+"Typescript:src/harness/harness.ts": [
 33
 ],
-"Typescript:src/harness/instrumenter.ts":[
+"Typescript:src/harness/instrumenter.ts": [
 2,
 3
 ],
-"Typescript:src/server/watchGuard/watchGuard.ts":[
+"Typescript:src/server/watchGuard/watchGuard.ts": [
 7
 ]
 }

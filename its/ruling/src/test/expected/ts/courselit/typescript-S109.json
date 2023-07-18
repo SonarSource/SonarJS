@@ -1,11 +1,11 @@
 {
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx":[
+"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
 35
 ],
-"courselit:apps/web/components/admin/courses/course-editor/group.tsx":[
+"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
 56
 ],
-"courselit:apps/web/components/admin/courses/lesson-editor.tsx":[
+"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
 62,
 67,
 68,
@@ -13,7 +13,7 @@
 89,
 90
 ],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx":[
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
 53,
 72,
 80,
@@ -24,87 +24,87 @@
 300,
 385
 ],
-"courselit:apps/web/components/admin/design/themes-manager/index.tsx":[
+"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
 41,
 45,
 223
 ],
-"courselit:apps/web/components/admin/media/index.tsx":[
+"courselit:apps/web/components/admin/media/index.tsx": [
 82
 ],
-"courselit:apps/web/components/admin/media/upload.tsx":[
+"courselit:apps/web/components/admin/media/upload.tsx": [
 144
 ],
-"courselit:apps/web/components/admin/settings.tsx":[
+"courselit:apps/web/components/admin/settings.tsx": [
 76,
 80,
 86
 ],
-"courselit:apps/web/components/public/article.tsx":[
+"courselit:apps/web/components/public/article.tsx": [
 56,
 57
 ],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx":[
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
 124,
 128,
 129,
 133
 ],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx":[
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
 111,
 123,
 127,
 128
 ],
-"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx":[
+"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
 26,
 27
 ],
-"courselit:apps/web/components/public/base-layout/scaffold/index.tsx":[
+"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
 94
 ],
-"courselit:apps/web/components/public/base-layout/template/index.tsx":[
+"courselit:apps/web/components/public/base-layout/template/index.tsx": [
 35,
 65,
 66,
 97
 ],
-"courselit:apps/web/components/public/items.tsx":[
+"courselit:apps/web/components/public/items.tsx": [
 31
 ],
-"courselit:apps/web/config/constants.ts":[
+"courselit:apps/web/config/constants.ts": [
 24,
 43
 ],
-"courselit:apps/web/graphql/courses/logic.ts":[
+"courselit:apps/web/graphql/courses/logic.ts": [
 338
 ],
-"courselit:apps/web/models/HttpError.ts":[
+"courselit:apps/web/models/HttpError.ts": [
 2
 ],
-"courselit:apps/web/pages/_app.tsx":[
+"courselit:apps/web/pages/_app.tsx": [
 60
 ],
-"courselit:apps/web/pages/api/auth/login.ts":[
+"courselit:apps/web/pages/api/auth/login.ts": [
 18,
 21,
 43
 ],
-"courselit:apps/web/pages/api/auth/logout.ts":[
+"courselit:apps/web/pages/api/auth/logout.ts": [
 9
 ],
-"courselit:apps/web/pages/api/auth/user.ts":[
+"courselit:apps/web/pages/api/auth/user.ts": [
 13,
 16,
 25
 ],
-"courselit:apps/web/pages/api/graph.ts":[
+"courselit:apps/web/pages/api/graph.ts": [
 16,
 19,
 34,
 45
 ],
-"courselit:apps/web/pages/api/media/[mediaId].ts":[
+"courselit:apps/web/pages/api/media/[mediaId].ts": [
 18,
 21,
 49,
@@ -112,19 +112,19 @@
 71,
 73
 ],
-"courselit:apps/web/pages/api/media/index.ts":[
+"courselit:apps/web/pages/api/media/index.ts": [
 18,
 21,
 49,
 52
 ],
-"courselit:apps/web/pages/api/media/presigned.ts":[
+"courselit:apps/web/pages/api/media/presigned.ts": [
 18,
 21,
 42,
 45
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts":[
+"courselit:apps/web/pages/api/payment/initiate.ts": [
 24,
 27,
 42,
@@ -136,7 +136,7 @@
 98,
 104
 ],
-"courselit:apps/web/pages/api/payment/verify.ts":[
+"courselit:apps/web/pages/api/payment/verify.ts": [
 18,
 21,
 36,
@@ -144,39 +144,39 @@
 54,
 59
 ],
-"courselit:apps/web/pages/api/payment/webhook.ts":[
+"courselit:apps/web/pages/api/payment/webhook.ts": [
 17,
 20,
 48,
 52,
 57
 ],
-"courselit:apps/web/pages/login.tsx":[
+"courselit:apps/web/pages/login.tsx": [
 54,
 84
 ],
-"courselit:apps/web/pages/logout.tsx":[
+"courselit:apps/web/pages/logout.tsx": [
 22
 ],
-"courselit:apps/web/payments/stripe-payment.ts":[
+"courselit:apps/web/payments/stripe-payment.ts": [
 52
 ],
-"courselit:apps/web/services/medialit.ts":[
+"courselit:apps/web/services/medialit.ts": [
 41
 ],
-"courselit:packages/components-library/src/course-item.tsx":[
+"courselit:packages/components-library/src/course-item.tsx": [
 21
 ],
-"courselit:packages/components-library/src/image.tsx":[
+"courselit:packages/components-library/src/image.tsx": [
 42,
 63,
 63
 ],
-"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx":[
+"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx": [
 22,
 22
 ],
-"courselit:packages/utils/src/fetch-builder.ts":[
+"courselit:packages/utils/src/fetch-builder.ts": [
 55
 ]
 }

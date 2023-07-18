@@ -1,13 +1,13 @@
 {
-"searchkit:packages/searchkit-elastic-ui/src/Facets/DateRangeFacet/index.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/Facets/DateRangeFacet/index.tsx": [
 10,
 39,
 53
 ],
-"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx":[
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
 40
 ],
-"searchkit:packages/searchkit-sdk/src/index.ts":[
+"searchkit:packages/searchkit-sdk/src/index.ts": [
 133,
 186
 ]

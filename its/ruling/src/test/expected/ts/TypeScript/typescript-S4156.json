@@ -1,12 +1,12 @@
 {
-"Typescript:scripts/ior.ts":[
+"Typescript:scripts/ior.ts": [
 14
 ],
-"Typescript:scripts/processDiagnosticMessages.ts":[
+"Typescript:scripts/processDiagnosticMessages.ts": [
 155,
 207
 ],
-"Typescript:scripts/word2md.ts":[
+"Typescript:scripts/word2md.ts": [
 10
 ]
 }

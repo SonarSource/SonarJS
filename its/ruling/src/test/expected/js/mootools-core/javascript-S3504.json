@@ -1,23 +1,23 @@
 {
-"mootools-core:Grunt/options/build.js":[
+"mootools-core:Grunt/options/build.js": [
 4,
 8
 ],
-"mootools-core:Grunt/options/dist.js":[
+"mootools-core:Grunt/options/dist.js": [
 4,
 7
 ],
-"mootools-core:Grunt/options/options.js":[
+"mootools-core:Grunt/options/options.js": [
 3,
 4,
 7,
 10
 ],
-"mootools-core:Grunt/options/specs.js":[
+"mootools-core:Grunt/options/specs.js": [
 4,
 7
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js":[
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
 34,
 45,
 46,
@@ -77,27 +77,27 @@
 716,
 728
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js":[
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
 3,
 12,
 17
 ],
-"mootools-core:Grunt/plugins/karma/syn/index.js":[
+"mootools-core:Grunt/plugins/karma/syn/index.js": [
 1,
 3,
 13
 ],
-"mootools-core:Grunt/tasks/tasks.js":[
+"mootools-core:Grunt/tasks/tasks.js": [
 4,
 6,
 46
 ],
-"mootools-core:Gruntfile.js":[
+"mootools-core:Gruntfile.js": [
 6,
 8,
 50
 ],
-"mootools-core:Source/Element/Element.js":[
+"mootools-core:Source/Element/Element.js": [
 17,
 18,
 25,
@@ -223,7 +223,7 @@
 1168,
 1174
 ],
-"mootools-core:Source/Fx/Fx.CSS.js":[
+"mootools-core:Source/Fx/Fx.CSS.js": [
 25,
 29,
 33,
@@ -238,7 +238,7 @@
 124,
 126
 ],
-"mootools-core:Source/Fx/Fx.Morph.js":[
+"mootools-core:Source/Fx/Fx.Morph.js": [
 28,
 33,
 34,
@@ -247,7 +247,7 @@
 43,
 60
 ],
-"mootools-core:Source/Fx/Fx.Transitions.js":[
+"mootools-core:Source/Fx/Fx.Transitions.js": [
 23,
 25,
 37,
@@ -255,7 +255,7 @@
 93,
 94
 ],
-"mootools-core:Source/Fx/Fx.Tween.js":[
+"mootools-core:Source/Fx/Fx.Tween.js": [
 37,
 39,
 53,
@@ -264,7 +264,7 @@
 89,
 118
 ],
-"mootools-core:Source/Request/Request.HTML.js":[
+"mootools-core:Source/Request/Request.HTML.js": [
 32,
 38,
 40,
@@ -273,10 +273,10 @@
 66,
 72
 ],
-"mootools-core:Source/Request/Request.JSON.js":[
+"mootools-core:Source/Request/Request.JSON.js": [
 35
 ],
-"mootools-core:Source/Slick/Slick.Finder.js":[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 12,
 30,
 43,
@@ -340,7 +340,7 @@
 899,
 962
 ],
-"mootools-core:Source/Slick/Slick.Parser.js":[
+"mootools-core:Source/Slick/Slick.Parser.js": [
 11,
 19,
 24,
@@ -359,7 +359,7 @@
 176,
 220
 ],
-"mootools-core:Source/Types/Array.js":[
+"mootools-core:Source/Types/Array.js": [
 21,
 28,
 29,
@@ -386,7 +386,7 @@
 163,
 175
 ],
-"mootools-core:Source/Types/Function.js":[
+"mootools-core:Source/Types/Function.js": [
 20,
 42,
 46,
@@ -400,20 +400,20 @@
 111,
 126
 ],
-"mootools-core:Source/Types/Number.js":[
+"mootools-core:Source/Types/Number.js": [
 29,
 46
 ],
-"mootools-core:Source/Types/String.js":[
+"mootools-core:Source/Types/String.js": [
 68,
 73
 ],
-"mootools-core:Source/Utilities/Cookie.js":[
+"mootools-core:Source/Utilities/Cookie.js": [
 20,
 44,
 55
 ],
-"mootools-core:Source/Utilities/JSON.js":[
+"mootools-core:Source/Utilities/JSON.js": [
 32,
 34,
 57,

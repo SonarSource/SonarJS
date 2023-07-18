@@ -1,8 +1,8 @@
 {
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js":[
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
 51
 ],
-"mootools-core:Source/Element/Element.js":[
+"mootools-core:Source/Element/Element.js": [
 60,
 93,
 144,
@@ -17,18 +17,18 @@
 993,
 999
 ],
-"mootools-core:Source/Fx/Fx.Tween.js":[
+"mootools-core:Source/Fx/Fx.Tween.js": [
 37,
 71
 ],
-"mootools-core:Source/Request/Request.HTML.js":[
+"mootools-core:Source/Request/Request.HTML.js": [
 85
 ],
-"mootools-core:Source/Types/Array.js":[
+"mootools-core:Source/Types/Array.js": [
 67,
 176
 ],
-"mootools-core:Source/Types/Function.js":[
+"mootools-core:Source/Types/Function.js": [
 22,
 43,
 54,
@@ -37,7 +37,7 @@
 106,
 114
 ],
-"mootools-core:Source/Types/Number.js":[
+"mootools-core:Source/Types/Number.js": [
 50
 ]
 }

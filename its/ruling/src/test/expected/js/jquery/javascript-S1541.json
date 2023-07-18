@@ -1,80 +1,80 @@
 {
-"jquery:build/tasks/build.js":[
+"jquery:build/tasks/build.js": [
 59
 ],
-"jquery:src/ajax.js":[
+"jquery:src/ajax.js": [
 134,
 192,
 382,
 714
 ],
-"jquery:src/ajax/jsonp.js":[
+"jquery:src/ajax/jsonp.js": [
 21
 ],
-"jquery:src/ajax/xhr.js":[
+"jquery:src/ajax/xhr.js": [
 20
 ],
-"jquery:src/attributes/attr.js":[
+"jquery:src/attributes/attr.js": [
 22
 ],
-"jquery:src/attributes/classes.js":[
+"jquery:src/attributes/classes.js": [
 122
 ],
-"jquery:src/attributes/prop.js":[
+"jquery:src/attributes/prop.js": [
 23
 ],
-"jquery:src/attributes/val.js":[
+"jquery:src/attributes/val.js": [
 95
 ],
-"jquery:src/core.js":[
+"jquery:src/core.js": [
 118
 ],
-"jquery:src/core/access.js":[
+"jquery:src/core/access.js": [
 6
 ],
-"jquery:src/core/init.js":[
+"jquery:src/core/init.js": [
 17
 ],
-"jquery:src/css.js":[
+"jquery:src/css.js": [
 46,
 114,
 202,
 278
 ],
-"jquery:src/css/adjustCSS.js":[
+"jquery:src/css/adjustCSS.js": [
 5
 ],
-"jquery:src/css/showHide.js":[
+"jquery:src/css/showHide.js": [
 30
 ],
-"jquery:src/effects.js":[
+"jquery:src/effects.js": [
 80,
 448,
 536
 ],
-"jquery:src/event.js":[
+"jquery:src/event.js": [
 37,
 106,
 221,
 294,
 359
 ],
-"jquery:src/event/trigger.js":[
+"jquery:src/event/trigger.js": [
 17
 ],
-"jquery:src/manipulation.js":[
+"jquery:src/manipulation.js": [
 96,
 206,
 373
 ],
-"jquery:src/manipulation/buildFragment.js":[
+"jquery:src/manipulation/buildFragment.js": [
 12
 ],
-"jquery:src/offset.js":[
+"jquery:src/offset.js": [
 11,
 102
 ],
-"jquery:src/selector.js":[
+"jquery:src/selector.js": [
 152,
 630,
 681,
@@ -85,10 +85,10 @@
 1397,
 1557
 ],
-"jquery:src/selector/uniqueSort.js":[
+"jquery:src/selector/uniqueSort.js": [
 8
 ],
-"jquery:src/traversing.js":[
+"jquery:src/traversing.js": [
 38
 ]
 }

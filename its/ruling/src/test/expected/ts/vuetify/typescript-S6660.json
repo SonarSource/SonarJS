@@ -1,11 +1,11 @@
 {
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx":[
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 235
 ],
-"vuetify:packages/vuetify/src/composables/theme.ts":[
+"vuetify:packages/vuetify/src/composables/theme.ts": [
 316
 ],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts":[
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 181
 ]
 }

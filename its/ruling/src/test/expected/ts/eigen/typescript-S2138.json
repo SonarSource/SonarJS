@@ -1,85 +1,85 @@
 {
-"eigen:src/app/Components/Artist/ArtistInsights/MarketStats.tests.tsx":[
+"eigen:src/app/Components/Artist/ArtistInsights/MarketStats.tests.tsx": [
 120,
 121
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts":[
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
 90,
 92,
 97,
 104,
 228
 ],
-"eigen:src/app/Components/ArtworkFilter/FilterArtworksHelpers.tests.tsx":[
+"eigen:src/app/Components/ArtworkFilter/FilterArtworksHelpers.tests.tsx": [
 544
 ],
-"eigen:src/app/Components/StickyTabPage/SnappyHorizontalRail.tsx":[
+"eigen:src/app/Components/StickyTabPage/SnappyHorizontalRail.tsx": [
 31
 ],
-"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx":[
+"eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx": [
 181
 ],
-"eigen:src/app/Components/StickyTabPage/reanimatedHelpers.ts":[
+"eigen:src/app/Components/StickyTabPage/reanimatedHelpers.ts": [
 55,
 56
 ],
-"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/useSpringValue.ts":[
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/useSpringValue.ts": [
 31
 ],
-"eigen:src/app/Scenes/MyAccount/Components/MyAccountFieldEditScreen.tsx":[
+"eigen:src/app/Scenes/MyAccount/Components/MyAccountFieldEditScreen.tsx": [
 123
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateForm.tsx":[
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateForm.tsx": [
 33,
 55
 ],
-"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx":[
+"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
 46
 ],
-"eigen:src/app/Scenes/MyCollection/utils/cleanArtworkPayload.tests.ts":[
+"eigen:src/app/Scenes/MyCollection/utils/cleanArtworkPayload.tests.ts": [
 15
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountEmail.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountEmail.tsx": [
 44
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountName.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountName.tsx": [
 40
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountPassword.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountPassword.tsx": [
 39
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx": [
 128
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingLoginWithOTP.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingLoginWithOTP.tsx": [
 81
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx":[
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
 185
 ],
-"eigen:src/app/Scenes/VanityURL/VanityURLEntity.tests.tsx":[
+"eigen:src/app/Scenes/VanityURL/VanityURLEntity.tests.tsx": [
 43
 ],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.tests.ts":[
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.tests.ts": [
 45,
 70
 ],
-"eigen:src/app/store/AuthModel.tests.ts":[
+"eigen:src/app/store/AuthModel.tests.ts": [
 629
 ],
-"eigen:src/app/store/GlobalStore.tsx":[
+"eigen:src/app/store/GlobalStore.tsx": [
 88
 ],
-"eigen:src/app/store/NativeModel.tests.ts":[
+"eigen:src/app/store/NativeModel.tests.ts": [
 33
 ],
-"eigen:src/app/tests/MockRelayRenderer.tsx":[
+"eigen:src/app/tests/MockRelayRenderer.tsx": [
 136
 ],
-"eigen:src/app/tests/createMockNetworkLayer/createMockNetworkLayer.tests.tsx":[
+"eigen:src/app/tests/createMockNetworkLayer/createMockNetworkLayer.tests.tsx": [
 54
 ],
-"eigen:src/app/utils/PushNotification.ts":[
+"eigen:src/app/utils/PushNotification.ts": [
 177
 ]
 }

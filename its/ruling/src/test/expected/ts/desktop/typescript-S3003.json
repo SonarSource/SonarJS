@@ -1,8 +1,8 @@
 {
-"desktop:app/src/lib/stores/pull-request-store.ts":[
+"desktop:app/src/lib/stores/pull-request-store.ts": [
 271
 ],
-"desktop:app/src/lib/truncate-with-ellipsis.ts":[
+"desktop:app/src/lib/truncate-with-ellipsis.ts": [
 16,
 16
 ]

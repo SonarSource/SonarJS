@@ -1,10 +1,10 @@
 {
-"jira-clone:client/src/shared/components/Select/Dropdown.jsx":[
+"jira-clone:client/src/shared/components/Select/Dropdown.jsx": [
 91,
 112,
 137
 ],
-"jira-clone:client/src/shared/hooks/api/query.js":[
+"jira-clone:client/src/shared/hooks/api/query.js": [
 34
 ]
 }

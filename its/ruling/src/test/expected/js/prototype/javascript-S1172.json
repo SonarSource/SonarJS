@@ -1,16 +1,16 @@
 {
-"prototype:ext/update_helper/prototype_update_helper.js":[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 196
 ],
-"prototype:src/prototype/ajax/base.js":[
+"prototype:src/prototype/ajax/base.js": [
 12
 ],
-"prototype:src/prototype/dom/event.js":[
+"prototype:src/prototype/dom/event.js": [
 652,
 756,
 1231
 ],
-"prototype:src/prototype/dom/layout.js":[
+"prototype:src/prototype/dom/layout.js": [
 271,
 271,
 518,
@@ -20,13 +20,13 @@
 587,
 597
 ],
-"prototype:src/prototype/lang/enumerable.js":[
+"prototype:src/prototype/lang/enumerable.js": [
 766
 ],
-"prototype:src/prototype/lang/string.js":[
+"prototype:src/prototype/lang/string.js": [
 583
 ],
-"prototype:test/functional/event.html":[
+"prototype:test/functional/event.html": [
 250
 ]
 }

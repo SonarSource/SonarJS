@@ -1,8 +1,8 @@
 {
-"Typescript:src/compiler/factory.ts":[
+"Typescript:src/compiler/factory.ts": [
 2483
 ],
-"Typescript:src/services/codefixes/importFixes.ts":[
+"Typescript:src/services/codefixes/importFixes.ts": [
 87
 ]
 }

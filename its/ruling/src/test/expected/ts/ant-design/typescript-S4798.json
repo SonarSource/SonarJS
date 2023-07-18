@@ -1,28 +1,28 @@
 {
-"ant-design:components/_util/statusUtils.tsx":[
+"ant-design:components/_util/statusUtils.tsx": [
 11
 ],
-"ant-design:components/form/FormItem.tsx":[
+"ant-design:components/form/FormItem.tsx": [
 261
 ],
-"ant-design:components/slider/index.tsx":[
+"ant-design:components/slider/index.tsx": [
 80
 ],
-"ant-design:components/spin/index.tsx":[
+"ant-design:components/spin/index.tsx": [
 74
 ],
-"ant-design:components/transfer/list.tsx":[
+"ant-design:components/transfer/list.tsx": [
 192,
 193
 ],
-"ant-design:components/typography/Base/index.tsx":[
+"ant-design:components/typography/Base/index.tsx": [
 84,
 101
 ],
-"ant-design:components/upload/Upload.tsx":[
+"ant-design:components/upload/Upload.tsx": [
 323
 ],
-"ant-design:site/theme/template/utils.tsx":[
+"ant-design:site/theme/template/utils.tsx": [
 120
 ]
 }

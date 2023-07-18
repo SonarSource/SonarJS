@@ -1,5 +1,5 @@
 {
-"javascript-test-sources:src/ace/Makefile.dryice.js":[
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
 48,
 61,
 178,
@@ -14,14 +14,14 @@
 620,
 817
 ],
-"javascript-test-sources:src/ace/demo/code_lens.html":[
+"javascript-test-sources:src/ace/demo/code_lens.html": [
 37,
 44
 ],
-"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html":[
+"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html": [
 38
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
 183,
 184,
 185,
@@ -29,7 +29,7 @@
 291,
 332
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
 50,
 68,
 86,
@@ -39,7 +39,7 @@
 380,
 392
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js": [
 11,
 70,
 99,
@@ -47,32 +47,32 @@
 127,
 148
 ],
-"javascript-test-sources:src/ace/demo/kitchen-sink/util.js":[
+"javascript-test-sources:src/ace/demo/kitchen-sink/util.js": [
 89,
 93
 ],
-"javascript-test-sources:src/ace/demo/scrollable-page.html":[
+"javascript-test-sources:src/ace/demo/scrollable-page.html": [
 96
 ],
-"javascript-test-sources:src/ace/demo/settings_menu.html":[
+"javascript-test-sources:src/ace/demo/settings_menu.html": [
 39
 ],
-"javascript-test-sources:src/ace/demo/shadow-dom.html":[
+"javascript-test-sources:src/ace/demo/shadow-dom.html": [
 52
 ],
-"javascript-test-sources:src/ace/doc/build.js":[
+"javascript-test-sources:src/ace/doc/build.js": [
 40
 ],
-"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js":[
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js": [
 22
 ],
-"javascript-test-sources:src/ace/experiments/animate_folding.html":[
+"javascript-test-sources:src/ace/experiments/animate_folding.html": [
 143
 ],
-"javascript-test-sources:src/ace/experiments/capture.html":[
+"javascript-test-sources:src/ace/experiments/capture.html": [
 33
 ],
-"javascript-test-sources:src/ace/experiments/dom.html":[
+"javascript-test-sources:src/ace/experiments/dom.html": [
 15,
 51,
 87,
@@ -82,10 +82,10 @@
 257,
 315
 ],
-"javascript-test-sources:src/ace/lib/ace/loader_build.js":[
+"javascript-test-sources:src/ace/lib/ace/loader_build.js": [
 9
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 27,
 28,
 54,
@@ -198,7 +198,7 @@
 9734,
 9734
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 2,
 2,
 2,
@@ -246,7 +246,7 @@
 10439,
 10439
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 25,
 25,
 49,
@@ -419,7 +419,7 @@
 19339,
 19339
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js": [
 110,
 111,
 153,
@@ -427,7 +427,7 @@
 261,
 332
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/php/php.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
 177,
 180,
 960,
@@ -435,12 +435,12 @@
 985,
 1002
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
 51,
 62,
 68
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
 25,
 25,
 39,
@@ -453,7 +453,7 @@
 4366,
 4366
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
 25,
 25,
 39,
@@ -466,7 +466,7 @@
 4299,
 4299
 ],
-"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js":[
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
 1,
 1,
 1,
@@ -538,7 +538,7 @@
 3946,
 3946
 ],
-"javascript-test-sources:src/ace/lib/ace/worker/worker_test.js":[
+"javascript-test-sources:src/ace/lib/ace/worker/worker_test.js": [
 46,
 46,
 46,
@@ -553,7 +553,7 @@
 92,
 109
 ],
-"javascript-test-sources:src/ace/src/autocomplete.js":[
+"javascript-test-sources:src/ace/src/autocomplete.js": [
 269,
 274,
 275,
@@ -561,31 +561,31 @@
 304,
 455
 ],
-"javascript-test-sources:src/ace/src/autocomplete/popup.js":[
+"javascript-test-sources:src/ace/src/autocomplete/popup.js": [
 242
 ],
-"javascript-test-sources:src/ace/src/commands/default_commands.js":[
+"javascript-test-sources:src/ace/src/commands/default_commands.js": [
 764,
 807
 ],
-"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js":[
+"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js": [
 116
 ],
-"javascript-test-sources:src/ace/src/config.js":[
+"javascript-test-sources:src/ace/src/config.js": [
 112,
 116
 ],
-"javascript-test-sources:src/ace/src/edit_session.js":[
+"javascript-test-sources:src/ace/src/edit_session.js": [
 1179,
 1712
 ],
-"javascript-test-sources:src/ace/src/edit_session/folding.js":[
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
 417
 ],
-"javascript-test-sources:src/ace/src/edit_session_test.js":[
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
 672
 ],
-"javascript-test-sources:src/ace/src/editor.js":[
+"javascript-test-sources:src/ace/src/editor.js": [
 160,
 865,
 1696,
@@ -595,34 +595,34 @@
 2707,
 2899
 ],
-"javascript-test-sources:src/ace/src/ext/code_lens_test.js":[
+"javascript-test-sources:src/ace/src/ext/code_lens_test.js": [
 48
 ],
-"javascript-test-sources:src/ace/src/ext/emmet.js":[
+"javascript-test-sources:src/ace/src/ext/emmet.js": [
 379
 ],
-"javascript-test-sources:src/ace/src/ext/error_marker.js":[
+"javascript-test-sources:src/ace/src/ext/error_marker.js": [
 70
 ],
-"javascript-test-sources:src/ace/src/ext/hardwrap.js":[
+"javascript-test-sources:src/ace/src/ext/hardwrap.js": [
 44,
 44
 ],
-"javascript-test-sources:src/ace/src/ext/keybinding_menu.js":[
+"javascript-test-sources:src/ace/src/ext/keybinding_menu.js": [
 47
 ],
-"javascript-test-sources:src/ace/src/ext/modelist.js":[
+"javascript-test-sources:src/ace/src/ext/modelist.js": [
 11,
 22,
 39
 ],
-"javascript-test-sources:src/ace/src/ext/options.js":[
+"javascript-test-sources:src/ace/src/ext/options.js": [
 213,
 304,
 312,
 323
 ],
-"javascript-test-sources:src/ace/src/ext/prompt.js":[
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
 139,
 140,
 141,
@@ -633,23 +633,23 @@
 388,
 454
 ],
-"javascript-test-sources:src/ace/src/ext/static_highlight.js":[
+"javascript-test-sources:src/ace/src/ext/static_highlight.js": [
 97
 ],
-"javascript-test-sources:src/ace/src/ext/textarea.js":[
+"javascript-test-sources:src/ace/src/ext/textarea.js": [
 224,
 240,
 416
 ],
-"javascript-test-sources:src/ace/src/ext/whitespace.js":[
+"javascript-test-sources:src/ace/src/ext/whitespace.js": [
 38,
 39,
 102
 ],
-"javascript-test-sources:src/ace/src/incremental_search_test.js":[
+"javascript-test-sources:src/ace/src/incremental_search_test.js": [
 168
 ],
-"javascript-test-sources:src/ace/src/keyboard/emacs.js":[
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
 150,
 184,
 187,
@@ -657,12 +657,12 @@
 293,
 452
 ],
-"javascript-test-sources:src/ace/src/keyboard/hash_handler.js":[
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
 75,
 76,
 77
 ],
-"javascript-test-sources:src/ace/src/keyboard/textinput.js":[
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
 65,
 238,
 364,
@@ -671,12 +671,12 @@
 635,
 635
 ],
-"javascript-test-sources:src/ace/src/keyboard/textinput_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/textinput_test.js": [
 238,
 359,
 422
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 41,
 119,
 300,
@@ -711,13 +711,13 @@
 6226,
 6796
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
 17,
 21,
 40,
 59
 ],
-"javascript-test-sources:src/ace/src/keyboard/vim_test.js":[
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
 154,
 156,
 245,
@@ -1185,7 +1185,7 @@
 5542,
 5543
 ],
-"javascript-test-sources:src/ace/src/layer/font_metrics.js":[
+"javascript-test-sources:src/ace/src/layer/font_metrics.js": [
 151,
 176,
 176,
@@ -1194,82 +1194,82 @@
 178,
 178
 ],
-"javascript-test-sources:src/ace/src/layer/text.js":[
+"javascript-test-sources:src/ace/src/layer/text.js": [
 693,
 732
 ],
-"javascript-test-sources:src/ace/src/lib/keys.js":[
+"javascript-test-sources:src/ace/src/lib/keys.js": [
 140
 ],
-"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js":[
+"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js": [
 18,
 200
 ],
-"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js":[
+"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js": [
 10
 ],
-"javascript-test-sources:src/ace/src/mode/csound_preprocessor_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/csound_preprocessor_highlight_rules.js": [
 255
 ],
-"javascript-test-sources:src/ace/src/mode/drools_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/drools_highlight_rules.js": [
 74
 ],
-"javascript-test-sources:src/ace/src/mode/folding/asciidoc.js":[
+"javascript-test-sources:src/ace/src/mode/folding/asciidoc.js": [
 41,
 53
 ],
-"javascript-test-sources:src/ace/src/mode/folding/latex.js":[
+"javascript-test-sources:src/ace/src/mode/folding/latex.js": [
 65,
 66
 ],
-"javascript-test-sources:src/ace/src/mode/folding/markdown.js":[
+"javascript-test-sources:src/ace/src/mode/folding/markdown.js": [
 55
 ],
-"javascript-test-sources:src/ace/src/mode/livescript.js":[
+"javascript-test-sources:src/ace/src/mode/livescript.js": [
 5
 ],
-"javascript-test-sources:src/ace/src/mode/razor_highlight_rules.js":[
+"javascript-test-sources:src/ace/src/mode/razor_highlight_rules.js": [
 118
 ],
-"javascript-test-sources:src/ace/src/mode/text.js":[
+"javascript-test-sources:src/ace/src/mode/text.js": [
 241
 ],
-"javascript-test-sources:src/ace/src/mouse/dragdrop_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/dragdrop_handler.js": [
 21,
 280
 ],
-"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js":[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
 35,
 122,
 152,
 176
 ],
-"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js": [
 42,
 113,
 143
 ],
-"javascript-test-sources:src/ace/src/mouse/touch_handler.js":[
+"javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
 188,
 188,
 287
 ],
-"javascript-test-sources:src/ace/src/multi_select.js":[
+"javascript-test-sources:src/ace/src/multi_select.js": [
 735
 ],
-"javascript-test-sources:src/ace/src/multi_select_test.js":[
+"javascript-test-sources:src/ace/src/multi_select_test.js": [
 25,
 43,
 46
 ],
-"javascript-test-sources:src/ace/src/scrollbar_custom.js":[
+"javascript-test-sources:src/ace/src/scrollbar_custom.js": [
 133,
 280
 ],
-"javascript-test-sources:src/ace/src/selection_test.js":[
+"javascript-test-sources:src/ace/src/selection_test.js": [
 438
 ],
-"javascript-test-sources:src/ace/src/snippets.js":[
+"javascript-test-sources:src/ace/src/snippets.js": [
 260,
 344,
 374,
@@ -1284,14 +1284,14 @@
 898,
 899
 ],
-"javascript-test-sources:src/ace/src/split.js":[
+"javascript-test-sources:src/ace/src/split.js": [
 224
 ],
-"javascript-test-sources:src/ace/src/test/all_browser.js":[
+"javascript-test-sources:src/ace/src/test/all_browser.js": [
 93,
 139
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/async.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
 36,
 36,
 60,
@@ -1301,12 +1301,12 @@
 204,
 287
 ],
-"javascript-test-sources:src/ace/src/test/asyncjs/test.js":[
+"javascript-test-sources:src/ace/src/test/asyncjs/test.js": [
 89,
 103,
 165
 ],
-"javascript-test-sources:src/ace/src/test/mockdom.js":[
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
 183,
 524,
 678,
@@ -1314,41 +1314,41 @@
 779,
 848
 ],
-"javascript-test-sources:src/ace/src/test/user.js":[
+"javascript-test-sources:src/ace/src/test/user.js": [
 92,
 160,
 161
 ],
-"javascript-test-sources:src/ace/src/tokenizer.js":[
+"javascript-test-sources:src/ace/src/tokenizer.js": [
 98
 ],
-"javascript-test-sources:src/ace/src/undomanager.js":[
+"javascript-test-sources:src/ace/src/undomanager.js": [
 290
 ],
-"javascript-test-sources:src/ace/src/virtual_renderer.js":[
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
 630,
 690,
 830
 ],
-"javascript-test-sources:src/ace/static.js":[
+"javascript-test-sources:src/ace/static.js": [
 59,
 110
 ],
-"javascript-test-sources:src/ace/tool/add_mode.js":[
+"javascript-test-sources:src/ace/tool/add_mode.js": [
 5,
 5
 ],
-"javascript-test-sources:src/ace/tool/lib.js":[
+"javascript-test-sources:src/ace/tool/lib.js": [
 46
 ],
-"javascript-test-sources:src/ace/tool/mode_creator.js":[
+"javascript-test-sources:src/ace/tool/mode_creator.js": [
 12,
 155,
 155,
 218,
 239
 ],
-"javascript-test-sources:src/ace/tool/tmlanguage.js":[
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
 122,
 132,
 141,
@@ -1358,51 +1358,51 @@
 523,
 560
 ],
-"javascript-test-sources:src/ace/tool/tmsnippets.js":[
+"javascript-test-sources:src/ace/tool/tmsnippets.js": [
 6,
 14,
 20,
 31
 ],
-"javascript-test-sources:src/ace/tool/tmtheme.js":[
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
 263,
 306,
 310,
 310
 ],
-"javascript-test-sources:src/ace/tool/update_deps.js":[
+"javascript-test-sources:src/ace/tool/update_deps.js": [
 210,
 271
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js": [
 262
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/index.js": [
 36
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/post.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/post.js": [
 32
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/caja-sanitizers.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/caja-sanitizers.js": [
 8,
 19
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/services/ajax-test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/services/ajax-test.js": [
 44,
 58,
 72
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js": [
 244
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/clients.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/clients.js": [
 36
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js": [
 67,
 86
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/index.js": [
 38,
 55,
 102,
@@ -1410,48 +1410,48 @@
 146,
 191
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/notifications.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/notifications.js": [
 61,
 79,
 129,
 137
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/posts.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/posts.js": [
 57,
 91,
 132,
 179,
 220
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/roles.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/roles.js": [
 41,
 54,
 68
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/settings.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/settings.js": [
 74,
 107,
 169,
 210
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/slugs.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/slugs.js": [
 47,
 60
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/tags.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/tags.js": [
 35,
 66,
 102,
 138,
 178
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/themes.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/themes.js": [
 37,
 110,
 163,
 165
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/users.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/users.js": [
 22,
 87,
 123,
@@ -1468,62 +1468,62 @@
 493,
 509
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
 82,
 123
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/dependencies.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/dependencies.js": [
 30
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js": [
 19,
 33
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
 307,
 317
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/admin.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/admin.js": [
 22,
 52
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/channel-config.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/channel-config.js": [
 5
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/error.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/error.js": [
 2
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js": [
 35,
 45
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/templates.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/templates.js": [
 77
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/data-importer.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/data-importer.js": [
 95
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js": [
 16,
 50,
 71,
 80,
 168
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js": [
 21,
 28,
 119,
 162
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/builder.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/builder.js": [
 16,
 20,
 29,
 38,
 49
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
 33,
 42,
 61,
@@ -1533,42 +1533,42 @@
 304,
 344
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js": [
 21
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js": [
 32,
 36,
 44
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/mysql.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/mysql.js": [
 19,
 25,
 31,
 41
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/pg.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/pg.js": [
 18,
 24,
 33
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/sqlite3.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/sqlite3.js": [
 12,
 18,
 26,
 32
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/commands.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/commands.js": [
 55,
 62
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
 37,
 89,
 105,
 143
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/rss/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/rss/index.js": [
 28,
 110,
 123,
@@ -1577,61 +1577,61 @@
 186,
 212
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
 190
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/filters.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/filters.js": [
 82
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/date.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/date.js": [
 26
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/foreach.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/foreach.js": [
 64
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js": [
 92
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_foot.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_foot.js": [
 22
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_head.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_head.js": [
 127
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/has.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/has.js": [
 22,
 35,
 36
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js": [
 52
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/navigation.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/navigation.js": [
 44
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/tags.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/tags.js": [
 28
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js": [
 40
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth-strategies.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth-strategies.js": [
 43,
 43
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/cache-control.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/cache-control.js": [
 12
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js": [
 40
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/decide-is-admin.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/decide-is-admin.js": [
 11
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/index.js": [
 50
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/oauth.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/oauth.js": [
 27,
 29,
 43,
@@ -1639,33 +1639,33 @@
 57,
 61
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/serve-shared-file.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/serve-shared-file.js": [
 17
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/uncapitalise.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/uncapitalise.js": [
 12
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
 78,
 405,
 457
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/filter.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/filter.js": [
 77
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js": [
 70,
 127
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
 177,
 473,
 499
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js": [
 22
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
 321,
 327,
 336,
@@ -1675,49 +1675,49 @@
 537,
 539
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/api.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/api.js": [
 6
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js": [
 9
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/downzero.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/downzero.js": [
 9,
 14
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/labs.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/labs.js": [
 4
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js": [
 12,
 15,
 23
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
 174
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
 179,
 456,
 462,
 496
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js": [
 518
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/admin_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/admin_spec.js": [
 113,
 151
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/authentication_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/authentication_spec.js": [
 135,
 135
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/notifications_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/notifications_spec.js": [
 100,
 100
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/posts_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/posts_spec.js": [
 405,
 405,
 432,
@@ -1751,7 +1751,7 @@
 1033,
 1033
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/settings_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/settings_spec.js": [
 125,
 125,
 159,
@@ -1759,22 +1759,22 @@
 192,
 192
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/users_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/users_spec.js": [
 334,
 334,
 370,
 370
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/frontend_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/frontend_spec.js": [
 790,
 866,
 951
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_notifications_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_notifications_spec.js": [
 126,
 147
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_users_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_users_spec.js": [
 29,
 876,
 896,
@@ -1783,7 +1783,7 @@
 958,
 978
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
 41,
 58,
 73,
@@ -1797,15 +1797,15 @@
 498,
 591
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/api_utils_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/api_utils_spec.js": [
 175,
 175
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js": [
 534,
 549
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js": [
 792,
 795,
 808,
@@ -1819,25 +1819,25 @@
 889,
 892
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/error_handling_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/error_handling_spec.js": [
 483
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/permissions_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/permissions_spec.js": [
 28,
 238
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/foreach_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/foreach_spec.js": [
 41,
 41
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_utils_spec.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_utils_spec.js": [
 91,
 98
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js": [
 96
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js":[
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js": [
 84,
 87,
 381,
@@ -1850,34 +1850,34 @@
 546,
 576
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/1-let.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/1-let.js": [
 7
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 24
 ],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/rest-spread.js":[
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/rest-spread.js": [
 16
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 12
 ],
-"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js":[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
 47
 ],
-"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js":[
+"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js": [
 25
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js": [
 25
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
 99
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js": [
 8
 ],
-"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js":[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
 30,
 43,
 70,
@@ -1890,7 +1890,7 @@
 259,
 259
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 586,
 776,
 941,
@@ -1913,13 +1913,13 @@
 3851,
 3872
 ],
-"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js":[
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
 451
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js": [
 146
 ],
-"javascript-test-sources:src/ecmascript6/sonar-web/test/helpers/test-page.js":[
+"javascript-test-sources:src/ecmascript6/sonar-web/test/helpers/test-page.js": [
 13,
 13,
 28,
@@ -1942,7 +1942,7 @@
 163,
 175
 ],
-"javascript-test-sources:src/ecmascript6/templating/test/example/shadow-dom-util.js":[
+"javascript-test-sources:src/ecmascript6/templating/test/example/shadow-dom-util.js": [
 9,
 9,
 9,
@@ -1951,10 +1951,10 @@
 20,
 20
 ],
-"javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js":[
+"javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js": [
 16
 ],
-"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js":[
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
 448,
 449,
 449,

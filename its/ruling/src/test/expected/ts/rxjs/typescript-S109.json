@@ -1,9 +1,9 @@
 {
-"rxjs:src/observable/IteratorObservable.ts":[
+"rxjs:src/observable/IteratorObservable.ts": [
 135,
 135
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts":[
+"rxjs:src/observable/dom/AjaxObservable.ts": [
 43,
 345,
 347,
@@ -13,18 +13,18 @@
 358,
 380
 ],
-"rxjs:src/operator/bufferTime.ts":[
+"rxjs:src/operator/bufferTime.ts": [
 69,
 74,
 75
 ],
-"rxjs:src/operator/reduce.ts":[
+"rxjs:src/operator/reduce.ts": [
 62
 ],
-"rxjs:src/operator/scan.ts":[
+"rxjs:src/operator/scan.ts": [
 55
 ],
-"rxjs:src/operator/windowTime.ts":[
+"rxjs:src/operator/windowTime.ts": [
 89,
 90,
 93,
@@ -32,10 +32,10 @@
 95,
 96
 ],
-"rxjs:src/scheduler/VirtualTimeScheduler.ts":[
+"rxjs:src/scheduler/VirtualTimeScheduler.ts": [
 7
 ],
-"rxjs:src/util/AnimationFrame.ts":[
+"rxjs:src/util/AnimationFrame.ts": [
 24,
 24
 ]

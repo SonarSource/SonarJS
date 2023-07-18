@@ -1,8 +1,8 @@
 {
-"rxjs:src/MiscJSDoc.ts":[
+"rxjs:src/MiscJSDoc.ts": [
 140
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts":[
+"rxjs:src/observable/dom/AjaxObservable.ts": [
 72,
 76,
 80,
@@ -12,28 +12,28 @@
 310,
 371
 ],
-"rxjs:src/operator/ignoreElements.ts":[
+"rxjs:src/operator/ignoreElements.ts": [
 18
 ],
-"rxjs:src/operator/share.ts":[
+"rxjs:src/operator/share.ts": [
 23
 ],
-"rxjs:src/operator/shareReplay.ts":[
+"rxjs:src/operator/shareReplay.ts": [
 26
 ],
-"rxjs:src/operator/timeInterval.ts":[
+"rxjs:src/operator/timeInterval.ts": [
 21
 ],
-"rxjs:src/operator/timestamp.ts":[
+"rxjs:src/operator/timestamp.ts": [
 20
 ],
-"rxjs:src/util/assign.ts":[
+"rxjs:src/util/assign.ts": [
 14
 ],
-"rxjs:src/util/isNumeric.ts":[
+"rxjs:src/util/isNumeric.ts": [
 9
 ],
-"rxjs:src/util/tryCatch.ts":[
+"rxjs:src/util/tryCatch.ts": [
 17
 ]
 }

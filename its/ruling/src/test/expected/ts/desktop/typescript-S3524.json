@@ -1,14 +1,14 @@
 {
-"desktop:app/src/lib/git/cherry-pick.ts":[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 385
 ],
-"desktop:app/src/lib/git/gitignore.ts":[
+"desktop:app/src/lib/git/gitignore.ts": [
 106
 ],
-"desktop:app/src/lib/git/rebase.ts":[
+"desktop:app/src/lib/git/rebase.ts": [
 434
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 1379,
 2777,
 3174,
@@ -21,60 +21,60 @@
 6173,
 6190
 ],
-"desktop:app/src/main-process/main.ts":[
+"desktop:app/src/main-process/main.ts": [
 614,
 623
 ],
-"desktop:app/src/main-process/menu/build-default-menu.ts":[
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
 250
 ],
-"desktop:app/src/ui/app.tsx":[
+"desktop:app/src/ui/app.tsx": [
 224,
 785,
 1341
 ],
-"desktop:app/src/ui/branches/branch-list.tsx":[
+"desktop:app/src/ui/branches/branch-list.tsx": [
 210
 ],
-"desktop:app/src/ui/diff/diff-explorer.ts":[
+"desktop:app/src/ui/diff/diff-explorer.ts": [
 38
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx":[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 396
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 605
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 2630,
 2638
 ],
-"desktop:app/src/ui/donut.tsx":[
+"desktop:app/src/ui/donut.tsx": [
 42
 ],
-"desktop:app/src/ui/history/commit-list.tsx":[
+"desktop:app/src/ui/history/commit-list.tsx": [
 419
 ],
-"desktop:app/src/ui/lib/draggable.tsx":[
+"desktop:app/src/ui/lib/draggable.tsx": [
 170
 ],
-"desktop:app/src/ui/lib/git-config-user-form.tsx":[
+"desktop:app/src/ui/lib/git-config-user-form.tsx": [
 195
 ],
-"desktop:app/src/ui/lib/list/list.tsx":[
+"desktop:app/src/ui/lib/list/list.tsx": [
 586
 ],
-"desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx":[
+"desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx": [
 113,
 207
 ],
-"desktop:app/src/ui/multi-commit-operation/choose-branch/choose-target-branch.tsx":[
+"desktop:app/src/ui/multi-commit-operation/choose-branch/choose-target-branch.tsx": [
 95
 ],
-"desktop:app/src/ui/multi-commit-operation/dialog/confirm-abort-dialog.tsx":[
+"desktop:app/src/ui/multi-commit-operation/dialog/confirm-abort-dialog.tsx": [
 46
 ],
-"desktop:app/src/ui/tutorial/tutorial-panel.tsx":[
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
 86
 ]
 }

@@ -1,8 +1,8 @@
 {
-"paper.js:examples/Node.js/JSONtoPDF.js":[
+"paper.js:examples/Node.js/JSONtoPDF.js": [
 15
 ],
-"paper.js:examples/Scripts/BooleanOperations.html":[
+"paper.js:examples/Scripts/BooleanOperations.html": [
 92,
 93,
 105,
@@ -28,58 +28,58 @@
 213,
 214
 ],
-"paper.js:gulp/tasks/publish.js":[
+"paper.js:gulp/tasks/publish.js": [
 94
 ],
-"paper.js:gulp/typescript/typescript-definition-generator.js":[
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
 59,
 60
 ],
-"paper.js:src/anim/Tween.js":[
+"paper.js:src/anim/Tween.js": [
 228
 ],
-"paper.js:src/basic/Point.js":[
+"paper.js:src/basic/Point.js": [
 1037
 ],
-"paper.js:src/basic/Rectangle.js":[
+"paper.js:src/basic/Rectangle.js": [
 894
 ],
-"paper.js:src/basic/Size.js":[
+"paper.js:src/basic/Size.js": [
 560
 ],
-"paper.js:src/core/Base.js":[
+"paper.js:src/core/Base.js": [
 393,
 465,
 466
 ],
-"paper.js:src/core/PaperScope.js":[
+"paper.js:src/core/PaperScope.js": [
 232
 ],
-"paper.js:src/core/PaperScript.js":[
+"paper.js:src/core/PaperScript.js": [
 150,
 319,
 480,
 503
 ],
-"paper.js:src/item/Item.js":[
+"paper.js:src/item/Item.js": [
 2938
 ],
-"paper.js:src/load.js":[
+"paper.js:src/load.js": [
 28
 ],
-"paper.js:src/node/extend.js":[
+"paper.js:src/node/extend.js": [
 144
 ],
-"paper.js:src/path/Curve.js":[
+"paper.js:src/path/Curve.js": [
 851,
 1561,
 2167
 ],
-"paper.js:src/path/CurveLocation.js":[
+"paper.js:src/path/CurveLocation.js": [
 453,
 547
 ],
-"paper.js:src/path/Path.js":[
+"paper.js:src/path/Path.js": [
 1725,
 1729,
 1757,
@@ -88,11 +88,11 @@
 2773,
 2785
 ],
-"paper.js:src/path/PathFlattener.js":[
+"paper.js:src/path/PathFlattener.js": [
 56,
 56
 ],
-"paper.js:src/path/PathItem.Boolean.js":[
+"paper.js:src/path/PathItem.Boolean.js": [
 142,
 143,
 143,
@@ -125,34 +125,34 @@
 1244,
 1316
 ],
-"paper.js:src/path/PathItem.js":[
+"paper.js:src/path/PathItem.js": [
 142
 ],
-"paper.js:src/style/Color.js":[
+"paper.js:src/style/Color.js": [
 541
 ],
-"paper.js:src/style/Style.js":[
+"paper.js:src/style/Style.js": [
 129,
 163,
 212,
 261
 ],
-"paper.js:src/svg/SvgImport.js":[
+"paper.js:src/svg/SvgImport.js": [
 665,
 677,
 686
 ],
-"paper.js:src/tool/Tool.js":[
+"paper.js:src/tool/Tool.js": [
 304,
 304
 ],
-"paper.js:src/util/CollisionDetection.js":[
+"paper.js:src/util/CollisionDetection.js": [
 79
 ],
-"paper.js:src/util/Numerical.js":[
+"paper.js:src/util/Numerical.js": [
 351
 ],
-"paper.js:src/view/View.js":[
+"paper.js:src/view/View.js": [
 34,
 1219,
 1219,

@@ -1,8 +1,8 @@
 {
-"p5.js:Gruntfile.js":[
+"p5.js:Gruntfile.js": [
 99
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 210,
 236,
 280,
@@ -85,10 +85,10 @@
 4721,
 4722
 ],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js":[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 41
 ],
-"p5.js:lib/addons/p5.sound.js":[
+"p5.js:lib/addons/p5.sound.js": [
 119,
 596,
 1992,
@@ -123,10 +123,10 @@
 12720,
 12755
 ],
-"p5.js:src/color/creating_reading.js":[
+"p5.js:src/color/creating_reading.js": [
 326
 ],
-"p5.js:src/color/p5.Color.js":[
+"p5.js:src/color/p5.Color.js": [
 93,
 94,
 95,
@@ -135,10 +135,10 @@
 102,
 103
 ],
-"p5.js:src/core/environment.js":[
+"p5.js:src/core/environment.js": [
 454
 ],
-"p5.js:src/core/error_helpers.js":[
+"p5.js:src/core/error_helpers.js": [
 80,
 440,
 561,
@@ -146,17 +146,17 @@
 577,
 794
 ],
-"p5.js:src/core/main.js":[
+"p5.js:src/core/main.js": [
 238,
 278,
 291,
 308,
 323
 ],
-"p5.js:src/core/structure.js":[
+"p5.js:src/core/structure.js": [
 376
 ],
-"p5.js:src/dom/dom.js":[
+"p5.js:src/dom/dom.js": [
 333,
 335,
 381,
@@ -164,10 +164,10 @@
 2279,
 2280
 ],
-"p5.js:src/events/acceleration.js":[
+"p5.js:src/events/acceleration.js": [
 20
 ],
-"p5.js:src/events/mouse.js":[
+"p5.js:src/events/mouse.js": [
 605,
 689,
 771,
@@ -175,35 +175,35 @@
 920,
 988
 ],
-"p5.js:src/events/touch.js":[
+"p5.js:src/events/touch.js": [
 127,
 207,
 284
 ],
-"p5.js:src/image/filters.js":[
+"p5.js:src/image/filters.js": [
 302,
 390,
 489,
 489
 ],
-"p5.js:src/io/files.js":[
+"p5.js:src/io/files.js": [
 1483
 ],
-"p5.js:src/io/p5.XML.js":[
+"p5.js:src/io/p5.XML.js": [
 620,
 714
 ],
-"p5.js:src/math/noise.js":[
+"p5.js:src/math/noise.js": [
 292
 ],
-"p5.js:src/math/random.js":[
+"p5.js:src/math/random.js": [
 34
 ],
-"p5.js:src/typography/loading_displaying.js":[
+"p5.js:src/typography/loading_displaying.js": [
 120,
 220
 ],
-"p5.js:src/typography/p5.Font.js":[
+"p5.js:src/typography/p5.Font.js": [
 559,
 637,
 693,
@@ -218,17 +218,17 @@
 1167,
 1223
 ],
-"p5.js:src/utilities/array_functions.js":[
+"p5.js:src/utilities/array_functions.js": [
 211,
 263,
 264
 ],
-"p5.js:src/utilities/conversion.js":[
+"p5.js:src/utilities/conversion.js": [
 82,
 272,
 276
 ],
-"p5.js:src/utilities/string_functions.js":[
+"p5.js:src/utilities/string_functions.js": [
 207,
 209,
 210,
@@ -239,7 +239,7 @@
 372,
 450
 ],
-"p5.js:src/webgl/3d_primitives.js":[
+"p5.js:src/webgl/3d_primitives.js": [
 142,
 145,
 317,
@@ -254,44 +254,44 @@
 1187,
 1188
 ],
-"p5.js:src/webgl/interaction.js":[
+"p5.js:src/webgl/interaction.js": [
 91,
 414,
 486
 ],
-"p5.js:src/webgl/light.js":[
+"p5.js:src/webgl/light.js": [
 788
 ],
-"p5.js:src/webgl/p5.Camera.js":[
+"p5.js:src/webgl/p5.Camera.js": [
 417
 ],
-"p5.js:src/webgl/p5.Geometry.js":[
+"p5.js:src/webgl/p5.Geometry.js": [
 49,
 50
 ],
-"p5.js:src/webgl/p5.Matrix.js":[
+"p5.js:src/webgl/p5.Matrix.js": [
 41,
 45
 ],
-"p5.js:src/webgl/p5.RenderBuffer.js":[
+"p5.js:src/webgl/p5.RenderBuffer.js": [
 52
 ],
-"p5.js:src/webgl/p5.RendererGL.Immediate.js":[
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 34
 ],
-"p5.js:src/webgl/p5.RendererGL.Retained.js":[
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
 89,
 92
 ],
-"p5.js:tasks/build/browserify.js":[
+"p5.js:tasks/build/browserify.js": [
 20,
 22
 ],
-"p5.js:tasks/build/combineModules.js":[
+"p5.js:tasks/build/combineModules.js": [
 53,
 62
 ],
-"p5.js:utils/sample-linter.js":[
+"p5.js:utils/sample-linter.js": [
 53,
 238
 ]

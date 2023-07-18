@@ -1,18 +1,18 @@
 {
-"desktop:app/src/cli/main.ts":[
+"desktop:app/src/cli/main.ts": [
 92
 ],
-"desktop:app/src/highlighter/index.ts":[
+"desktop:app/src/highlighter/index.ts": [
 626,
 635
 ],
-"desktop:app/src/lib/actions-log-parser/action-log-parser.ts":[
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 217,
 451,
 641,
 662
 ],
-"desktop:app/src/lib/ci-checks/ci-checks.ts":[
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
 74,
 370,
 382,
@@ -24,93 +24,93 @@
 584,
 726
 ],
-"desktop:app/src/lib/diff-parser.ts":[
+"desktop:app/src/lib/diff-parser.ts": [
 338
 ],
-"desktop:app/src/lib/editors/win32.ts":[
+"desktop:app/src/lib/editors/win32.ts": [
 440,
 450
 ],
-"desktop:app/src/lib/find-account.ts":[
+"desktop:app/src/lib/find-account.ts": [
 98
 ],
-"desktop:app/src/lib/git/cherry-pick.ts":[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 396
 ],
-"desktop:app/src/lib/git/diff.ts":[
+"desktop:app/src/lib/git/diff.ts": [
 315
 ],
-"desktop:app/src/lib/git/for-each-ref.ts":[
+"desktop:app/src/lib/git/for-each-ref.ts": [
 50,
 110,
 116
 ],
-"desktop:app/src/lib/git/git-delimiter-parser.ts":[
+"desktop:app/src/lib/git/git-delimiter-parser.ts": [
 75
 ],
-"desktop:app/src/lib/git/log.ts":[
+"desktop:app/src/lib/git/log.ts": [
 218,
 224
 ],
-"desktop:app/src/lib/git/reflog.ts":[
+"desktop:app/src/lib/git/reflog.ts": [
 117
 ],
-"desktop:app/src/lib/git/reorder.ts":[
+"desktop:app/src/lib/git/reorder.ts": [
 79,
 95,
 103
 ],
-"desktop:app/src/lib/git/squash.ts":[
+"desktop:app/src/lib/git/squash.ts": [
 89,
 106,
 115
 ],
-"desktop:app/src/lib/helpers/regex.ts":[
+"desktop:app/src/lib/helpers/regex.ts": [
 71
 ],
-"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts":[
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
 120
 ],
-"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
 193,
 200
 ],
-"desktop:app/src/lib/markdown-filters/emoji-filter.ts":[
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
 74,
 79
 ],
-"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
 142,
 147,
 152
 ],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 105,
 110
 ],
-"desktop:app/src/lib/markdown-filters/node-filter.ts":[
+"desktop:app/src/lib/markdown-filters/node-filter.ts": [
 148
 ],
-"desktop:app/src/lib/markdown-filters/team-mention-filter.ts":[
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 91,
 101
 ],
-"desktop:app/src/lib/mouse-scroller.ts":[
+"desktop:app/src/lib/mouse-scroller.ts": [
 147
 ],
-"desktop:app/src/lib/status-parser.ts":[
+"desktop:app/src/lib/status-parser.ts": [
 72
 ],
-"desktop:app/src/lib/stores/app-store.ts":[
+"desktop:app/src/lib/stores/app-store.ts": [
 5417,
 5431
 ],
-"desktop:app/src/lib/stores/commit-status-store.ts":[
+"desktop:app/src/lib/stores/commit-status-store.ts": [
 228,
 234,
 361
 ],
-"desktop:app/src/lib/stores/git-store.ts":[
+"desktop:app/src/lib/stores/git-store.ts": [
 438,
 561,
 567,
@@ -120,59 +120,59 @@
 816,
 857
 ],
-"desktop:app/src/lib/stores/helpers/branch-pruner.ts":[
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
 223
 ],
-"desktop:app/src/lib/stores/pull-request-store.ts":[
+"desktop:app/src/lib/stores/pull-request-store.ts": [
 285,
 300
 ],
-"desktop:app/src/main-process/main.ts":[
+"desktop:app/src/main-process/main.ts": [
 374
 ],
-"desktop:app/src/ui/acknowledgements/acknowledgements.tsx":[
+"desktop:app/src/ui/acknowledgements/acknowledgements.tsx": [
 68
 ],
-"desktop:app/src/ui/changes/no-changes.tsx":[
+"desktop:app/src/ui/changes/no-changes.tsx": [
 146
 ],
-"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx":[
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
 97,
 107
 ],
-"desktop:app/src/ui/dialog/dialog.tsx":[
+"desktop:app/src/ui/dialog/dialog.tsx": [
 365
 ],
-"desktop:app/src/ui/diff/diff-helpers.tsx":[
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
 376
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx":[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 1094,
 1115,
 1136,
 1342
 ],
-"desktop:app/src/ui/diff/text-diff.tsx":[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 878,
 888
 ],
-"desktop:app/src/ui/dispatcher/dispatcher.ts":[
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
 2567
 ],
-"desktop:app/src/ui/donut.tsx":[
+"desktop:app/src/ui/donut.tsx": [
 70,
 84
 ],
-"desktop:app/src/ui/history/commit-list.tsx":[
+"desktop:app/src/ui/history/commit-list.tsx": [
 294
 ],
-"desktop:app/src/ui/lib/filter-list.tsx":[
+"desktop:app/src/ui/lib/filter-list.tsx": [
 553
 ],
-"desktop:app/src/ui/repositories-list/group-repositories.ts":[
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
 149
 ],
-"desktop:script/changelog/parser.ts":[
+"desktop:script/changelog/parser.ts": [
 128,
 162,
 168
