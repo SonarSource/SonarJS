@@ -1,50 +1,50 @@
 {
-'ocanvas:src/animation.js':[
-202,
+"ocanvas:src/animation.js": [
+202
 ],
-'ocanvas:src/background.js':[
-20,
+"ocanvas:src/background.js": [
+20
 ],
-'ocanvas:src/core.js':[
-22,
+"ocanvas:src/core.js": [
+22
 ],
-'ocanvas:src/displayobject.js':[
-708,
+"ocanvas:src/displayobject.js": [
+708
 ],
-'ocanvas:src/displayobjects/image.js':[
-73,
+"ocanvas:src/displayobjects/image.js": [
+73
 ],
-'ocanvas:src/displayobjects/rectangle.js':[
-172,
+"ocanvas:src/displayobjects/rectangle.js": [
+172
 ],
-'ocanvas:src/displayobjects/sprite.js':[
-99,
+"ocanvas:src/displayobjects/sprite.js": [
+99
 ],
-'ocanvas:src/draw.js':[
-93,
+"ocanvas:src/draw.js": [
+93
 ],
-'ocanvas:src/events.js':[
+"ocanvas:src/events.js": [
 98,
-299,
+299
 ],
-'ocanvas:src/keyboard.js':[
-22,
+"ocanvas:src/keyboard.js": [
+22
 ],
-'ocanvas:src/mouse.js':[
-86,
+"ocanvas:src/mouse.js": [
+86
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 11,
 127,
 313,
 617,
-710,
+710
 ],
-'ocanvas:src/tools.js':[
+"ocanvas:src/tools.js": [
 10,
-94,
+94
 ],
-'ocanvas:src/touch.js':[
-96,
-],
+"ocanvas:src/touch.js": [
+96
+]
 }

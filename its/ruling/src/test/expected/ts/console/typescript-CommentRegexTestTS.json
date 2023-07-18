@@ -1,59 +1,59 @@
 {
-'console:src/components/Datepicker/Datepicker.tsx':[
-9,
+"console:src/components/Datepicker/Datepicker.tsx": [
+9
 ],
-'console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx':[
-65,
+"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
+65
 ],
-'console:src/mutations/UpdateCustomerOnboardingStatusMutation.ts':[
-20,
+"console:src/mutations/UpdateCustomerOnboardingStatusMutation.ts": [
+20
 ],
-'console:src/reducers/gettingStarted.ts':[
-22,
+"console:src/reducers/gettingStarted.ts": [
+22
 ],
-'console:src/routes.tsx':[
-125,
+"console:src/routes.tsx": [
+125
 ],
-'console:src/utils/valueparser.ts':[
+"console:src/utils/valueparser.ts": [
 72,
-143,
+143
 ],
-'console:src/views/ActionsView/ActionsView.tsx':[
-40,
+"console:src/views/ActionsView/ActionsView.tsx": [
+40
 ],
-'console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx':[
-114,
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+114
 ],
-'console:src/views/FunctionsView/FunctionPopup/functionPopupState.ts':[
-9,
+"console:src/views/FunctionsView/FunctionPopup/functionPopupState.ts": [
+9
 ],
-'console:src/views/ProjectRootView/ProjectRootView.tsx':[
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
 124,
-146,
+146
 ],
-'console:src/views/ProjectSettingsView/ProjectSettingsView.tsx':[
-182,
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+182
 ],
-'console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx':[
-172,
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+172
 ],
-'console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx':[
-251,
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+251
 ],
-'console:src/views/models/DatabrowserView/DatabrowserView.tsx':[
-180,
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+180
 ],
-'console:src/views/models/DatabrowserView/NewRow.tsx':[
-74,
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+74
 ],
-'console:src/views/models/DatabrowserView/NewRowInactive.tsx':[
-173,
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+173
 ],
-'console:src/views/models/FieldPopup/FieldPopup.tsx':[
-515,
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+515
 ],
-'console:src/views/models/FieldPopup/constants.ts':[
+"console:src/views/models/FieldPopup/constants.ts": [
 52,
-66,
-],
+66
+]
 }

@@ -1,26 +1,26 @@
 {
-'file-for-rules:DuplicateFunctionArgument.js':[
-3,
+"file-for-rules:DuplicateFunctionArgument.js": [
+3
 ],
-'file-for-rules:FutureReservedWords.js':[
+"file-for-rules:FutureReservedWords.js": [
 3,
 4,
 5,
-7,
+7
 ],
-'file-for-rules:S1534.js':[
-1,
+"file-for-rules:S1534.js": [
+1
 ],
-'file-for-rules:S2123.js':[
-1,
+"file-for-rules:S2123.js": [
+1
 ],
-'file-for-rules:S2432.js':[
-1,
+"file-for-rules:S2432.js": [
+1
 ],
-'file-for-rules:S2688.js':[
-3,
+"file-for-rules:S2688.js": [
+3
 ],
-'file-for-rules:S3854.js':[
+"file-for-rules:S3854.js": [
 14,
 46,
 82,
@@ -28,27 +28,27 @@
 247,
 253,
 277,
-343,
+343
 ],
-'file-for-rules:S4123.js':[
-1,
+"file-for-rules:S4123.js": [
+1
 ],
-'file-for-rules:S5247.js':[
+"file-for-rules:S5247.js": [
 2,
 5,
-6,
+6
 ],
-'file-for-rules:S5725.js':[
-1,
+"file-for-rules:S5725.js": [
+1
 ],
-'file-for-rules:S5856.js':[
+"file-for-rules:S5856.js": [
+2
+],
+"file-for-rules:S6442.js": [
+3
+],
+"file-for-rules:boundOrAssignedEvalOrArguments.js": [
 2,
-],
-'file-for-rules:S6442.js':[
-3,
-],
-'file-for-rules:boundOrAssignedEvalOrArguments.js':[
-2,
-8,
-],
+8
+]
 }

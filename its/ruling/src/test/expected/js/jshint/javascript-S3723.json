@@ -1,20 +1,20 @@
 {
-'jshint:data/ascii-identifier-data.js':[
-21,
+"jshint:data/ascii-identifier-data.js": [
+21
 ],
-'jshint:examples/reporter.js':[
-20,
+"jshint:examples/reporter.js": [
+20
 ],
-'jshint:scripts/build.js':[
-39,
+"jshint:scripts/build.js": [
+39
 ],
-'jshint:scripts/generate-identifier-data.js':[
+"jshint:scripts/generate-identifier-data.js": [
 52,
 79,
 80,
-89,
+89
 ],
-'jshint:src/cli.js':[
+"jshint:src/cli.js": [
 23,
 40,
 46,
@@ -22,9 +22,9 @@
 52,
 107,
 766,
-768,
+768
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 74,
 366,
 415,
@@ -61,9 +61,9 @@
 6389,
 6504,
 6531,
-6569,
+6569
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 35,
 40,
 68,
@@ -160,17 +160,17 @@
 2146,
 2157,
 2175,
-2185,
+2185
 ],
-'jshint:src/messages.js':[
+"jshint:src/messages.js": [
 85,
 243,
-249,
+249
 ],
-'jshint:src/name-stack.js':[
-30,
+"jshint:src/name-stack.js": [
+30
 ],
-'jshint:src/options.js':[
+"jshint:src/options.js": [
 319,
 788,
 795,
@@ -179,31 +179,31 @@
 1076,
 1093,
 1103,
-1111,
+1111
 ],
-'jshint:src/prod-params.js':[
-42,
+"jshint:src/prod-params.js": [
+42
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js": [
 15,
 63,
 83,
-93,
+93
 ],
-'jshint:src/reporters/default.js':[
-33,
+"jshint:src/reporters/default.js": [
+33
 ],
-'jshint:src/reporters/jslint_xml.js':[
+"jshint:src/reporters/jslint_xml.js": [
 13,
-55,
+55
 ],
-'jshint:src/reporters/non_error.js':[
-51,
+"jshint:src/reporters/non_error.js": [
+51
 ],
-'jshint:src/reporters/unix.js':[
-36,
+"jshint:src/reporters/unix.js": [
+36
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js": [
 38,
 57,
 65,
@@ -214,22 +214,22 @@
 791,
 913,
 1032,
-1033,
+1033
 ],
-'jshint:src/state.js':[
+"jshint:src/state.js": [
 164,
-180,
+180
 ],
-'jshint:src/style.js':[
+"jshint:src/style.js": [
 16,
 34,
 51,
 105,
 114,
 123,
-140,
+140
 ],
-'jshint:src/vars.js':[
+"jshint:src/vars.js": [
 9,
 40,
 43,
@@ -255,6 +255,6 @@
 748,
 754,
 777,
-804,
-],
+804
+]
 }

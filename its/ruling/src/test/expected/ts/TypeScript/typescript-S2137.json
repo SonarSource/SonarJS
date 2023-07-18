@@ -1,19 +1,19 @@
 {
-'TypeScript:src/compiler/binder.ts':[
+"TypeScript:src/compiler/binder.ts": [
 135,
-154,
+154
 ],
-'TypeScript:src/compiler/checker.ts':[
-44,
+"TypeScript:src/compiler/checker.ts": [
+44
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 62,
-2199,
+2199
 ],
-'TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts':[
-22,
+"TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
+22
 ],
-'TypeScript:src/services/textChanges.ts':[
-561,
-],
+"TypeScript:src/services/textChanges.ts": [
+561
+]
 }

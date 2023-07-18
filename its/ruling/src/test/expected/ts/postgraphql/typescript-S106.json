@@ -1,8 +1,8 @@
 {
-'postgraphql:src/__tests__/utils/withPgClient.ts':[
-36,
+"postgraphql:src/__tests__/utils/withPgClient.ts": [
+36
 ],
-'postgraphql:src/postgraphql/cli.ts':[
+"postgraphql:src/postgraphql/cli.ts": [
 47,
 133,
 134,
@@ -13,16 +13,16 @@
 141,
 143,
 144,
-145,
+145
 ],
-'postgraphql:src/postgraphql/postgraphql.ts':[
+"postgraphql:src/postgraphql/postgraphql.ts": [
 101,
 114,
-166,
+166
 ],
-'postgraphql:src/postgraphql/watch/watchPgSchemas.ts':[
+"postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
 44,
 45,
-46,
-],
+46
+]
 }

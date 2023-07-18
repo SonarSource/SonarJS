@@ -1,13 +1,13 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 2107,
 3627,
 3638,
 4083,
 4084,
-4087,
+4087
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 1372,
 1385,
 1386,
@@ -24,25 +24,25 @@
 9252,
 11202,
 11204,
-12875,
+12875
 ],
-'p5.js:src/core/error_helpers.js':[
+"p5.js:src/core/error_helpers.js": [
 122,
-125,
+125
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 966,
 967,
 968,
-969,
+969
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
+"p5.js:src/webgl/p5.RendererGL.js": [
 1363,
 1364,
 1365,
-1366,
+1366
 ],
-'p5.js:src/webgl/text.js':[
-360,
-],
+"p5.js:src/webgl/text.js": [
+360
+]
 }

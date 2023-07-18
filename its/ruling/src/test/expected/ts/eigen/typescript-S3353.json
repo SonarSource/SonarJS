@@ -1,11 +1,11 @@
 {
-'eigen:src/app/Components/ArtworkFilter/Filters/AggregationOptionCommonValidation.tsx':[
-41,
+"eigen:src/app/Components/ArtworkFilter/Filters/AggregationOptionCommonValidation.tsx": [
+41
 ],
-'eigen:src/app/Scenes/City/Components/AllEvents.tsx':[
-66,
+"eigen:src/app/Scenes/City/Components/AllEvents.tsx": [
+66
 ],
-'eigen:src/app/Scenes/City/Components/EventSection/index.tsx':[
-29,
-],
+"eigen:src/app/Scenes/City/Components/EventSection/index.tsx": [
+29
+]
 }

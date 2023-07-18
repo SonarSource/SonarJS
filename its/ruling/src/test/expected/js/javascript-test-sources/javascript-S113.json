@@ -1,206 +1,206 @@
 {
-'javascript-test-sources:src/ace/demo/webpack/webpack.config.js':[
-29,
+"javascript-test-sources:src/ace/demo/webpack/webpack.config.js": [
+29
 ],
-'javascript-test-sources:src/ace/doc/build.js':[
-67,
+"javascript-test-sources:src/ace/doc/build.js": [
+67
 ],
-'javascript-test-sources:src/ace/doc/site/js/ga.js':[
-9,
+"javascript-test-sources:src/ace/doc/site/js/ga.js": [
+9
 ],
-'javascript-test-sources:src/ace/doc/site/js/main.js':[
-199,
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
+199
 ],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/clicker.js':[
-69,
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/clicker.js": [
+69
 ],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js':[
-17,
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js": [
+17
 ],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery.cookie.js':[
-96,
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery.cookie.js": [
+96
 ],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js':[
-24,
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/prettify-extension.js": [
+24
 ],
-'javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js':[
-135,
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js": [
+135
 ],
-'javascript-test-sources:src/ace/experiments/worker.js':[
-3,
+"javascript-test-sources:src/ace/experiments/worker.js": [
+3
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
-10445,
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+10445
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-19343,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+19343
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js':[
-4469,
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
+4469
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js':[
-4438,
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
+4438
 ],
-'javascript-test-sources:src/ace/lib/ace/worker/worker_test.js':[
-125,
+"javascript-test-sources:src/ace/lib/ace/worker/worker_test.js": [
+125
 ],
-'javascript-test-sources:src/ace/src/layer/decorators.js':[
-129,
+"javascript-test-sources:src/ace/src/layer/decorators.js": [
+129
 ],
-'javascript-test-sources:src/ace/src/mode/bibtex.js':[
-18,
+"javascript-test-sources:src/ace/src/mode/bibtex.js": [
+18
 ],
-'javascript-test-sources:src/ace/src/mode/bibtex_highlight_rules.js':[
-184,
+"javascript-test-sources:src/ace/src/mode/bibtex_highlight_rules.js": [
+184
 ],
-'javascript-test-sources:src/ace/tool/regexp_tokenizer.js':[
-113,
+"javascript-test-sources:src/ace/tool/regexp_tokenizer.js": [
+113
 ],
-'javascript-test-sources:src/ace/tool/templates/snippets.js':[
-4,
+"javascript-test-sources:src/ace/tool/templates/snippets.js": [
+4
 ],
-'javascript-test-sources:src/ace/tool/tmsnippets.js':[
-82,
+"javascript-test-sources:src/ace/tool/tmsnippets.js": [
+82
 ],
-'javascript-test-sources:src/ace/tool/wrap_keyword_regexp.js':[
-21,
+"javascript-test-sources:src/ace/tool/wrap_keyword_regexp.js": [
+21
 ],
-'javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/circle.js':[
-18,
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/circle.js": [
+18
 ],
-'javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js':[
-15,
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js": [
+15
 ],
-'javascript-test-sources:src/ecmascript6/expressionist.js/src/types.js':[
-11,
+"javascript-test-sources:src/ecmascript6/expressionist.js/src/types.js": [
+11
 ],
-'javascript-test-sources:src/ecmascript6/http/test/IRequest.spec.js':[
-65,
+"javascript-test-sources:src/ecmascript6/http/test/IRequest.spec.js": [
+65
 ],
-'javascript-test-sources:src/ecmascript6/http/test/IResponse.spec.js':[
-79,
+"javascript-test-sources:src/ecmascript6/http/test/IResponse.spec.js": [
+79
 ],
-'javascript-test-sources:src/ecmascript6/http/test/TestUtils.js':[
-7,
+"javascript-test-sources:src/ecmascript6/http/test/TestUtils.js": [
+7
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/utils/notify.js':[
-34,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/utils/notify.js": [
+34
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/EUCountries.es6.js':[
-33,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/EUCountries.es6.js": [
+33
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js':[
-24,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js": [
+24
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js':[
-52,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js": [
+52
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/sideNavAboutMenuItems.es6.js':[
-15,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/sideNavAboutMenuItems.es6.js": [
+15
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/test/lib/formatDifference.es6.js':[
-32,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/test/lib/formatDifference.es6.js": [
+32
 ],
-'javascript-test-sources:src/ecmascript6/router/examples/directives.js':[
-3,
+"javascript-test-sources:src/ecmascript6/router/examples/directives.js": [
+3
 ],
-'javascript-test-sources:src/ecmascript6/router/examples/hello/jsonp.js':[
-16,
+"javascript-test-sources:src/ecmascript6/router/examples/hello/jsonp.js": [
+16
 ],
-'javascript-test-sources:src/ecmascript6/router/examples/http.js':[
-21,
+"javascript-test-sources:src/ecmascript6/router/examples/http.js": [
+21
 ],
-'javascript-test-sources:src/ecmascript6/router/src/activation.js':[
-192,
+"javascript-test-sources:src/ecmascript6/router/src/activation.js": [
+192
 ],
-'javascript-test-sources:src/ecmascript6/router/src/history.js':[
-225,
+"javascript-test-sources:src/ecmascript6/router/src/history.js": [
+225
 ],
-'javascript-test-sources:src/ecmascript6/router/src/index.js':[
-7,
+"javascript-test-sources:src/ecmascript6/router/src/index.js": [
+7
 ],
-'javascript-test-sources:src/ecmascript6/router/src/navigationCommand.js':[
-14,
+"javascript-test-sources:src/ecmascript6/router/src/navigationCommand.js": [
+14
 ],
-'javascript-test-sources:src/ecmascript6/router/src/navigationContext.js':[
-82,
+"javascript-test-sources:src/ecmascript6/router/src/navigationContext.js": [
+82
 ],
-'javascript-test-sources:src/ecmascript6/router/src/navigationInstruction.js':[
-57,
+"javascript-test-sources:src/ecmascript6/router/src/navigationInstruction.js": [
+57
 ],
-'javascript-test-sources:src/ecmascript6/router/src/pipeline.js':[
-78,
+"javascript-test-sources:src/ecmascript6/router/src/pipeline.js": [
+78
 ],
-'javascript-test-sources:src/ecmascript6/router/src/router.js':[
-214,
+"javascript-test-sources:src/ecmascript6/router/src/router.js": [
+214
 ],
-'javascript-test-sources:src/ecmascript6/router/src/util.js':[
-51,
+"javascript-test-sources:src/ecmascript6/router/src/util.js": [
+51
 ],
-'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
-4041,
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+4041
 ],
-'javascript-test-sources:src/ecmascript6/snoode/src/models/stylesheet.es6.js':[
-21,
+"javascript-test-sources:src/ecmascript6/snoode/src/models/stylesheet.es6.js": [
+21
 ],
-'javascript-test-sources:src/ecmascript6/snoode/test/models/account.js':[
-34,
+"javascript-test-sources:src/ecmascript6/snoode/test/models/account.js": [
+34
 ],
-'javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js':[
-48,
+"javascript-test-sources:src/ecmascript6/snoode/test/models/comment.js": [
+48
 ],
-'javascript-test-sources:src/ecmascript6/snoode/test/models/link.js':[
-35,
+"javascript-test-sources:src/ecmascript6/snoode/test/models/link.js": [
+35
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/component-issues/app.js':[
-97,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/component-issues/app.js": [
+97
 ],
-'javascript-test-sources:src/ecmascript6/templating/protractor-shared.conf.js':[
-24,
+"javascript-test-sources:src/ecmascript6/templating/protractor-shared.conf.js": [
+24
 ],
-'javascript-test-sources:src/ecmascript6/templating/protractor-travis.conf.js':[
-30,
+"javascript-test-sources:src/ecmascript6/templating/protractor-travis.conf.js": [
+30
 ],
-'javascript-test-sources:src/ecmascript6/templating/protractor.conf.js':[
-9,
+"javascript-test-sources:src/ecmascript6/templating/protractor.conf.js": [
+9
 ],
-'javascript-test-sources:src/ecmascript6/templating/src/lib/index.js':[
-28,
+"javascript-test-sources:src/ecmascript6/templating/src/lib/index.js": [
+28
 ],
-'javascript-test-sources:src/ecmascript6/templating/src/lib/util/global.js':[
-3,
+"javascript-test-sources:src/ecmascript6/templating/src/lib/util/global.js": [
+3
 ],
-'javascript-test-sources:src/ecmascript6/templating/src/lib/util/module_annotator.js':[
-21,
+"javascript-test-sources:src/ecmascript6/templating/src/lib/util/module_annotator.js": [
+21
 ],
-'javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js':[
-43,
+"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js": [
+43
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/greet.spec.js':[
-68,
+"javascript-test-sources:src/ecmascript6/templating/test/example/greet.spec.js": [
+68
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/ngmodel.spec.js':[
-32,
+"javascript-test-sources:src/ecmascript6/templating/test/example/ngmodel.spec.js": [
+32
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/shadow-dom-util.js':[
-28,
+"javascript-test-sources:src/ecmascript6/templating/test/example/shadow-dom-util.js": [
+28
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/tab.spec.js':[
-96,
+"javascript-test-sources:src/ecmascript6/templating/test/example/tab.spec.js": [
+96
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/todo.spec.js':[
-38,
+"javascript-test-sources:src/ecmascript6/templating/test/example/todo.spec.js": [
+38
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js':[
-38,
+"javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js": [
+38
 ],
-'javascript-test-sources:src/ecmascript6/templating/test/lib/util/document_ready.spec.js':[
-60,
+"javascript-test-sources:src/ecmascript6/templating/test/lib/util/document_ready.spec.js": [
+60
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/linked_list.js':[
-193,
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/linked_list.js": [
+193
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/watch.js':[
-32,
-],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch.js": [
+32
+]
 }

@@ -1,8 +1,8 @@
 {
-'postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts':[
-292,
+"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
+292
 ],
-'postgraphql:src/postgres/inventory/type/PgClassType.ts':[
-8,
-],
+"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
+8
+]
 }

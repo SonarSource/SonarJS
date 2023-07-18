@@ -1,11 +1,11 @@
 {
-'sizzle:speed/speed.js':[
+"sizzle:speed/speed.js": [
 19,
 422,
 563,
-595,
+595
 ],
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js": [
 230,
 230,
 351,
@@ -34,6 +34,6 @@
 2229,
 2237,
 2286,
-2347,
-],
+2347
+]
 }

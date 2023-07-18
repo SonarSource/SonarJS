@@ -1,16 +1,16 @@
 {
-'eigen:src/app/Components/Bidding/Screens/Registration.tsx':[
-404,
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+404
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselEmbedded.tsx':[
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselEmbedded.tsx": [
 32,
 33,
-34,
+34
 ],
-'eigen:src/app/Scenes/OrderHistory/OrderDetails/Components/OrderDetails.tsx':[
-224,
+"eigen:src/app/Scenes/OrderHistory/OrderDetails/Components/OrderDetails.tsx": [
+224
 ],
-'eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx':[
-254,
-],
+"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
+254
+]
 }

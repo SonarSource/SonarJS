@@ -1,8 +1,8 @@
 {
-'react-cloud-music:config/webpack.config.js':[
-480,
+"react-cloud-music:config/webpack.config.js": [
+480
 ],
-'react-cloud-music:ts-music/config/webpack.config.js':[
-513,
-],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+513
+]
 }

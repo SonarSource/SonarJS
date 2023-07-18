@@ -1,49 +1,49 @@
 {
-'javascript-test-sources:src/ace/Makefile.dryice.js':[
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
 818,
 818,
 818,
 818,
 818,
-818,
+818
 ],
-'javascript-test-sources:src/ace/demo/static-highlighter/server.js':[
-22,
+"javascript-test-sources:src/ace/demo/static-highlighter/server.js": [
+22
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 4602,
 4602,
 4602,
-4602,
+4602
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
 1759,
 3272,
 4034,
 4358,
 4504,
-9881,
+9881
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 15061,
 15061,
 15064,
 15064,
-18689,
+18689
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
 1040,
 1040,
 1040,
 1040,
 1040,
-1040,
+1040
 ],
-'javascript-test-sources:src/ace/src/layer/text.js':[
+"javascript-test-sources:src/ace/src/layer/text.js": [
 340,
-340,
+340
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/latinize.js':[
-362,
-],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/latinize.js": [
+362
+]
 }

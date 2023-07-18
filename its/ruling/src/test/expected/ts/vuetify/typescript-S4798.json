@@ -1,24 +1,24 @@
 {
-'vuetify:packages/vuetify/src/components/VImg/VImg.tsx':[
-124,
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+124
 ],
-'vuetify:packages/vuetify/src/composables/display.ts':[
+"vuetify:packages/vuetify/src/composables/display.ts": [
 95,
 101,
 107,
-145,
+145
 ],
-'vuetify:packages/vuetify/src/composables/group.ts':[
-217,
+"vuetify:packages/vuetify/src/composables/group.ts": [
+217
 ],
-'vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts':[
+"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
 31,
 76,
 102,
 119,
-136,
+136
 ],
-'vuetify:packages/vuetify/src/util/console.ts':[
-61,
-],
+"vuetify:packages/vuetify/src/util/console.ts": [
+61
+]
 }

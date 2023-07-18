@@ -1,5 +1,5 @@
 {
-'knockout:Gruntfile.js':[
+"knockout:Gruntfile.js": [
 183,
 184,
 185,
@@ -8,6 +8,6 @@
 188,
 189,
 190,
-191,
-],
+191
+]
 }

@@ -1,9 +1,9 @@
 {
-'sizzle:build/release.js':[
-19,
+"sizzle:build/release.js": [
+19
 ],
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js": [
 271,
-285,
-],
+285
+]
 }

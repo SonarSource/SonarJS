@@ -1,8 +1,8 @@
 {
-'qunit:reporter/diff.js':[
-33,
+"qunit:reporter/diff.js": [
+33
 ],
-'qunit:src/test.js':[
-28,
-],
+"qunit:src/test.js": [
+28
+]
 }

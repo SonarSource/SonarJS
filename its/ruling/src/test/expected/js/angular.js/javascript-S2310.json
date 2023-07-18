@@ -1,12 +1,12 @@
 {
-'angular.js:src/ng/compile.js':[
-3946,
+"angular.js:src/ng/compile.js": [
+3946
 ],
-'angular.js:src/ng/rootScope.js':[
+"angular.js:src/ng/rootScope.js": [
 1333,
-1405,
+1405
 ],
-'angular.js:src/ngSanitize/sanitize.js':[
-673,
-],
+"angular.js:src/ngSanitize/sanitize.js": [
+673
+]
 }

@@ -1,23 +1,23 @@
 {
-'desktop:app/src/highlighter/index.ts':[
-624,
+"desktop:app/src/highlighter/index.ts": [
+624
 ],
-'desktop:app/src/lib/git/environment.ts':[
-35,
+"desktop:app/src/lib/git/environment.ts": [
+35
 ],
-'desktop:app/src/lib/git/fetch.ts':[
-79,
+"desktop:app/src/lib/git/fetch.ts": [
+79
 ],
-'desktop:app/src/lib/git/pull.ts':[
-84,
+"desktop:app/src/lib/git/pull.ts": [
+84
 ],
-'desktop:app/src/lib/git/status.ts':[
-275,
+"desktop:app/src/lib/git/status.ts": [
+275
 ],
-'desktop:app/src/lib/repository-matching.ts':[
-40,
+"desktop:app/src/lib/repository-matching.ts": [
+40
 ],
-'desktop:app/src/lib/stores/app-store.ts':[
+"desktop:app/src/lib/stores/app-store.ts": [
 1006,
 2726,
 2727,
@@ -28,83 +28,83 @@
 4639,
 5801,
 6060,
-6259,
+6259
 ],
-'desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts':[
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
 37,
-42,
+42
 ],
-'desktop:app/src/lib/stores/repositories-store.ts':[
+"desktop:app/src/lib/stores/repositories-store.ts": [
 471,
-569,
+569
 ],
-'desktop:app/src/lib/stores/updates/changes-state.ts':[
-47,
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+47
 ],
-'desktop:app/src/models/app-menu.ts':[
+"desktop:app/src/models/app-menu.ts": [
 274,
-345,
+345
 ],
-'desktop:app/src/ui/app-menu/app-menu-bar-button.tsx':[
-232,
+"desktop:app/src/ui/app-menu/app-menu-bar-button.tsx": [
+232
 ],
-'desktop:app/src/ui/app-menu/app-menu-bar.tsx':[
-142,
+"desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
+142
 ],
-'desktop:app/src/ui/app-menu/app-menu.tsx':[
-122,
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+122
 ],
-'desktop:app/src/ui/app.tsx':[
+"desktop:app/src/ui/app.tsx": [
 1015,
 1076,
-1309,
+1309
 ],
-'desktop:app/src/ui/clone-repository/clone-repository.tsx':[
-696,
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+696
 ],
-'desktop:app/src/ui/dialog/dialog.tsx':[
-549,
+"desktop:app/src/ui/dialog/dialog.tsx": [
+549
 ],
-'desktop:app/src/ui/diff/code-mirror-host.tsx':[
-217,
+"desktop:app/src/ui/diff/code-mirror-host.tsx": [
+217
 ],
-'desktop:app/src/ui/diff/side-by-side-diff.tsx':[
-565,
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+565
 ],
-'desktop:app/src/ui/diff/text-diff.tsx':[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 569,
 1490,
-1491,
+1491
 ],
-'desktop:app/src/ui/history/compare.tsx':[
-449,
+"desktop:app/src/ui/history/compare.tsx": [
+449
 ],
-'desktop:app/src/ui/history/selected-commit.tsx':[
-123,
+"desktop:app/src/ui/history/selected-commit.tsx": [
+123
 ],
-'desktop:app/src/ui/lib/configure-git-user.tsx':[
-132,
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
+132
 ],
-'desktop:app/src/ui/lib/id-pool.ts':[
-37,
+"desktop:app/src/ui/lib/id-pool.ts": [
+37
 ],
-'desktop:app/src/ui/lib/list/list.tsx':[
+"desktop:app/src/ui/lib/list/list.tsx": [
 569,
-727,
+727
 ],
-'desktop:app/src/ui/lib/path-text.tsx':[
-209,
+"desktop:app/src/ui/lib/path-text.tsx": [
+209
 ],
-'desktop:app/src/ui/lib/sandboxed-markdown.tsx':[
-230,
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+230
 ],
-'desktop:app/src/ui/repository-settings/repository-settings.tsx':[
-290,
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+290
 ],
-'desktop:app/src/ui/sign-in/sign-in.tsx':[
-55,
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+55
 ],
-'desktop:script/test-review.ts':[
-18,
-],
+"desktop:script/test-review.ts": [
+18
+]
 }

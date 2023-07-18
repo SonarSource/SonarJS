@@ -1,18 +1,18 @@
 {
-'ocanvas:src/animation.js':[
-311,
+"ocanvas:src/animation.js": [
+311
 ],
-'ocanvas:src/background.js':[
-33,
+"ocanvas:src/background.js": [
+33
 ],
-'ocanvas:src/displayobject.js':[
-320,
+"ocanvas:src/displayobject.js": [
+320
 ],
-'ocanvas:src/mouse.js':[
+"ocanvas:src/mouse.js": [
 40,
-182,
+182
 ],
-'ocanvas:src/touch.js':[
-230,
-],
+"ocanvas:src/touch.js": [
+230
+]
 }

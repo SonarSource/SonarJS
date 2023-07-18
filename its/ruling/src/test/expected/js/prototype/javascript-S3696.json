@@ -1,11 +1,11 @@
 {
-'prototype:src/prototype/dom/layout.js':[
+"prototype:src/prototype/dom/layout.js": [
 272,
-400,
+400
 ],
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html": [
 224,
 225,
-226,
-],
+226
+]
 }

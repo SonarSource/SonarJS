@@ -1,5 +1,5 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 842,
 1074,
 2012,
@@ -9,9 +9,9 @@
 2844,
 2849,
 3789,
-4815,
+4815
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js": [
 44,
 130,
 248,
@@ -19,6 +19,6 @@
 335,
 346,
 371,
-444,
-],
+444
+]
 }

@@ -1,11 +1,11 @@
 {
-'fireact:src/pages/auth/accounts/images/ImageCreate.js':[
-16,
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
+16
 ],
-'fireact:src/pages/auth/accounts/images/ImageEdit.js':[
-18,
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+18
 ],
-'fireact:src/pages/auth/accounts/images/ImageList.js':[
-33,
-],
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+33
+]
 }

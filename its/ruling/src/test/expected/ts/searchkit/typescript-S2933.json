@@ -1,44 +1,44 @@
 {
-'searchkit:packages/searchkit-schema/src/core/QueryManager.ts':[
+"searchkit:packages/searchkit-schema/src/core/QueryManager.ts": [
 56,
 57,
-58,
+58
 ],
-'searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts':[
+"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
 19,
 24,
-27,
+27
 ],
-'searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts':[
-21,
+"searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts": [
+21
 ],
-'searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts':[
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
 5,
-5,
+5
 ],
-'searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts':[
-11,
+"searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts": [
+11
 ],
-'searchkit:packages/searchkit-sdk/src/index.ts':[
+"searchkit:packages/searchkit-sdk/src/index.ts": [
 120,
 121,
 122,
-124,
+124
 ],
-'searchkit:packages/searchkit-sdk/src/query/CustomQuery.ts':[
+"searchkit:packages/searchkit-sdk/src/query/CustomQuery.ts": [
+10
+],
+"searchkit:packages/searchkit-sdk/src/query/MultiMatchQuery.ts": [
+9
+],
+"searchkit:packages/searchkit-sdk/src/query/PrefixQuery.ts": [
+10
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
 10,
+12
 ],
-'searchkit:packages/searchkit-sdk/src/query/MultiMatchQuery.ts':[
-9,
-],
-'searchkit:packages/searchkit-sdk/src/query/PrefixQuery.ts':[
-10,
-],
-'searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts':[
-10,
-12,
-],
-'searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts':[
-7,
-],
+"searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
+7
+]
 }

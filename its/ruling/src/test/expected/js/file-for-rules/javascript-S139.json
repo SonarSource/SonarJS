@@ -1,8 +1,8 @@
 {
-'file-for-rules:S3834.js':[
-2,
+"file-for-rules:S3834.js": [
+2
 ],
-'file-for-rules:S3854.js':[
+"file-for-rules:S3854.js": [
 23,
 60,
 72,
@@ -23,43 +23,43 @@
 256,
 279,
 293,
-294,
+294
 ],
-'file-for-rules:S5332.js':[
+"file-for-rules:S5332.js": [
 8,
 12,
-15,
+15
 ],
-'file-for-rules:S5730.js':[
-7,
+"file-for-rules:S5730.js": [
+7
 ],
-'file-for-rules:S5732.js':[
+"file-for-rules:S5732.js": [
 8,
 16,
-25,
+25
 ],
-'file-for-rules:S5739.js':[
-5,
+"file-for-rules:S5739.js": [
+5
 ],
-'file-for-rules:S5860.js':[
+"file-for-rules:S5860.js": [
 7,
 8,
-15,
+15
 ],
-'file-for-rules:S6249.js':[
-7,
+"file-for-rules:S6249.js": [
+7
 ],
-'file-for-rules:S6265.js':[
-13,
+"file-for-rules:S6265.js": [
+13
 ],
-'file-for-rules:S6304.js':[
-99,
+"file-for-rules:S6304.js": [
+99
 ],
-'file-for-rules:S6317.js':[
-11,
+"file-for-rules:S6317.js": [
+11
 ],
-'file-for-rules:S6321.js':[
+"file-for-rules:S6321.js": [
 65,
-100,
-],
+100
+]
 }

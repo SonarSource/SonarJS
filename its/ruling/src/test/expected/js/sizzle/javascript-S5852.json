@@ -1,17 +1,17 @@
 {
-'sizzle:Gruntfile.js':[
-73,
+"sizzle:Gruntfile.js": [
+73
 ],
-'sizzle:speed/speed.js':[
+"sizzle:speed/speed.js": [
 31,
-31,
+31
 ],
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js": [
 109,
 126,
-133,
+133
 ],
-'sizzle:tasks/dist.js':[
-27,
-],
+"sizzle:tasks/dist.js": [
+27
+]
 }

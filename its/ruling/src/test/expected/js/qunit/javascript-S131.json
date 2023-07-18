@@ -1,10 +1,10 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 222,
 534,
-1032,
+1032
 ],
-'qunit:reporter/html.js':[
-24,
-],
+"qunit:reporter/html.js": [
+24
+]
 }

@@ -1,25 +1,25 @@
 {
-'javascript-test-sources:src/ace/src/test/asyncjs/assert.js':[
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
 108,
-108,
+108
 ],
-'javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js':[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 71,
-72,
+72
 ],
-'javascript-test-sources:src/ecmascript6/http/lib/gulp/karma/index.js':[
-16,
+"javascript-test-sources:src/ecmascript6/http/lib/gulp/karma/index.js": [
+16
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/modals.js':[
-29,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/modals.js": [
+29
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/bubble-chart.js':[
-125,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/bubble-chart.js": [
+125
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/pie-chart.js':[
-234,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/pie-chart.js": [
+234
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/lib/gulp/karma/index.js':[
-16,
-],
+"javascript-test-sources:src/ecmascript6/watchtower.js/lib/gulp/karma/index.js": [
+16
+]
 }

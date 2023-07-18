@@ -1,37 +1,37 @@
 {
-'jira-clone:client/src/Project/Board/IssueDetails/Title/index.jsx':[
-22,
+"jira-clone:client/src/Project/Board/IssueDetails/Title/index.jsx": [
+22
 ],
-'jira-clone:client/src/Project/Board/IssueDetails/index.jsx':[
+"jira-clone:client/src/Project/Board/IssueDetails/index.jsx": [
 38,
-39,
+39
 ],
-'jira-clone:client/src/Project/Board/Lists/index.jsx':[
+"jira-clone:client/src/Project/Board/Lists/index.jsx": [
 23,
-55,
+55
 ],
-'jira-clone:client/src/Project/index.jsx':[
+"jira-clone:client/src/Project/index.jsx": [
 26,
-27,
+27
 ],
-'jira-clone:client/src/shared/components/DatePicker/TimeSection.jsx':[
+"jira-clone:client/src/shared/components/DatePicker/TimeSection.jsx": [
 57,
-60,
+60
 ],
-'jira-clone:client/src/shared/components/DatePicker/index.jsx':[
-59,
+"jira-clone:client/src/shared/components/DatePicker/index.jsx": [
+59
 ],
-'jira-clone:client/src/shared/components/Select/Dropdown.jsx':[
+"jira-clone:client/src/shared/components/Select/Dropdown.jsx": [
 54,
 105,
 119,
-154,
+154
 ],
-'jira-clone:client/src/shared/components/Select/index.jsx':[
-122,
+"jira-clone:client/src/shared/components/Select/index.jsx": [
+122
 ],
-'jira-clone:client/src/shared/hooks/api/query.js':[
+"jira-clone:client/src/shared/hooks/api/query.js": [
 55,
-56,
-],
+56
+]
 }

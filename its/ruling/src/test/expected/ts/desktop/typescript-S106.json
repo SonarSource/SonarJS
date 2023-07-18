@@ -1,5 +1,5 @@
 {
-'desktop:app/src/cli/commands/help.ts':[
+"desktop:app/src/cli/commands/help.ts": [
 20,
 27,
 36,
@@ -9,52 +9,52 @@
 48,
 50,
 54,
-69,
+69
 ],
-'desktop:app/src/cli/commands/open.ts':[
-28,
+"desktop:app/src/cli/commands/open.ts": [
+28
 ],
-'desktop:app/src/cli/main.ts':[
+"desktop:app/src/cli/main.ts": [
 45,
 47,
-51,
+51
 ],
-'desktop:app/src/cli/util.ts':[
-33,
+"desktop:app/src/cli/util.ts": [
+33
 ],
-'desktop:app/src/lib/logging/renderer/install.ts':[
+"desktop:app/src/lib/logging/renderer/install.ts": [
 20,
 24,
-32,
+32
 ],
-'desktop:app/src/main-process/desktop-console-transport.ts':[
+"desktop:app/src/main-process/desktop-console-transport.ts": [
 5,
 6,
 8,
-33,
+33
 ],
-'desktop:app/src/main-process/desktop-file-transport.ts':[
-22,
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+22
 ],
-'desktop:app/src/models/app-menu.ts':[
-145,
+"desktop:app/src/models/app-menu.ts": [
+145
 ],
-'desktop:app/src/ui/changes/sidebar.tsx':[
+"desktop:app/src/ui/changes/sidebar.tsx": [
 186,
-261,
+261
 ],
-'desktop:app/src/ui/diff/text-diff.tsx':[
-466,
+"desktop:app/src/ui/diff/text-diff.tsx": [
+466
 ],
-'desktop:app/src/ui/index.tsx':[
+"desktop:app/src/ui/index.tsx": [
 129,
-132,
+132
 ],
-'desktop:app/src/ui/lib/id-pool.ts':[
+"desktop:app/src/ui/lib/id-pool.ts": [
 39,
-64,
+64
 ],
-'desktop:script/build.ts':[
+"desktop:script/build.ts": [
 68,
 70,
 73,
@@ -74,23 +74,23 @@
 337,
 349,
 356,
-384,
+384
 ],
-'desktop:script/changelog/parser.ts':[
-136,
+"desktop:script/changelog/parser.ts": [
+136
 ],
-'desktop:script/draft-release/draft-pull-request.ts':[
+"desktop:script/draft-release/draft-pull-request.ts": [
 25,
 31,
 35,
 40,
-43,
+43
 ],
-'desktop:script/draft-release/index.ts':[
+"desktop:script/draft-release/index.ts": [
 6,
-11,
+11
 ],
-'desktop:script/draft-release/run.ts':[
+"desktop:script/draft-release/run.ts": [
 64,
 113,
 114,
@@ -105,13 +105,13 @@
 195,
 209,
 212,
-220,
+220
 ],
-'desktop:script/generate-octicons.ts':[
+"desktop:script/generate-octicons.ts": [
 99,
-130,
+130
 ],
-'desktop:script/package.ts':[
+"desktop:script/package.ts": [
 31,
 39,
 56,
@@ -120,9 +120,9 @@
 113,
 117,
 122,
-147,
+147
 ],
-'desktop:script/publish.ts':[
+"desktop:script/publish.ts": [
 8,
 14,
 20,
@@ -131,36 +131,36 @@
 55,
 64,
 68,
-181,
+181
 ],
-'desktop:script/run.ts':[
-23,
+"desktop:script/run.ts": [
+23
 ],
-'desktop:script/start.ts':[
+"desktop:script/start.ts": [
 28,
 62,
-66,
+66
 ],
-'desktop:script/test-review.ts':[
+"desktop:script/test-review.ts": [
 8,
-10,
+10
 ],
-'desktop:script/test-setup.ts':[
+"desktop:script/test-setup.ts": [
 13,
 18,
 22,
-26,
+26
 ],
-'desktop:script/validate-changelog.ts':[
+"desktop:script/validate-changelog.ts": [
 9,
-80,
+80
 ],
-'desktop:script/validate-sass/validate-all.ts':[
+"desktop:script/validate-sass/validate-all.ts": [
 12,
 23,
 29,
 37,
 40,
-45,
-],
+45
+]
 }

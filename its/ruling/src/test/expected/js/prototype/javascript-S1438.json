@@ -1,5 +1,5 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.html':[
+"prototype:ext/update_helper/prototype_update_helper.html": [
 40,
 86,
 121,
@@ -15,64 +15,64 @@
 260,
 265,
 268,
-277,
+277
 ],
-'prototype:ext/update_helper/prototype_update_helper.js':[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 36,
 45,
 54,
 63,
 72,
-277,
+277
 ],
-'prototype:src/prototype/ajax/request.js':[
+"prototype:src/prototype/ajax/request.js": [
 262,
-286,
+286
 ],
-'prototype:src/prototype/ajax/responders.js':[
+"prototype:src/prototype/ajax/responders.js": [
 118,
-119,
+119
 ],
-'prototype:src/prototype/ajax/response.js':[
+"prototype:src/prototype/ajax/response.js": [
 104,
-124,
+124
 ],
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 752,
 754,
-2139,
+2139
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 102,
 111,
 124,
-1246,
+1246
 ],
-'prototype:src/prototype/dom/form.js':[
-314,
+"prototype:src/prototype/dom/form.js": [
+314
 ],
-'prototype:src/prototype/lang/function.js':[
+"prototype:src/prototype/lang/function.js": [
 199,
 232,
-342,
+342
 ],
-'prototype:src/prototype/lang/string.js':[
+"prototype:src/prototype/lang/string.js": [
 36,
-107,
+107
 ],
-'prototype:src/prototype/prototype.js':[
+"prototype:src/prototype/prototype.js": [
 87,
-161,
+161
 ],
-'prototype:test/browser.html':[
+"prototype:test/browser.html": [
 152,
 215,
-226,
+226
 ],
-'prototype:test/console.html':[
-50,
+"prototype:test/console.html": [
+50
 ],
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html": [
 85,
 86,
 89,
@@ -106,6 +106,6 @@
 279,
 281,
 309,
-326,
-],
+326
+]
 }

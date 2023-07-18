@@ -1,34 +1,34 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 115,
 318,
 407,
 581,
 739,
-1021,
+1021
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 126,
 192,
 468,
 651,
 795,
-886,
+886
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
+266
+],
+"qunit:src/core/utilities.js": [
+101
+],
+"qunit:src/dump.js": [
+81
+],
+"qunit:src/export.js": [
+5
+],
+"qunit:src/test.js": [
 266,
-],
-'qunit:src/core/utilities.js':[
-101,
-],
-'qunit:src/dump.js':[
-81,
-],
-'qunit:src/export.js':[
-5,
-],
-'qunit:src/test.js':[
-266,
-553,
-],
+553
+]
 }

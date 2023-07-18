@@ -1,26 +1,26 @@
 {
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 1156,
 1189,
 1238,
 1257,
 1268,
-1299,
+1299
 ],
-'TypeScript:src/compiler/moduleNameResolver.ts':[
-8,
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+8
 ],
-'TypeScript:src/compiler/tsc.ts':[
-55,
+"TypeScript:src/compiler/tsc.ts": [
+55
 ],
-'TypeScript:src/harness/harness.ts':[
-140,
+"TypeScript:src/harness/harness.ts": [
+140
 ],
-'TypeScript:src/harness/harnessLanguageService.ts':[
+"TypeScript:src/harness/harnessLanguageService.ts": [
 739,
-802,
+802
 ],
-'TypeScript:src/harness/loggedIO.ts':[
-261,
-],
+"TypeScript:src/harness/loggedIO.ts": [
+261
+]
 }

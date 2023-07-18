@@ -1,5 +1,5 @@
 {
-'paper.js:src/util/Numerical.js':[
+"paper.js:src/util/Numerical.js": [
 24,
 25,
 26,
@@ -133,6 +133,6 @@
 56,
 56,
 56,
-56,
-],
+56
+]
 }

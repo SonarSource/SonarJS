@@ -1,10 +1,10 @@
 {
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html": [
 57,
 110,
 121,
 212,
 222,
-238,
-],
+238
+]
 }

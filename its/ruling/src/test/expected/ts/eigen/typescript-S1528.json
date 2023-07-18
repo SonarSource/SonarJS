@@ -1,33 +1,33 @@
 {
-'eigen:src/app/Components/Artist/ArtistAbout/ArtistAboutShows.tests.tsx':[
-127,
+"eigen:src/app/Components/Artist/ArtistAbout/ArtistAboutShows.tests.tsx": [
+127
 ],
-'eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tests.tsx':[
-96,
+"eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tests.tsx": [
+96
 ],
-'eigen:src/app/Scenes/Sale/BuyNowArtworksRail.tests.tsx':[
-55,
+"eigen:src/app/Scenes/Sale/BuyNowArtworksRail.tests.tsx": [
+55
 ],
-'eigen:src/app/Scenes/Sale/SaleActiveBids.tests.tsx':[
-68,
+"eigen:src/app/Scenes/Sale/SaleActiveBids.tests.tsx": [
+68
 ],
-'eigen:src/app/Scenes/Sale/SaleArtworksRail.tests.tsx':[
-97,
+"eigen:src/app/Scenes/Sale/SaleArtworksRail.tests.tsx": [
+97
 ],
-'eigen:src/app/Scenes/Sale/SaleLotsList.tests.tsx':[
-192,
+"eigen:src/app/Scenes/Sale/SaleLotsList.tests.tsx": [
+192
 ],
-'eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx':[
-133,
+"eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx": [
+133
 ],
-'eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx':[
-85,
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx": [
+85
 ],
-'eigen:src/app/tests/resolveMostRecentRelayOperation.ts':[
-28,
+"eigen:src/app/tests/resolveMostRecentRelayOperation.ts": [
+28
 ],
-'eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx':[
+"eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
 92,
-94,
-],
+94
+]
 }

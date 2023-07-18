@@ -1,11 +1,11 @@
 {
-'fireact:src/components/routers/AuthRouter/index.js':[
-18,
+"fireact:src/components/routers/AuthRouter/index.js": [
+18
 ],
-'fireact:src/components/templates/AccountTemplate/index.js':[
-71,
+"fireact:src/components/templates/AccountTemplate/index.js": [
+71
 ],
-'fireact:src/pages/auth/accounts/UserRole/index.js':[
-72,
-],
+"fireact:src/pages/auth/accounts/UserRole/index.js": [
+72
+]
 }

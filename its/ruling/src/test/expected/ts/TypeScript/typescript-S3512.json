@@ -1,42 +1,42 @@
 {
-'TypeScript:Gulpfile.ts':[
+"TypeScript:Gulpfile.ts": [
 519,
-541,
+541
 ],
-'TypeScript:scripts/errorCheck.ts':[
+"TypeScript:scripts/errorCheck.ts": [
 13,
 49,
 64,
 74,
-84,
+84
 ],
-'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 50,
 55,
 66,
 70,
-81,
+81
 ],
-'TypeScript:scripts/ior.ts':[
+"TypeScript:scripts/ior.ts": [
 29,
-113,
+113
 ],
-'TypeScript:scripts/processDiagnosticMessages.ts':[
+"TypeScript:scripts/processDiagnosticMessages.ts": [
 24,
 97,
 119,
-131,
+131
 ],
-'TypeScript:scripts/word2md.ts':[
+"TypeScript:scripts/word2md.ts": [
 218,
 301,
 311,
 315,
 347,
 352,
-366,
+366
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 1554,
 7408,
 8452,
@@ -45,40 +45,40 @@
 8902,
 8902,
 10249,
-10495,
+10495
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 1663,
 1885,
-2255,
+2255
 ],
-'TypeScript:src/compiler/declarationEmitter.ts':[
-608,
+"TypeScript:src/compiler/declarationEmitter.ts": [
+608
 ],
-'TypeScript:src/compiler/emitter.ts':[
+"TypeScript:src/compiler/emitter.ts": [
 2640,
-2734,
+2734
 ],
-'TypeScript:src/compiler/program.ts':[
+"TypeScript:src/compiler/program.ts": [
 281,
 302,
-1452,
+1452
 ],
-'TypeScript:src/compiler/transformers/jsx.ts':[
-220,
+"TypeScript:src/compiler/transformers/jsx.ts": [
+220
 ],
-'TypeScript:src/compiler/tsc.ts':[
+"TypeScript:src/compiler/tsc.ts": [
 546,
 554,
 555,
-612,
+612
 ],
-'TypeScript:src/compiler/utilities.ts':[
+"TypeScript:src/compiler/utilities.ts": [
 493,
 495,
-4627,
+4627
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 331,
 339,
 478,
@@ -123,12 +123,12 @@
 3018,
 3055,
 3063,
-3098,
+3098
 ],
-'TypeScript:src/harness/fourslashRunner.ts':[
-62,
+"TypeScript:src/harness/fourslashRunner.ts": [
+62
 ],
-'TypeScript:src/harness/harness.ts':[
+"TypeScript:src/harness/harness.ts": [
 200,
 691,
 1231,
@@ -144,20 +144,20 @@
 1610,
 1626,
 1882,
-1885,
+1885
 ],
-'TypeScript:src/harness/harnessLanguageService.ts':[
+"TypeScript:src/harness/harnessLanguageService.ts": [
 165,
-357,
+357
 ],
-'TypeScript:src/harness/instrumenter.ts':[
-41,
+"TypeScript:src/harness/instrumenter.ts": [
+41
 ],
-'TypeScript:src/harness/loggedIO.ts':[
+"TypeScript:src/harness/loggedIO.ts": [
 165,
-211,
+211
 ],
-'TypeScript:src/harness/projectsRunner.ts':[
+"TypeScript:src/harness/projectsRunner.ts": [
 68,
 75,
 89,
@@ -173,55 +173,55 @@
 477,
 483,
 519,
-523,
+523
 ],
-'TypeScript:src/harness/sourceMapRecorder.ts':[
+"TypeScript:src/harness/sourceMapRecorder.ts": [
 246,
 248,
 252,
 276,
-340,
+340
 ],
-'TypeScript:src/harness/test262Runner.ts':[
-25,
+"TypeScript:src/harness/test262Runner.ts": [
+25
 ],
-'TypeScript:src/server/client.ts':[
-116,
+"TypeScript:src/server/client.ts": [
+116
 ],
-'TypeScript:src/server/server.ts':[
+"TypeScript:src/server/server.ts": [
 200,
-490,
+490
 ],
-'TypeScript:src/server/session.ts':[
+"TypeScript:src/server/session.ts": [
 215,
-1934,
+1934
 ],
-'TypeScript:src/services/completions.ts':[
+"TypeScript:src/services/completions.ts": [
 143,
 358,
 363,
 430,
 441,
 552,
-715,
+715
 ],
-'TypeScript:src/services/findAllReferences.ts':[
-1117,
+"TypeScript:src/services/findAllReferences.ts": [
+1117
 ],
-'TypeScript:src/services/formatting/rule.ts':[
-13,
+"TypeScript:src/services/formatting/rule.ts": [
+13
 ],
-'TypeScript:src/services/formatting/ruleDescriptor.ts':[
-10,
+"TypeScript:src/services/formatting/ruleDescriptor.ts": [
+10
 ],
-'TypeScript:src/services/formatting/ruleOperation.ts':[
-9,
+"TypeScript:src/services/formatting/ruleOperation.ts": [
+9
 ],
-'TypeScript:src/services/jsDoc.ts':[
+"TypeScript:src/services/jsDoc.ts": [
 227,
-230,
+230
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 897,
 1072,
 1241,
@@ -230,12 +230,12 @@
 1913,
 1923,
 1923,
-1932,
+1932
 ],
-'TypeScript:src/services/signatureHelp.ts':[
-349,
+"TypeScript:src/services/signatureHelp.ts": [
+349
 ],
-'TypeScript:src/services/utilities.ts':[
-1373,
-],
+"TypeScript:src/services/utilities.ts": [
+1373
+]
 }

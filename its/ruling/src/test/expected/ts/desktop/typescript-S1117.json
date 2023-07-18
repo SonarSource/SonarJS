@@ -1,67 +1,67 @@
 {
-'desktop:app/src/cli/commands/help.ts':[
+"desktop:app/src/cli/commands/help.ts": [
 10,
 23,
-34,
+34
 ],
-'desktop:app/src/lib/api.ts':[
-1484,
+"desktop:app/src/lib/api.ts": [
+1484
 ],
-'desktop:app/src/lib/app-state.ts':[
+"desktop:app/src/lib/app-state.ts": [
 52,
 53,
 305,
-306,
+306
 ],
-'desktop:app/src/lib/email.ts':[
-120,
+"desktop:app/src/lib/email.ts": [
+120
 ],
-'desktop:app/src/lib/git/cherry-pick.ts':[
-458,
+"desktop:app/src/lib/git/cherry-pick.ts": [
+458
 ],
-'desktop:app/src/lib/git/core.ts':[
-239,
+"desktop:app/src/lib/git/core.ts": [
+239
 ],
-'desktop:app/src/lib/git/diff.ts':[
-243,
+"desktop:app/src/lib/git/diff.ts": [
+243
 ],
-'desktop:app/src/lib/git/merge.ts':[
-45,
+"desktop:app/src/lib/git/merge.ts": [
+45
 ],
-'desktop:app/src/lib/git/rebase.ts':[
+"desktop:app/src/lib/git/rebase.ts": [
 331,
-504,
+504
 ],
-'desktop:app/src/lib/git/reflog.ts':[
-44,
+"desktop:app/src/lib/git/reflog.ts": [
+44
 ],
-'desktop:app/src/lib/git/stash.ts':[
-106,
+"desktop:app/src/lib/git/stash.ts": [
+106
 ],
-'desktop:app/src/lib/git/status.ts':[
-223,
+"desktop:app/src/lib/git/status.ts": [
+223
 ],
-'desktop:app/src/lib/markdown-filters/emoji-filter.ts':[
-141,
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+141
 ],
-'desktop:app/src/lib/promise.ts':[
+"desktop:app/src/lib/promise.ts": [
 25,
-40,
+40
 ],
-'desktop:app/src/lib/range.ts':[
-19,
+"desktop:app/src/lib/range.ts": [
+19
 ],
-'desktop:app/src/lib/read-emoji.ts':[
-97,
+"desktop:app/src/lib/read-emoji.ts": [
+97
 ],
-'desktop:app/src/lib/shells/win32.ts':[
-276,
+"desktop:app/src/lib/shells/win32.ts": [
+276
 ],
-'desktop:app/src/lib/stores/ahead-behind-store.ts':[
+"desktop:app/src/lib/stores/ahead-behind-store.ts": [
 95,
-116,
+116
 ],
-'desktop:app/src/lib/stores/app-store.ts':[
+"desktop:app/src/lib/stores/app-store.ts": [
 1692,
 2001,
 2092,
@@ -74,43 +74,43 @@
 4534,
 4552,
 4568,
-5120,
+5120
 ],
-'desktop:app/src/lib/stores/commit-status-store.ts':[
-302,
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+302
 ],
-'desktop:app/src/lib/stores/updates/changes-state.ts':[
-126,
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+126
 ],
-'desktop:app/src/lib/truncate-with-ellipsis.ts':[
-15,
+"desktop:app/src/lib/truncate-with-ellipsis.ts": [
+15
 ],
-'desktop:app/src/lib/wrap-rich-text-commit-message.ts':[
+"desktop:app/src/lib/wrap-rich-text-commit-message.ts": [
 112,
-115,
+115
 ],
-'desktop:app/src/main-process/desktop-file-transport.ts':[
-20,
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+20
 ],
-'desktop:app/src/main-process/main.ts':[
+"desktop:app/src/main-process/main.ts": [
 690,
-697,
+697
 ],
-'desktop:app/src/main-process/squirrel-updater.ts':[
-73,
+"desktop:app/src/main-process/squirrel-updater.ts": [
+73
 ],
-'desktop:app/src/models/app-menu.ts':[
-648,
+"desktop:app/src/models/app-menu.ts": [
+648
 ],
-'desktop:app/src/models/diff/diff-data.ts':[
-13,
+"desktop:app/src/models/diff/diff-data.ts": [
+13
 ],
-'desktop:app/src/models/drag-drop.ts':[
+"desktop:app/src/models/drag-drop.ts": [
 19,
 31,
-38,
+38
 ],
-'desktop:app/src/ui/app.tsx':[
+"desktop:app/src/ui/app.tsx": [
 1486,
 1488,
 1550,
@@ -123,107 +123,107 @@
 2062,
 2075,
 2576,
-2583,
+2583
 ],
-'desktop:app/src/ui/branches/group-branches.ts':[
-39,
+"desktop:app/src/ui/branches/group-branches.ts": [
+39
 ],
-'desktop:app/src/ui/branches/pull-request-list.tsx':[
+"desktop:app/src/ui/branches/pull-request-list.tsx": [
 201,
-237,
+237
 ],
-'desktop:app/src/ui/changes/changes-list.tsx':[
+"desktop:app/src/ui/changes/changes-list.tsx": [
 508,
 546,
 551,
 557,
 574,
-584,
+584
 ],
-'desktop:app/src/ui/clone-repository/clone-repository.tsx':[
-322,
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+322
 ],
-'desktop:app/src/ui/diff/diff-helpers.tsx':[
-445,
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+445
 ],
-'desktop:app/src/ui/diff/diff-syntax-mode.ts':[
-181,
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+181
 ],
-'desktop:app/src/ui/diff/text-diff-expansion.ts':[
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
 366,
-366,
+366
 ],
-'desktop:app/src/ui/diff/text-diff.tsx':[
-860,
+"desktop:app/src/ui/diff/text-diff.tsx": [
+860
 ],
-'desktop:app/src/ui/dispatcher/dispatcher.ts':[
-1900,
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+1900
 ],
-'desktop:app/src/ui/donut.tsx':[
+"desktop:app/src/ui/donut.tsx": [
 60,
-79,
+79
 ],
-'desktop:app/src/ui/history/compare-branch-list-item.tsx':[
-95,
+"desktop:app/src/ui/history/compare-branch-list-item.tsx": [
+95
 ],
-'desktop:app/src/ui/lib/author-input.tsx':[
+"desktop:app/src/ui/lib/author-input.tsx": [
 179,
 644,
-648,
+648
 ],
-'desktop:app/src/ui/lib/list/list.tsx':[
+"desktop:app/src/ui/lib/list/list.tsx": [
 453,
-669,
+669
 ],
-'desktop:app/src/ui/lib/list/selection.ts':[
-83,
+"desktop:app/src/ui/lib/list/selection.ts": [
+83
 ],
-'desktop:app/src/ui/lib/text-box.tsx':[
-258,
+"desktop:app/src/ui/lib/text-box.tsx": [
+258
 ],
-'desktop:app/src/ui/lib/tooltip.tsx':[
-553,
+"desktop:app/src/ui/lib/tooltip.tsx": [
+553
 ],
-'desktop:app/src/ui/lib/update-branch.ts':[
+"desktop:app/src/ui/lib/update-branch.ts": [
 50,
-56,
+56
 ],
-'desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx':[
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
 171,
-173,
+173
 ],
-'desktop:app/src/ui/repositories-list/group-repositories.ts':[
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
 63,
-75,
+75
 ],
-'desktop:app/src/ui/repository-settings/repository-settings.tsx':[
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
 43,
 45,
-46,
+46
 ],
-'desktop:app/src/ui/repository.tsx':[
-103,
+"desktop:app/src/ui/repository.tsx": [
+103
 ],
-'desktop:app/src/ui/welcome/welcome.tsx':[
+"desktop:app/src/ui/welcome/welcome.tsx": [
 16,
-19,
+19
 ],
-'desktop:app/webpack.development.ts':[
-27,
+"desktop:app/webpack.development.ts": [
+27
 ],
-'desktop:script/build.ts':[
+"desktop:script/build.ts": [
 394,
-406,
+406
 ],
-'desktop:script/dist-info.ts':[
+"desktop:script/dist-info.ts": [
 46,
-55,
+55
 ],
-'desktop:script/draft-release/version.ts':[
+"desktop:script/draft-release/version.ts": [
 72,
-92,
+92
 ],
-'desktop:script/publish.ts':[
-233,
-],
+"desktop:script/publish.ts": [
+233
+]
 }

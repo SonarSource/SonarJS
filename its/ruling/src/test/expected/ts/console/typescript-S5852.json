@@ -1,19 +1,19 @@
 {
-'console:src/utils/functionTest.ts':[
-42,
+"console:src/utils/functionTest.ts": [
+42
 ],
-'console:src/utils/utils.ts':[
+"console:src/utils/utils.ts": [
 106,
-110,
+110
 ],
-'console:src/views/SchemaView/SchemaEditor.tsx':[
+"console:src/views/SchemaView/SchemaEditor.tsx": [
 340,
-344,
+344
 ],
-'console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx':[
-405,
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+405
 ],
-'console:src/views/models/DatabrowserView/DatabrowserView.tsx':[
-659,
-],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+659
+]
 }

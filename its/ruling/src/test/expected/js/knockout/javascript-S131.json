@@ -1,11 +1,11 @@
 {
-'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
-102,
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+102
 ],
-'knockout:src/components/defaultLoader.js':[
-160,
+"knockout:src/components/defaultLoader.js": [
+160
 ],
-'knockout:src/subscribables/mappingHelpers.js':[
-37,
-],
+"knockout:src/subscribables/mappingHelpers.js": [
+37
+]
 }

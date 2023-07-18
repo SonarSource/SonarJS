@@ -1,22 +1,22 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 1056,
 3060,
 3061,
 3062,
 4015,
-4031,
+4031
 ],
-'p5.js:src/core/error_helpers.js':[
-577,
+"p5.js:src/core/error_helpers.js": [
+577
 ],
-'p5.js:src/image/filters.js':[
-489,
+"p5.js:src/image/filters.js": [
+489
 ],
-'p5.js:src/typography/p5.Font.js':[
-1167,
+"p5.js:src/typography/p5.Font.js": [
+1167
 ],
-'p5.js:tasks/build/browserify.js':[
-22,
-],
+"p5.js:tasks/build/browserify.js": [
+22
+]
 }

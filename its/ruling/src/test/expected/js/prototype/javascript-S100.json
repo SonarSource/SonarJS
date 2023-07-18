@@ -1,36 +1,36 @@
 {
-'prototype:src/prototype/deprecated.js':[
+"prototype:src/prototype/deprecated.js": [
 12,
 16,
 20,
-24,
+24
 ],
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 73,
 127,
-731,
+731
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 853,
-864,
+864
 ],
-'prototype:src/prototype/dom/selector.js':[
-86,
+"prototype:src/prototype/dom/selector.js": [
+86
 ],
-'prototype:src/prototype/lang/array.js':[
+"prototype:src/prototype/lang/array.js": [
 59,
-92,
+92
 ],
-'prototype:src/prototype/lang/hash.js':[
-21,
+"prototype:src/prototype/lang/hash.js": [
+21
 ],
-'prototype:src/prototype/lang/range.js':[
-81,
+"prototype:src/prototype/lang/range.js": [
+81
 ],
-'prototype:src/prototype/prototype.js':[
-161,
+"prototype:src/prototype/prototype.js": [
+161
 ],
-'prototype:test/functional/event.html':[
-80,
-],
+"prototype:test/functional/event.html": [
+80
+]
 }

@@ -1,16 +1,16 @@
 {
-'amplify:lib/amplify-vsdoc.js':[
-14,
+"amplify:lib/amplify-vsdoc.js": [
+14
 ],
-'amplify:src/amplify-vsdoc.js':[
-5,
+"amplify:src/amplify-vsdoc.js": [
+5
 ],
-'amplify:src/core.js':[
+"amplify:src/core.js": [
 7,
 34,
 63,
 64,
 65,
-84,
-],
+84
+]
 }

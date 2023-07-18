@@ -1,5 +1,5 @@
 {
-'jshint:data/ascii-identifier-data.js':[
+"jshint:data/ascii-identifier-data.js": [
 3,
 5,
 6,
@@ -9,9 +9,9 @@
 8,
 13,
 16,
-16,
+16
 ],
-'jshint:scripts/generate-identifier-data.js':[
+"jshint:scripts/generate-identifier-data.js": [
 40,
 40,
 41,
@@ -21,16 +21,16 @@
 61,
 61,
 64,
-64,
+64
 ],
-'jshint:scripts/remove-dev-dependencies.js':[
+"jshint:scripts/remove-dev-dependencies.js": [
 17,
-28,
+28
 ],
-'jshint:src/cli.js':[
-753,
+"jshint:src/cli.js": [
+753
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 231,
 235,
 239,
@@ -127,9 +127,9 @@
 5972,
 6275,
 6330,
-6331,
+6331
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 111,
 237,
 291,
@@ -166,23 +166,23 @@
 1614,
 1614,
 2141,
-2148,
+2148
 ],
-'jshint:src/name-stack.js':[
-74,
+"jshint:src/name-stack.js": [
+74
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js": [
 57,
 65,
 297,
-843,
+843
 ],
-'jshint:src/state.js':[
+"jshint:src/state.js": [
 74,
 83,
 92,
 108,
 117,
-146,
-],
+146
+]
 }

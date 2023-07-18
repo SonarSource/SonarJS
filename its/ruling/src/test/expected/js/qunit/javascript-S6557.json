@@ -1,15 +1,15 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 248,
-283,
+283
 ],
-'qunit:src/assert.js':[
-466,
+"qunit:src/assert.js": [
+466
 ],
-'qunit:src/cli/run.js':[
-157,
+"qunit:src/cli/run.js": [
+157
 ],
-'qunit:src/test.js':[
-651,
-],
+"qunit:src/test.js": [
+651
+]
 }

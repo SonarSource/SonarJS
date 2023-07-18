@@ -1,32 +1,32 @@
 {
-'TypeScript:Gulpfile.ts':[
-412,
+"TypeScript:Gulpfile.ts": [
+412
 ],
-'TypeScript:scripts/authors.ts':[
+"TypeScript:scripts/authors.ts": [
 22,
-115,
+115
 ],
-'TypeScript:src/compiler/commandLineParser.ts':[
+"TypeScript:src/compiler/commandLineParser.ts": [
 1399,
-1458,
+1458
 ],
-'TypeScript:src/compiler/program.ts':[
-298,
+"TypeScript:src/compiler/program.ts": [
+298
 ],
-'TypeScript:src/compiler/utilities.ts':[
+"TypeScript:src/compiler/utilities.ts": [
 640,
 641,
 642,
-3002,
+3002
 ],
-'TypeScript:src/harness/harness.ts':[
-680,
+"TypeScript:src/harness/harness.ts": [
+680
 ],
-'TypeScript:src/harness/rwcRunner.ts':[
+"TypeScript:src/harness/rwcRunner.ts": [
 39,
-241,
+241
 ],
-'TypeScript:src/server/editorServices.ts':[
-85,
-],
+"TypeScript:src/server/editorServices.ts": [
+85
+]
 }

@@ -1,12 +1,12 @@
 {
-'Joust:ts/Launcher.tsx':[
-434,
+"Joust:ts/Launcher.tsx": [
+434
 ],
-'Joust:ts/TexturePreloader.ts':[
-26,
+"Joust:ts/TexturePreloader.ts": [
+26
 ],
-'Joust:ts/components/game/TwoPlayerGame.tsx':[
+"Joust:ts/components/game/TwoPlayerGame.tsx": [
 40,
-58,
-],
+58
+]
 }

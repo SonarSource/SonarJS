@@ -1,25 +1,25 @@
 {
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 10063,
 12027,
-13419,
+13419
 ],
-'TypeScript:src/compiler/comments.ts':[
-422,
+"TypeScript:src/compiler/comments.ts": [
+422
 ],
-'TypeScript:src/compiler/factory.ts':[
-988,
+"TypeScript:src/compiler/factory.ts": [
+988
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 458,
 508,
 512,
-2307,
+2307
 ],
-'TypeScript:src/server/builder.ts':[
-147,
+"TypeScript:src/server/builder.ts": [
+147
 ],
-'TypeScript:src/server/scriptInfo.ts':[
-184,
-],
+"TypeScript:src/server/scriptInfo.ts": [
+184
+]
 }

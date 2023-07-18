@@ -1,19 +1,19 @@
 {
-'TypeScript:src/compiler/commandLineParser.ts':[
-787,
+"TypeScript:src/compiler/commandLineParser.ts": [
+787
 ],
-'TypeScript:src/compiler/sys.ts':[
-74,
+"TypeScript:src/compiler/sys.ts": [
+74
 ],
-'TypeScript:src/harness/harnessLanguageService.ts':[
+"TypeScript:src/harness/harnessLanguageService.ts": [
 348,
 349,
-355,
+355
 ],
-'TypeScript:src/server/client.ts':[
-25,
+"TypeScript:src/server/client.ts": [
+25
 ],
-'TypeScript:src/server/server.ts':[
-731,
-],
+"TypeScript:src/server/server.ts": [
+731
+]
 }

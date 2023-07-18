@@ -1,31 +1,31 @@
 {
-'moose:main/background.ts':[
-134,
+"moose:main/background.ts": [
+134
 ],
-'moose:main/controllers/subtitles.ts':[
-15,
+"moose:main/controllers/subtitles.ts": [
+15
 ],
-'moose:main/modules/cast.ts':[
-34,
+"moose:main/modules/cast.ts": [
+34
 ],
-'moose:main/modules/menu.ts':[
-29,
+"moose:main/modules/menu.ts": [
+29
 ],
-'moose:main/modules/playOnVlc.ts':[
-7,
+"moose:main/modules/playOnVlc.ts": [
+7
 ],
-'moose:main/utils/opensubtitle-hash.ts':[
+"moose:main/utils/opensubtitle-hash.ts": [
 46,
 53,
-54,
+54
 ],
-'moose:renderer/components/CastControl/CastControl.tsx':[
+"moose:renderer/components/CastControl/CastControl.tsx": [
 38,
-73,
+73
 ],
-'moose:renderer/components/Container/Container.tsx':[
+"moose:renderer/components/Container/Container.tsx": [
 42,
 98,
-120,
-],
+120
+]
 }

@@ -1,12 +1,12 @@
 {
-'mootools-core:Source/Element/Element.js':[
+"mootools-core:Source/Element/Element.js": [
 17,
-116,
+116
 ],
-'mootools-core:Source/Types/Array.js':[
-175,
+"mootools-core:Source/Types/Array.js": [
+175
 ],
-'mootools-core:Source/Utilities/JSON.js':[
-19,
-],
+"mootools-core:Source/Utilities/JSON.js": [
+19
+]
 }

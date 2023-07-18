@@ -1,12 +1,12 @@
 {
-'vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts':[
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
 222,
-222,
+222
 ],
-'vuetify:packages/vuetify/src/directives/intersect/index.ts':[
-33,
+"vuetify:packages/vuetify/src/directives/intersect/index.ts": [
+33
 ],
-'vuetify:packages/vuetify/src/directives/mutate/index.ts':[
-29,
-],
+"vuetify:packages/vuetify/src/directives/mutate/index.ts": [
+29
+]
 }

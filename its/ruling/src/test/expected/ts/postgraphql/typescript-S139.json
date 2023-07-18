@@ -1,13 +1,13 @@
 {
-'postgraphql:src/__tests__/utils/withPgClient.ts':[
-36,
+"postgraphql:src/__tests__/utils/withPgClient.ts": [
+36
 ],
-'postgraphql:src/graphql/schema/getMutationGqlType.ts':[
-34,
+"postgraphql:src/graphql/schema/getMutationGqlType.ts": [
+34
 ],
-'postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts':[
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
 40,
 41,
-42,
-],
+42
+]
 }

@@ -1,76 +1,76 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js':[
-732,
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+732
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
-2,
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+2
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-17,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+17
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js':[
-17,
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
+17
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js':[
-17,
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
+17
 ],
-'javascript-test-sources:src/ace/src/commands/command_manager.js':[
-60,
+"javascript-test-sources:src/ace/src/commands/command_manager.js": [
+60
 ],
-'javascript-test-sources:src/ace/src/commands/incremental_search_commands.js':[
-117,
+"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js": [
+117
 ],
-'javascript-test-sources:src/ace/src/keyboard/vim.js':[
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
 2295,
 2409,
 3101,
 3311,
-6117,
+6117
 ],
-'javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js':[
-128,
+"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js": [
+128
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-controller.js':[
-325,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-controller.js": [
+325
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/config.js':[
-13,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/config.js": [
+13
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js':[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
 268,
-292,
+292
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js':[
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js": [
 99,
-100,
+100
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/ghost-server.js':[
-37,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/ghost-server.js": [
+37
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/author.js':[
-28,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/author.js": [
+28
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js':[
-72,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js": [
+72
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js':[
-6,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js": [
+6
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js':[
-127,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
+127
 ],
-'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 1236,
 2372,
-3328,
+3328
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets-view.js':[
-37,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets-view.js": [
+37
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets-view.js':[
-44,
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets-view.js": [
+44
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js':[
-112,
-],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+112
+]
 }

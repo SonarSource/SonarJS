@@ -1,12 +1,12 @@
 {
-'yaml:lambda-block-folded-2.yaml':[
+"yaml:lambda-block-folded-2.yaml": [
 219,
-220,
+220
 ],
-'yaml:lambda-block-literal.yaml':[
+"yaml:lambda-block-literal.yaml": [
 309,
 310,
 347,
-349,
-],
+349
+]
 }

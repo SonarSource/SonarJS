@@ -1,27 +1,27 @@
 {
-'angular.js:docs/app/src/tutorials.js':[
-18,
+"angular.js:docs/app/src/tutorials.js": [
+18
 ],
-'angular.js:src/ng/animate.js':[
-307,
+"angular.js:src/ng/animate.js": [
+307
 ],
-'angular.js:src/ng/directive/input.js':[
-27,
+"angular.js:src/ng/directive/input.js": [
+27
 ],
-'angular.js:src/ng/directive/ngOptions.js':[
+"angular.js:src/ng/directive/ngOptions.js": [
 237,
-238,
+238
 ],
-'angular.js:src/ng/sce.js':[
+"angular.js:src/ng/sce.js": [
 622,
 625,
 626,
-644,
+644
 ],
-'angular.js:src/ngAnimate/animateCss.js':[
-210,
+"angular.js:src/ngAnimate/animateCss.js": [
+210
 ],
-'angular.js:src/ngMessageFormat/messageFormatParser.js':[
-128,
-],
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+128
+]
 }

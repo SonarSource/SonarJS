@@ -1,14 +1,14 @@
 {
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 71,
 72,
-74,
+74
 ],
-'TypeScript:src/harness/compilerRunner.ts':[
+"TypeScript:src/harness/compilerRunner.ts": [
 12,
-13,
+13
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 133,
 184,
 185,
@@ -23,15 +23,15 @@
 3844,
 3895,
 3959,
-3988,
+3988
 ],
-'TypeScript:src/harness/fourslashRunner.ts':[
-16,
+"TypeScript:src/harness/fourslashRunner.ts": [
+16
 ],
-'TypeScript:src/harness/harness.ts':[
-1683,
+"TypeScript:src/harness/harness.ts": [
+1683
 ],
-'TypeScript:src/harness/harnessLanguageService.ts':[
+"TypeScript:src/harness/harnessLanguageService.ts": [
 232,
 244,
 335,
@@ -40,76 +40,76 @@
 509,
 599,
 811,
-812,
+812
 ],
-'TypeScript:src/harness/rwcRunner.ts':[
-238,
+"TypeScript:src/harness/rwcRunner.ts": [
+238
 ],
-'TypeScript:src/harness/test262Runner.ts':[
+"TypeScript:src/harness/test262Runner.ts": [
 7,
 8,
 9,
 13,
 14,
-19,
+19
 ],
-'TypeScript:src/harness/typeWriter.ts':[
+"TypeScript:src/harness/typeWriter.ts": [
 13,
-15,
+15
 ],
-'TypeScript:src/harness/virtualFileSystem.ts':[
+"TypeScript:src/harness/virtualFileSystem.ts": [
 55,
-95,
+95
 ],
-'TypeScript:src/server/builder.ts':[
-89,
+"TypeScript:src/server/builder.ts": [
+89
 ],
-'TypeScript:src/server/client.ts':[
+"TypeScript:src/server/client.ts": [
 37,
 38,
-41,
+41
 ],
-'TypeScript:src/server/editorServices.ts':[
-1486,
+"TypeScript:src/server/editorServices.ts": [
+1486
 ],
-'TypeScript:src/server/project.ts':[
+"TypeScript:src/server/project.ts": [
 116,
 187,
 742,
 841,
-851,
+851
 ],
-'TypeScript:src/server/scriptInfo.ts':[
-169,
+"TypeScript:src/server/scriptInfo.ts": [
+169
 ],
-'TypeScript:src/server/server.ts':[
+"TypeScript:src/server/server.ts": [
 138,
 226,
-236,
+236
 ],
-'TypeScript:src/server/session.ts':[
+"TypeScript:src/server/session.ts": [
 359,
 361,
 363,
 366,
 367,
 369,
-1603,
+1603
 ],
-'TypeScript:src/server/utilities.ts':[
-196,
+"TypeScript:src/server/utilities.ts": [
+196
 ],
-'TypeScript:src/services/formatting/ruleOperationContext.ts':[
-7,
+"TypeScript:src/services/formatting/ruleOperationContext.ts": [
+7
 ],
-'TypeScript:src/services/formatting/rulesMap.ts':[
-136,
+"TypeScript:src/services/formatting/rulesMap.ts": [
+136
 ],
-'TypeScript:src/services/formatting/rulesProvider.ts':[
+"TypeScript:src/services/formatting/rulesProvider.ts": [
 6,
-8,
+8
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 801,
 802,
 803,
@@ -117,9 +117,9 @@
 805,
 890,
 999,
-1021,
+1021
 ],
-'TypeScript:src/services/shims.ts':[
+"TypeScript:src/services/shims.ts": [
 281,
 315,
 316,
@@ -131,12 +131,12 @@
 1000,
 1002,
 1027,
-1029,
+1029
 ],
-'TypeScript:src/services/textChanges.ts':[
-157,
+"TypeScript:src/services/textChanges.ts": [
+157
 ],
-'TypeScript:src/services/types.ts':[
-102,
-],
+"TypeScript:src/services/types.ts": [
+102
+]
 }

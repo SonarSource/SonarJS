@@ -1,9 +1,9 @@
 {
-'prettier-vscode:src/PrettierEditProvider.ts':[
-18,
+"prettier-vscode:src/PrettierEditProvider.ts": [
+18
 ],
-'prettier-vscode:src/requirePkg.ts':[
+"prettier-vscode:src/requirePkg.ts": [
 1,
-1,
-],
+1
+]
 }

@@ -1,8 +1,8 @@
 {
-'p5.js:Gruntfile.js':[
-496,
+"p5.js:Gruntfile.js": [
+496
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 130,
 2261,
 2342,
@@ -32,116 +32,116 @@
 4128,
 4351,
 4625,
-4788,
+4788
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
-22,
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+22
 ],
-'p5.js:karma.conf.js':[
-28,
+"p5.js:karma.conf.js": [
+28
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 1837,
 1846,
-10086,
+10086
 ],
-'p5.js:src/color/color_conversion.js':[
+"p5.js:src/color/color_conversion.js": [
 49,
 56,
 132,
 139,
-236,
+236
 ],
-'p5.js:src/color/creating_reading.js':[
+"p5.js:src/color/creating_reading.js": [
 323,
 452,
-457,
+457
 ],
-'p5.js:src/color/p5.Color.js':[
+"p5.js:src/color/p5.Color.js": [
 88,
 634,
 635,
 636,
-637,
+637
 ],
-'p5.js:src/core/constants.js':[
-315,
+"p5.js:src/core/constants.js": [
+315
 ],
-'p5.js:src/core/environment.js':[
-604,
+"p5.js:src/core/environment.js": [
+604
 ],
-'p5.js:src/core/error_helpers.js':[
+"p5.js:src/core/error_helpers.js": [
 54,
 122,
 405,
-633,
+633
 ],
-'p5.js:src/core/main.js':[
-579,
+"p5.js:src/core/main.js": [
+579
 ],
-'p5.js:src/core/p5.Renderer.js':[
-36,
+"p5.js:src/core/p5.Renderer.js": [
+36
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 267,
 432,
 904,
 1143,
-1146,
+1146
 ],
-'p5.js:src/core/rendering.js':[
+"p5.js:src/core/rendering.js": [
 12,
 61,
-86,
+86
 ],
-'p5.js:src/core/shape/2d_primitives.js':[
+"p5.js:src/core/shape/2d_primitives.js": [
 43,
 201,
-202,
+202
 ],
-'p5.js:src/core/shape/vertex.js':[
-549,
+"p5.js:src/core/shape/vertex.js": [
+549
 ],
-'p5.js:src/dom/dom.js':[
-504,
+"p5.js:src/dom/dom.js": [
+504
 ],
-'p5.js:src/events/keyboard.js':[
-290,
+"p5.js:src/events/keyboard.js": [
+290
 ],
-'p5.js:src/events/touch.js':[
-132,
+"p5.js:src/events/touch.js": [
+132
 ],
-'p5.js:src/image/image.js':[
+"p5.js:src/image/image.js": [
 239,
-316,
+316
 ],
-'p5.js:src/image/loading_displaying.js':[
-195,
+"p5.js:src/image/loading_displaying.js": [
+195
 ],
-'p5.js:src/image/p5.Image.js':[
-812,
+"p5.js:src/image/p5.Image.js": [
+812
 ],
-'p5.js:src/io/files.js':[
+"p5.js:src/io/files.js": [
 126,
 1701,
-1773,
+1773
 ],
-'p5.js:src/io/p5.Table.js':[
+"p5.js:src/io/p5.Table.js": [
 191,
-1307,
+1307
 ],
-'p5.js:src/io/p5.TableRow.js':[
-83,
+"p5.js:src/io/p5.TableRow.js": [
+83
 ],
-'p5.js:src/math/noise.js':[
+"p5.js:src/math/noise.js": [
 29,
 30,
-34,
+34
 ],
-'p5.js:src/math/p5.Vector.js':[
-937,
+"p5.js:src/math/p5.Vector.js": [
+937
 ],
-'p5.js:src/typography/p5.Font.js':[
+"p5.js:src/typography/p5.Font.js": [
 809,
 810,
 899,
@@ -149,9 +149,9 @@
 906,
 909,
 912,
-920,
+920
 ],
-'p5.js:src/webgl/3d_primitives.js':[
+"p5.js:src/webgl/3d_primitives.js": [
 152,
 153,
 154,
@@ -165,26 +165,26 @@
 1037,
 1038,
 1039,
-1287,
+1287
 ],
-'p5.js:src/webgl/loading.js':[
+"p5.js:src/webgl/loading.js": [
 467,
 478,
-498,
+498
 ],
-'p5.js:src/webgl/p5.Camera.js':[
+"p5.js:src/webgl/p5.Camera.js": [
 1208,
-1209,
+1209
 ],
-'p5.js:src/webgl/p5.Geometry.js':[
+"p5.js:src/webgl/p5.Geometry.js": [
 56,
 82,
 83,
 84,
 85,
-111,
+111
 ],
-'p5.js:src/webgl/p5.Matrix.js':[
+"p5.js:src/webgl/p5.Matrix.js": [
 413,
 421,
 468,
@@ -192,24 +192,24 @@
 532,
 537,
 569,
-574,
+574
 ],
-'p5.js:src/webgl/p5.RenderBuffer.js':[
+"p5.js:src/webgl/p5.RenderBuffer.js": [
 4,
 5,
 6,
 7,
-9,
+9
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
+"p5.js:src/webgl/p5.RendererGL.js": [
 65,
 193,
-1398,
+1398
 ],
-'p5.js:src/webgl/p5.Texture.js':[
-139,
+"p5.js:src/webgl/p5.Texture.js": [
+139
 ],
-'p5.js:src/webgl/text.js':[
+"p5.js:src/webgl/text.js": [
 18,
 50,
 109,
@@ -231,10 +231,10 @@
 670,
 706,
 707,
-728,
+728
 ],
-'p5.js:tasks/build/combineModules.js':[
+"p5.js:tasks/build/combineModules.js": [
 34,
-38,
-],
+38
+]
 }

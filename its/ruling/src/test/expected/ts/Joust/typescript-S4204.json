@@ -1,8 +1,8 @@
 {
-'Joust:tests.webpack.ts':[
-1,
+"Joust:tests.webpack.ts": [
+1
 ],
-'Joust:ts/Launcher.tsx':[
+"Joust:ts/Launcher.tsx": [
 16,
 34,
 54,
@@ -11,62 +11,62 @@
 409,
 421,
 422,
-433,
+433
 ],
-'Joust:ts/TexturePreloader.ts':[
+"Joust:ts/TexturePreloader.ts": [
 25,
-26,
+26
 ],
-'Joust:ts/components/DebugApplication.tsx':[
-98,
+"Joust:ts/components/DebugApplication.tsx": [
+98
 ],
-'Joust:ts/components/EventLogCard.tsx':[
-10,
+"Joust:ts/components/EventLogCard.tsx": [
+10
 ],
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx": [
 89,
-135,
+135
 ],
-'Joust:ts/components/GameWrapper.tsx':[
+"Joust:ts/components/GameWrapper.tsx": [
 41,
-46,
+46
 ],
-'Joust:ts/components/LocaleSelector.tsx':[
+"Joust:ts/components/LocaleSelector.tsx": [
 16,
-23,
+23
 ],
-'Joust:ts/components/Scrubber.tsx':[
+"Joust:ts/components/Scrubber.tsx": [
 74,
-80,
+80
 ],
-'Joust:ts/components/SetupWidget.tsx':[
+"Joust:ts/components/SetupWidget.tsx": [
 74,
 78,
 82,
 86,
-100,
+100
 ],
-'Joust:ts/components/SpeedSelector.tsx':[
-17,
+"Joust:ts/components/SpeedSelector.tsx": [
+17
 ],
-'Joust:ts/components/Tooltipper.tsx':[
+"Joust:ts/components/Tooltipper.tsx": [
 18,
 45,
-49,
+49
 ],
-'Joust:ts/components/game/Card.tsx':[
+"Joust:ts/components/game/Card.tsx": [
 14,
-27,
+27
 ],
-'Joust:ts/components/game/visuals/CardArt.tsx':[
+"Joust:ts/components/game/visuals/CardArt.tsx": [
 24,
 44,
-63,
+63
 ],
-'Joust:ts/components/game/visuals/HeroArt.tsx':[
-14,
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
+14
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 69,
 75,
 107,
@@ -79,30 +79,30 @@
 263,
 276,
 289,
-351,
+351
 ],
-'Joust:ts/protocol/KettleDecoder.ts':[
+"Joust:ts/protocol/KettleDecoder.ts": [
 20,
 76,
 132,
 132,
-146,
+146
 ],
-'Joust:ts/protocol/KettleEncoder.ts':[
+"Joust:ts/protocol/KettleEncoder.ts": [
 22,
 22,
-57,
+57
 ],
-'Joust:ts/run.ts':[
-16,
+"Joust:ts/run.ts": [
+16
 ],
-'Joust:ts/state/GameStateScrubber.ts':[
-42,
+"Joust:ts/state/GameStateScrubber.ts": [
+42
 ],
-'Joust:ts/state/GameStateSink.ts':[
-14,
+"Joust:ts/state/GameStateSink.ts": [
+14
 ],
-'Joust:ts/state/GameStateTracker.ts':[
-30,
-],
+"Joust:ts/state/GameStateTracker.ts": [
+30
+]
 }

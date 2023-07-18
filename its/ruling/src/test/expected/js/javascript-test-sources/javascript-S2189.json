@@ -1,11 +1,11 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js':[
-4691,
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+4691
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-6549,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+6549
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js": [
 117,
 117,
 123,
@@ -15,9 +15,9 @@
 194,
 194,
 242,
-270,
+270
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js':[
-1826,
-],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+1826
+]
 }

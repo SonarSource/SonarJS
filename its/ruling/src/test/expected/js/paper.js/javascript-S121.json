@@ -1,28 +1,28 @@
 {
-'paper.js:examples/Node.js/JSONtoPDF.js':[
+"paper.js:examples/Node.js/JSONtoPDF.js": [
 12,
-17,
+17
 ],
-'paper.js:examples/Node.js/SvgExport.js':[
-49,
+"paper.js:examples/Node.js/SvgExport.js": [
+49
 ],
-'paper.js:examples/Scripts/BooleanOperations.html':[
+"paper.js:examples/Scripts/BooleanOperations.html": [
 366,
 387,
 399,
-425,
+425
 ],
-'paper.js:gulp/utils/error.js':[
+"paper.js:gulp/utils/error.js": [
 20,
-22,
+22
 ],
-'paper.js:gulp/utils/options.js':[
-40,
+"paper.js:gulp/utils/options.js": [
+40
 ],
-'paper.js:src/basic/Line.js':[
-188,
+"paper.js:src/basic/Line.js": [
+188
 ],
-'paper.js:src/basic/Matrix.js':[
+"paper.js:src/basic/Matrix.js": [
 122,
 181,
 254,
@@ -33,9 +33,9 @@
 437,
 598,
 643,
-671,
+671
 ],
-'paper.js:src/basic/Point.js':[
+"paper.js:src/basic/Point.js": [
 140,
 144,
 163,
@@ -43,37 +43,37 @@
 457,
 463,
 480,
-1049,
+1049
 ],
-'paper.js:src/basic/Rectangle.js':[
+"paper.js:src/basic/Rectangle.js": [
 152,
 154,
 858,
 907,
-926,
+926
 ],
-'paper.js:src/basic/Size.js':[
+"paper.js:src/basic/Size.js": [
 103,
 107,
 123,
-572,
+572
 ],
-'paper.js:src/canvas/BlendMode.js':[
+"paper.js:src/canvas/BlendMode.js": [
 157,
 160,
 163,
 271,
-277,
+277
 ],
-'paper.js:src/canvas/CanvasProvider.js':[
+"paper.js:src/canvas/CanvasProvider.js": [
 20,
-43,
+43
 ],
-'paper.js:src/canvas/ProxyContext.js':[
+"paper.js:src/canvas/ProxyContext.js": [
 78,
-84,
+84
 ],
-'paper.js:src/core/Base.js':[
+"paper.js:src/core/Base.js": [
 95,
 113,
 124,
@@ -95,9 +95,9 @@
 659,
 669,
 673,
-676,
+676
 ],
-'paper.js:src/core/Emitter.js':[
+"paper.js:src/core/Emitter.js": [
 35,
 59,
 82,
@@ -106,25 +106,25 @@
 103,
 126,
 162,
-164,
+164
 ],
-'paper.js:src/core/PaperScope.js':[
+"paper.js:src/core/PaperScope.js": [
 82,
 105,
 107,
 245,
 246,
 286,
-288,
+288
 ],
-'paper.js:src/core/PaperScopeItem.js':[
+"paper.js:src/core/PaperScopeItem.js": [
 34,
 39,
 42,
 54,
-58,
+58
 ],
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js": [
 35,
 109,
 136,
@@ -138,30 +138,30 @@
 550,
 554,
 562,
-592,
+592
 ],
-'paper.js:src/dom/DomElement.js':[
-122,
+"paper.js:src/dom/DomElement.js": [
+122
 ],
-'paper.js:src/dom/DomEvent.js':[
+"paper.js:src/dom/DomEvent.js": [
 51,
 97,
-102,
+102
 ],
-'paper.js:src/event/Key.js':[
+"paper.js:src/event/Key.js": [
 122,
 180,
-188,
+188
 ],
-'paper.js:src/item/Group.js':[
+"paper.js:src/item/Group.js": [
 98,
 168,
-203,
+203
 ],
-'paper.js:src/item/HitResult.js':[
-30,
+"paper.js:src/item/HitResult.js": [
+30
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 33,
 152,
 200,
@@ -245,9 +245,9 @@
 4446,
 4480,
 4501,
-4514,
+4514
 ],
-'paper.js:src/item/Project.js':[
+"paper.js:src/item/Project.js": [
 97,
 130,
 148,
@@ -259,9 +259,9 @@
 372,
 391,
 843,
-853,
+853
 ],
-'paper.js:src/item/Raster.js':[
+"paper.js:src/item/Raster.js": [
 193,
 199,
 323,
@@ -275,9 +275,9 @@
 626,
 632,
 649,
-741,
+741
 ],
-'paper.js:src/item/Shape.js':[
+"paper.js:src/item/Shape.js": [
 126,
 137,
 182,
@@ -289,34 +289,34 @@
 257,
 270,
 288,
-313,
+313
 ],
-'paper.js:src/item/SymbolDefinition.js':[
+"paper.js:src/item/SymbolDefinition.js": [
 63,
 90,
 92,
 108,
 111,
-118,
+118
 ],
-'paper.js:src/item/SymbolItem.js':[
+"paper.js:src/item/SymbolItem.js": [
 78,
-132,
+132
 ],
-'paper.js:src/net/Http.js':[
-20,
+"paper.js:src/net/Http.js": [
+20
 ],
-'paper.js:src/node/extend.js':[
+"paper.js:src/node/extend.js": [
 93,
-95,
+95
 ],
-'paper.js:src/node/xml.js':[
-23,
+"paper.js:src/node/xml.js": [
+23
 ],
-'paper.js:src/options.js':[
-37,
+"paper.js:src/options.js": [
+37
 ],
-'paper.js:src/path/CompoundPath.js':[
+"paper.js:src/path/CompoundPath.js": [
 119,
 128,
 146,
@@ -327,9 +327,9 @@
 311,
 321,
 347,
-370,
+370
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 153,
 155,
 189,
@@ -361,9 +361,9 @@
 2247,
 2284,
 2295,
-2296,
+2296
 ],
-'paper.js:src/path/CurveLocation.js':[
+"paper.js:src/path/CurveLocation.js": [
 220,
 359,
 362,
@@ -375,13 +375,13 @@
 434,
 436,
 551,
-553,
+553
 ],
-'paper.js:src/path/Path.Constructors.js':[
+"paper.js:src/path/Path.Constructors.js": [
 394,
-449,
+449
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 149,
 195,
 231,
@@ -458,18 +458,18 @@
 2955,
 2956,
 2957,
-2958,
+2958
 ],
-'paper.js:src/path/PathFitter.js':[
+"paper.js:src/path/PathFitter.js": [
 97,
-210,
+210
 ],
-'paper.js:src/path/PathFlattener.js':[
+"paper.js:src/path/PathFlattener.js": [
 98,
 117,
-156,
+156
 ],
-'paper.js:src/path/PathItem.Boolean.js':[
+"paper.js:src/path/PathItem.Boolean.js": [
 115,
 131,
 165,
@@ -503,14 +503,14 @@
 1311,
 1314,
 1327,
-1331,
+1331
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js": [
 117,
 145,
-170,
+170
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 148,
 159,
 166,
@@ -520,12 +520,12 @@
 483,
 485,
 578,
-580,
+580
 ],
-'paper.js:src/path/SegmentPoint.js':[
-46,
+"paper.js:src/path/SegmentPoint.js": [
+46
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 209,
 216,
 217,
@@ -547,20 +547,20 @@
 907,
 924,
 931,
-1252,
+1252
 ],
-'paper.js:src/style/Gradient.js':[
+"paper.js:src/style/Gradient.js": [
 112,
 124,
 158,
 163,
 190,
-198,
+198
 ],
-'paper.js:src/style/GradientStop.js':[
-76,
+"paper.js:src/style/GradientStop.js": [
+76
 ],
-'paper.js:src/style/Style.js':[
+"paper.js:src/style/Style.js": [
 140,
 171,
 202,
@@ -568,12 +568,12 @@
 327,
 329,
 331,
-393,
+393
 ],
-'paper.js:src/svg/SvgElement.js':[
-50,
+"paper.js:src/svg/SvgElement.js": [
+50
 ],
-'paper.js:src/svg/SvgExport.js':[
+"paper.js:src/svg/SvgExport.js": [
 53,
 55,
 58,
@@ -594,9 +594,9 @@
 391,
 394,
 401,
-436,
+436
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js": [
 107,
 113,
 130,
@@ -619,34 +619,34 @@
 630,
 649,
 656,
-679,
+679
 ],
-'paper.js:src/text/PointText.js':[
+"paper.js:src/text/PointText.js": [
 81,
 100,
-115,
+115
 ],
-'paper.js:src/tool/Tool.js':[
+"paper.js:src/tool/Tool.js": [
 292,
 321,
-356,
+356
 ],
-'paper.js:src/util/Numerical.js':[
+"paper.js:src/util/Numerical.js": [
 265,
 303,
 306,
-405,
+405
 ],
-'paper.js:src/util/UID.js':[
-33,
+"paper.js:src/util/UID.js": [
+33
 ],
-'paper.js:src/view/CanvasView.js':[
+"paper.js:src/view/CanvasView.js": [
 40,
 124,
 138,
-144,
+144
 ],
-'paper.js:src/view/View.js':[
+"paper.js:src/view/View.js": [
 48,
 98,
 112,
@@ -676,6 +676,6 @@
 1335,
 1402,
 1404,
-1473,
-],
+1473
+]
 }

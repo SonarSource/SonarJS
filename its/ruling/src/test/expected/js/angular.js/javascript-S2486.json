@@ -1,35 +1,35 @@
 {
-'angular.js:test/e2e/fixtures/base-tag/script.js':[
-9,
+"angular.js:test/e2e/fixtures/base-tag/script.js": [
+9
 ],
-'angular.js:test/helpers/privateMocks.js':[
+"angular.js:test/helpers/privateMocks.js": [
 52,
-55,
+55
 ],
-'angular.js:test/helpers/support.js':[
-16,
+"angular.js:test/helpers/support.js": [
+16
 ],
-'angular.js:test/ng/compileSpec.js':[
-688,
+"angular.js:test/ng/compileSpec.js": [
+688
 ],
-'angular.js:test/ng/ngPropSpec.js':[
-844,
+"angular.js:test/ng/ngPropSpec.js": [
+844
 ],
-'angular.js:test/ng/parseSpec.js':[
-4058,
+"angular.js:test/ng/parseSpec.js": [
+4058
 ],
-'angular.js:test/ng/rafSpec.js':[
+"angular.js:test/ng/rafSpec.js": [
 30,
 69,
-97,
+97
 ],
-'angular.js:test/ng/templateRequestSpec.js':[
-243,
+"angular.js:test/ng/templateRequestSpec.js": [
+243
 ],
-'angular.js:test/ngAnimate/animateSpec.js':[
-289,
+"angular.js:test/ngAnimate/animateSpec.js": [
+289
 ],
-'angular.js:test/ngMock/angular-mocksSpec.js':[
-1280,
-],
+"angular.js:test/ngMock/angular-mocksSpec.js": [
+1280
+]
 }

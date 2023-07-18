@@ -1,87 +1,87 @@
 {
-'paper.js:examples/Scripts/BooleanOperations.html':[
+"paper.js:examples/Scripts/BooleanOperations.html": [
 8,
 44,
 133,
 163,
 279,
-373,
+373
 ],
-'paper.js:examples/Worker/Worker.js':[
+"paper.js:examples/Worker/Worker.js": [
 2,
-8,
+8
 ],
-'paper.js:src/anim/Tween.js':[
+"paper.js:src/anim/Tween.js": [
 27,
 27,
-367,
+367
 ],
-'paper.js:src/basic/Line.js':[
+"paper.js:src/basic/Line.js": [
 18,
 57,
-144,
+144
 ],
-'paper.js:src/basic/Matrix.js':[
+"paper.js:src/basic/Matrix.js": [
 41,
 137,
 166,
 221,
-643,
+643
 ],
-'paper.js:src/basic/Point.js':[
+"paper.js:src/basic/Point.js": [
 26,
 250,
 287,
 704,
-1080,
+1080
 ],
-'paper.js:src/basic/Rectangle.js':[
+"paper.js:src/basic/Rectangle.js": [
 20,
 117,
 140,
 235,
 259,
 277,
-966,
+966
 ],
-'paper.js:src/basic/Size.js':[
+"paper.js:src/basic/Size.js": [
 28,
 191,
-394,
+394
 ],
-'paper.js:src/canvas/BlendMode.js':[
+"paper.js:src/canvas/BlendMode.js": [
 220,
-231,
+231
 ],
-'paper.js:src/canvas/ProxyContext.js':[
-71,
+"paper.js:src/canvas/ProxyContext.js": [
+71
 ],
-'paper.js:src/constants.js':[
-13,
+"paper.js:src/constants.js": [
+13
 ],
-'paper.js:src/core/Base.js':[
+"paper.js:src/core/Base.js": [
 19,
 35,
 601,
-602,
+602
 ],
-'paper.js:src/core/Emitter.js':[
-22,
+"paper.js:src/core/Emitter.js": [
+22
 ],
-'paper.js:src/core/PaperScope.js':[
+"paper.js:src/core/PaperScope.js": [
 35,
 67,
 70,
 117,
 209,
-263,
+263
 ],
-'paper.js:src/core/PaperScopeItem.js':[
+"paper.js:src/core/PaperScopeItem.js": [
 22,
 22,
-29,
+29
 ],
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js": [
 17,
 32,
 79,
@@ -91,27 +91,27 @@
 463,
 575,
 608,
-659,
+659
 ],
-'paper.js:src/dom/DomElement.js':[
+"paper.js:src/dom/DomElement.js": [
 65,
-90,
+90
 ],
-'paper.js:src/dom/DomEvent.js':[
+"paper.js:src/dom/DomEvent.js": [
 62,
-78,
+78
 ],
-'paper.js:src/event/Event.js':[
+"paper.js:src/event/Event.js": [
 20,
-79,
+79
 ],
-'paper.js:src/event/Key.js':[
+"paper.js:src/event/Key.js": [
 51,
 70,
 94,
-137,
+137
 ],
-'paper.js:src/export.js':[
+"paper.js:src/export.js": [
 19,
 19,
 21,
@@ -119,18 +119,18 @@
 23,
 24,
 29,
-30,
+30
 ],
-'paper.js:src/item/Group.js':[
+"paper.js:src/item/Group.js": [
 22,
 103,
-175,
+175
 ],
-'paper.js:src/item/HitResult.js':[
+"paper.js:src/item/HitResult.js": [
 20,
-113,
+113
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 23,
 23,
 72,
@@ -154,12 +154,12 @@
 2018,
 4370,
 4479,
-4828,
+4828
 ],
-'paper.js:src/item/Layer.js':[
-25,
+"paper.js:src/item/Layer.js": [
+25
 ],
-'paper.js:src/item/Project.js':[
+"paper.js:src/item/Project.js": [
 33,
 60,
 64,
@@ -172,9 +172,9 @@
 368,
 387,
 871,
-874,
+874
 ],
-'paper.js:src/item/Raster.js':[
+"paper.js:src/item/Raster.js": [
 20,
 118,
 131,
@@ -188,9 +188,9 @@
 626,
 650,
 803,
-829,
+829
 ],
-'paper.js:src/item/Shape.js':[
+"paper.js:src/item/Shape.js": [
 20,
 39,
 79,
@@ -200,9 +200,9 @@
 181,
 223,
 281,
-385,
+385
 ],
-'paper.js:src/item/SymbolDefinition.js':[
+"paper.js:src/item/SymbolDefinition.js": [
 22,
 60,
 61,
@@ -210,31 +210,31 @@
 90,
 118,
 120,
-137,
+137
 ],
-'paper.js:src/item/SymbolItem.js':[
+"paper.js:src/item/SymbolItem.js": [
 21,
 77,
 78,
-103,
+103
 ],
-'paper.js:src/load.js':[
-45,
+"paper.js:src/load.js": [
+45
 ],
-'paper.js:src/net/Http.js':[
-18,
+"paper.js:src/net/Http.js": [
+18
 ],
-'paper.js:src/paper.js':[
+"paper.js:src/paper.js": [
 36,
-78,
+78
 ],
-'paper.js:src/path/CompoundPath.js':[
+"paper.js:src/path/CompoundPath.js": [
 28,
 128,
 149,
-377,
+377
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 27,
 78,
 205,
@@ -242,15 +242,15 @@
 476,
 839,
 1123,
-2125,
+2125
 ],
-'paper.js:src/path/CurveLocation.js':[
+"paper.js:src/path/CurveLocation.js": [
 29,
 44,
 357,
-451,
+451
 ],
-'paper.js:src/path/Path.Constructors.js':[
+"paper.js:src/path/Path.Constructors.js": [
 15,
 17,
 24,
@@ -258,9 +258,9 @@
 84,
 121,
 216,
-293,
+293
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 21,
 131,
 141,
@@ -283,18 +283,18 @@
 1897,
 2298,
 2527,
-2705,
+2705
 ],
-'paper.js:src/path/PathFitter.js':[
+"paper.js:src/path/PathFitter.js": [
 23,
 51,
-115,
+115
 ],
-'paper.js:src/path/PathFlattener.js':[
+"paper.js:src/path/PathFlattener.js": [
 18,
-57,
+57
 ],
-'paper.js:src/path/PathItem.Boolean.js':[
+"paper.js:src/path/PathItem.Boolean.js": [
 29,
 71,
 84,
@@ -303,9 +303,9 @@
 145,
 171,
 602,
-1088,
+1088
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js": [
 22,
 70,
 87,
@@ -317,40 +317,40 @@
 335,
 686,
 698,
-725,
+725
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 25,
 144,
 186,
 200,
 312,
-372,
+372
 ],
-'paper.js:src/path/SegmentPoint.js':[
+"paper.js:src/path/SegmentPoint.js": [
 19,
 76,
-93,
+93
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 43,
 117,
 280,
 295,
 718,
-861,
+861
 ],
-'paper.js:src/style/Gradient.js':[
+"paper.js:src/style/Gradient.js": [
 64,
 70,
-160,
+160
 ],
-'paper.js:src/style/GradientStop.js':[
+"paper.js:src/style/GradientStop.js": [
 19,
 76,
-179,
+179
 ],
-'paper.js:src/style/Style.js':[
+"paper.js:src/style/Style.js": [
 70,
 87,
 104,
@@ -359,9 +359,9 @@
 136,
 137,
 167,
-279,
+279
 ],
-'paper.js:src/svg/SvgExport.js':[
+"paper.js:src/svg/SvgExport.js": [
 23,
 38,
 56,
@@ -372,9 +372,9 @@
 406,
 413,
 420,
-422,
+422
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js": [
 30,
 51,
 58,
@@ -395,43 +395,43 @@
 582,
 706,
 731,
-738,
+738
 ],
-'paper.js:src/svg/SvgStyles.js':[
+"paper.js:src/svg/SvgStyles.js": [
 13,
 28,
 29,
-30,
+30
 ],
-'paper.js:src/text/PointText.js':[
+"paper.js:src/text/PointText.js": [
 22,
 71,
 75,
-118,
+118
 ],
-'paper.js:src/text/TextItem.js':[
+"paper.js:src/text/TextItem.js": [
 24,
 43,
 45,
-94,
+94
 ],
-'paper.js:src/tool/Tool.js':[
+"paper.js:src/tool/Tool.js": [
 45,
-343,
+343
 ],
-'paper.js:src/util/Formatter.js':[
-18,
+"paper.js:src/util/Formatter.js": [
+18
 ],
-'paper.js:src/view/CanvasView.js':[
+"paper.js:src/view/CanvasView.js": [
 18,
 38,
 42,
 43,
 50,
 54,
-100,
+100
 ],
-'paper.js:src/view/View.js':[
+"paper.js:src/view/View.js": [
 22,
 22,
 34,
@@ -447,6 +447,6 @@
 422,
 567,
 1028,
-1465,
-],
+1465
+]
 }

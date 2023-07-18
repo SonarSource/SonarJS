@@ -1,5 +1,5 @@
 {
-'ant-design:components/anchor/__tests__/Anchor.test.tsx':[
+"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
 383,
 414,
 448,
@@ -7,9 +7,9 @@
 559,
 589,
 625,
-658,
+658
 ],
-'ant-design:components/badge/SingleNumber.tsx':[
-88,
-],
+"ant-design:components/badge/SingleNumber.tsx": [
+88
+]
 }

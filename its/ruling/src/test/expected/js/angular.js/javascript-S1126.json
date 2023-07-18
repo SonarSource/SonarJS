@@ -1,9 +1,9 @@
 {
-'angular.js:src/ngMock/angular-mocks.js':[
-2115,
+"angular.js:src/ngMock/angular-mocks.js": [
+2115
 ],
-'angular.js:src/ngParseExt/ucd.js':[
+"angular.js:src/ngParseExt/ucd.js": [
 561,
-1215,
-],
+1215
+]
 }

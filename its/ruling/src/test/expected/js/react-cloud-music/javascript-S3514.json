@@ -1,8 +1,8 @@
 {
-'react-cloud-music:scripts/build.js':[
-30,
+"react-cloud-music:scripts/build.js": [
+30
 ],
-'react-cloud-music:ts-music/scripts/build.js':[
-30,
-],
+"react-cloud-music:ts-music/scripts/build.js": [
+30
+]
 }

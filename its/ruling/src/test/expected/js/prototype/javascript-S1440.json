@@ -1,40 +1,40 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.js':[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 350,
 374,
-403,
+403
 ],
-'prototype:ext/update_helper/update_helper.js':[
+"prototype:ext/update_helper/update_helper.js": [
 67,
-68,
+68
 ],
-'prototype:src/prototype/ajax/periodical_updater.js':[
-249,
+"prototype:src/prototype/ajax/periodical_updater.js": [
+249
 ],
-'prototype:src/prototype/ajax/request.js':[
+"prototype:src/prototype/ajax/request.js": [
 226,
 278,
 292,
 303,
 317,
-325,
+325
 ],
-'prototype:src/prototype/ajax/response.js':[
+"prototype:src/prototype/ajax/response.js": [
 71,
 78,
-181,
+181
 ],
-'prototype:src/prototype/deprecated.js':[
+"prototype:src/prototype/deprecated.js": [
 82,
-85,
+85
 ],
-'prototype:src/prototype/dom/dom.js':[
-2686,
+"prototype:src/prototype/dom/dom.js": [
+2686
 ],
-'prototype:src/prototype/dom/event.js':[
-184,
+"prototype:src/prototype/dom/event.js": [
+184
 ],
-'prototype:src/prototype/dom/form.js':[
+"prototype:src/prototype/dom/form.js": [
 142,
 142,
 143,
@@ -48,39 +48,39 @@
 882,
 882,
 993,
-1001,
+1001
 ],
-'prototype:src/prototype/dom/selector.js':[
-141,
+"prototype:src/prototype/dom/selector.js": [
+141
 ],
-'prototype:src/prototype/lang/array.js':[
+"prototype:src/prototype/lang/array.js": [
 349,
-349,
+349
 ],
-'prototype:src/prototype/lang/class.js':[
-145,
+"prototype:src/prototype/lang/class.js": [
+145
 ],
-'prototype:src/prototype/lang/enumerable.js':[
+"prototype:src/prototype/lang/enumerable.js": [
 148,
 405,
-410,
+410
 ],
-'prototype:src/prototype/lang/function.js':[
-42,
+"prototype:src/prototype/lang/function.js": [
+42
 ],
-'prototype:src/prototype/lang/string.js':[
+"prototype:src/prototype/lang/string.js": [
 497,
-858,
+858
 ],
-'prototype:src/prototype/lang/template.js':[
+"prototype:src/prototype/lang/template.js": [
 151,
 162,
-163,
+163
 ],
-'prototype:src/prototype/prototype.js':[
-80,
+"prototype:src/prototype/prototype.js": [
+80
 ],
-'prototype:test/functional/event.html':[
+"prototype:test/functional/event.html": [
 127,
 164,
 164,
@@ -88,6 +88,6 @@
 184,
 224,
 225,
-226,
-],
+226
+]
 }

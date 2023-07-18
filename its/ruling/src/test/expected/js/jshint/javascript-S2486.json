@@ -1,8 +1,8 @@
 {
-'jshint:tests/browser.js':[
-7,
+"jshint:tests/browser.js": [
+7
 ],
-'jshint:tests/regression/libs/codemirror3.js':[
+"jshint:tests/regression/libs/codemirror3.js": [
 69,
 1342,
 1526,
@@ -10,13 +10,13 @@
 3106,
 3123,
 4275,
-4278,
+4278
 ],
-'jshint:tests/regression/libs/lodash.js':[
+"jshint:tests/regression/libs/lodash.js": [
 199,
-225,
+225
 ],
-'jshint:tests/regression/libs/prototype-17.js':[
+"jshint:tests/regression/libs/prototype-17.js": [
 76,
 714,
 1458,
@@ -33,35 +33,35 @@
 4796,
 5150,
 5587,
-5832,
+5832
 ],
-'jshint:tests/test262/test.js':[
-54,
+"jshint:tests/test262/test.js": [
+54
 ],
-'jshint:tests/unit/core.js':[
+"jshint:tests/unit/core.js": [
 493,
-1813,
+1813
 ],
-'jshint:tests/unit/fixtures/gh247.js':[
+"jshint:tests/unit/fixtures/gh247.js": [
 5,
 18,
-30,
+30
 ],
-'jshint:tests/unit/fixtures/gh618.js':[
+"jshint:tests/unit/fixtures/gh618.js": [
 5,
-15,
+15
 ],
-'jshint:tests/unit/fixtures/max-cyclomatic-complexity-per-function.js':[
-29,
+"jshint:tests/unit/fixtures/max-cyclomatic-complexity-per-function.js": [
+29
 ],
-'jshint:tests/unit/fixtures/scope.js':[
-48,
+"jshint:tests/unit/fixtures/scope.js": [
+48
 ],
-'jshint:tests/unit/fixtures/trycatch.js':[
-20,
+"jshint:tests/unit/fixtures/trycatch.js": [
+20
 ],
-'jshint:tests/unit/fixtures/unused.js':[
+"jshint:tests/unit/fixtures/unused.js": [
 80,
-100,
-],
+100
+]
 }

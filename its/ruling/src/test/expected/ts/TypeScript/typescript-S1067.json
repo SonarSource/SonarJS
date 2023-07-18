@@ -1,14 +1,14 @@
 {
-'TypeScript:src/compiler/binder.ts':[
+"TypeScript:src/compiler/binder.ts": [
 392,
 705,
 1737,
 2407,
 2594,
 2615,
-2981,
+2981
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 736,
 1088,
 1238,
@@ -75,21 +75,21 @@
 23620,
 24152,
 24190,
-24367,
+24367
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 658,
-1359,
+1359
 ],
-'TypeScript:src/compiler/declarationEmitter.ts':[
+"TypeScript:src/compiler/declarationEmitter.ts": [
 1009,
 1026,
-1243,
+1243
 ],
-'TypeScript:src/compiler/emitter.ts':[
-1238,
+"TypeScript:src/compiler/emitter.ts": [
+1238
 ],
-'TypeScript:src/compiler/factory.ts':[
+"TypeScript:src/compiler/factory.ts": [
 248,
 284,
 304,
@@ -114,9 +114,9 @@
 1590,
 1608,
 1695,
-2081,
+2081
 ],
-'TypeScript:src/compiler/parser.ts':[
+"TypeScript:src/compiler/parser.ts": [
 72,
 86,
 99,
@@ -136,42 +136,42 @@
 4746,
 5370,
 5919,
-6285,
+6285
 ],
-'TypeScript:src/compiler/program.ts':[
-1695,
+"TypeScript:src/compiler/program.ts": [
+1695
 ],
-'TypeScript:src/compiler/scanner.ts':[
+"TypeScript:src/compiler/scanner.ts": [
 378,
 756,
-762,
+762
 ],
-'TypeScript:src/compiler/sourcemap.ts':[
-276,
+"TypeScript:src/compiler/sourcemap.ts": [
+276
 ],
-'TypeScript:src/compiler/transformers/es2015.ts':[
+"TypeScript:src/compiler/transformers/es2015.ts": [
 343,
 611,
-2126,
+2126
 ],
-'TypeScript:src/compiler/transformers/es2017.ts':[
-409,
+"TypeScript:src/compiler/transformers/es2017.ts": [
+409
 ],
-'TypeScript:src/compiler/transformers/esnext.ts':[
-814,
+"TypeScript:src/compiler/transformers/esnext.ts": [
+814
 ],
-'TypeScript:src/compiler/transformers/module/module.ts':[
+"TypeScript:src/compiler/transformers/module/module.ts": [
 1408,
-1445,
+1445
 ],
-'TypeScript:src/compiler/transformers/module/system.ts':[
+"TypeScript:src/compiler/transformers/module/system.ts": [
 1688,
-1723,
+1723
 ],
-'TypeScript:src/compiler/transformers/ts.ts':[
-213,
+"TypeScript:src/compiler/transformers/ts.ts": [
+213
 ],
-'TypeScript:src/compiler/utilities.ts':[
+"TypeScript:src/compiler/utilities.ts": [
 627,
 1180,
 1577,
@@ -189,85 +189,85 @@
 4044,
 4078,
 4093,
-4719,
+4719
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 1609,
-2534,
+2534
 ],
-'TypeScript:src/harness/harness.ts':[
-192,
+"TypeScript:src/harness/harness.ts": [
+192
 ],
-'TypeScript:src/harness/runner.ts':[
-75,
+"TypeScript:src/harness/runner.ts": [
+75
 ],
-'TypeScript:src/harness/sourceMapRecorder.ts':[
-263,
+"TypeScript:src/harness/sourceMapRecorder.ts": [
+263
 ],
-'TypeScript:src/server/client.ts':[
-509,
+"TypeScript:src/server/client.ts": [
+509
 ],
-'TypeScript:src/server/server.ts':[
+"TypeScript:src/server/server.ts": [
 38,
-63,
+63
 ],
-'TypeScript:src/server/session.ts':[
-1456,
+"TypeScript:src/server/session.ts": [
+1456
 ],
-'TypeScript:src/server/typingsCache.ts':[
-89,
+"TypeScript:src/server/typingsCache.ts": [
+89
 ],
-'TypeScript:src/services/breakpoints.ts':[
-267,
+"TypeScript:src/services/breakpoints.ts": [
+267
 ],
-'TypeScript:src/services/classifier.ts':[
-227,
+"TypeScript:src/services/classifier.ts": [
+227
 ],
-'TypeScript:src/services/codefixes/importFixes.ts':[
+"TypeScript:src/services/codefixes/importFixes.ts": [
 278,
-407,
+407
 ],
-'TypeScript:src/services/completions.ts':[
+"TypeScript:src/services/completions.ts": [
 741,
 749,
 1151,
 1181,
 1187,
-1312,
+1312
 ],
-'TypeScript:src/services/findAllReferences.ts':[
-757,
+"TypeScript:src/services/findAllReferences.ts": [
+757
 ],
-'TypeScript:src/services/formatting/formatting.ts':[
-1020,
+"TypeScript:src/services/formatting/formatting.ts": [
+1020
 ],
-'TypeScript:src/services/formatting/formattingScanner.ts':[
-176,
+"TypeScript:src/services/formatting/formattingScanner.ts": [
+176
 ],
-'TypeScript:src/services/outliningElementsCollector.ts':[
-107,
+"TypeScript:src/services/outliningElementsCollector.ts": [
+107
 ],
-'TypeScript:src/services/patternMatcher.ts':[
+"TypeScript:src/services/patternMatcher.ts": [
 564,
-624,
+624
 ],
-'TypeScript:src/services/preProcess.ts':[
-312,
+"TypeScript:src/services/preProcess.ts": [
+312
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 1118,
 1949,
-2083,
+2083
 ],
-'TypeScript:src/services/symbolDisplay.ts':[
+"TypeScript:src/services/symbolDisplay.ts": [
 392,
-410,
+410
 ],
-'TypeScript:src/services/textChanges.ts':[
-145,
+"TypeScript:src/services/textChanges.ts": [
+145
 ],
-'TypeScript:src/services/utilities.ts':[
+"TypeScript:src/services/utilities.ts": [
 165,
-1025,
-],
+1025
+]
 }

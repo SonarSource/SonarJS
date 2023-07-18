@@ -1,20 +1,20 @@
 {
-'rxjs:src/Subscription.ts':[
+"rxjs:src/Subscription.ts": [
 63,
-149,
+149
 ],
-'rxjs:src/observable/FromObservable.ts':[
-85,
+"rxjs:src/observable/FromObservable.ts": [
+85
 ],
-'rxjs:src/observable/dom/AjaxObservable.ts':[
+"rxjs:src/observable/dom/AjaxObservable.ts": [
 343,
-407,
+407
 ],
-'rxjs:src/testing/TestScheduler.ts':[
+"rxjs:src/testing/TestScheduler.ts": [
 139,
-188,
+188
 ],
-'rxjs:src/util/subscribeToResult.ts':[
-17,
-],
+"rxjs:src/util/subscribeToResult.ts": [
+17
+]
 }

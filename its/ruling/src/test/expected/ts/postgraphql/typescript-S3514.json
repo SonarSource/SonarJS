@@ -1,8 +1,8 @@
 {
-'postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts':[
-18,
+"postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts": [
+18
 ],
-'postgraphql:src/postgres/inventory/type/PgRangeType.ts':[
-135,
-],
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
+135
+]
 }

@@ -1,5 +1,5 @@
 {
-'underscore:underscore.js':[
+"underscore:underscore.js": [
 83,
 119,
 613,
@@ -15,6 +15,6 @@
 1334,
 1638,
 1653,
-1663,
-],
+1663
+]
 }

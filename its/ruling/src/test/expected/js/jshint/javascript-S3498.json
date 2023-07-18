@@ -1,8 +1,8 @@
 {
-'jshint:examples/reporter.js':[
-4,
+"jshint:examples/reporter.js": [
+4
 ],
-'jshint:src/cli.js':[
+"jshint:src/cli.js": [
 321,
 404,
 512,
@@ -14,9 +14,9 @@
 681,
 691,
 758,
-759,
+759
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 364,
 365,
 366,
@@ -45,9 +45,9 @@
 6373,
 6377,
 6381,
-6385,
+6385
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 58,
 62,
 139,
@@ -108,36 +108,36 @@
 1809,
 1818,
 1861,
-1935,
+1935
 ],
-'jshint:src/messages.js':[
+"jshint:src/messages.js": [
 257,
 257,
 261,
 261,
 265,
-265,
+265
 ],
-'jshint:src/name-stack.js':[
-28,
+"jshint:src/name-stack.js": [
+28
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js": [
 5,
-59,
+59
 ],
-'jshint:src/reporters/default.js':[
-4,
+"jshint:src/reporters/default.js": [
+4
 ],
-'jshint:src/reporters/jslint_xml.js':[
-3,
+"jshint:src/reporters/jslint_xml.js": [
+3
 ],
-'jshint:src/reporters/non_error.js':[
-4,
+"jshint:src/reporters/non_error.js": [
+4
 ],
-'jshint:src/reporters/unix.js':[
-8,
+"jshint:src/reporters/unix.js": [
+8
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js": [
 55,
 56,
 63,
@@ -169,9 +169,9 @@
 977,
 986,
 1010,
-1019,
+1019
 ],
-'jshint:src/state.js':[
+"jshint:src/state.js": [
 12,
 31,
 47,
@@ -183,6 +183,6 @@
 103,
 116,
 130,
-160,
-],
+160
+]
 }

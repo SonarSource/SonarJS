@@ -1,7 +1,7 @@
 {
-'rxjs:src/Notification.ts':[
+"rxjs:src/Notification.ts": [
 31,
 51,
-85,
-],
+85
+]
 }

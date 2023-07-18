@@ -1,5 +1,5 @@
 {
-'postgraphql:src/postgres/inventory/type/scalar/pgFloatType.ts':[
-8,
-],
+"postgraphql:src/postgres/inventory/type/scalar/pgFloatType.ts": [
+8
+]
 }

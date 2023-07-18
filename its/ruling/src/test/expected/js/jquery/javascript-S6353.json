@@ -1,9 +1,9 @@
 {
-'jquery:src/core/init.js':[
-15,
+"jquery:src/core/init.js": [
+15
 ],
-'jquery:src/data.js':[
+"jquery:src/data.js": [
 17,
-17,
-],
+17
+]
 }

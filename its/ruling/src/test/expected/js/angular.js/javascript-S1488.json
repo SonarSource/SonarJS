@@ -1,15 +1,15 @@
 {
-'angular.js:docs/app/e2e/api-docs/directive-pages.scenario.js':[
-39,
+"angular.js:docs/app/e2e/api-docs/directive-pages.scenario.js": [
+39
 ],
-'angular.js:docs/config/processors/pages-data.js':[
-48,
+"angular.js:docs/config/processors/pages-data.js": [
+48
 ],
-'angular.js:docs/config/processors/versions-data.js':[
-141,
+"angular.js:docs/config/processors/versions-data.js": [
+141
 ],
-'angular.js:lib/versions/version-info.js':[
+"angular.js:lib/versions/version-info.js": [
 40,
-118,
-],
+118
+]
 }

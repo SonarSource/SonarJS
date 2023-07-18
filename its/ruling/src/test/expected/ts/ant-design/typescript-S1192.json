@@ -1,79 +1,79 @@
 {
-'ant-design:components/affix/__tests__/Affix.test.tsx':[
-105,
+"ant-design:components/affix/__tests__/Affix.test.tsx": [
+105
 ],
-'ant-design:components/alert/__tests__/index.test.tsx':[
-79,
+"ant-design:components/alert/__tests__/index.test.tsx": [
+79
 ],
-'ant-design:components/anchor/__tests__/Anchor.test.tsx':[
-170,
+"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
+170
 ],
-'ant-design:components/anchor/__tests__/cached-context.test.tsx':[
-42,
+"ant-design:components/anchor/__tests__/cached-context.test.tsx": [
+42
 ],
-'ant-design:components/badge/__tests__/index.test.tsx':[
-153,
+"ant-design:components/badge/__tests__/index.test.tsx": [
+153
 ],
-'ant-design:components/badge/__tests__/ribbon.test.tsx':[
+"ant-design:components/badge/__tests__/ribbon.test.tsx": [
 44,
-45,
+45
 ],
-'ant-design:components/button/__tests__/delay-timer.test.tsx':[
-55,
+"ant-design:components/button/__tests__/delay-timer.test.tsx": [
+55
 ],
-'ant-design:components/button/__tests__/index.test.tsx':[
+"ant-design:components/button/__tests__/index.test.tsx": [
 96,
-158,
+158
 ],
-'ant-design:components/button/__tests__/wave.test.tsx':[
+"ant-design:components/button/__tests__/wave.test.tsx": [
 7,
-38,
+38
 ],
-'ant-design:components/grid/__tests__/cached-row-context.test.tsx':[
-37,
+"ant-design:components/grid/__tests__/cached-row-context.test.tsx": [
+37
 ],
-'ant-design:components/input/__tests__/index.test.tsx':[
+"ant-design:components/input/__tests__/index.test.tsx": [
 125,
 245,
 290,
-300,
+300
 ],
-'ant-design:components/locale/hi_IN.tsx':[
-21,
+"ant-design:components/locale/hi_IN.tsx": [
+21
 ],
-'ant-design:components/locale/hu_HU.tsx':[
-15,
+"ant-design:components/locale/hu_HU.tsx": [
+15
 ],
-'ant-design:components/menu/__tests__/cached-context.test.tsx':[
-44,
+"ant-design:components/menu/__tests__/cached-context.test.tsx": [
+44
 ],
-'ant-design:components/modal/__tests__/hook.test.tsx':[
-130,
+"ant-design:components/modal/__tests__/hook.test.tsx": [
+130
 ],
-'ant-design:components/statistic/__tests__/index.test.tsx':[
+"ant-design:components/statistic/__tests__/index.test.tsx": [
 26,
 33,
-57,
+57
 ],
-'ant-design:components/tabs/index.tsx':[
-44,
+"ant-design:components/tabs/index.tsx": [
+44
 ],
-'ant-design:components/transfer/__tests__/dropdown.test.tsx':[
-54,
+"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
+54
 ],
-'ant-design:components/typography/__tests__/copy.test.tsx':[
+"ant-design:components/typography/__tests__/copy.test.tsx": [
 46,
 56,
 126,
-131,
+131
 ],
-'ant-design:components/upload/UploadList/ListItem.tsx':[
-94,
+"ant-design:components/upload/UploadList/ListItem.tsx": [
+94
 ],
-'ant-design:components/upload/UploadList/index.tsx':[
-57,
+"ant-design:components/upload/UploadList/index.tsx": [
+57
 ],
-'ant-design:site/theme/template/Layout/Header/Navigation.tsx':[
-43,
-],
+"ant-design:site/theme/template/Layout/Header/Navigation.tsx": [
+43
+]
 }

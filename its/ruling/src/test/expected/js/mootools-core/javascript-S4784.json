@@ -1,33 +1,33 @@
 {
-'mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js':[
-5,
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
+5
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
-141,
+"mootools-core:Source/Fx/Fx.CSS.js": [
+141
 ],
-'mootools-core:Source/Request/Request.HTML.js':[
-38,
+"mootools-core:Source/Request/Request.HTML.js": [
+38
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 19,
 253,
 254,
 494,
-562,
+562
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
+"mootools-core:Source/Slick/Slick.Parser.js": [
 22,
-66,
+66
 ],
-'mootools-core:Source/Types/String.js':[
+"mootools-core:Source/Types/String.js": [
 30,
 56,
 68,
-78,
+78
 ],
-'mootools-core:Source/Utilities/JSON.js':[
+"mootools-core:Source/Utilities/JSON.js": [
 40,
 41,
-43,
-],
+43
+]
 }

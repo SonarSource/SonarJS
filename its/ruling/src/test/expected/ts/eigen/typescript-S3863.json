@@ -1,163 +1,163 @@
 {
-'eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tests.tsx':[
-11,
+"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tests.tsx": [
+11
 ],
-'eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx':[
+"eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx": [
 6,
-10,
+10
 ],
-'eigen:src/app/Components/ArtworkFilter/FilterTestHelper.tsx':[
-8,
+"eigen:src/app/Components/ArtworkFilter/FilterTestHelper.tsx": [
+8
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/SortOptions.tests.tsx':[
+"eigen:src/app/Components/ArtworkFilter/Filters/SortOptions.tests.tsx": [
+3
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/TimePeriodOptions.tests.tsx": [
+4
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/ViewAsOptions.tsx": [
+9
+],
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
+20
+],
+"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tests.tsx": [
+15
+],
+"eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx": [
 3,
+4
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/TimePeriodOptions.tests.tsx':[
-4,
-],
-'eigen:src/app/Components/ArtworkFilter/Filters/ViewAsOptions.tsx':[
-9,
-],
-'eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx':[
-20,
-],
-'eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tests.tsx':[
-15,
-],
-'eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx':[
-3,
-4,
-],
-'eigen:src/app/Scenes/Artwork/Artwork.tests.tsx':[
+"eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
 12,
-21,
+21
 ],
-'eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tsx':[
-9,
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tsx": [
+9
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx':[
-2,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx": [
+2
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageZoomView.tsx':[
-33,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageZoomView.tsx": [
+33
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/IndexIndicator.tsx':[
-3,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/IndexIndicator.tsx": [
+3
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/VerticalSwipeToDismiss.tsx':[
-2,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/VerticalSwipeToDismiss.tsx": [
+2
 ],
-'eigen:src/app/Scenes/Artwork/Components/Mutation/SubmitInquiryRequest.ts':[
-2,
+"eigen:src/app/Scenes/Artwork/Components/Mutation/SubmitInquiryRequest.ts": [
+2
 ],
-'eigen:src/app/Scenes/City/CityPicker.tsx':[
-6,
+"eigen:src/app/Scenes/City/CityPicker.tsx": [
+6
 ],
-'eigen:src/app/Scenes/City/Components/FairEventSection/index.tsx':[
-6,
+"eigen:src/app/Scenes/City/Components/FairEventSection/index.tsx": [
+6
 ],
-'eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/FeaturedCollections/FeaturedCollectionsRail.tsx':[
-8,
+"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/FeaturedCollections/FeaturedCollectionsRail.tsx": [
+8
 ],
-'eigen:src/app/Scenes/Home/Components/SalesRail.tests.tsx':[
+"eigen:src/app/Scenes/Home/Components/SalesRail.tests.tsx": [
+11
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
+9
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
+7
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tests.tsx": [
+9
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/FileDownload.tests.tsx": [
+5
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/FileDownload.tsx": [
+8
+],
+"eigen:src/app/Scenes/OrderHistory/OrderHistory.tests.tsx": [
 11,
+12
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx':[
-9,
+"eigen:src/app/Scenes/Sale/Components/BuyNowArtworksRail.tsx": [
+10
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx':[
-7,
+"eigen:src/app/Scenes/Sale/Components/SaleArtworkListItem.tsx": [
+13
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tests.tsx':[
-9,
+"eigen:src/app/Scenes/Sale/SaleLotsList.tests.tsx": [
+3
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/FileDownload.tests.tsx':[
-5,
+"eigen:src/app/Scenes/Search/Search.tsx": [
+41
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/FileDownload.tsx':[
-8,
+"eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx": [
+7
 ],
-'eigen:src/app/Scenes/OrderHistory/OrderHistory.tests.tsx':[
-11,
-12,
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx": [
+2
 ],
-'eigen:src/app/Scenes/Sale/Components/BuyNowArtworksRail.tsx':[
-10,
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tsx": [
+4
 ],
-'eigen:src/app/Scenes/Sale/Components/SaleArtworkListItem.tsx':[
-13,
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListFeatured.tsx": [
+9
 ],
-'eigen:src/app/Scenes/Sale/SaleLotsList.tests.tsx':[
-3,
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoom.tsx": [
+10
 ],
-'eigen:src/app/Scenes/Search/Search.tsx':[
-41,
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx": [
+12
 ],
-'eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx':[
-7,
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoomsList.tsx": [
+15
 ],
-'eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx':[
-2,
+"eigen:src/app/navigation/BackButton.tsx": [
+4
 ],
-'eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tsx':[
+"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tests.tsx": [
+6
+],
+"eigen:src/app/utils/PushNotification.ts": [
+5
+],
+"eigen:src/palette/elements/Button/Button.tsx": [
+5
+],
+"eigen:src/palette/elements/Button/CTAButton.tsx": [
+2
+],
+"eigen:src/palette/elements/Cards/CardTag.tsx": [
+3
+],
+"eigen:src/palette/elements/Dialog/Dialog.stories.tsx": [
+4
+],
+"eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx": [
+5
+],
+"eigen:src/palette/elements/List/BulletedItem.tsx": [
+2
+],
+"eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
+6
+],
+"eigen:src/palette/elements/Tabs/StepTabs.tsx": [
+5
+],
+"eigen:src/palette/elements/Tabs/Tab.tsx": [
+5
+],
+"eigen:src/palette/elements/Tabs/Tabs.tests.tsx": [
 4,
+5
 ],
-'eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListFeatured.tsx':[
-9,
+"eigen:src/palette/elements/Text/Text.tsx": [
+5
 ],
-'eigen:src/app/Scenes/ViewingRoom/ViewingRoom.tsx':[
-10,
-],
-'eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx':[
-12,
-],
-'eigen:src/app/Scenes/ViewingRoom/ViewingRoomsList.tsx':[
-15,
-],
-'eigen:src/app/navigation/BackButton.tsx':[
-4,
-],
-'eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tests.tsx':[
-6,
-],
-'eigen:src/app/utils/PushNotification.ts':[
-5,
-],
-'eigen:src/palette/elements/Button/Button.tsx':[
-5,
-],
-'eigen:src/palette/elements/Button/CTAButton.tsx':[
-2,
-],
-'eigen:src/palette/elements/Cards/CardTag.tsx':[
-3,
-],
-'eigen:src/palette/elements/Dialog/Dialog.stories.tsx':[
-4,
-],
-'eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx':[
-5,
-],
-'eigen:src/palette/elements/List/BulletedItem.tsx':[
-2,
-],
-'eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx':[
-6,
-],
-'eigen:src/palette/elements/Tabs/StepTabs.tsx':[
-5,
-],
-'eigen:src/palette/elements/Tabs/Tab.tsx':[
-5,
-],
-'eigen:src/palette/elements/Tabs/Tabs.tests.tsx':[
-4,
-5,
-],
-'eigen:src/palette/elements/Text/Text.tsx':[
-5,
-],
-'eigen:src/palette/organisms/screenStructure/Screen.tsx':[
-14,
-],
+"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
+14
+]
 }

@@ -1,5 +1,5 @@
 {
-'qunit:Gruntfile.js':[
+"qunit:Gruntfile.js": [
 42,
 43,
 49,
@@ -47,21 +47,21 @@
 266,
 267,
 268,
-293,
+293
 ],
-'qunit:bin/qunit.js':[
-50,
+"qunit:bin/qunit.js": [
+50
 ],
-'qunit:build/release.js':[
+"qunit:build/release.js": [
 21,
-27,
+27
 ],
-'qunit:build/tasks/test-on-node.js':[
+"qunit:build/tasks/test-on-node.js": [
 33,
 65,
-100,
+100
 ],
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 73,
 182,
 327,
@@ -77,9 +77,9 @@
 993,
 1059,
 1090,
-1127,
+1127
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 12,
 140,
 286,
@@ -90,21 +90,21 @@
 759,
 780,
 1031,
-1041,
+1041
 ],
-'qunit:reporter/urlparams.js':[
+"qunit:reporter/urlparams.js": [
 40,
 46,
 52,
-53,
+53
 ],
-'qunit:rollup.config.js':[
+"qunit:rollup.config.js": [
 11,
 27,
 30,
-31,
+31
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
 51,
 120,
 157,
@@ -123,85 +123,85 @@
 369,
 386,
 441,
-445,
+445
 ],
-'qunit:src/cli/find-reporter.js':[
+"qunit:src/cli/find-reporter.js": [
 48,
 66,
-85,
+85
 ],
-'qunit:src/cli/run.js':[
+"qunit:src/cli/run.js": [
 11,
 113,
-158,
+158
 ],
-'qunit:src/cli/utils.js':[
+"qunit:src/cli/utils.js": [
 52,
-99,
+99
 ],
-'qunit:src/core.js':[
+"qunit:src/core.js": [
 103,
 122,
 170,
-178,
+178
 ],
-'qunit:src/core/config.js':[
+"qunit:src/core/config.js": [
 54,
 55,
-61,
+61
 ],
-'qunit:src/core/logging.js':[
-15,
+"qunit:src/core/logging.js": [
+15
 ],
-'qunit:src/core/on-unhandled-rejection.js':[
-13,
+"qunit:src/core/on-unhandled-rejection.js": [
+13
 ],
-'qunit:src/core/onerror.js':[
+"qunit:src/core/onerror.js": [
 18,
-25,
+25
 ],
-'qunit:src/core/processing-queue.js':[
+"qunit:src/core/processing-queue.js": [
 5,
 8,
 13,
 16,
 19,
 195,
-215,
+215
 ],
-'qunit:src/core/utilities.js':[
-36,
+"qunit:src/core/utilities.js": [
+36
 ],
-'qunit:src/dump.js':[
+"qunit:src/dump.js": [
 271,
-281,
+281
 ],
-'qunit:src/equiv.js':[
-292,
+"qunit:src/equiv.js": [
+292
 ],
-'qunit:src/events.js':[
-11,
+"qunit:src/events.js": [
+11
 ],
-'qunit:src/logger.js':[
-18,
+"qunit:src/logger.js": [
+18
 ],
-'qunit:src/module.js':[
+"qunit:src/module.js": [
 35,
-71,
+71
 ],
-'qunit:src/reports/suite.js':[
+"qunit:src/reports/suite.js": [
 32,
 33,
 50,
 62,
-98,
+98
 ],
-'qunit:src/reports/test.js':[
+"qunit:src/reports/test.js": [
 33,
 48,
-57,
+57
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 18,
 62,
 77,
@@ -224,14 +224,14 @@
 765,
 773,
 804,
-820,
+820
 ],
-'qunit:test/amd.html':[
+"qunit:test/amd.html": [
 16,
-17,
+17
 ],
-'qunit:test/preconfigured.html':[
+"qunit:test/preconfigured.html": [
 11,
-12,
-],
+12
+]
 }

@@ -1,5 +1,5 @@
 {
-'ant-design:components/locale/ar_EG.tsx':[
+"ant-design:components/locale/ar_EG.tsx": [
 8,
 71,
 72,
@@ -20,9 +20,9 @@
 109,
 110,
 111,
-114,
+114
 ],
-'ant-design:components/locale/bn_BD.tsx':[
+"ant-design:components/locale/bn_BD.tsx": [
 8,
 82,
 83,
@@ -43,9 +43,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/by_BY.tsx':[
+"ant-design:components/locale/by_BY.tsx": [
 8,
 80,
 81,
@@ -65,9 +65,9 @@
 117,
 118,
 119,
-122,
+122
 ],
-'ant-design:components/locale/ca_ES.tsx':[
+"ant-design:components/locale/ca_ES.tsx": [
 8,
 80,
 81,
@@ -88,9 +88,9 @@
 118,
 119,
 120,
-123,
+123
 ],
-'ant-design:components/locale/de_DE.tsx':[
+"ant-design:components/locale/de_DE.tsx": [
 8,
 77,
 78,
@@ -111,9 +111,9 @@
 115,
 116,
 117,
-120,
+120
 ],
-'ant-design:components/locale/default.tsx':[
+"ant-design:components/locale/default.tsx": [
 8,
 84,
 85,
@@ -134,9 +134,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/en_GB.tsx':[
+"ant-design:components/locale/en_GB.tsx": [
 8,
 84,
 85,
@@ -157,9 +157,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/es_ES.tsx':[
+"ant-design:components/locale/es_ES.tsx": [
 8,
 84,
 85,
@@ -180,9 +180,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/et_EE.tsx':[
+"ant-design:components/locale/et_EE.tsx": [
 8,
 84,
 85,
@@ -203,9 +203,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/fa_IR.tsx':[
+"ant-design:components/locale/fa_IR.tsx": [
 8,
 82,
 83,
@@ -226,9 +226,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/fr_FR.tsx':[
+"ant-design:components/locale/fr_FR.tsx": [
 8,
 79,
 80,
@@ -249,9 +249,9 @@
 117,
 118,
 119,
-122,
+122
 ],
-'ant-design:components/locale/ga_IE.tsx':[
+"ant-design:components/locale/ga_IE.tsx": [
 8,
 78,
 79,
@@ -272,9 +272,9 @@
 116,
 117,
 118,
-121,
+121
 ],
-'ant-design:components/locale/gl_ES.tsx':[
+"ant-design:components/locale/gl_ES.tsx": [
 8,
 65,
 66,
@@ -295,9 +295,9 @@
 103,
 104,
 105,
-108,
+108
 ],
-'ant-design:components/locale/he_IL.tsx':[
+"ant-design:components/locale/he_IL.tsx": [
 8,
 71,
 72,
@@ -318,9 +318,9 @@
 109,
 110,
 111,
-114,
+114
 ],
-'ant-design:components/locale/hi_IN.tsx':[
+"ant-design:components/locale/hi_IN.tsx": [
 8,
 82,
 83,
@@ -341,9 +341,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/hr_HR.tsx':[
+"ant-design:components/locale/hr_HR.tsx": [
 8,
 81,
 82,
@@ -364,9 +364,9 @@
 119,
 120,
 121,
-124,
+124
 ],
-'ant-design:components/locale/ja_JP.tsx':[
+"ant-design:components/locale/ja_JP.tsx": [
 8,
 57,
 58,
@@ -387,9 +387,9 @@
 95,
 96,
 97,
-100,
+100
 ],
-'ant-design:components/locale/ka_GE.tsx':[
+"ant-design:components/locale/ka_GE.tsx": [
 8,
 82,
 83,
@@ -410,9 +410,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/kk_KZ.tsx':[
+"ant-design:components/locale/kk_KZ.tsx": [
 9,
 81,
 82,
@@ -432,9 +432,9 @@
 118,
 119,
 120,
-123,
+123
 ],
-'ant-design:components/locale/km_KH.tsx':[
+"ant-design:components/locale/km_KH.tsx": [
 8,
 59,
 60,
@@ -455,9 +455,9 @@
 97,
 98,
 99,
-102,
+102
 ],
-'ant-design:components/locale/ko_KR.tsx':[
+"ant-design:components/locale/ko_KR.tsx": [
 8,
 51,
 52,
@@ -478,9 +478,9 @@
 89,
 90,
 91,
-94,
+94
 ],
-'ant-design:components/locale/lt_LT.tsx':[
+"ant-design:components/locale/lt_LT.tsx": [
 9,
 78,
 79,
@@ -500,9 +500,9 @@
 115,
 116,
 117,
-120,
+120
 ],
-'ant-design:components/locale/ml_IN.tsx':[
+"ant-design:components/locale/ml_IN.tsx": [
 8,
 82,
 83,
@@ -523,9 +523,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/nb_NO.tsx':[
+"ant-design:components/locale/nb_NO.tsx": [
 8,
 79,
 80,
@@ -546,9 +546,9 @@
 117,
 118,
 119,
-122,
+122
 ],
-'ant-design:components/locale/nl_BE.tsx':[
+"ant-design:components/locale/nl_BE.tsx": [
 8,
 82,
 83,
@@ -569,9 +569,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/nl_NL.tsx':[
+"ant-design:components/locale/nl_NL.tsx": [
 8,
 82,
 83,
@@ -592,9 +592,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/pl_PL.tsx':[
+"ant-design:components/locale/pl_PL.tsx": [
 8,
 84,
 85,
@@ -615,9 +615,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/pt_BR.tsx':[
+"ant-design:components/locale/pt_BR.tsx": [
 8,
 82,
 83,
@@ -638,9 +638,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/ro_RO.tsx':[
+"ant-design:components/locale/ro_RO.tsx": [
 8,
 82,
 83,
@@ -661,9 +661,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/ru_RU.tsx':[
+"ant-design:components/locale/ru_RU.tsx": [
 9,
 82,
 83,
@@ -683,9 +683,9 @@
 119,
 120,
 121,
-124,
+124
 ],
-'ant-design:components/locale/sk_SK.tsx':[
+"ant-design:components/locale/sk_SK.tsx": [
 8,
 84,
 85,
@@ -706,9 +706,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/sr_RS.tsx':[
+"ant-design:components/locale/sr_RS.tsx": [
 8,
 82,
 83,
@@ -729,9 +729,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/sv_SE.tsx':[
+"ant-design:components/locale/sv_SE.tsx": [
 8,
 82,
 83,
@@ -752,9 +752,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/th_TH.tsx':[
+"ant-design:components/locale/th_TH.tsx": [
 8,
 81,
 82,
@@ -775,9 +775,9 @@
 119,
 120,
 121,
-124,
+124
 ],
-'ant-design:components/locale/tk_TK.tsx':[
+"ant-design:components/locale/tk_TK.tsx": [
 8,
 81,
 82,
@@ -797,9 +797,9 @@
 118,
 119,
 120,
-123,
+123
 ],
-'ant-design:components/locale/tr_TR.tsx':[
+"ant-design:components/locale/tr_TR.tsx": [
 8,
 80,
 81,
@@ -820,9 +820,9 @@
 118,
 119,
 120,
-123,
+123
 ],
-'ant-design:components/locale/uk_UA.tsx':[
+"ant-design:components/locale/uk_UA.tsx": [
 8,
 84,
 85,
@@ -843,9 +843,9 @@
 122,
 123,
 124,
-127,
+127
 ],
-'ant-design:components/locale/ur_PK.tsx':[
+"ant-design:components/locale/ur_PK.tsx": [
 8,
 82,
 83,
@@ -866,9 +866,9 @@
 120,
 121,
 122,
-125,
+125
 ],
-'ant-design:components/locale/zh_CN.tsx':[
+"ant-design:components/locale/zh_CN.tsx": [
 8,
 83,
 84,
@@ -889,9 +889,9 @@
 121,
 122,
 123,
-126,
+126
 ],
-'ant-design:components/locale/zh_HK.tsx':[
+"ant-design:components/locale/zh_HK.tsx": [
 8,
 79,
 80,
@@ -912,9 +912,9 @@
 117,
 118,
 119,
-122,
+122
 ],
-'ant-design:components/locale/zh_TW.tsx':[
+"ant-design:components/locale/zh_TW.tsx": [
 8,
 80,
 81,
@@ -935,6 +935,6 @@
 118,
 119,
 120,
-123,
-],
+123
+]
 }

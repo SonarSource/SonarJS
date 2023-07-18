@@ -1,35 +1,35 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 645,
 684,
 895,
-1141,
+1141
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 485,
 835,
 871,
-919,
+919
 ],
-'qunit:reporter/urlparams.js':[
-31,
+"qunit:reporter/urlparams.js": [
+31
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
 44,
-321,
+321
 ],
-'qunit:src/core.js':[
-65,
+"qunit:src/core.js": [
+65
 ],
-'qunit:src/core/utilities.js':[
-92,
+"qunit:src/core/utilities.js": [
+92
 ],
-'qunit:src/events.js':[
-55,
+"qunit:src/events.js": [
+55
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 53,
 285,
-755,
-],
+755
+]
 }

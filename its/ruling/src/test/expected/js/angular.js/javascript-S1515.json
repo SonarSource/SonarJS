@@ -1,11 +1,11 @@
 {
-'angular.js:src/ng/compile.js':[
-3046,
+"angular.js:src/ng/compile.js": [
+3046
 ],
-'angular.js:src/ng/directive/ngRepeat.js':[
-641,
+"angular.js:src/ng/directive/ngRepeat.js": [
+641
 ],
-'angular.js:src/ngMessages/messages.js':[
-410,
-],
+"angular.js:src/ngMessages/messages.js": [
+410
+]
 }

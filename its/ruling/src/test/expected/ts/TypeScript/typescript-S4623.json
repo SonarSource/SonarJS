@@ -1,5 +1,5 @@
 {
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 2695,
 16872,
 17149,
@@ -11,32 +11,32 @@
 19672,
 19852,
 20368,
-21036,
+21036
 ],
-'TypeScript:src/compiler/factory.ts':[
-967,
+"TypeScript:src/compiler/factory.ts": [
+967
 ],
-'TypeScript:src/compiler/transformers/es2015.ts':[
+"TypeScript:src/compiler/transformers/es2015.ts": [
 1166,
-1184,
+1184
 ],
-'TypeScript:src/compiler/transformers/module/system.ts':[
-431,
+"TypeScript:src/compiler/transformers/module/system.ts": [
+431
 ],
-'TypeScript:src/server/session.ts':[
-980,
+"TypeScript:src/server/session.ts": [
+980
 ],
-'TypeScript:src/services/codefixes/fixAddMissingMember.ts':[
-120,
+"TypeScript:src/services/codefixes/fixAddMissingMember.ts": [
+120
 ],
-'TypeScript:src/services/codefixes/helpers.ts':[
+"TypeScript:src/services/codefixes/helpers.ts": [
 176,
-189,
+189
 ],
-'TypeScript:src/services/signatureHelp.ts':[
-404,
+"TypeScript:src/services/signatureHelp.ts": [
+404
 ],
-'TypeScript:src/services/utilities.ts':[
-838,
-],
+"TypeScript:src/services/utilities.ts": [
+838
+]
 }

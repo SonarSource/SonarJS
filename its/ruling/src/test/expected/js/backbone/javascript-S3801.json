@@ -1,5 +1,5 @@
 {
-'backbone:backbone.js':[
+"backbone:backbone.js": [
 176,
 221,
 603,
@@ -9,9 +9,9 @@
 1831,
 1938,
 1959,
-1974,
+1974
 ],
-'backbone:karma.conf-sauce.js':[
-52,
-],
+"backbone:karma.conf-sauce.js": [
+52
+]
 }

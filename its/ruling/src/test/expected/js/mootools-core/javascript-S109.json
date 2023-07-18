@@ -1,20 +1,20 @@
 {
-'mootools-core:Grunt/options/options.js':[
+"mootools-core:Grunt/options/options.js": [
 14,
-14,
+14
 ],
-'mootools-core:Source/Element/Element.js':[
+"mootools-core:Source/Element/Element.js": [
 993,
 999,
 1120,
 1121,
-1137,
+1137
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
+"mootools-core:Source/Fx/Fx.CSS.js": [
 141,
-141,
+141
 ],
-'mootools-core:Source/Fx/Fx.Transitions.js':[
+"mootools-core:Source/Fx/Fx.Transitions.js": [
 28,
 28,
 46,
@@ -41,9 +41,9 @@
 104,
 104,
 104,
-111,
+111
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 24,
 31,
 117,
@@ -54,40 +54,40 @@
 286,
 499,
 502,
-872,
+872
 ],
-'mootools-core:Source/Types/Array.js':[
+"mootools-core:Source/Types/Array.js": [
 150,
 159,
 160,
 160,
 162,
-163,
+163
 ],
-'mootools-core:Source/Types/Number.js':[
+"mootools-core:Source/Types/Number.js": [
 24,
-37,
+37
 ],
-'mootools-core:Source/Types/String.js':[
-60,
+"mootools-core:Source/Types/String.js": [
+60
 ],
-'mootools-core:Source/Utilities/Cookie.js':[
+"mootools-core:Source/Utilities/Cookie.js": [
 45,
 45,
 45,
-45,
+45
 ],
-'mootools-core:Source/Utilities/JSON.js':[
+"mootools-core:Source/Utilities/JSON.js": [
 35,
-35,
+35
 ],
-'mootools-core:Tests/Fx/Fx.html':[
+"mootools-core:Tests/Fx/Fx.html": [
 128,
 128,
 154,
 154,
 155,
 254,
-254,
-],
+254
+]
 }

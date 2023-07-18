@@ -1,226 +1,226 @@
 {
-'eigen:src/app/Components/AnimatableHeader/AnimatableHeader.tsx':[
-117,
+"eigen:src/app/Components/AnimatableHeader/AnimatableHeader.tsx": [
+117
 ],
-'eigen:src/app/Components/AnimatableHeader/AnimatableHeaderShadow.tsx':[
-35,
+"eigen:src/app/Components/AnimatableHeader/AnimatableHeaderShadow.tsx": [
+35
 ],
-'eigen:src/app/Components/Artist/ArtistArtworks/CreateSavedSearchModal.tests.tsx':[
-37,
+"eigen:src/app/Components/Artist/ArtistArtworks/CreateSavedSearchModal.tests.tsx": [
+37
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsArtworksOptions.tests.tsx':[
-236,
+"eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsArtworksOptions.tests.tsx": [
+236
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsSaleArtworksOptionsScreen.tsx':[
+"eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsSaleArtworksOptionsScreen.tsx": [
 40,
-63,
+63
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/EstimateRangeOptions.tsx':[
-34,
+"eigen:src/app/Components/ArtworkFilter/Filters/EstimateRangeOptions.tsx": [
+34
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/MediumOptions.tsx':[
+"eigen:src/app/Components/ArtworkFilter/Filters/MediumOptions.tsx": [
 32,
-40,
+40
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/TimePeriodOptions.tsx':[
-25,
+"eigen:src/app/Components/ArtworkFilter/Filters/TimePeriodOptions.tsx": [
+25
 ],
-'eigen:src/app/Components/ArtworkFilter/Filters/ViewAsOptions.tsx':[
+"eigen:src/app/Components/ArtworkFilter/Filters/ViewAsOptions.tsx": [
 27,
-28,
+28
 ],
-'eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tests.tsx':[
-254,
+"eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tests.tsx": [
+254
 ],
-'eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx':[
-147,
+"eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx": [
+147
 ],
-'eigen:src/app/Components/ArtworkGrids/LotProgressBar.tests.tsx':[
-58,
+"eigen:src/app/Components/ArtworkGrids/LotProgressBar.tests.tsx": [
+58
 ],
-'eigen:src/app/Components/ArtworkGrids/SaleArtworkGridItem.tsx':[
+"eigen:src/app/Components/ArtworkGrids/SaleArtworkGridItem.tsx": [
 60,
-76,
+76
 ],
-'eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx':[
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 88,
-430,
+430
 ],
-'eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx':[
-195,
+"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
+195
 ],
-'eigen:src/app/Components/Bidding/Screens/Registration.tsx':[
-80,
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+80
 ],
-'eigen:src/app/Components/FancyModal/FancyModal.tsx':[
-61,
+"eigen:src/app/Components/FancyModal/FancyModal.tsx": [
+61
 ],
-'eigen:src/app/Components/SaleArtworkTileRailCard/SaleArtworkTileRailCard.tsx':[
-103,
+"eigen:src/app/Components/SaleArtworkTileRailCard/SaleArtworkTileRailCard.tsx": [
+103
 ],
-'eigen:src/app/Components/StickyTabPage/SnappyHorizontalRail.tsx':[
-42,
+"eigen:src/app/Components/StickyTabPage/SnappyHorizontalRail.tsx": [
+42
 ],
-'eigen:src/app/NativeModules/LegacyNativeModules.tsx':[
-103,
+"eigen:src/app/NativeModules/LegacyNativeModules.tsx": [
+103
 ],
-'eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx':[
+"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
 87,
 94,
 115,
-122,
+122
 ],
-'eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx':[
-60,
+"eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx": [
+60
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx':[
-102,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx": [
+102
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageCarouselFullScreen.tsx':[
-142,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageCarouselFullScreen.tsx": [
+142
 ],
-'eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/StatusBarOverlay.tsx':[
-14,
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/StatusBarOverlay.tsx": [
+14
 ],
-'eigen:src/app/Scenes/Artwork/Components/Mutation/SubmitInquiryRequest.ts':[
-18,
+"eigen:src/app/Scenes/Artwork/Components/Mutation/SubmitInquiryRequest.ts": [
+18
 ],
-'eigen:src/app/Scenes/Fair/Components/FairArtworks.tsx':[
-179,
+"eigen:src/app/Scenes/Fair/Components/FairArtworks.tsx": [
+179
 ],
-'eigen:src/app/Scenes/Home/homeAnalytics.ts':[
+"eigen:src/app/Scenes/Home/homeAnalytics.ts": [
 32,
 98,
-117,
+117
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/ReviewOfferButton.tests.tsx':[
-19,
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ReviewOfferButton.tests.tsx": [
+19
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/UpdateConversation.ts':[
-17,
+"eigen:src/app/Scenes/Inbox/Components/Conversations/UpdateConversation.ts": [
+17
 ],
-'eigen:src/app/Scenes/Map/GlobalMap.tsx':[
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 162,
 292,
-452,
+452
 ],
-'eigen:src/app/Scenes/Map/MapRenderer.tsx':[
-49,
+"eigen:src/app/Scenes/Map/MapRenderer.tsx": [
+49
 ],
-'eigen:src/app/Scenes/MyCollection/Screens/Artwork/MyCollectionArtwork.tsx':[
-63,
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/MyCollectionArtwork.tsx": [
+63
 ],
-'eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/ArtworkAutosuggestResults.tsx':[
-158,
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/ArtworkAutosuggestResults.tsx": [
+158
 ],
-'eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx':[
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
 248,
-259,
+259
 ],
-'eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx':[
-183,
+"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
+183
 ],
-'eigen:src/app/Scenes/MyCollection/utils/randomMyCollectionArtwork.ts':[
-14,
+"eigen:src/app/Scenes/MyCollection/utils/randomMyCollectionArtwork.ts": [
+14
 ],
-'eigen:src/app/Scenes/Onboarding/ForgotPassword.tsx':[
-131,
+"eigen:src/app/Scenes/Onboarding/ForgotPassword.tsx": [
+131
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx':[
-122,
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
+122
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountPassword.tests.tsx':[
-23,
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountPassword.tests.tsx": [
+23
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx':[
-182,
+"eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx": [
+182
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingLoginWithOTP.tsx':[
+"eigen:src/app/Scenes/Onboarding/OnboardingLoginWithOTP.tsx": [
 135,
-143,
+143
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx':[
-144,
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
+144
 ],
-'eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx':[
-112,
+"eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx": [
+112
 ],
-'eigen:src/app/Scenes/Sale/Components/RegisterToBidButton.tsx':[
+"eigen:src/app/Scenes/Sale/Components/RegisterToBidButton.tsx": [
 38,
-135,
+135
 ],
-'eigen:src/app/Scenes/Sale/Components/SaleLotsList.tsx':[
-100,
+"eigen:src/app/Scenes/Sale/Components/SaleLotsList.tsx": [
+100
 ],
-'eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts':[
+"eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts": [
 94,
 104,
 116,
 128,
-139,
+139
 ],
-'eigen:src/app/Scenes/SavedSearchAlert/useSavedSearchPills.ts':[
-13,
+"eigen:src/app/Scenes/SavedSearchAlert/useSavedSearchPills.ts": [
+13
 ],
-'eigen:src/app/Scenes/Search/AutosuggestResults.tsx':[
-315,
+"eigen:src/app/Scenes/Search/AutosuggestResults.tsx": [
+315
 ],
-'eigen:src/app/Scenes/Search/Search.tsx':[
-309,
+"eigen:src/app/Scenes/Search/Search.tsx": [
+309
 ],
-'eigen:src/app/Scenes/Search/SearchResults.tsx':[
+"eigen:src/app/Scenes/Search/SearchResults.tsx": [
 34,
-51,
+51
 ],
-'eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts':[
-24,
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts": [
+24
 ],
-'eigen:src/app/Scenes/Show/Components/ShowArtworks.tsx':[
-157,
+"eigen:src/app/Scenes/Show/Components/ShowArtworks.tsx": [
+157
 ],
-'eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts':[
+"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
 136,
-156,
+156
 ],
-'eigen:src/app/store/AuthModel.ts':[
+"eigen:src/app/store/AuthModel.ts": [
 402,
 468,
 472,
 556,
 599,
 640,
-680,
+680
 ],
-'eigen:src/app/store/GlobalStore.tsx':[
-234,
+"eigen:src/app/store/GlobalStore.tsx": [
+234
 ],
-'eigen:src/app/store/GlobalStoreModel.ts':[
-94,
+"eigen:src/app/store/GlobalStoreModel.ts": [
+94
 ],
-'eigen:src/app/tests/createMockNetworkLayer/index.ts':[
-61,
+"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
+61
 ],
-'eigen:src/app/tests/renderRelayTree.tests.tsx':[
+"eigen:src/app/tests/renderRelayTree.tests.tsx": [
 10,
-61,
+61
 ],
-'eigen:src/app/utils/PushNotification.ts':[
-64,
+"eigen:src/app/utils/PushNotification.ts": [
+64
 ],
-'eigen:src/app/utils/googleMaps.ts':[
-78,
+"eigen:src/app/utils/googleMaps.ts": [
+78
 ],
-'eigen:src/app/utils/useAlgoliaIndices.ts':[
-35,
+"eigen:src/app/utils/useAlgoliaIndices.ts": [
+35
 ],
-'eigen:src/app/utils/useEventTiming.tsx':[
-61,
+"eigen:src/app/utils/useEventTiming.tsx": [
+61
 ],
-'eigen:src/app/utils/useStickyScrollHeader.tsx':[
+"eigen:src/app/utils/useStickyScrollHeader.tsx": [
 115,
-117,
+117
 ],
-'eigen:src/palette/elements/Input/Input.tsx':[
-257,
-],
+"eigen:src/palette/elements/Input/Input.tsx": [
+257
+]
 }

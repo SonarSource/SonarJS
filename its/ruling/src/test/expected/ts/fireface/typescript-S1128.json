@@ -1,22 +1,22 @@
 {
-'fireface:src/app/app.component.ts':[
-2,
+"fireface:src/app/app.component.ts": [
+2
 ],
-'fireface:src/auth/auth.module.ts':[
+"fireface:src/auth/auth.module.ts": [
 3,
 3,
-6,
+6
 ],
-'fireface:src/gallery/gallery.component.ts':[
+"fireface:src/gallery/gallery.component.ts": [
 1,
 2,
 3,
-4,
+4
 ],
-'fireface:src/landing/landing.component.ts':[
-1,
+"fireface:src/landing/landing.component.ts": [
+1
 ],
-'fireface:src/storage/storage.component.ts':[
-2,
-],
+"fireface:src/storage/storage.component.ts": [
+2
+]
 }

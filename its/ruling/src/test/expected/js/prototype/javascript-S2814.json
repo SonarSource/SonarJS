@@ -1,9 +1,9 @@
 {
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 599,
-3007,
+3007
 ],
-'prototype:src/prototype/dom/form.js':[
-786,
-],
+"prototype:src/prototype/dom/form.js": [
+786
+]
 }

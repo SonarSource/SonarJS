@@ -1,8 +1,8 @@
 {
-'jshint:src/reg.js':[
+"jshint:src/reg.js": [
 15,
 15,
 18,
-18,
-],
+18
+]
 }

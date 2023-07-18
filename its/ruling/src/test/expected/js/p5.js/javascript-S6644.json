@@ -1,17 +1,17 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 720,
-4722,
+4722
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 2015,
 10987,
-11182,
+11182
 ],
-'p5.js:src/dom/dom.js':[
-966,
+"p5.js:src/dom/dom.js": [
+966
 ],
-'p5.js:src/io/p5.XML.js':[
-620,
-],
+"p5.js:src/io/p5.XML.js": [
+620
+]
 }

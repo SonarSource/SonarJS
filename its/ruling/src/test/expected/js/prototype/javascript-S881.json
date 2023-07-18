@@ -1,33 +1,33 @@
 {
-'prototype:src/prototype/deprecated.js':[
-239,
+"prototype:src/prototype/deprecated.js": [
+239
 ],
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 581,
 1045,
 1088,
 1119,
 1475,
 2139,
-2719,
+2719
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 388,
 426,
 447,
 789,
-805,
+805
 ],
-'prototype:src/prototype/dom/selector.js':[
-141,
+"prototype:src/prototype/dom/selector.js": [
+141
 ],
-'prototype:src/prototype/lang/array.js':[
-63,
+"prototype:src/prototype/lang/array.js": [
+63
 ],
-'prototype:src/prototype/lang/function.js':[
-11,
+"prototype:src/prototype/lang/function.js": [
+11
 ],
-'prototype:src/prototype/lang/string.js':[
-168,
-],
+"prototype:src/prototype/lang/string.js": [
+168
+]
 }

@@ -1,36 +1,36 @@
 {
-'Joust:ts/Launcher.tsx':[
+"Joust:ts/Launcher.tsx": [
 302,
-419,
+419
 ],
-'Joust:ts/components/DebugApplication.tsx':[
+"Joust:ts/components/DebugApplication.tsx": [
 107,
 108,
 109,
 110,
 111,
 120,
-124,
+124
 ],
-'Joust:ts/components/EventLog.tsx':[
-429,
+"Joust:ts/components/EventLog.tsx": [
+429
 ],
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx": [
 85,
-86,
+86
 ],
-'Joust:ts/components/GameWidget.tsx':[
-97,
+"Joust:ts/components/GameWidget.tsx": [
+97
 ],
-'Joust:ts/components/Scrubber.tsx':[
-57,
+"Joust:ts/components/Scrubber.tsx": [
+57
 ],
-'Joust:ts/components/game/visuals/HeroArt.tsx':[
-94,
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
+94
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 214,
 214,
-214,
-],
+214
+]
 }

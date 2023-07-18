@@ -1,8 +1,8 @@
 {
-'desktop:app/src/lib/markdown-filters/mention-filter.ts':[
-34,
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+34
 ],
-'desktop:app/src/lib/sanitize-ref-name.ts':[
-6,
-],
+"desktop:app/src/lib/sanitize-ref-name.ts": [
+6
+]
 }

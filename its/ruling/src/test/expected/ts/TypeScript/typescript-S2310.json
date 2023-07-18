@@ -1,30 +1,30 @@
 {
-'TypeScript:src/compiler/binder.ts':[
-1145,
+"TypeScript:src/compiler/binder.ts": [
+1145
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 2890,
-15397,
+15397
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 1886,
-1890,
+1890
 ],
-'TypeScript:src/compiler/program.ts':[
-292,
+"TypeScript:src/compiler/program.ts": [
+292
 ],
-'TypeScript:src/harness/fourslash.ts':[
-2940,
+"TypeScript:src/harness/fourslash.ts": [
+2940
 ],
-'TypeScript:src/harness/harness.ts':[
-445,
+"TypeScript:src/harness/harness.ts": [
+445
 ],
-'TypeScript:src/services/documentHighlights.ts':[
-583,
+"TypeScript:src/services/documentHighlights.ts": [
+583
 ],
-'TypeScript:src/services/pathCompletions.ts':[
+"TypeScript:src/services/pathCompletions.ts": [
 108,
 273,
-380,
-],
+380
+]
 }

@@ -1,5 +1,5 @@
 {
-'TypeScript:src/compiler/binder.ts':[
+"TypeScript:src/compiler/binder.ts": [
 76,
 82,
 86,
@@ -7,9 +7,9 @@
 89,
 90,
 91,
-92,
+92
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 342,
 343,
 344,
@@ -66,13 +66,13 @@
 398,
 399,
 400,
-17799,
+17799
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 2124,
-2125,
+2125
 ],
-'TypeScript:src/compiler/emitter.ts':[
+"TypeScript:src/compiler/emitter.ts": [
 2916,
 2917,
 2918,
@@ -129,19 +129,19 @@
 2982,
 2983,
 2984,
-2985,
+2985
 ],
-'TypeScript:src/compiler/factory.ts':[
+"TypeScript:src/compiler/factory.ts": [
 3658,
 3659,
 3660,
-3662,
+3662
 ],
-'TypeScript:src/compiler/transformer.ts':[
+"TypeScript:src/compiler/transformer.ts": [
 35,
-36,
+36
 ],
-'TypeScript:src/compiler/transformers/es2015.ts':[
+"TypeScript:src/compiler/transformers/es2015.ts": [
 9,
 11,
 63,
@@ -189,20 +189,20 @@
 252,
 253,
 260,
-261,
+261
 ],
-'TypeScript:src/compiler/transformers/es2017.ts':[
-10,
+"TypeScript:src/compiler/transformers/es2017.ts": [
+10
 ],
-'TypeScript:src/compiler/transformers/esnext.ts':[
-9,
+"TypeScript:src/compiler/transformers/esnext.ts": [
+9
 ],
-'TypeScript:src/compiler/transformers/ts.ts':[
+"TypeScript:src/compiler/transformers/ts.ts": [
 14,
 16,
-18,
+18
 ],
-'TypeScript:src/compiler/types.ts':[
+"TypeScript:src/compiler/types.ts": [
 399,
 400,
 401,
@@ -537,22 +537,22 @@
 4023,
 4026,
 4028,
-4029,
+4029
 ],
-'TypeScript:src/compiler/utilities.ts':[
+"TypeScript:src/compiler/utilities.ts": [
 1954,
 1955,
 1956,
-1957,
+1957
 ],
-'TypeScript:src/services/formatting/rulesMap.ts':[
+"TypeScript:src/services/formatting/rulesMap.ts": [
 79,
 80,
 81,
 82,
-83,
+83
 ],
-'TypeScript:src/services/utilities.ts':[
-12,
-],
+"TypeScript:src/services/utilities.ts": [
+12
+]
 }

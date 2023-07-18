@@ -1,12 +1,12 @@
 {
-'ocanvas:src/displayobject.js':[
+"ocanvas:src/displayobject.js": [
 533,
 561,
 569,
-577,
+577
 ],
-'ocanvas:src/utils.js':[
+"ocanvas:src/utils.js": [
 7,
-124,
-],
+124
+]
 }

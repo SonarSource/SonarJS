@@ -1,12 +1,12 @@
 {
-'rxjs:src/observable/combineLatest.ts':[
-20,
+"rxjs:src/observable/combineLatest.ts": [
+20
 ],
-'rxjs:src/operator/merge.ts':[
+"rxjs:src/operator/merge.ts": [
 19,
-86,
+86
 ],
-'rxjs:src/operator/startWith.ts':[
-15,
-],
+"rxjs:src/operator/startWith.ts": [
+15
+]
 }

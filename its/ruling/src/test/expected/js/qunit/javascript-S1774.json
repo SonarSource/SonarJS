@@ -1,12 +1,12 @@
 {
-'qunit:Gruntfile.js':[
+"qunit:Gruntfile.js": [
 133,
-209,
+209
 ],
-'qunit:build/tasks/test-on-node.js':[
-123,
+"qunit:build/tasks/test-on-node.js": [
+123
 ],
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 196,
 339,
 340,
@@ -16,9 +16,9 @@
 796,
 973,
 1094,
-1094,
+1094
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 76,
 97,
 151,
@@ -40,61 +40,61 @@
 904,
 913,
 934,
-954,
+954
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
 114,
 148,
 163,
 467,
-468,
+468
 ],
-'qunit:src/core/stacktrace.js':[
-8,
+"qunit:src/core/stacktrace.js": [
+8
 ],
-'qunit:src/core/utilities.js':[
+"qunit:src/core/utilities.js": [
 11,
 12,
 77,
-81,
+81
 ],
-'qunit:src/dump.js':[
+"qunit:src/dump.js": [
 49,
 79,
 114,
 116,
 162,
 209,
-210,
+210
 ],
-'qunit:src/equiv.js':[
-63,
+"qunit:src/equiv.js": [
+63
 ],
-'qunit:src/events.js':[
-33,
+"qunit:src/events.js": [
+33
 ],
-'qunit:src/module.js':[
+"qunit:src/module.js": [
 13,
 14,
 15,
 35,
-87,
+87
 ],
-'qunit:src/promise.js':[
-3,
+"qunit:src/promise.js": [
+3
 ],
-'qunit:src/reports/suite.js':[
+"qunit:src/reports/suite.js": [
 6,
-48,
+48
 ],
-'qunit:src/reports/test.js':[
-74,
+"qunit:src/reports/test.js": [
+74
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 88,
 337,
 536,
 560,
-600,
-],
+600
+]
 }

@@ -1,23 +1,23 @@
 {
-'ocanvas:src/background.js':[
-102,
+"ocanvas:src/background.js": [
+102
 ],
-'ocanvas:src/displayobjects/ellipse.js':[
-127,
+"ocanvas:src/displayobjects/ellipse.js": [
+127
 ],
-'ocanvas:src/displayobjects/polygon.js':[
-92,
+"ocanvas:src/displayobjects/polygon.js": [
+92
 ],
-'ocanvas:src/displayobjects/rectangle.js':[
-304,
+"ocanvas:src/displayobjects/rectangle.js": [
+304
 ],
-'ocanvas:src/keyboard.js':[
-170,
+"ocanvas:src/keyboard.js": [
+170
 ],
-'ocanvas:src/scenes.js':[
-131,
+"ocanvas:src/scenes.js": [
+131
 ],
-'ocanvas:src/timeline.js':[
-103,
-],
+"ocanvas:src/timeline.js": [
+103
+]
 }

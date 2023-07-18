@@ -1,89 +1,89 @@
 {
-'TypeScript:Gulpfile.ts':[
-412,
+"TypeScript:Gulpfile.ts": [
+412
 ],
-'TypeScript:scripts/authors.ts':[
+"TypeScript:scripts/authors.ts": [
 22,
-115,
+115
 ],
-'TypeScript:scripts/configureNightly.ts':[
-33,
+"TypeScript:scripts/configureNightly.ts": [
+33
 ],
-'TypeScript:scripts/errorCheck.ts':[
+"TypeScript:scripts/errorCheck.ts": [
 19,
-55,
+55
 ],
-'TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts':[
-27,
+"TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
+27
 ],
-'TypeScript:src/compiler/commandLineParser.ts':[
+"TypeScript:src/compiler/commandLineParser.ts": [
 1399,
 1413,
 1428,
 1443,
 1458,
-1472,
+1472
 ],
-'TypeScript:src/compiler/core.ts':[
-1214,
+"TypeScript:src/compiler/core.ts": [
+1214
 ],
-'TypeScript:src/compiler/parser.ts':[
+"TypeScript:src/compiler/parser.ts": [
 5876,
 5886,
 5887,
-5898,
+5898
 ],
-'TypeScript:src/compiler/program.ts':[
-7,
+"TypeScript:src/compiler/program.ts": [
+7
 ],
-'TypeScript:src/compiler/transformers/jsx.ts':[
-228,
+"TypeScript:src/compiler/transformers/jsx.ts": [
+228
 ],
-'TypeScript:src/compiler/utilities.ts':[
+"TypeScript:src/compiler/utilities.ts": [
 640,
 641,
 642,
 1909,
 1910,
 3002,
-4602,
+4602
 ],
-'TypeScript:src/compiler/visitor.ts':[
-1551,
+"TypeScript:src/compiler/visitor.ts": [
+1551
 ],
-'TypeScript:src/harness/fourslash.ts':[
-2908,
+"TypeScript:src/harness/fourslash.ts": [
+2908
 ],
-'TypeScript:src/harness/harness.ts':[
+"TypeScript:src/harness/harness.ts": [
 445,
 1506,
-1729,
+1729
 ],
-'TypeScript:src/harness/rwcRunner.ts':[
-39,
+"TypeScript:src/harness/rwcRunner.ts": [
+39
 ],
-'TypeScript:src/server/editorServices.ts':[
+"TypeScript:src/server/editorServices.ts": [
 85,
 90,
 102,
-1486,
+1486
 ],
-'TypeScript:src/server/typingsInstaller/typingsInstaller.ts':[
-66,
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+66
 ],
-'TypeScript:src/server/utilities.ts':[
-183,
+"TypeScript:src/server/utilities.ts": [
+183
 ],
-'TypeScript:src/services/completions.ts':[
-390,
+"TypeScript:src/services/completions.ts": [
+390
 ],
-'TypeScript:src/services/pathCompletions.ts':[
-498,
+"TypeScript:src/services/pathCompletions.ts": [
+498
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 1887,
 1906,
 1907,
-1908,
-],
+1908
+]
 }

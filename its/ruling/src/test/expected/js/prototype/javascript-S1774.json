@@ -1,25 +1,25 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.js':[
-350,
+"prototype:ext/update_helper/prototype_update_helper.js": [
+350
 ],
-'prototype:src/prototype/ajax/periodical_updater.js':[
-249,
+"prototype:src/prototype/ajax/periodical_updater.js": [
+249
 ],
-'prototype:src/prototype/ajax/request.js':[
+"prototype:src/prototype/ajax/request.js": [
 182,
 188,
 242,
 296,
-328,
+328
 ],
-'prototype:src/prototype/ajax/response.js':[
-80,
+"prototype:src/prototype/ajax/response.js": [
+80
 ],
-'prototype:src/prototype/ajax/updater.js':[
+"prototype:src/prototype/ajax/updater.js": [
 97,
-111,
+111
 ],
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 134,
 312,
 793,
@@ -33,24 +33,24 @@
 2586,
 2657,
 2660,
-2661,
+2661
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 88,
 184,
 866,
-875,
+875
 ],
-'prototype:src/prototype/dom/form.js':[
+"prototype:src/prototype/dom/form.js": [
 127,
 316,
 750,
 761,
 779,
 794,
-881,
+881
 ],
-'prototype:src/prototype/dom/layout.js':[
+"prototype:src/prototype/dom/layout.js": [
 24,
 27,
 28,
@@ -62,27 +62,27 @@
 978,
 1060,
 1061,
-1459,
+1459
 ],
-'prototype:src/prototype/lang/array.js':[
+"prototype:src/prototype/lang/array.js": [
 95,
 325,
-349,
+349
 ],
-'prototype:src/prototype/lang/enumerable.js':[
+"prototype:src/prototype/lang/enumerable.js": [
 445,
 627,
 707,
-707,
+707
 ],
-'prototype:src/prototype/lang/function.js':[
+"prototype:src/prototype/lang/function.js": [
 42,
-129,
+129
 ],
-'prototype:src/prototype/lang/hash.js':[
-54,
+"prototype:src/prototype/lang/hash.js": [
+54
 ],
-'prototype:src/prototype/lang/string.js':[
+"prototype:src/prototype/lang/string.js": [
 19,
 165,
 230,
@@ -92,10 +92,10 @@
 562,
 584,
 804,
-835,
+835
 ],
-'prototype:src/prototype/lang/template.js':[
+"prototype:src/prototype/lang/template.js": [
 160,
-163,
-],
+163
+]
 }

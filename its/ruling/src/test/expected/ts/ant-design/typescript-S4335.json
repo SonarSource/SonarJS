@@ -1,8 +1,8 @@
 {
-'ant-design:components/_util/type.ts':[
-13,
+"ant-design:components/_util/type.ts": [
+13
 ],
-'ant-design:components/date-picker/generatePicker/generateRangePicker.tsx':[
-25,
-],
+"ant-design:components/date-picker/generatePicker/generateRangePicker.tsx": [
+25
+]
 }

@@ -1,20 +1,20 @@
 {
-'eigen:src/app/Scenes/Sale/Sale.tsx':[
-125,
+"eigen:src/app/Scenes/Sale/Sale.tsx": [
+125
 ],
-'eigen:src/app/Scenes/SavedSearchAlert/helpers.ts':[
-123,
+"eigen:src/app/Scenes/SavedSearchAlert/helpers.ts": [
+123
 ],
-'eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/uploadFileToS3.ts':[
-89,
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/uploadFileToS3.ts": [
+89
 ],
-'eigen:src/app/store/VisualClueModel.ts':[
-23,
+"eigen:src/app/store/VisualClueModel.ts": [
+23
 ],
-'eigen:src/app/utils/hideBackButtonOnScroll.tsx':[
-51,
+"eigen:src/app/utils/hideBackButtonOnScroll.tsx": [
+51
 ],
-'eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx':[
-158,
-],
+"eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
+158
+]
 }

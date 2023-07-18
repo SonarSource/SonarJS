@@ -1,16 +1,16 @@
 {
-'TypeScript:scripts/tslint/noIncrementDecrementRule.ts':[
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 31,
-50,
+50
 ],
-'TypeScript:src/harness/fourslash.ts':[
-427,
+"TypeScript:src/harness/fourslash.ts": [
+427
 ],
-'TypeScript:src/services/findAllReferences.ts':[
-942,
+"TypeScript:src/services/findAllReferences.ts": [
+942
 ],
-'TypeScript:src/services/importTracker.ts':[
+"TypeScript:src/services/importTracker.ts": [
 86,
-400,
-],
+400
+]
 }

@@ -1,5 +1,5 @@
 {
-'TypeScript:Gulpfile.ts':[
+"TypeScript:Gulpfile.ts": [
 76,
 298,
 302,
@@ -33,78 +33,78 @@
 934,
 936,
 959,
-963,
+963
 ],
-'TypeScript:scripts/buildProtocol.ts':[
-145,
+"TypeScript:scripts/buildProtocol.ts": [
+145
 ],
-'TypeScript:scripts/createBenchmark.ts':[
-108,
+"TypeScript:scripts/createBenchmark.ts": [
+108
 ],
-'TypeScript:scripts/tslint/nextLineRule.ts':[
-66,
+"TypeScript:scripts/tslint/nextLineRule.ts": [
+66
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 139,
 142,
 146,
 202,
 12385,
 13718,
-14013,
+14013
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 2307,
-2308,
+2308
 ],
-'TypeScript:src/compiler/program.ts':[
+"TypeScript:src/compiler/program.ts": [
 1666,
-1919,
+1919
 ],
-'TypeScript:src/harness/compilerRunner.ts':[
+"TypeScript:src/harness/compilerRunner.ts": [
 51,
 52,
-144,
+144
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 1463,
 2216,
-3298,
+3298
 ],
-'TypeScript:src/harness/harness.ts':[
+"TypeScript:src/harness/harness.ts": [
 1371,
 1375,
-1826,
+1826
 ],
-'TypeScript:src/harness/harnessLanguageService.ts':[
+"TypeScript:src/harness/harnessLanguageService.ts": [
 190,
 215,
 262,
-274,
+274
 ],
-'TypeScript:src/harness/loggedIO.ts':[
+"TypeScript:src/harness/loggedIO.ts": [
 150,
 249,
 283,
-284,
+284
 ],
-'TypeScript:src/harness/projectsRunner.ts':[
+"TypeScript:src/harness/projectsRunner.ts": [
 454,
 457,
 469,
 477,
-523,
+523
 ],
-'TypeScript:src/harness/rwcRunner.ts':[
-162,
+"TypeScript:src/harness/rwcRunner.ts": [
+162
 ],
-'TypeScript:src/server/project.ts':[
-718,
+"TypeScript:src/server/project.ts": [
+718
 ],
-'TypeScript:src/server/scriptVersionCache.ts':[
-425,
+"TypeScript:src/server/scriptVersionCache.ts": [
+425
 ],
-'TypeScript:src/server/session.ts':[
+"TypeScript:src/server/session.ts": [
 425,
 511,
 523,
@@ -161,34 +161,34 @@
 1832,
 1839,
 1842,
-1845,
+1845
 ],
-'TypeScript:src/services/documentHighlights.ts':[
+"TypeScript:src/services/documentHighlights.ts": [
 315,
-393,
+393
 ],
-'TypeScript:src/services/formatting/rules.ts':[
+"TypeScript:src/services/formatting/rules.ts": [
 577,
 581,
 585,
-589,
+589
 ],
-'TypeScript:src/services/formatting/rulesMap.ts':[
+"TypeScript:src/services/formatting/rulesMap.ts": [
 32,
 46,
-47,
+47
 ],
-'TypeScript:src/services/pathCompletions.ts':[
-391,
+"TypeScript:src/services/pathCompletions.ts": [
+391
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 1137,
 1140,
 1149,
 1152,
-1164,
+1164
 ],
-'TypeScript:src/services/transpile.ts':[
-78,
-],
+"TypeScript:src/services/transpile.ts": [
+78
+]
 }

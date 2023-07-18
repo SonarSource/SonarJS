@@ -1,5 +1,5 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js": [
 340,
 349,
 397,
@@ -8,17 +8,17 @@
 575,
 576,
 583,
-584,
+584
 ],
-'ocanvas:src/core.js':[
-323,
+"ocanvas:src/core.js": [
+323
 ],
-'ocanvas:src/keyboard.js':[
+"ocanvas:src/keyboard.js": [
 17,
 18,
-19,
+19
 ],
-'ocanvas:src/utils.js':[
-107,
-],
+"ocanvas:src/utils.js": [
+107
+]
 }

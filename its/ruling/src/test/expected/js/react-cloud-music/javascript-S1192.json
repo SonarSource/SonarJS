@@ -1,16 +1,16 @@
 {
-'react-cloud-music:src/application/Album/style.js':[
+"react-cloud-music:src/application/Album/style.js": [
 67,
-91,
+91
 ],
-'react-cloud-music:src/application/Player/normal-player/style.js':[
-32,
+"react-cloud-music:src/application/Player/normal-player/style.js": [
+32
 ],
-'react-cloud-music:src/application/Player/play-list/style.js':[
-62,
+"react-cloud-music:src/application/Player/play-list/style.js": [
+62
 ],
-'react-cloud-music:src/application/Search/style.js':[
+"react-cloud-music:src/application/Search/style.js": [
 48,
-58,
-],
+58
+]
 }

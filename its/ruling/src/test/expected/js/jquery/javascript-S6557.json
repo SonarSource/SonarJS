@@ -1,15 +1,15 @@
 {
-'jquery:build/release/cdn.js':[
-41,
+"jquery:build/release/cdn.js": [
+41
 ],
-'jquery:build/tasks/dist.js':[
-59,
+"jquery:build/tasks/dist.js": [
+59
 ],
-'jquery:build/tasks/node_smoke_tests.js':[
-18,
+"jquery:build/tasks/node_smoke_tests.js": [
+18
 ],
-'jquery:src/core/init.js':[
+"jquery:src/core/init.js": [
 31,
-32,
-],
+32
+]
 }

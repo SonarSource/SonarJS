@@ -1,6 +1,6 @@
 {
-'knockout:src/subscribables/observableArray.changeTracking.js':[
+"knockout:src/subscribables/observableArray.changeTracking.js": [
 120,
-128,
-],
+128
+]
 }

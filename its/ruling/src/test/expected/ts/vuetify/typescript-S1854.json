@@ -1,13 +1,13 @@
 {
-'vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarCategory.spec.ts':[
+"vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarCategory.spec.ts": [
 65,
 84,
-104,
+104
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/mouse.spec.ts':[
-21,
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/mouse.spec.ts": [
+21
 ],
-'vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts':[
+"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
 84,
 116,
 148,
@@ -15,15 +15,15 @@
 223,
 293,
 320,
-578,
+578
 ],
-'vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperContent.spec.ts':[
+"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperContent.spec.ts": [
 266,
 267,
-293,
+293
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts':[
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts": [
 401,
-593,
-],
+593
+]
 }

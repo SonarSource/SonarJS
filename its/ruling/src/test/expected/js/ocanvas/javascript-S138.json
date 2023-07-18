@@ -1,21 +1,21 @@
 {
-'ocanvas:src/animation.js':[
-5,
+"ocanvas:src/animation.js": [
+5
 ],
-'ocanvas:src/displayobject.js':[
+"ocanvas:src/displayobject.js": [
+4
+],
+"ocanvas:src/displayobjects/text.js": [
+6
+],
+"ocanvas:src/events.js": [
+4
+],
+"ocanvas:src/style.js": [
+4
+],
+"ocanvas:src/tools.js": [
 4,
-],
-'ocanvas:src/displayobjects/text.js':[
-6,
-],
-'ocanvas:src/events.js':[
-4,
-],
-'ocanvas:src/style.js':[
-4,
-],
-'ocanvas:src/tools.js':[
-4,
-94,
-],
+94
+]
 }

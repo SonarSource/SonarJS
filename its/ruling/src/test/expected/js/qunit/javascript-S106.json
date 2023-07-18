@@ -1,23 +1,23 @@
 {
-'qunit:build/tasks/livereload.js':[
-11,
+"qunit:build/tasks/livereload.js": [
+11
 ],
-'qunit:src/cli/run.js':[
+"qunit:src/cli/run.js": [
 39,
 81,
 86,
 119,
 121,
 160,
-169,
+169
 ],
-'qunit:src/cli/utils.js':[
-86,
+"qunit:src/cli/utils.js": [
+86
 ],
-'qunit:test/headless.html':[
-14,
+"qunit:test/headless.html": [
+14
 ],
-'qunit:test/reporter-html/no-qunit-element.html':[
-10,
-],
+"qunit:test/reporter-html/no-qunit-element.html": [
+10
+]
 }

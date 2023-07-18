@@ -1,84 +1,84 @@
 {
-'p5.js:src/color/creating_reading.js':[
-10,
+"p5.js:src/color/creating_reading.js": [
+10
 ],
-'p5.js:src/color/p5.Color.js':[
-11,
+"p5.js:src/color/p5.Color.js": [
+11
 ],
-'p5.js:src/color/setting.js':[
-10,
+"p5.js:src/color/setting.js": [
+10
 ],
-'p5.js:src/core/environment.js':[
-10,
+"p5.js:src/core/environment.js": [
+10
 ],
-'p5.js:src/core/error_helpers.js':[
-45,
+"p5.js:src/core/error_helpers.js": [
+45
 ],
-'p5.js:src/core/helpers.js':[
-5,
+"p5.js:src/core/helpers.js": [
+5
 ],
-'p5.js:src/core/main.js':[
-11,
+"p5.js:src/core/main.js": [
+11
 ],
-'p5.js:src/core/p5.Graphics.js':[
-8,
+"p5.js:src/core/p5.Graphics.js": [
+8
 ],
-'p5.js:src/core/p5.Renderer.js':[
-8,
+"p5.js:src/core/p5.Renderer.js": [
+8
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
-2,
+"p5.js:src/core/p5.Renderer2D.js": [
+2
 ],
-'p5.js:src/core/rendering.js':[
-8,
+"p5.js:src/core/rendering.js": [
+8
 ],
-'p5.js:src/core/shape/2d_primitives.js':[
-10,
+"p5.js:src/core/shape/2d_primitives.js": [
+10
 ],
-'p5.js:src/core/shape/attributes.js':[
-10,
+"p5.js:src/core/shape/attributes.js": [
+10
 ],
-'p5.js:src/core/shape/vertex.js':[
-10,
+"p5.js:src/core/shape/vertex.js": [
+10
 ],
-'p5.js:src/events/mouse.js':[
-10,
+"p5.js:src/events/mouse.js": [
+10
 ],
-'p5.js:src/image/loading_displaying.js':[
-11,
+"p5.js:src/image/loading_displaying.js": [
+11
 ],
-'p5.js:src/math/p5.Vector.js':[
-8,
+"p5.js:src/math/p5.Vector.js": [
+8
 ],
-'p5.js:src/math/trigonometry.js':[
-10,
+"p5.js:src/math/trigonometry.js": [
+10
 ],
-'p5.js:src/typography/loading_displaying.js':[
+"p5.js:src/typography/loading_displaying.js": [
 9,
-10,
+10
 ],
-'p5.js:src/typography/p5.Font.js':[
-11,
+"p5.js:src/typography/p5.Font.js": [
+11
 ],
-'p5.js:src/webgl/3d_primitives.js':[
-11,
+"p5.js:src/webgl/3d_primitives.js": [
+11
 ],
-'p5.js:src/webgl/interaction.js':[
-9,
+"p5.js:src/webgl/interaction.js": [
+9
 ],
-'p5.js:src/webgl/material.js':[
-9,
+"p5.js:src/webgl/material.js": [
+9
 ],
-'p5.js:src/webgl/p5.RendererGL.Immediate.js':[
-15,
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+15
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
-2,
+"p5.js:src/webgl/p5.RendererGL.js": [
+2
 ],
-'p5.js:src/webgl/p5.Texture.js':[
-10,
+"p5.js:src/webgl/p5.Texture.js": [
+10
 ],
-'p5.js:src/webgl/text.js':[
-2,
-],
+"p5.js:src/webgl/text.js": [
+2
+]
 }

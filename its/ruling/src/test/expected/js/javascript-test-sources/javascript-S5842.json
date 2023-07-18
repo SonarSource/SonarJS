@@ -1,38 +1,38 @@
 {
-'javascript-test-sources:src/ace/src/mode/dot_highlight_rules.js':[
-41,
+"javascript-test-sources:src/ace/src/mode/dot_highlight_rules.js": [
+41
 ],
-'javascript-test-sources:src/ace/src/mode/haskell_cabal_highlight_rules.js':[
-24,
+"javascript-test-sources:src/ace/src/mode/haskell_cabal_highlight_rules.js": [
+24
 ],
-'javascript-test-sources:src/ace/src/mode/hjson_highlight_rules.js':[
-89,
+"javascript-test-sources:src/ace/src/mode/hjson_highlight_rules.js": [
+89
 ],
-'javascript-test-sources:src/ace/src/mode/java_highlight_rules.js':[
-86,
+"javascript-test-sources:src/ace/src/mode/java_highlight_rules.js": [
+86
 ],
-'javascript-test-sources:src/ace/src/mode/jexl_highlight_rules.js':[
-79,
+"javascript-test-sources:src/ace/src/mode/jexl_highlight_rules.js": [
+79
 ],
-'javascript-test-sources:src/ace/src/mode/praat_highlight_rules.js':[
+"javascript-test-sources:src/ace/src/mode/praat_highlight_rules.js": [
 190,
 218,
 233,
-246,
+246
 ],
-'javascript-test-sources:src/ace/src/mode/scrypt_highlight_rules.js':[
-61,
+"javascript-test-sources:src/ace/src/mode/scrypt_highlight_rules.js": [
+61
 ],
-'javascript-test-sources:src/ace/src/mode/smithy_highlight_rules.js':[
-161,
+"javascript-test-sources:src/ace/src/mode/smithy_highlight_rules.js": [
+161
 ],
-'javascript-test-sources:src/ace/src/mode/wollok_highlight_rules.js':[
-53,
+"javascript-test-sources:src/ace/src/mode/wollok_highlight_rules.js": [
+53
 ],
-'javascript-test-sources:src/ace/src/mode/zeek_highlight_rules.js':[
-62,
+"javascript-test-sources:src/ace/src/mode/zeek_highlight_rules.js": [
+62
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js':[
-27,
-],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js": [
+27
+]
 }

@@ -1,14 +1,14 @@
 {
-'react-cloud-music:src/application/Home/index.jsx':[
-17,
+"react-cloud-music:src/application/Home/index.jsx": [
+17
 ],
-'react-cloud-music:src/application/Player/index.jsx':[
-226,
+"react-cloud-music:src/application/Player/index.jsx": [
+226
 ],
-'react-cloud-music:src/application/User/Login/LoginForm/index.jsx':[
-13,
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+13
 ],
-'react-cloud-music:src/layouts/HomeLayout.jsx':[
-15,
-],
+"react-cloud-music:src/layouts/HomeLayout.jsx": [
+15
+]
 }

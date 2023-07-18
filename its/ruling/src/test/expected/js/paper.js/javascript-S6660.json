@@ -1,11 +1,11 @@
 {
-'paper.js:src/core/PaperScript.js':[
-280,
+"paper.js:src/core/PaperScript.js": [
+280
 ],
-'paper.js:src/node/extend.js':[
-135,
+"paper.js:src/node/extend.js": [
+135
 ],
-'paper.js:src/path/Curve.js':[
-1851,
-],
+"paper.js:src/path/Curve.js": [
+1851
+]
 }

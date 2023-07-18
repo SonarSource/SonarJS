@@ -1,5 +1,5 @@
 {
-'angular.js:docs/config/index.js':[
+"angular.js:docs/config/index.js": [
 85,
 86,
 91,
@@ -10,6 +10,6 @@
 121,
 122,
 126,
-127,
-],
+127
+]
 }

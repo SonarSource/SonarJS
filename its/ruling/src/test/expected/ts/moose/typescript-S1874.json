@@ -1,5 +1,5 @@
 {
-'moose:main/utils/opensubtitle-hash.ts':[
+"moose:main/utils/opensubtitle-hash.ts": [
 22,
 83,
 93,
@@ -7,9 +7,9 @@
 98,
 99,
 106,
-113,
+113
 ],
-'moose:renderer/components/Player/Player.tsx':[
-125,
-],
+"moose:renderer/components/Player/Player.tsx": [
+125
+]
 }

@@ -1,18 +1,18 @@
 {
-'desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts':[
+"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts": [
 21,
-21,
+21
 ],
-'desktop:app/src/lib/git/log.ts':[
+"desktop:app/src/lib/git/log.ts": [
 48,
-53,
+53
 ],
-'desktop:app/src/lib/progress/lfs.ts':[
+"desktop:app/src/lib/progress/lfs.ts": [
 24,
 24,
-24,
+24
 ],
-'desktop:app/src/lib/release-notes.ts':[
-17,
-],
+"desktop:app/src/lib/release-notes.ts": [
+17
+]
 }

@@ -1,11 +1,11 @@
 {
-'qunit:reporter/diff.js':[
-174,
+"qunit:reporter/diff.js": [
+174
 ],
-'qunit:src/dump.js':[
-45,
+"qunit:src/dump.js": [
+45
 ],
-'qunit:src/equiv.js':[
-269,
-],
+"qunit:src/equiv.js": [
+269
+]
 }

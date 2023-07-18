@@ -1,15 +1,15 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
-4024,
+"p5.js:lib/addons/p5.sound.js": [
+4024
 ],
-'p5.js:src/core/shape/vertex.js':[
-779,
+"p5.js:src/core/shape/vertex.js": [
+779
 ],
-'p5.js:src/image/image.js':[
-351,
+"p5.js:src/image/image.js": [
+351
 ],
-'p5.js:src/webgl/p5.Shader.js':[
+"p5.js:src/webgl/p5.Shader.js": [
 128,
-162,
-],
+162
+]
 }

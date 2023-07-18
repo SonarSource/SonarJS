@@ -1,81 +1,81 @@
 {
-'p5.js:Gruntfile.js':[
-68,
+"p5.js:Gruntfile.js": [
+68
 ],
-'p5.js:bench/math/random-fe-off.bench.js':[
-4,
+"p5.js:bench/math/random-fe-off.bench.js": [
+4
 ],
-'p5.js:bench/math/random-fe-on.bench.js':[
-4,
+"p5.js:bench/math/random-fe-on.bench.js": [
+4
 ],
-'p5.js:bench/math/sin.bench.js':[
-4,
+"p5.js:bench/math/sin.bench.js": [
+4
 ],
-'p5.js:docs/preprocessor.js':[
+"p5.js:docs/preprocessor.js": [
 5,
 33,
 43,
 224,
-233,
+233
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
-1,
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+1
 ],
-'p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js':[
-1,
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js": [
+1
 ],
-'p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js':[
-1,
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js": [
+1
 ],
-'p5.js:lib/empty-example/sketch.js':[
-5,
+"p5.js:lib/empty-example/sketch.js": [
+5
 ],
-'p5.js:src/core/environment.js':[
+"p5.js:src/core/environment.js": [
 464,
 473,
 634,
-654,
+654
 ],
-'p5.js:src/core/helpers.js':[
-7,
+"p5.js:src/core/helpers.js": [
+7
 ],
-'p5.js:src/core/p5.Renderer.js':[
-390,
+"p5.js:src/core/p5.Renderer.js": [
+390
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js": [
 152,
 332,
 376,
 1046,
-3162,
+3162
 ],
-'p5.js:src/events/mouse.js':[
-463,
+"p5.js:src/events/mouse.js": [
+463
 ],
-'p5.js:src/events/touch.js':[
-57,
+"p5.js:src/events/touch.js": [
+57
 ],
-'p5.js:src/image/filters.js':[
+"p5.js:src/image/filters.js": [
 487,
-522,
+522
 ],
-'p5.js:src/image/loading_displaying.js':[
+"p5.js:src/image/loading_displaying.js": [
 153,
-239,
+239
 ],
-'p5.js:src/io/files.js':[
+"p5.js:src/io/files.js": [
 588,
 1640,
 1853,
-1895,
+1895
 ],
-'p5.js:src/io/p5.XML.js':[
-307,
+"p5.js:src/io/p5.XML.js": [
+307
 ],
-'p5.js:src/math/calculation.js':[
-809,
+"p5.js:src/math/calculation.js": [
+809
 ],
-'p5.js:src/typography/p5.Font.js':[
+"p5.js:src/typography/p5.Font.js": [
 477,
 499,
 511,
@@ -96,38 +96,38 @@
 1163,
 1211,
 1229,
-1235,
+1235
 ],
-'p5.js:src/utilities/string_functions.js':[
+"p5.js:src/utilities/string_functions.js": [
 205,
 291,
 371,
-449,
+449
 ],
-'p5.js:src/webgl/loading.js':[
+"p5.js:src/webgl/loading.js": [
 181,
 285,
 319,
 336,
 351,
-445,
+445
 ],
-'p5.js:src/webgl/text.js':[
+"p5.js:src/webgl/text.js": [
 47,
-125,
+125
 ],
-'p5.js:tasks/test/mocha-chrome.js':[
-92,
+"p5.js:tasks/test/mocha-chrome.js": [
+92
 ],
-'p5.js:test/test-reference.html':[
+"p5.js:test/test-reference.html": [
 36,
 41,
 42,
 53,
-97,
+97
 ],
-'p5.js:utils/sample-linter.js':[
+"p5.js:utils/sample-linter.js": [
 31,
-196,
-],
+196
+]
 }

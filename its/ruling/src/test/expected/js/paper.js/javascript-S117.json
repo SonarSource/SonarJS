@@ -1,14 +1,14 @@
 {
-'paper.js:src/options.js':[
-25,
+"paper.js:src/options.js": [
+25
 ],
-'paper.js:src/path/Path.js':[
-1397,
+"paper.js:src/path/Path.js": [
+1397
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 451,
 452,
 453,
-454,
-],
+454
+]
 }

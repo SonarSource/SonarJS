@@ -1,5 +1,5 @@
 {
-'jquery:Gruntfile.js':[
+"jquery:Gruntfile.js": [
 9,
 33,
 35,
@@ -61,72 +61,72 @@
 314,
 319,
 329,
-342,
+342
 ],
-'jquery:build/release.js':[
+"jquery:build/release.js": [
 14,
 18,
 55,
 82,
-90,
+90
 ],
-'jquery:build/release/cdn.js':[
+"jquery:build/release/cdn.js": [
 16,
 21,
 26,
 75,
-119,
+119
 ],
-'jquery:build/release/dist.js':[
+"jquery:build/release/dist.js": [
 20,
 49,
 51,
 75,
 82,
 118,
-156,
+156
 ],
-'jquery:build/tasks/amd.js':[
+"jquery:build/tasks/amd.js": [
 17,
-22,
+22
 ],
-'jquery:build/tasks/build.js':[
+"jquery:build/tasks/build.js": [
 28,
 40,
 88,
 140,
 260,
 275,
-300,
+300
 ],
-'jquery:build/tasks/dist.js':[
-9,
+"jquery:build/tasks/dist.js": [
+9
 ],
-'jquery:build/tasks/lib/rollup-plugin-file-overrides.js':[
-22,
+"jquery:build/tasks/lib/rollup-plugin-file-overrides.js": [
+22
 ],
-'jquery:build/tasks/lib/spawn_test.js':[
-11,
+"jquery:build/tasks/lib/spawn_test.js": [
+11
 ],
-'jquery:build/tasks/node_smoke_tests.js':[
-18,
+"jquery:build/tasks/node_smoke_tests.js": [
+18
 ],
-'jquery:build/tasks/promises_aplus_tests.js':[
+"jquery:build/tasks/promises_aplus_tests.js": [
 15,
-24,
+24
 ],
-'jquery:build/tasks/qunit_fixture.js':[
+"jquery:build/tasks/qunit_fixture.js": [
 15,
 16,
-18,
+18
 ],
-'jquery:build/tasks/testswarm.js':[
+"jquery:build/tasks/testswarm.js": [
 40,
 45,
 53,
-59,
+59
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js": [
 276,
 323,
 329,
@@ -137,81 +137,81 @@
 523,
 648,
 840,
-859,
+859
 ],
-'jquery:src/ajax/jsonp.js':[
-17,
+"jquery:src/ajax/jsonp.js": [
+17
 ],
-'jquery:src/ajax/load.js':[
-45,
+"jquery:src/ajax/load.js": [
+45
 ],
-'jquery:src/ajax/script.js':[
+"jquery:src/ajax/script.js": [
 17,
 20,
 26,
 27,
-66,
+66
 ],
-'jquery:src/ajax/xhr.js':[
+"jquery:src/ajax/xhr.js": [
 12,
 29,
 71,
 82,
-113,
+113
 ],
-'jquery:src/attributes/attr.js':[
+"jquery:src/attributes/attr.js": [
 18,
 81,
 82,
 98,
-125,
+125
 ],
-'jquery:src/attributes/classes.js':[
+"jquery:src/attributes/classes.js": [
 117,
 159,
-179,
+179
 ],
-'jquery:src/attributes/prop.js':[
+"jquery:src/attributes/prop.js": [
 19,
 79,
 80,
 85,
 86,
 118,
-132,
+132
 ],
-'jquery:src/attributes/val.js':[
+"jquery:src/attributes/val.js": [
 75,
 92,
 158,
 159,
 160,
-170,
+170
 ],
-'jquery:src/callbacks.js':[
-224,
+"jquery:src/callbacks.js": [
+224
 ],
-'jquery:src/core.js':[
+"jquery:src/core.js": [
 115,
 307,
-400,
+400
 ],
-'jquery:src/core/DOMEval.js':[
-7,
+"jquery:src/core/DOMEval.js": [
+7
 ],
-'jquery:src/core/access.js':[
-47,
+"jquery:src/core/access.js": [
+47
 ],
-'jquery:src/core/init.js':[
-54,
+"jquery:src/core/init.js": [
+54
 ],
-'jquery:src/core/ready-no-deferred.js':[
-58,
+"jquery:src/core/ready-no-deferred.js": [
+58
 ],
-'jquery:src/core/ready.js':[
-52,
+"jquery:src/core/ready.js": [
+52
 ],
-'jquery:src/css.js':[
+"jquery:src/css.js": [
 31,
 104,
 179,
@@ -222,20 +222,20 @@
 367,
 375,
 391,
-421,
+421
 ],
-'jquery:src/css/showHide.js':[
-97,
+"jquery:src/css/showHide.js": [
+97
 ],
-'jquery:src/data.js':[
+"jquery:src/data.js": [
 89,
-172,
+172
 ],
-'jquery:src/data/Data.js':[
+"jquery:src/data/Data.js": [
 39,
-154,
+154
 ],
-'jquery:src/deferred.js':[
+"jquery:src/deferred.js": [
 55,
 94,
 147,
@@ -248,18 +248,18 @@
 262,
 271,
 307,
-389,
+389
 ],
-'jquery:src/deferred/exceptionHook.js':[
-15,
+"jquery:src/deferred/exceptionHook.js": [
+15
 ],
-'jquery:src/deprecated.js':[
-25,
+"jquery:src/deprecated.js": [
+25
 ],
-'jquery:src/dimensions.js':[
-37,
+"jquery:src/dimensions.js": [
+37
 ],
-'jquery:src/effects.js':[
+"jquery:src/effects.js": [
 332,
 367,
 401,
@@ -269,16 +269,16 @@
 453,
 612,
 631,
-685,
+685
 ],
-'jquery:src/effects/Tween.js':[
+"jquery:src/effects/Tween.js": [
 36,
 53,
 93,
 94,
-104,
+104
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 181,
 435,
 437,
@@ -296,49 +296,49 @@
 786,
 806,
 829,
-853,
+853
 ],
-'jquery:src/event/ajax.js':[
-12,
+"jquery:src/event/ajax.js": [
+12
 ],
-'jquery:src/event/alias.js':[
-22,
+"jquery:src/event/alias.js": [
+22
 ],
-'jquery:src/event/trigger.js':[
+"jquery:src/event/trigger.js": [
 170,
 171,
 175,
-191,
+191
 ],
-'jquery:src/manipulation.js':[
+"jquery:src/manipulation.js": [
 165,
 287,
 427,
-435,
+435
 ],
-'jquery:src/manipulation/_evalUrl.js':[
+"jquery:src/manipulation/_evalUrl.js": [
 18,
-22,
+22
 ],
-'jquery:src/manipulation/setGlobalEval.js':[
-12,
+"jquery:src/manipulation/setGlobalEval.js": [
+12
 ],
-'jquery:src/manipulation/wrapMap.js':[
-14,
+"jquery:src/manipulation/wrapMap.js": [
+14
 ],
-'jquery:src/offset.js':[
+"jquery:src/offset.js": [
 59,
 96,
 142,
 166,
-191,
+191
 ],
-'jquery:src/queue.js':[
+"jquery:src/queue.js": [
 68,
 70,
-138,
+138
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 100,
 145,
 256,
@@ -356,52 +356,52 @@
 1384,
 1575,
 1603,
-1627,
+1627
 ],
-'jquery:src/serialize.js':[
+"jquery:src/serialize.js": [
 34,
-128,
+128
 ],
-'jquery:src/traversing.js':[
+"jquery:src/traversing.js": [
 20,
 85,
 92,
 93,
 99,
 101,
-163,
+163
 ],
-'jquery:src/traversing/findFilter.js':[
+"jquery:src/traversing/findFilter.js": [
 88,
-90,
+90
 ],
-'jquery:src/wrap.js':[
-70,
+"jquery:src/wrap.js": [
+70
 ],
-'jquery:test/data/ajax/onunload.html':[
-19,
+"jquery:test/data/ajax/onunload.html": [
+19
 ],
-'jquery:test/data/css/cssWidthBrowserZoom.html':[
-26,
+"jquery:test/data/css/cssWidthBrowserZoom.html": [
+26
 ],
-'jquery:test/data/event/onbeforeunload.html':[
-7,
+"jquery:test/data/event/onbeforeunload.html": [
+7
 ],
-'jquery:test/data/manipulation/iframe-denied.html':[
-32,
+"jquery:test/data/manipulation/iframe-denied.html": [
+32
 ],
-'jquery:test/data/selector/cache.html':[
-12,
+"jquery:test/data/selector/cache.html": [
+12
 ],
-'jquery:test/data/selector/mixed_sort.html':[
-18,
+"jquery:test/data/selector/mixed_sort.html": [
+18
 ],
-'jquery:test/localfile.html':[
+"jquery:test/localfile.html": [
 56,
-66,
+66
 ],
-'jquery:test/networkerror.html':[
+"jquery:test/networkerror.html": [
 25,
-31,
-],
+31
+]
 }

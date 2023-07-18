@@ -1,8 +1,8 @@
 {
-'fireact:src/components/Form/index.js':[
-10,
+"fireact:src/components/Form/index.js": [
+10
 ],
-'fireact:src/components/Layout/index.js':[
+"fireact:src/components/Layout/index.js": [
 16,
 18,
 24,
@@ -20,41 +20,41 @@
 74,
 104,
 113,
-122,
+122
 ],
-'fireact:src/components/Loader/index.js':[
+"fireact:src/components/Loader/index.js": [
 11,
-18,
+18
 ],
-'fireact:src/components/menus/UserMenu/index.js':[
+"fireact:src/components/menus/UserMenu/index.js": [
 40,
-45,
+45
 ],
-'fireact:src/components/user/UserProfileView/index.js':[
+"fireact:src/components/user/UserProfileView/index.js": [
 25,
 43,
 61,
 79,
 97,
-115,
+115
 ],
-'fireact:src/pages/auth/accounts/NewAccount/index.js':[
-64,
+"fireact:src/pages/auth/accounts/NewAccount/index.js": [
+64
 ],
-'fireact:src/pages/auth/accounts/PaymentMethod/index.js':[
-69,
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
+69
 ],
-'fireact:src/pages/auth/accounts/Plans/index.js':[
+"fireact:src/pages/auth/accounts/Plans/index.js": [
 191,
 206,
 233,
 266,
-306,
+306
 ],
-'fireact:src/pages/auth/accounts/UserList/index.js':[
-54,
+"fireact:src/pages/auth/accounts/UserList/index.js": [
+54
 ],
-'fireact:src/serviceWorker.js':[
-104,
-],
+"fireact:src/serviceWorker.js": [
+104
+]
 }

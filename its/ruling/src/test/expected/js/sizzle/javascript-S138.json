@@ -1,11 +1,11 @@
 {
-'sizzle:Gruntfile.js':[
-1,
+"sizzle:Gruntfile.js": [
+1
 ],
-'sizzle:speed/speed.js':[
-9,
+"sizzle:speed/speed.js": [
+9
 ],
-'sizzle:src/sizzle.js':[
-606,
-],
+"sizzle:src/sizzle.js": [
+606
+]
 }

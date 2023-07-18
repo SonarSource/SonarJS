@@ -1,11 +1,11 @@
 {
-'moose:main/controllers/details.ts':[
-48,
+"moose:main/controllers/details.ts": [
+48
 ],
-'moose:main/modules/menu.ts':[
-9,
+"moose:main/modules/menu.ts": [
+9
 ],
-'moose:renderer/utils/getSubtitlesFromTorrent.ts':[
-24,
-],
+"moose:renderer/utils/getSubtitlesFromTorrent.ts": [
+24
+]
 }

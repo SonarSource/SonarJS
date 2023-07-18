@@ -1,5 +1,5 @@
 {
-'underscore:docs/main.js':[
+"underscore:docs/main.js": [
 2,
 3,
 4,
@@ -9,14 +9,14 @@
 30,
 34,
 35,
-41,
+41
 ],
-'underscore:karma.conf-sauce.js':[
+"underscore:karma.conf-sauce.js": [
 1,
 4,
-33,
+33
 ],
-'underscore:underscore.js':[
+"underscore:underscore.js": [
 14,
 20,
 23,
@@ -229,6 +229,6 @@
 1637,
 1650,
 1652,
-1661,
-],
+1661
+]
 }

@@ -1,51 +1,51 @@
 {
-'jquery:build/tasks/build.js':[
-95,
+"jquery:build/tasks/build.js": [
+95
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js": [
 73,
 77,
-102,
+102
 ],
-'jquery:src/ajax/script.js':[
-51,
+"jquery:src/ajax/script.js": [
+51
 ],
-'jquery:src/attributes/prop.js':[
-45,
+"jquery:src/attributes/prop.js": [
+45
 ],
-'jquery:src/attributes/val.js':[
+"jquery:src/attributes/val.js": [
 146,
-168,
+168
 ],
-'jquery:src/css/adjustCSS.js':[
-40,
+"jquery:src/css/adjustCSS.js": [
+40
 ],
-'jquery:src/css/finalPropName.js':[
-32,
+"jquery:src/css/finalPropName.js": [
+32
 ],
-'jquery:src/deferred.js':[
+"jquery:src/deferred.js": [
 19,
-23,
+23
 ],
-'jquery:src/effects.js':[
+"jquery:src/effects.js": [
 42,
-72,
+72
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 137,
 140,
 185,
 228,
 323,
-327,
+327
 ],
-'jquery:src/event/trigger.js':[
-95,
+"jquery:src/event/trigger.js": [
+95
 ],
-'jquery:src/manipulation.js':[
-262,
+"jquery:src/manipulation.js": [
+262
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 180,
 184,
 205,
@@ -82,12 +82,12 @@
 1570,
 1594,
 1597,
-1600,
+1600
 ],
-'jquery:src/traversing.js':[
-105,
+"jquery:src/traversing.js": [
+105
 ],
-'jquery:src/traversing/var/dir.js':[
-7,
-],
+"jquery:src/traversing/var/dir.js": [
+7
+]
 }

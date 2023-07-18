@@ -1,9 +1,9 @@
 {
-'knockout:src/options.js':[
-8,
+"knockout:src/options.js": [
+8
 ],
-'knockout:src/virtualElements.js':[
+"knockout:src/virtualElements.js": [
 221,
-223,
-],
+223
+]
 }

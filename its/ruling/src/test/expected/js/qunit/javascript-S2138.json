@@ -1,21 +1,21 @@
 {
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 51,
 51,
 52,
 52,
 285,
-286,
+286
 ],
-'qunit:src/assert.js':[
-346,
+"qunit:src/assert.js": [
+346
 ],
-'qunit:src/module.js':[
-53,
+"qunit:src/module.js": [
+53
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 38,
 271,
-365,
-],
+365
+]
 }

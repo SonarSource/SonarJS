@@ -1,24 +1,24 @@
 {
-'fireface:src/app-header/app-header.component.ts':[
-20,
+"fireface:src/app-header/app-header.component.ts": [
+20
 ],
-'fireface:src/auth/auth.service.ts':[
-14,
+"fireface:src/auth/auth.service.ts": [
+14
 ],
-'fireface:src/avatar/avatar.component.ts':[
-45,
+"fireface:src/avatar/avatar.component.ts": [
+45
 ],
-'fireface:src/common/asset.service.ts':[
+"fireface:src/common/asset.service.ts": [
 285,
-290,
+290
 ],
-'fireface:src/create/create.component.ts':[
+"fireface:src/create/create.component.ts": [
 86,
 95,
 191,
-191,
+191
 ],
-'fireface:src/storage/storage.component.ts':[
+"fireface:src/storage/storage.component.ts": [
 40,
 46,
 47,
@@ -36,6 +36,6 @@
 110,
 111,
 112,
-118,
-],
+118
+]
 }

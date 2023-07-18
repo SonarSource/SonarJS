@@ -1,18 +1,18 @@
 {
-'TypeScript:src/compiler/tsc.ts':[
+"TypeScript:src/compiler/tsc.ts": [
 381,
-381,
+381
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 2388,
-2389,
+2389
 ],
-'TypeScript:src/server/editorServices.ts':[
+"TypeScript:src/server/editorServices.ts": [
 594,
 594,
-1599,
+1599
 ],
-'TypeScript:src/server/utilities.ts':[
-191,
-],
+"TypeScript:src/server/utilities.ts": [
+191
+]
 }

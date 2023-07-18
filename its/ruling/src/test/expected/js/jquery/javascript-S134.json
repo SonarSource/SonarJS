@@ -1,65 +1,65 @@
 {
-'jquery:build/tasks/build.js':[
+"jquery:build/tasks/build.js": [
 95,
 130,
-150,
+150
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js": [
 237,
-265,
+265
 ],
-'jquery:src/attributes/classes.js':[
+"jquery:src/attributes/classes.js": [
 42,
 50,
 85,
-95,
+95
 ],
-'jquery:src/core.js':[
+"jquery:src/core.js": [
 156,
-161,
+161
 ],
-'jquery:src/core/init.js':[
+"jquery:src/core/init.js": [
 58,
-78,
+78
 ],
-'jquery:src/css/showHide.js':[
-51,
+"jquery:src/css/showHide.js": [
+51
 ],
-'jquery:src/data.js':[
-105,
+"jquery:src/data.js": [
+105
 ],
-'jquery:src/effects.js':[
+"jquery:src/effects.js": [
 125,
 176,
 206,
-275,
+275
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 193,
 266,
 269,
 341,
 382,
-397,
+397
 ],
-'jquery:src/event/trigger.js':[
+"jquery:src/event/trigger.js": [
 133,
 140,
 146,
-152,
+152
 ],
-'jquery:src/manipulation.js':[
+"jquery:src/manipulation.js": [
 80,
 135,
 154,
 263,
-393,
+393
 ],
-'jquery:src/manipulation/buildFragment.js':[
+"jquery:src/manipulation/buildFragment.js": [
 43,
-86,
+86
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 180,
 225,
 254,
@@ -75,9 +75,9 @@
 1368,
 1434,
 1480,
-1600,
+1600
 ],
-'jquery:src/traversing.js':[
-51,
-],
+"jquery:src/traversing.js": [
+51
+]
 }

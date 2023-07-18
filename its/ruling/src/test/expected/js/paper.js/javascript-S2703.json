@@ -1,24 +1,24 @@
 {
-'paper.js:examples/Node.js/RasterRemote.js':[
+"paper.js:examples/Node.js/RasterRemote.js": [
 19,
-20,
+20
 ],
-'paper.js:src/core/PaperScope.js':[
-49,
+"paper.js:src/core/PaperScope.js": [
+49
 ],
-'paper.js:src/core/PaperScript.js':[
-456,
+"paper.js:src/core/PaperScript.js": [
+456
 ],
-'paper.js:src/item/Raster.js':[
-294,
+"paper.js:src/item/Raster.js": [
+294
 ],
-'paper.js:src/svg/SvgImport.js':[
-671,
+"paper.js:src/svg/SvgImport.js": [
+671
 ],
-'paper.js:src/tool/Tool.js':[
-288,
+"paper.js:src/tool/Tool.js": [
+288
 ],
-'paper.js:src/view/View.js':[
-276,
-],
+"paper.js:src/view/View.js": [
+276
+]
 }

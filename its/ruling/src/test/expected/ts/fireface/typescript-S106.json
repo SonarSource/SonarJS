@@ -1,13 +1,13 @@
 {
-'fireface:src/auth/auth.service.ts':[
-72,
+"fireface:src/auth/auth.service.ts": [
+72
 ],
-'fireface:src/storage/storage.component.ts':[
+"fireface:src/storage/storage.component.ts": [
 43,
 71,
 92,
 119,
 130,
-133,
-],
+133
+]
 }

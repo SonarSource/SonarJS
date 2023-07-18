@@ -1,17 +1,17 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 145,
 761,
-982,
+982
 ],
-'qunit:reporter/html.js':[
-65,
+"qunit:reporter/html.js": [
+65
 ],
-'qunit:src/core/processing-queue.js':[
-120,
+"qunit:src/core/processing-queue.js": [
+120
 ],
-'qunit:src/dump.js':[
+"qunit:src/dump.js": [
 34,
-248,
-],
+248
+]
 }

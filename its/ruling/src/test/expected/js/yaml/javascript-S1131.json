@@ -1,15 +1,15 @@
 {
-'yaml:lambda-block-folded-2.yaml':[
+"yaml:lambda-block-folded-2.yaml": [
 185,
-226,
+226
 ],
-'yaml:lambda-block-folded.yaml':[
+"yaml:lambda-block-folded.yaml": [
 100,
 101,
 102,
-104,
+104
 ],
-'yaml:lambda-block-literal-multi-line.yaml':[
+"yaml:lambda-block-literal-multi-line.yaml": [
 77,
 84,
 91,
@@ -21,6 +21,6 @@
 139,
 140,
 146,
-149,
-],
+149
+]
 }

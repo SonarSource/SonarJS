@@ -1,22 +1,22 @@
 {
-'Joust:ts/components/Scrubber.tsx':[
-284,
+"Joust:ts/components/Scrubber.tsx": [
+284
 ],
-'Joust:ts/components/SetupWidget.tsx':[
-51,
+"Joust:ts/components/SetupWidget.tsx": [
+51
 ],
-'Joust:ts/components/game/EntityInPlay.tsx':[
+"Joust:ts/components/game/EntityInPlay.tsx": [
 111,
-112,
+112
 ],
-'Joust:ts/components/game/Hero.tsx':[
-55,
+"Joust:ts/components/game/Hero.tsx": [
+55
 ],
-'Joust:ts/components/game/Player.tsx':[
+"Joust:ts/components/game/Player.tsx": [
 61,
-270,
+270
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
-323,
-],
+"Joust:ts/protocol/HSReplayDecoder.ts": [
+323
+]
 }

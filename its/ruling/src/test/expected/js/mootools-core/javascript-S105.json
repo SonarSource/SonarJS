@@ -1,74 +1,74 @@
 {
-'mootools-core:Grunt/options/build.js':[
-4,
+"mootools-core:Grunt/options/build.js": [
+4
 ],
-'mootools-core:Grunt/options/dist.js':[
-4,
+"mootools-core:Grunt/options/dist.js": [
+4
 ],
-'mootools-core:Grunt/options/options.js':[
-7,
+"mootools-core:Grunt/options/options.js": [
+7
 ],
-'mootools-core:Grunt/options/specs.js':[
-4,
+"mootools-core:Grunt/options/specs.js": [
+4
 ],
-'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
-38,
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+38
 ],
-'mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js':[
-4,
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
+4
 ],
-'mootools-core:Grunt/plugins/karma/syn/index.js':[
-4,
+"mootools-core:Grunt/plugins/karma/syn/index.js": [
+4
 ],
-'mootools-core:Grunt/tasks/tasks.js':[
-4,
+"mootools-core:Grunt/tasks/tasks.js": [
+4
 ],
-'mootools-core:Gruntfile.js':[
-4,
+"mootools-core:Gruntfile.js": [
+4
 ],
-'mootools-core:Source/Element/Element.js':[
-18,
+"mootools-core:Source/Element/Element.js": [
+18
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
-19,
+"mootools-core:Source/Fx/Fx.CSS.js": [
+19
 ],
-'mootools-core:Source/Fx/Fx.Morph.js':[
-19,
+"mootools-core:Source/Fx/Fx.Morph.js": [
+19
 ],
-'mootools-core:Source/Fx/Fx.Transitions.js':[
-22,
+"mootools-core:Source/Fx/Fx.Transitions.js": [
+22
 ],
-'mootools-core:Source/Fx/Fx.Tween.js':[
-19,
+"mootools-core:Source/Fx/Fx.Tween.js": [
+19
 ],
-'mootools-core:Source/Request/Request.HTML.js':[
-19,
+"mootools-core:Source/Request/Request.HTML.js": [
+19
 ],
-'mootools-core:Source/Request/Request.JSON.js':[
-19,
+"mootools-core:Source/Request/Request.JSON.js": [
+19
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
-13,
+"mootools-core:Source/Slick/Slick.Finder.js": [
+13
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
-12,
+"mootools-core:Source/Slick/Slick.Parser.js": [
+12
 ],
-'mootools-core:Source/Types/Array.js':[
-19,
+"mootools-core:Source/Types/Array.js": [
+19
 ],
-'mootools-core:Source/Types/Function.js':[
-19,
+"mootools-core:Source/Types/Function.js": [
+19
 ],
-'mootools-core:Source/Types/Number.js':[
-19,
+"mootools-core:Source/Types/Number.js": [
+19
 ],
-'mootools-core:Source/Types/String.js':[
-19,
+"mootools-core:Source/Types/String.js": [
+19
 ],
-'mootools-core:Source/Utilities/Cookie.js':[
-22,
+"mootools-core:Source/Utilities/Cookie.js": [
+22
 ],
-'mootools-core:Source/Utilities/JSON.js':[
-24,
-],
+"mootools-core:Source/Utilities/JSON.js": [
+24
+]
 }

@@ -1,16 +1,16 @@
 {
-'mootools-core:Grunt/options/build.js':[
+"mootools-core:Grunt/options/build.js": [
 15,
-15,
+15
 ],
-'mootools-core:Grunt/options/dist.js':[
-17,
+"mootools-core:Grunt/options/dist.js": [
+17
 ],
-'mootools-core:Grunt/options/specs.js':[
-9,
+"mootools-core:Grunt/options/specs.js": [
+9
 ],
-'mootools-core:Grunt/tasks/tasks.js':[
+"mootools-core:Grunt/tasks/tasks.js": [
 7,
-12,
-],
+12
+]
 }

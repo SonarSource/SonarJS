@@ -1,41 +1,41 @@
 {
-'jshint:tests/unit/fixtures/blocks.js':[
-32,
+"jshint:tests/unit/fixtures/blocks.js": [
+32
 ],
-'jshint:tests/unit/fixtures/comma.js':[
-15,
+"jshint:tests/unit/fixtures/comma.js": [
+15
 ],
-'jshint:tests/unit/fixtures/destparam.js':[
-5,
+"jshint:tests/unit/fixtures/destparam.js": [
+5
 ],
-'jshint:tests/unit/fixtures/es5Reserved.js':[
-6,
+"jshint:tests/unit/fixtures/es5Reserved.js": [
+6
 ],
-'jshint:tests/unit/fixtures/es6-export-star-from.js':[
-2,
+"jshint:tests/unit/fixtures/es6-export-star-from.js": [
+2
 ],
-'jshint:tests/unit/fixtures/es6-template-literal-tagged.js':[
-24,
+"jshint:tests/unit/fixtures/es6-template-literal-tagged.js": [
+24
 ],
-'jshint:tests/unit/fixtures/es6-template-literal.js':[
-22,
+"jshint:tests/unit/fixtures/es6-template-literal.js": [
+22
 ],
-'jshint:tests/unit/fixtures/ignoreDelimiters.js':[
-3,
+"jshint:tests/unit/fixtures/ignoreDelimiters.js": [
+3
 ],
-'jshint:tests/unit/fixtures/parsingCommas.js':[
-2,
+"jshint:tests/unit/fixtures/parsingCommas.js": [
+2
 ],
-'jshint:tests/unit/fixtures/safeasi.js':[
-10,
+"jshint:tests/unit/fixtures/safeasi.js": [
+10
 ],
-'jshint:tests/unit/fixtures/strings.js':[
-9,
+"jshint:tests/unit/fixtures/strings.js": [
+9
 ],
-'jshint:tests/unit/fixtures/switchFallThrough.js':[
-40,
+"jshint:tests/unit/fixtures/switchFallThrough.js": [
+40
 ],
-'jshint:tests/unit/fixtures/yield-expressions.js':[
-23,
-],
+"jshint:tests/unit/fixtures/yield-expressions.js": [
+23
+]
 }

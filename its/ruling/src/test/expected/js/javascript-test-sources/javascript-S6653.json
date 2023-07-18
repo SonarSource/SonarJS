@@ -1,28 +1,28 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
 3315,
-4639,
+4639
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js':[
-10034,
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+10034
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-18842,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+18842
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js": [
 274,
-335,
+335
 ],
-'javascript-test-sources:src/ace/src/keyboard/vim.js':[
-5462,
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+5462
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/embedded-relation-adapter.js':[
-124,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/embedded-relation-adapter.js": [
+124
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js':[
-21,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js": [
+21
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/api.js':[
-59,
-],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/api.js": [
+59
+]
 }

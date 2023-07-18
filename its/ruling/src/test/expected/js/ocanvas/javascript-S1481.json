@@ -1,14 +1,14 @@
 {
-'ocanvas:src/animation.js':[
-104,
+"ocanvas:src/animation.js": [
+104
 ],
-'ocanvas:src/displayobjects/ellipse.js':[
-46,
+"ocanvas:src/displayobjects/ellipse.js": [
+46
 ],
-'ocanvas:src/displayobjects/image.js':[
-27,
+"ocanvas:src/displayobjects/image.js": [
+27
 ],
-'ocanvas:src/draw.js':[
+"ocanvas:src/draw.js": [
 16,
 17,
 95,
@@ -16,11 +16,11 @@
 95,
 95,
 95,
-95,
+95
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 39,
 39,
-129,
-],
+129
+]
 }

@@ -1,21 +1,21 @@
 {
-'knockout:build/knockout-raw.js':[
+"knockout:build/knockout-raw.js": [
 15,
-30,
+30
 ],
-'knockout:src/binding/expressionRewriting.js':[
-166,
+"knockout:src/binding/expressionRewriting.js": [
+166
 ],
-'knockout:src/templating/templateRewriting.js':[
-8,
+"knockout:src/templating/templateRewriting.js": [
+8
 ],
-'knockout:src/utils.domManipulation.js':[
-126,
+"knockout:src/utils.domManipulation.js": [
+126
 ],
-'knockout:src/utils.domNodeDisposal.js':[
-24,
+"knockout:src/utils.domNodeDisposal.js": [
+24
 ],
-'knockout:src/virtualElements.js':[
-205,
-],
+"knockout:src/virtualElements.js": [
+205
+]
 }

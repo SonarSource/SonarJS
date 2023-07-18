@@ -1,617 +1,617 @@
 {
-'angular.js:Gruntfile.js':[
-1,
+"angular.js:Gruntfile.js": [
+1
 ],
-'angular.js:angularFiles.js':[
-1,
+"angular.js:angularFiles.js": [
+1
 ],
-'angular.js:benchmarks/animation-bp/app.js':[
-1,
+"angular.js:benchmarks/animation-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/animation-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/animation-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/bootstrap-compile-bp/app.js':[
-1,
+"angular.js:benchmarks/bootstrap-compile-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/bootstrap-compile-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/bootstrap-compile-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/event-delegation-bp/app.js':[
-1,
+"angular.js:benchmarks/event-delegation-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/event-delegation-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/event-delegation-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/largetable-bp/app.js':[
-1,
+"angular.js:benchmarks/largetable-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/largetable-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/largetable-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/ng-class-bp/app.js':[
-1,
+"angular.js:benchmarks/ng-class-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/ng-class-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/ng-class-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/ng-options-bp/app.js':[
-1,
+"angular.js:benchmarks/ng-options-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/ng-options-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/ng-options-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/orderby-bp/app.js':[
-1,
+"angular.js:benchmarks/orderby-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/orderby-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/orderby-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/parsed-expressions-bp/app.js':[
-1,
+"angular.js:benchmarks/parsed-expressions-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/parsed-expressions-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/parsed-expressions-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/repeat-animate-bp/app-classfilter.js':[
-1,
+"angular.js:benchmarks/repeat-animate-bp/app-classfilter.js": [
+1
 ],
-'angular.js:benchmarks/repeat-animate-bp/app-noanimate.js':[
-1,
+"angular.js:benchmarks/repeat-animate-bp/app-noanimate.js": [
+1
 ],
-'angular.js:benchmarks/repeat-animate-bp/app.js':[
-1,
+"angular.js:benchmarks/repeat-animate-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/repeat-animate-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/repeat-animate-bp/bp.conf.js": [
+3
 ],
-'angular.js:benchmarks/repeat-animate-bp/common.js':[
-1,
+"angular.js:benchmarks/repeat-animate-bp/common.js": [
+1
 ],
-'angular.js:benchmarks/select-ng-value-bp/app.js':[
-1,
+"angular.js:benchmarks/select-ng-value-bp/app.js": [
+1
 ],
-'angular.js:benchmarks/select-ng-value-bp/bp.conf.js':[
-3,
+"angular.js:benchmarks/select-ng-value-bp/bp.conf.js": [
+3
 ],
-'angular.js:docs/app/assets/js/search-worker.js':[
-1,
+"angular.js:docs/app/assets/js/search-worker.js": [
+1
 ],
-'angular.js:docs/app/e2e/api-docs/api-pages.scenario.js':[
-1,
+"angular.js:docs/app/e2e/api-docs/api-pages.scenario.js": [
+1
 ],
-'angular.js:docs/app/e2e/api-docs/directive-pages.scenario.js':[
-1,
+"angular.js:docs/app/e2e/api-docs/directive-pages.scenario.js": [
+1
 ],
-'angular.js:docs/app/e2e/api-docs/provider-pages.scenario.js':[
-1,
+"angular.js:docs/app/e2e/api-docs/provider-pages.scenario.js": [
+1
 ],
-'angular.js:docs/app/e2e/api-docs/service-pages.scenario.js':[
-1,
+"angular.js:docs/app/e2e/api-docs/service-pages.scenario.js": [
+1
 ],
-'angular.js:docs/app/e2e/app.scenario.js':[
-1,
+"angular.js:docs/app/e2e/app.scenario.js": [
+1
 ],
-'angular.js:docs/app/e2e/table-of-contents.scenario.js':[
-1,
+"angular.js:docs/app/e2e/table-of-contents.scenario.js": [
+1
 ],
-'angular.js:docs/app/src/app.js':[
-1,
+"angular.js:docs/app/src/app.js": [
+1
 ],
-'angular.js:docs/app/src/directives.js':[
-1,
+"angular.js:docs/app/src/directives.js": [
+1
 ],
-'angular.js:docs/app/src/docs.js':[
-1,
+"angular.js:docs/app/src/docs.js": [
+1
 ],
-'angular.js:docs/app/src/errors.js':[
-1,
+"angular.js:docs/app/src/errors.js": [
+1
 ],
-'angular.js:docs/app/src/examples.js':[
-1,
+"angular.js:docs/app/src/examples.js": [
+1
 ],
-'angular.js:docs/app/src/search.js':[
-1,
+"angular.js:docs/app/src/search.js": [
+1
 ],
-'angular.js:docs/app/src/tutorials.js':[
-1,
+"angular.js:docs/app/src/tutorials.js": [
+1
 ],
-'angular.js:docs/app/src/versions.js':[
-1,
+"angular.js:docs/app/src/versions.js": [
+1
 ],
-'angular.js:docs/app/test/directivesSpec.js':[
-1,
+"angular.js:docs/app/test/directivesSpec.js": [
+1
 ],
-'angular.js:docs/app/test/docsSpec.js':[
-1,
+"angular.js:docs/app/test/docsSpec.js": [
+1
 ],
-'angular.js:docs/app/test/errorsSpec.js':[
-1,
+"angular.js:docs/app/test/errorsSpec.js": [
+1
 ],
-'angular.js:docs/config/index.js':[
-1,
+"angular.js:docs/config/index.js": [
+1
 ],
-'angular.js:docs/config/inline-tag-defs/type.js':[
-1,
+"angular.js:docs/config/inline-tag-defs/type.js": [
+1
 ],
-'angular.js:docs/config/processors/error-docs.js':[
-1,
+"angular.js:docs/config/processors/error-docs.js": [
+1
 ],
-'angular.js:docs/config/processors/index-page.js':[
-1,
+"angular.js:docs/config/processors/index-page.js": [
+1
 ],
-'angular.js:docs/config/processors/keywords.js':[
-1,
+"angular.js:docs/config/processors/keywords.js": [
+1
 ],
-'angular.js:docs/config/processors/pages-data.js':[
-1,
+"angular.js:docs/config/processors/pages-data.js": [
+1
 ],
-'angular.js:docs/config/processors/sitemap.js':[
-1,
+"angular.js:docs/config/processors/sitemap.js": [
+1
 ],
-'angular.js:docs/config/processors/versions-data.js':[
-1,
+"angular.js:docs/config/processors/versions-data.js": [
+1
 ],
-'angular.js:docs/config/services/deployments/debug.js':[
-1,
+"angular.js:docs/config/services/deployments/debug.js": [
+1
 ],
-'angular.js:docs/config/services/deployments/default.js':[
-1,
+"angular.js:docs/config/services/deployments/default.js": [
+1
 ],
-'angular.js:docs/config/services/deployments/jquery.js':[
-1,
+"angular.js:docs/config/services/deployments/jquery.js": [
+1
 ],
-'angular.js:docs/config/services/deployments/production.js':[
-1,
+"angular.js:docs/config/services/deployments/production.js": [
+1
 ],
-'angular.js:docs/config/services/deployments/test.js':[
-1,
+"angular.js:docs/config/services/deployments/test.js": [
+1
 ],
-'angular.js:docs/config/services/errorNamespaceMap.js':[
-1,
+"angular.js:docs/config/services/errorNamespaceMap.js": [
+1
 ],
-'angular.js:docs/config/services/getMinerrInfo.js':[
-1,
+"angular.js:docs/config/services/getMinerrInfo.js": [
+1
 ],
-'angular.js:docs/config/services/getVersion.js':[
-1,
+"angular.js:docs/config/services/getVersion.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/deprecated.js':[
-1,
+"angular.js:docs/config/tag-defs/deprecated.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/deprecated.spec.js':[
-1,
+"angular.js:docs/config/tag-defs/deprecated.spec.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/installation.js':[
-1,
+"angular.js:docs/config/tag-defs/installation.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/sortOrder.js':[
-1,
+"angular.js:docs/config/tag-defs/sortOrder.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/this.js':[
-1,
+"angular.js:docs/config/tag-defs/this.js": [
+1
 ],
-'angular.js:docs/config/tag-defs/tutorial-step.js':[
-1,
+"angular.js:docs/config/tag-defs/tutorial-step.js": [
+1
 ],
-'angular.js:docs/gulpfile.js':[
-1,
+"angular.js:docs/gulpfile.js": [
+1
 ],
-'angular.js:docs/protractor-conf.js':[
-1,
+"angular.js:docs/protractor-conf.js": [
+1
 ],
-'angular.js:karma-docs.conf.js':[
-1,
+"angular.js:karma-docs.conf.js": [
+1
 ],
-'angular.js:karma-jqlite.conf.js':[
-1,
+"angular.js:karma-jqlite.conf.js": [
+1
 ],
-'angular.js:karma-jquery-2.1.conf.js':[
-1,
+"angular.js:karma-jquery-2.1.conf.js": [
+1
 ],
-'angular.js:karma-jquery-2.2.conf.js':[
-1,
+"angular.js:karma-jquery-2.2.conf.js": [
+1
 ],
-'angular.js:karma-jquery.conf-factory.js':[
-1,
+"angular.js:karma-jquery.conf-factory.js": [
+1
 ],
-'angular.js:karma-jquery.conf.js':[
-1,
+"angular.js:karma-jquery.conf.js": [
+1
 ],
-'angular.js:karma-modules-ngAnimate.conf.js':[
-1,
+"angular.js:karma-modules-ngAnimate.conf.js": [
+1
 ],
-'angular.js:karma-modules-ngMock.conf.js':[
-1,
+"angular.js:karma-modules-ngMock.conf.js": [
+1
 ],
-'angular.js:karma-modules.conf.js':[
-1,
+"angular.js:karma-modules.conf.js": [
+1
 ],
-'angular.js:karma-shared.conf.js':[
-1,
+"angular.js:karma-shared.conf.js": [
+1
 ],
-'angular.js:lib/browserstack/start_tunnel.js':[
-1,
+"angular.js:lib/browserstack/start_tunnel.js": [
+1
 ],
-'angular.js:lib/grunt/plugins.js':[
-1,
+"angular.js:lib/grunt/plugins.js": [
+1
 ],
-'angular.js:lib/grunt/utils.js':[
-1,
+"angular.js:lib/grunt/utils.js": [
+1
 ],
-'angular.js:lib/grunt/validate-angular-files.js':[
-1,
+"angular.js:lib/grunt/validate-angular-files.js": [
+1
 ],
-'angular.js:lib/promises-aplus/promises-aplus-test-adapter.js':[
-1,
+"angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
+1
 ],
-'angular.js:lib/versions/version-info.js':[
-1,
+"angular.js:lib/versions/version-info.js": [
+1
 ],
-'angular.js:protractor-conf.js':[
-1,
+"angular.js:protractor-conf.js": [
+1
 ],
-'angular.js:protractor-jenkins-conf.js':[
-1,
+"angular.js:protractor-jenkins-conf.js": [
+1
 ],
-'angular.js:protractor-shared-conf.js':[
-1,
+"angular.js:protractor-shared-conf.js": [
+1
 ],
-'angular.js:protractor-travis-conf.js':[
-1,
+"angular.js:protractor-travis-conf.js": [
+1
 ],
-'angular.js:scripts/code.angularjs.org-firebase/functions/index.js':[
-1,
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
+1
 ],
-'angular.js:scripts/compare-master-to-stable.js':[
-3,
+"angular.js:scripts/compare-master-to-stable.js": [
+3
 ],
-'angular.js:scripts/docs.angularjs.org-firebase/functions/index.js':[
-1,
+"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
+1
 ],
-'angular.js:src/Angular.js':[
-1,
+"angular.js:src/Angular.js": [
+1
 ],
-'angular.js:src/AngularPublic.js':[
-1,
+"angular.js:src/AngularPublic.js": [
+1
 ],
-'angular.js:src/apis.js':[
-1,
+"angular.js:src/apis.js": [
+1
 ],
-'angular.js:src/auto/injector.js':[
-1,
+"angular.js:src/auto/injector.js": [
+1
 ],
-'angular.js:src/jqLite.js':[
-1,
+"angular.js:src/jqLite.js": [
+1
 ],
-'angular.js:src/loader.js':[
-1,
+"angular.js:src/loader.js": [
+1
 ],
-'angular.js:src/minErr.js':[
-1,
+"angular.js:src/minErr.js": [
+1
 ],
-'angular.js:src/ng/anchorScroll.js':[
-1,
+"angular.js:src/ng/anchorScroll.js": [
+1
 ],
-'angular.js:src/ng/animate.js':[
-1,
+"angular.js:src/ng/animate.js": [
+1
 ],
-'angular.js:src/ng/animateCss.js':[
-1,
+"angular.js:src/ng/animateCss.js": [
+1
 ],
-'angular.js:src/ng/animateRunner.js':[
-1,
+"angular.js:src/ng/animateRunner.js": [
+1
 ],
-'angular.js:src/ng/browser.js':[
-1,
+"angular.js:src/ng/browser.js": [
+1
 ],
-'angular.js:src/ng/cacheFactory.js':[
-1,
+"angular.js:src/ng/cacheFactory.js": [
+1
 ],
-'angular.js:src/ng/compile.js':[
-1,
+"angular.js:src/ng/compile.js": [
+1
 ],
-'angular.js:src/ng/controller.js':[
-1,
+"angular.js:src/ng/controller.js": [
+1
 ],
-'angular.js:src/ng/cookieReader.js':[
-1,
+"angular.js:src/ng/cookieReader.js": [
+1
 ],
-'angular.js:src/ng/directive/a.js':[
-1,
+"angular.js:src/ng/directive/a.js": [
+1
 ],
-'angular.js:src/ng/directive/attrs.js':[
-1,
+"angular.js:src/ng/directive/attrs.js": [
+1
 ],
-'angular.js:src/ng/directive/directives.js':[
-1,
+"angular.js:src/ng/directive/directives.js": [
+1
 ],
-'angular.js:src/ng/directive/form.js':[
-1,
+"angular.js:src/ng/directive/form.js": [
+1
 ],
-'angular.js:src/ng/directive/input.js':[
-1,
+"angular.js:src/ng/directive/input.js": [
+1
 ],
-'angular.js:src/ng/directive/ngBind.js':[
-1,
+"angular.js:src/ng/directive/ngBind.js": [
+1
 ],
-'angular.js:src/ng/directive/ngChange.js':[
-1,
+"angular.js:src/ng/directive/ngChange.js": [
+1
 ],
-'angular.js:src/ng/directive/ngClass.js':[
-1,
+"angular.js:src/ng/directive/ngClass.js": [
+1
 ],
-'angular.js:src/ng/directive/ngCloak.js':[
-1,
+"angular.js:src/ng/directive/ngCloak.js": [
+1
 ],
-'angular.js:src/ng/directive/ngController.js':[
-1,
+"angular.js:src/ng/directive/ngController.js": [
+1
 ],
-'angular.js:src/ng/directive/ngCsp.js':[
-1,
+"angular.js:src/ng/directive/ngCsp.js": [
+1
 ],
-'angular.js:src/ng/directive/ngEventDirs.js':[
-1,
+"angular.js:src/ng/directive/ngEventDirs.js": [
+1
 ],
-'angular.js:src/ng/directive/ngIf.js':[
-1,
+"angular.js:src/ng/directive/ngIf.js": [
+1
 ],
-'angular.js:src/ng/directive/ngInclude.js':[
-1,
+"angular.js:src/ng/directive/ngInclude.js": [
+1
 ],
-'angular.js:src/ng/directive/ngInit.js':[
-1,
+"angular.js:src/ng/directive/ngInit.js": [
+1
 ],
-'angular.js:src/ng/directive/ngList.js':[
-1,
+"angular.js:src/ng/directive/ngList.js": [
+1
 ],
-'angular.js:src/ng/directive/ngModel.js':[
-1,
+"angular.js:src/ng/directive/ngModel.js": [
+1
 ],
-'angular.js:src/ng/directive/ngModelOptions.js':[
-1,
+"angular.js:src/ng/directive/ngModelOptions.js": [
+1
 ],
-'angular.js:src/ng/directive/ngNonBindable.js':[
-1,
+"angular.js:src/ng/directive/ngNonBindable.js": [
+1
 ],
-'angular.js:src/ng/directive/ngOptions.js':[
-1,
+"angular.js:src/ng/directive/ngOptions.js": [
+1
 ],
-'angular.js:src/ng/directive/ngPluralize.js':[
-1,
+"angular.js:src/ng/directive/ngPluralize.js": [
+1
 ],
-'angular.js:src/ng/directive/ngRef.js':[
-1,
+"angular.js:src/ng/directive/ngRef.js": [
+1
 ],
-'angular.js:src/ng/directive/ngRepeat.js':[
-1,
+"angular.js:src/ng/directive/ngRepeat.js": [
+1
 ],
-'angular.js:src/ng/directive/ngShowHide.js':[
-1,
+"angular.js:src/ng/directive/ngShowHide.js": [
+1
 ],
-'angular.js:src/ng/directive/ngStyle.js':[
-1,
+"angular.js:src/ng/directive/ngStyle.js": [
+1
 ],
-'angular.js:src/ng/directive/ngSwitch.js':[
-1,
+"angular.js:src/ng/directive/ngSwitch.js": [
+1
 ],
-'angular.js:src/ng/directive/ngTransclude.js':[
-1,
+"angular.js:src/ng/directive/ngTransclude.js": [
+1
 ],
-'angular.js:src/ng/directive/script.js':[
-1,
+"angular.js:src/ng/directive/script.js": [
+1
 ],
-'angular.js:src/ng/directive/select.js':[
-1,
+"angular.js:src/ng/directive/select.js": [
+1
 ],
-'angular.js:src/ng/directive/validators.js':[
-1,
+"angular.js:src/ng/directive/validators.js": [
+1
 ],
-'angular.js:src/ng/document.js':[
-1,
+"angular.js:src/ng/document.js": [
+1
 ],
-'angular.js:src/ng/exceptionHandler.js':[
-1,
+"angular.js:src/ng/exceptionHandler.js": [
+1
 ],
-'angular.js:src/ng/filter.js':[
-1,
+"angular.js:src/ng/filter.js": [
+1
 ],
-'angular.js:src/ng/filter/filter.js':[
-1,
+"angular.js:src/ng/filter/filter.js": [
+1
 ],
-'angular.js:src/ng/filter/filters.js':[
-1,
+"angular.js:src/ng/filter/filters.js": [
+1
 ],
-'angular.js:src/ng/filter/limitTo.js':[
-1,
+"angular.js:src/ng/filter/limitTo.js": [
+1
 ],
-'angular.js:src/ng/filter/orderBy.js':[
-1,
+"angular.js:src/ng/filter/orderBy.js": [
+1
 ],
-'angular.js:src/ng/forceReflow.js':[
-1,
+"angular.js:src/ng/forceReflow.js": [
+1
 ],
-'angular.js:src/ng/http.js':[
-1,
+"angular.js:src/ng/http.js": [
+1
 ],
-'angular.js:src/ng/httpBackend.js':[
-1,
+"angular.js:src/ng/httpBackend.js": [
+1
 ],
-'angular.js:src/ng/interpolate.js':[
-1,
+"angular.js:src/ng/interpolate.js": [
+1
 ],
-'angular.js:src/ng/interval.js':[
-1,
+"angular.js:src/ng/interval.js": [
+1
 ],
-'angular.js:src/ng/intervalFactory.js':[
-1,
+"angular.js:src/ng/intervalFactory.js": [
+1
 ],
-'angular.js:src/ng/jsonpCallbacks.js':[
-1,
+"angular.js:src/ng/jsonpCallbacks.js": [
+1
 ],
-'angular.js:src/ng/locale.js':[
-1,
+"angular.js:src/ng/locale.js": [
+1
 ],
-'angular.js:src/ng/location.js':[
-1,
+"angular.js:src/ng/location.js": [
+1
 ],
-'angular.js:src/ng/log.js':[
-1,
+"angular.js:src/ng/log.js": [
+1
 ],
-'angular.js:src/ng/parse.js':[
-1,
+"angular.js:src/ng/parse.js": [
+1
 ],
-'angular.js:src/ng/q.js':[
-1,
+"angular.js:src/ng/q.js": [
+1
 ],
-'angular.js:src/ng/raf.js':[
-1,
+"angular.js:src/ng/raf.js": [
+1
 ],
-'angular.js:src/ng/rootElement.js':[
-1,
+"angular.js:src/ng/rootElement.js": [
+1
 ],
-'angular.js:src/ng/rootScope.js':[
-1,
+"angular.js:src/ng/rootScope.js": [
+1
 ],
-'angular.js:src/ng/sanitizeUri.js':[
-1,
+"angular.js:src/ng/sanitizeUri.js": [
+1
 ],
-'angular.js:src/ng/sce.js':[
-1,
+"angular.js:src/ng/sce.js": [
+1
 ],
-'angular.js:src/ng/sniffer.js':[
-1,
+"angular.js:src/ng/sniffer.js": [
+1
 ],
-'angular.js:src/ng/taskTrackerFactory.js':[
-1,
+"angular.js:src/ng/taskTrackerFactory.js": [
+1
 ],
-'angular.js:src/ng/templateRequest.js':[
-1,
+"angular.js:src/ng/templateRequest.js": [
+1
 ],
-'angular.js:src/ng/testability.js':[
-1,
+"angular.js:src/ng/testability.js": [
+1
 ],
-'angular.js:src/ng/timeout.js':[
-1,
+"angular.js:src/ng/timeout.js": [
+1
 ],
-'angular.js:src/ng/urlUtils.js':[
-1,
+"angular.js:src/ng/urlUtils.js": [
+1
 ],
-'angular.js:src/ng/window.js':[
-1,
+"angular.js:src/ng/window.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateCache.js':[
-1,
+"angular.js:src/ngAnimate/animateCache.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateChildrenDirective.js':[
-1,
+"angular.js:src/ngAnimate/animateChildrenDirective.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateCss.js':[
-1,
+"angular.js:src/ngAnimate/animateCss.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateCssDriver.js':[
-1,
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateJs.js':[
-1,
+"angular.js:src/ngAnimate/animateJs.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateJsDriver.js':[
-1,
+"angular.js:src/ngAnimate/animateJsDriver.js": [
+1
 ],
-'angular.js:src/ngAnimate/animateQueue.js':[
-1,
+"angular.js:src/ngAnimate/animateQueue.js": [
+1
 ],
-'angular.js:src/ngAnimate/animation.js':[
-1,
+"angular.js:src/ngAnimate/animation.js": [
+1
 ],
-'angular.js:src/ngAnimate/module.js':[
-1,
+"angular.js:src/ngAnimate/module.js": [
+1
 ],
-'angular.js:src/ngAnimate/ngAnimateSwap.js':[
-1,
+"angular.js:src/ngAnimate/ngAnimateSwap.js": [
+1
 ],
-'angular.js:src/ngAnimate/rafScheduler.js':[
-1,
+"angular.js:src/ngAnimate/rafScheduler.js": [
+1
 ],
-'angular.js:src/ngAnimate/shared.js':[
-1,
+"angular.js:src/ngAnimate/shared.js": [
+1
 ],
-'angular.js:src/ngAria/aria.js':[
-1,
+"angular.js:src/ngAria/aria.js": [
+1
 ],
-'angular.js:src/ngCookies/cookieWriter.js':[
-1,
+"angular.js:src/ngCookies/cookieWriter.js": [
+1
 ],
-'angular.js:src/ngCookies/cookies.js':[
-1,
+"angular.js:src/ngCookies/cookies.js": [
+1
 ],
-'angular.js:src/ngMessageFormat/messageFormatCommon.js':[
-1,
+"angular.js:src/ngMessageFormat/messageFormatCommon.js": [
+1
 ],
-'angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js':[
-1,
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
+1
 ],
-'angular.js:src/ngMessageFormat/messageFormatParser.js':[
-1,
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+1
 ],
-'angular.js:src/ngMessageFormat/messageFormatSelector.js':[
-1,
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
+1
 ],
-'angular.js:src/ngMessageFormat/messageFormatService.js':[
-1,
+"angular.js:src/ngMessageFormat/messageFormatService.js": [
+1
 ],
-'angular.js:src/ngMessages/messages.js':[
-1,
+"angular.js:src/ngMessages/messages.js": [
+1
 ],
-'angular.js:src/ngMock/angular-mocks.js':[
-1,
+"angular.js:src/ngMock/angular-mocks.js": [
+1
 ],
-'angular.js:src/ngMock/browserTrigger.js':[
-1,
+"angular.js:src/ngMock/browserTrigger.js": [
+1
 ],
-'angular.js:src/ngParseExt/module.js':[
-1,
+"angular.js:src/ngParseExt/module.js": [
+1
 ],
-'angular.js:src/ngParseExt/ucd.js':[
-5,
+"angular.js:src/ngParseExt/ucd.js": [
+5
 ],
-'angular.js:src/ngResource/resource.js':[
-1,
+"angular.js:src/ngResource/resource.js": [
+1
 ],
-'angular.js:src/ngRoute/directive/ngView.js':[
-1,
+"angular.js:src/ngRoute/directive/ngView.js": [
+1
 ],
-'angular.js:src/ngRoute/route.js':[
-1,
+"angular.js:src/ngRoute/route.js": [
+1
 ],
-'angular.js:src/ngRoute/routeParams.js':[
-1,
+"angular.js:src/ngRoute/routeParams.js": [
+1
 ],
-'angular.js:src/ngSanitize/filter/linky.js':[
-1,
+"angular.js:src/ngSanitize/filter/linky.js": [
+1
 ],
-'angular.js:src/ngSanitize/sanitize.js':[
-1,
+"angular.js:src/ngSanitize/sanitize.js": [
+1
 ],
-'angular.js:src/ngTouch/directive/ngSwipe.js':[
-1,
+"angular.js:src/ngTouch/directive/ngSwipe.js": [
+1
 ],
-'angular.js:src/ngTouch/swipe.js':[
-1,
+"angular.js:src/ngTouch/swipe.js": [
+1
 ],
-'angular.js:src/ngTouch/touch.js':[
-1,
+"angular.js:src/ngTouch/touch.js": [
+1
 ],
-'angular.js:src/publishExternalApis.js':[
-1,
+"angular.js:src/publishExternalApis.js": [
+1
 ],
-'angular.js:src/routeToRegExp.js':[
-1,
+"angular.js:src/routeToRegExp.js": [
+1
 ],
-'angular.js:src/shallowCopy.js':[
-1,
+"angular.js:src/shallowCopy.js": [
+1
 ],
-'angular.js:src/stringify.js':[
-1,
-],
+"angular.js:src/stringify.js": [
+1
+]
 }

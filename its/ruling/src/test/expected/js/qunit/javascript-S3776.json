@@ -1,32 +1,32 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 115,
 407,
 581,
 739,
-1021,
+1021
 ],
-'qunit:reporter/html.js':[
-39,
+"qunit:reporter/html.js": [
+39
 ],
-'qunit:reporter/urlparams.js':[
-4,
+"qunit:reporter/urlparams.js": [
+4
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
 266,
-337,
+337
 ],
-'qunit:src/cli/run.js':[
-18,
+"qunit:src/cli/run.js": [
+18
 ],
-'qunit:src/core/processing-queue.js':[
-160,
+"qunit:src/core/processing-queue.js": [
+160
 ],
-'qunit:src/core/stacktrace.js':[
-7,
+"qunit:src/core/stacktrace.js": [
+7
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 266,
-553,
-],
+553
+]
 }

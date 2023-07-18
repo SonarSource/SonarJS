@@ -1,8 +1,8 @@
 {
-'p5.js:docs/preprocessor.js':[
-49,
+"p5.js:docs/preprocessor.js": [
+49
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 73,
 461,
 2189,
@@ -12,12 +12,12 @@
 4402,
 4534,
 4623,
-4863,
+4863
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
-1,
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+1
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 80,
 268,
 365,
@@ -54,75 +54,75 @@
 11200,
 11412,
 12358,
-12749,
+12749
 ],
-'p5.js:src/color/p5.Color.js':[
+"p5.js:src/color/p5.Color.js": [
 85,
-805,
+805
 ],
-'p5.js:src/core/error_helpers.js':[
+"p5.js:src/core/error_helpers.js": [
 248,
 399,
 555,
-631,
+631
 ],
-'p5.js:src/core/main.js':[
-36,
+"p5.js:src/core/main.js": [
+36
 ],
-'p5.js:src/core/p5.Renderer.js':[
-211,
+"p5.js:src/core/p5.Renderer.js": [
+211
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 125,
 279,
 597,
-718,
+718
 ],
-'p5.js:src/core/rendering.js':[
-51,
+"p5.js:src/core/rendering.js": [
+51
 ],
-'p5.js:src/core/shim.js':[
-47,
+"p5.js:src/core/shim.js": [
+47
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js": [
 648,
 768,
 1288,
 1775,
-2021,
+2021
 ],
-'p5.js:src/events/acceleration.js':[
-642,
+"p5.js:src/events/acceleration.js": [
+642
 ],
-'p5.js:src/events/mouse.js':[
-604,
+"p5.js:src/events/mouse.js": [
+604
 ],
-'p5.js:src/image/filters.js':[
+"p5.js:src/image/filters.js": [
 299,
 387,
-522,
+522
 ],
-'p5.js:src/image/loading_displaying.js':[
+"p5.js:src/image/loading_displaying.js": [
 75,
-153,
+153
 ],
-'p5.js:src/io/files.js':[
+"p5.js:src/io/files.js": [
 119,
 391,
 1038,
-1689,
+1689
 ],
-'p5.js:src/typography/p5.Font.js':[
+"p5.js:src/typography/p5.Font.js": [
 214,
 382,
 704,
 804,
-960,
+960
 ],
-'p5.js:src/utilities/string_functions.js':[
-205,
+"p5.js:src/utilities/string_functions.js": [
+205
 ],
-'p5.js:src/webgl/3d_primitives.js':[
+"p5.js:src/webgl/3d_primitives.js": [
 48,
 126,
 308,
@@ -132,42 +132,42 @@
 1181,
 1400,
 1491,
-1580,
+1580
 ],
-'p5.js:src/webgl/interaction.js':[
-49,
+"p5.js:src/webgl/interaction.js": [
+49
 ],
-'p5.js:src/webgl/light.js':[
-621,
+"p5.js:src/webgl/light.js": [
+621
 ],
-'p5.js:src/webgl/loading.js':[
+"p5.js:src/webgl/loading.js": [
 101,
 181,
 351,
-445,
+445
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
-477,
+"p5.js:src/webgl/p5.RendererGL.js": [
+477
 ],
-'p5.js:src/webgl/p5.Shader.js':[
-355,
+"p5.js:src/webgl/p5.Shader.js": [
+355
 ],
-'p5.js:src/webgl/p5.Texture.js':[
+"p5.js:src/webgl/p5.Texture.js": [
 136,
-286,
+286
 ],
-'p5.js:src/webgl/text.js':[
+"p5.js:src/webgl/text.js": [
 61,
 167,
-624,
+624
 ],
-'p5.js:tasks/release/release-bower.js':[
-10,
+"p5.js:tasks/release/release-bower.js": [
+10
 ],
-'p5.js:test/test-reference.html':[
-98,
+"p5.js:test/test-reference.html": [
+98
 ],
-'p5.js:utils/sample-linter.js':[
-134,
-],
+"p5.js:utils/sample-linter.js": [
+134
+]
 }

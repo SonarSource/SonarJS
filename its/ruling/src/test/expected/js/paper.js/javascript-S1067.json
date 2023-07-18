@@ -1,40 +1,40 @@
 {
-'paper.js:src/anim/Tween.js':[
-239,
+"paper.js:src/anim/Tween.js": [
+239
 ],
-'paper.js:src/basic/Line.js':[
+"paper.js:src/basic/Line.js": [
 155,
-199,
+199
 ],
-'paper.js:src/basic/Matrix.js':[
+"paper.js:src/basic/Matrix.js": [
 157,
-537,
+537
 ],
-'paper.js:src/basic/Point.js':[
+"paper.js:src/basic/Point.js": [
 222,
-784,
+784
 ],
-'paper.js:src/basic/Rectangle.js':[
+"paper.js:src/basic/Rectangle.js": [
 225,
-622,
+622
 ],
-'paper.js:src/basic/Size.js':[
-173,
+"paper.js:src/basic/Size.js": [
+173
 ],
-'paper.js:src/core/Base.js':[
+"paper.js:src/core/Base.js": [
 197,
-486,
+486
 ],
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js": [
 242,
 361,
-382,
+382
 ],
-'paper.js:src/event/Key.js':[
+"paper.js:src/event/Key.js": [
 78,
-145,
+145
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 157,
 999,
 1579,
@@ -42,9 +42,9 @@
 2036,
 2072,
 3521,
-4373,
+4373
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 299,
 312,
 691,
@@ -54,12 +54,12 @@
 1752,
 1754,
 1803,
-2193,
+2193
 ],
-'paper.js:src/path/CurveLocation.js':[
-341,
+"paper.js:src/path/CurveLocation.js": [
+341
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 102,
 1475,
 1485,
@@ -68,50 +68,50 @@
 1536,
 1671,
 1716,
-1811,
+1811
 ],
-'paper.js:src/path/PathItem.Boolean.js':[
+"paper.js:src/path/PathItem.Boolean.js": [
 595,
 656,
 878,
 926,
 966,
-1409,
+1409
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 176,
 388,
 502,
-565,
+565
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 165,
 194,
 630,
-835,
+835
 ],
-'paper.js:src/style/GradientStop.js':[
-186,
+"paper.js:src/style/GradientStop.js": [
+186
 ],
-'paper.js:src/style/Style.js':[
-318,
+"paper.js:src/style/Style.js": [
+318
 ],
-'paper.js:src/svg/SvgExport.js':[
-306,
+"paper.js:src/svg/SvgExport.js": [
+306
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js": [
 31,
-63,
+63
 ],
-'paper.js:src/util/CollisionDetection.js':[
-220,
+"paper.js:src/util/CollisionDetection.js": [
+220
 ],
-'paper.js:src/util/Numerical.js':[
+"paper.js:src/util/Numerical.js": [
 304,
-402,
+402
 ],
-'paper.js:src/view/View.js':[
+"paper.js:src/view/View.js": [
 1265,
-1444,
-],
+1444
+]
 }

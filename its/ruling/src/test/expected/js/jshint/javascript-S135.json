@@ -1,5 +1,5 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 1816,
 2385,
 3036,
@@ -8,9 +8,9 @@
 5554,
 5835,
 6148,
-6184,
+6184
 ],
-'jshint:src/lex.js':[
-1557,
-],
+"jshint:src/lex.js": [
+1557
+]
 }

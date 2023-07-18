@@ -1,16 +1,16 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.js':[
-196,
+"prototype:ext/update_helper/prototype_update_helper.js": [
+196
 ],
-'prototype:src/prototype/ajax/base.js':[
-12,
+"prototype:src/prototype/ajax/base.js": [
+12
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 652,
 756,
-1231,
+1231
 ],
-'prototype:src/prototype/dom/layout.js':[
+"prototype:src/prototype/dom/layout.js": [
 271,
 271,
 518,
@@ -18,15 +18,15 @@
 557,
 565,
 587,
-597,
+597
 ],
-'prototype:src/prototype/lang/enumerable.js':[
-766,
+"prototype:src/prototype/lang/enumerable.js": [
+766
 ],
-'prototype:src/prototype/lang/string.js':[
-583,
+"prototype:src/prototype/lang/string.js": [
+583
 ],
-'prototype:test/functional/event.html':[
-250,
-],
+"prototype:test/functional/event.html": [
+250
+]
 }

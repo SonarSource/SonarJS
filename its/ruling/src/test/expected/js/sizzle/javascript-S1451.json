@@ -1,41 +1,41 @@
 {
-'sizzle:Gruntfile.js':[
-0,
+"sizzle:Gruntfile.js": [
+0
 ],
-'sizzle:build/release.js':[
-0,
+"sizzle:build/release.js": [
+0
 ],
-'sizzle:speed/speed.js':[
-0,
+"sizzle:speed/speed.js": [
+0
 ],
-'sizzle:src/sizzle.js':[
-0,
+"sizzle:src/sizzle.js": [
+0
 ],
-'sizzle:tasks/commit.js':[
-0,
+"sizzle:tasks/commit.js": [
+0
 ],
-'sizzle:tasks/compile.js':[
-0,
+"sizzle:tasks/compile.js": [
+0
 ],
-'sizzle:tasks/dist.js':[
-0,
+"sizzle:tasks/dist.js": [
+0
 ],
-'sizzle:tasks/ensure_ascii.js':[
-0,
+"sizzle:tasks/ensure_ascii.js": [
+0
 ],
-'sizzle:tasks/karma-tests.js':[
-0,
+"sizzle:tasks/karma-tests.js": [
+0
 ],
-'sizzle:tasks/release.js':[
-0,
+"sizzle:tasks/release.js": [
+0
 ],
-'sizzle:tasks/tag.js':[
-0,
+"sizzle:tasks/tag.js": [
+0
 ],
-'sizzle:tasks/test.js':[
-0,
+"sizzle:tasks/test.js": [
+0
 ],
-'sizzle:tasks/version.js':[
-0,
-],
+"sizzle:tasks/version.js": [
+0
+]
 }

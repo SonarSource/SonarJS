@@ -1,19 +1,19 @@
 {
-'underscore:karma.conf-sauce.js':[
+"underscore:karma.conf-sauce.js": [
 42,
 65,
 79,
-87,
+87
 ],
-'underscore:karma.conf.js':[
+"underscore:karma.conf.js": [
 20,
-33,
+33
 ],
-'underscore:underscore.js':[
+"underscore:underscore.js": [
 423,
 1474,
 1528,
 1544,
-1565,
-],
+1565
+]
 }

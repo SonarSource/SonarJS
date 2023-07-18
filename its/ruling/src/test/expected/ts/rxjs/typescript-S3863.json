@@ -1,11 +1,11 @@
 {
-'rxjs:src/Subscriber.ts':[
-4,
+"rxjs:src/Subscriber.ts": [
+4
 ],
-'rxjs:src/operator/concatAll.ts':[
-2,
+"rxjs:src/operator/concatAll.ts": [
+2
 ],
-'rxjs:src/operator/mergeAll.ts':[
-6,
-],
+"rxjs:src/operator/mergeAll.ts": [
+6
+]
 }

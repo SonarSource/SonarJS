@@ -1,5 +1,5 @@
 {
-'paper.js:src/basic/Matrix.js':[
+"paper.js:src/basic/Matrix.js": [
 74,
 221,
 250,
@@ -7,9 +7,9 @@
 332,
 369,
 586,
-655,
+655
 ],
-'paper.js:src/basic/Point.js':[
+"paper.js:src/basic/Point.js": [
 312,
 348,
 423,
@@ -27,9 +27,9 @@
 807,
 819,
 942,
-974,
+974
 ],
-'paper.js:src/basic/Rectangle.js':[
+"paper.js:src/basic/Rectangle.js": [
 79,
 223,
 264,
@@ -42,30 +42,30 @@
 784,
 815,
 872,
-939,
+939
 ],
-'paper.js:src/basic/Size.js':[
+"paper.js:src/basic/Size.js": [
 235,
 272,
 308,
 344,
-379,
+379
 ],
-'paper.js:src/canvas/ProxyContext.js':[
-80,
+"paper.js:src/canvas/ProxyContext.js": [
+80
 ],
-'paper.js:src/core/Base.js':[
-110,
+"paper.js:src/core/Base.js": [
+110
 ],
-'paper.js:src/core/Emitter.js':[
+"paper.js:src/core/Emitter.js": [
 72,
 83,
-170,
+170
 ],
-'paper.js:src/item/Group.js':[
-98,
+"paper.js:src/item/Group.js": [
+98
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 35,
 792,
 831,
@@ -82,12 +82,12 @@
 3656,
 3667,
 3678,
-3750,
+3750
 ],
-'paper.js:src/item/Layer.js':[
-66,
+"paper.js:src/item/Layer.js": [
+66
 ],
-'paper.js:src/item/Raster.js':[
+"paper.js:src/item/Raster.js": [
 118,
 183,
 519,
@@ -98,29 +98,29 @@
 699,
 729,
 739,
-752,
+752
 ],
-'paper.js:src/item/Shape.js':[
+"paper.js:src/item/Shape.js": [
 83,
 131,
 386,
 433,
 531,
-575,
+575
 ],
-'paper.js:src/item/SymbolItem.js':[
-77,
+"paper.js:src/item/SymbolItem.js": [
+77
 ],
-'paper.js:src/node/canvas.js':[
-63,
+"paper.js:src/node/canvas.js": [
+63
 ],
-'paper.js:src/path/CompoundPath.js':[
+"paper.js:src/path/CompoundPath.js": [
 107,
 358,
 371,
-377,
+377
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 205,
 219,
 233,
@@ -130,18 +130,18 @@
 1195,
 1209,
 1227,
-1243,
+1243
 ],
-'paper.js:src/path/Path.Constructors.js':[
+"paper.js:src/path/Path.Constructors.js": [
 82,
 118,
 215,
 292,
 337,
 384,
-440,
+440
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 101,
 552,
 597,
@@ -160,44 +160,44 @@
 2630,
 2639,
 2649,
-2658,
+2658
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js": [
 366,
-412,
+412
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 200,
 215,
-230,
+230
 ],
-'paper.js:src/path/SegmentPoint.js':[
-33,
+"paper.js:src/path/SegmentPoint.js": [
+33
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 283,
 295,
 543,
 833,
-1247,
+1247
 ],
-'paper.js:src/style/GradientStop.js':[
-180,
+"paper.js:src/style/GradientStop.js": [
+180
 ],
-'paper.js:src/text/PointText.js':[
+"paper.js:src/text/PointText.js": [
 58,
-75,
+75
 ],
-'paper.js:src/text/TextItem.js':[
-45,
+"paper.js:src/text/TextItem.js": [
+45
 ],
-'paper.js:src/util/Numerical.js':[
-108,
+"paper.js:src/util/Numerical.js": [
+108
 ],
-'paper.js:src/view/CanvasView.js':[
-38,
+"paper.js:src/view/CanvasView.js": [
+38
 ],
-'paper.js:src/view/View.js':[
+"paper.js:src/view/View.js": [
 384,
 483,
 503,
@@ -206,6 +206,6 @@
 595,
 691,
 710,
-721,
-],
+721
+]
 }

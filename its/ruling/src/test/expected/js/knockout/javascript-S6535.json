@@ -1,17 +1,17 @@
 {
-'knockout:src/binding/expressionRewriting.js':[
-31,
+"knockout:src/binding/expressionRewriting.js": [
+31
 ],
-'knockout:src/memoization.js':[
-60,
+"knockout:src/memoization.js": [
+60
 ],
-'knockout:src/templating/templateRewriting.js':[
+"knockout:src/templating/templateRewriting.js": [
 3,
 3,
 3,
 3,
 3,
 3,
-3,
-],
+3
+]
 }

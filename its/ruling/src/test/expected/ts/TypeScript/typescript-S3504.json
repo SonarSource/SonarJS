@@ -1,18 +1,18 @@
 {
-'TypeScript:scripts/authors.ts':[
+"TypeScript:scripts/authors.ts": [
 170,
-176,
+176
 ],
-'TypeScript:scripts/bisect-test.ts':[
+"TypeScript:scripts/bisect-test.ts": [
 7,
 10,
 16,
-33,
+33
 ],
-'TypeScript:scripts/buildProtocol.ts':[
-20,
+"TypeScript:scripts/buildProtocol.ts": [
+20
 ],
-'TypeScript:scripts/createBenchmark.ts':[
+"TypeScript:scripts/createBenchmark.ts": [
 7,
 9,
 10,
@@ -26,16 +26,16 @@
 85,
 95,
 113,
-115,
+115
 ],
-'TypeScript:scripts/errorCheck.ts':[
+"TypeScript:scripts/errorCheck.ts": [
 1,
-31,
+31
 ],
-'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
-10,
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+10
 ],
-'TypeScript:scripts/ior.ts':[
+"TypeScript:scripts/ior.ts": [
 24,
 25,
 49,
@@ -45,9 +45,9 @@
 89,
 109,
 115,
-121,
+121
 ],
-'TypeScript:scripts/processDiagnosticMessages.ts':[
+"TypeScript:scripts/processDiagnosticMessages.ts": [
 14,
 23,
 24,
@@ -85,9 +85,9 @@
 210,
 212,
 232,
-234,
+234
 ],
-'TypeScript:scripts/word2md.ts':[
+"TypeScript:scripts/word2md.ts": [
 134,
 135,
 137,
@@ -122,14 +122,14 @@
 364,
 368,
 405,
-406,
+406
 ],
-'TypeScript:src/harness/harness.ts':[
+"TypeScript:src/harness/harness.ts": [
 33,
 34,
 35,
 36,
 38,
-39,
-],
+39
+]
 }

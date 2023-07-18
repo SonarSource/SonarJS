@@ -1,14 +1,14 @@
 {
-'fireact:src/components/Form/Input.js':[
-28,
+"fireact:src/components/Form/Input.js": [
+28
 ],
-'fireact:src/components/Pagination/index.js':[
-4,
+"fireact:src/components/Pagination/index.js": [
+4
 ],
-'fireact:src/pages/auth/accounts/Plans/index.js':[
-11,
+"fireact:src/pages/auth/accounts/Plans/index.js": [
+11
 ],
-'fireact:src/pages/auth/user/UpdatePhone/index.js':[
-9,
-],
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
+9
+]
 }

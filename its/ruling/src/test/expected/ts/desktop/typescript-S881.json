@@ -1,35 +1,35 @@
 {
-'desktop:app/src/lib/actions-log-parser/action-log-parser.ts':[
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 387,
-446,
+446
 ],
-'desktop:app/src/lib/diff-parser.ts':[
+"desktop:app/src/lib/diff-parser.ts": [
 349,
 356,
 364,
-365,
+365
 ],
-'desktop:app/src/lib/git/diff.ts':[
+"desktop:app/src/lib/git/diff.ts": [
 302,
-306,
+306
 ],
-'desktop:app/src/lib/git/log.ts':[
+"desktop:app/src/lib/git/log.ts": [
 258,
-263,
+263
 ],
-'desktop:app/src/lib/status-parser.ts':[
-80,
+"desktop:app/src/lib/status-parser.ts": [
+80
 ],
-'desktop:app/src/main-process/menu/ensure-item-ids.ts':[
-30,
+"desktop:app/src/main-process/menu/ensure-item-ids.ts": [
+30
 ],
-'desktop:app/src/models/cloning-repository.ts':[
-7,
+"desktop:app/src/models/cloning-repository.ts": [
+7
 ],
-'desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx':[
-501,
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+501
 ],
-'desktop:app/src/ui/lib/git-perf.ts':[
-19,
-],
+"desktop:app/src/ui/lib/git-perf.ts": [
+19
+]
 }

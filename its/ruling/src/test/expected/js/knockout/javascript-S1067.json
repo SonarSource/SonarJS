@@ -1,17 +1,17 @@
 {
-'knockout:src/binding/defaultBindings/textInput.js':[
-14,
+"knockout:src/binding/defaultBindings/textInput.js": [
+14
 ],
-'knockout:src/binding/defaultBindings/value.js':[
-37,
+"knockout:src/binding/defaultBindings/value.js": [
+37
 ],
-'knockout:src/subscribables/dependentObservable.js':[
-367,
+"knockout:src/subscribables/dependentObservable.js": [
+367
 ],
-'knockout:src/subscribables/mappingHelpers.js':[
-27,
+"knockout:src/subscribables/mappingHelpers.js": [
+27
 ],
-'knockout:src/templating/templateSources.js':[
-42,
-],
+"knockout:src/templating/templateSources.js": [
+42
+]
 }

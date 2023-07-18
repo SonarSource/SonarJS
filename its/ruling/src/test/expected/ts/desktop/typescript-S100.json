@@ -1,10 +1,10 @@
 {
-'desktop:app/src/lib/editors/win32.ts':[
+"desktop:app/src/lib/editors/win32.ts": [
 76,
 79,
-82,
+82
 ],
-'desktop:app/src/main-process/shell.ts':[
-17,
-],
+"desktop:app/src/main-process/shell.ts": [
+17
+]
 }

@@ -1,33 +1,33 @@
 {
-'desktop:app/src/lib/patch-formatter.ts':[
-294,
+"desktop:app/src/lib/patch-formatter.ts": [
+294
 ],
-'desktop:app/src/lib/stores/sign-in-store.ts':[
-389,
+"desktop:app/src/lib/stores/sign-in-store.ts": [
+389
 ],
-'desktop:app/src/main-process/main.ts':[
-776,
+"desktop:app/src/main-process/main.ts": [
+776
 ],
-'desktop:app/src/ui/changes/commit-message.tsx':[
-668,
+"desktop:app/src/ui/changes/commit-message.tsx": [
+668
 ],
-'desktop:app/src/ui/diff/syntax-highlighting/index.ts':[
-186,
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
+186
 ],
-'desktop:app/src/ui/diff/text-diff-expansion.ts':[
-236,
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
+236
 ],
-'desktop:app/src/ui/history/commit-summary.tsx':[
+"desktop:app/src/ui/history/commit-summary.tsx": [
 248,
-285,
+285
 ],
-'desktop:app/src/ui/lib/list/list.tsx':[
-1239,
+"desktop:app/src/ui/lib/list/list.tsx": [
+1239
 ],
-'desktop:app/src/ui/lib/parse-files-to-be-overwritten.ts':[
-15,
+"desktop:app/src/ui/lib/parse-files-to-be-overwritten.ts": [
+15
 ],
-'desktop:app/src/ui/relative-time.tsx':[
-119,
-],
+"desktop:app/src/ui/relative-time.tsx": [
+119
+]
 }

@@ -1,9 +1,9 @@
 {
-'ag-grid:src/ts/columnController/autoGroupColService.ts':[
+"ag-grid:src/ts/columnController/autoGroupColService.ts": [
 93,
-95,
+95
 ],
-'ag-grid:src/ts/gridOptionsWrapper.ts':[
-79,
-],
+"ag-grid:src/ts/gridOptionsWrapper.ts": [
+79
+]
 }

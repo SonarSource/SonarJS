@@ -1,10 +1,10 @@
 {
-'react-cloud-music:rename.js':[
+"react-cloud-music:rename.js": [
 15,
 16,
-24,
+24
 ],
-'react-cloud-music:scripts/build.js':[
+"react-cloud-music:scripts/build.js": [
 70,
 71,
 72,
@@ -17,9 +17,9 @@
 127,
 132,
 135,
-168,
+168
 ],
-'react-cloud-music:scripts/start.js':[
+"react-cloud-music:scripts/start.js": [
 48,
 55,
 58,
@@ -28,48 +28,48 @@
 121,
 126,
 129,
-142,
+142
 ],
-'react-cloud-music:server.js':[
+"react-cloud-music:server.js": [
 16,
-19,
+19
 ],
-'react-cloud-music:src/api/config.js':[
-13,
+"react-cloud-music:src/api/config.js": [
+13
 ],
-'react-cloud-music:src/api/script.js':[
+"react-cloud-music:src/api/script.js": [
 12,
-22,
+22
 ],
-'react-cloud-music:src/application/Album/store/actionCreators.js':[
-38,
+"react-cloud-music:src/application/Album/store/actionCreators.js": [
+38
 ],
-'react-cloud-music:src/application/Recommend/store/actionCreators.js':[
+"react-cloud-music:src/application/Recommend/store/actionCreators.js": [
 26,
-37,
+37
 ],
-'react-cloud-music:src/application/Singers/store/actionCreators.js':[
+"react-cloud-music:src/application/Singers/store/actionCreators.js": [
 66,
 80,
 99,
-116,
+116
 ],
-'react-cloud-music:src/application/User/Login/store/actionCreators.js':[
+"react-cloud-music:src/application/User/Login/store/actionCreators.js": [
 34,
 49,
-63,
+63
 ],
-'react-cloud-music:src/components/slider/index.jsx':[
-20,
+"react-cloud-music:src/components/slider/index.jsx": [
+20
 ],
-'react-cloud-music:src/serviceWorker.js':[
+"react-cloud-music:src/serviceWorker.js": [
 44,
 72,
 85,
 97,
-123,
+123
 ],
-'react-cloud-music:ts-music/scripts/build.js':[
+"react-cloud-music:ts-music/scripts/build.js": [
 70,
 71,
 72,
@@ -83,9 +83,9 @@
 137,
 142,
 145,
-188,
+188
 ],
-'react-cloud-music:ts-music/scripts/start.js':[
+"react-cloud-music:ts-music/scripts/start.js": [
 48,
 55,
 58,
@@ -94,14 +94,14 @@
 133,
 138,
 141,
-163,
+163
 ],
-'react-cloud-music:ts-music/src/serviceWorker.js':[
+"react-cloud-music:ts-music/src/serviceWorker.js": [
 44,
 72,
 85,
 97,
 125,
-138,
-],
+138
+]
 }

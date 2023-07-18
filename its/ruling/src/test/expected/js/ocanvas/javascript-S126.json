@@ -1,33 +1,33 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js": [
 213,
 218,
-228,
+228
 ],
-'ocanvas:src/core.js':[
+"ocanvas:src/core.js": [
 117,
 138,
-220,
+220
 ],
-'ocanvas:src/displayobject.js':[
+"ocanvas:src/displayobject.js": [
 134,
 195,
 477,
 598,
 786,
-855,
+855
 ],
-'ocanvas:src/displayobjects/rectangle.js':[
+"ocanvas:src/displayobjects/rectangle.js": [
 217,
-262,
+262
 ],
-'ocanvas:src/events.js':[
-314,
+"ocanvas:src/events.js": [
+314
 ],
-'ocanvas:src/keyboard.js':[
-52,
+"ocanvas:src/keyboard.js": [
+52
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 107,
 182,
 217,
@@ -36,12 +36,12 @@
 371,
 677,
 704,
-722,
+722
 ],
-'ocanvas:src/tools.js':[
+"ocanvas:src/tools.js": [
 80,
 276,
 357,
-408,
-],
+408
+]
 }

@@ -1,8 +1,8 @@
 {
-'jira-clone:client/cypress/integration/issueSearch.spec.js':[
-13,
+"jira-clone:client/cypress/integration/issueSearch.spec.js": [
+13
 ],
-'jira-clone:client/cypress/integration/projectSettings.spec.js':[
-11,
-],
+"jira-clone:client/cypress/integration/projectSettings.spec.js": [
+11
+]
 }

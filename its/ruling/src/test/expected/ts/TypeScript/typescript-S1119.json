@@ -1,20 +1,20 @@
 {
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 872,
-9281,
+9281
 ],
-'TypeScript:src/compiler/core.ts':[
+"TypeScript:src/compiler/core.ts": [
 626,
 705,
-706,
+706
 ],
-'TypeScript:src/compiler/scanner.ts':[
-623,
+"TypeScript:src/compiler/scanner.ts": [
+623
 ],
-'TypeScript:src/services/jsDoc.ts':[
-173,
+"TypeScript:src/services/jsDoc.ts": [
+173
 ],
-'TypeScript:src/services/utilities.ts':[
-648,
-],
+"TypeScript:src/services/utilities.ts": [
+648
+]
 }

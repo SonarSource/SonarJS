@@ -1,35 +1,35 @@
 {
-'amplify:header.js':[
-9,
+"amplify:header.js": [
+9
 ],
-'amplify:lib/amplify-vsdoc.js':[
-121,
+"amplify:lib/amplify-vsdoc.js": [
+121
 ],
-'amplify:src/amplify-vsdoc.js':[
-112,
+"amplify:src/amplify-vsdoc.js": [
+112
 ],
-'amplify:src/amplify.core.js':[
-1,
+"amplify:src/amplify.core.js": [
+1
 ],
-'amplify:src/amplify.js':[
-3,
+"amplify:src/amplify.js": [
+3
 ],
-'amplify:src/amplify.request.js':[
-1,
+"amplify:src/amplify.request.js": [
+1
 ],
-'amplify:src/amplify.store.js':[
-1,
+"amplify:src/amplify.store.js": [
+1
 ],
-'amplify:src/core-header.js':[
-9,
+"amplify:src/core-header.js": [
+9
 ],
-'amplify:src/request-header.js':[
-9,
+"amplify:src/request-header.js": [
+9
 ],
-'amplify:src/store-header.js':[
-9,
+"amplify:src/store-header.js": [
+9
 ],
-'amplify:test-jquery-versions.js':[
-54,
-],
+"amplify:test-jquery-versions.js": [
+54
+]
 }

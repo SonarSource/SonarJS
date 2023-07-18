@@ -1,20 +1,20 @@
 {
-'fireact:functions/index.js':[
+"fireact:functions/index.js": [
 569,
 574,
 633,
-646,
+646
 ],
-'fireact:src/libs/user/index.js':[
+"fireact:src/libs/user/index.js": [
 21,
-34,
+34
 ],
-'fireact:src/serviceWorker.js':[
+"fireact:src/serviceWorker.js": [
 44,
 72,
 85,
 97,
 125,
-138,
-],
+138
+]
 }

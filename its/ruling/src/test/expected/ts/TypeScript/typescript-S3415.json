@@ -1,5 +1,5 @@
 {
-'TypeScript:src/harness/unittests/services/patternMatcher.ts':[
+"TypeScript:src/harness/unittests/services/patternMatcher.ts": [
 101,
 108,
 115,
@@ -19,6 +19,6 @@
 439,
 450,
 456,
-462,
-],
+462
+]
 }

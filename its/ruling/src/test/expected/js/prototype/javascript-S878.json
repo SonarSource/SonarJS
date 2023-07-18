@@ -1,18 +1,18 @@
 {
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 1463,
 1465,
 1689,
 1692,
-2032,
+2032
 ],
-'prototype:src/prototype/dom/event.js':[
-1014,
+"prototype:src/prototype/dom/event.js": [
+1014
 ],
-'prototype:src/prototype/dom/form.js':[
-412,
+"prototype:src/prototype/dom/form.js": [
+412
 ],
-'prototype:src/prototype/lang/string.js':[
-113,
-],
+"prototype:src/prototype/lang/string.js": [
+113
+]
 }

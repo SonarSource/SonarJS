@@ -1,28 +1,28 @@
 {
-'mootools-core:Source/Element/Element.js':[
-870,
+"mootools-core:Source/Element/Element.js": [
+870
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 213,
 216,
 230,
 231,
 234,
 505,
-506,
+506
 ],
-'mootools-core:Source/Types/Function.js':[
+"mootools-core:Source/Types/Function.js": [
 54,
-90,
+90
 ],
-'mootools-core:Tests/Element/Element.Delegation.html':[
-103,
+"mootools-core:Tests/Element/Element.Delegation.html": [
+103
 ],
-'mootools-core:Tests/Element/Element.Event.change.html':[
-89,
+"mootools-core:Tests/Element/Element.Event.change.html": [
+89
 ],
-'mootools-core:Tests/Fx/Fx.html':[
+"mootools-core:Tests/Fx/Fx.html": [
 101,
-255,
-],
+255
+]
 }

@@ -1,61 +1,61 @@
 {
-'courselit:apps/web/components/public/base-layout/template/widget-by-name.tsx':[
+"courselit:apps/web/components/public/base-layout/template/widget-by-name.tsx": [
 3,
-4,
+4
 ],
-'courselit:apps/web/graphql/media/logic.ts':[
-2,
+"courselit:apps/web/graphql/media/logic.ts": [
+2
 ],
-'courselit:apps/web/pages/api/media/[mediaId].ts':[
-12,
+"courselit:apps/web/pages/api/media/[mediaId].ts": [
+12
 ],
-'courselit:apps/web/pages/api/media/index.ts':[
-12,
+"courselit:apps/web/pages/api/media/index.ts": [
+12
 ],
-'courselit:apps/web/pages/api/media/presigned.ts':[
-12,
+"courselit:apps/web/pages/api/media/presigned.ts": [
+12
 ],
-'courselit:packages/common-widgets/src/about/admin-widget.tsx':[
-1,
+"courselit:packages/common-widgets/src/about/admin-widget.tsx": [
+1
 ],
-'courselit:packages/common-widgets/src/about/widget.tsx':[
-1,
+"courselit:packages/common-widgets/src/about/widget.tsx": [
+1
 ],
-'courselit:packages/common-widgets/src/branding/widget.tsx':[
-1,
+"courselit:packages/common-widgets/src/branding/widget.tsx": [
+1
 ],
-'courselit:packages/common-widgets/src/footer-menu/widget.tsx':[
-1,
+"courselit:packages/common-widgets/src/footer-menu/widget.tsx": [
+1
 ],
-'courselit:packages/common-widgets/src/tagged-content/widget.tsx':[
-1,
+"courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
+1
 ],
-'courselit:packages/components-library/src/course-item.tsx':[
-1,
+"courselit:packages/components-library/src/course-item.tsx": [
+1
 ],
-'courselit:packages/components-library/src/image.tsx':[
-1,
+"courselit:packages/components-library/src/image.tsx": [
+1
 ],
-'courselit:packages/components-library/src/overview-and-detail/component-props.ts':[
-1,
+"courselit:packages/components-library/src/overview-and-detail/component-props.ts": [
+1
 ],
-'courselit:packages/components-library/src/overview-and-detail/index.tsx':[
-24,
+"courselit:packages/components-library/src/overview-and-detail/index.tsx": [
+24
 ],
-'courselit:packages/components-library/src/overview-and-detail/overview-list.tsx':[
-1,
+"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx": [
+1
 ],
-'courselit:packages/components-library/src/pricetag.tsx':[
-2,
+"courselit:packages/components-library/src/pricetag.tsx": [
+2
 ],
-'courselit:packages/components-library/src/rich-text.tsx':[
-1,
+"courselit:packages/components-library/src/rich-text.tsx": [
+1
 ],
-'courselit:packages/components-library/src/section.tsx':[
-1,
+"courselit:packages/components-library/src/section.tsx": [
+1
 ],
-'courselit:packages/state-management/src/index.ts':[
+"courselit:packages/state-management/src/index.ts": [
 5,
-6,
-],
+6
+]
 }

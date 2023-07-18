@@ -1,27 +1,27 @@
 {
-'moose:main/controllers/description.ts':[
+"moose:main/controllers/description.ts": [
 10,
 10,
-10,
+10
 ],
-'moose:main/helpers/Description.ts':[
-101,
+"moose:main/helpers/Description.ts": [
+101
 ],
-'moose:main/helpers/createWindow.ts':[
+"moose:main/helpers/createWindow.ts": [
 37,
 37,
-54,
+54
 ],
-'moose:renderer/components/FilesList/FilesList.tsx':[
-86,
+"moose:renderer/components/FilesList/FilesList.tsx": [
+86
 ],
-'moose:renderer/utils/animations.ts':[
+"moose:renderer/utils/animations.ts": [
 4,
 11,
 12,
-14,
+14
 ],
-'moose:renderer/utils/assert.ts':[
-1,
-],
+"moose:renderer/utils/assert.ts": [
+1
+]
 }

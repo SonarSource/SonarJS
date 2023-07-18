@@ -1,23 +1,23 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
 6942,
 6953,
 6968,
-6977,
+6977
 ],
-'javascript-test-sources:src/ace/src/edit_session_test.js':[
-673,
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
+673
 ],
-'javascript-test-sources:src/ace/src/layer/font_metrics.js':[
-195,
+"javascript-test-sources:src/ace/src/layer/font_metrics.js": [
+195
 ],
-'javascript-test-sources:src/ace/src/mode/folding/vbscript.js':[
-301,
+"javascript-test-sources:src/ace/src/mode/folding/vbscript.js": [
+301
 ],
-'javascript-test-sources:src/ace/src/undomanager.js':[
+"javascript-test-sources:src/ace/src/undomanager.js": [
 389,
 397,
 405,
-413,
-],
+413
+]
 }

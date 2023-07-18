@@ -1,17 +1,17 @@
 {
-'searchkit:packages/searchkit-elastic-ui/src/Facets/FacetsList/index.tsx':[
-9,
+"searchkit:packages/searchkit-elastic-ui/src/Facets/FacetsList/index.tsx": [
+9
 ],
-'searchkit:packages/searchkit-schema/src/schema.ts':[
+"searchkit:packages/searchkit-schema/src/schema.ts": [
 262,
 265,
-268,
+268
 ],
-'searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts':[
-45,
+"searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
+45
 ],
-'searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts':[
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
 13,
-17,
-],
+17
+]
 }

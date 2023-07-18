@@ -1,233 +1,233 @@
 {
-'moose:main/background.ts':[
-0,
+"moose:main/background.ts": [
+0
 ],
-'moose:main/controllers/delete.ts':[
-0,
+"moose:main/controllers/delete.ts": [
+0
 ],
-'moose:main/controllers/description.ts':[
-0,
+"moose:main/controllers/description.ts": [
+0
 ],
-'moose:main/controllers/details.ts':[
-0,
+"moose:main/controllers/details.ts": [
+0
 ],
-'moose:main/controllers/stream.ts':[
-0,
+"moose:main/controllers/stream.ts": [
+0
 ],
-'moose:main/enums/FileType.ts':[
-0,
+"moose:main/enums/FileType.ts": [
+0
 ],
-'moose:main/helpers/Description.ts':[
-0,
+"moose:main/helpers/Description.ts": [
+0
 ],
-'moose:main/helpers/createWindow.ts':[
-0,
+"moose:main/helpers/createWindow.ts": [
+0
 ],
-'moose:main/modules/cast.ts':[
-0,
+"moose:main/modules/cast.ts": [
+0
 ],
-'moose:main/modules/menu.ts':[
-0,
+"moose:main/modules/menu.ts": [
+0
 ],
-'moose:main/modules/playOnVlc.ts':[
-0,
+"moose:main/modules/playOnVlc.ts": [
+0
 ],
-'moose:main/modules/progress.ts':[
-0,
+"moose:main/modules/progress.ts": [
+0
 ],
-'moose:main/server.ts':[
-0,
+"moose:main/server.ts": [
+0
 ],
-'moose:main/utils/Cast.ts':[
-0,
+"moose:main/utils/Cast.ts": [
+0
 ],
-'moose:main/utils/analytics.ts':[
-0,
+"moose:main/utils/analytics.ts": [
+0
 ],
-'moose:main/utils/autoUpdate.ts':[
-0,
+"moose:main/utils/autoUpdate.ts": [
+0
 ],
-'moose:main/utils/isMovieOrShow.ts':[
-0,
+"moose:main/utils/isMovieOrShow.ts": [
+0
 ],
-'moose:main/utils/logger.ts':[
-0,
+"moose:main/utils/logger.ts": [
+0
 ],
-'moose:main/utils/opensubtitle-hash.ts':[
-0,
+"moose:main/utils/opensubtitle-hash.ts": [
+0
 ],
-'moose:main/utils/temp.ts':[
-0,
+"moose:main/utils/temp.ts": [
+0
 ],
-'moose:main/utils/webtorrent.ts':[
-0,
+"moose:main/utils/webtorrent.ts": [
+0
 ],
-'moose:renderer/components/Cast/Cast.tsx':[
-0,
+"moose:renderer/components/Cast/Cast.tsx": [
+0
 ],
-'moose:renderer/components/Cast/index.ts':[
-0,
+"moose:renderer/components/Cast/index.ts": [
+0
 ],
-'moose:renderer/components/CastControl/CastControl.tsx':[
-0,
+"moose:renderer/components/CastControl/CastControl.tsx": [
+0
 ],
-'moose:renderer/components/CastControl/index.ts':[
-0,
+"moose:renderer/components/CastControl/index.ts": [
+0
 ],
-'moose:renderer/components/Container/Container.tsx':[
-0,
+"moose:renderer/components/Container/Container.tsx": [
+0
 ],
-'moose:renderer/components/Container/index.ts':[
-0,
+"moose:renderer/components/Container/index.ts": [
+0
 ],
-'moose:renderer/components/Downloads/Downloads.tsx':[
-0,
+"moose:renderer/components/Downloads/Downloads.tsx": [
+0
 ],
-'moose:renderer/components/Downloads/index.ts':[
-0,
+"moose:renderer/components/Downloads/index.ts": [
+0
 ],
-'moose:renderer/components/Downloads/makeData.tsx':[
-0,
+"moose:renderer/components/Downloads/makeData.tsx": [
+0
 ],
-'moose:renderer/components/DragAndDrop/DragAndDrop.tsx':[
-0,
+"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
+0
 ],
-'moose:renderer/components/DragAndDrop/index.ts':[
-0,
+"moose:renderer/components/DragAndDrop/index.ts": [
+0
 ],
-'moose:renderer/components/DropUI/DropUI.tsx':[
-0,
+"moose:renderer/components/DropUI/DropUI.tsx": [
+0
 ],
-'moose:renderer/components/DropUI/index.ts':[
-0,
+"moose:renderer/components/DropUI/index.ts": [
+0
 ],
-'moose:renderer/components/FilesList/FilesList.tsx':[
-0,
+"moose:renderer/components/FilesList/FilesList.tsx": [
+0
 ],
-'moose:renderer/components/FilesList/index.ts':[
-0,
+"moose:renderer/components/FilesList/index.ts": [
+0
 ],
-'moose:renderer/components/Header/Header.tsx':[
-0,
+"moose:renderer/components/Header/Header.tsx": [
+0
 ],
-'moose:renderer/components/Header/index.ts':[
-0,
+"moose:renderer/components/Header/index.ts": [
+0
 ],
-'moose:renderer/components/Message/Message.tsx':[
-0,
+"moose:renderer/components/Message/Message.tsx": [
+0
 ],
-'moose:renderer/components/Message/index.ts':[
-0,
+"moose:renderer/components/Message/index.ts": [
+0
 ],
-'moose:renderer/components/MiniPlayer/MiniPlayer.tsx':[
-0,
+"moose:renderer/components/MiniPlayer/MiniPlayer.tsx": [
+0
 ],
-'moose:renderer/components/MiniPlayer/index.ts':[
-0,
+"moose:renderer/components/MiniPlayer/index.ts": [
+0
 ],
-'moose:renderer/components/Modal/Modal.tsx':[
-0,
+"moose:renderer/components/Modal/Modal.tsx": [
+0
 ],
-'moose:renderer/components/Modal/index.ts':[
-0,
+"moose:renderer/components/Modal/index.ts": [
+0
 ],
-'moose:renderer/components/Player/Player.tsx':[
-0,
+"moose:renderer/components/Player/Player.tsx": [
+0
 ],
-'moose:renderer/components/Player/index.ts':[
-0,
+"moose:renderer/components/Player/index.ts": [
+0
 ],
-'moose:renderer/components/Preferences/Preferences.tsx':[
-0,
+"moose:renderer/components/Preferences/Preferences.tsx": [
+0
 ],
-'moose:renderer/components/Preferences/index.ts':[
-0,
+"moose:renderer/components/Preferences/index.ts": [
+0
 ],
-'moose:renderer/components/Settings/Settings.tsx':[
-0,
+"moose:renderer/components/Settings/Settings.tsx": [
+0
 ],
-'moose:renderer/components/Settings/index.tsx':[
-0,
+"moose:renderer/components/Settings/index.tsx": [
+0
 ],
-'moose:renderer/components/Toast/Toast.tsx':[
-0,
+"moose:renderer/components/Toast/Toast.tsx": [
+0
 ],
-'moose:renderer/components/Toast/index.ts':[
-0,
+"moose:renderer/components/Toast/index.ts": [
+0
 ],
-'moose:renderer/components/TorrentDetails/TorrentDetails.tsx':[
-0,
+"moose:renderer/components/TorrentDetails/TorrentDetails.tsx": [
+0
 ],
-'moose:renderer/components/TorrentDetails/index.ts':[
-0,
+"moose:renderer/components/TorrentDetails/index.ts": [
+0
 ],
-'moose:renderer/contexts/SelectedCast.ts':[
-0,
+"moose:renderer/contexts/SelectedCast.ts": [
+0
 ],
-'moose:renderer/contexts/SelectedFileContext.ts':[
-0,
+"moose:renderer/contexts/SelectedFileContext.ts": [
+0
 ],
-'moose:renderer/enums/Channels.ts':[
-0,
+"moose:renderer/enums/Channels.ts": [
+0
 ],
-'moose:renderer/enums/FileType.ts':[
-0,
+"moose:renderer/enums/FileType.ts": [
+0
 ],
-'moose:renderer/pages/_app.tsx':[
-0,
+"moose:renderer/pages/_app.tsx": [
+0
 ],
-'moose:renderer/pages/home.tsx':[
-0,
+"moose:renderer/pages/home.tsx": [
+0
 ],
-'moose:renderer/pages/settings.tsx':[
-0,
+"moose:renderer/pages/settings.tsx": [
+0
 ],
-'moose:renderer/utils/WebTorrent.ts':[
-0,
+"moose:renderer/utils/WebTorrent.ts": [
+0
 ],
-'moose:renderer/utils/animations.ts':[
-0,
+"moose:renderer/utils/animations.ts": [
+0
 ],
-'moose:renderer/utils/assert.ts':[
-0,
+"moose:renderer/utils/assert.ts": [
+0
 ],
-'moose:renderer/utils/getSubtitlesFromTorrent.ts':[
-0,
+"moose:renderer/utils/getSubtitlesFromTorrent.ts": [
+0
 ],
-'moose:renderer/utils/parseFileInfo.ts':[
-0,
+"moose:renderer/utils/parseFileInfo.ts": [
+0
 ],
-'moose:renderer/utils/store.ts':[
-0,
+"moose:renderer/utils/store.ts": [
+0
 ],
-'moose:renderer/utils/theme.ts':[
-0,
+"moose:renderer/utils/theme.ts": [
+0
 ],
-'moose:renderer/utils/url.ts':[
-0,
+"moose:renderer/utils/url.ts": [
+0
 ],
-'moose:sample/descriptions.ts':[
-0,
+"moose:sample/descriptions.ts": [
+0
 ],
-'moose:sample/results.ts':[
-0,
+"moose:sample/results.ts": [
+0
 ],
-'moose:shared/constants/CastDeviceType.ts':[
-0,
+"moose:shared/constants/CastDeviceType.ts": [
+0
 ],
-'moose:shared/constants/CastEvents.ts':[
-0,
+"moose:shared/constants/CastEvents.ts": [
+0
 ],
-'moose:types/DownloadingTorrent.ts':[
-0,
+"moose:types/DownloadingTorrent.ts": [
+0
 ],
-'moose:types/TorrentDescription.ts':[
-0,
+"moose:types/TorrentDescription.ts": [
+0
 ],
-'moose:types/TorrentDetails.ts':[
-0,
+"moose:types/TorrentDetails.ts": [
+0
 ],
-'moose:website/src/pages/index.tsx':[
-0,
-],
+"moose:website/src/pages/index.tsx": [
+0
+]
 }

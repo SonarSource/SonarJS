@@ -1,17 +1,17 @@
 {
-'postgraphql:src/postgraphql/cli.ts':[
+"postgraphql:src/postgraphql/cli.ts": [
 136,
 136,
 138,
-141,
+141
 ],
-'postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts':[
-14,
+"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
+14
 ],
-'postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts':[
-65,
+"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
+65
 ],
-'postgraphql:src/postgres/utils/__tests__/sql-test.ts':[
-154,
-],
+"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
+154
+]
 }

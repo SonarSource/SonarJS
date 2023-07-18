@@ -1,26 +1,26 @@
 {
-'postgraphql:src/graphql/schema/type/getGqlInputType.ts':[
-136,
+"postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
+136
 ],
-'postgraphql:src/interface/collection/Condition.ts':[
-69,
+"postgraphql:src/interface/collection/Condition.ts": [
+69
 ],
-'postgraphql:src/postgraphql/cli.ts':[
-110,
+"postgraphql:src/postgraphql/cli.ts": [
+110
 ],
-'postgraphql:src/postgraphql/schema/procedures/createPgProcedureMutationGqlFieldEntry.ts':[
-52,
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureMutationGqlFieldEntry.ts": [
+52
 ],
-'postgraphql:src/postgraphql/schema/procedures/createPgProcedureObjectTypeGqlFieldEntry.ts':[
-90,
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureObjectTypeGqlFieldEntry.ts": [
+90
 ],
-'postgraphql:src/postgraphql/schema/procedures/createPgProcedureQueryGqlFieldEntry.ts':[
-88,
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureQueryGqlFieldEntry.ts": [
+88
 ],
-'postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts':[
-44,
+"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
+44
 ],
-'postgraphql:src/postgres/inventory/type/PgClassType.ts':[
-34,
-],
+"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
+34
+]
 }

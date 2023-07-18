@@ -1,13 +1,13 @@
 {
-'fireface:src/avatar/avatar.component.ts':[
-17,
+"fireface:src/avatar/avatar.component.ts": [
+17
 ],
-'fireface:src/common/asset.service.ts':[
+"fireface:src/common/asset.service.ts": [
 110,
 321,
-325,
+325
 ],
-'fireface:src/common/avatar.service.ts':[
+"fireface:src/common/avatar.service.ts": [
 43,
 46,
 49,
@@ -17,13 +17,13 @@
 60,
 63,
 66,
-66,
+66
 ],
-'fireface:src/create/create.component.ts':[
-34,
+"fireface:src/create/create.component.ts": [
+34
 ],
-'fireface:src/test.ts':[
+"fireface:src/test.ts": [
 18,
-19,
-],
+19
+]
 }

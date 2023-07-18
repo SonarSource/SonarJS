@@ -1,52 +1,52 @@
 {
-'jquery:build/release/cdn.js':[
-52,
+"jquery:build/release/cdn.js": [
+52
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js": [
 101,
 231,
 254,
-622,
+622
 ],
-'jquery:src/ajax/jsonp.js':[
-43,
+"jquery:src/ajax/jsonp.js": [
+43
 ],
-'jquery:src/ajax/load.js':[
-31,
+"jquery:src/ajax/load.js": [
+31
 ],
-'jquery:src/attributes/classes.js':[
-143,
+"jquery:src/attributes/classes.js": [
+143
 ],
-'jquery:src/attributes/val.js':[
-62,
+"jquery:src/attributes/val.js": [
+62
 ],
-'jquery:src/callbacks.js':[
-129,
+"jquery:src/callbacks.js": [
+129
 ],
-'jquery:src/core.js':[
+"jquery:src/core.js": [
 179,
-289,
+289
 ],
-'jquery:src/core/access.js':[
-19,
+"jquery:src/core/access.js": [
+19
 ],
-'jquery:src/core/init.js':[
-105,
+"jquery:src/core/init.js": [
+105
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 61,
 77,
 575,
-581,
+581
 ],
-'jquery:src/offset.js':[
-180,
+"jquery:src/offset.js": [
+180
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 205,
 373,
 556,
 576,
-1581,
-],
+1581
+]
 }

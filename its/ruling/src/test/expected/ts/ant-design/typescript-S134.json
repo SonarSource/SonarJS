@@ -1,11 +1,11 @@
 {
-'ant-design:components/table/hooks/useSelection.tsx':[
+"ant-design:components/table/hooks/useSelection.tsx": [
 541,
 560,
 567,
-602,
+602
 ],
-'ant-design:components/typography/Base/Ellipsis.tsx':[
-132,
-],
+"ant-design:components/typography/Base/Ellipsis.tsx": [
+132
+]
 }

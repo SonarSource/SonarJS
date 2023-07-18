@@ -1,9 +1,9 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
-2517,
+"p5.js:lib/addons/p5.sound.js": [
+2517
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 536,
-550,
-],
+550
+]
 }

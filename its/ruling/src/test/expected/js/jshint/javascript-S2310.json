@@ -1,8 +1,8 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 3505,
 4355,
 4403,
-4536,
-],
+4536
+]
 }

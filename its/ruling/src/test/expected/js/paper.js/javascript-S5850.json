@@ -1,8 +1,8 @@
 {
-'paper.js:gulp/typescript/typescript-definition-generator.js':[
-273,
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+273
 ],
-'paper.js:src/view/CanvasView.js':[
-50,
-],
+"paper.js:src/view/CanvasView.js": [
+50
+]
 }

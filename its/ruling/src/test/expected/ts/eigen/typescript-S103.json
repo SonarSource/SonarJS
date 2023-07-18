@@ -1,63 +1,63 @@
 {
-'eigen:dangerfile.ts':[
+"eigen:dangerfile.ts": [
 49,
 66,
 70,
-87,
+87
 ],
-'eigen:src/app/Components/Artist/ArtistArtworks/ArtistNotableWorksRail.tests.tsx':[
+"eigen:src/app/Components/Artist/ArtistArtworks/ArtistNotableWorksRail.tests.tsx": [
 86,
 88,
 112,
 114,
 143,
-145,
+145
 ],
-'eigen:src/app/Components/Artist/ArtistConsignButton.tests.tsx':[
-73,
+"eigen:src/app/Components/Artist/ArtistConsignButton.tests.tsx": [
+73
 ],
-'eigen:src/app/Components/ArtsyWebView.tests.tsx':[
-285,
+"eigen:src/app/Components/ArtsyWebView.tests.tsx": [
+285
 ],
-'eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx':[
-44,
+"eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx": [
+44
 ],
-'eigen:src/app/Components/PopoverMessage/PopoverMessage.stories.tsx':[
-53,
+"eigen:src/app/Components/PopoverMessage/PopoverMessage.stories.tsx": [
+53
 ],
-'eigen:src/app/Icons/Consignments/MoneyIcon.tsx':[
+"eigen:src/app/Icons/Consignments/MoneyIcon.tsx": [
 7,
+8
+],
+"eigen:src/app/Icons/Consignments/OfferIcon.tsx": [
 8,
+15
 ],
-'eigen:src/app/Icons/Consignments/OfferIcon.tsx':[
-8,
-15,
+"eigen:src/app/Icons/Crosshair.tsx": [
+12
 ],
-'eigen:src/app/Icons/Crosshair.tsx':[
-12,
+"eigen:src/app/Icons/HighDemandIcon.tsx": [
+9
 ],
-'eigen:src/app/Icons/HighDemandIcon.tsx':[
-9,
+"eigen:src/app/Icons/Pin.tsx": [
+22
 ],
-'eigen:src/app/Icons/Pin.tsx':[
-22,
+"eigen:src/app/Icons/PinFairSelected.tsx": [
+9
 ],
-'eigen:src/app/Icons/PinFairSelected.tsx':[
-9,
+"eigen:src/app/Icons/PinSavedOff.tsx": [
+9
 ],
-'eigen:src/app/Icons/PinSavedOff.tsx':[
-9,
+"eigen:src/app/Icons/PinSavedSelected.tsx": [
+17
 ],
-'eigen:src/app/Icons/PinSavedSelected.tsx':[
-17,
+"eigen:src/app/Icons/SearchIcon.tsx": [
+7
 ],
-'eigen:src/app/Icons/SearchIcon.tsx':[
-7,
+"eigen:src/app/Scenes/Artwork/Components/AboutWork.tests.tsx": [
+57
 ],
-'eigen:src/app/Scenes/Artwork/Components/AboutWork.tests.tsx':[
-57,
-],
-'eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tests.tsx':[
+"eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tests.tsx": [
 134,
 136,
 163,
@@ -67,12 +67,12 @@
 221,
 223,
 250,
-252,
+252
 ],
-'eigen:src/app/Scenes/Artwork/Components/RequestConditionReport.tsx':[
-119,
+"eigen:src/app/Scenes/Artwork/Components/RequestConditionReport.tsx": [
+119
 ],
-'eigen:src/app/Scenes/BottomTabs/BottomTabsIcon.tsx':[
+"eigen:src/app/Scenes/BottomTabs/BottomTabsIcon.tsx": [
 37,
 43,
 52,
@@ -85,214 +85,214 @@
 109,
 120,
 134,
-136,
+136
 ],
-'eigen:src/app/Scenes/BottomTabs/BottomTabsModel.ts':[
-62,
+"eigen:src/app/Scenes/BottomTabs/BottomTabsModel.ts": [
+62
 ],
-'eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts':[
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
 12,
-247,
+247
 ],
-'eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts':[
-5,
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts": [
+5
 ],
-'eigen:src/app/Scenes/Inbox/Components/Conversations/OfferIcon.tsx':[
-10,
+"eigen:src/app/Scenes/Inbox/Components/Conversations/OfferIcon.tsx": [
+10
 ],
-'eigen:src/app/Scenes/MyProfile/utils.tests.ts':[
-22,
+"eigen:src/app/Scenes/MyProfile/utils.tests.ts": [
+22
 ],
-'eigen:src/app/Scenes/OrderHistory/OrderHistoryRow.tests.tsx':[
-27,
+"eigen:src/app/Scenes/OrderHistory/OrderHistoryRow.tests.tsx": [
+27
 ],
-'eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx':[
-199,
+"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
+199
 ],
-'eigen:src/app/__fixtures__/CityFixture.ts':[
+"eigen:src/app/__fixtures__/CityFixture.ts": [
 607,
-1093,
+1093
 ],
-'eigen:src/app/__fixtures__/FairBoothShowFixture.ts':[
-445,
+"eigen:src/app/__fixtures__/FairBoothShowFixture.ts": [
+445
 ],
-'eigen:src/app/ignoreLogs.ts':[
-6,
+"eigen:src/app/ignoreLogs.ts": [
+6
 ],
-'eigen:src/app/utils/PushNotification.ts':[
-126,
+"eigen:src/app/utils/PushNotification.ts": [
+126
 ],
-'eigen:src/app/utils/volleyClient.tests.ts':[
+"eigen:src/app/utils/volleyClient.tests.ts": [
 36,
-53,
+53
 ],
-'eigen:src/palette/elements/Avatar/Avatar.stories.tsx':[
-18,
+"eigen:src/palette/elements/Avatar/Avatar.stories.tsx": [
+18
 ],
-'eigen:src/palette/elements/Dialog/Dialog.stories.tsx':[
+"eigen:src/palette/elements/Dialog/Dialog.stories.tsx": [
 39,
-43,
+43
 ],
-'eigen:src/palette/svgs/AlertCircleFillIcon.tsx':[
-13,
+"eigen:src/palette/svgs/AlertCircleFillIcon.tsx": [
+13
 ],
-'eigen:src/palette/svgs/AlertIcon.tsx':[
-11,
+"eigen:src/palette/svgs/AlertIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/ArtsyLogoBlackIcon.tsx':[
-19,
+"eigen:src/palette/svgs/ArtsyLogoBlackIcon.tsx": [
+19
 ],
-'eigen:src/palette/svgs/ArtsyLogoWhiteIcon.tsx':[
-14,
+"eigen:src/palette/svgs/ArtsyLogoWhiteIcon.tsx": [
+14
 ],
-'eigen:src/palette/svgs/BellFillIcon.tsx':[
-11,
+"eigen:src/palette/svgs/BellFillIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/BellIcon.tsx':[
-11,
+"eigen:src/palette/svgs/BellIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/BlueChipIcon.tsx':[
-11,
+"eigen:src/palette/svgs/BlueChipIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/BriefcaseIcon.tsx':[
-11,
+"eigen:src/palette/svgs/BriefcaseIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/CertificateIcon.tsx':[
-11,
+"eigen:src/palette/svgs/CertificateIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/CheckCircleIcon.tsx':[
-11,
+"eigen:src/palette/svgs/CheckCircleIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/CloseCircleIcon.tsx':[
-11,
+"eigen:src/palette/svgs/CloseCircleIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/DownloadIcon.tsx':[
-11,
+"eigen:src/palette/svgs/DownloadIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/EnvelopeIcon.tsx':[
-11,
+"eigen:src/palette/svgs/EnvelopeIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/EstablishedIcon.tsx':[
-11,
+"eigen:src/palette/svgs/EstablishedIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/EyeClosedIcon.tsx':[
-11,
+"eigen:src/palette/svgs/EyeClosedIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/EyeOpenedIcon.tsx':[
-11,
+"eigen:src/palette/svgs/EyeOpenedIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/FacebookIcon.tsx':[
-10,
+"eigen:src/palette/svgs/FacebookIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/GenomeIcon.tsx':[
-11,
+"eigen:src/palette/svgs/GenomeIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/HeartIcon.tsx':[
-11,
+"eigen:src/palette/svgs/HeartIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/HomeIcon.tsx':[
-10,
+"eigen:src/palette/svgs/HomeIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/InstagramAppIcon.tsx':[
+"eigen:src/palette/svgs/InstagramAppIcon.tsx": [
 8,
 12,
-16,
+16
 ],
-'eigen:src/palette/svgs/LinkIcon.tsx':[
+"eigen:src/palette/svgs/LinkIcon.tsx": [
 10,
-16,
+16
 ],
-'eigen:src/palette/svgs/LockIcon.tsx':[
-10,
+"eigen:src/palette/svgs/LockIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/MapPinIcon.tsx':[
-11,
+"eigen:src/palette/svgs/MapPinIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/MessagesAppIcon.tsx':[
-13,
+"eigen:src/palette/svgs/MessagesAppIcon.tsx": [
+13
 ],
-'eigen:src/palette/svgs/MoneyFillIcon.tsx':[
-10,
+"eigen:src/palette/svgs/MoneyFillIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/MoreIcon.tsx':[
-10,
+"eigen:src/palette/svgs/MoreIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/NoArtworkIcon.tsx':[
-10,
+"eigen:src/palette/svgs/NoArtworkIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/NoImageIcon.tsx':[
-10,
+"eigen:src/palette/svgs/NoImageIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/PaymentIcon.tsx':[
-12,
+"eigen:src/palette/svgs/PaymentIcon.tsx": [
+12
 ],
-'eigen:src/palette/svgs/PublicationIcon.tsx':[
-10,
+"eigen:src/palette/svgs/PublicationIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/QuestionCircleIcon.tsx':[
-11,
+"eigen:src/palette/svgs/QuestionCircleIcon.tsx": [
+11
 ],
-'eigen:src/palette/svgs/ReloadIcon.tsx':[
-10,
+"eigen:src/palette/svgs/ReloadIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/SettingsIcon.tsx':[
-10,
+"eigen:src/palette/svgs/SettingsIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/ShareIcon.tsx':[
-10,
+"eigen:src/palette/svgs/ShareIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/ShieldIcon.tsx':[
+"eigen:src/palette/svgs/ShieldIcon.tsx": [
 23,
-29,
+29
 ],
-'eigen:src/palette/svgs/TagIcon.tsx':[
-10,
+"eigen:src/palette/svgs/TagIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/TwitterIcon.tsx':[
-10,
+"eigen:src/palette/svgs/TwitterIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/UserMultiIcon.tsx':[
-10,
+"eigen:src/palette/svgs/UserMultiIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/UserSingleIcon.tsx':[
-10,
+"eigen:src/palette/svgs/UserSingleIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/VerifiedIcon.tsx':[
-10,
+"eigen:src/palette/svgs/VerifiedIcon.tsx": [
+10
 ],
-'eigen:src/palette/svgs/WhatsAppAppIcon.tsx':[
+"eigen:src/palette/svgs/WhatsAppAppIcon.tsx": [
 11,
-15,
+15
 ],
-'eigen:src/palette/svgs/XCircleIcon.tsx':[
-14,
+"eigen:src/palette/svgs/XCircleIcon.tsx": [
+14
 ],
-'eigen:src/palette/svgs/sf/BoltCircleFill.tsx':[
+"eigen:src/palette/svgs/sf/BoltCircleFill.tsx": [
 25,
 31,
-35,
+35
 ],
-'eigen:src/palette/svgs/sf/BoltFill.tsx':[
-10,
+"eigen:src/palette/svgs/sf/BoltFill.tsx": [
+10
 ],
-'eigen:src/palette/svgs/sf/BookmarkFill.tsx':[
-11,
+"eigen:src/palette/svgs/sf/BookmarkFill.tsx": [
+11
 ],
-'eigen:src/palette/svgs/sf/ClockFill.tsx':[
-11,
+"eigen:src/palette/svgs/sf/ClockFill.tsx": [
+11
 ],
-'eigen:src/palette/svgs/sf/ExclamationMarkCircleFill.tsx':[
-12,
+"eigen:src/palette/svgs/sf/ExclamationMarkCircleFill.tsx": [
+12
 ],
-'eigen:src/palette/svgs/sf/StarCircleFill.tsx':[
+"eigen:src/palette/svgs/sf/StarCircleFill.tsx": [
 23,
 30,
-34,
+34
 ],
-'eigen:src/palette/svgs/sf/Stopwatch.tsx':[
-11,
+"eigen:src/palette/svgs/sf/Stopwatch.tsx": [
+11
 ],
-'eigen:src/shared/utils/normalizeText.ts':[
+"eigen:src/shared/utils/normalizeText.ts": [
 21,
 44,
 84,
@@ -300,6 +300,6 @@
 130,
 152,
 192,
-218,
-],
+218
+]
 }

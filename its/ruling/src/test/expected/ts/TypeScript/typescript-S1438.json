@@ -1,29 +1,29 @@
 {
-'TypeScript:scripts/authors.ts':[
-74,
+"TypeScript:scripts/authors.ts": [
+74
 ],
-'TypeScript:scripts/buildProtocol.ts':[
+"TypeScript:scripts/buildProtocol.ts": [
 27,
 31,
 133,
-150,
+150
 ],
-'TypeScript:scripts/configureNightly.ts':[
+"TypeScript:scripts/configureNightly.ts": [
 15,
-51,
+51
 ],
-'TypeScript:scripts/createBenchmark.ts':[
-122,
+"TypeScript:scripts/createBenchmark.ts": [
+122
 ],
-'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 14,
 21,
 23,
-159,
+159
 ],
-'TypeScript:scripts/processDiagnosticMessages.ts':[
+"TypeScript:scripts/processDiagnosticMessages.ts": [
 16,
 147,
-158,
-],
+158
+]
 }

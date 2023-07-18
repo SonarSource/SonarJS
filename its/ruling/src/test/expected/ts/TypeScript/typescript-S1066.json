@@ -1,5 +1,5 @@
 {
-'TypeScript:src/compiler/binder.ts':[
+"TypeScript:src/compiler/binder.ts": [
 294,
 1097,
 1737,
@@ -7,9 +7,9 @@
 1877,
 2530,
 2547,
-2561,
+2561
 ],
-'TypeScript:src/compiler/checker.ts':[
+"TypeScript:src/compiler/checker.ts": [
 874,
 972,
 1017,
@@ -59,113 +59,113 @@
 22856,
 23932,
 24279,
-24383,
+24383
 ],
-'TypeScript:src/compiler/core.ts':[
-1025,
+"TypeScript:src/compiler/core.ts": [
+1025
 ],
-'TypeScript:src/compiler/emitter.ts':[
-2467,
+"TypeScript:src/compiler/emitter.ts": [
+2467
 ],
-'TypeScript:src/compiler/factory.ts':[
-4260,
+"TypeScript:src/compiler/factory.ts": [
+4260
 ],
-'TypeScript:src/compiler/parser.ts':[
+"TypeScript:src/compiler/parser.ts": [
 1492,
-2852,
+2852
 ],
-'TypeScript:src/compiler/program.ts':[
-1521,
+"TypeScript:src/compiler/program.ts": [
+1521
 ],
-'TypeScript:src/compiler/transformers/ts.ts':[
+"TypeScript:src/compiler/transformers/ts.ts": [
 2398,
 2683,
-3278,
+3278
 ],
-'TypeScript:src/compiler/tsc.ts':[
-328,
+"TypeScript:src/compiler/tsc.ts": [
+328
 ],
-'TypeScript:src/compiler/utilities.ts':[
-1663,
+"TypeScript:src/compiler/utilities.ts": [
+1663
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 1059,
-1997,
+1997
 ],
-'TypeScript:src/harness/projectsRunner.ts':[
-353,
+"TypeScript:src/harness/projectsRunner.ts": [
+353
 ],
-'TypeScript:src/harness/rwcRunner.ts':[
-111,
+"TypeScript:src/harness/rwcRunner.ts": [
+111
 ],
-'TypeScript:src/server/editorServices.ts':[
-1205,
+"TypeScript:src/server/editorServices.ts": [
+1205
 ],
-'TypeScript:src/server/project.ts':[
-799,
+"TypeScript:src/server/project.ts": [
+799
 ],
-'TypeScript:src/server/scriptVersionCache.ts':[
+"TypeScript:src/server/scriptVersionCache.ts": [
 81,
-711,
+711
 ],
-'TypeScript:src/server/server.ts':[
-311,
+"TypeScript:src/server/server.ts": [
+311
 ],
-'TypeScript:src/server/typingsInstaller/typingsInstaller.ts':[
-211,
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+211
 ],
-'TypeScript:src/services/classifier.ts':[
+"TypeScript:src/services/classifier.ts": [
 249,
 525,
 880,
-890,
+890
 ],
-'TypeScript:src/services/completions.ts':[
-1466,
+"TypeScript:src/services/completions.ts": [
+1466
 ],
-'TypeScript:src/services/documentHighlights.ts':[
-404,
+"TypeScript:src/services/documentHighlights.ts": [
+404
 ],
-'TypeScript:src/services/findAllReferences.ts':[
-1140,
+"TypeScript:src/services/findAllReferences.ts": [
+1140
 ],
-'TypeScript:src/services/formatting/formatting.ts':[
+"TypeScript:src/services/formatting/formatting.ts": [
 510,
-734,
+734
 ],
-'TypeScript:src/services/goToDefinition.ts':[
-171,
+"TypeScript:src/services/goToDefinition.ts": [
+171
 ],
-'TypeScript:src/services/navigateTo.ts':[
+"TypeScript:src/services/navigateTo.ts": [
 87,
-150,
+150
 ],
-'TypeScript:src/services/navigationBar.ts':[
-449,
+"TypeScript:src/services/navigationBar.ts": [
+449
 ],
-'TypeScript:src/services/patternMatcher.ts':[
+"TypeScript:src/services/patternMatcher.ts": [
 241,
 257,
 265,
 432,
-690,
+690
 ],
-'TypeScript:src/services/preProcess.ts':[
-215,
+"TypeScript:src/services/preProcess.ts": [
+215
 ],
-'TypeScript:src/services/services.ts':[
+"TypeScript:src/services/services.ts": [
 602,
 943,
-944,
+944
 ],
-'TypeScript:src/services/symbolDisplay.ts':[
-429,
+"TypeScript:src/services/symbolDisplay.ts": [
+429
 ],
-'TypeScript:src/services/textChanges.ts':[
-256,
+"TypeScript:src/services/textChanges.ts": [
+256
 ],
-'TypeScript:src/services/utilities.ts':[
+"TypeScript:src/services/utilities.ts": [
 949,
-1051,
-],
+1051
+]
 }

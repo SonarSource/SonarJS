@@ -1,23 +1,23 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js": [
 114,
 569,
 577,
-585,
+585
 ],
-'ocanvas:src/core.js':[
-109,
+"ocanvas:src/core.js": [
+109
 ],
-'ocanvas:src/draw.js':[
-144,
+"ocanvas:src/draw.js": [
+144
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 38,
 39,
 637,
-724,
+724
 ],
-'ocanvas:src/tools.js':[
+"ocanvas:src/tools.js": [
 67,
 120,
 169,
@@ -40,6 +40,6 @@
 412,
 415,
 416,
-417,
-],
+417
+]
 }

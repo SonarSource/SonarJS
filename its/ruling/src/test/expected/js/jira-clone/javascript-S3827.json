@@ -1,27 +1,27 @@
 {
-'jira-clone:client/cypress/integration/authentication.spec.js':[
-5,
+"jira-clone:client/cypress/integration/authentication.spec.js": [
+5
 ],
-'jira-clone:client/cypress/integration/issueCreate.spec.js':[
-5,
+"jira-clone:client/cypress/integration/issueCreate.spec.js": [
+5
 ],
-'jira-clone:client/cypress/integration/issueDetails.spec.js':[
-5,
+"jira-clone:client/cypress/integration/issueDetails.spec.js": [
+5
 ],
-'jira-clone:client/cypress/integration/issueFilters.spec.js':[
-5,
+"jira-clone:client/cypress/integration/issueFilters.spec.js": [
+5
 ],
-'jira-clone:client/cypress/integration/issueSearch.spec.js':[
-5,
+"jira-clone:client/cypress/integration/issueSearch.spec.js": [
+5
 ],
-'jira-clone:client/cypress/integration/issuesDragDrop.spec.js':[
-7,
+"jira-clone:client/cypress/integration/issuesDragDrop.spec.js": [
+7
 ],
-'jira-clone:client/cypress/integration/projectSettings.spec.js':[
-5,
+"jira-clone:client/cypress/integration/projectSettings.spec.js": [
+5
 ],
-'jira-clone:client/cypress/support/commands.js':[
+"jira-clone:client/cypress/support/commands.js": [
 11,
-13,
-],
+13
+]
 }

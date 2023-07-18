@@ -1,5 +1,5 @@
 {
-'ocanvas:src/animation.js':[
+"ocanvas:src/animation.js": [
 474,
 478,
 487,
@@ -24,6 +24,6 @@
 603,
 614,
 616,
-618,
-],
+618
+]
 }

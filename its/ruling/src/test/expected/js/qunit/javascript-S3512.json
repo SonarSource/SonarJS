@@ -1,19 +1,19 @@
 {
-'qunit:build/release.js':[
+"qunit:build/release.js": [
 10,
 18,
-19,
+19
 ],
-'qunit:build/tasks/test-on-node.js':[
+"qunit:build/tasks/test-on-node.js": [
 104,
-115,
+115
 ],
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 224,
 227,
-230,
+230
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 71,
 71,
 89,
@@ -43,33 +43,33 @@
 864,
 872,
 935,
-938,
+938
 ],
-'qunit:src/assert.js':[
+"qunit:src/assert.js": [
 363,
 380,
-428,
+428
 ],
-'qunit:src/cli/run.js':[
-86,
+"qunit:src/cli/run.js": [
+86
 ],
-'qunit:src/core/onerror.js':[
+"qunit:src/core/onerror.js": [
 17,
-24,
+24
 ],
-'qunit:src/core/utilities.js':[
-143,
+"qunit:src/core/utilities.js": [
+143
 ],
-'qunit:src/dump.js':[
+"qunit:src/dump.js": [
 8,
 18,
 153,
 201,
 223,
 235,
-253,
+253
 ],
-'qunit:src/test.js':[
+"qunit:src/test.js": [
 172,
 234,
 283,
@@ -77,6 +77,6 @@
 319,
 432,
 535,
-557,
-],
+557
+]
 }

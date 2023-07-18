@@ -1,11 +1,11 @@
 {
-'jshint:src/name-stack.js':[
+"jshint:src/name-stack.js": [
 37,
 44,
 54,
-63,
+63
 ],
-'jshint:tests/helpers/browser/index.html':[
-16,
-],
+"jshint:tests/helpers/browser/index.html": [
+16
+]
 }

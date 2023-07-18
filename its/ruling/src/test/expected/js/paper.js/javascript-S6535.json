@@ -1,13 +1,13 @@
 {
-'paper.js:gulp/typescript/typescript-definition-generator.js':[
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
 153,
-278,
+278
 ],
-'paper.js:src/anim/Tween.js':[
+"paper.js:src/anim/Tween.js": [
 348,
-348,
+348
 ],
-'paper.js:src/core/PaperScope.js':[
-90,
-],
+"paper.js:src/core/PaperScope.js": [
+90
+]
 }

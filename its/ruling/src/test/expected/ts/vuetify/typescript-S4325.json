@@ -1,88 +1,88 @@
 {
-'vuetify:packages/docs/src/App.vue':[
+"vuetify:packages/docs/src/App.vue": [
 85,
-120,
+120
 ],
-'vuetify:packages/docs/src/components/app/list/List.vue':[
-89,
+"vuetify:packages/docs/src/components/app/list/List.vue": [
+89
 ],
-'vuetify:packages/vuetify/cypress/support/mount.ts':[
-32,
+"vuetify:packages/vuetify/cypress/support/mount.ts": [
+32
 ],
-'vuetify:packages/vuetify/src/components/VData/VData.ts':[
-382,
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+382
 ],
-'vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts':[
-48,
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+48
 ],
-'vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx':[
-182,
+"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
+182
 ],
-'vuetify:packages/vuetify/src/components/VGrid/VCol.ts':[
+"vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
-116,
+116
 ],
-'vuetify:packages/vuetify/src/components/VGrid/VRow.ts':[
+"vuetify:packages/vuetify/src/components/VGrid/VRow.ts": [
 114,
-116,
+116
 ],
-'vuetify:packages/vuetify/src/components/VList/VListChildren.tsx':[
-61,
+"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
+61
 ],
-'vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx':[
-17,
+"vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
+17
 ],
-'vuetify:packages/vuetify/src/components/VStepper/VStepper.ts':[
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
 109,
 111,
 112,
-119,
+119
 ],
-'vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts':[
-39,
+"vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts": [
+39
 ],
-'vuetify:packages/vuetify/src/composables/__tests__/color.spec.ts':[
+"vuetify:packages/vuetify/src/composables/__tests__/color.spec.ts": [
 25,
-65,
+65
 ],
-'vuetify:packages/vuetify/src/composables/forwardRefs.ts':[
-66,
+"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
+66
 ],
-'vuetify:packages/vuetify/src/composables/layout.ts':[
+"vuetify:packages/vuetify/src/composables/layout.ts": [
 237,
-238,
+238
 ],
-'vuetify:packages/vuetify/src/composables/proxiedModel.ts':[
-47,
+"vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
+47
 ],
-'vuetify:packages/vuetify/src/composables/scopeId.ts':[
-6,
+"vuetify:packages/vuetify/src/composables/scopeId.ts": [
+6
 ],
-'vuetify:packages/vuetify/src/composables/transition.ts':[
+"vuetify:packages/vuetify/src/composables/transition.ts": [
 27,
-27,
+27
 ],
-'vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts':[
+"vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
 19,
 23,
 38,
-42,
+42
 ],
-'vuetify:packages/vuetify/src/framework.ts':[
-131,
+"vuetify:packages/vuetify/src/framework.ts": [
+131
 ],
-'vuetify:packages/vuetify/src/util/defineComponent.tsx':[
-195,
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+195
 ],
-'vuetify:packages/vuetify/src/util/helpers.ts':[
+"vuetify:packages/vuetify/src/util/helpers.ts": [
 121,
-123,
+123
 ],
-'vuetify:packages/vuetify/src/util/useRender.ts':[
-8,
+"vuetify:packages/vuetify/src/util/useRender.ts": [
+8
 ],
-'vuetify:packages/vuetify/test/util/to-have-been-warned.ts':[
+"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
 66,
-71,
-],
+71
+]
 }

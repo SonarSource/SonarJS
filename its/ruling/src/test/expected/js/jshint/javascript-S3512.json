@@ -1,63 +1,63 @@
 {
-'jshint:examples/reporter.js':[
+"jshint:examples/reporter.js": [
 12,
-17,
+17
 ],
-'jshint:scripts/build.js':[
+"jshint:scripts/build.js": [
 17,
-31,
+31
 ],
-'jshint:scripts/generate-identifier-data.js':[
+"jshint:scripts/generate-identifier-data.js": [
 12,
 15,
 66,
 75,
-89,
+89
 ],
-'jshint:scripts/remove-dev-dependencies.js':[
-22,
+"jshint:scripts/remove-dev-dependencies.js": [
+22
 ],
-'jshint:src/cli.js':[
+"jshint:src/cli.js": [
 70,
 242,
 554,
-570,
+570
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 362,
 369,
 2871,
 2873,
-6409,
+6409
 ],
-'jshint:src/lex.js':[
-444,
+"jshint:src/lex.js": [
+444
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js": [
 40,
 73,
-77,
+77
 ],
-'jshint:src/reporters/default.js':[
+"jshint:src/reporters/default.js": [
 20,
 24,
-31,
+31
 ],
-'jshint:src/reporters/jslint_xml.js':[
+"jshint:src/reporters/jslint_xml.js": [
 39,
-42,
+42
 ],
-'jshint:src/reporters/non_error.js':[
+"jshint:src/reporters/non_error.js": [
 12,
 17,
 23,
 31,
 37,
-43,
+43
 ],
-'jshint:src/reporters/unix.js':[
+"jshint:src/reporters/unix.js": [
 24,
 27,
-34,
-],
+34
+]
 }

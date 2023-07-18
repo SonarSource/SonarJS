@@ -1,8 +1,8 @@
 {
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 394,
 1019,
 1045,
-1640,
-],
+1640
+]
 }

@@ -1,5 +1,5 @@
 {
-'TypeScript:src/compiler/types.ts':[
+"TypeScript:src/compiler/types.ts": [
 53,
 54,
 55,
@@ -305,6 +305,6 @@
 3812,
 3813,
 3814,
-3815,
-],
+3815
+]
 }

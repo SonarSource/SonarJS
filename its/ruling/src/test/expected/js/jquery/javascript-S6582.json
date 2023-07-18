@@ -1,86 +1,86 @@
 {
-'jquery:Gruntfile.js':[
-18,
+"jquery:Gruntfile.js": [
+18
 ],
-'jquery:src/ajax.js':[
-151,
+"jquery:src/ajax.js": [
+151
 ],
-'jquery:src/attributes/attr.js':[
-91,
+"jquery:src/attributes/attr.js": [
+91
 ],
-'jquery:src/attributes/classes.js':[
-9,
+"jquery:src/attributes/classes.js": [
+9
 ],
-'jquery:src/attributes/prop.js':[
-99,
+"jquery:src/attributes/prop.js": [
+99
 ],
-'jquery:src/callbacks.js':[
-129,
+"jquery:src/callbacks.js": [
+129
 ],
-'jquery:src/core.js':[
+"jquery:src/core.js": [
 236,
-327,
+327
 ],
-'jquery:src/core/DOMEval.js':[
-30,
+"jquery:src/core/DOMEval.js": [
+30
 ],
-'jquery:src/core/init.js':[
-53,
+"jquery:src/core/init.js": [
+53
 ],
-'jquery:src/core/parseHTML.js':[
-45,
+"jquery:src/core/parseHTML.js": [
+45
 ],
-'jquery:src/css.js':[
-244,
+"jquery:src/css.js": [
+244
 ],
-'jquery:src/css/adjustCSS.js':[
-16,
+"jquery:src/css/adjustCSS.js": [
+16
 ],
-'jquery:src/data.js':[
-96,
+"jquery:src/data.js": [
+96
 ],
-'jquery:src/deferred.js':[
+"jquery:src/deferred.js": [
 85,
-377,
+377
 ],
-'jquery:src/effects.js':[
+"jquery:src/effects.js": [
 133,
 153,
 543,
 548,
 590,
-604,
+604
 ],
-'jquery:src/effects/Tween.js':[
+"jquery:src/effects/Tween.js": [
 26,
-47,
+47
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 301,
 338,
 575,
 618,
 644,
-820,
+820
 ],
-'jquery:src/event/trigger.js':[
+"jquery:src/event/trigger.js": [
 102,
-110,
+110
 ],
-'jquery:src/queue.js':[
-131,
+"jquery:src/queue.js": [
+131
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 154,
 213,
 458,
-897,
+897
 ],
-'jquery:src/selector/contains.js':[
-6,
+"jquery:src/selector/contains.js": [
+6
 ],
-'jquery:src/traversing.js':[
+"jquery:src/traversing.js": [
 73,
-139,
-],
+139
+]
 }

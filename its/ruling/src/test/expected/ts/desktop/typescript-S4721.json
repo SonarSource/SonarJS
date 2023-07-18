@@ -1,28 +1,28 @@
 {
-'desktop:app/src/lib/editors/launch.ts':[
-33,
+"desktop:app/src/lib/editors/launch.ts": [
+33
 ],
-'desktop:app/src/lib/shells/win32.ts':[
+"desktop:app/src/lib/shells/win32.ts": [
 421,
 428,
 435,
 442,
 467,
-471,
+471
 ],
-'desktop:script/build.ts':[
-89,
+"desktop:script/build.ts": [
+89
 ],
-'desktop:script/draft-release/run.ts':[
-141,
+"desktop:script/draft-release/run.ts": [
+141
 ],
-'desktop:script/package.ts':[
+"desktop:script/package.ts": [
 40,
 57,
 118,
-121,
+121
 ],
-'desktop:script/test-setup.ts':[
-14,
-],
+"desktop:script/test-setup.ts": [
+14
+]
 }

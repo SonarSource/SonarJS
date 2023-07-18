@@ -1,18 +1,18 @@
 {
-'TypeScript:Gulpfile.ts':[
-176,
+"TypeScript:Gulpfile.ts": [
+176
 ],
-'TypeScript:src/compiler/commandLineParser.ts':[
-1347,
+"TypeScript:src/compiler/commandLineParser.ts": [
+1347
 ],
-'TypeScript:src/compiler/core.ts':[
-139,
+"TypeScript:src/compiler/core.ts": [
+139
 ],
-'TypeScript:src/server/typingsInstaller/typingsInstaller.ts':[
-196,
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+196
 ],
-'TypeScript:src/services/codefixes/importFixes.ts':[
+"TypeScript:src/services/codefixes/importFixes.ts": [
 87,
-434,
-],
+434
+]
 }

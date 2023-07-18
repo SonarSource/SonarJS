@@ -1,5 +1,5 @@
 {
-'ocanvas:index.js':[
+"ocanvas:index.js": [
 13,
 14,
 15,
@@ -22,13 +22,13 @@
 32,
 33,
 34,
-35,
+35
 ],
-'ocanvas:scripts/release.js':[
+"ocanvas:scripts/release.js": [
 1,
 2,
 3,
 4,
-6,
-],
+6
+]
 }

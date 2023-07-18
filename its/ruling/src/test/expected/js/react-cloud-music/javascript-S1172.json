@@ -1,25 +1,25 @@
 {
-'react-cloud-music:config/jest/fileTransform.js':[
-10,
+"react-cloud-music:config/jest/fileTransform.js": [
+10
 ],
-'react-cloud-music:src/application/Player/play-list/index.jsx':[
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
 58,
 101,
-126,
+126
 ],
-'react-cloud-music:src/application/Singers/index.jsx':[
-127,
+"react-cloud-music:src/application/Singers/index.jsx": [
+127
 ],
-'react-cloud-music:src/assets/border.js':[
-4,
+"react-cloud-music:src/assets/border.js": [
+4
 ],
-'react-cloud-music:src/baseUI/music-note/index.jsx':[
-23,
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+23
 ],
-'react-cloud-music:src/baseUI/progress-bar/index.jsx':[
-95,
+"react-cloud-music:src/baseUI/progress-bar/index.jsx": [
+95
 ],
-'react-cloud-music:ts-music/config/jest/fileTransform.js':[
-10,
-],
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
+10
+]
 }

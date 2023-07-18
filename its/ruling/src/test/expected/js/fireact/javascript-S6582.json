@@ -1,13 +1,13 @@
 {
-'fireact:src/components/Breadcrumb/index.js':[
-10,
+"fireact:src/components/Breadcrumb/index.js": [
+10
 ],
-'fireact:src/pages/auth/accounts/Plans/index.js':[
+"fireact:src/pages/auth/accounts/Plans/index.js": [
 271,
-311,
+311
 ],
-'fireact:src/serviceWorker.js':[
+"fireact:src/serviceWorker.js": [
 78,
-88,
-],
+88
+]
 }

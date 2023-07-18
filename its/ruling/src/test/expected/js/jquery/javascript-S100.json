@@ -1,22 +1,22 @@
 {
-'jquery:src/core/DOMEval.js':[
-10,
+"jquery:src/core/DOMEval.js": [
+10
 ],
-'jquery:src/data/Data.js':[
-6,
+"jquery:src/data/Data.js": [
+6
 ],
-'jquery:src/deferred.js':[
+"jquery:src/deferred.js": [
 6,
 9,
-45,
+45
 ],
-'jquery:src/effects.js':[
-286,
+"jquery:src/effects.js": [
+286
 ],
-'jquery:src/effects/Tween.js':[
-7,
+"jquery:src/effects/Tween.js": [
+7
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 480,
 487,
 497,
@@ -28,6 +28,6 @@
 613,
 629,
 669,
-779,
-],
+779
+]
 }

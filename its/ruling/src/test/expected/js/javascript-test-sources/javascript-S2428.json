@@ -1,33 +1,33 @@
 {
-'javascript-test-sources:src/ace/doc/site/js/main.js':[
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
 67,
-149,
+149
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-7849,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+7849
 ],
-'javascript-test-sources:src/ace/src/keyboard/vim_test.js':[
-5375,
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+5375
 ],
-'javascript-test-sources:src/ace/src/test/user.js':[
-8,
+"javascript-test-sources:src/ace/src/test/user.js": [
+8
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/general.js':[
-59,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/general.js": [
+59
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/application.js':[
-18,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/application.js": [
+18
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js':[
-13,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js": [
+13
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/navigation.js':[
-56,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/navigation.js": [
+56
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/configUtils.js':[
-5,
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/configUtils.js": [
+5
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/characteristic-facet.js':[
-35,
-],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/characteristic-facet.js": [
+35
+]
 }

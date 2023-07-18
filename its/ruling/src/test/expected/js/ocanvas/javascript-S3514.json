@@ -1,17 +1,17 @@
 {
-'ocanvas:src/animation.js':[
-189,
+"ocanvas:src/animation.js": [
+189
 ],
-'ocanvas:src/core.js':[
-79,
+"ocanvas:src/core.js": [
+79
 ],
-'ocanvas:src/displayobject.js':[
-710,
+"ocanvas:src/displayobject.js": [
+710
 ],
-'ocanvas:src/displayobjects/polygon.js':[
-43,
+"ocanvas:src/displayobjects/polygon.js": [
+43
 ],
-'ocanvas:src/utils.js':[
-9,
-],
+"ocanvas:src/utils.js": [
+9
+]
 }

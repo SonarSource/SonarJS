@@ -1,14 +1,14 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 502,
 514,
 629,
-855,
+855
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
-21,
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+21
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 1169,
 2257,
 2495,
@@ -29,77 +29,77 @@
 8266,
 10766,
 11096,
-11114,
+11114
 ],
-'p5.js:src/core/environment.js':[
-537,
+"p5.js:src/core/environment.js": [
+537
 ],
-'p5.js:src/core/error_helpers.js':[
-777,
+"p5.js:src/core/error_helpers.js": [
+777
 ],
-'p5.js:src/core/helpers.js':[
-7,
+"p5.js:src/core/helpers.js": [
+7
 ],
-'p5.js:src/core/p5.Renderer.js':[
-211,
+"p5.js:src/core/p5.Renderer.js": [
+211
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 488,
 546,
 686,
-1141,
+1141
 ],
-'p5.js:src/data/p5.TypedDict.js':[
-166,
+"p5.js:src/data/p5.TypedDict.js": [
+166
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js": [
 825,
 1007,
 1843,
 2722,
-2806,
+2806
 ],
-'p5.js:src/image/p5.Image.js':[
+"p5.js:src/image/p5.Image.js": [
 936,
-1018,
+1018
 ],
-'p5.js:src/io/p5.XML.js':[
-365,
+"p5.js:src/io/p5.XML.js": [
+365
 ],
-'p5.js:src/math/calculation.js':[
-173,
+"p5.js:src/math/calculation.js": [
+173
 ],
-'p5.js:src/typography/loading_displaying.js':[
-90,
+"p5.js:src/typography/loading_displaying.js": [
+90
 ],
-'p5.js:src/typography/p5.Font.js':[
-1211,
+"p5.js:src/typography/p5.Font.js": [
+1211
 ],
-'p5.js:src/utilities/conversion.js':[
+"p5.js:src/utilities/conversion.js": [
 72,
 134,
 173,
 206,
 237,
-271,
+271
 ],
-'p5.js:src/webgl/3d_primitives.js':[
-881,
+"p5.js:src/webgl/3d_primitives.js": [
+881
 ],
-'p5.js:src/webgl/interaction.js':[
-49,
+"p5.js:src/webgl/interaction.js": [
+49
 ],
-'p5.js:src/webgl/loading.js':[
-445,
+"p5.js:src/webgl/loading.js": [
+445
 ],
-'p5.js:src/webgl/p5.Matrix.js':[
+"p5.js:src/webgl/p5.Matrix.js": [
 409,
-464,
+464
 ],
-'p5.js:src/webgl/p5.Shader.js':[
-355,
+"p5.js:src/webgl/p5.Shader.js": [
+355
 ],
-'p5.js:src/webgl/text.js':[
-624,
-],
+"p5.js:src/webgl/text.js": [
+624
+]
 }

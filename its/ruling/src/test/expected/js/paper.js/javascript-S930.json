@@ -1,9 +1,9 @@
 {
-'paper.js:src/node/extend.js':[
-105,
+"paper.js:src/node/extend.js": [
+105
 ],
-'paper.js:src/svg/SvgExport.js':[
+"paper.js:src/svg/SvgExport.js": [
 113,
-309,
-],
+309
+]
 }

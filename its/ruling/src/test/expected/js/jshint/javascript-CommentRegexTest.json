@@ -1,18 +1,18 @@
 {
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 222,
 251,
 260,
 692,
 3270,
-5596,
+5596
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 1023,
 1224,
-2127,
+2127
 ],
-'jshint:src/messages.js':[
-133,
-],
+"jshint:src/messages.js": [
+133
+]
 }

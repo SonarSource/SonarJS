@@ -1,5 +1,5 @@
 {
-'fireact:functions/index.js':[
+"fireact:functions/index.js": [
 22,
 24,
 35,
@@ -29,15 +29,15 @@
 596,
 597,
 622,
-623,
+623
 ],
-'fireact:src/components/Breadcrumb/index.js':[
+"fireact:src/components/Breadcrumb/index.js": [
 14,
 18,
 24,
-25,
+25
 ],
-'fireact:src/components/DataCreate/index.js':[
+"fireact:src/components/DataCreate/index.js": [
 16,
 17,
 27,
@@ -46,13 +46,13 @@
 43,
 48,
 73,
-74,
+74
 ],
-'fireact:src/components/DataDelete/index.js':[
+"fireact:src/components/DataDelete/index.js": [
 24,
-25,
+25
 ],
-'fireact:src/components/DataEdit/index.js':[
+"fireact:src/components/DataEdit/index.js": [
 18,
 19,
 29,
@@ -61,61 +61,61 @@
 45,
 50,
 75,
-76,
+76
 ],
-'fireact:src/components/DataList/index.js':[
+"fireact:src/components/DataList/index.js": [
 18,
 23,
 28,
 29,
 67,
-68,
+68
 ],
-'fireact:src/components/DataTable/index.js':[
+"fireact:src/components/DataTable/index.js": [
 38,
-39,
+39
 ],
-'fireact:src/components/FirebaseAuth/firebase.js':[
-11,
+"fireact:src/components/FirebaseAuth/firebase.js": [
+11
 ],
-'fireact:src/components/FirebaseAuth/index.js':[
-14,
+"fireact:src/components/FirebaseAuth/index.js": [
+14
 ],
-'fireact:src/components/FirebaseUI/index.js':[
+"fireact:src/components/FirebaseUI/index.js": [
 37,
-77,
+77
 ],
-'fireact:src/components/Form/ButtonRow.js':[
-10,
+"fireact:src/components/Form/ButtonRow.js": [
+10
 ],
-'fireact:src/components/Form/Form.js':[
+"fireact:src/components/Form/Form.js": [
 50,
 51,
-61,
+61
 ],
-'fireact:src/components/Form/FormResult.js':[
+"fireact:src/components/Form/FormResult.js": [
 25,
-34,
+34
 ],
-'fireact:src/components/Form/Input.js':[
+"fireact:src/components/Form/Input.js": [
 73,
 74,
-86,
+86
 ],
-'fireact:src/components/Form/index.js':[
-11,
+"fireact:src/components/Form/index.js": [
+11
 ],
-'fireact:src/components/Layout/index.js':[
-155,
+"fireact:src/components/Layout/index.js": [
+155
 ],
-'fireact:src/components/Loader/index.js':[
-2,
+"fireact:src/components/Loader/index.js": [
+2
 ],
-'fireact:src/components/Logo/index.js':[
+"fireact:src/components/Logo/index.js": [
 9,
-10,
+10
 ],
-'fireact:src/components/Pagination/index.js':[
+"fireact:src/components/Pagination/index.js": [
 49,
 53,
 67,
@@ -123,74 +123,74 @@
 82,
 115,
 117,
-119,
+119
 ],
-'fireact:src/components/UserAvatar/index.js':[
+"fireact:src/components/UserAvatar/index.js": [
 17,
-18,
+18
 ],
-'fireact:src/components/menus/AccountMenu/index.js':[
+"fireact:src/components/menus/AccountMenu/index.js": [
 18,
 20,
 48,
-49,
+49
 ],
-'fireact:src/components/menus/AppMenu/index.js':[
+"fireact:src/components/menus/AppMenu/index.js": [
 31,
-32,
+32
 ],
-'fireact:src/components/menus/UserMenu/index.js':[
+"fireact:src/components/menus/UserMenu/index.js": [
 76,
-77,
+77
 ],
-'fireact:src/components/routers/AuthRouter/index.js':[
-34,
+"fireact:src/components/routers/AuthRouter/index.js": [
+34
 ],
-'fireact:src/components/routers/PublicRouter/index.js':[
-18,
+"fireact:src/components/routers/PublicRouter/index.js": [
+18
 ],
-'fireact:src/components/templates/AccountTemplate/index.js':[
+"fireact:src/components/templates/AccountTemplate/index.js": [
 23,
 59,
 91,
-92,
+92
 ],
-'fireact:src/components/templates/AppTemplate/index.js':[
+"fireact:src/components/templates/AppTemplate/index.js": [
 12,
-13,
+13
 ],
-'fireact:src/components/templates/PublicTemplate/index.js':[
+"fireact:src/components/templates/PublicTemplate/index.js": [
 2,
 13,
-14,
+14
 ],
-'fireact:src/components/user/UserPageLayout/index.js':[
+"fireact:src/components/user/UserPageLayout/index.js": [
 9,
 43,
-44,
+44
 ],
-'fireact:src/components/user/UserProfileView/index.js':[
+"fireact:src/components/user/UserProfileView/index.js": [
 134,
-135,
+135
 ],
-'fireact:src/libs/log/index.js':[
+"fireact:src/libs/log/index.js": [
 11,
-22,
+22
 ],
-'fireact:src/libs/user/index.js':[
+"fireact:src/libs/user/index.js": [
 40,
 49,
-60,
+60
 ],
-'fireact:src/pages/auth/Home/index.js':[
+"fireact:src/pages/auth/Home/index.js": [
 25,
 36,
 56,
 57,
 95,
-96,
+96
 ],
-'fireact:src/pages/auth/accounts/AddUser/index.js':[
+"fireact:src/pages/auth/accounts/AddUser/index.js": [
 55,
 56,
 92,
@@ -198,9 +198,9 @@
 118,
 122,
 157,
-158,
+158
 ],
-'fireact:src/pages/auth/accounts/DeleteAccount/index.js':[
+"fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 19,
 48,
 49,
@@ -208,22 +208,22 @@
 79,
 82,
 96,
-97,
+97
 ],
-'fireact:src/pages/auth/accounts/NewAccount/index.js':[
+"fireact:src/pages/auth/accounts/NewAccount/index.js": [
 42,
 43,
 66,
 70,
 73,
 91,
-92,
+92
 ],
-'fireact:src/pages/auth/accounts/Overview/index.js':[
+"fireact:src/pages/auth/accounts/Overview/index.js": [
 35,
-36,
+36
 ],
-'fireact:src/pages/auth/accounts/PaymentList/index.js':[
+"fireact:src/pages/auth/accounts/PaymentList/index.js": [
 14,
 40,
 41,
@@ -232,18 +232,18 @@
 114,
 115,
 178,
-179,
+179
 ],
-'fireact:src/pages/auth/accounts/PaymentMethod/index.js':[
+"fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 86,
 90,
 97,
 126,
 127,
 188,
-189,
+189
 ],
-'fireact:src/pages/auth/accounts/Plans/index.js':[
+"fireact:src/pages/auth/accounts/Plans/index.js": [
 75,
 99,
 100,
@@ -253,9 +253,9 @@
 243,
 290,
 377,
-378,
+378
 ],
-'fireact:src/pages/auth/accounts/UserList/index.js':[
+"fireact:src/pages/auth/accounts/UserList/index.js": [
 48,
 55,
 59,
@@ -264,25 +264,25 @@
 88,
 89,
 128,
-129,
+129
 ],
-'fireact:src/pages/auth/accounts/UserRole/index.js':[
+"fireact:src/pages/auth/accounts/UserRole/index.js": [
 53,
 57,
 64,
 65,
 143,
-144,
+144
 ],
-'fireact:src/pages/auth/accounts/images/ImageCreate.js':[
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
 13,
 24,
 33,
 41,
 108,
-110,
+110
 ],
-'fireact:src/pages/auth/accounts/images/ImageEdit.js':[
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
 15,
 25,
 38,
@@ -294,9 +294,9 @@
 86,
 93,
 144,
-146,
+146
 ],
-'fireact:src/pages/auth/accounts/images/ImageList.js':[
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
 22,
 23,
 54,
@@ -308,9 +308,9 @@
 116,
 127,
 172,
-173,
+173
 ],
-'fireact:src/pages/auth/accounts/images/ImagesApis.js':[
+"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
 18,
 30,
 40,
@@ -321,9 +321,9 @@
 66,
 75,
 76,
-84,
+84
 ],
-'fireact:src/pages/auth/user/DeleteUser/index.js':[
+"fireact:src/pages/auth/user/DeleteUser/index.js": [
 30,
 31,
 41,
@@ -333,9 +333,9 @@
 63,
 86,
 105,
-106,
+106
 ],
-'fireact:src/pages/auth/user/Invite/index.js':[
+"fireact:src/pages/auth/user/Invite/index.js": [
 43,
 48,
 59,
@@ -343,9 +343,9 @@
 87,
 90,
 105,
-106,
+106
 ],
-'fireact:src/pages/auth/user/UpdateEmail/index.js':[
+"fireact:src/pages/auth/user/UpdateEmail/index.js": [
 38,
 39,
 52,
@@ -361,18 +361,18 @@
 91,
 111,
 130,
-131,
+131
 ],
-'fireact:src/pages/auth/user/UpdateName/index.js':[
+"fireact:src/pages/auth/user/UpdateName/index.js": [
 31,
 32,
 44,
 52,
 77,
 96,
-97,
+97
 ],
-'fireact:src/pages/auth/user/UpdatePassword/index.js':[
+"fireact:src/pages/auth/user/UpdatePassword/index.js": [
 45,
 46,
 67,
@@ -384,9 +384,9 @@
 97,
 119,
 138,
-139,
+139
 ],
-'fireact:src/pages/auth/user/UpdatePhone/index.js':[
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
 65,
 66,
 81,
@@ -398,13 +398,13 @@
 128,
 149,
 168,
-169,
+169
 ],
-'fireact:src/pages/auth/user/UserProfile/index.js':[
+"fireact:src/pages/auth/user/UserProfile/index.js": [
 11,
-12,
+12
 ],
-'fireact:src/pages/auth/user/VerifyEmail/index.js':[
+"fireact:src/pages/auth/user/VerifyEmail/index.js": [
 24,
 25,
 35,
@@ -412,9 +412,9 @@
 48,
 79,
 98,
-99,
+99
 ],
-'fireact:src/pages/auth/user/ViewLogs/index.js':[
+"fireact:src/pages/auth/user/ViewLogs/index.js": [
 23,
 32,
 47,
@@ -423,10 +423,10 @@
 92,
 93,
 142,
-143,
+143
 ],
-'fireact:src/pages/public/SignIn/index.js':[
+"fireact:src/pages/public/SignIn/index.js": [
 16,
-17,
-],
+17
+]
 }

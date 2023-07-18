@@ -1,15 +1,15 @@
 {
-'angular.js:src/ng/parse.js':[
+"angular.js:src/ng/parse.js": [
 1518,
-1525,
+1525
 ],
-'angular.js:src/ngAria/aria.js':[
-277,
+"angular.js:src/ngAria/aria.js": [
+277
 ],
-'angular.js:src/ngMock/angular-mocks.js':[
-2140,
+"angular.js:src/ngMock/angular-mocks.js": [
+2140
 ],
-'angular.js:src/ngSanitize/sanitize.js':[
-644,
-],
+"angular.js:src/ngSanitize/sanitize.js": [
+644
+]
 }

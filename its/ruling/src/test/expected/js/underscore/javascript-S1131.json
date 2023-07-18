@@ -1,7 +1,7 @@
 {
-'underscore:karma.conf-sauce.js':[
+"underscore:karma.conf-sauce.js": [
 17,
 20,
-27,
-],
+27
+]
 }

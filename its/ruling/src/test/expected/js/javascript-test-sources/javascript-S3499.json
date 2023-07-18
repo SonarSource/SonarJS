@@ -1,8 +1,8 @@
 {
-'javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js':[
-6,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
+6
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/main.js':[
-107,
-],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/main.js": [
+107
+]
 }

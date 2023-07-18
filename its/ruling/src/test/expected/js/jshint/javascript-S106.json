@@ -1,21 +1,21 @@
 {
-'jshint:scripts/remove-dev-dependencies.js':[
+"jshint:scripts/remove-dev-dependencies.js": [
 35,
-36,
+36
 ],
-'jshint:src/reporters/checkstyle.js':[
-92,
+"jshint:src/reporters/checkstyle.js": [
+92
 ],
-'jshint:src/reporters/default.js':[
-31,
+"jshint:src/reporters/default.js": [
+31
 ],
-'jshint:src/reporters/jslint_xml.js':[
-54,
+"jshint:src/reporters/jslint_xml.js": [
+54
 ],
-'jshint:src/reporters/non_error.js':[
-49,
+"jshint:src/reporters/non_error.js": [
+49
 ],
-'jshint:src/reporters/unix.js':[
-34,
-],
+"jshint:src/reporters/unix.js": [
+34
+]
 }

@@ -1,17 +1,17 @@
 {
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx": [
 135,
 220,
-237,
+237
 ],
-'Joust:ts/components/GameWidget.tsx':[
-205,
+"Joust:ts/components/GameWidget.tsx": [
+205
 ],
-'Joust:ts/components/game/Player.tsx':[
+"Joust:ts/components/game/Player.tsx": [
 60,
-240,
+240
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
-203,
-],
+"Joust:ts/protocol/HSReplayDecoder.ts": [
+203
+]
 }

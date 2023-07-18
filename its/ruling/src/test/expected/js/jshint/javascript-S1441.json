@@ -1,5 +1,5 @@
 {
-'jshint:examples/reporter.js':[
+"jshint:examples/reporter.js": [
 1,
 6,
 12,
@@ -10,9 +10,9 @@
 17,
 18,
 18,
-18,
+18
 ],
-'jshint:scripts/build.js':[
+"jshint:scripts/build.js": [
 1,
 3,
 4,
@@ -31,9 +31,9 @@
 42,
 43,
 43,
-46,
+46
 ],
-'jshint:scripts/remove-dev-dependencies.js':[
+"jshint:scripts/remove-dev-dependencies.js": [
 1,
 13,
 14,
@@ -42,9 +42,9 @@
 22,
 22,
 35,
-36,
+36
 ],
-'jshint:src/cli.js':[
+"jshint:src/cli.js": [
 1,
 3,
 4,
@@ -171,9 +171,9 @@
 760,
 761,
 766,
-766,
+766
 ],
-'jshint:src/jshint.js':[
+"jshint:src/jshint.js": [
 34,
 35,
 36,
@@ -2001,9 +2001,9 @@
 6569,
 6575,
 6581,
-6596,
+6596
 ],
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 5,
 7,
 8,
@@ -2429,9 +2429,9 @@
 2151,
 2160,
 2163,
-2182,
+2182
 ],
-'jshint:src/messages.js':[
+"jshint:src/messages.js": [
 1,
 3,
 8,
@@ -2555,9 +2555,9 @@
 237,
 238,
 241,
-249,
+249
 ],
-'jshint:src/name-stack.js':[
+"jshint:src/name-stack.js": [
 21,
 27,
 65,
@@ -2568,19 +2568,19 @@
 83,
 83,
 84,
-88,
+88
 ],
-'jshint:src/options.js':[
+"jshint:src/options.js": [
 1,
 1084,
 1091,
 1092,
-1093,
+1093
 ],
-'jshint:src/reg.js':[
-7,
+"jshint:src/reg.js": [
+7
 ],
-'jshint:src/reporters/checkstyle.js':[
+"jshint:src/reporters/checkstyle.js": [
 6,
 11,
 11,
@@ -2611,14 +2611,14 @@
 83,
 86,
 90,
-92,
+92
 ],
-'jshint:src/reporters/default.js':[
+"jshint:src/reporters/default.js": [
 1,
 16,
-31,
+31
 ],
-'jshint:src/reporters/jslint_xml.js':[
+"jshint:src/reporters/jslint_xml.js": [
 4,
 9,
 9,
@@ -2645,15 +2645,15 @@
 49,
 52,
 54,
-54,
+54
 ],
-'jshint:src/reporters/non_error.js':[
+"jshint:src/reporters/non_error.js": [
 1,
 23,
 23,
-49,
+49
 ],
-'jshint:src/reporters/unix.js':[
+"jshint:src/reporters/unix.js": [
 1,
 10,
 20,
@@ -2666,9 +2666,9 @@
 34,
 34,
 34,
-34,
+34
 ],
-'jshint:src/scope-manager.js':[
+"jshint:src/scope-manager.js": [
 1,
 3,
 4,
@@ -2948,9 +2948,9 @@
 1022,
 1024,
 1026,
-1031,
+1031
 ],
-'jshint:src/state.js':[
+"jshint:src/state.js": [
 1,
 2,
 13,
@@ -2960,9 +2960,9 @@
 135,
 137,
 139,
-174,
+174
 ],
-'jshint:src/style.js':[
+"jshint:src/style.js": [
 1,
 7,
 8,
@@ -2997,9 +2997,9 @@
 120,
 130,
 133,
-138,
+138
 ],
-'jshint:src/vars.js':[
+"jshint:src/vars.js": [
 3,
 22,
 487,
@@ -3017,10 +3017,10 @@
 716,
 717,
 718,
-719,
+719
 ],
-'jshint:tests/helpers/browser/index.html':[
+"jshint:tests/helpers/browser/index.html": [
 17,
-20,
-],
+20
+]
 }

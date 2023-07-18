@@ -1,17 +1,17 @@
 {
-'rxjs:src/Observable.ts':[
-183,
+"rxjs:src/Observable.ts": [
+183
 ],
-'rxjs:src/Subscriber.ts':[
+"rxjs:src/Subscriber.ts": [
 252,
-261,
+261
 ],
-'rxjs:src/observable/IteratorObservable.ts':[
+"rxjs:src/observable/IteratorObservable.ts": [
 92,
-109,
+109
 ],
-'rxjs:src/operator/zip.ts':[
+"rxjs:src/operator/zip.ts": [
 264,
-299,
-],
+299
+]
 }

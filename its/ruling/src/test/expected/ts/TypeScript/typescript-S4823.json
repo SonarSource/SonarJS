@@ -1,44 +1,44 @@
 {
-'TypeScript:Gulpfile.ts':[
-40,
+"TypeScript:Gulpfile.ts": [
+40
 ],
-'TypeScript:scripts/authors.ts':[
-170,
+"TypeScript:scripts/authors.ts": [
+170
 ],
-'TypeScript:scripts/bisect-test.ts':[
-7,
+"TypeScript:scripts/bisect-test.ts": [
+7
 ],
-'TypeScript:scripts/buildProtocol.ts':[
+"TypeScript:scripts/buildProtocol.ts": [
 176,
 181,
 182,
-183,
+183
 ],
-'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 18,
 19,
-20,
+20
 ],
-'TypeScript:scripts/ior.ts':[
-109,
+"TypeScript:scripts/ior.ts": [
+109
 ],
-'TypeScript:src/compiler/sys.ts':[
-315,
+"TypeScript:src/compiler/sys.ts": [
+315
 ],
-'TypeScript:src/harness/instrumenter.ts':[
+"TypeScript:src/harness/instrumenter.ts": [
 51,
 52,
 52,
 55,
 57,
-58,
+58
 ],
-'TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts':[
+"TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 35,
-89,
+89
 ],
-'TypeScript:src/server/watchGuard/watchGuard.ts':[
+"TypeScript:src/server/watchGuard/watchGuard.ts": [
 3,
-6,
-],
+6
+]
 }

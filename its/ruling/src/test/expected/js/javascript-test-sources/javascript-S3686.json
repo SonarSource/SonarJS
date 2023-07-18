@@ -1,17 +1,17 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-3362,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+3362
 ],
-'javascript-test-sources:src/ace/src/keyboard/vim.js':[
-7174,
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+7174
 ],
-'javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js':[
-69,
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
+69
 ],
-'javascript-test-sources:src/ace/src/scrollbar_test.js':[
-60,
+"javascript-test-sources:src/ace/src/scrollbar_test.js": [
+60
 ],
-'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
-350,
-],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+350
+]
 }

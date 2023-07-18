@@ -1,281 +1,281 @@
 {
-'jquery:Gruntfile.js':[
-4,
+"jquery:Gruntfile.js": [
+4
 ],
-'jquery:build/release.js':[
-7,
+"jquery:build/release.js": [
+7
 ],
-'jquery:build/release/cdn.js':[
-4,
+"jquery:build/release/cdn.js": [
+4
 ],
-'jquery:build/release/dist.js':[
-5,
+"jquery:build/release/dist.js": [
+5
 ],
-'jquery:build/tasks/amd.js':[
-8,
+"jquery:build/tasks/amd.js": [
+8
 ],
-'jquery:build/tasks/build.js':[
-10,
+"jquery:build/tasks/build.js": [
+10
 ],
-'jquery:build/tasks/dist.js':[
-4,
+"jquery:build/tasks/dist.js": [
+4
 ],
-'jquery:build/tasks/lib/rollup-plugin-file-overrides.js':[
-11,
+"jquery:build/tasks/lib/rollup-plugin-file-overrides.js": [
+11
 ],
-'jquery:build/tasks/lib/spawn_test.js':[
-7,
+"jquery:build/tasks/lib/spawn_test.js": [
+7
 ],
-'jquery:build/tasks/node_smoke_tests.js':[
-4,
+"jquery:build/tasks/node_smoke_tests.js": [
+4
 ],
-'jquery:build/tasks/promises_aplus_tests.js':[
-4,
+"jquery:build/tasks/promises_aplus_tests.js": [
+4
 ],
-'jquery:build/tasks/qunit_fixture.js':[
-6,
+"jquery:build/tasks/qunit_fixture.js": [
+6
 ],
-'jquery:build/tasks/sourcemap.js':[
-6,
+"jquery:build/tasks/sourcemap.js": [
+6
 ],
-'jquery:build/tasks/testswarm.js':[
-4,
+"jquery:build/tasks/testswarm.js": [
+4
 ],
-'jquery:src/ajax.js':[
-15,
+"jquery:src/ajax.js": [
+15
 ],
-'jquery:src/ajax/jsonp.js':[
-8,
+"jquery:src/ajax/jsonp.js": [
+8
 ],
-'jquery:src/ajax/load.js':[
-14,
+"jquery:src/ajax/load.js": [
+14
 ],
-'jquery:src/ajax/parseXML.js':[
-5,
+"jquery:src/ajax/parseXML.js": [
+5
 ],
-'jquery:src/ajax/script.js':[
-8,
+"jquery:src/ajax/script.js": [
+8
 ],
-'jquery:src/ajax/xhr.js':[
-6,
+"jquery:src/ajax/xhr.js": [
+6
 ],
-'jquery:src/attributes/attr.js':[
-10,
+"jquery:src/attributes/attr.js": [
+10
 ],
-'jquery:src/attributes/classes.js':[
-9,
+"jquery:src/attributes/classes.js": [
+9
 ],
-'jquery:src/attributes/prop.js':[
-8,
+"jquery:src/attributes/prop.js": [
+8
 ],
-'jquery:src/attributes/val.js':[
-10,
+"jquery:src/attributes/val.js": [
+10
 ],
-'jquery:src/callbacks.js':[
-7,
+"jquery:src/callbacks.js": [
+7
 ],
-'jquery:src/core.js':[
-21,
+"jquery:src/core.js": [
+21
 ],
-'jquery:src/core/DOMEval.js':[
-4,
+"jquery:src/core/DOMEval.js": [
+4
 ],
-'jquery:src/core/access.js':[
-7,
+"jquery:src/core/access.js": [
+7
 ],
-'jquery:src/core/camelCase.js':[
-6,
+"jquery:src/core/camelCase.js": [
+6
 ],
-'jquery:src/core/init.js':[
-11,
+"jquery:src/core/init.js": [
+11
 ],
-'jquery:src/core/isAttached.js':[
-7,
+"jquery:src/core/isAttached.js": [
+7
 ],
-'jquery:src/core/parseHTML.js':[
-11,
+"jquery:src/core/parseHTML.js": [
+11
 ],
-'jquery:src/core/ready-no-deferred.js':[
-5,
+"jquery:src/core/ready-no-deferred.js": [
+5
 ],
-'jquery:src/core/ready.js':[
-12,
+"jquery:src/core/ready.js": [
+12
 ],
-'jquery:src/core/readyException.js':[
-4,
+"jquery:src/core/readyException.js": [
+4
 ],
-'jquery:src/core/stripAndCollapse.js':[
-6,
+"jquery:src/core/stripAndCollapse.js": [
+6
 ],
-'jquery:src/core/toType.js':[
-5,
+"jquery:src/core/toType.js": [
+5
 ],
-'jquery:src/css.js':[
-23,
+"jquery:src/css.js": [
+23
 ],
-'jquery:src/css/adjustCSS.js':[
-6,
+"jquery:src/css/adjustCSS.js": [
+6
 ],
-'jquery:src/css/cssCamelCase.js':[
-11,
+"jquery:src/css/cssCamelCase.js": [
+11
 ],
-'jquery:src/css/curCSS.js':[
-6,
+"jquery:src/css/curCSS.js": [
+6
 ],
-'jquery:src/css/finalPropName.js':[
-4,
+"jquery:src/css/finalPropName.js": [
+4
 ],
-'jquery:src/css/hiddenVisibleSelectors.js':[
-6,
+"jquery:src/css/hiddenVisibleSelectors.js": [
+6
 ],
-'jquery:src/css/isAutoPx.js':[
-3,
+"jquery:src/css/isAutoPx.js": [
+3
 ],
-'jquery:src/css/showHide.js':[
-8,
+"jquery:src/css/showHide.js": [
+8
 ],
-'jquery:src/css/support.js':[
-11,
+"jquery:src/css/support.js": [
+11
 ],
-'jquery:src/css/var/getStyles.js':[
-3,
+"jquery:src/css/var/getStyles.js": [
+3
 ],
-'jquery:src/css/var/isHiddenWithinTree.js':[
-12,
+"jquery:src/css/var/isHiddenWithinTree.js": [
+12
 ],
-'jquery:src/css/var/swap.js':[
-3,
+"jquery:src/css/var/swap.js": [
+3
 ],
-'jquery:src/data.js':[
-7,
+"jquery:src/data.js": [
+7
 ],
-'jquery:src/data/Data.js':[
-7,
+"jquery:src/data/Data.js": [
+7
 ],
-'jquery:src/data/var/acceptData.js':[
-6,
+"jquery:src/data/var/acceptData.js": [
+6
 ],
-'jquery:src/deferred.js':[
-7,
+"jquery:src/deferred.js": [
+7
 ],
-'jquery:src/deferred/exceptionHook.js':[
-11,
+"jquery:src/deferred/exceptionHook.js": [
+11
 ],
-'jquery:src/deprecated.js':[
-9,
+"jquery:src/deprecated.js": [
+9
 ],
-'jquery:src/dimensions.js':[
-9,
+"jquery:src/dimensions.js": [
+9
 ],
-'jquery:src/effects.js':[
-21,
+"jquery:src/effects.js": [
+21
 ],
-'jquery:src/effects/Tween.js':[
-8,
+"jquery:src/effects/Tween.js": [
+8
 ],
-'jquery:src/effects/animatedSelector.js':[
-7,
+"jquery:src/effects/animatedSelector.js": [
+7
 ],
-'jquery:src/event.js':[
-15,
+"jquery:src/event.js": [
+15
 ],
-'jquery:src/event/ajax.js':[
-7,
+"jquery:src/event/ajax.js": [
+7
 ],
-'jquery:src/event/alias.js':[
-7,
+"jquery:src/event/alias.js": [
+7
 ],
-'jquery:src/event/trigger.js':[
-11,
+"jquery:src/event/trigger.js": [
+11
 ],
-'jquery:src/exports/amd.js':[
-17,
+"jquery:src/exports/amd.js": [
+17
 ],
-'jquery:src/exports/global.js':[
-5,
+"jquery:src/exports/global.js": [
+5
 ],
-'jquery:src/manipulation.js':[
-26,
+"jquery:src/manipulation.js": [
+26
 ],
-'jquery:src/manipulation/_evalUrl.js':[
-4,
+"jquery:src/manipulation/_evalUrl.js": [
+4
 ],
-'jquery:src/manipulation/buildFragment.js':[
-13,
+"jquery:src/manipulation/buildFragment.js": [
+13
 ],
-'jquery:src/manipulation/getAll.js':[
-6,
+"jquery:src/manipulation/getAll.js": [
+6
 ],
-'jquery:src/manipulation/setGlobalEval.js':[
-5,
+"jquery:src/manipulation/setGlobalEval.js": [
+5
 ],
-'jquery:src/manipulation/wrapMap.js':[
-4,
+"jquery:src/manipulation/wrapMap.js": [
+4
 ],
-'jquery:src/offset.js':[
-11,
+"jquery:src/offset.js": [
+11
 ],
-'jquery:src/queue.js':[
-8,
+"jquery:src/queue.js": [
+8
 ],
-'jquery:src/queue/delay.js':[
-9,
+"jquery:src/queue/delay.js": [
+9
 ],
-'jquery:src/selector.js':[
-18,
+"jquery:src/selector.js": [
+18
 ],
-'jquery:src/selector/contains.js':[
-5,
+"jquery:src/selector/contains.js": [
+5
 ],
-'jquery:src/selector/escapeSelector.js':[
-8,
+"jquery:src/selector/escapeSelector.js": [
+8
 ],
-'jquery:src/selector/rbuggyQSA.js':[
-6,
+"jquery:src/selector/rbuggyQSA.js": [
+6
 ],
-'jquery:src/selector/support.js':[
-7,
+"jquery:src/selector/support.js": [
+7
 ],
-'jquery:src/selector/uniqueSort.js':[
-10,
+"jquery:src/selector/uniqueSort.js": [
+10
 ],
-'jquery:src/serialize.js':[
-10,
+"jquery:src/serialize.js": [
+10
 ],
-'jquery:src/traversing.js':[
-15,
+"jquery:src/traversing.js": [
+15
 ],
-'jquery:src/traversing/findFilter.js':[
-9,
+"jquery:src/traversing/findFilter.js": [
+9
 ],
-'jquery:src/traversing/var/dir.js':[
-4,
+"jquery:src/traversing/var/dir.js": [
+4
 ],
-'jquery:src/traversing/var/siblings.js':[
-2,
+"jquery:src/traversing/var/siblings.js": [
+2
 ],
-'jquery:src/var/flat.js':[
-6,
+"jquery:src/var/flat.js": [
+6
 ],
-'jquery:src/var/isWindow.js':[
-2,
+"jquery:src/var/isWindow.js": [
+2
 ],
-'jquery:src/wrap.js':[
-8,
+"jquery:src/wrap.js": [
+8
 ],
-'jquery:src/wrapper.js':[
-13,
+"jquery:src/wrapper.js": [
+13
 ],
-'jquery:test/data/ajax/unreleasedXHR.html':[
-11,
+"jquery:test/data/ajax/unreleasedXHR.html": [
+11
 ],
-'jquery:test/data/event/interactiveReady.html':[
-13,
+"jquery:test/data/event/interactiveReady.html": [
+13
 ],
-'jquery:test/data/event/promiseReady.html':[
-10,
+"jquery:test/data/event/promiseReady.html": [
+10
 ],
-'jquery:test/data/event/syncReady.html':[
-13,
-],
+"jquery:test/data/event/syncReady.html": [
+13
+]
 }

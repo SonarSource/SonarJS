@@ -1,12 +1,12 @@
 {
-'fireact:src/components/Pagination/index.js':[
-13,
+"fireact:src/components/Pagination/index.js": [
+13
 ],
-'fireact:src/libs/user/index.js':[
-5,
+"fireact:src/libs/user/index.js": [
+5
 ],
-'fireact:src/pages/auth/user/UpdatePhone/index.js':[
+"fireact:src/pages/auth/user/UpdatePhone/index.js": [
 76,
-114,
-],
+114
+]
 }

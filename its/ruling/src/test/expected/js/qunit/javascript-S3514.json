@@ -1,8 +1,8 @@
 {
-'qunit:bin/qunit.js':[
-10,
+"qunit:bin/qunit.js": [
+10
 ],
-'qunit:src/test.js':[
-291,
-],
+"qunit:src/test.js": [
+291
+]
 }

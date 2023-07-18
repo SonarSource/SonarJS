@@ -1,22 +1,22 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 3443,
 3833,
 3865,
 3865,
 3899,
-3899,
+3899
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/render.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 10,
 64,
 78,
 83,
 96,
 106,
-115,
+115
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 364,
 741,
 811,
@@ -53,47 +53,47 @@
 8774,
 10241,
 10266,
-12873,
+12873
 ],
-'p5.js:src/color/p5.Color.js':[
+"p5.js:src/color/p5.Color.js": [
 276,
 305,
 334,
 373,
 394,
-394,
+394
 ],
-'p5.js:src/core/main.js':[
+"p5.js:src/core/main.js": [
 355,
 356,
-455,
+455
 ],
-'p5.js:src/core/p5.Graphics.js':[
-179,
+"p5.js:src/core/p5.Graphics.js": [
+179
 ],
-'p5.js:src/core/p5.Renderer2D.js':[
+"p5.js:src/core/p5.Renderer2D.js": [
 398,
 399,
 400,
 403,
-404,
+404
 ],
-'p5.js:src/dom/dom.js':[
-768,
+"p5.js:src/dom/dom.js": [
+768
 ],
-'p5.js:src/events/acceleration.js':[
+"p5.js:src/events/acceleration.js": [
 415,
-416,
+416
 ],
-'p5.js:src/math/noise.js':[
+"p5.js:src/math/noise.js": [
 29,
 30,
-32,
+32
 ],
-'p5.js:src/typography/p5.Font.js':[
-960,
+"p5.js:src/typography/p5.Font.js": [
+960
 ],
-'p5.js:src/webgl/3d_primitives.js':[
+"p5.js:src/webgl/3d_primitives.js": [
 1404,
 1405,
 1406,
@@ -102,12 +102,12 @@
 1497,
 1581,
 1582,
-1583,
+1583
 ],
-'p5.js:tasks/build/combineModules.js':[
-24,
+"p5.js:tasks/build/combineModules.js": [
+24
 ],
-'p5.js:test/test-reference.html':[
-138,
-],
+"p5.js:test/test-reference.html": [
+138
+]
 }

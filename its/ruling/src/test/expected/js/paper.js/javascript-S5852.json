@@ -1,25 +1,25 @@
 {
-'paper.js:gulp/typescript/typescript-definition-generator.js':[
-278,
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+278
 ],
-'paper.js:src/anim/Tween.js':[
+"paper.js:src/anim/Tween.js": [
 356,
-378,
+378
 ],
-'paper.js:src/core/PaperScope.js':[
-90,
+"paper.js:src/core/PaperScope.js": [
+90
 ],
-'paper.js:src/core/PaperScript.js':[
-461,
+"paper.js:src/core/PaperScript.js": [
+461
 ],
-'paper.js:src/path/PathItem.js':[
-164,
+"paper.js:src/path/PathItem.js": [
+164
 ],
-'paper.js:src/style/Color.js':[
-93,
+"paper.js:src/style/Color.js": [
+93
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js": [
 127,
-458,
-],
+458
+]
 }

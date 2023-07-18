@@ -1,6 +1,6 @@
 {
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 165,
-173,
-],
+173
+]
 }

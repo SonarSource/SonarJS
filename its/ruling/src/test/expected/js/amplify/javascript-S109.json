@@ -1,21 +1,21 @@
 {
-'amplify:demo/core/priority/demo.js':[
-6,
+"amplify:demo/core/priority/demo.js": [
+6
 ],
-'amplify:src/core.js':[
+"amplify:src/core.js": [
 39,
 44,
 48,
-89,
+89
 ],
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js": [
 8,
 8,
 9,
-9,
+9
 ],
-'amplify:test-server.js':[
+"amplify:test-server.js": [
 8,
-8,
-],
+8
+]
 }

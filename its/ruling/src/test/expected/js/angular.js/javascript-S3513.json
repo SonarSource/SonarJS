@@ -1,64 +1,64 @@
 {
-'angular.js:angularFiles.js':[
-314,
+"angular.js:angularFiles.js": [
+314
 ],
-'angular.js:docs/app/src/errors.js':[
-44,
+"angular.js:docs/app/src/errors.js": [
+44
 ],
-'angular.js:lib/promises-aplus/promises-aplus-test-adapter.js':[
+"angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
 22,
-28,
+28
 ],
-'angular.js:scripts/compare-master-to-stable.js':[
+"angular.js:scripts/compare-master-to-stable.js": [
 14,
-25,
+25
 ],
-'angular.js:src/Angular.js':[
+"angular.js:src/Angular.js": [
 379,
 418,
 1241,
 1246,
-1251,
+1251
 ],
-'angular.js:src/loader.js':[
+"angular.js:src/loader.js": [
 391,
-405,
+405
 ],
-'angular.js:src/minErr.js':[
-102,
+"angular.js:src/minErr.js": [
+102
 ],
-'angular.js:src/ng/compile.js':[
+"angular.js:src/ng/compile.js": [
 2857,
-4006,
+4006
 ],
-'angular.js:src/ng/exceptionHandler.js':[
-50,
+"angular.js:src/ng/exceptionHandler.js": [
+50
 ],
-'angular.js:src/ng/http.js':[
+"angular.js:src/ng/http.js": [
 1320,
-1332,
+1332
 ],
-'angular.js:src/ng/intervalFactory.js':[
-10,
+"angular.js:src/ng/intervalFactory.js": [
+10
 ],
-'angular.js:src/ng/location.js':[
-300,
+"angular.js:src/ng/location.js": [
+300
 ],
-'angular.js:src/ng/log.js':[
+"angular.js:src/ng/log.js": [
 136,
-161,
+161
 ],
-'angular.js:src/ng/rootScope.js':[
+"angular.js:src/ng/rootScope.js": [
 1322,
-1394,
+1394
 ],
-'angular.js:src/ng/timeout.js':[
-49,
+"angular.js:src/ng/timeout.js": [
+49
 ],
-'angular.js:src/ngAnimate/animateQueue.js':[
-256,
+"angular.js:src/ngAnimate/animateQueue.js": [
+256
 ],
-'angular.js:src/ngMock/angular-mocks.js':[
+"angular.js:src/ngMock/angular-mocks.js": [
 394,
 443,
 444,
@@ -73,9 +73,9 @@
 2078,
 3062,
 3086,
-3367,
+3367
 ],
-'angular.js:src/ngMock/browserTrigger.js':[
-235,
-],
+"angular.js:src/ngMock/browserTrigger.js": [
+235
+]
 }

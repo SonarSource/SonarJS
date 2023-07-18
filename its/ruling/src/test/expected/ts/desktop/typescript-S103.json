@@ -1,47 +1,47 @@
 {
-'desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts':[
-30,
+"desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts": [
+30
 ],
-'desktop:app/src/lib/api.ts':[
-872,
+"desktop:app/src/lib/api.ts": [
+872
 ],
-'desktop:app/src/lib/git/core.ts':[
+"desktop:app/src/lib/git/core.ts": [
 322,
-390,
+390
 ],
-'desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts':[
-17,
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
+17
 ],
-'desktop:app/src/lib/oauth.ts':[
-47,
+"desktop:app/src/lib/oauth.ts": [
+47
 ],
-'desktop:app/src/lib/squirrel-error-parser.ts':[
-10,
+"desktop:app/src/lib/squirrel-error-parser.ts": [
+10
 ],
-'desktop:app/src/lib/stores/app-store.ts':[
-1807,
+"desktop:app/src/lib/stores/app-store.ts": [
+1807
 ],
-'desktop:app/src/lib/stores/helpers/branch-pruner.ts':[
-215,
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+215
 ],
-'desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts':[
-119,
+"desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
+119
 ],
-'desktop:app/src/lib/stores/sign-in-store.ts':[
+"desktop:app/src/lib/stores/sign-in-store.ts": [
 29,
 32,
-270,
+270
 ],
-'desktop:app/src/ui/app.tsx':[
-1350,
+"desktop:app/src/ui/app.tsx": [
+1350
 ],
-'desktop:app/src/ui/diff/text-diff.tsx':[
-66,
+"desktop:app/src/ui/diff/text-diff.tsx": [
+66
 ],
-'desktop:app/src/ui/lib/avatar.tsx':[
-42,
+"desktop:app/src/ui/lib/avatar.tsx": [
+42
 ],
-'desktop:app/src/ui/octicons/octicons.generated.ts':[
+"desktop:app/src/ui/octicons/octicons.generated.ts": [
 16,
 23,
 30,
@@ -220,16 +220,16 @@
 1556,
 1563,
 1570,
-1577,
+1577
 ],
-'desktop:script/build.ts':[
-439,
+"desktop:script/build.ts": [
+439
 ],
-'desktop:script/licenses/license-overrides.ts':[
+"desktop:script/licenses/license-overrides.ts": [
 38,
 52,
 56,
 60,
-64,
-],
+64
+]
 }

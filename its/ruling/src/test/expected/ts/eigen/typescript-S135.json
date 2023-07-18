@@ -1,8 +1,8 @@
 {
-'eigen:src/app/Components/Bidding/Validators/validateAddressFieldsPresence.ts':[
-7,
+"eigen:src/app/Components/Bidding/Validators/validateAddressFieldsPresence.ts": [
+7
 ],
-'eigen:src/app/utils/LocalImageStore.ts':[
-60,
-],
+"eigen:src/app/utils/LocalImageStore.ts": [
+60
+]
 }

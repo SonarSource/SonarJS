@@ -1,26 +1,26 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js':[
-55,
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+55
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js':[
-582,
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
+582
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js':[
-1,
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+1
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-profile-image-test.js':[
-55,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-profile-image-test.js": [
+55
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/private-blogging_spec.js':[
-38,
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/private-blogging_spec.js": [
+38
 ],
-'javascript-test-sources:src/ecmascript6/http/lib/gulp/karma/index.js':[
-6,
+"javascript-test-sources:src/ecmascript6/http/lib/gulp/karma/index.js": [
+6
 ],
-'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
-2915,
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+2915
 ],
-'javascript-test-sources:src/ecmascript6/watchtower.js/lib/gulp/karma/index.js':[
-6,
-],
+"javascript-test-sources:src/ecmascript6/watchtower.js/lib/gulp/karma/index.js": [
+6
+]
 }

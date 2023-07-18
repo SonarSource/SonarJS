@@ -1,13 +1,13 @@
 {
-'mootools-core:Source/Element/Element.js':[
+"mootools-core:Source/Element/Element.js": [
 32,
 34,
-968,
+968
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
-37,
+"mootools-core:Source/Fx/Fx.CSS.js": [
+37
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 290,
 292,
 293,
@@ -29,6 +29,6 @@
 636,
 637,
 638,
-649,
-],
+649
+]
 }

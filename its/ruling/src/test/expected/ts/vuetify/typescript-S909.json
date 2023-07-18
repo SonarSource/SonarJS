@@ -1,68 +1,68 @@
 {
-'vuetify:packages/docs/build/markdown-it.ts':[
+"vuetify:packages/docs/build/markdown-it.ts": [
 19,
-24,
+24
 ],
-'vuetify:packages/docs/src/components/app/Toc.vue':[
-130,
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+130
 ],
-'vuetify:packages/docs/src/store/app.ts':[
-91,
+"vuetify:packages/docs/src/store/app.ts": [
+91
 ],
-'vuetify:packages/docs/vite.config.ts':[
-106,
+"vuetify:packages/docs/vite.config.ts": [
+106
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts':[
-48,
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+48
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts':[
-440,
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+440
 ],
-'vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts':[
-180,
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+180
 ],
-'vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts':[
-348,
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+348
 ],
-'vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts':[
-384,
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+384
 ],
-'vuetify:packages/vuetify/src/composables/filter.ts':[
+"vuetify:packages/vuetify/src/composables/filter.ts": [
 93,
 106,
 112,
-120,
+120
 ],
-'vuetify:packages/vuetify/src/composables/forwardRefs.ts':[
+"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
 40,
-60,
+60
 ],
-'vuetify:packages/vuetify/src/composables/layout.ts':[
+"vuetify:packages/vuetify/src/composables/layout.ts": [
 150,
 184,
-191,
+191
 ],
-'vuetify:packages/vuetify/src/composables/theme.ts':[
+"vuetify:packages/vuetify/src/composables/theme.ts": [
 222,
-234,
+234
 ],
-'vuetify:packages/vuetify/src/composables/touch.ts':[
-44,
+"vuetify:packages/vuetify/src/composables/touch.ts": [
+44
 ],
-'vuetify:packages/vuetify/src/composables/validation.ts':[
+"vuetify:packages/vuetify/src/composables/validation.ts": [
 167,
-173,
+173
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts':[
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
 104,
 116,
-123,
+123
 ],
-'vuetify:packages/vuetify/src/util/console.ts':[
-93,
+"vuetify:packages/vuetify/src/util/console.ts": [
+93
 ],
-'vuetify:packages/vuetify/src/util/helpers.ts':[
+"vuetify:packages/vuetify/src/util/helpers.ts": [
 399,
-405,
-],
+405
+]
 }

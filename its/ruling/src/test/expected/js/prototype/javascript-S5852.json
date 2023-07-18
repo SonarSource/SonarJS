@@ -1,17 +1,17 @@
 {
-'prototype:src/prototype/ajax/request.js':[
-305,
+"prototype:src/prototype/ajax/request.js": [
+305
 ],
-'prototype:src/prototype/lang/function.js':[
-40,
+"prototype:src/prototype/lang/function.js": [
+40
 ],
-'prototype:src/prototype/lang/string.js':[
+"prototype:src/prototype/lang/string.js": [
 246,
 283,
 489,
-626,
+626
 ],
-'prototype:test/functional/event.html':[
-128,
-],
+"prototype:test/functional/event.html": [
+128
+]
 }

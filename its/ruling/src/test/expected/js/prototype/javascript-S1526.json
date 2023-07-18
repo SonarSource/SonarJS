@@ -1,18 +1,18 @@
 {
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 594,
-2183,
+2183
 ],
-'prototype:src/prototype/dom/event.js':[
-850,
+"prototype:src/prototype/dom/event.js": [
+850
 ],
-'prototype:src/prototype/lang/hash.js':[
-22,
+"prototype:src/prototype/lang/hash.js": [
+22
 ],
-'prototype:src/prototype/lang/range.js':[
-82,
+"prototype:src/prototype/lang/range.js": [
+82
 ],
-'prototype:test/browser.html':[
-147,
-],
+"prototype:test/browser.html": [
+147
+]
 }

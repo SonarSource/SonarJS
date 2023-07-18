@@ -1,18 +1,18 @@
 {
-'fireact:src/components/UserAvatar/index.js':[
-3,
+"fireact:src/components/UserAvatar/index.js": [
+3
 ],
-'fireact:src/pages/auth/accounts/images/ImageEdit.js':[
-89,
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+89
 ],
-'fireact:src/pages/auth/accounts/images/ImageList.js':[
-39,
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+39
 ],
-'fireact:src/pages/auth/accounts/images/ImagesApis.js':[
+"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
 5,
 32,
 43,
 53,
-68,
-],
+68
+]
 }

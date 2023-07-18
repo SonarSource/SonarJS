@@ -1,46 +1,46 @@
 {
-'Joust:ts/Launcher.tsx':[
+"Joust:ts/Launcher.tsx": [
 340,
 341,
-342,
+342
 ],
-'Joust:ts/components/GameWidget.tsx':[
+"Joust:ts/components/GameWidget.tsx": [
 47,
-298,
+298
 ],
-'Joust:ts/components/GameWrapper.tsx':[
-76,
+"Joust:ts/components/GameWrapper.tsx": [
+76
 ],
-'Joust:ts/components/Scrubber.tsx':[
+"Joust:ts/components/Scrubber.tsx": [
 135,
 139,
 143,
 146,
 348,
-356,
+356
 ],
-'Joust:ts/components/SetupWidget.tsx':[
+"Joust:ts/components/SetupWidget.tsx": [
 117,
 118,
 119,
 120,
 153,
 154,
-155,
+155
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 359,
 420,
-423,
+423
 ],
-'Joust:ts/protocol/KettleDecoder.ts':[
+"Joust:ts/protocol/KettleDecoder.ts": [
 41,
-116,
+116
 ],
-'Joust:ts/protocol/KettleEncoder.ts':[
-60,
+"Joust:ts/protocol/KettleEncoder.ts": [
+60
 ],
-'Joust:ts/state/GameStateScrubber.ts':[
-351,
-],
+"Joust:ts/state/GameStateScrubber.ts": [
+351
+]
 }

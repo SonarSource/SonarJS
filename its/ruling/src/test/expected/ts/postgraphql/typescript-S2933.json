@@ -1,39 +1,39 @@
 {
-'postgraphql:src/interface/Inventory.ts':[
+"postgraphql:src/interface/Inventory.ts": [
 17,
-18,
+18
 ],
-'postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts':[
-23,
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+23
 ],
-'postgraphql:src/postgres/introspection/PgCatalog.ts':[
+"postgraphql:src/postgres/introspection/PgCatalog.ts": [
 14,
 15,
 16,
 17,
 18,
-19,
+19
 ],
-'postgraphql:src/postgres/inventory/collection/PgCollection.ts':[
-29,
+"postgraphql:src/postgres/inventory/collection/PgCollection.ts": [
+29
 ],
-'postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts':[
+"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
 24,
 25,
 26,
 27,
 28,
-36,
+36
 ],
-'postgraphql:src/postgres/inventory/collection/PgRelation.ts':[
+"postgraphql:src/postgres/inventory/collection/PgRelation.ts": [
 16,
 17,
 18,
-19,
+19
 ],
-'postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts':[
+"postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts": [
 25,
 26,
-27,
-],
+27
+]
 }

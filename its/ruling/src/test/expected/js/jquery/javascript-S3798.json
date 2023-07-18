@@ -1,13 +1,13 @@
 {
-'jquery:build/release/cdn.js':[
+"jquery:build/release/cdn.js": [
 8,
 10,
 19,
 24,
 32,
-58,
+58
 ],
-'jquery:src/ajax.js':[
+"jquery:src/ajax.js": [
 15,
 16,
 17,
@@ -23,130 +23,130 @@
 85,
 114,
 134,
-192,
+192
 ],
-'jquery:src/ajax/jsonp.js':[
+"jquery:src/ajax/jsonp.js": [
 7,
+8
+],
+"jquery:src/ajax/xhr.js": [
+9
+],
+"jquery:src/attributes/classes.js": [
 8,
+12
 ],
-'jquery:src/ajax/xhr.js':[
-9,
-],
-'jquery:src/attributes/classes.js':[
-8,
-12,
-],
-'jquery:src/attributes/prop.js':[
+"jquery:src/attributes/prop.js": [
 7,
-8,
+8
 ],
-'jquery:src/attributes/val.js':[
-7,
+"jquery:src/attributes/val.js": [
+7
 ],
-'jquery:src/callbacks.js':[
-6,
+"jquery:src/callbacks.js": [
+6
 ],
-'jquery:src/core.js':[
+"jquery:src/core.js": [
 21,
-413,
+413
 ],
-'jquery:src/core/DOMEval.js':[
+"jquery:src/core/DOMEval.js": [
 3,
-10,
+10
 ],
-'jquery:src/core/access.js':[
-6,
+"jquery:src/core/access.js": [
+6
 ],
-'jquery:src/core/camelCase.js':[
+"jquery:src/core/camelCase.js": [
 2,
 5,
-10,
+10
 ],
-'jquery:src/core/init.js':[
+"jquery:src/core/init.js": [
 9,
 15,
-17,
+17
 ],
-'jquery:src/core/isAttached.js':[
+"jquery:src/core/isAttached.js": [
 6,
-9,
+9
 ],
-'jquery:src/core/nodeName.js':[
-1,
+"jquery:src/core/nodeName.js": [
+1
 ],
-'jquery:src/core/ready-no-deferred.js':[
+"jquery:src/core/ready-no-deferred.js": [
 4,
 5,
 8,
-67,
+67
 ],
-'jquery:src/core/ready.js':[
+"jquery:src/core/ready.js": [
 8,
-58,
+58
 ],
-'jquery:src/core/stripAndCollapse.js':[
-5,
+"jquery:src/core/stripAndCollapse.js": [
+5
 ],
-'jquery:src/core/toType.js':[
-4,
+"jquery:src/core/toType.js": [
+4
 ],
-'jquery:src/css.js':[
+"jquery:src/css.js": [
 26,
 27,
 28,
 29,
 34,
 46,
-114,
+114
 ],
-'jquery:src/css/adjustCSS.js':[
-5,
+"jquery:src/css/adjustCSS.js": [
+5
 ],
-'jquery:src/css/cssCamelCase.js':[
+"jquery:src/css/cssCamelCase.js": [
 4,
-10,
+10
 ],
-'jquery:src/css/curCSS.js':[
-5,
+"jquery:src/css/curCSS.js": [
+5
 ],
-'jquery:src/css/finalPropName.js':[
+"jquery:src/css/finalPropName.js": [
 3,
 4,
 5,
 8,
-23,
+23
 ],
-'jquery:src/css/isAutoPx.js':[
+"jquery:src/css/isAutoPx.js": [
 1,
 24,
-26,
+26
 ],
-'jquery:src/css/showHide.js':[
+"jquery:src/css/showHide.js": [
 5,
 7,
-30,
+30
 ],
-'jquery:src/css/support.js':[
-5,
+"jquery:src/css/support.js": [
+5
 ],
-'jquery:src/data.js':[
+"jquery:src/data.js": [
 17,
 18,
 20,
-45,
+45
 ],
-'jquery:src/data/Data.js':[
-6,
+"jquery:src/data/Data.js": [
+6
 ],
-'jquery:src/deferred.js':[
+"jquery:src/deferred.js": [
 6,
 9,
-13,
+13
 ],
-'jquery:src/deferred/exceptionHook.js':[
-7,
+"jquery:src/deferred/exceptionHook.js": [
+7
 ],
-'jquery:src/effects.js':[
+"jquery:src/effects.js": [
 21,
 21,
 22,
@@ -156,12 +156,12 @@
 46,
 66,
 80,
-249,
+249
 ],
-'jquery:src/effects/Tween.js':[
-7,
+"jquery:src/effects/Tween.js": [
+7
 ],
-'jquery:src/event.js':[
+"jquery:src/event.js": [
 15,
 16,
 17,
@@ -169,17 +169,17 @@
 23,
 33,
 37,
-519,
+519
 ],
-'jquery:src/event/trigger.js':[
+"jquery:src/event/trigger.js": [
 10,
-11,
+11
 ],
-'jquery:src/exports/global.js':[
+"jquery:src/exports/global.js": [
 6,
-9,
+9
 ],
-'jquery:src/manipulation.js':[
+"jquery:src/manipulation.js": [
 27,
 32,
 34,
@@ -188,85 +188,85 @@
 52,
 62,
 96,
-180,
+180
 ],
-'jquery:src/manipulation/buildFragment.js':[
+"jquery:src/manipulation/buildFragment.js": [
 10,
-12,
+12
 ],
-'jquery:src/manipulation/getAll.js':[
-4,
+"jquery:src/manipulation/getAll.js": [
+4
 ],
-'jquery:src/manipulation/setGlobalEval.js':[
-4,
+"jquery:src/manipulation/setGlobalEval.js": [
+4
 ],
-'jquery:src/manipulation/wrapMap.js':[
-2,
+"jquery:src/manipulation/wrapMap.js": [
+2
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 17,
-18,
+18
 ],
-'jquery:src/selector/escapeSelector.js':[
+"jquery:src/selector/escapeSelector.js": [
 5,
-7,
+7
 ],
-'jquery:src/selector/rbuggyQSA.js':[
+"jquery:src/selector/rbuggyQSA.js": [
 5,
 6,
-7,
+7
 ],
-'jquery:src/selector/uniqueSort.js':[
+"jquery:src/selector/uniqueSort.js": [
 5,
-8,
+8
 ],
-'jquery:src/serialize.js':[
+"jquery:src/serialize.js": [
 10,
 11,
 12,
 13,
-15,
+15
 ],
-'jquery:src/traversing.js':[
+"jquery:src/traversing.js": [
 13,
 16,
-104,
+104
 ],
-'jquery:src/traversing/findFilter.js':[
-8,
+"jquery:src/traversing/findFilter.js": [
+8
 ],
-'jquery:src/var/isWindow.js':[
-1,
+"jquery:src/var/isWindow.js": [
+1
 ],
-'jquery:test/data/core/aliased.html':[
-7,
+"jquery:test/data/core/aliased.html": [
+7
 ],
-'jquery:test/data/core/dynamic_ready.html':[
+"jquery:test/data/core/dynamic_ready.html": [
 6,
 12,
-13,
+13
 ],
-'jquery:test/data/event/onbeforeunload.html':[
-5,
+"jquery:test/data/event/onbeforeunload.html": [
+5
 ],
-'jquery:test/data/event/triggerunload.html':[
-6,
+"jquery:test/data/event/triggerunload.html": [
+6
 ],
-'jquery:test/data/manipulation/iframe-denied.html':[
+"jquery:test/data/manipulation/iframe-denied.html": [
 12,
 13,
 14,
-15,
+15
 ],
-'jquery:test/data/selector/mixed_sort.html':[
+"jquery:test/data/selector/mixed_sort.html": [
 12,
 13,
-14,
+14
 ],
-'jquery:test/data/test2.html':[
-2,
+"jquery:test/data/test2.html": [
+2
 ],
-'jquery:test/delegatetest.html':[
+"jquery:test/delegatetest.html": [
 146,
 147,
 166,
@@ -274,14 +274,14 @@
 168,
 169,
 170,
-193,
+193
 ],
-'jquery:test/index.html':[
+"jquery:test/index.html": [
 34,
-35,
+35
 ],
-'jquery:test/localfile.html':[
+"jquery:test/localfile.html": [
 50,
-51,
-],
+51
+]
 }

@@ -1,9 +1,9 @@
 {
-'jshint:src/lex.js':[
+"jshint:src/lex.js": [
 234,
-757,
+757
 ],
-'jshint:src/reg.js':[
-46,
-],
+"jshint:src/reg.js": [
+46
+]
 }

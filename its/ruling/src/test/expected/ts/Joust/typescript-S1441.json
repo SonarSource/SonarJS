@@ -1,12 +1,12 @@
 {
-'Joust:tests.webpack.ts':[
-1,
+"Joust:tests.webpack.ts": [
+1
 ],
-'Joust:ts/Choices.ts':[
+"Joust:ts/Choices.ts": [
 1,
-2,
+2
 ],
-'Joust:ts/Entity.spec.ts':[
+"Joust:ts/Entity.spec.ts": [
 1,
 2,
 3,
@@ -20,9 +20,9 @@
 27,
 29,
 30,
-31,
+31
 ],
-'Joust:ts/Entity.ts':[
+"Joust:ts/Entity.ts": [
 1,
 2,
 129,
@@ -31,9 +31,9 @@
 153,
 194,
 196,
-196,
+196
 ],
-'Joust:ts/Launcher.tsx':[
+"Joust:ts/Launcher.tsx": [
 1,
 2,
 3,
@@ -78,13 +78,13 @@
 402,
 417,
 420,
-434,
+434
 ],
-'Joust:ts/MetaData.ts':[
+"Joust:ts/MetaData.ts": [
 1,
-2,
+2
 ],
-'Joust:ts/Player.spec.ts':[
+"Joust:ts/Player.spec.ts": [
 1,
 2,
 4,
@@ -93,25 +93,25 @@
 12,
 18,
 19,
-20,
+20
 ],
-'Joust:ts/Player.ts':[
+"Joust:ts/Player.ts": [
 1,
 2,
 3,
 42,
 42,
 42,
-42,
+42
 ],
-'Joust:ts/TexturePreloader.ts':[
+"Joust:ts/TexturePreloader.ts": [
 1,
 2,
 3,
 64,
-64,
+64
 ],
-'Joust:ts/components/DebugApplication.tsx':[
+"Joust:ts/components/DebugApplication.tsx": [
 1,
 2,
 3,
@@ -124,9 +124,9 @@
 66,
 67,
 67,
-67,
+67
 ],
-'Joust:ts/components/EventLog.tsx':[
+"Joust:ts/components/EventLog.tsx": [
 1,
 2,
 3,
@@ -134,15 +134,15 @@
 5,
 6,
 7,
-8,
+8
 ],
-'Joust:ts/components/EventLogCard.tsx':[
+"Joust:ts/components/EventLogCard.tsx": [
 1,
 2,
 23,
-23,
+23
 ],
-'Joust:ts/components/EventLogLine.tsx':[
+"Joust:ts/components/EventLogLine.tsx": [
 1,
 2,
 3,
@@ -198,9 +198,9 @@
 213,
 213,
 216,
-216,
+216
 ],
-'Joust:ts/components/GameWidget.tsx':[
+"Joust:ts/components/GameWidget.tsx": [
 1,
 2,
 3,
@@ -229,9 +229,9 @@
 137,
 297,
 297,
-299,
+299
 ],
-'Joust:ts/components/GameWrapper.tsx':[
+"Joust:ts/components/GameWrapper.tsx": [
 1,
 2,
 11,
@@ -249,9 +249,9 @@
 75,
 75,
 77,
-121,
+121
 ],
-'Joust:ts/components/LoadingScreen.tsx':[
+"Joust:ts/components/LoadingScreen.tsx": [
 1,
 2,
 11,
@@ -303,9 +303,9 @@
 88,
 100,
 101,
-114,
+114
 ],
-'Joust:ts/components/LocaleSelector.tsx':[
+"Joust:ts/components/LocaleSelector.tsx": [
 1,
 2,
 33,
@@ -335,12 +335,12 @@
 45,
 45,
 46,
-46,
+46
 ],
-'Joust:ts/components/MessagePicker.tsx':[
-1,
+"Joust:ts/components/MessagePicker.tsx": [
+1
 ],
-'Joust:ts/components/Scrubber.tsx':[
+"Joust:ts/components/Scrubber.tsx": [
 1,
 2,
 3,
@@ -368,14 +368,14 @@
 347,
 349,
 355,
-357,
+357
 ],
-'Joust:ts/components/Settings.tsx':[
+"Joust:ts/components/Settings.tsx": [
 1,
 2,
-46,
+46
 ],
-'Joust:ts/components/SetupWidget.tsx':[
+"Joust:ts/components/SetupWidget.tsx": [
 1,
 2,
 3,
@@ -390,22 +390,22 @@
 12,
 13,
 109,
-112,
+112
 ],
-'Joust:ts/components/SpeedSelector.tsx':[
+"Joust:ts/components/SpeedSelector.tsx": [
 1,
-2,
+2
 ],
-'Joust:ts/components/Timeline.tsx':[
+"Joust:ts/components/Timeline.tsx": [
 1,
 2,
 3,
 4,
 5,
 162,
-164,
+164
 ],
-'Joust:ts/components/Tooltipper.tsx':[
+"Joust:ts/components/Tooltipper.tsx": [
 1,
 2,
 6,
@@ -413,9 +413,9 @@
 6,
 35,
 58,
-67,
+67
 ],
-'Joust:ts/components/Turn.tsx':[
+"Joust:ts/components/Turn.tsx": [
 1,
 2,
 3,
@@ -428,9 +428,9 @@
 43,
 43,
 48,
-51,
+51
 ],
-'Joust:ts/components/game/Card.tsx':[
+"Joust:ts/components/game/Card.tsx": [
 1,
 2,
 3,
@@ -495,9 +495,9 @@
 345,
 346,
 370,
-370,
+370
 ],
-'Joust:ts/components/game/Choices.tsx':[
+"Joust:ts/components/game/Choices.tsx": [
 1,
 2,
 3,
@@ -506,32 +506,32 @@
 6,
 7,
 8,
-39,
+39
 ],
-'Joust:ts/components/game/Deck.tsx':[
+"Joust:ts/components/game/Deck.tsx": [
 1,
 2,
-3,
+3
 ],
-'Joust:ts/components/game/EndTurnButton.tsx':[
+"Joust:ts/components/game/EndTurnButton.tsx": [
 1,
 3,
-4,
+4
 ],
-'Joust:ts/components/game/EntityInPlay.tsx':[
-1,
-2,
-3,
-4,
-5,
-],
-'Joust:ts/components/game/EntityList.tsx':[
+"Joust:ts/components/game/EntityInPlay.tsx": [
 1,
 2,
 3,
 4,
+5
 ],
-'Joust:ts/components/game/Field.tsx':[
+"Joust:ts/components/game/EntityList.tsx": [
+1,
+2,
+3,
+4
+],
+"Joust:ts/components/game/Field.tsx": [
 1,
 2,
 3,
@@ -539,9 +539,9 @@
 5,
 6,
 7,
-23,
+23
 ],
-'Joust:ts/components/game/Hand.tsx':[
+"Joust:ts/components/game/Hand.tsx": [
 1,
 2,
 3,
@@ -550,9 +550,9 @@
 6,
 7,
 42,
-43,
+43
 ],
-'Joust:ts/components/game/Hero.tsx':[
+"Joust:ts/components/game/Hero.tsx": [
 1,
 2,
 3,
@@ -572,9 +572,9 @@
 36,
 36,
 50,
-56,
+56
 ],
-'Joust:ts/components/game/HeroPower.tsx':[
+"Joust:ts/components/game/HeroPower.tsx": [
 1,
 2,
 3,
@@ -582,9 +582,9 @@
 5,
 6,
 7,
-25,
+25
 ],
-'Joust:ts/components/game/Minion.tsx':[
+"Joust:ts/components/game/Minion.tsx": [
 1,
 2,
 3,
@@ -597,9 +597,9 @@
 10,
 11,
 12,
-49,
+49
 ],
-'Joust:ts/components/game/Player.tsx':[
+"Joust:ts/components/game/Player.tsx": [
 1,
 2,
 3,
@@ -646,14 +646,14 @@
 351,
 355,
 361,
-372,
+372
 ],
-'Joust:ts/components/game/Rank.tsx':[
+"Joust:ts/components/game/Rank.tsx": [
 1,
 2,
-3,
+3
 ],
-'Joust:ts/components/game/TwoPlayerGame.tsx':[
+"Joust:ts/components/game/TwoPlayerGame.tsx": [
 1,
 2,
 7,
@@ -664,9 +664,9 @@
 12,
 13,
 14,
-15,
+15
 ],
-'Joust:ts/components/game/Weapon.tsx':[
+"Joust:ts/components/game/Weapon.tsx": [
 1,
 2,
 3,
@@ -674,34 +674,34 @@
 5,
 6,
 7,
-8,
+8
 ],
-'Joust:ts/components/game/stats/Armor.tsx':[
+"Joust:ts/components/game/stats/Armor.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Attack.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Cost.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Damage.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Durability.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Healing.tsx": [
+1
+],
+"Joust:ts/components/game/stats/Health.tsx": [
+1
+],
+"Joust:ts/components/game/stats/SecretText.tsx": [
 1,
+12
 ],
-'Joust:ts/components/game/stats/Attack.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/Cost.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/Damage.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/Durability.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/Healing.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/Health.tsx':[
-1,
-],
-'Joust:ts/components/game/stats/SecretText.tsx':[
-1,
-12,
-],
-'Joust:ts/components/game/visuals/CardArt.tsx':[
+"Joust:ts/components/game/visuals/CardArt.tsx": [
 1,
 2,
 3,
@@ -714,9 +714,9 @@
 73,
 89,
 99,
-137,
+137
 ],
-'Joust:ts/components/game/visuals/HeroArt.tsx':[
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
 1,
 2,
 3,
@@ -746,9 +746,9 @@
 108,
 109,
 114,
-115,
+115
 ],
-'Joust:ts/components/game/visuals/HeroPowerArt.tsx':[
+"Joust:ts/components/game/visuals/HeroPowerArt.tsx": [
 1,
 2,
 3,
@@ -758,9 +758,9 @@
 16,
 19,
 21,
-25,
+25
 ],
-'Joust:ts/components/game/visuals/InHandCardArt.tsx':[
+"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
 1,
 2,
 3,
@@ -808,9 +808,9 @@
 126,
 128,
 130,
-132,
+132
 ],
-'Joust:ts/components/game/visuals/InPlayCardArt.tsx':[
+"Joust:ts/components/game/visuals/InPlayCardArt.tsx": [
 1,
 2,
 3,
@@ -853,9 +853,9 @@
 155,
 156,
 161,
-162,
+162
 ],
-'Joust:ts/components/game/visuals/RankArt.tsx':[
+"Joust:ts/components/game/visuals/RankArt.tsx": [
 1,
 2,
 3,
@@ -865,9 +865,9 @@
 15,
 16,
 21,
-22,
+22
 ],
-'Joust:ts/components/game/visuals/WeaponArt.tsx':[
+"Joust:ts/components/game/visuals/WeaponArt.tsx": [
 1,
 2,
 3,
@@ -877,15 +877,15 @@
 16,
 19,
 22,
-26,
+26
 ],
-'Joust:ts/debug.tsx':[
+"Joust:ts/debug.tsx": [
 1,
 2,
 3,
-4,
+4
 ],
-'Joust:ts/protocol/HSReplayDecoder.spec.ts':[
+"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
 1,
 2,
 3,
@@ -924,9 +924,9 @@
 147,
 149,
 156,
-158,
+158
 ],
-'Joust:ts/protocol/HSReplayDecoder.ts':[
+"Joust:ts/protocol/HSReplayDecoder.ts": [
 1,
 2,
 3,
@@ -1031,9 +1031,9 @@
 419,
 420,
 422,
-423,
+423
 ],
-'Joust:ts/protocol/KettleDecoder.ts':[
+"Joust:ts/protocol/KettleDecoder.ts": [
 1,
 2,
 3,
@@ -1044,27 +1044,27 @@
 8,
 9,
 10,
-151,
+151
 ],
-'Joust:ts/protocol/KettleEncoder.ts':[
+"Joust:ts/protocol/KettleEncoder.ts": [
 1,
 2,
 3,
 4,
 5,
 6,
-68,
+68
 ],
-'Joust:ts/run.ts':[
+"Joust:ts/run.ts": [
 1,
-2,
+2
 ],
-'Joust:ts/state/GameState.spec.ts':[
+"Joust:ts/state/GameState.spec.ts": [
 1,
 3,
-5,
+5
 ],
-'Joust:ts/state/GameState.ts':[
+"Joust:ts/state/GameState.ts": [
 1,
 2,
 3,
@@ -1075,14 +1075,14 @@
 8,
 9,
 36,
-42,
+42
 ],
-'Joust:ts/state/GameStateDescriptor.ts':[
+"Joust:ts/state/GameStateDescriptor.ts": [
 1,
 2,
-3,
+3
 ],
-'Joust:ts/state/GameStateHistory.spec.ts':[
+"Joust:ts/state/GameStateHistory.spec.ts": [
 1,
 2,
 3,
@@ -1109,17 +1109,17 @@
 148,
 156,
 167,
-174,
+174
 ],
-'Joust:ts/state/GameStateHistory.ts':[
+"Joust:ts/state/GameStateHistory.ts": [
 1,
 2,
 3,
 4,
 17,
-55,
+55
 ],
-'Joust:ts/state/GameStateScrubber.ts':[
+"Joust:ts/state/GameStateScrubber.ts": [
 1,
 2,
 3,
@@ -1130,30 +1130,30 @@
 99,
 109,
 159,
-162,
+162
 ],
-'Joust:ts/state/GameStateSink.ts':[
+"Joust:ts/state/GameStateSink.ts": [
 1,
-15,
+15
 ],
-'Joust:ts/state/GameStateTracker.ts':[
-1,
-2,
-3,
-4,
-5,
-],
-'Joust:ts/state/GameStateTrackerPlugin.ts':[
-1,
-2,
-],
-'Joust:ts/state/mutators/AddDiffsMutator.ts':[
+"Joust:ts/state/GameStateTracker.ts": [
 1,
 2,
 3,
 4,
+5
 ],
-'Joust:ts/state/mutators/AddEntityMutator.ts':[
+"Joust:ts/state/GameStateTrackerPlugin.ts": [
+1,
+2
+],
+"Joust:ts/state/mutators/AddDiffsMutator.ts": [
+1,
+2,
+3,
+4
+],
+"Joust:ts/state/mutators/AddEntityMutator.ts": [
 1,
 2,
 3,
@@ -1162,33 +1162,33 @@
 6,
 14,
 22,
-28,
+28
 ],
-'Joust:ts/state/mutators/ClearChoicesMutator.ts':[
+"Joust:ts/state/mutators/ClearChoicesMutator.ts": [
 1,
 2,
-11,
+11
 ],
-'Joust:ts/state/mutators/ClearOptionsMutator.ts':[
+"Joust:ts/state/mutators/ClearOptionsMutator.ts": [
 1,
-2,
+2
 ],
-'Joust:ts/state/mutators/EnrichDescriptorMutator.ts':[
+"Joust:ts/state/mutators/EnrichDescriptorMutator.ts": [
 1,
 2,
 3,
 4,
-15,
+15
 ],
-'Joust:ts/state/mutators/HideEntityMutator.ts':[
+"Joust:ts/state/mutators/HideEntityMutator.ts": [
 1,
 2,
 3,
 4,
 18,
-24,
+24
 ],
-'Joust:ts/state/mutators/IncrementTimeMutator.spec.ts':[
+"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
 1,
 2,
 4,
@@ -1196,72 +1196,72 @@
 11,
 17,
 24,
-31,
+31
 ],
-'Joust:ts/state/mutators/IncrementTimeMutator.ts':[
+"Joust:ts/state/mutators/IncrementTimeMutator.ts": [
+1,
+2
+],
+"Joust:ts/state/mutators/PopDescriptorMutator.ts": [
+1,
+2
+],
+"Joust:ts/state/mutators/PushDescriptorMutator.ts": [
 1,
 2,
+3
 ],
-'Joust:ts/state/mutators/PopDescriptorMutator.ts':[
-1,
-2,
-],
-'Joust:ts/state/mutators/PushDescriptorMutator.ts':[
-1,
-2,
-3,
-],
-'Joust:ts/state/mutators/ReplaceEntityMutator.ts':[
+"Joust:ts/state/mutators/ReplaceEntityMutator.ts": [
 1,
 2,
 3,
 12,
 19,
-25,
+25
 ],
-'Joust:ts/state/mutators/SetChoicesMutator.ts':[
+"Joust:ts/state/mutators/SetChoicesMutator.ts": [
 1,
 2,
-3,
+3
 ],
-'Joust:ts/state/mutators/SetOptionsMutator.ts':[
-1,
-2,
-3,
-4,
-5,
-],
-'Joust:ts/state/mutators/SetTimeMutator.ts':[
-1,
-2,
-],
-'Joust:ts/state/mutators/ShowEntityMutator.ts':[
+"Joust:ts/state/mutators/SetOptionsMutator.ts": [
 1,
 2,
 3,
 4,
-5,
-6,
-18,
+5
 ],
-'Joust:ts/state/mutators/TagChangeMutator.ts':[
+"Joust:ts/state/mutators/SetTimeMutator.ts": [
 1,
-2,
-3,
-4,
-5,
-21,
+2
 ],
-'Joust:ts/state/plugins/CoinDetector.ts':[
+"Joust:ts/state/mutators/ShowEntityMutator.ts": [
 1,
 2,
 3,
 4,
 5,
 6,
-17,
+18
 ],
-'Joust:ts/state/plugins/Timer.ts':[
+"Joust:ts/state/mutators/TagChangeMutator.ts": [
+1,
+2,
+3,
+4,
+5,
+21
+],
+"Joust:ts/state/plugins/CoinDetector.ts": [
+1,
+2,
+3,
+4,
+5,
+6,
+17
+],
+"Joust:ts/state/plugins/Timer.ts": [
 1,
 2,
 3,
@@ -1274,6 +1274,6 @@
 10,
 11,
 12,
-66,
-],
+66
+]
 }

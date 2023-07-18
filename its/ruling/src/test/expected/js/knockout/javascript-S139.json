@@ -1,104 +1,104 @@
 {
-'knockout:build/knockout-raw.js':[
-3,
+"knockout:build/knockout-raw.js": [
+3
 ],
-'knockout:spec/runner.html':[
-93,
+"knockout:spec/runner.html": [
+93
 ],
-'knockout:src/binding/bindingAttributeSyntax.js':[
+"knockout:src/binding/bindingAttributeSyntax.js": [
 340,
 357,
 358,
 359,
-552,
+552
 ],
-'knockout:src/binding/bindingProvider.js':[
+"knockout:src/binding/bindingProvider.js": [
 14,
-37,
+37
 ],
-'knockout:src/binding/defaultBindings/event.js':[
-34,
+"knockout:src/binding/defaultBindings/event.js": [
+34
 ],
-'knockout:src/binding/defaultBindings/foreach.js':[
+"knockout:src/binding/defaultBindings/foreach.js": [
 7,
-38,
+38
 ],
-'knockout:src/binding/defaultBindings/hasfocus.js':[
+"knockout:src/binding/defaultBindings/hasfocus.js": [
 35,
 37,
-62,
+62
 ],
-'knockout:src/binding/defaultBindings/ifIfnotWith.js':[
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
 20,
-72,
+72
 ],
-'knockout:src/binding/defaultBindings/options.js':[
+"knockout:src/binding/defaultBindings/options.js": [
 40,
 62,
 64,
-66,
+66
 ],
-'knockout:src/binding/defaultBindings/selectedOptions.js':[
+"knockout:src/binding/defaultBindings/selectedOptions.js": [
 19,
-42,
+42
 ],
-'knockout:src/binding/defaultBindings/submit.js':[
-10,
+"knockout:src/binding/defaultBindings/submit.js": [
+10
 ],
-'knockout:src/binding/defaultBindings/textInput.js':[
+"knockout:src/binding/defaultBindings/textInput.js": [
 19,
 20,
 101,
 104,
 141,
 142,
-150,
+150
 ],
-'knockout:src/binding/defaultBindings/value.js':[
+"knockout:src/binding/defaultBindings/value.js": [
 24,
 80,
-128,
+128
 ],
-'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
 38,
-208,
+208
 ],
-'knockout:src/binding/editDetection/compareArrays.js':[
+"knockout:src/binding/editDetection/compareArrays.js": [
 10,
 11,
 56,
 59,
 61,
-62,
+62
 ],
-'knockout:src/binding/expressionRewriting.js':[
+"knockout:src/binding/expressionRewriting.js": [
 18,
 78,
 93,
 95,
-98,
+98
 ],
-'knockout:src/binding/selectExtensions.js':[
+"knockout:src/binding/selectExtensions.js": [
 28,
-43,
+43
 ],
-'knockout:src/components/componentBinding.js':[
-102,
+"knockout:src/components/componentBinding.js": [
+102
 ],
-'knockout:src/components/customElements.js':[
-95,
+"knockout:src/components/customElements.js": [
+95
 ],
-'knockout:src/components/loaderRegistry.js':[
+"knockout:src/components/loaderRegistry.js": [
 2,
 3,
 13,
-91,
+91
 ],
-'knockout:src/memoization.js':[
+"knockout:src/memoization.js": [
 53,
-55,
+55
 ],
-'knockout:src/subscribables/dependentObservable.js':[
+"knockout:src/subscribables/dependentObservable.js": [
 45,
 73,
 135,
@@ -107,68 +107,68 @@
 460,
 510,
 522,
-536,
+536
 ],
-'knockout:src/subscribables/extenders.js':[
-71,
+"knockout:src/subscribables/extenders.js": [
+71
 ],
-'knockout:src/subscribables/mappingHelpers.js':[
+"knockout:src/subscribables/mappingHelpers.js": [
 3,
-18,
+18
 ],
-'knockout:src/subscribables/observable.js':[
+"knockout:src/subscribables/observable.js": [
 14,
 18,
-73,
+73
 ],
-'knockout:src/subscribables/subscribable.js':[
+"knockout:src/subscribables/subscribable.js": [
 83,
-91,
+91
 ],
-'knockout:src/tasks.js':[
+"knockout:src/tasks.js": [
 46,
-74,
+74
 ],
-'knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js':[
+"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
 14,
 18,
 46,
 50,
-52,
+52
 ],
-'knockout:src/templating/native/nativeTemplateEngine.js':[
-8,
+"knockout:src/templating/native/nativeTemplateEngine.js": [
+8
 ],
-'knockout:src/templating/templateSources.js':[
-105,
+"knockout:src/templating/templateSources.js": [
+105
 ],
-'knockout:src/templating/templating.js':[
+"knockout:src/templating/templating.js": [
 47,
 143,
 146,
 227,
 281,
 343,
-346,
+346
 ],
-'knockout:src/utils.domData.js':[
+"knockout:src/utils.domData.js": [
 22,
 45,
-74,
+74
 ],
-'knockout:src/utils.domManipulation.js':[
+"knockout:src/utils.domManipulation.js": [
 75,
 99,
-100,
+100
 ],
-'knockout:src/utils.domNodeDisposal.js':[
+"knockout:src/utils.domNodeDisposal.js": [
 4,
 5,
 23,
 100,
-101,
+101
 ],
-'knockout:src/utils.js':[
+"knockout:src/utils.js": [
 42,
 330,
 472,
@@ -176,9 +176,9 @@
 539,
 541,
 547,
-624,
+624
 ],
-'knockout:src/virtualElements.js':[
+"knockout:src/virtualElements.js": [
 62,
 71,
 75,
@@ -186,6 +186,6 @@
 80,
 109,
 128,
-146,
-],
+146
+]
 }

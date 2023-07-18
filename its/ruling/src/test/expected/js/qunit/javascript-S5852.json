@@ -1,18 +1,18 @@
 {
-'qunit:Gruntfile.js':[
-120,
+"qunit:Gruntfile.js": [
+120
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 99,
-790,
+790
 ],
-'qunit:src/cli/find-reporter.js':[
-56,
+"qunit:src/cli/find-reporter.js": [
+56
 ],
-'qunit:src/core/stacktrace.js':[
-5,
+"qunit:src/core/stacktrace.js": [
+5
 ],
-'qunit:src/equiv.js':[
-63,
-],
+"qunit:src/equiv.js": [
+63
+]
 }

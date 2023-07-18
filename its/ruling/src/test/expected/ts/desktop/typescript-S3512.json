@@ -1,45 +1,45 @@
 {
-'desktop:app/src/lib/markdown-filters/close-keyword-filter.ts':[
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
 38,
 49,
-73,
+73
 ],
-'desktop:app/src/lib/markdown-filters/commit-mention-filter.ts':[
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
 45,
 68,
 103,
 126,
-141,
+141
 ],
-'desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts':[
-69,
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
+69
 ],
-'desktop:app/src/lib/markdown-filters/emoji-filter.ts':[
-143,
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+143
 ],
-'desktop:app/src/lib/markdown-filters/issue-link-filter.ts':[
-11,
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+11
 ],
-'desktop:app/src/lib/markdown-filters/issue-mention-filter.ts':[
-40,
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
+40
 ],
-'desktop:app/src/lib/markdown-filters/mention-filter.ts':[
-47,
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+47
 ],
-'desktop:app/src/lib/markdown-filters/video-url-regex.ts':[
-12,
+"desktop:app/src/lib/markdown-filters/video-url-regex.ts": [
+12
 ],
-'desktop:app/src/main-process/desktop-file-transport.ts':[
-17,
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+17
 ],
-'desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx':[
-350,
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+350
 ],
-'desktop:app/src/ui/lib/draggable.tsx':[
+"desktop:app/src/ui/lib/draggable.tsx": [
 113,
-114,
+114
 ],
-'desktop:app/src/ui/repositories-list/repository-list-item.tsx':[
-189,
-],
+"desktop:app/src/ui/repositories-list/repository-list-item.tsx": [
+189
+]
 }

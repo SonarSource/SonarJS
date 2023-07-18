@@ -1,14 +1,14 @@
 {
-'backbone:backbone.js':[
+"backbone:backbone.js": [
 1401,
 1416,
 1720,
 1848,
 1858,
-2032,
+2032
 ],
-'backbone:karma.conf-sauce.js':[
+"backbone:karma.conf-sauce.js": [
 42,
-82,
-],
+82
+]
 }

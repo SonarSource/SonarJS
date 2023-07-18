@@ -1,35 +1,35 @@
 {
-'paper.js:examples/Node.js/SvgExport.js':[
+"paper.js:examples/Node.js/SvgExport.js": [
 28,
-29,
+29
 ],
-'paper.js:examples/Scripts/BooleanOperations.html':[
+"paper.js:examples/Scripts/BooleanOperations.html": [
 356,
 356,
-393,
+393
 ],
-'paper.js:src/canvas/BlendMode.js':[
-34,
+"paper.js:src/canvas/BlendMode.js": [
+34
 ],
-'paper.js:src/core/Base.js':[
+"paper.js:src/core/Base.js": [
 145,
 497,
 497,
 672,
 675,
-675,
+675
 ],
-'paper.js:src/core/PaperScope.js':[
-287,
+"paper.js:src/core/PaperScope.js": [
+287
 ],
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js": [
 255,
 282,
 283,
 284,
-544,
+544
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 979,
 1282,
 1658,
@@ -38,18 +38,18 @@
 2533,
 2534,
 4543,
-4548,
+4548
 ],
-'paper.js:src/item/Raster.js':[
-648,
+"paper.js:src/item/Raster.js": [
+648
 ],
-'paper.js:src/item/Shape.js':[
-141,
+"paper.js:src/item/Shape.js": [
+141
 ],
-'paper.js:src/path/CompoundPath.js':[
-149,
+"paper.js:src/path/CompoundPath.js": [
+149
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 1509,
 1510,
 1830,
@@ -57,9 +57,9 @@
 1839,
 2075,
 2121,
-2281,
+2281
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 390,
 413,
 433,
@@ -78,14 +78,14 @@
 2473,
 2493,
 2495,
-2592,
+2592
 ],
-'paper.js:src/path/PathFitter.js':[
+"paper.js:src/path/PathFitter.js": [
 208,
 224,
-258,
+258
 ],
-'paper.js:src/path/PathItem.Boolean.js':[
+"paper.js:src/path/PathItem.Boolean.js": [
 67,
 174,
 188,
@@ -98,22 +98,22 @@
 809,
 814,
 857,
-1015,
+1015
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js": [
 188,
 195,
 204,
 215,
 223,
 233,
-693,
+693
 ],
-'paper.js:src/path/Segment.js':[
+"paper.js:src/path/Segment.js": [
 465,
-466,
+466
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 85,
 89,
 177,
@@ -122,24 +122,24 @@
 673,
 674,
 674,
-675,
+675
 ],
-'paper.js:src/style/Gradient.js':[
+"paper.js:src/style/Gradient.js": [
 162,
-162,
+162
 ],
-'paper.js:src/style/Style.js':[
-228,
+"paper.js:src/style/Style.js": [
+228
 ],
-'paper.js:src/svg/SvgImport.js':[
+"paper.js:src/svg/SvgImport.js": [
 100,
 100,
-476,
+476
 ],
-'paper.js:src/util/CollisionDetection.js':[
+"paper.js:src/util/CollisionDetection.js": [
 187,
 212,
 213,
-261,
-],
+261
+]
 }

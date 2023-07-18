@@ -1,49 +1,49 @@
 {
-'prototype:ext/update_helper/prototype_update_helper.js':[
+"prototype:ext/update_helper/prototype_update_helper.js": [
 36,
 45,
 54,
 63,
 72,
-406,
+406
 ],
-'prototype:ext/update_helper/update_helper.js':[
-29,
+"prototype:ext/update_helper/update_helper.js": [
+29
 ],
-'prototype:src/prototype/ajax/periodical_updater.js':[
-244,
+"prototype:src/prototype/ajax/periodical_updater.js": [
+244
 ],
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 76,
 1960,
 1996,
-2990,
+2990
 ],
-'prototype:src/prototype/dom/layout.js':[
+"prototype:src/prototype/dom/layout.js": [
 429,
 457,
-478,
+478
 ],
-'prototype:src/prototype/dom/selector.js':[
-87,
+"prototype:src/prototype/dom/selector.js": [
+87
 ],
-'prototype:src/prototype/lang.js':[
-72,
+"prototype:src/prototype/lang.js": [
+72
 ],
-'prototype:src/prototype/lang/array.js':[
+"prototype:src/prototype/lang/array.js": [
 298,
-428,
+428
 ],
-'prototype:src/prototype/lang/class.js':[
+"prototype:src/prototype/lang/class.js": [
 45,
 50,
-148,
+148
 ],
-'prototype:src/prototype/lang/enumerable.js':[
+"prototype:src/prototype/lang/enumerable.js": [
 510,
-761,
+761
 ],
-'prototype:src/prototype/lang/function.js':[
+"prototype:src/prototype/lang/function.js": [
 116,
 126,
 195,
@@ -52,9 +52,9 @@
 260,
 293,
 340,
-397,
+397
 ],
-'prototype:test/functional/event.html':[
-224,
-],
+"prototype:test/functional/event.html": [
+224
+]
 }

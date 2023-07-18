@@ -1,9 +1,9 @@
 {
-'javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js':[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 406,
 407,
 408,
 411,
-429,
-],
+429
+]
 }

@@ -1,15 +1,15 @@
 {
-'ant-design:components/empty/empty.tsx':[
+"ant-design:components/empty/empty.tsx": [
 40,
-45,
+45
 ],
-'ant-design:components/empty/simple.tsx':[
-20,
+"ant-design:components/empty/simple.tsx": [
+20
 ],
-'ant-design:components/input/__tests__/index.test.tsx':[
-71,
+"ant-design:components/input/__tests__/index.test.tsx": [
+71
 ],
-'ant-design:components/result/noFound.tsx':[
+"ant-design:components/result/noFound.tsx": [
 12,
 27,
 31,
@@ -31,9 +31,9 @@
 157,
 236,
 239,
-257,
+257
 ],
-'ant-design:components/result/serverError.tsx':[
+"ant-design:components/result/serverError.tsx": [
 13,
 28,
 32,
@@ -64,9 +64,9 @@
 255,
 272,
 277,
-295,
+295
 ],
-'ant-design:components/result/unauthorized.tsx':[
+"ant-design:components/result/unauthorized.tsx": [
 7,
 20,
 24,
@@ -89,21 +89,21 @@
 251,
 262,
 266,
-270,
+270
 ],
-'ant-design:components/skeleton/Image.tsx':[
-10,
+"ant-design:components/skeleton/Image.tsx": [
+10
 ],
-'ant-design:site/theme/template/Home/DesignPage/Growth.tsx':[
-10,
+"ant-design:site/theme/template/Home/DesignPage/Growth.tsx": [
+10
 ],
-'ant-design:site/theme/template/Home/DesignPage/Meaningful.tsx':[
-10,
+"ant-design:site/theme/template/Home/DesignPage/Meaningful.tsx": [
+10
 ],
-'ant-design:site/theme/template/Home/DesignPage/Natural.tsx':[
+"ant-design:site/theme/template/Home/DesignPage/Natural.tsx": [
 10,
 21,
 25,
-38,
-],
+38
+]
 }

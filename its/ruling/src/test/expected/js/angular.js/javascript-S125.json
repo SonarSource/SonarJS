@@ -1,11 +1,11 @@
 {
-'angular.js:docs/app/e2e/app.scenario.js':[
-35,
+"angular.js:docs/app/e2e/app.scenario.js": [
+35
 ],
-'angular.js:src/ng/sanitizeUri.js':[
-73,
+"angular.js:src/ng/sanitizeUri.js": [
+73
 ],
-'angular.js:src/ngAnimate/animateJs.js':[
-12,
-],
+"angular.js:src/ngAnimate/animateJs.js": [
+12
+]
 }

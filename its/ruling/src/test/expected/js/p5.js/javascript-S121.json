@@ -1,10 +1,10 @@
 {
-'p5.js:docs/preprocessor.js':[
+"p5.js:docs/preprocessor.js": [
 195,
 196,
-197,
+197
 ],
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 2369,
 4139,
 4140,
@@ -15,16 +15,16 @@
 4517,
 4652,
 4668,
-4670,
+4670
 ],
-'p5.js:karma.conf.js':[
+"p5.js:karma.conf.js": [
 35,
 36,
 37,
 38,
-39,
+39
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 69,
 71,
 73,
@@ -55,9 +55,9 @@
 7563,
 7566,
 7568,
-10402,
+10402
 ],
-'p5.js:src/color/p5.Color.js':[
+"p5.js:src/color/p5.Color.js": [
 148,
 160,
 172,
@@ -65,16 +65,16 @@
 199,
 210,
 221,
-234,
+234
 ],
-'p5.js:src/core/error_helpers.js':[
+"p5.js:src/core/error_helpers.js": [
 405,
 448,
 545,
 546,
-643,
+643
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js": [
 427,
 451,
 508,
@@ -94,24 +94,24 @@
 1576,
 1593,
 1595,
-1953,
+1953
 ],
-'p5.js:src/io/p5.XML.js':[
-368,
+"p5.js:src/io/p5.XML.js": [
+368
 ],
-'p5.js:src/math/p5.Vector.js':[
+"p5.js:src/math/p5.Vector.js": [
 881,
 1064,
-1117,
+1117
 ],
-'p5.js:src/webgl/interaction.js':[
-59,
+"p5.js:src/webgl/interaction.js": [
+59
 ],
-'p5.js:src/webgl/loading.js':[
+"p5.js:src/webgl/loading.js": [
 326,
-339,
+339
 ],
-'p5.js:src/webgl/p5.Camera.js':[
+"p5.js:src/webgl/p5.Camera.js": [
 496,
 497,
 498,
@@ -123,26 +123,26 @@
 555,
 556,
 557,
-559,
+559
 ],
-'p5.js:src/webgl/p5.Geometry.js':[
-111,
+"p5.js:src/webgl/p5.Geometry.js": [
+111
 ],
-'p5.js:src/webgl/p5.RendererGL.Immediate.js':[
-150,
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+150
 ],
-'p5.js:src/webgl/p5.RendererGL.Retained.js':[
-76,
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
+76
 ],
-'p5.js:src/webgl/p5.RendererGL.js':[
+"p5.js:src/webgl/p5.RendererGL.js": [
 719,
 1239,
 1341,
 1354,
 1356,
-1430,
+1430
 ],
-'p5.js:src/webgl/text.js':[
+"p5.js:src/webgl/text.js": [
 64,
 170,
 188,
@@ -154,16 +154,16 @@
 245,
 246,
 493,
-713,
+713
 ],
-'p5.js:test/test-reference.html':[
+"p5.js:test/test-reference.html": [
 28,
 164,
-211,
+211
 ],
-'p5.js:utils/sample-linter.js':[
+"p5.js:utils/sample-linter.js": [
 38,
 120,
-140,
-],
+140
+]
 }

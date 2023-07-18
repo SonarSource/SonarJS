@@ -1,10 +1,10 @@
 {
-'paper.js:src/path/Curve.js':[
-2137,
+"paper.js:src/path/Curve.js": [
+2137
 ],
-'paper.js:src/util/CollisionDetection.js':[
+"paper.js:src/util/CollisionDetection.js": [
 205,
 212,
-261,
-],
+261
+]
 }

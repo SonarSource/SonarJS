@@ -1,5 +1,5 @@
 {
-'backbone:backbone.js':[
+"backbone:backbone.js": [
 118,
 148,
 152,
@@ -16,9 +16,9 @@
 1298,
 1466,
 1488,
-1557,
+1557
 ],
-'backbone:examples/todos/todos.js':[
-19,
-],
+"backbone:examples/todos/todos.js": [
+19
+]
 }

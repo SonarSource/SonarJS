@@ -1,25 +1,25 @@
 {
-'react-cloud-music:config/env.js':[
+"react-cloud-music:config/env.js": [
 25,
 37,
 79,
-87,
+87
 ],
-'react-cloud-music:config/jest/cssTransform.js':[
-13,
+"react-cloud-music:config/jest/cssTransform.js": [
+13
 ],
-'react-cloud-music:config/jest/fileTransform.js':[
+"react-cloud-music:config/jest/fileTransform.js": [
 17,
-39,
+39
 ],
-'react-cloud-music:config/modules.js':[
-80,
+"react-cloud-music:config/modules.js": [
+80
 ],
-'react-cloud-music:config/paths.js':[
+"react-cloud-music:config/paths.js": [
 52,
-85,
+85
 ],
-'react-cloud-music:config/webpack.config.js':[
+"react-cloud-music:config/webpack.config.js": [
 77,
 81,
 96,
@@ -93,70 +93,70 @@
 609,
 610,
 622,
-626,
+626
 ],
-'react-cloud-music:config/webpackDevServer.config.js':[
+"react-cloud-music:config/webpackDevServer.config.js": [
 72,
 81,
-102,
+102
 ],
-'react-cloud-music:scripts/build.js':[
+"react-cloud-music:scripts/build.js": [
 147,
 180,
-189,
+189
 ],
-'react-cloud-music:scripts/start.js':[
+"react-cloud-music:scripts/start.js": [
 28,
 87,
-97,
+97
 ],
-'react-cloud-music:src/application/Album/store/reducer.js':[
-9,
+"react-cloud-music:src/application/Album/store/reducer.js": [
+9
 ],
-'react-cloud-music:src/application/Home/index.jsx':[
-6,
+"react-cloud-music:src/application/Home/index.jsx": [
+6
 ],
-'react-cloud-music:src/application/Player/store/reducer.js':[
+"react-cloud-music:src/application/Player/store/reducer.js": [
 53,
-72,
+72
 ],
-'react-cloud-music:src/application/Recommend/index.jsx':[
-60,
+"react-cloud-music:src/application/Recommend/index.jsx": [
+60
 ],
-'react-cloud-music:src/application/Singers/store/reducer.js':[
-11,
+"react-cloud-music:src/application/Singers/store/reducer.js": [
+11
 ],
-'react-cloud-music:src/components/slider/index.jsx':[
+"react-cloud-music:src/components/slider/index.jsx": [
 16,
-18,
+18
 ],
-'react-cloud-music:ts-music/config/env.js':[
+"react-cloud-music:ts-music/config/env.js": [
 25,
 37,
 87,
-95,
+95
 ],
-'react-cloud-music:ts-music/config/getHttpsConfig.js':[
-57,
+"react-cloud-music:ts-music/config/getHttpsConfig.js": [
+57
 ],
-'react-cloud-music:ts-music/config/jest/cssTransform.js':[
-13,
+"react-cloud-music:ts-music/config/jest/cssTransform.js": [
+13
 ],
-'react-cloud-music:ts-music/config/jest/fileTransform.js':[
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
 17,
-39,
+39
 ],
-'react-cloud-music:ts-music/config/modules.js':[
+"react-cloud-music:ts-music/config/modules.js": [
 75,
 96,
 119,
-137,
+137
 ],
-'react-cloud-music:ts-music/config/paths.js':[
+"react-cloud-music:ts-music/config/paths.js": [
 35,
-67,
+67
 ],
-'react-cloud-music:ts-music/config/webpack.config.js':[
+"react-cloud-music:ts-music/config/webpack.config.js": [
 80,
 84,
 99,
@@ -237,24 +237,24 @@
 650,
 651,
 663,
-667,
+667
 ],
-'react-cloud-music:ts-music/config/webpackDevServer.config.js':[
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
 91,
 100,
-128,
+128
 ],
-'react-cloud-music:ts-music/scripts/build.js':[
+"react-cloud-music:ts-music/scripts/build.js": [
 167,
 200,
-209,
+209
 ],
-'react-cloud-music:ts-music/scripts/start.js':[
+"react-cloud-music:ts-music/scripts/start.js": [
 28,
 94,
-105,
+105
 ],
-'react-cloud-music:ts-music/src/serviceWorker.js':[
-104,
-],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+104
+]
 }

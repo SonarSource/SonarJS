@@ -1,18 +1,18 @@
 {
-'mootools-core:Source/Element/Element.js':[
-747,
+"mootools-core:Source/Element/Element.js": [
+747
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
-141,
+"mootools-core:Source/Fx/Fx.CSS.js": [
+141
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 254,
-562,
+562
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
-22,
+"mootools-core:Source/Slick/Slick.Parser.js": [
+22
 ],
-'mootools-core:Source/Types/String.js':[
-30,
-],
+"mootools-core:Source/Types/String.js": [
+30
+]
 }

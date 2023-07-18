@@ -1,8 +1,8 @@
 {
-'sizzle:speed/data/selector.html':[
-3299,
+"sizzle:speed/data/selector.html": [
+3299
 ],
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js": [
 207,
 264,
 268,
@@ -45,6 +45,6 @@
 2351,
 2354,
 2357,
-2446,
-],
+2446
+]
 }

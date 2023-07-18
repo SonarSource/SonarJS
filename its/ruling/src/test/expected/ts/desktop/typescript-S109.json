@@ -1,25 +1,25 @@
 {
-'desktop:app/git-info.ts':[
-76,
+"desktop:app/git-info.ts": [
+76
 ],
-'desktop:app/src/cli/main.ts':[
+"desktop:app/src/cli/main.ts": [
 12,
-26,
+26
 ],
-'desktop:app/src/cli/util.ts':[
-31,
+"desktop:app/src/cli/util.ts": [
+31
 ],
-'desktop:app/src/crash/crash-app.tsx':[
+"desktop:app/src/crash/crash-app.tsx": [
 67,
 69,
 69,
-69,
+69
 ],
-'desktop:app/src/highlighter/index.ts':[
+"desktop:app/src/highlighter/index.ts": [
 577,
-592,
+592
 ],
-'desktop:app/src/lib/actions-log-parser/action-log-parser.ts':[
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 321,
 322,
 323,
@@ -54,9 +54,9 @@
 722,
 723,
 733,
-733,
+733
 ],
-'desktop:app/src/lib/api.ts':[
+"desktop:app/src/lib/api.ts": [
 555,
 634,
 634,
@@ -67,18 +67,18 @@
 1593,
 1618,
 1624,
-1626,
+1626
 ],
-'desktop:app/src/lib/databases/github-user-database.ts':[
+"desktop:app/src/lib/databases/github-user-database.ts": [
 73,
 81,
 86,
-90,
+90
 ],
-'desktop:app/src/lib/databases/issues-database.ts':[
-23,
+"desktop:app/src/lib/databases/issues-database.ts": [
+23
 ],
-'desktop:app/src/lib/databases/pull-request-database.ts':[
+"desktop:app/src/lib/databases/pull-request-database.ts": [
 93,
 97,
 105,
@@ -86,9 +86,9 @@
 112,
 116,
 121,
-135,
+135
 ],
-'desktop:app/src/lib/databases/repositories-database.ts':[
+"desktop:app/src/lib/databases/repositories-database.ts": [
 113,
 121,
 123,
@@ -96,24 +96,24 @@
 131,
 135,
 139,
-140,
+140
 ],
-'desktop:app/src/lib/diff-parser.ts':[
+"desktop:app/src/lib/diff-parser.ts": [
 247,
 248,
 249,
-328,
+328
 ],
-'desktop:app/src/lib/editors/win32.ts':[
-94,
+"desktop:app/src/lib/editors/win32.ts": [
+94
 ],
-'desktop:app/src/lib/format-duration.ts':[
+"desktop:app/src/lib/format-duration.ts": [
 2,
 3,
 4,
-5,
+5
 ],
-'desktop:app/src/lib/format-relative.ts':[
+"desktop:app/src/lib/format-relative.ts": [
 24,
 25,
 26,
@@ -124,57 +124,57 @@
 33,
 35,
 37,
-39,
+39
 ],
-'desktop:app/src/lib/get-main-guid.ts':[
-34,
+"desktop:app/src/lib/get-main-guid.ts": [
+34
 ],
-'desktop:app/src/lib/git/apply.ts':[
-43,
+"desktop:app/src/lib/git/apply.ts": [
+43
 ],
-'desktop:app/src/lib/git/branch.ts':[
+"desktop:app/src/lib/git/branch.ts": [
 139,
-142,
+142
 ],
-'desktop:app/src/lib/git/cherry-pick.ts':[
+"desktop:app/src/lib/git/cherry-pick.ts": [
 86,
-355,
+355
 ],
-'desktop:app/src/lib/git/config.ts':[
-122,
+"desktop:app/src/lib/git/config.ts": [
+122
 ],
-'desktop:app/src/lib/git/diff-check.ts':[
-19,
+"desktop:app/src/lib/git/diff-check.ts": [
+19
 ],
-'desktop:app/src/lib/git/diff-index.ts':[
+"desktop:app/src/lib/git/diff-index.ts": [
 89,
 96,
-108,
+108
 ],
-'desktop:app/src/lib/git/diff.ts':[
+"desktop:app/src/lib/git/diff.ts": [
 49,
 311,
 324,
-545,
+545
 ],
-'desktop:app/src/lib/git/fetch.ts':[
-125,
+"desktop:app/src/lib/git/fetch.ts": [
+125
 ],
-'desktop:app/src/lib/git/log.ts':[
+"desktop:app/src/lib/git/log.ts": [
 109,
 113,
-217,
+217
 ],
-'desktop:app/src/lib/git/merge.ts':[
+"desktop:app/src/lib/git/merge.ts": [
 81,
-85,
+85
 ],
-'desktop:app/src/lib/git/rebase.ts':[
+"desktop:app/src/lib/git/rebase.ts": [
 108,
 282,
-289,
+289
 ],
-'desktop:app/src/lib/git/reflog.ts':[
+"desktop:app/src/lib/git/reflog.ts": [
 31,
 34,
 45,
@@ -182,167 +182,167 @@
 48,
 99,
 108,
-116,
+116
 ],
-'desktop:app/src/lib/git/refs.ts':[
+"desktop:app/src/lib/git/refs.ts": [
 54,
-58,
+58
 ],
-'desktop:app/src/lib/git/remote.ts':[
+"desktop:app/src/lib/git/remote.ts": [
 48,
 48,
 82,
-82,
+82
 ],
-'desktop:app/src/lib/git/rev-list.ts':[
+"desktop:app/src/lib/git/rev-list.ts": [
 74,
 172,
-174,
+174
 ],
-'desktop:app/src/lib/git/rev-parse.ts':[
+"desktop:app/src/lib/git/rev-parse.ts": [
 28,
-32,
+32
 ],
-'desktop:app/src/lib/git/stash.ts':[
+"desktop:app/src/lib/git/stash.ts": [
 53,
 59,
 72,
-285,
+285
 ],
-'desktop:app/src/lib/git/status.ts':[
+"desktop:app/src/lib/git/status.ts": [
 186,
 189,
-337,
+337
 ],
-'desktop:app/src/lib/git/submodule.ts':[
+"desktop:app/src/lib/git/submodule.ts": [
 28,
-31,
+31
 ],
-'desktop:app/src/lib/git/tag.ts':[
+"desktop:app/src/lib/git/tag.ts": [
 106,
-125,
+125
 ],
-'desktop:app/src/lib/git/var.ts':[
+"desktop:app/src/lib/git/var.ts": [
 28,
-33,
+33
 ],
-'desktop:app/src/lib/gravatar.ts':[
-9,
+"desktop:app/src/lib/gravatar.ts": [
+9
 ],
-'desktop:app/src/lib/helpers/non-fatal-exception.ts':[
+"desktop:app/src/lib/helpers/non-fatal-exception.ts": [
 27,
-27,
+27
 ],
-'desktop:app/src/lib/highlighter/worker.ts':[
+"desktop:app/src/lib/highlighter/worker.ts": [
 6,
-6,
+6
 ],
-'desktop:app/src/lib/http.ts':[
-89,
+"desktop:app/src/lib/http.ts": [
+89
 ],
-'desktop:app/src/lib/large-files.ts':[
+"desktop:app/src/lib/large-files.ts": [
 7,
 7,
-7,
+7
 ],
-'desktop:app/src/lib/logging/renderer/install.ts':[
-6,
+"desktop:app/src/lib/logging/renderer/install.ts": [
+6
 ],
-'desktop:app/src/lib/markdown-filters/commit-mention-filter.ts':[
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
 289,
 332,
-332,
+332
 ],
-'desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts':[
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
 132,
 212,
 291,
-291,
+291
 ],
-'desktop:app/src/lib/markdown-filters/resolve-owner-repo.ts':[
+"desktop:app/src/lib/markdown-filters/resolve-owner-repo.ts": [
 24,
-37,
+37
 ],
-'desktop:app/src/lib/mouse-scroller.ts':[
+"desktop:app/src/lib/mouse-scroller.ts": [
 16,
 17,
-43,
+43
 ],
-'desktop:app/src/lib/parse-pac-string.ts':[
-76,
+"desktop:app/src/lib/parse-pac-string.ts": [
+76
 ],
-'desktop:app/src/lib/progress/git.ts':[
+"desktop:app/src/lib/progress/git.ts": [
 252,
 257,
 282,
 287,
-288,
+288
 ],
-'desktop:app/src/lib/progress/lfs.ts':[
+"desktop:app/src/lib/progress/lfs.ts": [
 55,
 60,
 61,
 62,
-63,
+63
 ],
-'desktop:app/src/lib/read-emoji.ts':[
+"desktop:app/src/lib/read-emoji.ts": [
 40,
 44,
 64,
 65,
-71,
+71
 ],
-'desktop:app/src/lib/rebase.ts':[
+"desktop:app/src/lib/rebase.ts": [
 12,
-12,
+12
 ],
-'desktop:app/src/lib/release-notes.ts':[
+"desktop:app/src/lib/release-notes.ts": [
 28,
-122,
+122
 ],
-'desktop:app/src/lib/remote-parsing.ts':[
+"desktop:app/src/lib/remote-parsing.ts": [
 50,
 51,
 51,
-80,
+80
 ],
-'desktop:app/src/lib/remove-remote-prefix.ts':[
-11,
+"desktop:app/src/lib/remove-remote-prefix.ts": [
+11
 ],
-'desktop:app/src/lib/shell.ts':[
+"desktop:app/src/lib/shell.ts": [
 51,
 51,
-51,
+51
 ],
-'desktop:app/src/lib/shells/win32.ts':[
-203,
+"desktop:app/src/lib/shells/win32.ts": [
+203
 ],
-'desktop:app/src/lib/source-map-support.ts':[
+"desktop:app/src/lib/source-map-support.ts": [
 37,
-37,
+37
 ],
-'desktop:app/src/lib/ssh/ssh.ts':[
+"desktop:app/src/lib/ssh/ssh.ts": [
 80,
 86,
 87,
-88,
+88
 ],
-'desktop:app/src/lib/stats/stats-store.ts':[
+"desktop:app/src/lib/stats/stats-store.ts": [
 75,
 75,
 75,
 75,
-1946,
+1946
 ],
-'desktop:app/src/lib/status-parser.ts':[
+"desktop:app/src/lib/status-parser.ts": [
 70,
 71,
 105,
 129,
 147,
-152,
+152
 ],
-'desktop:app/src/lib/stores/app-store.ts':[
+"desktop:app/src/lib/stores/app-store.ts": [
 358,
 358,
 358,
@@ -357,28 +357,28 @@
 3090,
 4082,
 4274,
-4628,
+4628
 ],
-'desktop:app/src/lib/stores/commit-status-store.ts':[
+"desktop:app/src/lib/stores/commit-status-store.ts": [
 116,
 116,
 124,
 124,
 124,
-433,
+433
 ],
-'desktop:app/src/lib/stores/git-store.ts':[
+"desktop:app/src/lib/stores/git-store.ts": [
 194,
-832,
+832
 ],
-'desktop:app/src/lib/stores/github-user-store.ts':[
+"desktop:app/src/lib/stores/github-user-store.ts": [
 15,
 15,
 15,
 21,
-21,
+21
 ],
-'desktop:app/src/lib/stores/helpers/background-fetcher.ts':[
+"desktop:app/src/lib/stores/helpers/background-fetcher.ts": [
 11,
 11,
 11,
@@ -386,32 +386,32 @@
 17,
 17,
 23,
-23,
+23
 ],
-'desktop:app/src/lib/stores/helpers/branch-pruner.ts':[
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
 22,
 22,
 22,
 22,
 144,
-183,
+183
 ],
-'desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts':[
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
 39,
 120,
 143,
 143,
-146,
+146
 ],
-'desktop:app/src/lib/stores/helpers/pull-request-updater.ts':[
+"desktop:app/src/lib/stores/helpers/pull-request-updater.ts": [
 6,
 6,
 6,
 12,
 12,
-12,
+12
 ],
-'desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts':[
+"desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
 6,
 6,
 6,
@@ -424,158 +424,158 @@
 104,
 114,
 115,
-116,
+116
 ],
-'desktop:app/src/lib/stores/issues-store.ts':[
+"desktop:app/src/lib/stores/issues-store.ts": [
 21,
-21,
+21
 ],
-'desktop:app/src/lib/stores/notifications-store.ts':[
+"desktop:app/src/lib/stores/notifications-store.ts": [
 164,
-261,
+261
 ],
-'desktop:app/src/lib/thank-you.ts':[
+"desktop:app/src/lib/thank-you.ts": [
 52,
-77,
+77
 ],
-'desktop:app/src/lib/trampoline/trampoline-askpass-handler.ts':[
+"desktop:app/src/lib/trampoline/trampoline-askpass-handler.ts": [
 52,
 63,
-95,
+95
 ],
-'desktop:app/src/lib/trampoline/trampoline-command-parser.ts':[
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
 78,
-84,
+84
 ],
-'desktop:app/src/lib/uuid.ts':[
-32,
+"desktop:app/src/lib/uuid.ts": [
+32
 ],
-'desktop:app/src/lib/wrap-rich-text-commit-message.ts':[
+"desktop:app/src/lib/wrap-rich-text-commit-message.ts": [
 52,
-81,
+81
 ],
-'desktop:app/src/main-process/app-window.ts':[
+"desktop:app/src/main-process/app-window.ts": [
 36,
 37,
-134,
+134
 ],
-'desktop:app/src/main-process/exception-reporting.ts':[
-68,
+"desktop:app/src/main-process/exception-reporting.ts": [
+68
 ],
-'desktop:app/src/main-process/main.ts':[
+"desktop:app/src/main-process/main.ts": [
 87,
-92,
+92
 ],
-'desktop:app/src/main-process/menu/build-default-menu.ts':[
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
 46,
 636,
 636,
 636,
 636,
-636,
+636
 ],
-'desktop:app/src/main-process/now.ts':[
+"desktop:app/src/main-process/now.ts": [
 10,
-10,
+10
 ],
-'desktop:app/src/main-process/ordered-webrequest.ts':[
-217,
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+217
 ],
-'desktop:app/src/models/branch.ts':[
+"desktop:app/src/models/branch.ts": [
 74,
-88,
+88
 ],
-'desktop:app/src/models/commit-identity.ts':[
+"desktop:app/src/models/commit-identity.ts": [
 29,
 32,
 32,
 42,
 43,
 44,
-46,
+46
 ],
-'desktop:app/src/models/git-author.ts':[
-4,
+"desktop:app/src/models/git-author.ts": [
+4
 ],
-'desktop:app/src/ui/add-repository/create-repository.tsx':[
-261,
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+261
 ],
-'desktop:app/src/ui/app-menu/menu-pane.tsx':[
-262,
+"desktop:app/src/ui/app-menu/menu-pane.tsx": [
+262
 ],
-'desktop:app/src/ui/app.tsx':[
+"desktop:app/src/ui/app.tsx": [
 161,
 161,
 162,
 167,
 172,
-1595,
+1595
 ],
-'desktop:app/src/ui/autocompletion/issues-autocompletion-provider.tsx':[
+"desktop:app/src/ui/autocompletion/issues-autocompletion-provider.tsx": [
 9,
-9,
+9
 ],
-'desktop:app/src/ui/branches/branches-container.tsx':[
+"desktop:app/src/ui/branches/branches-container.tsx": [
 344,
-352,
+352
 ],
-'desktop:app/src/ui/changes/changed-file.tsx':[
+"desktop:app/src/ui/changes/changed-file.tsx": [
 45,
-45,
+45
 ],
-'desktop:app/src/ui/changes/changes-list.tsx':[
-556,
+"desktop:app/src/ui/changes/changes-list.tsx": [
+556
 ],
-'desktop:app/src/ui/changes/no-changes.tsx':[
-696,
+"desktop:app/src/ui/changes/no-changes.tsx": [
+696
 ],
-'desktop:app/src/ui/check-runs/ci-check-run-popover.tsx':[
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
 211,
-219,
+219
 ],
-'desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx':[
-113,
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
+113
 ],
-'desktop:app/src/ui/create-branch/create-branch-dialog.tsx':[
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
 152,
-160,
+160
 ],
-'desktop:app/src/ui/create-tag/create-tag-dialog.tsx':[
-100,
+"desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
+100
 ],
-'desktop:app/src/ui/diff/diff-helpers.tsx':[
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
 360,
 360,
-360,
+360
 ],
-'desktop:app/src/ui/diff/diff-syntax-mode.ts':[
-207,
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+207
 ],
-'desktop:app/src/ui/diff/image-diffs/onion-skin.tsx':[
-60,
+"desktop:app/src/ui/diff/image-diffs/onion-skin.tsx": [
+60
 ],
-'desktop:app/src/ui/diff/image-diffs/two-up.tsx':[
+"desktop:app/src/ui/diff/image-diffs/two-up.tsx": [
 9,
 47,
 62,
-77,
+77
 ],
-'desktop:app/src/ui/diff/side-by-side-diff-row.tsx':[
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
 493,
-573,
+573
 ],
-'desktop:app/src/ui/diff/side-by-side-diff.tsx':[
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 1318,
-1318,
+1318
 ],
-'desktop:app/src/ui/diff/syntax-highlighting/index.ts':[
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 21,
-21,
+21
 ],
-'desktop:app/src/ui/diff/text-diff-expansion.ts':[
-345,
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
+345
 ],
-'desktop:app/src/ui/diff/text-diff.tsx':[
+"desktop:app/src/ui/diff/text-diff.tsx": [
 238,
 409,
 1015,
@@ -584,57 +584,57 @@
 1426,
 1426,
 1430,
-1435,
+1435
 ],
-'desktop:app/src/ui/dispatcher/dispatcher.ts':[
-3130,
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+3130
 ],
-'desktop:app/src/ui/donut.tsx':[
+"desktop:app/src/ui/donut.tsx": [
 59,
 62,
 76,
 91,
 98,
 120,
-120,
+120
 ],
-'desktop:app/src/ui/drag-elements/commit-drag-element.tsx':[
-138,
+"desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
+138
 ],
-'desktop:app/src/ui/dropdown-select-button.tsx':[
-83,
+"desktop:app/src/ui/dropdown-select-button.tsx": [
+83
 ],
-'desktop:app/src/ui/history/committed-file-item.tsx':[
+"desktop:app/src/ui/history/committed-file-item.tsx": [
 29,
-29,
+29
 ],
-'desktop:app/src/ui/history/compare.tsx':[
+"desktop:app/src/ui/history/compare.tsx": [
 77,
-506,
+506
 ],
-'desktop:app/src/ui/history/selected-commit.tsx':[
-98,
+"desktop:app/src/ui/history/selected-commit.tsx": [
+98
 ],
-'desktop:app/src/ui/lib/access-text.tsx':[
+"desktop:app/src/ui/lib/access-text.tsx": [
 63,
 67,
 70,
 76,
 77,
-77,
+77
 ],
-'desktop:app/src/ui/lib/avatar-stack.tsx':[
+"desktop:app/src/ui/lib/avatar-stack.tsx": [
 40,
-41,
+41
 ],
-'desktop:app/src/ui/lib/avatar.tsx':[
-60,
+"desktop:app/src/ui/lib/avatar.tsx": [
+60
 ],
-'desktop:app/src/ui/lib/bytes.ts':[
+"desktop:app/src/ui/lib/bytes.ts": [
 29,
-30,
+30
 ],
-'desktop:app/src/ui/lib/color-manipulation.ts':[
+"desktop:app/src/ui/lib/color-manipulation.ts": [
 28,
 29,
 29,
@@ -647,71 +647,71 @@
 90,
 90,
 90,
-92,
+92
 ],
-'desktop:app/src/ui/lib/commit-attribution.tsx':[
-42,
+"desktop:app/src/ui/lib/commit-attribution.tsx": [
+42
 ],
-'desktop:app/src/ui/lib/configure-git-user.tsx':[
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
 181,
 181,
 228,
-232,
+232
 ],
-'desktop:app/src/ui/lib/conflicts/unmerged-file.tsx':[
-452,
+"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
+452
 ],
-'desktop:app/src/ui/lib/custom-theme.ts':[
+"desktop:app/src/ui/lib/custom-theme.ts": [
 33,
-34,
+34
 ],
-'desktop:app/src/ui/lib/draggable.tsx':[
+"desktop:app/src/ui/lib/draggable.tsx": [
 48,
 48,
 57,
-81,
+81
 ],
-'desktop:app/src/ui/lib/git-perf.ts':[
+"desktop:app/src/ui/lib/git-perf.ts": [
 29,
 30,
-30,
+30
 ],
-'desktop:app/src/ui/lib/id-pool.ts':[
+"desktop:app/src/ui/lib/id-pool.ts": [
 38,
-47,
+47
 ],
-'desktop:app/src/ui/lib/list/list.tsx':[
+"desktop:app/src/ui/lib/list/list.tsx": [
 1032,
-1124,
+1124
 ],
-'desktop:app/src/ui/lib/object-id.ts':[
-16,
+"desktop:app/src/ui/lib/object-id.ts": [
+16
 ],
-'desktop:app/src/ui/lib/path-label.tsx':[
-41,
+"desktop:app/src/ui/lib/path-label.tsx": [
+41
 ],
-'desktop:app/src/ui/lib/path-text.tsx':[
+"desktop:app/src/ui/lib/path-text.tsx": [
 88,
 126,
 130,
 419,
-456,
+456
 ],
-'desktop:app/src/ui/lib/round.ts':[
-21,
+"desktop:app/src/ui/lib/round.ts": [
+21
 ],
-'desktop:app/src/ui/lib/sandboxed-markdown.tsx':[
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
 74,
-84,
+84
 ],
-'desktop:app/src/ui/lib/text-area.tsx':[
-80,
+"desktop:app/src/ui/lib/text-area.tsx": [
+80
 ],
-'desktop:app/src/ui/lib/timing.ts':[
+"desktop:app/src/ui/lib/timing.ts": [
 6,
-6,
+6
 ],
-'desktop:app/src/ui/lib/tooltip.tsx':[
+"desktop:app/src/ui/lib/tooltip.tsx": [
 311,
 311,
 311,
@@ -723,93 +723,93 @@
 635,
 635,
 641,
-649,
+649
 ],
-'desktop:app/src/ui/lib/update-branch.ts':[
-63,
+"desktop:app/src/ui/lib/update-branch.ts": [
+63
 ],
-'desktop:app/src/ui/lib/update-store.ts':[
-249,
+"desktop:app/src/ui/lib/update-store.ts": [
+249
 ],
-'desktop:app/src/ui/main-process-proxy.ts':[
+"desktop:app/src/ui/main-process-proxy.ts": [
 237,
 291,
 313,
-351,
+351
 ],
-'desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx':[
-214,
+"desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx": [
+214
 ],
-'desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx':[
-101,
+"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx": [
+101
 ],
-'desktop:app/src/ui/preferences/custom-theme-selector.tsx':[
+"desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
 96,
-97,
+97
 ],
-'desktop:app/src/ui/pull-request-quick-view.tsx':[
+"desktop:app/src/ui/pull-request-quick-view.tsx": [
 105,
 138,
 139,
-150,
+150
 ],
-'desktop:app/src/ui/relative-time.tsx':[
+"desktop:app/src/ui/relative-time.tsx": [
 37,
 38,
 39,
 116,
 117,
-120,
+120
 ],
-'desktop:app/src/ui/toolbar/branch-dropdown.tsx':[
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 149,
-166,
+166
 ],
-'desktop:app/src/ui/toolbar/button.tsx':[
+"desktop:app/src/ui/toolbar/button.tsx": [
 187,
-187,
+187
 ],
-'desktop:app/src/ui/welcome/welcome.tsx':[
-193,
+"desktop:app/src/ui/welcome/welcome.tsx": [
+193
 ],
-'desktop:app/src/ui/window/title-bar.tsx':[
+"desktop:app/src/ui/window/title-bar.tsx": [
 20,
 20,
-23,
+23
 ],
-'desktop:app/src/ui/window/zoom-info.tsx':[
-91,
+"desktop:app/src/ui/window/zoom-info.tsx": [
+91
 ],
-'desktop:app/webpack.development.ts':[
-36,
+"desktop:app/webpack.development.ts": [
+36
 ],
-'desktop:script/changelog/parser.ts':[
+"desktop:script/changelog/parser.ts": [
 21,
 32,
 61,
 76,
-80,
+80
 ],
-'desktop:script/dist-info.ts':[
+"desktop:script/dist-info.ts": [
 130,
 139,
-143,
+143
 ],
-'desktop:script/draft-release/index.ts':[
-14,
+"desktop:script/draft-release/index.ts": [
+14
 ],
-'desktop:script/draft-release/run.ts':[
-46,
+"desktop:script/draft-release/run.ts": [
+46
 ],
-'desktop:script/draft-release/version.ts':[
+"desktop:script/draft-release/version.ts": [
 16,
-85,
+85
 ],
-'desktop:script/publish.ts':[
+"desktop:script/publish.ts": [
 35,
-239,
+239
 ],
-'desktop:script/start.ts':[
-22,
-],
+"desktop:script/start.ts": [
+22
+]
 }

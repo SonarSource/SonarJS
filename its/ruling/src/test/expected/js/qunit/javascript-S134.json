@@ -1,5 +1,5 @@
 {
-'qunit:reporter/diff.js':[
+"qunit:reporter/diff.js": [
 189,
 553,
 647,
@@ -7,21 +7,21 @@
 830,
 845,
 1047,
-1080,
+1080
 ],
-'qunit:reporter/html.js':[
+"qunit:reporter/html.js": [
 161,
 169,
 217,
 225,
 229,
 257,
-830,
+830
 ],
-'qunit:src/core/stacktrace.js':[
-20,
+"qunit:src/core/stacktrace.js": [
+20
 ],
-'qunit:src/test.js':[
-651,
-],
+"qunit:src/test.js": [
+651
+]
 }

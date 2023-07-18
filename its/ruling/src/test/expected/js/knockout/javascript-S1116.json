@@ -1,21 +1,21 @@
 {
-'knockout:build/knockout-raw.js':[
+"knockout:build/knockout-raw.js": [
 22,
-26,
+26
 ],
-'knockout:src/binding/bindingAttributeSyntax.js':[
-538,
+"knockout:src/binding/bindingAttributeSyntax.js": [
+538
 ],
-'knockout:src/binding/defaultBindings/checked.js':[
+"knockout:src/binding/defaultBindings/checked.js": [
 70,
-90,
+90
 ],
-'knockout:src/subscribables/mappingHelpers.js':[
+"knockout:src/subscribables/mappingHelpers.js": [
 70,
-75,
+75
 ],
-'knockout:src/utils.js':[
+"knockout:src/utils.js": [
 510,
-531,
-],
+531
+]
 }

@@ -1,17 +1,17 @@
 {
-'eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx':[
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 135,
-144,
+144
 ],
-'eigen:src/app/Components/Bidding/Screens/Registration.tsx':[
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 150,
 157,
-180,
+180
 ],
-'eigen:src/app/utils/sendEmail.tests.ts':[
+"eigen:src/app/utils/sendEmail.tests.ts": [
 18,
 35,
 43,
-53,
-],
+53
+]
 }

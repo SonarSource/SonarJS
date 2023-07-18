@@ -1,13 +1,13 @@
 {
-'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
-136,
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+136
 ],
-'mootools-core:Source/Element/Element.js':[
+"mootools-core:Source/Element/Element.js": [
 236,
 244,
-855,
+855
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 262,
 279,
 343,
@@ -27,9 +27,9 @@
 715,
 720,
 727,
-735,
+735
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
-65,
-],
+"mootools-core:Source/Slick/Slick.Parser.js": [
+65
+]
 }

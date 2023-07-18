@@ -1,16 +1,16 @@
 {
-'ocanvas:src/mouse.js':[
+"ocanvas:src/mouse.js": [
 166,
-167,
+167
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 740,
 740,
 740,
-740,
+740
 ],
-'ocanvas:src/touch.js':[
+"ocanvas:src/touch.js": [
 209,
-210,
-],
+210
+]
 }

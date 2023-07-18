@@ -1,18 +1,18 @@
 {
-'TypeScript:src/compiler/checker.ts':[
-21828,
+"TypeScript:src/compiler/checker.ts": [
+21828
 ],
-'TypeScript:src/compiler/transformers/generators.ts':[
-2361,
+"TypeScript:src/compiler/transformers/generators.ts": [
+2361
 ],
-'TypeScript:src/compiler/transformers/ts.ts':[
-277,
+"TypeScript:src/compiler/transformers/ts.ts": [
+277
 ],
-'TypeScript:src/compiler/utilities.ts':[
-670,
+"TypeScript:src/compiler/utilities.ts": [
+670
 ],
-'TypeScript:src/harness/fourslash.ts':[
+"TypeScript:src/harness/fourslash.ts": [
 833,
-836,
-],
+836
+]
 }

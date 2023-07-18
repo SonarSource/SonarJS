@@ -1,11 +1,11 @@
 {
-'desktop:app/src/lib/git/status.ts':[
+"desktop:app/src/lib/git/status.ts": [
 327,
 329,
 333,
-335,
+335
 ],
-'desktop:app/src/lib/mouse-scroller.ts':[
-142,
-],
+"desktop:app/src/lib/mouse-scroller.ts": [
+142
+]
 }

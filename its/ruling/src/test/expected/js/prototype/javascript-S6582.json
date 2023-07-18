@@ -1,24 +1,24 @@
 {
-'prototype:src/prototype/dom/dom.js':[
+"prototype:src/prototype/dom/dom.js": [
 459,
 470,
 583,
 686,
 733,
 786,
-2216,
+2216
 ],
-'prototype:src/prototype/dom/event.js':[
+"prototype:src/prototype/dom/event.js": [
 172,
-1219,
+1219
 ],
-'prototype:src/prototype/dom/layout.js':[
-113,
+"prototype:src/prototype/dom/layout.js": [
+113
 ],
-'prototype:src/prototype/lang/class.js':[
-139,
+"prototype:src/prototype/lang/class.js": [
+139
 ],
-'prototype:src/prototype/lang/hash.js':[
-238,
-],
+"prototype:src/prototype/lang/hash.js": [
+238
+]
 }

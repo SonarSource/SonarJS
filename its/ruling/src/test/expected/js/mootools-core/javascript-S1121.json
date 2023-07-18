@@ -1,5 +1,5 @@
 {
-'mootools-core:Source/Element/Element.js':[
+"mootools-core:Source/Element/Element.js": [
 119,
 147,
 603,
@@ -7,13 +7,13 @@
 611,
 693,
 1163,
-1172,
+1172
 ],
-'mootools-core:Source/Fx/Fx.CSS.js':[
+"mootools-core:Source/Fx/Fx.CSS.js": [
 129,
-141,
+141
 ],
-'mootools-core:Source/Slick/Slick.Finder.js':[
+"mootools-core:Source/Slick/Slick.Finder.js": [
 293,
 312,
 318,
@@ -28,9 +28,9 @@
 638,
 658,
 666,
-671,
+671
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
-37,
-],
+"mootools-core:Source/Slick/Slick.Parser.js": [
+37
+]
 }

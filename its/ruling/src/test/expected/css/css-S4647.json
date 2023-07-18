@@ -1,5 +1,5 @@
 {
-'project:projects/bulma-0.9.2/docs/_includes/global/native.html':[
+"project:projects/bulma-0.9.2/docs/_includes/global/native.html": [
 45,
 45,
 45,
@@ -8,6 +8,6 @@
 57,
 58,
 62,
-63,
-],
+63
+]
 }

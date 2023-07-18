@@ -1,11 +1,11 @@
 {
-'jquery:src/css.js':[
-42,
+"jquery:src/css.js": [
+42
 ],
-'jquery:src/effects.js':[
-554,
+"jquery:src/effects.js": [
+554
 ],
-'jquery:src/selector.js':[
+"jquery:src/selector.js": [
 116,
 551,
 728,
@@ -14,9 +14,9 @@
 774,
 774,
 1421,
-1480,
+1480
 ],
-'jquery:src/selector/uniqueSort.js':[
-17,
-],
+"jquery:src/selector/uniqueSort.js": [
+17
+]
 }

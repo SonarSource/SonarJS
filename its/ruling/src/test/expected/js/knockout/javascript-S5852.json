@@ -1,20 +1,20 @@
 {
-'knockout:Gruntfile.js':[
-60,
+"knockout:Gruntfile.js": [
+60
 ],
-'knockout:src/binding/expressionRewriting.js':[
+"knockout:src/binding/expressionRewriting.js": [
 7,
-43,
+43
 ],
-'knockout:src/templating/templateRewriting.js':[
+"knockout:src/templating/templateRewriting.js": [
 3,
-4,
+4
 ],
-'knockout:src/utils.js':[
-316,
+"knockout:src/utils.js": [
+316
 ],
-'knockout:src/virtualElements.js':[
+"knockout:src/virtualElements.js": [
 15,
-15,
-],
+15
+]
 }

@@ -1,21 +1,21 @@
 {
-'sizzle:speed/speed.js':[
+"sizzle:speed/speed.js": [
 31,
-31,
+31
 ],
-'sizzle:src/sizzle.js':[
+"sizzle:src/sizzle.js": [
 142,
-145,
+145
 ],
-'sizzle:tasks/dist.js':[
+"sizzle:tasks/dist.js": [
 21,
-27,
+27
 ],
-'sizzle:tasks/release.js':[
-6,
+"sizzle:tasks/release.js": [
+6
 ],
-'sizzle:tasks/version.js':[
+"sizzle:tasks/version.js": [
 7,
-14,
-],
+14
+]
 }

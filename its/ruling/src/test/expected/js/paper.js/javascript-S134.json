@@ -1,44 +1,44 @@
 {
-'paper.js:src/core/Base.js':[
+"paper.js:src/core/Base.js": [
 139,
-153,
+153
 ],
-'paper.js:src/core/Emitter.js':[
-125,
+"paper.js:src/core/Emitter.js": [
+125
 ],
-'paper.js:src/core/PaperScript.js':[
+"paper.js:src/core/PaperScript.js": [
 259,
-280,
+280
 ],
-'paper.js:src/event/Key.js':[
-119,
+"paper.js:src/event/Key.js": [
+119
 ],
-'paper.js:src/item/Item.js':[
+"paper.js:src/item/Item.js": [
 1054,
 1271,
 2163,
-4298,
+4298
 ],
-'paper.js:src/item/Project.js':[
-850,
+"paper.js:src/item/Project.js": [
+850
 ],
-'paper.js:src/item/Raster.js':[
-132,
+"paper.js:src/item/Raster.js": [
+132
 ],
-'paper.js:src/item/Shape.js':[
+"paper.js:src/item/Shape.js": [
 246,
 250,
 253,
-256,
+256
 ],
-'paper.js:src/path/Curve.js':[
+"paper.js:src/path/Curve.js": [
 720,
 893,
 2075,
 2140,
-2143,
+2143
 ],
-'paper.js:src/path/Path.js':[
+"paper.js:src/path/Path.js": [
 1620,
 1628,
 1788,
@@ -47,9 +47,9 @@
 2343,
 2346,
 2596,
-2610,
+2610
 ],
-'paper.js:src/path/PathItem.Boolean.js':[
+"paper.js:src/path/PathItem.Boolean.js": [
 341,
 711,
 722,
@@ -62,39 +62,39 @@
 1066,
 1079,
 1280,
-1403,
+1403
 ],
-'paper.js:src/path/PathItem.js':[
+"paper.js:src/path/PathItem.js": [
 177,
-731,
+731
 ],
-'paper.js:src/style/Color.js':[
+"paper.js:src/style/Color.js": [
 91,
 116,
 616,
-644,
+644
 ],
-'paper.js:src/style/Gradient.js':[
-197,
+"paper.js:src/style/Gradient.js": [
+197
 ],
-'paper.js:src/style/Style.js':[
+"paper.js:src/style/Style.js": [
 183,
-187,
+187
 ],
-'paper.js:src/svg/SvgExport.js':[
-366,
+"paper.js:src/svg/SvgExport.js": [
+366
 ],
-'paper.js:src/svg/SvgImport.js':[
-393,
+"paper.js:src/svg/SvgImport.js": [
+393
 ],
-'paper.js:src/util/CollisionDetection.js':[
+"paper.js:src/util/CollisionDetection.js": [
 205,
-212,
+212
 ],
-'paper.js:src/view/View.js':[
+"paper.js:src/view/View.js": [
 1145,
 1147,
 1401,
-1403,
-],
+1403
+]
 }

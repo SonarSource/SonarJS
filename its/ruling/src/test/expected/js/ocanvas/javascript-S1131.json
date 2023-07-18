@@ -1,5 +1,5 @@
 {
-'ocanvas:src/background.js':[
+"ocanvas:src/background.js": [
 5,
 14,
 18,
@@ -13,9 +13,9 @@
 76,
 82,
 85,
-89,
+89
 ],
-'ocanvas:src/core.js':[
+"ocanvas:src/core.js": [
 5,
 8,
 11,
@@ -56,9 +56,9 @@
 300,
 304,
 307,
-369,
+369
 ],
-'ocanvas:src/displayobject.js':[
+"ocanvas:src/displayobject.js": [
 5,
 12,
 34,
@@ -176,9 +176,9 @@
 970,
 973,
 979,
-984,
+984
 ],
-'ocanvas:src/displayobjects/arc.js':[
+"ocanvas:src/displayobjects/arc.js": [
 5,
 9,
 17,
@@ -191,9 +191,9 @@
 57,
 60,
 63,
-66,
+66
 ],
-'ocanvas:src/displayobjects/ellipse.js':[
+"ocanvas:src/displayobjects/ellipse.js": [
 5,
 9,
 12,
@@ -215,9 +215,9 @@
 117,
 120,
 123,
-126,
+126
 ],
-'ocanvas:src/displayobjects/image.js':[
+"ocanvas:src/displayobjects/image.js": [
 5,
 13,
 23,
@@ -240,9 +240,9 @@
 136,
 161,
 164,
-167,
+167
 ],
-'ocanvas:src/displayobjects/line.js':[
+"ocanvas:src/displayobjects/line.js": [
 5,
 9,
 11,
@@ -269,9 +269,9 @@
 201,
 204,
 207,
-210,
+210
 ],
-'ocanvas:src/displayobjects/polygon.js':[
+"ocanvas:src/displayobjects/polygon.js": [
 5,
 9,
 13,
@@ -290,9 +290,9 @@
 82,
 85,
 88,
-91,
+91
 ],
-'ocanvas:src/displayobjects/sprite.js':[
+"ocanvas:src/displayobjects/sprite.js": [
 5,
 9,
 26,
@@ -325,9 +325,9 @@
 219,
 222,
 225,
-228,
+228
 ],
-'ocanvas:src/displayobjects/text.js':[
+"ocanvas:src/displayobjects/text.js": [
 7,
 20,
 24,
@@ -353,24 +353,24 @@
 284,
 287,
 290,
-293,
+293
 ],
-'ocanvas:src/draw.js':[
+"ocanvas:src/draw.js": [
 5,
 57,
 63,
 68,
 74,
 78,
-89,
+89
 ],
-'ocanvas:src/events.js':[
+"ocanvas:src/events.js": [
 5,
 340,
 346,
-352,
+352
 ],
-'ocanvas:src/keyboard.js':[
+"ocanvas:src/keyboard.js": [
 5,
 8,
 12,
@@ -384,17 +384,17 @@
 110,
 120,
 162,
-166,
+166
 ],
-'ocanvas:src/mouse.js':[
+"ocanvas:src/mouse.js": [
 5,
 47,
 157,
 180,
 183,
-186,
+186
 ],
-'ocanvas:src/scenes.js':[
+"ocanvas:src/scenes.js": [
 5,
 8,
 17,
@@ -419,9 +419,9 @@
 94,
 96,
 101,
-115,
+115
 ],
-'ocanvas:src/style.js':[
+"ocanvas:src/style.js": [
 5,
 13,
 35,
@@ -538,9 +538,9 @@
 720,
 723,
 730,
-737,
+737
 ],
-'ocanvas:src/timeline.js':[
+"ocanvas:src/timeline.js": [
 5,
 8,
 11,
@@ -555,9 +555,9 @@
 87,
 92,
 99,
-102,
+102
 ],
-'ocanvas:src/tools.js':[
+"ocanvas:src/tools.js": [
 5,
 8,
 13,
@@ -633,9 +633,9 @@
 401,
 409,
 413,
-418,
+418
 ],
-'ocanvas:src/touch.js':[
+"ocanvas:src/touch.js": [
 5,
 41,
 53,
@@ -644,9 +644,9 @@
 219,
 228,
 231,
-234,
+234
 ],
-'ocanvas:src/utils.js':[
+"ocanvas:src/utils.js": [
 5,
 13,
 18,
@@ -654,6 +654,6 @@
 24,
 29,
 31,
-39,
-],
+39
+]
 }

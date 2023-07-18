@@ -1,12 +1,12 @@
 {
-'amplify:test-jquery-versions.js':[
+"amplify:test-jquery-versions.js": [
 20,
 26,
 37,
 50,
-52,
+52
 ],
-'amplify:test-server.js':[
-23,
-],
+"amplify:test-server.js": [
+23
+]
 }

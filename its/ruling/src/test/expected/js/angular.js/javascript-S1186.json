@@ -1,17 +1,17 @@
 {
-'angular.js:src/Angular.js':[
-453,
+"angular.js:src/Angular.js": [
+453
 ],
-'angular.js:src/ng/compile.js':[
+"angular.js:src/ng/compile.js": [
 1369,
 4270,
-4278,
+4278
 ],
-'angular.js:src/ng/rootScope.js':[
-1479,
+"angular.js:src/ng/rootScope.js": [
+1479
 ],
-'angular.js:src/ngMessageFormat/messageFormatSelector.js':[
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
 87,
-106,
-],
+106
+]
 }

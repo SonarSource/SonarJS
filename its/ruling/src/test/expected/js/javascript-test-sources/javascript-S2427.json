@@ -1,83 +1,83 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js':[
-56,
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
+56
 ],
-'javascript-test-sources:src/ace/lib/ace/mode/xquery.js':[
-139,
+"javascript-test-sources:src/ace/lib/ace/mode/xquery.js": [
+139
 ],
-'javascript-test-sources:src/ace/src/edit_session.js':[
-2506,
+"javascript-test-sources:src/ace/src/edit_session.js": [
+2506
 ],
-'javascript-test-sources:src/ace/src/ext/options.js':[
-287,
+"javascript-test-sources:src/ace/src/ext/options.js": [
+287
 ],
-'javascript-test-sources:src/ace/src/ext/prompt.js':[
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
 239,
 245,
 251,
-287,
+287
 ],
-'javascript-test-sources:src/ace/src/keyboard/emacs.js':[
-223,
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
+223
 ],
-'javascript-test-sources:src/ace/src/keyboard/textinput.js':[
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
 586,
-587,
+587
 ],
-'javascript-test-sources:src/ace/src/keyboard/vim.js':[
-6279,
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+6279
 ],
-'javascript-test-sources:src/ace/src/layer/gutter.js':[
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
 393,
 394,
 395,
-396,
+396
 ],
-'javascript-test-sources:src/ace/src/mode/folding/coffee_test.js':[
+"javascript-test-sources:src/ace/src/mode/folding/coffee_test.js": [
 32,
-43,
+43
 ],
-'javascript-test-sources:src/ace/src/mode/yaml_highlight_rules.js':[
-49,
+"javascript-test-sources:src/ace/src/mode/yaml_highlight_rules.js": [
+49
 ],
-'javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js':[
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
 149,
 157,
 162,
 167,
-172,
+172
 ],
-'javascript-test-sources:src/ace/src/test/mockdom.js':[
-358,
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+358
 ],
-'javascript-test-sources:src/ace/tool/perf-test.html':[
-71,
+"javascript-test-sources:src/ace/tool/perf-test.html": [
+71
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-profile-image.js':[
-57,
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-profile-image.js": [
+57
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/posts.js':[
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/posts.js": [
 29,
-29,
+29
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/fetch-data.js':[
-36,
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/fetch-data.js": [
+36
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js':[
-13,
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js": [
+13
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js':[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
 102,
-445,
+445
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js':[
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
 297,
-303,
+303
 ],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js':[
-77,
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js": [
+77
 ],
-'javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js':[
-88,
-],
+"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js": [
+88
+]
 }

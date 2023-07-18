@@ -1,107 +1,107 @@
 {
-'qunit:Gruntfile.js':[
-16,
+"qunit:Gruntfile.js": [
+16
 ],
-'qunit:bin/qunit.js':[
-21,
+"qunit:bin/qunit.js": [
+21
 ],
-'qunit:build/coverage-bridge.js':[
-5,
+"qunit:build/coverage-bridge.js": [
+5
 ],
-'qunit:build/release.js':[
-4,
+"qunit:build/release.js": [
+4
 ],
-'qunit:build/tasks/livereload.js':[
-6,
+"qunit:build/tasks/livereload.js": [
+6
 ],
-'qunit:build/tasks/test-on-node.js':[
-7,
+"qunit:build/tasks/test-on-node.js": [
+7
 ],
-'qunit:reporter/diff.js':[
-33,
+"qunit:reporter/diff.js": [
+33
 ],
-'qunit:reporter/html.js':[
-9,
+"qunit:reporter/html.js": [
+9
 ],
-'qunit:reporter/urlparams.js':[
-6,
+"qunit:reporter/urlparams.js": [
+6
 ],
-'qunit:rollup.config.js':[
-7,
+"qunit:rollup.config.js": [
+7
 ],
-'qunit:runner/fixture.js':[
-6,
+"qunit:runner/fixture.js": [
+6
 ],
-'qunit:src/assert.js':[
-12,
+"qunit:src/assert.js": [
+12
 ],
-'qunit:src/cli/find-reporter.js':[
-8,
+"qunit:src/cli/find-reporter.js": [
+8
 ],
-'qunit:src/cli/require-from-cwd.js':[
-5,
+"qunit:src/cli/require-from-cwd.js": [
+5
 ],
-'qunit:src/cli/require-qunit.js':[
-6,
+"qunit:src/cli/require-qunit.js": [
+6
 ],
-'qunit:src/cli/run.js':[
-10,
+"qunit:src/cli/run.js": [
+10
 ],
-'qunit:src/cli/utils.js':[
-8,
+"qunit:src/cli/utils.js": [
+8
 ],
-'qunit:src/core.js':[
-40,
+"qunit:src/core.js": [
+40
 ],
-'qunit:src/core/config.js':[
-11,
+"qunit:src/core/config.js": [
+11
 ],
-'qunit:src/core/logging.js':[
-7,
+"qunit:src/core/logging.js": [
+7
 ],
-'qunit:src/core/on-unhandled-rejection.js':[
-9,
+"qunit:src/core/on-unhandled-rejection.js": [
+9
 ],
-'qunit:src/core/onerror.js':[
-11,
+"qunit:src/core/onerror.js": [
+11
 ],
-'qunit:src/core/processing-queue.js':[
-3,
+"qunit:src/core/processing-queue.js": [
+3
 ],
-'qunit:src/core/stacktrace.js':[
-4,
+"qunit:src/core/stacktrace.js": [
+4
 ],
-'qunit:src/core/utilities.js':[
-7,
+"qunit:src/core/utilities.js": [
+7
 ],
-'qunit:src/dump.js':[
-7,
+"qunit:src/dump.js": [
+7
 ],
-'qunit:src/equiv.js':[
-7,
+"qunit:src/equiv.js": [
+7
 ],
-'qunit:src/events.js':[
-5,
+"qunit:src/events.js": [
+5
 ],
-'qunit:src/export.js':[
-7,
+"qunit:src/export.js": [
+7
 ],
-'qunit:src/globals.js':[
-13,
+"qunit:src/globals.js": [
+13
 ],
-'qunit:src/logger.js':[
-10,
+"qunit:src/logger.js": [
+10
 ],
-'qunit:src/module.js':[
-13,
+"qunit:src/module.js": [
+13
 ],
-'qunit:src/reports/suite.js':[
-4,
+"qunit:src/reports/suite.js": [
+4
 ],
-'qunit:src/reports/test.js':[
-4,
+"qunit:src/reports/test.js": [
+4
 ],
-'qunit:src/test.js':[
-11,
-],
+"qunit:src/test.js": [
+11
+]
 }

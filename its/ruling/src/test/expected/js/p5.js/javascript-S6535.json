@@ -1,5 +1,5 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 78,
 78,
 78,
@@ -97,17 +97,17 @@
 3762,
 3762,
 3763,
-3763,
+3763
 ],
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 4251,
 4274,
 8055,
 8073,
 8077,
-8096,
+8096
 ],
-'p5.js:test/test-reference.html':[
-29,
-],
+"p5.js:test/test-reference.html": [
+29
+]
 }

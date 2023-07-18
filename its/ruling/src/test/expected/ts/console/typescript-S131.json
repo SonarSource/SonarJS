@@ -1,23 +1,23 @@
 {
-'console:src/actions/gettingStarted.tsx':[
-192,
+"console:src/actions/gettingStarted.tsx": [
+192
 ],
-'console:src/reducers/databrowser/data.ts':[
-27,
+"console:src/reducers/databrowser/data.ts": [
+27
 ],
-'console:src/reducers/databrowser/ui.ts':[
-25,
+"console:src/reducers/databrowser/ui.ts": [
+25
 ],
-'console:src/views/models/DatabrowserView/Cell.tsx':[
-226,
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+226
 ],
-'console:src/views/models/DatabrowserView/DatabrowserView.tsx':[
-596,
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+596
 ],
-'console:src/views/models/DatabrowserView/RelationsPopup.tsx':[
-68,
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+68
 ],
-'console:src/views/models/utils.ts':[
-135,
-],
+"console:src/views/models/utils.ts": [
+135
+]
 }

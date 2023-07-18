@@ -1,65 +1,65 @@
 {
-'postgraphql:src/__tests__/utils/withPgClient.ts':[
-56,
+"postgraphql:src/__tests__/utils/withPgClient.ts": [
+56
 ],
-'postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts':[
+"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
 81,
-141,
+141
 ],
-'postgraphql:src/graphql/schema/collection/createCollectionGqlType.ts':[
-98,
+"postgraphql:src/graphql/schema/collection/createCollectionGqlType.ts": [
+98
 ],
-'postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts':[
+"postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts": [
 100,
-128,
+128
 ],
-'postgraphql:src/graphql/schema/collection/createCollectionRelationTailGqlFieldEntries.ts':[
-53,
+"postgraphql:src/graphql/schema/collection/createCollectionRelationTailGqlFieldEntries.ts": [
+53
 ],
-'postgraphql:src/graphql/schema/collection/getConditionGqlType.ts':[
+"postgraphql:src/graphql/schema/collection/getConditionGqlType.ts": [
 46,
-49,
+49
 ],
-'postgraphql:src/graphql/schema/collection/mutations/createCreateCollectionMutationFieldEntry.ts':[
-78,
+"postgraphql:src/graphql/schema/collection/mutations/createCreateCollectionMutationFieldEntry.ts": [
+78
 ],
-'postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionKeyMutationFieldEntry.ts':[
-32,
+"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionKeyMutationFieldEntry.ts": [
+32
 ],
-'postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts':[
-49,
+"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts": [
+49
 ],
-'postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts':[
-46,
+"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts": [
+46
 ],
-'postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts':[
-67,
+"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
+67
 ],
-'postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts':[
-216,
+"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
+216
 ],
-'postgraphql:src/graphql/utils/formatName.ts':[
-4,
+"postgraphql:src/graphql/utils/formatName.ts": [
+4
 ],
-'postgraphql:src/graphql/utils/memoize.ts':[
+"postgraphql:src/graphql/utils/memoize.ts": [
 65,
-76,
+76
 ],
-'postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts':[
+"postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts": [
 102,
-120,
+120
 ],
-'postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts':[
-47,
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+47
 ],
-'postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts':[
+"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 43,
-48,
+48
 ],
-'postgraphql:src/postgres/inventory/collection/PgRelation.ts':[
-18,
+"postgraphql:src/postgres/inventory/collection/PgRelation.ts": [
+18
 ],
-'postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts':[
-87,
-],
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
+87
+]
 }

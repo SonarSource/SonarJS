@@ -1,48 +1,48 @@
 {
-'jquery:Gruntfile.js':[
-1,
+"jquery:Gruntfile.js": [
+1
 ],
-'jquery:build/release.js':[
-1,
+"jquery:build/release.js": [
+1
 ],
-'jquery:build/release/cdn.js':[
-1,
+"jquery:build/release/cdn.js": [
+1
 ],
-'jquery:build/release/dist.js':[
-1,
+"jquery:build/release/dist.js": [
+1
 ],
-'jquery:build/tasks/amd.js':[
-5,
+"jquery:build/tasks/amd.js": [
+5
 ],
-'jquery:build/tasks/build.js':[
-7,
+"jquery:build/tasks/build.js": [
+7
 ],
-'jquery:build/tasks/dist.js':[
-1,
+"jquery:build/tasks/dist.js": [
+1
 ],
-'jquery:build/tasks/lib/rollup-plugin-file-overrides.js':[
-1,
+"jquery:build/tasks/lib/rollup-plugin-file-overrides.js": [
+1
 ],
-'jquery:build/tasks/lib/spawn_test.js':[
-1,
+"jquery:build/tasks/lib/spawn_test.js": [
+1
 ],
-'jquery:build/tasks/node_smoke_tests.js':[
-1,
+"jquery:build/tasks/node_smoke_tests.js": [
+1
 ],
-'jquery:build/tasks/promises_aplus_tests.js':[
-1,
+"jquery:build/tasks/promises_aplus_tests.js": [
+1
 ],
-'jquery:build/tasks/qunit_fixture.js':[
-1,
+"jquery:build/tasks/qunit_fixture.js": [
+1
 ],
-'jquery:build/tasks/sourcemap.js':[
-1,
+"jquery:build/tasks/sourcemap.js": [
+1
 ],
-'jquery:build/tasks/testswarm.js':[
-1,
+"jquery:build/tasks/testswarm.js": [
+1
 ],
-'jquery:src/wrapper.js':[
+"jquery:src/wrapper.js": [
 13,
-39,
-],
+39
+]
 }

@@ -1,5 +1,5 @@
 {
-'p5.js:lib/addons/p5.sound.js':[
+"p5.js:lib/addons/p5.sound.js": [
 1341,
 1703,
 1985,
@@ -12,14 +12,14 @@
 2569,
 3800,
 3826,
-10737,
+10737
 ],
-'p5.js:src/dom/dom.js':[
+"p5.js:src/dom/dom.js": [
 1331,
 3056,
-3092,
+3092
 ],
-'p5.js:src/io/p5.TableRow.js':[
-290,
-],
+"p5.js:src/io/p5.TableRow.js": [
+290
+]
 }

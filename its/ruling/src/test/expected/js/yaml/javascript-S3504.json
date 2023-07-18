@@ -1,14 +1,14 @@
 {
-'yaml:lambda-block-literal-multi-line.yaml':[
+"yaml:lambda-block-literal-multi-line.yaml": [
 65,
 89,
 102,
 112,
 124,
 131,
-141,
+141
 ],
-'yaml:lambda-block-literal.yaml':[
+"yaml:lambda-block-literal.yaml": [
 268,
 269,
 298,
@@ -20,6 +20,6 @@
 459,
 460,
 461,
-531,
-],
+531
+]
 }

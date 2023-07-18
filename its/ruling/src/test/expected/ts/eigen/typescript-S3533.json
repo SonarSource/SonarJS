@@ -1,24 +1,24 @@
 {
-'eigen:metaphysics-queries-freshness-tests/test-freshness.ts':[
-3,
+"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
+3
 ],
-'eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx':[
-10,
+"eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx": [
+10
 ],
-'eigen:src/app/Components/Bidding/Screens/BidResult.tsx':[
+"eigen:src/app/Components/Bidding/Screens/BidResult.tsx": [
 43,
-44,
+44
 ],
-'eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx':[
+"eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx": [
 30,
 31,
 32,
-33,
+33
 ],
-'eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx':[
-133,
+"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
+133
 ],
-'eigen:src/setupJest.ts':[
-114,
-],
+"eigen:src/setupJest.ts": [
+114
+]
 }

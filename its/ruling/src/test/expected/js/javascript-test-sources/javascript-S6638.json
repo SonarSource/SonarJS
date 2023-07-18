@@ -1,8 +1,8 @@
 {
-'javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js':[
-2525,
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+2525
 ],
-'javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js':[
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 56,
 57,
 61,
@@ -14,9 +14,9 @@
 389,
 390,
 390,
-658,
+658
 ],
-'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
-1704,
-],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+1704
+]
 }

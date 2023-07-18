@@ -1,11 +1,11 @@
 {
-'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
-491,
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+491
 ],
-'mootools-core:Source/Element/Element.js':[
-6,
+"mootools-core:Source/Element/Element.js": [
+6
 ],
-'mootools-core:Source/Slick/Slick.Parser.js':[
-100,
-],
+"mootools-core:Source/Slick/Slick.Parser.js": [
+100
+]
 }

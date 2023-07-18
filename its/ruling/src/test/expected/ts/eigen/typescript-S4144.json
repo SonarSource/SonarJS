@@ -1,11 +1,11 @@
 {
-'eigen:src/app/Components/Gene/Header.tsx':[
-127,
+"eigen:src/app/Components/Gene/Header.tsx": [
+127
 ],
-'eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/index.tests.tsx':[
-396,
+"eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/index.tests.tsx": [
+396
 ],
-'eigen:src/palette/organisms/screenStructure/Screen.stories.tsx':[
-68,
-],
+"eigen:src/palette/organisms/screenStructure/Screen.stories.tsx": [
+68
+]
 }

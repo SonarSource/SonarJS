@@ -1,5 +1,5 @@
 {
-'backbone:backbone.js':[
+"backbone:backbone.js": [
 12,
 25,
 41,
@@ -197,9 +197,9 @@
 2052,
 2082,
 2087,
-2088,
+2088
 ],
-'backbone:docs/search.js':[
+"backbone:docs/search.js": [
 2,
 3,
 4,
@@ -208,9 +208,9 @@
 25,
 29,
 30,
-36,
+36
 ],
-'backbone:examples/todos/todos.js':[
+"backbone:examples/todos/todos.js": [
 13,
 36,
 67,
@@ -221,11 +221,11 @@
 182,
 199,
 225,
-232,
+232
 ],
-'backbone:karma.conf-sauce.js':[
+"backbone:karma.conf-sauce.js": [
 1,
 4,
-38,
-],
+38
+]
 }

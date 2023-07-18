@@ -1,127 +1,127 @@
 {
-'vuetify:packages/api-generator/src/types.ts':[
+"vuetify:packages/api-generator/src/types.ts": [
 335,
 367,
 375,
 413,
-421,
+421
 ],
-'vuetify:packages/api-generator/src/web-types.ts':[
+"vuetify:packages/api-generator/src/web-types.ts": [
 66,
 78,
 79,
 84,
 120,
-129,
+129
 ],
-'vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue':[
-181,
+"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
+181
 ],
-'vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx':[
-24,
+"vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
+24
 ],
-'vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx':[
-87,
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+87
 ],
-'vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx':[
+"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
 9,
 61,
-108,
+108
 ],
-'vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx':[
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
 12,
-82,
+82
 ],
-'vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx':[
-11,
+"vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
+11
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarDaily.spec.ts':[
-99,
+"vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarDaily.spec.ts": [
+99
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts':[
-154,
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts": [
+154
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts':[
-50,
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+50
 ],
-'vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts':[
-384,
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts": [
+384
 ],
-'vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx':[
-89,
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+89
 ],
-'vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts':[
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts": [
 39,
 124,
 229,
-267,
+267
 ],
-'vuetify:packages/vuetify/src/components/VData/VData.ts':[
-372,
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+372
 ],
-'vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts':[
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
 165,
 166,
-172,
+172
 ],
-'vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts':[
-30,
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+30
 ],
-'vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts':[
-131,
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+131
 ],
-'vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts':[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts": [
 323,
 491,
-573,
+573
 ],
-'vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerDateTable.spec.ts':[
-290,
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerDateTable.spec.ts": [
+290
 ],
-'vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts':[
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts": [
 54,
 70,
-180,
+180
 ],
-'vuetify:packages/vuetify/src/components/VField/VField.tsx':[
-353,
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+353
 ],
-'vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx':[
-209,
+"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
+209
 ],
-'vuetify:packages/vuetify/src/components/VImg/VImg.tsx':[
-120,
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+120
 ],
-'vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx':[
-27,
+"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
+27
 ],
-'vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts':[
-163,
+"vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts": [
+163
 ],
-'vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts':[
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 115,
-419,
+419
 ],
-'vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx':[
-198,
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+198
 ],
-'vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx':[
-122,
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+122
 ],
-'vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts':[
-306,
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
+306
 ],
-'vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts':[
-275,
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+275
 ],
-'vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts':[
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
 80,
-430,
+430
 ],
-'vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts':[
-173,
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+173
 ],
-'vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts':[
+"vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts": [
 56,
 77,
 101,
@@ -131,43 +131,43 @@
 587,
 761,
 814,
-856,
+856
 ],
-'vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx':[
-88,
+"vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
+88
 ],
-'vuetify:packages/vuetify/src/components/transitions/createTransition.ts':[
-97,
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+97
 ],
-'vuetify:packages/vuetify/src/composables/group.ts':[
-191,
+"vuetify:packages/vuetify/src/composables/group.ts": [
+191
 ],
-'vuetify:packages/vuetify/src/composables/theme.ts':[
-242,
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+242
 ],
-'vuetify:packages/vuetify/src/directives/touch/index.ts':[
-121,
+"vuetify:packages/vuetify/src/directives/touch/index.ts": [
+121
 ],
-'vuetify:packages/vuetify/src/iconsets/fa-svg.ts':[
-16,
+"vuetify:packages/vuetify/src/iconsets/fa-svg.ts": [
+16
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx':[
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
 57,
-58,
+58
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts':[
-131,
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+131
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts':[
-14,
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+14
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts':[
-73,
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+73
 ],
-'vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts':[
-27,
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
+27
 ],
-'vuetify:packages/vuetify/src/locale/adapters/vuetify.ts':[
-63,
-],
+"vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
+63
+]
 }
