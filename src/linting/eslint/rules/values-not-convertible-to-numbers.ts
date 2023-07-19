@@ -98,7 +98,10 @@ function isConvertibleToNumber(typ: ts.Type, checker: ts.TypeChecker) {
   const valueOfSignatures = getValueOfSignatures(typ, checker);
   return (
     valueOfSignatures.length === 0 ||
-    valueOfSignatures.some(signature => isNumberLike(signature.getReturnType()))
+    valueOfSignatures.some(signature => {
+      const returnType = signature.getReturnType();
+      return isNumberLike(returnType) || isBigIntLike(returnType);
+    })
   );
 }
 
@@ -115,4 +118,8 @@ function getValueOfSignatures(typ: ts.Type, checker: ts.TypeChecker) {
 
 function isNumberLike(typ: ts.Type) {
   return (typ.getFlags() & ts.TypeFlags.NumberLike) !== 0;
+}
+
+function isBigIntLike(typ: ts.Type) {
+  return (typ.getFlags() & ts.TypeFlags.BigIntLike) !== 0;
 }

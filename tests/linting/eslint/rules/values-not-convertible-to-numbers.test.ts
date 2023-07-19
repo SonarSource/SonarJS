@@ -86,6 +86,27 @@ ruleTesterTs.run(
         let x = { };
         x.a >= 42;`, // FN
       },
+      {
+        code: `
+        const a = BigInt("42");
+        const b = BigInt("41");
+        a > b;
+        `,
+      },
+      {
+        code: `
+        const a = 42n;
+        const b = 41n;
+        a > b;
+        `,
+      },
+      {
+        code: `
+        const a = BigInt("42");
+        const b = 41n;
+        a > b;
+        `,
+      },
     ],
     invalid: [
       {
