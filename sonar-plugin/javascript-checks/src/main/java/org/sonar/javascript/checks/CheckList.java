@@ -326,6 +326,7 @@ public final class CheckList {
       PreferObjectHasOwnCheck.class,
       PreferObjectLiteralCheck.class,
       PreferObjectSpreadCheck.class,
+      PreferPromiseRejectErrorsCheck.class,
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
       PreferRegexLiteralsCheck.class,
