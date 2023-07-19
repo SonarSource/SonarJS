@@ -74,6 +74,10 @@ public class NodeCommand {
   public void start() {
     try {
       LOG.debug("Launching command {}", toString());
+      LOG.error("starting node process with command '" + command + "' and env: ");
+      for(Map.Entry mp: env.entrySet()){
+        System.out.println(mp.getKey()+ " "+mp.getValue());
+      }
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       LOG.error("error: " + e.toString());
