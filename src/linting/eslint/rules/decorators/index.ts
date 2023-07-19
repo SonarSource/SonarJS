@@ -46,6 +46,7 @@ import { decoratePreferEnumInitializers } from './prefer-enum-initializers-decor
 import { decoratePreferForOf } from './prefer-for-of-decorator';
 import { decoratePreferFunctionType } from './prefer-function-type-decorator';
 import { decoratePreferObjectSpread } from './prefer-object-spread-decorator';
+import { decoratePreferSpread } from './prefer-spread-decorator';
 import { decoratePreferStringStartsEndsWithDecorator } from './prefer-string-starts-ends-with-decorator';
 import { decoratePreferTemplate } from './prefer-template-decorator';
 import { decorateSemi } from './semi-decorator';
@@ -100,6 +101,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'prefer-for-of': decoratePreferForOf,
   'prefer-function-type': decoratePreferFunctionType,
   'prefer-object-spread': decoratePreferObjectSpread,
+  'prefer-spread': decoratePreferSpread,
   'prefer-string-starts-ends-with': decoratePreferStringStartsEndsWithDecorator,
   'prefer-template': decoratePreferTemplate,
   semi: decorateSemi,
