@@ -1,0 +1,19 @@
+{
+  "title": "Literals should not be used for promise rejection",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6671",
+  "sqKey": "S6671",
+  "scope": "All",
+  "quickfix": "infeasible", 
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
