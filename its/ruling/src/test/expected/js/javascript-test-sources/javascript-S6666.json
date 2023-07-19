@@ -1,0 +1,227 @@
+{
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
+312
+],
+"javascript-test-sources:src/ace/demo/static-highlighter.html": [
+65
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+350,
+358,
+366,
+374,
+502,
+590,
+601,
+7182
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+9555,
+10002
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+109,
+113,
+117,
+3471,
+8045,
+10937,
+10942,
+10982,
+11024,
+11028,
+11402,
+18363,
+18810
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+5398
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker.js": [
+204,
+206
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client.js": [
+68,
+132,
+238
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client_v2.js": [
+145,
+253
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_v2.js": [
+76,
+77
+],
+"javascript-test-sources:src/ace/src/apply_delta.js": [
+58
+],
+"javascript-test-sources:src/ace/src/background_tokenizer.js": [
+155,
+156
+],
+"javascript-test-sources:src/ace/src/edit_session.js": [
+1626
+],
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
+855
+],
+"javascript-test-sources:src/ace/src/ext/elastic_tabstops_lite.js": [
+163
+],
+"javascript-test-sources:src/ace/src/ext/language_tools.js": [
+74
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+4001,
+4007
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+5545,
+5555
+],
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
+89
+],
+"javascript-test-sources:src/ace/src/layer/lines.js": [
+57,
+71
+],
+"javascript-test-sources:src/ace/src/lib/app_config.js": [
+56
+],
+"javascript-test-sources:src/ace/src/lib/event_emitter.js": [
+52
+],
+"javascript-test-sources:src/ace/src/line_widgets.js": [
+134
+],
+"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js": [
+137
+],
+"javascript-test-sources:src/ace/src/mode/asciidoc_highlight_rules.js": [
+193
+],
+"javascript-test-sources:src/ace/src/mode/ftl_highlight_rules.js": [
+142
+],
+"javascript-test-sources:src/ace/src/mode/html_elixir_highlight_rules.js": [
+42
+],
+"javascript-test-sources:src/ace/src/mode/html_ruby_highlight_rules.js": [
+42
+],
+"javascript-test-sources:src/ace/src/mode/json5_highlight_rules.js": [
+52
+],
+"javascript-test-sources:src/ace/src/mode/jsp_highlight_rules.js": [
+42
+],
+"javascript-test-sources:src/ace/src/mode/luapage_highlight_rules.js": [
+40
+],
+"javascript-test-sources:src/ace/src/mode/objectivec_highlight_rules.js": [
+312
+],
+"javascript-test-sources:src/ace/src/mode/php_highlight_rules.js": [
+1064
+],
+"javascript-test-sources:src/ace/src/mode/php_laravel_blade_highlight_rules.js": [
+160
+],
+"javascript-test-sources:src/ace/src/mode/razor_highlight_rules.js": [
+147
+],
+"javascript-test-sources:src/ace/src/mode/smarty_highlight_rules.js": [
+87
+],
+"javascript-test-sources:src/ace/src/mode/soy_template_highlight_rules.js": [
+303
+],
+"javascript-test-sources:src/ace/src/mode/text.js": [
+274,
+286
+],
+"javascript-test-sources:src/ace/src/mode/text_highlight_rules.js": [
+144,
+162
+],
+"javascript-test-sources:src/ace/src/range_list.js": [
+50
+],
+"javascript-test-sources:src/ace/src/snippets.js": [
+444,
+520,
+932
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
+236,
+261,
+499,
+506
+],
+"javascript-test-sources:src/ace/src/test/user.js": [
+163,
+173
+],
+"javascript-test-sources:src/ace/src/tokenizer.js": [
+113
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/initializers/trailing-history.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
+159
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
+89,
+145
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_head.js": [
+104
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/include-count.js": [
+61,
+71
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
+577
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/role.js": [
+58
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+454
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers_index_spec.js": [
+28
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
+29
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
+16,
+24,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/ajax-select-filters.js": [
+320
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/measures-overlay.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/handlebars-helpers.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/templating/gulpfile.js": [
+59,
+80
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js": [
+330
+]
+}

@@ -1,0 +1,23 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+779,
+1607,
+3039
+],
+"p5.js:lib/addons/p5.sound.js": [
+550,
+780
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+246,
+277,
+566,
+621
+],
+"p5.js:src/core/shim.js": [
+71
+],
+"p5.js:tasks/test/mocha-chrome.js": [
+54
+]
+}

@@ -331,6 +331,7 @@ public final class CheckList {
       PreferRegexLiteralsCheck.class,
       PreferRegexpExecCheck.class,
       PreferReturnThisTypeCheck.class,
+      PreferSpreadCheck.class,
       PreferStringStartsEndsWithCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
