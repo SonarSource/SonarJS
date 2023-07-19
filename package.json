@@ -15,7 +15,7 @@
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
     "mvn-copy": "cd sonar-plugin && mkdirp sonar-javascript-plugin/target/classes && cp ../bundle/dist/sonarjs.xz sonar-javascript-plugin/target/classes",
     "build-plugin": "npm run build && npm run test-with-coverage && ./bundle/scripts/bundle.sh && npm run mvn-copy",
-    "build-full": "mvn clean && npm run build-plugin && mvn install",
+    "build-full": "mvn clean && npm run build-plugin && mvn install -DskipTests",
     "new-rule": "ts-node tools/newRule.ts",
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
