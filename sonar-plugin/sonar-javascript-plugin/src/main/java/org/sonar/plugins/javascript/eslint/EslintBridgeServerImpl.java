@@ -258,6 +258,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
     // see https://github.com/SonarSource/SonarJS/issues/2803
     env.put("BROWSERSLIST_IGNORE_OLD_DATA", "true");
+    env.put("NODE_OPTIONS", "--max-old-space-size=2048");
     return env;
   }
 
