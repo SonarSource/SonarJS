@@ -12,6 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pkg": "5.8.1"
+    "pkg": "5.6.0"
   }
 }
