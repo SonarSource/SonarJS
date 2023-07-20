@@ -269,6 +269,7 @@ public final class CheckList {
       NoNestedSwitchCheck.class,
       NoNestedTemplateLiteralsCheck.class,
       NoNonNullAssertionCheck.class,
+      NoOctalEscapeCheck.class,
       NoOneIterationLoopCheck.class,
       NoOsCommandsFromPathCheck.class,
       NoProtoCheck.class,

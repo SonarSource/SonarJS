@@ -1,4 +1,4 @@
-name: Submit Review
+name: Submit Review for Project V2
 
 on:
   pull_request_review:
@@ -12,21 +12,25 @@ jobs:
     # PRs from forks don't have required token authorization
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
+        && github.event.review.author_association != 'NONE'
         && github.event.review.state == 'changes_requested'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@v1
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@use-until-merged
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          column-id: 16320787     # Kanban "In progress" column
+          github-token: ${{secrets.ILIA_TOKEN}}
+          column-id: "47fc9ee4"     # Kanban "In progress" column
+          project-number: 8
 
   ReviewApproved_job:
     name: Move card to review approved
     runs-on: ubuntu-latest
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
+        && github.event.review.author_association != 'NONE'
         && github.event.review.state == 'approved'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@v1
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@use-until-merged
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          column-id: 16320799     # Kanban "Resolved" column
+          github-token: ${{secrets.ILIA_TOKEN}}
+          column-id: "dd10adad"     # Kanban "Review approved" column
+          project-number: 8
