@@ -31,6 +31,8 @@ jobs:
   ReviewApproved_job:
     name: Move card to review approved
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.review.author_association != 'NONE'
