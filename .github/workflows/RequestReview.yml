@@ -1,4 +1,4 @@
-name: Request review for Project V2
+name: Request review
 
 on:
   pull_request:
