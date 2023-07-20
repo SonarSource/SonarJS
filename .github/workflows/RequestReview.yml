@@ -13,8 +13,13 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.review.author_association != 'NONE'
     steps:
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@2.4.3-1
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-kanban token | kanban_token;
       - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@use-until-merged
         with:
-          github-token: ${{secrets.ILIA_TOKEN}}
+          github-token: ${{ fromJSON(steps.secrets.outputs.vault).lock_token }}
           column-id: "14c3336d"     # Kanban "Review in progress" column
           project-number: 8
