@@ -20,7 +20,6 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-kanban token | kanban_token;
-
       - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@use-until-merged
         with:
           github-token: ${{ fromJSON(steps.secrets.outputs.vault).kanban_token }}
