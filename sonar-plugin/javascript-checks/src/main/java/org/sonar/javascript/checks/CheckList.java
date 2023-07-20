@@ -293,6 +293,7 @@ public final class CheckList {
       NoUnsafeOptionalChainingCheck.class,
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
+      NoUselessCallCheck.class,
       NoUselessCatchCheck.class,
       NoUselessConstructorCheck.class,
       NoUselessReactSetstateCheck.class,
