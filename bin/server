@@ -26,5 +26,11 @@ if (process.argv[7]) {
   bundles = process.argv[7].split(path.delimiter);
 }
 
+const v8 = require('node:v8');
+console.log(
+  'I have so much heap RAM:',
+  v8.getHeapStatistics().total_available_size / 1024 / 1024 + ' MB',
+);
+
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
 server.start(Number.parseInt(port), host).catch(() => {});
