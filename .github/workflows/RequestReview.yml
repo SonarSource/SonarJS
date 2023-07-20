@@ -8,6 +8,8 @@ jobs:
   MoveCardToReview_job:
     name: Move card to review
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     # PRs from forks don't have required token authorization
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
@@ -18,6 +20,7 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-kanban token | kanban_token;
+
       - uses: sonarsource/gh-action-lt-backlog/MoveCardToReview@use-until-merged
         with:
           github-token: ${{ fromJSON(steps.secrets.outputs.vault).kanban_token }}
