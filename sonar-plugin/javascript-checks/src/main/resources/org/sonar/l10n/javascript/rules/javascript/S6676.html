@@ -1,0 +1,24 @@
+<h2>Why is this an issue?</h2>
+<p>If the function call can be written in a normal way, then calling that function with <code>.call()</code> or <code>.apply()</code> methods is
+redundant and can be removed without affecting the behavior of the code.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+foo.call(null, 1, 2); // Noncompliant: .call() is redundant
+obj.foo.call(obj, arg1, arg2); // Noncompliant: .call() is redundant
+bar.apply(undefined, [x, y, z]); // Noncompliant: .apply() is redundant
+</pre>
+<p>To fix your code remove redundant <code>.call()</code> or <code>.apply()</code> methods.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+foo(1, 2);
+obj.foo(arg1, arg2);
+bar(x, y, z);
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions">MDN - Functions</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call">MDN - Function.prototype.call()</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply">MDN - Function.prototype.apply()</a>
+  </li>
+</ul>
+

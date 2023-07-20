@@ -1,0 +1,19 @@
+{
+  "title": "Calls to .call() and .apply() methods should not be redundant",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6676",
+  "sqKey": "S6676",
+  "scope": "All",
+  "quickfix": "covered", 
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
