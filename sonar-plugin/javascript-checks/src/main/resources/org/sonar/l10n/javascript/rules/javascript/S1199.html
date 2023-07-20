@@ -1,0 +1,62 @@
+<h2>Why is this an issue?</h2>
+<p>Nested code blocks can be used to create a new scope: variables declared within that block cannot be accessed from the outside, and their lifetime
+end at the end of the block. However this only happens when you use ES6 <code>let</code> or <code>const</code> keywords, a class declaration or a
+function declaration (in strict mode). Otherwise the nested block is redundant and should be removed.</p>
+<p>The presense of redundant blocks (the ones which are not part of control flow and do not create a new scope) is confusing and may point to errors
+in the code.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{   // Noncompliant: redundant code block
+    var foo = bar();
+}
+
+if (condition) {
+    doSomething();
+    {   // Noncompliant: redundant code block
+        doOtherStuff();
+    }
+}
+</pre>
+<p>To fix your code remove redundant blocks.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+var foo = bar();
+
+if (condition) {
+    doSomething();
+    doOtherStuff();
+}
+</pre>
+<h3>Exceptions</h3>
+<p>Block statements containing variable declarations using <code>let</code> or <code>const</code> keywords or class declarations are not redundant as
+they create a new scope.</p>
+<pre>
+{
+    let x = 1;
+}
+</pre>
+<p>The same applies to function declarations in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict
+mode</a></p>
+<pre>
+"use strict";
+{
+    function foo(){}
+}
+</pre>
+<p>The rule also does not apply to the blocks that are part of the <a href="https://developer.mozilla.org/en-US/docs/Glossary/Control_flow">control
+flow</a>.</p>
+<pre>
+if (condition){
+    doSomething();
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/block">MDN - block statement</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">MDN - var</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let">MDN - let</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const">MDN - const</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class">MDN - class declaration</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">MDN - function declaration</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">MDN - strict mode</a> </li>
+</ul>
+
