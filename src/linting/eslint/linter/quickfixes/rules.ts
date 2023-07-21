@@ -60,6 +60,7 @@ export const quickFixRules = new Set([
   'no-lonely-if',
   'no-throw-literal',
   'no-unreachable',
+  'no-useless-call',
   'no-useless-constructor',
   'prefer-object-spread',
   'prefer-spread',
