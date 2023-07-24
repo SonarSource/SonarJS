@@ -294,6 +294,7 @@ public final class CheckList {
       NoUnsafeOptionalChainingCheck.class,
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
+      NoUnusedPrivateClassMembersCheck.class,
       NoUselessCallCheck.class,
       NoUselessCatchCheck.class,
       NoUselessConstructorCheck.class,
