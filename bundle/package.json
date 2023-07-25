@@ -12,6 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pkg": "5.6.0"
+    "pkg": "5.8.0"
+  },
+  "overrides": {
+    "pkg": {
+      "pkg-fetch": "git://github.com/ilia-kebets-sonarsource/arm-pkg-fetch.git"
+    }
   }
 }
