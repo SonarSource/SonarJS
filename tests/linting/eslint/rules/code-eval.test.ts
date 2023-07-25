@@ -101,5 +101,9 @@ ruleTester.run('Dynamically executing code is security-sensitive', rule, {
       code: `new Function('a', x)`,
       errors: 1,
     },
+    {
+      code: `location.href = 'javascript: void(0)';`,
+      errors: 1,
+    },
   ],
 });
