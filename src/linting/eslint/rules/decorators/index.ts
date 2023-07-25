@@ -40,6 +40,7 @@ import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
 import { decorateNoUnstableNestedComponents } from './no-unstable-nested-components';
 import { decorateNoUnusedExpressions } from './no-unused-expressions-decorator';
+import { decorateNoUnusedPrivateClassMembers } from './no-unused-private-class-members-decorator';
 import { decorateNoUselessCall } from './no-useless-call-decorator';
 import { decorateNoUselessConstructor } from './no-useless-constructor-decorator';
 import { decorateObjectShorthand } from './object-shorthand-decorator';
@@ -95,6 +96,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-unreachable': decorateNoUnreachable,
   'no-unstable-nested-components': decorateNoUnstableNestedComponents,
   'no-unused-expressions': decorateNoUnusedExpressions,
+  'no-unused-private-class-members': decorateNoUnusedPrivateClassMembers,
   'no-useless-call': decorateNoUselessCall,
   'no-useless-constructor': decorateNoUselessConstructor,
   'no-var': decorateNoVar,

@@ -1,0 +1,25 @@
+<h2>Why is this an issue?</h2>
+<p>If a private member of the class is declared but not used in the program, it can be considered dead code and should therefore be removed. This will
+improve maintainability because developers will not wonder what the variable is used for.</p>
+<p>The private class members were introduced in ES2022 and use <code>#</code> hash symbol prefix. It is possible to declare private fields, methods,
+getters and setters as well as their static counterparts.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+class MyClass {
+    #privateField; // Noncompliant, #privateField is unused
+    #privateMethod(){} // Noncompliant, #privateMethod is unused
+    // ...
+}
+</pre>
+<p>To fix the code remove unused private member of the class.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+class MyClass {
+    // ...
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields">MDN - private class members</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes">MDN - classes overview</a> </li>
+</ul>
+
