@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       safeCode: 'Make sure that this dynamic injection or execution of code is safe.',
-      ...noScriptUrlRule.meta!.messages,
+      unexpectedScriptURL: "Make sure that 'javascript:' code is safe as it is a form of eval().",
     },
   },
   create(context: Rule.RuleContext) {
