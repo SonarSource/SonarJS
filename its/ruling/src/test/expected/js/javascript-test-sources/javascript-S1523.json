@@ -14,5 +14,11 @@
 ],
 "javascript-test-sources:src/ace/tool/mode_creator.js": [
 214
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-skip-link.js": [
+16
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+293
 ]
 }

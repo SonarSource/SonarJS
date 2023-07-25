@@ -22,11 +22,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { eslintRules } from 'linting/eslint/rules/core';
+
+const noScriptUrlRule = eslintRules['no-script-url'];
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       safeCode: 'Make sure that this dynamic injection or execution of code is safe.',
+      unexpectedScriptURL: "Make sure that 'javascript:' code is safe as it is a form of eval().",
     },
   },
   create(context: Rule.RuleContext) {
@@ -35,6 +39,7 @@ export const rule: Rule.RuleModule = {
         checkCallExpression(node as estree.CallExpression, context),
       NewExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
+      ...noScriptUrlRule.create(context),
     };
   },
 };
