@@ -29,19 +29,55 @@ ruleTester.run('Number.isNaN() should be used to check for NaN value', rule, {
   invalid: [
     {
       code: `x === x`,
-      errors: 1,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Replace self-compare with Number.isNaN()`,
+              output: `!Number.isNaN(x)`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `x == x`,
-      errors: 1,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Replace self-compare with Number.isNaN()`,
+              output: `!Number.isNaN(x)`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `x !== x`,
-      errors: 1,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Replace self-compare with Number.isNaN()`,
+              output: `Number.isNaN(x)`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `x != x`,
-      errors: 1,
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: `Replace self-compare with Number.isNaN()`,
+              output: `Number.isNaN(x)`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

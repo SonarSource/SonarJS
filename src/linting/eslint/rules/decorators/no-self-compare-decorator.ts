@@ -24,6 +24,7 @@ import { interceptReport } from './helpers';
 
 export function decorateNoSelfCompare(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
+    rule.meta!.hasSuggestions = true;
     if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { node, messageId, ...rest } = reportDescriptor,
         operators = new Set(['===', '==', '!==', '!=']);
@@ -33,10 +34,20 @@ export function decorateNoSelfCompare(rule: Rule.RuleModule): Rule.RuleModule {
         operators.has(node.operator) &&
         node.left.type !== 'Literal'
       ) {
+        const prefix = node.operator.startsWith('!') ? '' : '!',
+          value = context.sourceCode.getText(node.left),
+          suggest: Rule.SuggestionReportDescriptor[] = [
+            {
+              desc: 'Replace self-compare with Number.isNaN()',
+              fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${value})`),
+            },
+          ];
+
         context.report({
           node,
           message: "Use 'Number.isNaN()' to check for 'NaN' value",
           ...rest,
+          suggest,
         });
       }
     }
