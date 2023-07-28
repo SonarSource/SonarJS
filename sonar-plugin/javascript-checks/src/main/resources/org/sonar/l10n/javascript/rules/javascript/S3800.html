@@ -1,17 +1,19 @@
 <h2>Why is this an issue?</h2>
 <p>Unlike strongly typed languages, JavaScript does not enforce a return type on a function. This means that different paths through a function can
-return different types of values, which can be very confusing to the user and significantly harder to maintain.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function foo(a) {  // Noncompliant
+return different types of values.</p>
+<p>Returning different types from a function can make the code less readable and harder to understand. Maintainers may have to spend more time
+figuring out how the function works and what it returns. Additionally, it can be harder to ensure that the code is free of type-related errors.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function foo(a) {  // Noncompliant: function returns 'boolean' or 'number'
   if (a === 1) {
     return true;
   }
   return 3;
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Rework the function so that it always returns the same type. This makes the code more consistent and easier to understand. Maintainers can rely on
+the function to behave in a predictable way.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 function foo(a) {
   if (a === 1) {
     return true;
@@ -20,12 +22,21 @@ function foo(a) {
 }
 </pre>
 <h3>Exceptions</h3>
-<p>Functions returning <code>this</code> are ignored.</p>
+<ul>
+  <li> Functions returning <code>this</code> are ignored. </li>
+</ul>
 <pre>
 function foo() {
   // ...
   return this;
 }
 </pre>
-<p>Functions returning expressions having type <code>any</code> are ignored.</p>
+<ul>
+  <li> Functions returning expressions having type <code>any</code> are ignored. </li>
+</ul>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/return">MDN - <code>return</code></a> </li>
+</ul>
 

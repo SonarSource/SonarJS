@@ -1,21 +1,23 @@
 <h2>Why is this an issue?</h2>
-<p>Mixing up the order of operations will almost always yield unexpected results.</p>
-<p>Similarly, mis-applied negation will also yield bad results. For instance consider the difference between <code>!key in dict</code> and <code>!(key
-in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a string and inverts the
-result. <code>!obj instanceof SomeClass</code> has the same problem.</p>
-<p>This rule raises an issue when the left operand of an <code>in</code> or <code>instanceof</code> operator is negated.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-if (!"prop" in myObj) {  // Noncompliant;  "in" operator is checking property "false"
-  doTheThing();  // this block will be never executed
+<p>Operator precedence determines the order in which different operators are evaluated when an expression contains multiple ones. It helps determine
+how the expression is parsed and executed. JavaScript follows a specific set of rules to determine operator precedence.</p>
+<p>Not being aware of JavaScript’s operator precedence rules can lead to unexpected and potentially incorrect results when evaluating expressions.
+This is common when misapplying the logical negation operator (<code>!</code>). For instance, consider the difference between <code>!key in
+dict</code> and <code>!(key in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a
+string and inverts the result. The same applies for <code>`!obj instanceof SomeClass</code></p>
+<p>This rule raises an issue when the left operand of an <code>in</code> or <code>instanceof</code> operator is negated with <code>!</code>.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+if (!"prop" in myObj) { // Noncompliant: checks whether !"prop", that is, false is in myObj
+  doTheThing(); // this block is never executed
 }
 
-if (!foo instanceof MyClass) {  // Noncompliant; "!foo" returns a boolean, which is not an instance of anything
-  doTheOtherThing();  // this block is never executed
+if (!foo instanceof MyClass) { // Noncompliant: "!foo" returns a boolean, which is not an instance of anything
+  doTheOtherThing(); // this block is never executed either
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>You should use parentheses to force the order of evaluation of expressions mixing negation and <code>in</code> or <code>instanceof</code>
+operators.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 if (!("prop" in myObj)) {
   doTheThing();
 }
@@ -24,4 +26,14 @@ if (!(foo instanceof MyClass)) {
   doTheOtherThing();
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence">MDN - Operator precedence</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence#table">MDN - Operator precedence
+  table</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT">MDN - Logical NOT (<code>!</code>)</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof">MDN - <code>instanceof</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in">MDN - <code>in</code> operator</a> </li>
+</ul>
 

@@ -1,5 +1,5 @@
 {
-  "title": "Type guards should be used",
+  "title": "Type predicates should be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

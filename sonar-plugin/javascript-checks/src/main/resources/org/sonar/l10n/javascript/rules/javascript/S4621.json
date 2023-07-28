@@ -1,5 +1,5 @@
 {
-  "title": "Union and intersection types should not be defined with duplicated elements",
+  "title": "Union and intersection types should not include duplicated constituents",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

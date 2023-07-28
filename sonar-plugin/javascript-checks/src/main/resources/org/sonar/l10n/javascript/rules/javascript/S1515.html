@@ -1,18 +1,41 @@
 <h2>Why is this an issue?</h2>
-<p>Defining a function inside of a loop can yield unexpected results. Such a function keeps references to the variables which are defined in outer
-scopes. All function instances created inside the loop therefore see the same values for these variables, which is probably not expected.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-var funs = [];
-for (var i = 0; i &lt; 13; i++) {
-  funs[i] = function() { // Non-Compliant
-    return i;
-  };
+<p>Defining functions inside loops in JavaScript can lead to several issues and is generally considered bad practice. The main problems associated
+with this approach are related to performance, scope, and potential unintended behavior:</p>
+<ul>
+  <li> When a function is defined inside a loop, the function is re-created on each iteration of the loop. This can cause unnecessary overhead and
+  lead to performance issues, especially if the loop runs repeatedly. Defining the function outside the loop is more efficient so that it is created
+  only once. </li>
+  <li> Functions defined inside loops have access to the loop’s variables and parameters. This can sometimes lead to unintended behavior or bugs due
+  to closures. Closures in JavaScript capture the environment in which they are created, including variables and parameters, and this can cause
+  unexpected results when those variables change during the loop. </li>
+  <li> Code that defines functions inside loops can be harder to read and maintain, especially for other developers who might not expect functions to
+  be redefined within the loop. Keeping functions separate and clearly defined is better, improving code organization and understandability. </li>
+</ul>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+for (let i = 0; i &lt; 5; i++) {
+  function processItem(item) { // Noncompliant: Function 'processItem' inside a for loop
+    // Some processing logic
+    console.log(item);
+  }
+
+  processItem(i);
 }
-console.log(funs[0]()); // 13 instead of 0
-console.log(funs[1]()); // 13 instead of 1
-console.log(funs[2]()); // 13 instead of 2
-console.log(funs[3]()); // 13 instead of 3
-...
 </pre>
+<p>Define the function outside the loop and use the function parameters to pass any needed variables instead.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function processItem(item) {
+  // Some processing logic
+  console.log(item);
+}
+
+for (let i = 0; i &lt; 5; i++) {
+  processItem(i);
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">MDN - Closures</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Scope">MDN - Scope</a> </li>
+</ul>
 

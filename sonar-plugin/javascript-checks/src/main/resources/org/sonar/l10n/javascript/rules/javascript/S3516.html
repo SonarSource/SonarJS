@@ -1,15 +1,43 @@
 <h2>Why is this an issue?</h2>
-<p>When a function is designed to return an invariant value, it may be poor design, but it shouldn’t adversely affect the outcome of your program.
-However, when it happens on all paths through the logic, it is likely a mistake.</p>
+<p>When a function has multiple <code>return</code> statements and returns the same value in more than one of them, it can lead to several potential
+problems:</p>
+<ul>
+  <li> It can make the code more difficult to understand and maintain, as the reader may be unsure why the same value is being returned multiple
+  times. This can introduce ambiguity and increase the chances of misunderstanding the function’s intent. </li>
+  <li> The use of multiple return statements with the same value might lead someone to assume that each return corresponds to a distinct case or
+  outcome. However, if they all return the same value, it can be misleading and may indicate an oversight or mistake in the code. </li>
+  <li> When the function needs to be modified or extended in the future, having multiple identical return statements can make it harder to implement
+  changes correctly across all occurrences. This can introduce bugs and inconsistencies in the codebase. </li>
+  <li> Code readability is crucial for maintainability and collaboration. Having repetitive return statements can lead to unnecessary code
+  duplication, which should be avoided in favor of creating modular and clean code. </li>
+</ul>
 <p>This rule raises an issue when a function contains several <code>return</code> statements that all return the same value.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function foo(a) {  // Noncompliant
-  let b = 12;
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function f(a, g) { // Noncompliant: 'f' returns 'b' on two different return statements
+  const b = 42;
   if (a) {
+    g(a);
     return b;
   }
   return b;
 }
 </pre>
+<p>To address this, you should refactor the function to use a single return statement with a variable storing the value to be returned. This way, the
+code becomes more concise, easier to understand, and reduces the likelihood of introducing errors when making changes in the future. By using a single
+return point, you can also enforce consistency and prevent unexpected return values.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function f(a, g) {
+  const b = 42;
+  if (a) {
+    g(a);
+  }
+  return b;
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/return">MDN - <code>return</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Return_values">MDN - Function return values</a> </li>
+</ul>
 

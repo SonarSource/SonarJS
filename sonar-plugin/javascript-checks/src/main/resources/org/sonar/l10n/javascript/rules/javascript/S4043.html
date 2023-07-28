@@ -1,22 +1,46 @@
 <h2>Why is this an issue?</h2>
-<p>Many of JavaScript’s <code>Array</code> methods return an altered version of the array while leaving the source array intact. <code>reverse</code>
-and <code>sort</code> do not fall into this category. Instead, they alter the source array <em>in addition to</em> returning the altered version,
-which is likely not what was intended.</p>
-<p>This rule raises an issue when the return values of these methods are assigned, which could lead maintainers to overlook the fact that the original
-value is altered.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-const reversed = a.reverse(); // Noncompliant
-const sorted = b.sort(); // Noncompliant
+<p>In JavaScript, some <code>Array</code> methods do not mutate the existing array that the method was called on, but instead return a new array.
+Other methods mutate the array, and their return value differs depending on the method.</p>
+<p><code>reverse</code> and <code>sort</code> are mutating methods and, in addition, return the altered version. This rule raises an issue when the
+return values of these methods are assigned, which could lead maintainers to overlook the fact that the original array has been modified.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const reversed = a.reverse(); // Noncompliant: mutating method, no need to assign return value
+const sorted = b.sort(); // Noncompliant: mutating method, no need to assign return value
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-const reversed = [...a].reverse();  // spread the contents of 'a' into a new array, so reverse doesn't impact 'a'
-const reversed2 = a.toReversed(); // ES2023 method that copies and reverses the array
-a.reverse(); // reverse the array in place
-
-const sorted = [...b].sort(); // spread the contents of 'b' into a new array, so sort doesn't impact 'b'
-const sorted2 = b.toSorted(); // ES2023 method that copies and sorts the array
-b.sort(); // sort the array in place
+<p>Remove the assignment, so that the intent of mutating the original array is clear.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+a.reverse();
+b.sort();
 </pre>
+<p>Or use non-mutating alternatives <code>toReversed</code> and <code>toSorted</code>.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+const reversed = a.toReversed();
+const sorted = b.toSorted();
+</pre>
+<p>Alternatively, change a mutating method into a non-mutating alternative using the spread syntax (<code>…​</code>) or <code>slice()</code> to create
+a copy first.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+const reversed = [...a].reverse();
+const sorted = [...b].sort();
+</pre>
+<pre data-diff-id="1" data-diff-type="compliant">
+const reversed = a.slice().reverse();
+const sorted = b.slice().sort();
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#copying_methods_and_mutating_methods">MDN -
+  Array copying methods and mutating methods</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse">MDN - Array.prototype.reverse()</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort">MDN - Array.prototype.sort()</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toReversed">MDN -
+  Array.prototype.toReversed()</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted">MDN - Array.prototype.toSorted()</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">MDN - Spread syntax (<code>...</code>)</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">MDN - Array.prototype.slice()</a> </li>
+</ul>
 

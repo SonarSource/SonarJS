@@ -1,15 +1,17 @@
 <h2>Why is this an issue?</h2>
 <p>Using regular expression literals is recommended over using the <code>RegExp</code> constructor calls if the pattern is a literal. Regular
-expression literals are shorter, more readable, and do not need to be escaped like string literals.</p>
-<pre>
+expression literals are shorter, more readable, and do not need to be escaped like string literals. They can also be more performant because regular
+expression literals are compiled only once when the script is loaded.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 new RegExp(/foo/);
 new RegExp('bar');
 new RegExp('baz', 'i');
 new RegExp("\\d+");
 new RegExp(`qux|quuz`);
 </pre>
-<p>Using the <code>RegExp</code> constructor is suitable when the pattern is computed dynamically, for example when it is provided by the user.</p>
-<pre>
+<p>Using the <code>RegExp</code> constructor is suitable when the pattern is computed dynamically, for example, when the user provides it. Otherwise,
+you should prefer the more concise syntax of regular expression literals.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 /foo/;
 /bar/;
 /baz/i;
@@ -20,6 +22,7 @@ new RegExp(`Dear ${title},`);
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">MDN - RegExp</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN - Regular expressions</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">MDN - <code>RegExp</code></a> </li>
 </ul>
 

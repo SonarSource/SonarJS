@@ -1,12 +1,18 @@
 <h2>Why is this an issue?</h2>
-<p>Both <code>arguments.caller</code> and <code>arguments.callee</code> make quite a few optimizations impossible so they were deprecated in latest
-versions of JavaScript. In fact, EcmaScript 5 forbids the use of both in <code>strict</code> mode, according to the docs:</p>
-<blockquote>
-  <p>Arguments objects for strict mode functions define non-configurable accessor properties named "caller" and "callee" which throw a TypeError
-  exception on access.</p>
-</blockquote>
-<p>The same restriction applies to the function’s <code>caller</code> and <code>arguments</code> properties in <code>strict</code> mode.</p>
-<h3>Noncompliant code example</h3>
+<p>In JavaScript, <code>arguments</code> is a built-in array-like object automatically available within the scope of all non-arrow functions. It
+allows you to access the arguments the function was called with, even if the number of arguments passed during the function call does not match the
+number declared in the function signature. <code>arguments</code> has entries for each argument, with the first entry’s index at <code>0</code>.</p>
+<p>The arguments object has two deprecated properties called <code>arguments.caller</code> and <code>arguments.callee</code>, which were used to refer
+to functions involved in the function invocation chain:</p>
+<ul>
+  <li> The <code>arguments.callee</code> property contains the currently executing function that the arguments belong to. </li>
+  <li> The <code>arguments.caller</code> property returns the function that invoked the currently executing function. It was replaced by
+  <code>Function.prototype.caller</code>, which provides the same functionality. </li>
+</ul>
+<p>Both <code>arguments.caller</code> and <code>arguments.callee</code> are non-standard, deprecated, and leak stack information, which poses security
+risks and severely limits the possibility of optimizations.</p>
+<p>Accessing <code>arguments.callee</code>, <code>Function.prototype.caller</code> and <code>Function.prototype.arguments </code> in strict mode will
+throw a <code>TypeError</code>.</p>
 <pre>
 function whoCalled() {
    if (arguments.caller == null)   //Noncompliant
@@ -18,4 +24,17 @@ function whoCalled() {
   console.log(whoCalled.arguments);  // Noncompliant
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments">MDN - The arguments object</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments/callee#description">MDN - arguments.callee</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/caller">MDN - Function.prototype.caller</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/arguments">MDN -
+  Function.prototype.arguments</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Deprecated_caller_or_arguments_usage">MDN - ReferenceError:
+  deprecated caller or arguments usage</a> </li>
+</ul>
 

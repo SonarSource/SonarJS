@@ -1,16 +1,16 @@
 <h2>Why is this an issue?</h2>
-<p>Using object spread syntax makes the code more concise and readable compared to the <code>Object.assign()</code> method. The object spread syntax
-was introduced in ES2018 and allows shallow-cloning or merging of objects.</p>
+<p>When merging objects or copying properties from one object to another, use object spread syntax instead of <code>Object.assign()</code>. Object
+spread syntax was introduced in ES2018 and allows shallow-cloning or merging of objects with a more concise and readable syntax.</p>
 <p>The <code>Object.assign()</code> also allows to mutate an object, which is not possible with the spread syntax, so the rule only applies to cases
 where the first argument of the <code>Object.assign()</code> is an object literal.</p>
-<pre>
-const a = Object.assign({}, foo); // Noncompliant
-const b = Object.assign({}, foo, bar); // Noncompliant
-const c = Object.assign({foo: 123}, bar); // Noncompliant
-const d = Object.assign({}); // Noncompliant
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const a = Object.assign({}, foo); // Noncompliant: Use spread syntax to clone or merge objects
+const b = Object.assign({}, foo, bar); // Noncompliant: Use spread syntax to clone or merge objects
+const c = Object.assign({foo: 123}, bar); // Noncompliant: Use spread syntax to clone or merge objects
+const d = Object.assign({}); // Noncompliant: Use spread syntax to clone or merge objects
 </pre>
 <p>To fix the code replace <code>Object.assign()</code> with a spread syntax.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 const a = {...foo};
 const b = {...foo, ...bar};
 const c = {foo: 123, ...bar};

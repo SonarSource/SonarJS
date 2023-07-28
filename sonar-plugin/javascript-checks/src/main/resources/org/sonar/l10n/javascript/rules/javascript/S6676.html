@@ -1,6 +1,29 @@
 <h2>Why is this an issue?</h2>
 <p>If the function call can be written in a normal way, then calling that function with <code>.call()</code> or <code>.apply()</code> methods is
 redundant and can be removed without affecting the behavior of the code.</p>
+<p>The <code>.call()</code> and <code>.apply()</code> methods are traditionally used to explicitely set the value of <code>this</code> keyword when
+executing a function or an object method. When calling a method of an object the value of <code>this</code> by default will be the reference to that
+object. But if you call a function or a method using <code>.call()</code> and <code>.apply()</code> you can set the value of <code>this</code> to any
+object, whatever you put into the first argument.</p>
+<pre>
+let obj = {
+    checkThis() {
+        this === obj; // true, if called the normal way: obj.checkThis()
+    }
+};
+
+let otherObject = {};
+
+obj.checkThis.call(otherObject); // this === otherObject, if called this way
+</pre>
+<p>There is also a special case when your code is not in <a
+href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict mode</a> and the first argument to the
+<code>.call()</code> and <code>.apply()</code> methods is <code>null</code> or <code>undefined</code>. In this case the value of <code>this</code> is
+substituted with the <code>globalThis</code> object, usually <code>window</code> when in browser context, and it make such call equivalent to just
+calling the function the normal way.</p>
+<p>So if you are calling a function using <code>.call()</code> or <code>.apply()</code> methods and the first argument is <code>null</code> or
+<code>undefined</code>, or you are calling an object method and the first argument is the object itself, then <code>.call()</code> or
+<code>.apply()</code> methods become redundant, and should be removed to make the code more simple and easier to understand.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 foo.call(null, 1, 2); // Noncompliant: .call() is redundant
 obj.foo.call(obj, arg1, arg2); // Noncompliant: .call() is redundant
@@ -20,5 +43,7 @@ bar(x, y, z);
   </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply">MDN - Function.prototype.apply()</a>
   </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this">MDN - this</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis">MDN - globalThis</a> </li>
 </ul>
 

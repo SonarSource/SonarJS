@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1068",
   "sqKey": "S1068",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

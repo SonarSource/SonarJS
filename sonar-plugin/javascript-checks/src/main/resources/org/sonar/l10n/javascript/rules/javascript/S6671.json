@@ -11,7 +11,7 @@
   "ruleSpecification": "RSPEC-6671",
   "sqKey": "S6671",
   "scope": "All",
-  "quickfix": "infeasible", 
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -1,72 +1,54 @@
 <h2>Why is this an issue?</h2>
-<p>The <code>void</code> operator evaluates its argument and always returns <code>undefined</code>. <code>void</code> operator allows using any
-expression in the places where an <code>undefined</code> is expected. However, using <code>void</code> makes code more difficult to understand, as the
-intent is often not clear.</p>
-<pre>
-void doSomething();  // Noncomplaint
-</pre>
-<p>In ECMAScript5 and newer environments, the global property <code>undefined</code> cannot be reassigned, so using <code>void</code> for this reason
-should also be avoided.</p>
-<pre>
-undefined = 'Hello, world!'; // since ECMAScript5, this statement has no effect
-if (parameter === void 42) { // Noncompliant
-   // ...
-}
-</pre>
-<h3>Exceptions</h3>
-<ul>
-  <li> In environments before ECMAScript 5, <code>void 0</code> was a conventional way to obtain the <code>undefined</code> value, so it’s still
-  accepted by the rule. </li>
-</ul>
-<pre>
-if (parameter === void 0) { // Compliant
-   // ...
-}
-</pre>
-<ul>
-  <li> <code>void</code> is also allowed with immediately invoked function expressions, as otherwise parsing would fail. </li>
-</ul>
-<pre>
-void function() { // Compliant
-   // ...
-}();
-</pre>
-<ul>
-  <li> <code>void</code> is allowed with Promise-like objects. </li>
-</ul>
-<pre>
-const promise = new Promise((resolve, reject) =&gt; resolve(42));
-void promise;
-</pre>
-<h2>How to fix it</h2>
-<p>When using <code>void …​</code> to get the <code>undefined</code> value, directly use the <code>undefined</code> identifier instead.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
+<p>The <code>void</code> operator evaluates its argument and always returns <code>undefined</code>. <code>void</code> allows using any expression
+where an <code>undefined</code> is expected. However, using <code>void</code> makes code more difficult to understand, as the intent is often
+unclear.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 if (parameter === void 42) { // Noncompliant
    // ...
 }
+doSomethingElse(void doSomething()); // Noncompliant
 </pre>
-<h4>Compliant solution</h4>
+<p>Instead of using <code>void</code> to get the <code>undefined</code> value, use the <code>undefined</code> global property. In ECMAScript5 and
+newer environments, <code>undefined</code> cannot be reassigned. In other cases, remove the <code>void</code> operator to avoid confusion for
+maintainers.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 if (parameter === undefined) {
    // ...
 }
-</pre>
-<p>Otherwise, the <code>void</code> operator should be removed to avoid confusion for maintainers.</p>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-doSomethingElse(void doSomething()); // Noncompliant
-</pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="2" data-diff-type="compliant">
 doSomething();
 doSomethingElse();
+</pre>
+<h3>Exceptions</h3>
+<ul>
+  <li> <code>void 0</code> (or the equivalent <code>void(0)</code>) is allowed as it was a conventional way to obtain the <code>undefined</code> value
+  in environments before ECMAScript 5. </li>
+</ul>
+<pre>
+if (parameter === void 0) {
+   // ...
+}
+</pre>
+<ul>
+  <li> <code>void</code> is allowed with immediately invoked function expressions. </li>
+</ul>
+<pre>
+void function() {
+   // ...
+}();
+</pre>
+<ul>
+  <li> <code>void</code> is allowed with Promise-like objects to mark a promise as intentionally not awaited, as advised by <a
+  href="https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-floating-promises.md">@typescript-eslint/no-floating-promises</a>. </li>
+</ul>
+<pre>
+const runPromise = () =&gt; Promise.resolve();
+void runPromise();
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void">MDN - <code>void</code> operator</a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">MDN - <code>undefined</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/IIFE">MDN - IIFE (Immediately Invoked Function Expression)</a> </li>
 </ul>
 

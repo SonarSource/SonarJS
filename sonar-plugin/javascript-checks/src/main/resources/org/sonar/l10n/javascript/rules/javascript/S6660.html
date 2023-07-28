@@ -3,11 +3,11 @@
 and makes it more readable.</p>
 <p>When using nested <code>if</code> statements, it can be difficult to keep track of the logic and understand the flow of the code. Using <code>else
 if</code> makes the code more concise and easier to follow.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 if (condition1) {
     // ...
 } else {
-    if (condition2) {  // Noncompliant
+    if (condition2) {  // Noncompliant: 'if' statement is the only statement in the 'else' block
         // ...
     }
 }
@@ -16,15 +16,15 @@ if (condition1) {
 if (condition3) {
     // ...
 } else {
-    if (condition4) { // Noncompliant
+    if (condition4) { // Noncompliant: 'if' statement is the only statement in the 'else' block
         // ...
     } else {
         // ...
     }
 }
 </pre>
-<p>Fix your code by using <code>else if</code> instead of nested <code>if</code> block.</p>
-<pre>
+<p>Fix your code by using <code>else if</code> if the nested <code>if</code> is the only statement in the <code>else</code> block.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 if (condition1) {
     // ...
 } else if (condition2) {
@@ -43,6 +43,6 @@ if (condition3) {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else">MDN - if…​else</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else">MDN - <code>if...else</code></a> </li>
 </ul>
 

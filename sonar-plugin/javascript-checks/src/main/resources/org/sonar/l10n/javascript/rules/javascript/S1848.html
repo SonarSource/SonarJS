@@ -1,18 +1,20 @@
 <h2>Why is this an issue?</h2>
-<p>There is no good reason to create a new object to not do anything with it. Most of the time, this is due to a missing piece of code and so could
-lead to an unexpected behavior in production.</p>
-<p>If it was done on purpose because the constructor has side-effects, then that side-effect code should be moved into a separate method and called
-directly.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-new MyConstructor(); // Non-Compliant
+<p>Creating an object without assigning it to a variable or using it in any function means the object is essentially created for no reason and may be
+dropped immediately without being used. Most of the time, this is due to a missing piece of code and could lead to an unexpected behavior.</p>
+<p>If it’s intended because the constructor has side effects, that side effect should be moved into a separate method and called directly. This can
+help to improve the performance and readability of the code.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+new MyConstructor(); // Noncompliant: object may be dropped
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-var something = new MyConstructor();  // Compliant
+<p>Determine if the objects are necessary for the code to function correctly. If they are not required, remove them from the code. Otherwise, assign
+them to a variable for later use.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+let something = new MyConstructor();
 </pre>
 <h3>Exceptions</h3>
-<p>Immediately dropped new objects inside <code>try</code>-statements are ignored.</p>
+<ul>
+  <li> Creating new objects inside a <code>try</code> block is ignored. </li>
+</ul>
 <pre>
 try {
   new MyConstructor();
@@ -20,4 +22,15 @@ try {
   /* ... */
 }
 </pre>
+<ul>
+  <li> Known constructors with side effects like <code>Notification</code> or <code>Vue</code> are also ignored. </li>
+</ul>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor">MDN -
+  <code>Object.prototype.constructor</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor">MDN - constructor</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new">MDN - <code>new</code> operator</a> </li>
+</ul>
 

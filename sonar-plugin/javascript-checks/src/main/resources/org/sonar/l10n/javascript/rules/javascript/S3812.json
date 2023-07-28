@@ -1,5 +1,5 @@
 {
-  "title": "Results of \"in\" and \"instanceof\" should be negated rather than operands",
+  "title": "Parentheses should be used when negating \"in\" and \"instanceof\" operations",
   "type": "BUG",
   "status": "ready",
   "remediation": {
