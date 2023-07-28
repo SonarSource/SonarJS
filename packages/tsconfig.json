@@ -18,12 +18,7 @@
     "typeRoots": ["../node_modules/@types", "../typings"],
     "baseUrl": ".",
     "paths": {
-      "errors": ["./errors"],
-      "helpers": ["./helpers"],
-      "linting": ["./linting"],
-      "parsing": ["./parsing"],
-      "routing": ["./routing"],
-      "services": ["./services"]
+      "*": ["./legacy/src/*"]
     }
   }
 }

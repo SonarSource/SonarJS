@@ -1,5 +1,5 @@
 {
-  "extends": "../src/tsconfig.json",
+  "extends": "../packages/tsconfig.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
@@ -7,12 +7,12 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "*": ["../src/*"]
+      "*": ["../packages/legacy/src/*"]
     }
   },
   "references": [
     {
-      "path": "../src/tsconfig.json"
+      "path": "../packages/tsconfig.json"
     }
   ],
   "exclude": ["**/fixtures/**", "**/linting/eslint/rules/comment-based/**"]

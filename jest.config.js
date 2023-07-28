@@ -1,12 +1,16 @@
 module.exports = {
-  collectCoverageFrom: ['src/**/*.ts'],
+  collectCoverageFrom: ['packages/**/*.ts'],
   globals: {
     'ts-jest': {
       tsconfig: 'tests/tsconfig.json',
     },
   },
   moduleFileExtensions: ['js', 'ts', 'json'],
-  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests/**/fixtures'],
+  moduleDirectories: [
+    'node_modules',
+    '<rootDir>/packages/legacy/src',
+    '<rootDir>/tests/**/fixtures',
+  ],
   modulePathIgnorePatterns: [
     '<rootDir>/tests/linting/eslint/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
   ],

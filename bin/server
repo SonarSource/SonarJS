@@ -13,7 +13,7 @@
 
 const server = require('../lib/server');
 const path = require('path');
-const context = require('../lib/helpers/context');
+const context = require('../lib/legacy/src/helpers/context');
 
 const port = process.argv[2];
 const host = process.argv[3];
