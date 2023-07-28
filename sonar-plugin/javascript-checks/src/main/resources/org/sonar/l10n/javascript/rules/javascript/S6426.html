@@ -1,16 +1,16 @@
 <h2>Why is this an issue?</h2>
 <p>When using testing frameworks like Mocha and Jest, appending <code>.only()</code> to the test function allows running a single test case for a
 file. Using <code>.only()</code> means no other test from this file is executed. This is useful when debugging a specific use case.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 describe("MyClass", function () {
-    it.only("should run correctly", function () {
+    it.only("should run correctly", function () { // Noncompliant
         /*...*/
     });
 });
 </pre>
 <p>However, it should not be used in production or development, as it is likely a leftover from debugging and serves no purpose in those contexts. It
 is strongly recommended not to include <code>.only()</code> usages in version control.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 describe("MyClass", function () {
     it("should run correctly", function () {
         /*...*/
@@ -20,8 +20,8 @@ describe("MyClass", function () {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://mochajs.org/#exclusive-tests">exclusive tests in Mocha</a> </li>
-  <li> <a href="https://jestjs.io/docs/next/api#testonlyname-fn-timeout">test.only() in Jest</a> </li>
-  <li> <a href="https://jestjs.io/docs/next/api#describeonlyname-fn">describe.only() in Jest</a> </li>
+  <li> <a href="https://mochajs.org/#exclusive-tests">Mocha - Exclusive tests</a> </li>
+  <li> <a href="https://jestjs.io/docs/next/api#testonlyname-fn-timeout">Jest - <code>test.only()</code></a> </li>
+  <li> <a href="https://jestjs.io/docs/next/api#describeonlyname-fn">Jest - <code>describe.only()</code></a> </li>
 </ul>
 

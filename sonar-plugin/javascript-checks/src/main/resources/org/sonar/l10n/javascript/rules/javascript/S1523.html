@@ -9,6 +9,8 @@ href="https://owasp.org/www-community/attacks/Code_Injection">Injected Code</a>.
 XSS attack) and have a huge impact on an application’s security.</p>
 <p>This rule raises issues on calls to <code>eval</code> and <code>Function</code> constructor. This rule does not detect code injections. It only
 highlights the use of APIs which should be used sparingly and very carefully. The goal is to guide security code reviews.</p>
+<p>The rule also flags string literals starting with <code>javascript:</code> as the code passed in <code>javascript:</code> URLs is evaluated the
+same way as calls to <code>eval</code> or <code>Function</code> constructor.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> the executed code may come from an untrusted source and hasn’t been sanitized. </li>
@@ -28,6 +30,7 @@ policy</a> for javascript in a web browser).</p>
 <pre>
 let value = eval('obj.' + propName); // Sensitive
 let func = Function('obj' + propName); // Sensitive
+location.href = 'javascript:void(0)'; // Sensitive
 </pre>
 <h2>Exceptions</h2>
 <p>This rule will not raise an issue when the argument of the <code>eval</code> or <code>Function</code> is a literal string as it is reasonably

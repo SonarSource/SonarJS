@@ -1,26 +1,44 @@
 <h2>Why is this an issue?</h2>
-<p>Loop counters should not be modified in the body of the loop. However other loop control variables representing logical values may be modified in
-the loop, for example a flag to indicate that something has been completed, which is then tested in the for statement.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-var names = [ "Jack", "Jim", "", "John" ];
-for (var i = 0; i &lt; names.length; i++) {
+<p>Loop counters, such as variables used to track the iteration count in loops, should not be assigned from within the loop body to avoid unexpected
+behavior and bugs. It can inadvertently lead to an infinite loop or make the loop behavior more complex and harder to reason about.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const names = [ "Jack", "Jim", "", "John" ];
+for (let i = 0; i &lt; names.length; i++) {
   if (!names[i]) {
-    i = names.length;                                 // Non-Compliant
+    i = names.length; // Noncompliant: The loop counter i is assigned within the loop body
   } else {
     console.log(names[i]);
   }
 }
 </pre>
-<h3>Compliant solution</h3>
+<p>To avoid these issues, you should update the loop counter only in the loop’s update statement, typically located at the end of the loop body or
+within the loop header.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+const names = [ "Jack", "Jim", "", "John" ];
+for (let i = 0; i &lt; names.length; i++) {
+  if (!names[i]) {
+    break;
+  } else {
+    console.log(names[i]);
+  }
+}
+</pre>
+<p>Alternatively, you should use the <code>for…​of</code> statement if your intention is only to iterate over the values of an iterable object.</p>
 <pre>
-var names = [ "Jack", "Jim", "", "John" ];
-for (var name of names) {
+const names = [ "Jack", "Jim", "", "John" ];
+for (const name of names) {
   if (!name) {
-    break;                                 // Compliant
+    break;
   } else {
     console.log(name);
   }
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for">MDN - for</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of">MDN - <code>for...of</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">MDN - Iteration protocols</a> </li>
+</ul>
 

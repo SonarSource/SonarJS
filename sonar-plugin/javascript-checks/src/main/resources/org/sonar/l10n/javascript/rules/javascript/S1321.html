@@ -1,35 +1,51 @@
 <h2>Why is this an issue?</h2>
-<p>The use of the <code>with</code> keyword produces an error in JavaScript strict mode code. However, that’s not the worst that can be said against
-<code>with</code>.</p>
-<p>Using <code>with</code> allows a short-hand access to an object’s properties - assuming they’re already set. But use <code>with</code> to access
-some property not already set in the object, and suddenly you’re catapulted out of the object scope and into the global scope, creating or overwriting
-variables there. Since the effects of <code>with</code> are entirely dependent on the object passed to it, <code>with</code> can be dangerously
-unpredictable, and should never be used.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-var x = 'a';
+<p>The <code>with</code> statement introduces a new scope, where properties of an object can be accessed directly without having to specify the
+object’s name explicitly. However, using it is generally considered a bad practice and is strongly discouraged.</p>
+<p>While it might seem convenient at first, it can lead to several issues:</p>
+<ul>
+  <li> The <code>with</code> statement can make code more ambiguous and harder to read. When reading the code, it becomes unclear where variables or
+  properties are coming from, as they can be from the object in the <code>with</code> statement or any of its parent scopes. </li>
+  <li> The <code>with</code> statement negatively impacts performance. JavaScript engines have a harder time optimizing code with <code>with</code>
+  because it adds uncertainty to variable lookups, which can result in slower execution. </li>
+  <li> Using <code>with</code> can lead to bugs that are difficult to identify and troubleshoot. If a variable is not found in the object within the
+  <code>with</code> statement or its parent scopes, JavaScript will create a new global variable instead, potentially leading to unexpected behavior.
+  </li>
+</ul>
+<p>As a result of these issues, ECMAScript 5 (ES5) strict mode explicitly forbids the use of the <code>with</code> statement. Strict mode was
+introduced to enhance code safety and maintainability, and it helps to catch potential issues and discourage the use of problematic language
+features.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+let x = 'a';
 
-var foo = {
+let foo = {
   y: 1
+};
+
+with (foo) { // Noncompliant
+  y = 4;     // Updates 'foo.y'
+  x = 3;     // Does not add a 'foo.x' property; updates the variable 'x' in the outer scope instead
 }
 
-with (foo) {  // Noncompliant
-  y = 4;  // updates foo.y
-  x = 3;  // does NOT add a foo.x property; updates x var in outer scope
-}
-print(foo.x + " " + x); // shows: undefined 3
+console.log(foo.x + " " + x); // Prints: undefined 3
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-var x = 'a';
+<p>Instead of using <code>with</code>, it’s best to write more explicit code, accessing object properties directly without relying on the with
+construct.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+let x = 'a';
 
-var foo = {
+let foo = {
   y: 1
-}
+};
 
 foo.y = 4;
 foo.x = 3;
 
-print(foo.x + " " + x); // shows: 3 a
+console.log(foo.x + " " + x); // Prints: 3 a
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with">MDN - <code>with</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">MDN - Strict mode</a> </li>
+</ul>
 

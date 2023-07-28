@@ -29,11 +29,13 @@ Number.isNaN('some text');   // false: 'some text' is not NaN
 </pre>
 <p>You should use the <code>Number.isNaN()</code> method over <code>isNaN()</code> to perform a strict check for <code>NaN</code> without any type
 conversion.</p>
+<p>If the intention was not to detect whether a value was NaN, fix the issue by not comparing the variable against itself.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+if (value !== anotherValue){
+    // ...
+}
+</pre>
 <h2>Resources</h2>
-<ul>
-  <li> {rule:javascript:S1764} - Identical expressions should not be used on both sides of a binary operator </li>
-  <li> {rule:javascript:S2688} - "NaN" should not be used in comparisons </li>
-</ul>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN">MDN - <code>NaN</code></a> </li>
@@ -41,5 +43,10 @@ conversion.</p>
   </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isNaN">MDN - <code>isNaN()</code></a> </li>
   <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Type_Conversion">MDN - Type conversion</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:javascript:S1764} - Identical expressions should not be used on both sides of a binary operator </li>
+  <li> {rule:javascript:S2688} - "NaN" should not be used in comparisons </li>
 </ul>
 

@@ -1,20 +1,28 @@
 <h2>Why is this an issue?</h2>
-<p>If a function does not return anything, it makes no sense to use its output. Specifically, passing it to another function, or assigning its
-"result" to a variable is probably a bug because such functions return <code>undefined</code>, which is probably not what was intended.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>When a function in JavaScript does not have a return statement or if it has a return statement without a value, it implicitly returns
+<code>undefined</code>. This means that a function without a return statement or with an empty return statement is, in a way, a "void" function, as it
+doesn’t return any specific value.</p>
+<p>Therefore, attempting to use the return value of a void function in JavaScript is meaningless, and it can lead to unexpected behavior or
+errors.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function foo() {
   console.log("Hello, World!");
 }
 
-a = foo();
+let a = foo(); // Noncompliant: Assigning the return value of a void function
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>You should not use in any way the return value of a void function.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 function foo() {
   console.log("Hello, World!");
 }
 
 foo();
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">MDN - <code>undefined</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/return">MDN - <code>return</code></a> </li>
+</ul>
 

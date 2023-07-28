@@ -1,5 +1,5 @@
 {
-  "title": "Types without members, \u0027any\u0027 and \u0027never\u0027 should not be used in type intersections",
+  "title": "Type intersections should use meaningful types",
   "type": "BUG",
   "status": "ready",
   "remediation": {

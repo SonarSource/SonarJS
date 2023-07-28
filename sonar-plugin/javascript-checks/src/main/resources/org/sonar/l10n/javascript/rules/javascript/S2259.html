@@ -1,16 +1,35 @@
 <h2>Why is this an issue?</h2>
-<p>When a variable is assigned an <code>undefined</code> or <code>null</code> value, it has no properties. Trying to access properties of such a
-variable anyway results in a <code>TypeError</code>, causing abrupt termination of the script if the error is not caught in a <code>catch</code>
-block. But instead of <code>catch</code>-ing this condition, it is best to avoid it altogether.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-if (x === undefined) {
-  console.log(x.bar); // Noncompliant; TypeError will be thrown
-}
+<p>In JavaScript, <code>null</code> and <code>undefined</code> are primitive values that do not have properties or methods. When accessing a property
+on a <code>null</code> or <code>undefined</code> value, JavaScript tries to access the property of an object that does not exist, which results in a
+<code>TypeError</code>.</p>
+<p>This can cause the program to crash or behave unexpectedly, which can be difficult to debug.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+let foo = null;
+console.log(foo.bar); // Noncompliant: TypeError will be thrown
+</pre>
+<p>Use the logical AND operator (<code>&amp;&amp;</code>) to check if a variable is truthy before attempting to access its properties. The expression
+will short-circuit and return the falsy value instead of attempting to access its properties.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+let foo = null;
+console.log(foo &amp;&amp; foo.bar);
+</pre>
+<p>Alternatively, use the optional chaining operator (<code>?.</code>) to check if the variable is <code>null</code> or <code>undefined</code> before
+attempting to access its property. This operator is more readable and concise, especially when dealing with nested properties.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+let foo = null;
+console.log(foo?.bar);
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> CVE - <a href="https://cwe.mitre.org/data/definitions/476">CWE-476: - NULL Pointer Dereference</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">MDN - <code>undefined</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null">MDN - <code>null</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError">MDN - <code>TypeError</code></a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/No_properties">MDN - TypeError: "x" has no properties</a>
+  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining">MDN - Optional chaining
+  (<code>?.</code>)</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND">MDN - Logical AND
+  (<code>&amp;&amp;</code>)</a> </li>
 </ul>
 

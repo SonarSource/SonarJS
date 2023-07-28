@@ -1,24 +1,23 @@
 <h2>Why is this an issue?</h2>
-<p>The ability to define default values for function parameters can make a function easier to use. Default parameter values allow callers to specify
-as many or as few arguments as they want while getting the same functionality and minimizing boilerplate, wrapper code.</p>
-<p>But all function parameters with default values should be declared after the function parameters without default values. Otherwise, it makes it
-impossible for callers to take advantage of defaults; they must re-specify the defaulted values or pass <code>undefined</code> in order to "get to"
+<p>Default parameter values allow callers to specify as many or as few arguments as they want while getting the same functionality and minimizing
+boilerplate, wrapper code, making a function easier to use.</p>
+<p>All function parameters with default values should be declared after the function parameters without default values. Otherwise, it makes it
+impossible for callers to take advantage of defaults; they must re-specify the defaulted values or pass <code>undefined</code> to be able to specify
 the non-default parameters.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function multiply(a = 1, b) {  // Noncompliant
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function multiply(a = 1, b) { // Noncompliant: parameter with default value should be last
   return a*b;
 }
 
-var x = multiply(42);  // returns NaN as b is undefined
+let x = multiply(1, 42); // Cannot benefit from default value
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Reorder the function parameters so that the ones with default values come after the ones without default values.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 function multiply(b, a = 1) {
   return a*b;
 }
 
-var x = multiply(42);  // returns 42 as expected
+let x = multiply(42);
 </pre>
 <h3>Exceptions</h3>
 <p>When writing Redux reducers, there is a convention to use default argument syntax to provide initial state (first argument), while action (second
@@ -33,8 +32,9 @@ export default function appReducer(state = initialState, action) {
 }
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://redux.js.org/tutorials/fundamentals/part-3-state-actions-reducers#writing-reducers">Writing Reducers</a> - Redux documentation
-  </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters">MDN - Default parameters</a> </li>
+  <li> <a href="https://redux.js.org/tutorials/fundamentals/part-3-state-actions-reducers#writing-reducers">Redux - Writing Reducers</a> </li>
 </ul>
 
