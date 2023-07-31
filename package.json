@@ -141,7 +141,6 @@
     "helpers": "lib/legacy/src/helpers",
     "linting": "lib/legacy/src/linting",
     "parsing": "lib/legacy/src/parsing",
-    "routing": "lib/legacy/src/routing",
     "services": "lib/legacy/src/services"
   }
 }
