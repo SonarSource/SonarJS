@@ -7,8 +7,10 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
+      "@sonar/css": ["../packages/css/src"],
       "server": ["../packages/server"],
       "routing/*": ["../packages/bridge/src/*"],
+      "@sonar/css/*": ["../packages/css/src/*"],
       "*": ["../packages/legacy/src/*"]
     }
   },

@@ -19,7 +19,7 @@
  */
 import * as stylelint from 'stylelint';
 import { transform } from './issues';
-import { rules } from 'linting/stylelint';
+import { rules } from '../rules';
 
 /**
  * A wrapper of Stylelint linter
@@ -69,3 +69,8 @@ export class LinterWrapper {
     }
   }
 }
+
+/**
+ * The global Stylelint linter wrapper
+ */
+export const linter = new LinterWrapper();

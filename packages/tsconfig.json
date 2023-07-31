@@ -18,6 +18,7 @@
     "typeRoots": ["../node_modules/@types", "../typings"],
     "baseUrl": ".",
     "paths": {
+      "@sonar/css": ["./css/src"],
       "*": ["./legacy/src/*"]
     }
   }
