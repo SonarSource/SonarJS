@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { Analysis } from './analysis';
+import { Analysis } from 'services/analysis';
 import { readFile } from 'helpers';
 
 /**

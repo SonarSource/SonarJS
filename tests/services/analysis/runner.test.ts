@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { AnalysisOutput, runner } from 'services/analysis';
+import { AnalysisOutput } from 'services/analysis';
+import { runner } from 'routing/runner';
 
 describe('runner', () => {
   it('should run an analysis', async () => {

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { runner, analyzeCSS, CssAnalysisInput } from 'services/analysis';
+import { analyzeCSS, CssAnalysisInput } from 'services/analysis';
+import { runner } from './runner';
 
 /**
  * Handles CSS analysis requests
