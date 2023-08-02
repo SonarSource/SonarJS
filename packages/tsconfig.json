@@ -19,8 +19,10 @@
     "baseUrl": ".",
     "paths": {
       "@sonar/css": ["./css/src"],
+      "@sonar/html": ["./html/src"],
       "@sonar/jsts": ["./jsts/src"],
-      "@sonar/shared/*": ["./shared/src/*"]
+      "@sonar/shared/*": ["./shared/src/*"],
+      "@sonar/yaml": ["./yaml/src"]
     }
   }
 }

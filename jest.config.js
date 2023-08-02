@@ -9,7 +9,9 @@ module.exports = {
   moduleDirectories: ['node_modules', '<rootDir>/tests/**/fixtures'],
   moduleNameMapper: {
     '^@sonar/css$': '<rootDir>/packages/css/src',
+    '^@sonar/html$': '<rootDir>/packages/html/src',
     '^@sonar/jsts$': '<rootDir>/packages/jsts/src',
+    '^@sonar/yaml$': '<rootDir>/packages/yaml/src',
     '^@sonar/bridge/(.*)$': '<rootDir>/packages/bridge/src/$1',
     '^@sonar/css/(.*)$': '<rootDir>/packages/css/src/$1',
     '^@sonar/jsts/(.*)$': '<rootDir>/packages/jsts/src/$1',

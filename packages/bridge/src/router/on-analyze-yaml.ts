@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeEmbedded, EmbeddedAnalysisInput } from '@sonar/shared/embedded';
+import { analyzeYAML, YamlAnalysisInput } from '@sonar/yaml';
 import { runner } from './runner';
 
 /**
  * Handles YAML analysis requests
  */
-export default runner(input =>
-  Promise.resolve(analyzeEmbedded(input as EmbeddedAnalysisInput, 'yaml')),
-);
+export default runner(input => analyzeYAML(input as YamlAnalysisInput));

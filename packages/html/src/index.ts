@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeHTML, HtmlAnalysisInput } from '@sonar/html';
-import { runner } from './runner';
 
-/**
- * Handles HTML analysis requests
- */
-export default runner(input => analyzeHTML(input as HtmlAnalysisInput));
+import {
+  analyzeEmbedded,
+  EmbeddedAnalysisInput as HtmlAnalysisInput,
+  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+} from '@sonar/shared/embedded';
+
+export { HtmlAnalysisInput, HtmlAnalysisOutput };
+
+export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
+  return Promise.resolve(analyzeEmbedded(input, 'html'));
+}

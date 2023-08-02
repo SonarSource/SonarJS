@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeHTML, HtmlAnalysisInput } from '@sonar/html';
-import { runner } from './runner';
+import {
+  analyzeEmbedded,
+  EmbeddedAnalysisInput as YamlAnalysisInput,
+  EmbeddedAnalysisOutput as YamlAnalysisOutput,
+} from '@sonar/shared/embedded';
 
-/**
- * Handles HTML analysis requests
- */
-export default runner(input => analyzeHTML(input as HtmlAnalysisInput));
+export { YamlAnalysisInput, YamlAnalysisOutput };
+
+export async function analyzeYAML(input: YamlAnalysisInput): Promise<YamlAnalysisOutput> {
+  return Promise.resolve(analyzeEmbedded(input, 'yaml'));
+}
