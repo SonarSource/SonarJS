@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { buildSourceCodes } from 'parsing/embedded';
+import { buildSourceCodes } from '@sonar/shared/embedded';
 import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {

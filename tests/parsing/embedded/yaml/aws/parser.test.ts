@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseAwsFromYaml } from 'parsing/embedded';
+import { parseAwsFromYaml } from '@sonar/shared/embedded';
 import { APIError } from '@sonar/shared/errors';
 import { readFile } from '@sonar/shared/helpers';
 

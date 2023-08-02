@@ -19,11 +19,11 @@
  */
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
-import { analyzeEmbedded } from 'services/analysis';
+import { analyzeEmbedded } from '@sonar/shared/embedded';
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
-import { composeSyntheticFilePath } from 'parsing/embedded';
+import { composeSyntheticFilePath } from '@sonar/shared/embedded';
 import { embeddedInput } from '../../../../tools';
 
 describe('analyzeYAML', () => {

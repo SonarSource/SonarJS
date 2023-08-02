@@ -17,27 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue } from '@sonar/jsts';
-import { AnalysisInput, AnalysisOutput } from 'services/analysis';
-
-/**
- * An analysis input of embedded code
- *
- * (currently empty but might change later on)
- */
-export interface EmbeddedAnalysisInput extends AnalysisInput {}
-
-/**
- * A YAML analysis output
- *
- * A YAML analysis only returns issues that were found during
- * linting. Because the JavaScript analyzer doesn't "own" the
- * `YAML` language, it cannot save anything else than issues
- * using SonarQube API, especially analysis data like metrics.
- *
- * @param issues the found issues
- */
-export interface EmbeddedAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
-  ucfgPaths?: string[];
-}
+export * from './analysis';

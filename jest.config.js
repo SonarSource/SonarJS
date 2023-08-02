@@ -6,11 +6,7 @@ module.exports = {
     },
   },
   moduleFileExtensions: ['js', 'ts', 'json'],
-  moduleDirectories: [
-    'node_modules',
-    '<rootDir>/packages/legacy/src',
-    '<rootDir>/tests/**/fixtures',
-  ],
+  moduleDirectories: ['node_modules', '<rootDir>/tests/**/fixtures'],
   moduleNameMapper: {
     '^@sonar/css$': '<rootDir>/packages/css/src',
     '^@sonar/jsts$': '<rootDir>/packages/jsts/src',

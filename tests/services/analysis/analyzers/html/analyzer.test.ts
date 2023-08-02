@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
-import { analyzeEmbedded } from 'services/analysis';
+import { analyzeEmbedded } from '@sonar/shared/embedded';
 import { initializeLinter } from '@sonar/jsts';
 import { jsTsInput } from '../../../../tools';
 

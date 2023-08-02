@@ -20,7 +20,7 @@
 import * as yaml from 'yaml';
 import path from 'path';
 import { readFile } from '@sonar/shared/helpers';
-import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from 'parsing/embedded';
+import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '@sonar/shared/embedded';
 
 describe('isSupportedFormat', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'format');

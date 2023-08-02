@@ -139,11 +139,6 @@
   "_moduleAliases": {
     "@sonar/css": "lib/css/src",
     "@sonar/jsts": "lib/jsts/src",
-    "@sonar/shared": "lib/shared/src",
-    "errors": "lib/legacy/src/errors",
-    "helpers": "lib/legacy/src/helpers",
-    "linting": "lib/legacy/src/linting",
-    "parsing": "lib/legacy/src/parsing",
-    "services": "lib/legacy/src/services"
+    "@sonar/shared": "lib/shared/src"
   }
 }

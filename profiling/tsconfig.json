@@ -8,8 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@sonar/jsts": ["../packages/jsts/src"],
-      "@sonar/shared/*": ["../packages/shared/src/*"],
-      "*": ["../packages/legacy/src/*"]
+      "@sonar/shared/*": ["../packages/shared/src/*"]
     }
   },
   "references": [

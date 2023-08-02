@@ -19,8 +19,8 @@
  */
 import { SourceCode } from 'eslint';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { EmbeddedAnalysisInput } from 'services/analysis';
-import { EmbeddedJS, parseAwsFromYaml, parseHTML } from 'parsing/embedded';
+import { EmbeddedAnalysisInput } from '@sonar/shared/embedded';
+import { EmbeddedJS, parseAwsFromYaml, parseHTML } from '@sonar/shared/embedded';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';

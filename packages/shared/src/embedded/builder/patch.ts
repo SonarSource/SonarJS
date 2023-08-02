@@ -20,7 +20,7 @@
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
 import { visit } from '@sonar/jsts';
-import { EmbeddedJS } from 'parsing/embedded';
+import { EmbeddedJS } from '@sonar/shared/embedded';
 import { APIError } from '@sonar/shared/errors';
 
 /**

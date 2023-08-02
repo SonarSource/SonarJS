@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/embedded';
+import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/shared/embedded';
 import { APIError } from '@sonar/shared/errors';
 import { embeddedInput } from '../../../../tools';
 

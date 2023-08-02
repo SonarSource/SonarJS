@@ -19,7 +19,7 @@
  */
 import { FileType, JsTsLanguage } from '@sonar/shared/helpers';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
-import { AnalysisInput, AnalysisOutput } from 'services/analysis';
+import { AnalysisInput, AnalysisOutput } from '@sonar/shared/types';
 import { Perf } from '../monitoring';
 
 /**

@@ -20,8 +20,8 @@
 import path from 'path';
 import { readFile, setContext } from '@sonar/shared/helpers';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
-import { EmbeddedAnalysisInput } from 'services/analysis';
+import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from '@sonar/shared/embedded';
+import { EmbeddedAnalysisInput } from '@sonar/shared/embedded';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {

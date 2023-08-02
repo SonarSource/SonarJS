@@ -20,8 +20,7 @@
     "paths": {
       "@sonar/css": ["./css/src"],
       "@sonar/jsts": ["./jsts/src"],
-      "@sonar/shared/*": ["./shared/src/*"],
-      "*": ["./legacy/src/*"]
+      "@sonar/shared/*": ["./shared/src/*"]
     }
   }
 }
