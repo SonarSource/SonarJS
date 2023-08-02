@@ -26,25 +26,31 @@ if (condition) {
 }
 </pre>
 <h3>Exceptions</h3>
-<p>Block statements containing variable declarations using <code>let</code> or <code>const</code> keywords or class declarations are not redundant as
-they create a new scope.</p>
+<ul>
+  <li> Block statements containing variable declarations using <code>let</code> or <code>const</code> keywords or class declarations are not redundant
+  as they create a new scope. </li>
+</ul>
 <pre>
 {
     let x = 1;
 }
 </pre>
-<p>The same applies to function declarations in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict
-mode</a></p>
+<ul>
+  <li> The same applies to function declarations in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict
+  mode</a> </li>
+</ul>
 <pre>
 "use strict";
 {
-    function foo(){}
+    function foo() {}
 }
 </pre>
-<p>The rule also does not apply to the blocks that are part of the <a href="https://developer.mozilla.org/en-US/docs/Glossary/Control_flow">control
-flow</a>.</p>
+<ul>
+  <li> The rule also does not apply to the blocks that are part of the <a
+  href="https://developer.mozilla.org/en-US/docs/Glossary/Control_flow">control flow</a>. </li>
+</ul>
 <pre>
-if (condition){
+if (condition) {
     doSomething();
 }
 </pre>

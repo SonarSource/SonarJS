@@ -1,22 +1,27 @@
 <h2>Why is this an issue?</h2>
-<p>Many assertion functions have specific parameters for the expected and actual values. Swap them, and your test will still have the same outcome
-(succeed/fail when it should) but the error messages will be confusing.</p>
+<p>Assertions are statements that check whether certain conditions are true. They are used to validate that the actual results of a code snippet match
+the expected outcomes. By using assertions, developers can ensure that their code behaves as intended and identify potential bugs or issues early in
+the development process.</p>
+<p>The convention for passing assertion arguments is to pass the expected value as the first argument and the actual value as the second argument.
+This convention is based on the idea that the expected value is what the code is supposed to produce, and the actual value is what the code actually
+produces. By passing the expected value first, it is easier to understand the intent of the assertion and to quickly identify any errors that may be
+present. Additionally, many testing frameworks and libraries expect assertion arguments to be passed in this order, so following the convention can
+help ensure that your code works correctly with these tools.</p>
 <p>This rule raises an issue when the "expected" argument of an assertion function is a hard-coded value and the "actual" argument is not.</p>
-<p>This rule currently supports Chai assertions.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 const should = require('chai').should();
 
 it("inverts arguments", function() {
-    assert.equal(42, aNumber); // Noncompliant
-    expect(42).to.equal(aNumber); // Noncompliant
-    should.fail(42, aNumber);  // Noncompliant
+    assert.equal(42, aNumber); // Noncompliant: actual value is passed as first argument and expected as second argument
+    expect(42).to.equal(aNumber); // Noncompliant: actual value is passed as first argument and expected as second argument
+    should.fail(42, aNumber);  // Noncompliant: actual value is passed as first argument and expected as second argument
 });
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Swap the order of the assertion arguments so that the expected value is passed as the first argument and the actual value is passed as the second
+argument.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 const should = require('chai').should();
@@ -27,4 +32,11 @@ it("inverts arguments", function() {
     should.fail(aNumber, 42);
 });
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://nodejs.org/api/assert.html">Node.js API - Assert</a> </li>
+  <li> <a href="https://www.chaijs.com/api/assert">Chai.js - Assert</a> </li>
+  <li> <a href="https://www.chaijs.com/api/bdd">Chai.js - <code>expect</code> and <code>should</code></a> </li>
+</ul>
 

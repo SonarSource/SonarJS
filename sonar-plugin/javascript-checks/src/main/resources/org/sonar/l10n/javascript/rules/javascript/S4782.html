@@ -1,43 +1,49 @@
 <h2>Why is this an issue?</h2>
-<p>In TypeScript there are several ways to declare a property with <code>undefined</code> value: adding <code>| undefined</code> in the property type
-or using optional property syntax (<code>?</code> after its name). Use <code>| undefined</code> syntax when you want to be explicit that an object has
-that property, in that case TypeScript compiler will not allow omitting it:</p>
+<p>In TypeScript, there are two ways to define properties or parameters that are potentially <code>undefined</code>:</p>
+<ul>
+  <li> Union with <code>undefined</code>: Adding <code>| undefined</code> in the property type makes the property <em>required</em>, but can be
+  <code>undefined</code>. Use this syntax when you want to be explicit that an object should provide that property, in which case the TypeScript
+  compiler will not allow omitting it. </li>
+</ul>
 <pre>
 interface Person {
   name: string;
   address: string | undefined;
 }
 
-let John = { name: "John" }; // will not compile
-let John = { name: "John", address: undefined }; // will compile, we want to be explicit when person does not have home
+let John = { name: "John", address: undefined };
 </pre>
-<p>Use optional property syntax for properties holding some additional information.</p>
+<ul>
+  <li> Optional property syntax (<code>?</code> after its name): The property is <em>optional</em>, which means that an object can omit it and let the
+  TypeScript compiler provide it as being <code>undefined</code>. </li>
+</ul>
 <pre>
 interface Person {
   name: string;
-  pet?: string;
+  address?: string;
 }
 
-let John = { name: "John" }; // will compile
-let John = { name: "John", pet: undefined }; // will compile, there is no pet like for the object on previous line
-let John = { name: "John", pet: "Benji" }; // will compile
+let John = { name: "John" };
 </pre>
-<p>Using <code>| undefined</code> for optional property is redundant, it can be omitted without change to the actual type. Still if you want to force
-the property in the object consider using only <code>| undefined</code> without <code>?</code>.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>This rule checks for optional property declarations that use both the <code>?</code> syntax and unions with <code>undefined</code>.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 interface Person {
   name: string;
-  address? : string | undefined;   // Noncompliant, "?" should be removed
-  pet?: Animal | undefined; // Noncompliant, "undefined" should be removed
+  address?: string | undefined;   // Noncompliant: using both syntaxes is redundant
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>Choose one of the syntaxes to declare optional properties and remove the other one. Consider using only <code>| undefined</code> if you want to
+make the property explicit in the object.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 interface Person {
   name: string;
-  address: string | undefined;
-  pet?: Animal;
+  address?: string;
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#optional-properties">TypeScript - Optional Properties</a> </li>
+  <li> <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types">TypeScript - Union Types</a> </li>
+</ul>
 

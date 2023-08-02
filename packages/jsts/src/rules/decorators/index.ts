@@ -35,6 +35,7 @@ import { decorateNoExtendNative } from './no-extend-native-decorator';
 import { decorateNoExtraSemi } from './no-extra-semi-decorator';
 import { decorateNoLonelyIf } from './no-lonely-if-decorator';
 import { decorateNoRedeclare } from './no-redeclare-decorator';
+import { decorateNoSelfCompare } from './no-self-compare-decorator';
 import { decorateNoThisAlias } from './no-this-alias-decorator';
 import { decorateNoThrowLiteral } from './no-throw-literal-decorator';
 import { decorateNoUnreachable } from './no-unreachable-decorator';
@@ -91,6 +92,7 @@ export const decorators: Record<string, RuleDecorator> = {
   'no-lonely-if': decorateNoLonelyIf,
   'no-redeclare': decorateNoRedeclare,
   'no-redundant-type-constituents': decorateNoRedundantTypeConstituents,
+  'no-self-compare': decorateNoSelfCompare,
   'no-this-alias': decorateNoThisAlias,
   'no-throw-literal': decorateNoThrowLiteral,
   'no-unreachable': decorateNoUnreachable,

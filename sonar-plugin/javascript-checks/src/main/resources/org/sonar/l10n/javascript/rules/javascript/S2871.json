@@ -1,5 +1,5 @@
 {
-  "title": "A compare function should be provided when using \"Array.prototype.sort()\" and \"Array.prototype.toSorted()\"",
+  "title": "\"Array.prototype.sort()\" and \"Array.prototype.toSorted()\" should use a compare function",
   "type": "BUG",
   "status": "ready",
   "remediation": {

@@ -1,5 +1,5 @@
 {
-  "title": "Function parameters, caught exceptions and foreach variables\u0027 initial values should not be ignored",
+  "title": "Initial values of parameters, caught exceptions, and loop variables should not be ignored",
   "type": "BUG",
   "status": "ready",
   "remediation": {

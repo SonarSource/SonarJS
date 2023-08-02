@@ -1,5 +1,5 @@
 {
-  "title": "Functions should not be called both with and without \"new\"",
+  "title": "Functions should be called consistently with or without \"new\"",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

@@ -1,9 +1,15 @@
-<p>Using unencrypted RDS DB resources exposes data to unauthorized access to the underlying storage.<br> This includes database data, logs, automatic
-backups, read replicas, snapshots, and cluster metadata.</p>
+<p>Using unencrypted RDS DB resources exposes data to unauthorized access.<br> This includes database data, logs, automatic backups, read replicas,
+snapshots, and cluster metadata.</p>
 <p>This situation can occur in a variety of scenarios, such as:</p>
 <ul>
-  <li> a malicious insider working at the cloud provider gains physical access to the storage device and exfiltrates data. </li>
-  <li> unknown attackers penetrate the cloud provider’s logical infrastructure and systems for extortion. </li>
+  <li> A malicious insider working at the cloud provider gains physical access to the storage device. </li>
+  <li> Unknown attackers penetrate the cloud provider’s logical infrastructure and systems. </li>
+</ul>
+<p>After a successful intrusion, the underlying applications are exposed to:</p>
+<ul>
+  <li> theft of intellectual property and/or personal data </li>
+  <li> extortion </li>
+  <li> denial of services and security bypasses via data corruption or deletion </li>
 </ul>
 <p>AWS-managed encryption at rest reduces this risk with a simple switch.</p>
 <h2>Ask Yourself Whether</h2>

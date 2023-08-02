@@ -1,49 +1,55 @@
 <h2>Why is this an issue?</h2>
-<p>When the names of arguments in a function call match the names of the function parameters, it contributes to clearer, more readable code. However,
-when the names match, but are passed in a different order than the function parameters, it indicates a mistake in the parameter order which will
-likely lead to unexpected results.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-function divide(divisor, dividend) {
-  return divisor/dividend;
+<p>Consistent naming between arguments and parameters reduces the chances of making mistakes, such as passing the wrong value to a parameter or
+omitting an argument in a function call. When the names of arguments in a function call match the names of the function parameters, it contributes to
+clearer, more readable code.</p>
+<p>However, when the names match but are passed in a different order than their declaration in the function signature, it may indicate a mistake in
+the parameter order, likely leading to unexpected results.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function divide(dividend, divisor) {
+  return dividend / divisor;
 }
 
 function doTheThing() {
-  var divisor = 15;
-  var dividend = 5;
+  const dividend = 15;
+  const divisor = 5;
 
-  var result = divide(dividend, divisor);  // Noncompliant; operation succeeds, but result is unexpected
+  const result = divide(divisor, dividend); // Noncompliant: not the expected result
   //...
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-function divide(divisor, dividend) {
-  return divisor/dividend;
+<p>Ensure that the arguments passed to the function are in the correct order, according to the function signature.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function divide(dividend, divisor) {
+  return dividend / divisor;
 }
 
 function doTheThing() {
-  var divisor = 15;
-  var dividend = 5;
+  const dividend = 15;
+  const divisor = 5;
 
-  var result = divide(divisor, dividend);
+  const result = divide(dividend, divisor);
   //...
 }
 </pre>
 <h3>Exceptions</h3>
-<p>Swapped arguments that are compared beforehand in an enclosing <code>if</code>-statement are ignored:</p>
-<pre>
-function divide(divisor, dividend) {
-  return divisor/dividend;
+<p>Swapped arguments that are compared beforehand in an enclosing <code>if</code> statement are ignored:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function divide(dividend, divisor) {
+  return dividend / divisor;
 }
 
 function doTheThing() {
-  var divisor = 15;
-  var dividend = 5;
+  const dividend = 5;
+  const divisor = 15;
   if (divisor &gt; dividend) {
-    var result = divide(dividend, divisor);
+    const result = divide(divisor, dividend);
     //...
   }
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions">MDN - Functions</a> </li>
+</ul>
 

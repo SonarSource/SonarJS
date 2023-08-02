@@ -1,14 +1,32 @@
 <h2>Why is this an issue?</h2>
-<p>When a collection is empty it makes no sense to access or iterate it. Doing so anyway is surely an error; either population was accidentally
-omitted or the developer doesn’t understand the situation.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-let strings = [];
+<p>When a collection is empty with absolute certainty, it makes no sense to access or iterate it. Doing so can lead to unexpected behavior or errors
+in the code. The most common cause is that population was accidentally omitted or removed.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const strings = [];
 
-if (strings.includes("foo")) {}  // Noncompliant
+if (strings.includes("foo")) {}  // Noncompliant: strings is always empty
 
-for (str of strings) {}  // Noncompliant
+for (const str of strings) {}  // Noncompliant
 
 strings.forEach(str =&gt; doSomething(str)); // Noncompliant
 </pre>
+<p>Make sure your code provides some way to populate the collection if their elements are to be accessed.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+const strings = [];
+
+strings.push("foo");
+
+if (strings.includes("foo")) {}
+
+for (const str of strings) {}
+
+strings.forEach(str =&gt; doSomething(str));
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">MDN - Array</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol">MDN - Iterable
+  protocol</a> </li>
+</ul>
 

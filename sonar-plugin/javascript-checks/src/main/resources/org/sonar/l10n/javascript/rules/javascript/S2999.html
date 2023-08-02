@@ -1,18 +1,22 @@
 <h2>Why is this an issue?</h2>
-<p>The <code>new</code> keyword should only be used with objects that define a constructor function. Use it with anything else, and you’ll get a
-<code>TypeError</code> because there won’t be a constructor function for the <code>new</code> keyword to invoke.</p>
-<h3>Noncompliant code example</h3>
+<p>JavaScript has the <code>new</code> keyword that is used in conjunction with constructor functions to create new instances of objects. When you use
+the <code>new</code> keyword with a function, it signifies that the function is intended to be used as a constructor function to create objects.</p>
+<p>Any function can be used as a constructor function by convention. Constructor functions are used to create new objects with the same structure or
+properties. They are typically named with an initial capital letter to distinguish them from regular functions.</p>
+<p>To create a new instance of an object using the constructor function, you use the <code>new</code> keyword before the function call.</p>
+<p>The <code>new</code> keyword should only be used with objects that define a constructor function. Attempting to use it with an object or a variable
+that is not a constructor will raise a <code>TypeError</code>.</p>
 <pre>
 function MyClass() {
   this.foo = 'bar';
 }
 
-var someClass = 1;
+const someClass = 1;
 
-var obj1 = new someClass;    // Noncompliant;
-var obj2 = new MyClass();    // Noncompliant if considerJSDoc parameter set to true. Compliant when considerJSDoc=false
+const obj1 = new someClass;    // Noncompliant: someClass is a variable
+const obj2 = new MyClass();    // Noncompliant if parameter considerJSDoc is true. Compliant when considerJSDoc is false
 </pre>
-<h3>Compliant solution</h3>
+<p>Always use the <code>new</code> keyword with constructor functions or classes.</p>
 <pre>
 /**
  * @constructor
@@ -21,11 +25,19 @@ function MyClass() {
   this.foo = 'bar';
 }
 
-var someClass = function(){
+const someClass = function(){
   this.prop = 1;
 }
 
-var obj1 = new someClass;  // Compliant
-var obj2 = new MyClass();  // Compliant regardless of considerJSDoc value
+const obj1 = new someClass;
+const obj2 = new MyClass();
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new">MDN - <code>new</code> operator</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Constructor">MDN - Constructor</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Not_a_constructor">MDN - <code>TypeError: "x" is not a
+  constructor</code></a> </li>
+</ul>
 

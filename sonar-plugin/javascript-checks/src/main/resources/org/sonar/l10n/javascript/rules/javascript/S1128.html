@@ -1,16 +1,26 @@
 <h2>Why is this an issue?</h2>
-<p>There’s no reason to import modules you don’t use; and every reason not to: doing so needlessly increases the load.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-import A from 'a';      // Noncompliant, A isn't used
+<p>Unnecessary imports refer to importing modules, libraries, or dependencies that are not used or referenced anywhere in the code. These imports do
+not contribute to the functionality of the application and only add extra weight to the JavaScript bundle, leading to potential performance and
+maintainability issues.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import A from 'a'; // Noncompliant: The imported symbol 'A' isn't used
 import { B1 } from 'b';
 
 console.log(B1);
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<p>To mitigate the problems associated with unnecessary imports, you should regularly review and remove any imports that are not being used. Modern
+JavaScript build tools and bundlers often provide features like tree shaking, which eliminates unused code during the bundling process, resulting in a
+more optimized bundle size.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 import { B1 } from 'b';
 
 console.log(B1);
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">MDN - <code>import</code></a> === Related rules
+  </li>
+  <li> {rule:javascript:S1481} - Unused local variables and functions should be removed </li>
+</ul>
 

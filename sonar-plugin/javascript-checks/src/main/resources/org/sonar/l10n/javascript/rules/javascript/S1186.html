@@ -1,28 +1,32 @@
 <h2>Why is this an issue?</h2>
-<p>There are several reasons for a function not to have a function body:</p>
-<ul>
-  <li> It is an unintentional omission, and should be fixed to prevent an unexpected behavior in production. </li>
-  <li> It is not yet, or never will be, supported. In this case an exception should be thrown in languages where that mechanism is available. </li>
-  <li> The method is an intentionally-blank override. In this case a nested comment should explain the reason for the blank override. </li>
-</ul>
-<h3>Noncompliant code example</h3>
-<pre>
-function foo() {
+<p>Empty functions can be a sign of poor code quality and can make the code harder to read and maintain. It usually happens when a developer forgets
+to add any statements to it, or when a function is no longer needed but is not removed from the codebase. In these cases when it is an unintentional
+omission, it should be fixed to prevent an unexpected behavior in production.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function foo() { //Noncompliant: Function does not have any statement
 }
-
-var foo = () =&gt; {};
 </pre>
-<h3>Compliant solution</h3>
+<p>Ensure that all functions contain meaningful statements. Otherwise, they should be removed.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function foo() {
+    do_something();
+}
+</pre>
+<p>Throw an exception if it is done intentionally due to some functionality not being supported yet.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function foo() {
+    throw new Error("Not yet implemented");
+}
+</pre>
+<h3>Exceptions</h3>
+<ul>
+  <li> This rule does not apply to functions containing comments. The comment should explain the reason for the intention of the blank override. </li>
+</ul>
 <pre>
 function foo() {
     // This is intentional
 }
-
-var foo = () =&gt; {
-    do_something();
-};
 </pre>
-<h3>Exceptions</h3>
 <ul>
   <li> This rule does not apply to function expressions and arrow functions as they can denote default values. </li>
 </ul>
@@ -38,4 +42,9 @@ static defaultProps = {
 function onClick() {
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions">MDN - Functions</a> </li>
+</ul>
 

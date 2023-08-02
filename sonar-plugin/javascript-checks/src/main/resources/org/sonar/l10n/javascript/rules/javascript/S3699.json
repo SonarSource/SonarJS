@@ -1,5 +1,5 @@
 {
-  "title": "The output of functions that don\u0027t return anything should not be used",
+  "title": "The return value of void functions should not be used",
   "type": "BUG",
   "status": "ready",
   "remediation": {
