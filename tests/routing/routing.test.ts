@@ -19,10 +19,9 @@
  */
 import { setContext, toUnixPath } from 'helpers';
 import http from 'http';
-import { initializeLinter } from '@sonar/jsts';
+import { initializeLinter, createAndSaveProgram } from '@sonar/jsts';
 import path from 'path';
-import { start } from 'server';
-import { createAndSaveProgram } from '@sonar/jsts';
+import { start } from '@sonar/bridge/server';
 import { promisify } from 'util';
 import { request } from '../tools';
 import * as fs from 'fs';

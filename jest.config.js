@@ -14,8 +14,7 @@ module.exports = {
   moduleNameMapper: {
     '^@sonar/css$': '<rootDir>/packages/css/src',
     '^@sonar/jsts$': '<rootDir>/packages/jsts/src',
-    '^server$': '<rootDir>/packages/server',
-    '^routing/(.*)$': '<rootDir>/packages/bridge/src/$1',
+    '^@sonar/bridge/(.*)$': '<rootDir>/packages/bridge/src/$1',
     '^@sonar/css/(.*)$': '<rootDir>/packages/css/src/$1',
     '^@sonar/jsts/(.*)$': '<rootDir>/packages/jsts/src/$1',
   },

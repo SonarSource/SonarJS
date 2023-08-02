@@ -24,10 +24,10 @@ import 'module-alias/register';
 
 import express from 'express';
 import http from 'http';
-import router from './src';
-import { errorMiddleware } from './src/errors';
+import router from './router';
+import { errorMiddleware } from './errors';
 import { debug } from 'helpers';
-import { timeoutMiddleware } from './src/timeout';
+import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
 
 /**

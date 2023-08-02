@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { AnalysisOutput } from 'services/analysis';
-import { runner } from 'routing/runner';
+import { runner } from '@sonar/bridge/router/runner';
 
 describe('runner', () => {
   it('should run an analysis', async () => {
