@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { Analysis } from 'services/analysis';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 
 /**
  * Runs an analysis

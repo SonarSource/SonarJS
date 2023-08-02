@@ -37,12 +37,12 @@ import {
   toUnixPath,
   ProgramResult,
   ProjectTSConfigs,
-} from 'helpers';
+} from '@sonar/shared/helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 
-import { ProgramCache } from 'helpers/cache';
+import { ProgramCache } from '@sonar/shared/helpers/cache';
 import { JsTsAnalysisInput } from '../analysis';
 
 export const programCache = new ProgramCache();

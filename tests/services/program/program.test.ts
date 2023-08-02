@@ -29,7 +29,7 @@ import {
   isRoot,
   writeTSConfigFile,
 } from '@sonar/jsts';
-import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
+import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from '@sonar/shared/helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
 import { awaitCleanUp } from '../../tools/helpers/wait-gc';

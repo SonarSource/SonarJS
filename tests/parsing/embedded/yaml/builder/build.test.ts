@@ -20,7 +20,7 @@
 import * as estree from 'estree';
 import { join } from 'path';
 import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/embedded';
-import { APIError } from 'errors';
+import { APIError } from '@sonar/shared/errors';
 import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile, setContext } from 'helpers';
+import { readFile, setContext } from '@sonar/shared/helpers';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
 import { EmbeddedAnalysisInput } from 'services/analysis';

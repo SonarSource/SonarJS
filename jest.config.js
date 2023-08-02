@@ -17,6 +17,7 @@ module.exports = {
     '^@sonar/bridge/(.*)$': '<rootDir>/packages/bridge/src/$1',
     '^@sonar/css/(.*)$': '<rootDir>/packages/css/src/$1',
     '^@sonar/jsts/(.*)$': '<rootDir>/packages/jsts/src/$1',
+    '^@sonar/shared/(.*)$': '<rootDir>/packages/shared/src/$1',
   },
   modulePathIgnorePatterns: [
     '<rootDir>/tests/linting/eslint/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',

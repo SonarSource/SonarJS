@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import * as stylelint from 'stylelint';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 import { createStylelintConfig, LinterWrapper, RuleConfig } from '@sonar/css/linter';
 
 describe('LinterWrapper', () => {

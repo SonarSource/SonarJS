@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, JsTsLanguage } from 'helpers';
+import { debug, getContext, JsTsLanguage } from '@sonar/shared/helpers';
 import { JsTsAnalysisInput } from '../analysis';
 import { buildParserOptions, parseForESLint, parsers } from '../parsers';
 import { getProgramById, getProgramForFile } from '../program';

@@ -19,8 +19,8 @@
  */
 import path from 'path';
 import { parseAwsFromYaml } from 'parsing/embedded';
-import { APIError } from 'errors';
-import { readFile } from 'helpers';
+import { APIError } from '@sonar/shared/errors';
+import { readFile } from '@sonar/shared/helpers';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {

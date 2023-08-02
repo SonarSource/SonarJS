@@ -26,7 +26,7 @@ import express from 'express';
 import http from 'http';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug } from 'helpers';
+import { debug } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
 

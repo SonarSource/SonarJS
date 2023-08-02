@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from 'helpers';
+import { setContext, toUnixPath } from '@sonar/shared/helpers';
 import http from 'http';
 import { initializeLinter, createAndSaveProgram } from '@sonar/jsts';
 import path from 'path';

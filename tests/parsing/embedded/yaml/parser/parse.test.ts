@@ -19,8 +19,8 @@
  */
 import path from 'path';
 import { parseYaml } from 'parsing/embedded';
-import { APIError } from 'errors';
-import { readFile } from 'helpers';
+import { APIError } from '@sonar/shared/errors';
+import { readFile } from '@sonar/shared/helpers';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};

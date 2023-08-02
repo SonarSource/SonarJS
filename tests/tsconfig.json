@@ -12,6 +12,7 @@
       "@sonar/bridge/*": ["../packages/bridge/src/*"],
       "@sonar/css/*": ["../packages/css/src/*"],
       "@sonar/jsts/*": ["../packages/jsts/src/*"],
+      "@sonar/shared/*": ["../packages/shared/src/*"],
       "*": ["../packages/legacy/src/*"]
     }
   },

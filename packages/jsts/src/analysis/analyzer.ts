@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError } from 'errors';
+import { APIError } from '@sonar/shared/errors';
 import { SourceCode } from 'eslint';
-import { debug, getContext, JsTsLanguage } from 'helpers';
+import { debug, getContext, JsTsLanguage } from '@sonar/shared/helpers';
 import {
   computeMetrics,
   findNoSonarLines,

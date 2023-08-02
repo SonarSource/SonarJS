@@ -20,7 +20,7 @@
 import { analyzeCSS, CssAnalysisInput } from '@sonar/css';
 import { RuleConfig } from '@sonar/css/linter';
 import path from 'path';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 

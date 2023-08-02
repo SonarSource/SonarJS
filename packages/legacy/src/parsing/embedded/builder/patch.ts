@@ -21,7 +21,7 @@ import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
 import { visit } from '@sonar/jsts';
 import { EmbeddedJS } from 'parsing/embedded';
-import { APIError } from 'errors';
+import { APIError } from '@sonar/shared/errors';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser

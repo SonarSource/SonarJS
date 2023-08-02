@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { parseHTML } from 'parsing/embedded';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {

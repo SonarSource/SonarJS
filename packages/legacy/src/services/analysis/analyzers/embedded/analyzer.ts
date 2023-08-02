@@ -22,7 +22,7 @@ import { Position } from 'estree';
 import { getLinter, Issue } from '@sonar/jsts';
 import { buildSourceCodes, Language } from 'parsing/embedded';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
-import { debug } from 'helpers';
+import { debug } from '@sonar/shared/helpers';
 
 /**
  * Analyzes a file containing JS snippets

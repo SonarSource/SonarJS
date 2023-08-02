@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext } from 'helpers';
+import { setContext } from '@sonar/shared/helpers';
 import { analyzeEmbedded } from 'services/analysis';
 import { initializeLinter, getLinter } from '@sonar/jsts';
-import { APIError } from 'errors';
+import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
 import { composeSyntheticFilePath } from 'parsing/embedded';
 import { embeddedInput } from '../../../../tools';

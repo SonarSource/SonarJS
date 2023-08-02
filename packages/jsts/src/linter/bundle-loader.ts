@@ -25,7 +25,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
-import { debug, getContext } from 'helpers';
+import { debug, getContext } from '@sonar/shared/helpers';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {

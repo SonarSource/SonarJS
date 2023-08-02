@@ -21,7 +21,7 @@ import * as yaml from 'yaml';
 import assert from 'assert';
 import { EmbeddedJS } from './embedded-js';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format';
-import { APIError } from 'errors';
+import { APIError } from '@sonar/shared/errors';
 
 /**
  * A bundle of Yaml visitor predicate and Extras picker

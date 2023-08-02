@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, readFile } from 'helpers';
+import { FileType, readFile } from '@sonar/shared/helpers';
 import { EmbeddedAnalysisInput } from 'services/analysis';
 import { JsTsAnalysisInput } from '@sonar/jsts';
 
