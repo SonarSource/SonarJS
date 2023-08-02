@@ -27,10 +27,10 @@ import {
   getProgramForFile,
   isRootNodeModules,
   isRoot,
-} from 'services/program';
+  writeTSConfigFile,
+} from '@sonar/jsts';
 import { ProgramCache, ProjectTSConfigs, toUnixPath, TSConfig } from 'helpers';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
-import { writeTSConfigFile } from 'services/program';
 import fs from 'fs';
 import { awaitCleanUp } from '../../tools/helpers/wait-gc';
 import { jsTsInput } from '../../tools';

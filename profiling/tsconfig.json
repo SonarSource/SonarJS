@@ -7,6 +7,7 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
+      "@sonar/jsts": ["../packages/jsts/src"],
       "*": ["../packages/legacy/src/*"]
     }
   },

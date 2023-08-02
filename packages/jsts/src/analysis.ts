@@ -20,7 +20,7 @@
 import { FileType, JsTsLanguage } from 'helpers';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from 'linting/eslint';
 import { AnalysisInput, AnalysisOutput } from 'services/analysis';
-import { Perf } from 'services/monitoring';
+import { Perf } from './monitoring';
 
 /**
  *

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { createProgramOptions } from 'services/program';
+import { createProgramOptions } from '@sonar/jsts';
 
 /**
  * Handles TSConfig files resolving requests

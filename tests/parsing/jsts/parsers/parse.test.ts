@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { APIError } from 'errors';
-import { buildParserOptions, parseForESLint, parsers } from 'parsing/jsts';
+import { buildParserOptions, JsTsAnalysisInput, parseForESLint, parsers } from '@sonar/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { readFile } from 'helpers';
 
 const parseFunctions = [

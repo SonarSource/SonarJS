@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { setContext, toUnixPath } from 'helpers';
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode, programCache } from '@sonar/jsts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../../../tools';
 import { APIError } from 'errors';
-import { programCache } from 'services/program';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({

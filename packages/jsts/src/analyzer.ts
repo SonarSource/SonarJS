@@ -29,8 +29,8 @@ import {
   LinterWrapper,
   SymbolHighlight,
 } from 'linting/eslint';
-import { buildSourceCode } from 'parsing/jsts';
-import { measureDuration } from 'services/monitoring';
+import { buildSourceCode } from './builders';
+import { measureDuration } from './monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
 /**

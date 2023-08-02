@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { deleteProgram } from 'services/program';
+import { deleteProgram } from '@sonar/jsts';
 
 /**
  * Handles TypeScript Program deletion requests

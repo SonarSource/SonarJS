@@ -19,6 +19,7 @@
     "baseUrl": ".",
     "paths": {
       "@sonar/css": ["./css/src"],
+      "@sonar/jsts": ["./jsts/src"],
       "*": ["./legacy/src/*"]
     }
   }

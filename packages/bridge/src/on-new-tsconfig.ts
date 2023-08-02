@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { clearTypeScriptESLintParserCaches } from 'parsing/jsts';
+import { clearTypeScriptESLintParserCaches } from '@sonar/jsts';
 
 /**
  * Handles new TSConfig-based analysis requests

@@ -38,7 +38,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { eslintRules } from 'linting/eslint/rules/core';
 import { rules as internalRules } from 'linting/eslint';
 import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode } from '@sonar/jsts';
 import { FileType, JsTsLanguage } from 'helpers';
 import { extractExpectations } from './framework';
 import { decorateExternalRules } from 'linting/eslint/linter/decoration';

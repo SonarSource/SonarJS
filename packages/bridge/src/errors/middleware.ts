@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { APIError, ErrorCode } from 'errors';
-import { JsTsAnalysisOutput } from 'services/analysis';
+import { JsTsAnalysisOutput } from '@sonar/jsts';
 
 /**
  * Express.js middleware for handling error while serving requests.

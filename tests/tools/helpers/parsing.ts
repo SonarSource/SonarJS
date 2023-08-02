@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FileType, readFile } from 'helpers';
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode } from '@sonar/jsts';
 
 export async function parseTypeScriptSourceFile(
   filePath: string,

@@ -20,8 +20,7 @@
 import path from 'path';
 import { setContext, toUnixPath } from 'helpers';
 import { initializeLinter, RuleConfig } from 'linting/eslint';
-import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
-import { createAndSaveProgram } from 'services/program';
+import { analyzeJSTS, JsTsAnalysisOutput, createAndSaveProgram } from '@sonar/jsts';
 import { APIError } from 'errors';
 import { jsTsInput } from '../../../../tools';
 

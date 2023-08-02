@@ -43,7 +43,7 @@ import { promisify } from 'util';
 import fs from 'fs/promises';
 
 import { ProgramCache } from 'helpers/cache';
-import { JsTsAnalysisInput } from 'services/analysis';
+import { JsTsAnalysisInput } from '../analysis';
 
 export const programCache = new ProgramCache();
 let projectTSConfigs: ProjectTSConfigs;

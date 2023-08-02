@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
 import { JsTsLanguage, readFile } from 'helpers';
 
 const cases = [

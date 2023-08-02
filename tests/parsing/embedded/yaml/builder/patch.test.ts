@@ -19,9 +19,9 @@
  */
 import path from 'path';
 import { readFile, setContext } from 'helpers';
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
 import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
+import { EmbeddedAnalysisInput } from 'services/analysis';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {

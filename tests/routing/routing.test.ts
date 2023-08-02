@@ -22,7 +22,7 @@ import http from 'http';
 import { initializeLinter } from 'linting/eslint';
 import path from 'path';
 import { start } from 'server';
-import { createAndSaveProgram } from 'services/program';
+import { createAndSaveProgram } from '@sonar/jsts';
 import { promisify } from 'util';
 import { request } from '../tools';
 import * as fs from 'fs';
