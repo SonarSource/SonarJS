@@ -23,7 +23,7 @@ import { Rule, Scope } from 'eslint';
 import { getVariableFromIdentifier, Mocha, toEncodedMessage } from './helpers';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 export const rule: Rule.RuleModule = {
   meta: {

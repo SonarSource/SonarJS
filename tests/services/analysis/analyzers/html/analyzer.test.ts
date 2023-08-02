@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeEmbedded } from 'services/analysis';
-import { initializeLinter } from 'linting/eslint';
+import { initializeLinter } from '@sonar/jsts';
 import { jsTsInput } from '../../../../tools';
 
 describe('analyzeHTML', () => {

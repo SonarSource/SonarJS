@@ -23,7 +23,7 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices, isThenable, toEncodedMessage } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 type CallLikeExpression =
   | TSESTree.CallExpression

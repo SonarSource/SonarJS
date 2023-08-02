@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { setContext } from 'helpers';
-import { createLinterConfig, RuleConfig } from 'linting/eslint';
+import { createLinterConfig, RuleConfig } from '@sonar/jsts';
 
 describe('createLinterConfig', () => {
   beforeEach(() => {

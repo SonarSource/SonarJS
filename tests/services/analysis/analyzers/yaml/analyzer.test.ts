@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { setContext } from 'helpers';
 import { analyzeEmbedded } from 'services/analysis';
-import { initializeLinter, getLinter } from 'linting/eslint';
+import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from 'errors';
 import { Rule } from 'eslint';
 import { composeSyntheticFilePath } from 'parsing/embedded';

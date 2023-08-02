@@ -44,7 +44,7 @@ import {
   isStringRegexMethodCall,
   isStringReplaceCall,
 } from './helpers/regex';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {

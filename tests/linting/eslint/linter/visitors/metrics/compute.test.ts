@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { computeMetrics } from 'linting/eslint';
+import { computeMetrics } from '@sonar/jsts';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
 
 describe('computeMetrics', () => {

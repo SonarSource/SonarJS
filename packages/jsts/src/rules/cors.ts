@@ -29,7 +29,7 @@ import {
 } from './helpers';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 

@@ -19,8 +19,8 @@
  */
 import { Rule } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decorators } from '@sonar/jsts/rules/decorators';
-import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorators } from '../../rules/decorators';
+import { eslintRules } from '../../rules/core';
 import { sanitizeTypeScriptESLintRule } from './sanitize';
 /**
  * Decorates external rules

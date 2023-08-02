@@ -17,25 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { SourceCode } from 'eslint';
-import { visit } from 'linting/eslint';
-
-/**
- * Counts the number of nodes matching a predicate
- * @param sourceCode the source code to vist
- * @param predicate the condition to count the node
- * @returns the number of nodes matching the predicate
- */
-export function visitAndCountIf(
-  sourceCode: SourceCode,
-  predicate: (node: estree.Node) => boolean,
-): number {
-  let results = 0;
-  visit(sourceCode, node => {
-    if (predicate(node)) {
-      results++;
-    }
-  });
-  return results;
-}
+export * from './config';
+export * from './custom-rules';
+export * from './issues';
+export * from './linters';
+export * from './quickfixes';
+export * from './visitors';
+export * from './wrapper';

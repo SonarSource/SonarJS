@@ -32,7 +32,7 @@ import {
   RuleContext,
   toEncodedMessage,
 } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];

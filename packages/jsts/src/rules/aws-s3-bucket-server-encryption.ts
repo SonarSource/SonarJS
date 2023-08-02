@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 import { getFullyQualifiedName, getValueOfExpression, toEncodedMessage } from './helpers';
 import { normalizeFQN } from './helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from './helpers/aws/s3';

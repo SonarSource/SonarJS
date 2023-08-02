@@ -23,7 +23,7 @@ import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
-import { decorateExternalRules } from 'linting/eslint/linter/decoration';
+import { decorateExternalRules } from '@sonar/jsts/linter/decoration';
 
 const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLintRules };
 const decoratedExternalRules = decorateExternalRules(externalRules);

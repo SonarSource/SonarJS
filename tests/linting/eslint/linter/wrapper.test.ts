@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { JsTsLanguage, setContext } from 'helpers';
-import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from 'linting/eslint';
+import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '@sonar/jsts';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../tools';
 import { fileReadable } from '../../../tools/helpers/files';
 

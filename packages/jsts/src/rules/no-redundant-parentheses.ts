@@ -22,7 +22,7 @@
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { getParent, toEncodedMessage } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;

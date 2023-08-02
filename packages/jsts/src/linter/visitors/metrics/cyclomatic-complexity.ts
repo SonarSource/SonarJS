@@ -18,40 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { visit } from 'linting/eslint';
+import { visit } from '../';
 
 /**
- * The ESLint executable node types
+ * The ESLint loop node types
  */
-const EXECUTABLE_NODES = [
-  'ExpressionStatement',
-  'IfStatement',
-  'LabeledStatement',
-  'BreakStatement',
-  'ContinueStatement',
-  'WithStatement',
-  'SwitchStatement',
-  'ReturnStatement',
-  'ThrowStatement',
-  'TryStatement',
-  'WhileStatement',
-  'DoWhileStatement',
+const LOOP_NODES = [
   'ForStatement',
   'ForInStatement',
-  'DebuggerStatement',
-  'VariableDeclaration',
   'ForOfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
 ];
 
 /**
- * Finds the line numbers of executable lines in the source code
+ * The ESLint conditional node types
  */
-export function findExecutableLines(sourceCode: SourceCode): number[] {
-  const lines: Set<number> = new Set();
+const CONDITIONAL_NODES = ['IfStatement', 'ConditionalExpression', 'SwitchCase'];
+
+/**
+ * The ESLint function node types
+ */
+const FUNCTION_NODES = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'];
+
+/**
+ * The ESLint node types increasing complexity
+ */
+const COMPLEXITY_NODES = [
+  ...CONDITIONAL_NODES,
+  ...FUNCTION_NODES,
+  ...LOOP_NODES,
+  'LogicalExpression',
+];
+
+/**
+ * Computes the cyclomatic complexity of an ESLint source code
+ * @param sourceCode the ESLint source code
+ * @returns the cyclomatic complexity
+ */
+export function computeCyclomaticComplexity(sourceCode: SourceCode): number {
+  let complexity = 0;
   visit(sourceCode, node => {
-    if (EXECUTABLE_NODES.includes(node.type) && node.loc) {
-      lines.add(node.loc.start.line);
+    if (COMPLEXITY_NODES.includes(node.type)) {
+      complexity++;
     }
   });
-  return Array.from(lines).sort((a, b) => a - b);
+  return complexity;
 }

@@ -19,7 +19,7 @@
  */
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
-import { visit } from 'linting/eslint';
+import { visit } from '@sonar/jsts';
 import { EmbeddedJS } from 'parsing/embedded';
 import { APIError } from 'errors';
 

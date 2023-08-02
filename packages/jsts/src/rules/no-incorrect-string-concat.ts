@@ -29,7 +29,7 @@ import {
   toEncodedMessage,
   isStringLiteral,
 } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
+import { SONAR_RUNTIME } from '../linter/parameters';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);

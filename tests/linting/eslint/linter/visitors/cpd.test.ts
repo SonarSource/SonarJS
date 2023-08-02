@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CpdToken, getCpdTokens } from 'linting/eslint/linter/visitors';
+import { CpdToken, getCpdTokens } from '@sonar/jsts/linter/visitors';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 

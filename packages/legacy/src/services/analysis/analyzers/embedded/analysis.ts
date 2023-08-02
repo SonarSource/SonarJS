@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue } from 'linting/eslint';
+import { Issue } from '@sonar/jsts';
 import { AnalysisInput, AnalysisOutput } from 'services/analysis';
 
 /**

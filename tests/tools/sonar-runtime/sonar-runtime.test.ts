@@ -39,7 +39,7 @@ import { fileReadable } from '../helpers/files';
  *
  * - the rule calls `toEncodedMessage` from `./helpers`,
  * - the rule includes `meta: { schema: [{ enum: ['SONAR_RUNTIME'] }] }` metadata.
- *   SONAR_RUNTIME is available in 'linting/eslint/linter/parameters'
+ *   SONAR_RUNTIME is available in '@sonar/jsts/linter/parameters'
  *
  * The source code of the exported rules violating these conditions will trigger an
  * issue during analysis.

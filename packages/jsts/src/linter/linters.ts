@@ -19,9 +19,9 @@
  */
 import { APIError } from 'errors';
 import { debug } from 'helpers';
-import { LinterWrapper, RuleConfig } from './linter';
+import { LinterWrapper } from './wrapper';
+import { RuleConfig } from './config';
 
-export * from './linter';
 type Linters = { [id: string]: LinterWrapper };
 /**
  * The global ESLint linters

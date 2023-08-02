@@ -30,7 +30,7 @@ import {
   isIdentifier,
   findFirstMatchingLocalAncestor,
 } from './helpers';
-import { childrenOf } from 'linting/eslint';
+import { childrenOf } from '../linter';
 import { isIfStatement } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const POST_MESSAGE = 'postMessage';

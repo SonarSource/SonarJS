@@ -21,7 +21,7 @@ import { Linter } from 'eslint';
 import path from 'path';
 import { rule as noLabelsRule } from '@sonar/jsts/rules/no-labels';
 import { rule as noExclusiveTests } from '@sonar/jsts/rules/no-exclusive-tests';
-import { transformFixes } from 'linting/eslint/linter/quickfixes';
+import { transformFixes } from '@sonar/jsts/linter/quickfixes';
 import { decorateNoEmptyFunction } from '@sonar/jsts/rules/decorators/no-empty-function-decorator';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 

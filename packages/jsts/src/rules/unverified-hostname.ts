@@ -28,8 +28,8 @@ import {
   toEncodedMessage,
   getFullyQualifiedName,
 } from './helpers';
-import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import { childrenOf } from 'linting/eslint';
+import { SONAR_RUNTIME } from '../linter/parameters';
+import { childrenOf } from '../linter';
 
 export const rule: Rule.RuleModule = {
   meta: {

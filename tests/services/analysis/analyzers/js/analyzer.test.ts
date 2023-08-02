@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { setContext, toUnixPath } from 'helpers';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
+import { initializeLinter, RuleConfig } from '@sonar/jsts';
 import { analyzeJSTS, JsTsAnalysisOutput, createAndSaveProgram } from '@sonar/jsts';
 import { APIError } from 'errors';
 import { jsTsInput } from '../../../../tools';
