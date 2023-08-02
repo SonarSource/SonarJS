@@ -28,9 +28,9 @@ import {
   getSyntaxHighlighting,
   LinterWrapper,
   SymbolHighlight,
-} from './linter';
-import { buildSourceCode } from './builders';
-import { measureDuration } from './monitoring';
+} from '../linter';
+import { buildSourceCode } from '../builders';
+import { measureDuration } from '../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
 /**

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FileType, JsTsLanguage } from 'helpers';
-import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from './linter';
+import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
 import { AnalysisInput, AnalysisOutput } from 'services/analysis';
-import { Perf } from './monitoring';
+import { Perf } from '../monitoring';
 
 /**
  *

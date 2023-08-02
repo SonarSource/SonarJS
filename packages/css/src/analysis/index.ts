@@ -17,31 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue, RuleConfig } from './linter';
-import { AnalysisInput, AnalysisOutput } from 'services/analysis';
-
-/**
- * A CSS analysis input
- *
- * A CSS analysis input only needs an input file and a set
- * of rule configurations to analyze a stylesheet.
- *
- * @param rules the rules from the active quality profile
- */
-export interface CssAnalysisInput extends AnalysisInput {
-  rules: RuleConfig[];
-}
-
-/**
- * A CSS analysis output
- *
- * Computing data analysis like metrics does nit realy makes
- * sense in the context of stylesheets. Therefore, only issues
- * form the content of a CSS analysis output beside an analysis
- * error.
- *
- * @param issues
- */
-export interface CssAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
-}
+export * from './analysis';
+export * from './analyzer';
