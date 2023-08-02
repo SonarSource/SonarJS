@@ -23,7 +23,7 @@ import { TypeScriptRuleTester } from '../../../tools';
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from 'linting/eslint/rules/no-associative-arrays';
+import { rule } from '@sonar/jsts/rules/no-associative-arrays';
 
 ruleTesterTs.run('Array indexes should be numeric [TS]', rule, {
   valid: [

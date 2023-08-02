@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/prefer-type-guard';
+import { rule } from '@sonar/jsts/rules/prefer-type-guard';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

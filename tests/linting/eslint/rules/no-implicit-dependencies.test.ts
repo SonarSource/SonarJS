@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/no-implicit-dependencies';
+import { rule } from '@sonar/jsts/rules/no-implicit-dependencies';
 import path from 'path';
 
 const filename = path.join(

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression } from 'linting/eslint/rules/helpers';
+import { isIdentifier, isMemberExpression } from '../helpers';
 import { interceptReport } from './helpers';
 
 // core implementation of this rule does not provide quick fixes

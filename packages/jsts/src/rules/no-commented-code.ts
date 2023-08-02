@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as babel from '@babel/eslint-parser';
 import { buildParserOptions } from '@sonar/jsts';
-import { CodeRecognizer, JavaScriptFootPrint } from '../linter/recognizers';
+import { CodeRecognizer, JavaScriptFootPrint } from 'linting/eslint/linter/recognizers';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 

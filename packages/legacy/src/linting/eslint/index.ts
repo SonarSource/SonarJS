@@ -22,7 +22,6 @@ import { debug } from 'helpers';
 import { LinterWrapper, RuleConfig } from './linter';
 
 export * from './linter';
-export * from './rules';
 type Linters = { [id: string]: LinterWrapper };
 /**
  * The global ESLint linters

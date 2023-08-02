@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/array-constructor';
+import { rule } from '@sonar/jsts/rules/array-constructor';
 
 const eslintRuleTester = new RuleTester({
   parserOptions: {

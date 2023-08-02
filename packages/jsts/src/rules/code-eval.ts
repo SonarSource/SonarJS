@@ -22,7 +22,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from './core';
 
 const noScriptUrlRule = eslintRules['no-script-url'];
 

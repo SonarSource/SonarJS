@@ -29,7 +29,7 @@ import {
   toEncodedMessage,
 } from './helpers';
 import { SONAR_RUNTIME } from 'linting/eslint/linter/parameters';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from './core';
 import { interceptReport, mergeRules } from './decorators/helpers';
 
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;

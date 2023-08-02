@@ -22,3 +22,4 @@ export * from './analyzer';
 export * from './builders';
 export * from './parsers';
 export * from './program';
+export * from './rules';

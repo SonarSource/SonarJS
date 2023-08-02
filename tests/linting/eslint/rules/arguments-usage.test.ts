@@ -27,7 +27,7 @@ const ruleTester = new RuleTester({
   },
 });
 
-import { rule } from 'linting/eslint/rules/arguments-usage';
+import { rule } from '@sonar/jsts/rules/arguments-usage';
 
 ruleTester.run(`"arguments" should not be accessed directly`, rule, {
   valid: [

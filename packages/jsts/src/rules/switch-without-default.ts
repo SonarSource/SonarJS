@@ -22,7 +22,7 @@
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { sanitizeTypeScriptESLintRule } from '../linter/decoration';
+import { sanitizeTypeScriptESLintRule } from 'linting/eslint/linter/decoration';
 import { interceptReport, mergeRules } from '../rules/decorators/helpers';
 import { isRequiredParserServices, isUnion } from './helpers';
 

@@ -29,7 +29,7 @@ import {
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from 'linting/eslint/rules/helpers';
+} from '../';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRegExpConstructor } from './ast';
 import { getFlags } from './flags';

@@ -25,7 +25,7 @@ import {
   getObjectExpressionProperty,
   getUniqueWriteUsage,
   isIdentifier,
-} from 'linting/eslint/rules/helpers';
+} from '@sonar/jsts/rules/helpers';
 
 /**
  *

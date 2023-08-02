@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { BabelRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-globals-shadowing';
+import { rule } from '@sonar/jsts/rules/no-globals-shadowing';
 
 const ruleTester = new RuleTester({
   parserOptions: {

@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decorateNoUnusedExpressions } from 'linting/eslint/rules/decorators/no-unused-expressions-decorator';
+import { decorateNoUnusedExpressions } from '@sonar/jsts/rules/decorators/no-unused-expressions-decorator';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

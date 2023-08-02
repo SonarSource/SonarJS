@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/comma-or-logical-or-case';
+import { rule } from '@sonar/jsts/rules/comma-or-logical-or-case';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Comma and logical OR operators should not be used in switch cases', rule, {

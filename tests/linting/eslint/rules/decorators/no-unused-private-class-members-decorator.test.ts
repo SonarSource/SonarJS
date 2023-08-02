@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNoUnusedPrivateClassMembers } from 'linting/eslint/rules/decorators/no-unused-private-class-members-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNoUnusedPrivateClassMembers } from '@sonar/jsts/rules/decorators/no-unused-private-class-members-decorator';
 
 const rule = decorateNoUnusedPrivateClassMembers(eslintRules['no-unused-private-class-members']);
 const ruleTester = new RuleTester({

@@ -34,7 +34,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { toEncodedMessage } from 'linting/eslint/rules/helpers';
+import { toEncodedMessage } from '@sonar/jsts/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
 import { Change, QuickFix } from './helpers/quickfixes';
 

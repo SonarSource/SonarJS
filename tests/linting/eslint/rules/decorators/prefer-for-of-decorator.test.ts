@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decoratePreferForOf } from 'linting/eslint/rules/decorators/prefer-for-of-decorator';
+import { decoratePreferForOf } from '@sonar/jsts/rules/decorators/prefer-for-of-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const rule = decoratePreferForOf(typescriptESLintRules['prefer-for-of']);

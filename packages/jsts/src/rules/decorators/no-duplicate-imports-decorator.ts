@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from './helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { removeNodeWithLeadingWhitespaces } from 'linting/eslint/rules/helpers';
+import { removeNodeWithLeadingWhitespaces } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorateNoDuplicateImports(rule: Rule.RuleModule): Rule.RuleModule {

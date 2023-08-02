@@ -17,39 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S3696/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S1763/javascript
 
-import { Rule } from 'eslint';
+import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { isBinaryPlus, isStringLiteral } from 'linting/eslint/rules/helpers';
 import { interceptReport } from './helpers';
+import { removeNodeWithLeadingWhitespaces } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
-export function decorateNoThrowLiteral(rule: Rule.RuleModule): Rule.RuleModule {
+export function decorateNoUnreachable(rule: Rule.RuleModule): Rule.RuleModule {
   rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    if ('node' in reportDescriptor) {
-      const { argument: thrown } = reportDescriptor.node as estree.ThrowStatement;
-      if (isStringLike(thrown)) {
-        const thrownText = context.getSourceCode().getText(thrown);
-        suggest.push({
-          desc: 'Throw an error object',
-          fix: fixer => fixer.replaceText(thrown, `new Error(${thrownText})`),
-        });
-      }
-    }
+    const loc = (reportDescriptor as any).loc as AST.SourceLocation;
+    const node = (reportDescriptor as any).node as estree.Node;
     context.report({
       ...reportDescriptor,
-      suggest,
+      suggest: [
+        {
+          desc: 'Remove unreachable code',
+          fix: fixer =>
+            removeNodeWithLeadingWhitespaces(
+              context,
+              node,
+              fixer,
+              context.getSourceCode().getIndexFromLoc(loc.end),
+            ),
+        },
+      ],
     });
   });
-}
-
-function isStringLike(node: estree.Node): boolean {
-  return isStringLiteral(node) || isStringConcatenation(node);
-}
-
-function isStringConcatenation(node: estree.Node): boolean {
-  return isBinaryPlus(node) && (isStringLike(node.left) || isStringLike(node.right));
 }

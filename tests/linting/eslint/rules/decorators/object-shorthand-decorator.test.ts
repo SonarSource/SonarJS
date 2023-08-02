@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateObjectShorthand } from 'linting/eslint/rules/decorators/object-shorthand-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateObjectShorthand } from '@sonar/jsts/rules/decorators/object-shorthand-decorator';
 
 const rule = decorateObjectShorthand(eslintRules['object-shorthand']);
 const ruleTester = new RuleTester({

@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 
-import { rule } from 'linting/eslint/rules/no-parameter-reassignment';
+import { rule } from '@sonar/jsts/rules/no-parameter-reassignment';
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({

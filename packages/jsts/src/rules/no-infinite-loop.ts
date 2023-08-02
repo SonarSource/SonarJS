@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2189/javascript
 
 import { Rule, Scope } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from './core';
 import * as estree from 'estree';
 import { childrenOf } from 'linting/eslint';
 import { interceptReport, mergeRules } from './decorators/helpers';

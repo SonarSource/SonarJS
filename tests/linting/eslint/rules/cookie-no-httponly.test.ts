@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
 
-import { rule } from 'linting/eslint/rules/cookie-no-httponly';
+import { rule } from '@sonar/jsts/rules/cookie-no-httponly';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const ruleTesterTs = new TypeScriptRuleTester();

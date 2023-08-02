@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from '@sonar/jsts/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import path from 'path';

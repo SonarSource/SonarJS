@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6535/javascript
 
 import { Rule } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from './core';
 import { mergeRules } from './decorators/helpers';
 
 const noUselessEscapeRule = eslintRules['no-useless-escape'];

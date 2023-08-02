@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from '@sonar/jsts/rules/core';
 import { JavaScriptRuleTester } from '../../../../tools';
-import { decorateNoDupeKeys } from 'linting/eslint/rules/decorators/no-dupe-keys-decorator';
+import { decorateNoDupeKeys } from '@sonar/jsts/rules/decorators/no-dupe-keys-decorator';
 
 const ruleTester = new JavaScriptRuleTester();
 const rule = decorateNoDupeKeys(eslintRules['no-dupe-keys']);

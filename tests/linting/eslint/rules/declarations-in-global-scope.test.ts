@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { BabelRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/declarations-in-global-scope';
+import { rule } from '@sonar/jsts/rules/declarations-in-global-scope';
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
