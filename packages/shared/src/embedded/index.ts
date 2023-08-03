@@ -18,6 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export * from './analysis';
-export * from './aws';
 export * from './builder';
-export * from './parser';

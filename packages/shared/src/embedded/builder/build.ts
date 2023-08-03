@@ -19,7 +19,7 @@
  */
 import { SourceCode } from 'eslint';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { EmbeddedJS, EmbeddedAnalysisInput } from '@sonar/shared/embedded';
+import { EmbeddedJS, EmbeddedAnalysisInput } from '../analysis';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';

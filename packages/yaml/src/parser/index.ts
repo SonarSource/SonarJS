@@ -17,17 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import {
-  analyzeEmbedded,
-  EmbeddedAnalysisInput as HtmlAnalysisInput,
-  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
-} from '@sonar/shared/embedded';
-
-import { parseHTML } from './parser';
-
-export { HtmlAnalysisInput, HtmlAnalysisOutput };
-
-export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
-  return Promise.resolve(analyzeEmbedded(input, parseHTML));
-}
+export * from './yaml/format';
+export * from './parse-yaml';

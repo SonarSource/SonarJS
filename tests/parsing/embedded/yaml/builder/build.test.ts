@@ -19,11 +19,8 @@
  */
 import * as estree from 'estree';
 import { join } from 'path';
-import {
-  buildSourceCodes,
-  composeSyntheticFilePath,
-  parseAwsFromYaml,
-} from '@sonar/shared/embedded';
+import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/shared/embedded';
 import { APIError } from '@sonar/shared/errors';
 import { embeddedInput } from '../../../../tools';
 

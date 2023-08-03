@@ -17,14 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseYaml } from '@sonar/shared/embedded/parser';
-import { lambdaParsingContext, serverlessParsingContext } from './parsingContexts';
-
-/**
- * Extracts from a YAML file all the embedded JavaScript code snippets either
- * in AWS Lambda Functions or AWS Serverless Functions.
- */
-export const parseAwsFromYaml = parseYaml.bind(null, [
-  lambdaParsingContext,
-  serverlessParsingContext,
-]);
+export * from './parse';
