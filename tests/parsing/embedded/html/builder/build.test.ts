@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { buildSourceCodes } from '@sonar/shared/embedded';
+import { buildSourceCodes, parseHTML } from '@sonar/shared/embedded';
 import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');
   it('should build source codes from an HTML file', async () => {
     const filePath = join(fixturesPath, 'multiple.html');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'html');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);
     expect(sourceCodes).toHaveLength(2);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
     expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });

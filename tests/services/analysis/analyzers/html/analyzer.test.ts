@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
-import { analyzeEmbedded } from '@sonar/shared/embedded';
+import { analyzeEmbedded, parseHTML } from '@sonar/shared/embedded';
 import { initializeLinter } from '@sonar/jsts';
 import { jsTsInput } from '../../../../tools';
 
@@ -41,7 +41,7 @@ describe('analyzeHTML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeEmbedded(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), 'html');
+    } = analyzeEmbedded(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), parseHTML);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -57,7 +57,7 @@ describe('analyzeHTML', () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'quickfix.html') }),
-      'html',
+      parseHTML,
     );
 
     const {
@@ -90,7 +90,7 @@ describe('analyzeHTML', () => {
     ]);
     const { issues } = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
-      'html',
+      parseHTML,
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -117,7 +117,7 @@ describe('analyzeHTML', () => {
     ]);
     const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
-      'html',
+      parseHTML,
     );
     const {
       issues: [
@@ -140,7 +140,7 @@ describe('analyzeHTML', () => {
     ]);
     const result = analyzeEmbedded(
       await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
-      'html',
+      parseHTML,
     );
     const {
       issues: [issue],

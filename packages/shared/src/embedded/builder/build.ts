@@ -19,15 +19,13 @@
  */
 import { SourceCode } from 'eslint';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { EmbeddedAnalysisInput } from '@sonar/shared/embedded';
-import { EmbeddedJS, parseAwsFromYaml, parseHTML } from '@sonar/shared/embedded';
+import { EmbeddedJS, EmbeddedAnalysisInput } from '@sonar/shared/embedded';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';
 import path from 'path';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
-
-export type Language = 'html' | 'yaml';
+export type LanguageParser = (text: string) => EmbeddedJS[];
 
 /**
  * Builds ESLint SourceCode instances for every embedded JavaScript.
@@ -40,15 +38,9 @@ export type Language = 'html' | 'yaml';
  */
 export function buildSourceCodes(
   input: EmbeddedAnalysisInput,
-  language: Language,
+  languageParser: LanguageParser,
 ): ExtendedSourceCode[] {
-  let embeddedJSs: EmbeddedJS[];
-  if (language === 'html') {
-    embeddedJSs = parseHTML(input.fileContent);
-  } else {
-    embeddedJSs = parseAwsFromYaml(input.fileContent);
-  }
-
+  const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);
   const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;

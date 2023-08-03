@@ -22,10 +22,11 @@ import {
   analyzeEmbedded,
   EmbeddedAnalysisInput as HtmlAnalysisInput,
   EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+  parseHTML,
 } from '@sonar/shared/embedded';
 
 export { HtmlAnalysisInput, HtmlAnalysisOutput };
 
 export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
-  return Promise.resolve(analyzeEmbedded(input, 'html'));
+  return Promise.resolve(analyzeEmbedded(input, parseHTML));
 }

@@ -21,10 +21,11 @@ import {
   analyzeEmbedded,
   EmbeddedAnalysisInput as YamlAnalysisInput,
   EmbeddedAnalysisOutput as YamlAnalysisOutput,
+  parseAwsFromYaml,
 } from '@sonar/shared/embedded';
 
 export { YamlAnalysisInput, YamlAnalysisOutput };
 
 export async function analyzeYAML(input: YamlAnalysisInput): Promise<YamlAnalysisOutput> {
-  return Promise.resolve(analyzeEmbedded(input, 'yaml'));
+  return Promise.resolve(analyzeEmbedded(input, parseAwsFromYaml));
 }

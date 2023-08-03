@@ -20,7 +20,7 @@
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
 import { getLinter, Issue } from '@sonar/jsts';
-import { buildSourceCodes, Language } from '@sonar/shared/embedded';
+import { buildSourceCodes, LanguageParser } from '@sonar/shared/embedded';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
 import { debug } from '@sonar/shared/helpers';
 
@@ -42,16 +42,16 @@ import { debug } from '@sonar/shared/helpers';
  * The analysis requires that global linter wrapper is initialized.
  *
  * @param input the analysis input
- * @param language the language of the file containing the JS code
+ * @param languageParser the parser for the language of the file containing the JS code
  * @returns the analysis output
  */
 export function analyzeEmbedded(
   input: EmbeddedAnalysisInput,
-  language: Language,
+  languageParser: LanguageParser,
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input, language);
+  const extendedSourceCodes = buildSourceCodes(input, languageParser);
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
