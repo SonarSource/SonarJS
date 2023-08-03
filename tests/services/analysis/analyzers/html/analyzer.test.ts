@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
 import { parseHTML } from '@sonar/html/parser';
-import { analyzeEmbedded } from '@sonar/shared/embedded';
+import { analyzeEmbedded } from '@sonar/jsts/embedded';
 import { initializeLinter } from '@sonar/jsts';
 import { jsTsInput } from '../../../../tools';
 

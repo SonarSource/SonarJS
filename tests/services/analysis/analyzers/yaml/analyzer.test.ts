@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
 import { parseAwsFromYaml } from '@sonar/yaml/aws';
-import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/shared/embedded';
+import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';

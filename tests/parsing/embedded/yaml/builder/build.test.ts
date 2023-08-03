@@ -20,7 +20,7 @@
 import * as estree from 'estree';
 import { join } from 'path';
 import { parseAwsFromYaml } from '@sonar/yaml/aws';
-import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/shared/embedded';
+import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { APIError } from '@sonar/shared/errors';
 import { embeddedInput } from '../../../../tools';
 

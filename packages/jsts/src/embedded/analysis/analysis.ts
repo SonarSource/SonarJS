@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue } from '@sonar/jsts';
-import { AnalysisInput, AnalysisOutput } from '../../types';
+import { Issue } from '../../linter';
+import { AnalysisInput, AnalysisOutput } from '@sonar/shared/types';
 
 /**
  * An analysis input of embedded code

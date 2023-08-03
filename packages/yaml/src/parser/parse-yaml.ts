@@ -19,7 +19,7 @@
  */
 import * as yaml from 'yaml';
 import assert from 'assert';
-import { EmbeddedJS } from '@sonar/shared/embedded';
+import { EmbeddedJS } from '@sonar/jsts/embedded';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format';
 import { APIError } from '@sonar/shared/errors';
 

@@ -21,6 +21,7 @@
       "@sonar/css": ["./css/src"],
       "@sonar/html": ["./html/src"],
       "@sonar/jsts": ["./jsts/src"],
+      "@sonar/jsts/embedded": ["../packages/jsts/src/embedded"],
       "@sonar/shared/*": ["./shared/src/*"],
       "@sonar/yaml": ["./yaml/src"]
     }

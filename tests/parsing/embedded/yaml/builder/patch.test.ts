@@ -26,7 +26,7 @@ import {
   EmbeddedAnalysisInput,
   EmbeddedJS,
   patchParsingErrorMessage,
-} from '@sonar/shared/embedded';
+} from '@sonar/jsts/embedded';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {

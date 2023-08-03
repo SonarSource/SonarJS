@@ -19,7 +19,7 @@
  */
 import { join } from 'path';
 import { parseHTML } from '@sonar/html/parser';
-import { buildSourceCodes } from '@sonar/shared/embedded';
+import { buildSourceCodes } from '@sonar/jsts/embedded';
 import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {

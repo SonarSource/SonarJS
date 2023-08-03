@@ -19,7 +19,7 @@
  */
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { getLinter, Issue } from '@sonar/jsts';
+import { getLinter, Issue } from '../../linter';
 import { buildSourceCodes, LanguageParser } from '../builder';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
 import { debug } from '@sonar/shared/helpers';

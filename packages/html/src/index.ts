@@ -22,7 +22,7 @@ import {
   analyzeEmbedded,
   EmbeddedAnalysisInput as HtmlAnalysisInput,
   EmbeddedAnalysisOutput as HtmlAnalysisOutput,
-} from '@sonar/shared/embedded';
+} from '@sonar/jsts/embedded';
 
 import { parseHTML } from './parser';
 

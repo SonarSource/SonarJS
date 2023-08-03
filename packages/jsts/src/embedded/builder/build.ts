@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
+import { buildSourceCode } from '../../builders';
+import { JsTsAnalysisInput } from '../../analysis';
 import { EmbeddedJS, EmbeddedAnalysisInput } from '../analysis';
 import { patchParsingError, patchSourceCode } from './patch';
 import clone from 'lodash.clone';

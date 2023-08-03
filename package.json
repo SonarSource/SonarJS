@@ -140,6 +140,7 @@
     "@sonar/css": "lib/css/src",
     "@sonar/html": "lib/html/src",
     "@sonar/jsts": "lib/jsts/src",
+    "@sonar/jsts/embedded": "lib/jsts/src/embedded",
     "@sonar/shared": "lib/shared/src",
     "@sonar/yaml": "lib/yaml/src"
   }

@@ -10,6 +10,7 @@
       "@sonar/css": ["../packages/css/src"],
       "@sonar/html": ["../packages/html/src"],
       "@sonar/jsts": ["../packages/jsts/src"],
+      "@sonar/jsts/embedded": ["../packages/jsts/src/embedded"],
       "@sonar/yaml": ["../packages/yaml/src"],
       "@sonar/bridge/*": ["../packages/bridge/src/*"],
       "@sonar/css/*": ["../packages/css/src/*"],
