@@ -13,7 +13,7 @@
     "compile": "tsc -b src tests profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
     "mvn-copy": "cd sonar-plugin && mkdirp sonar-javascript-plugin/target/classes && cp ../sonarjs-1.0.0.tgz sonar-javascript-plugin/target/classes",
-    "build-plugin": "npm run build && npm pack && npm run check-distribution && npm run mvn-copy",
+    "build-plugin": "npm run build && npm run test-with-coverage && npm pack && npm run check-distribution && npm run mvn-copy",
     "build-full": "mvn clean && npm run build-plugin && mvn install",
     "new-rule": "ts-node tools/newRule.ts",
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
