@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 public class NoDuplicateStringCheck implements EslintBasedCheck {
 
   private static final int DEFAULT_THRESHOLD = 3;
+  private static final String DEFAULT_IGNORED_STRINGS = "application/json";
 
   @RuleProperty(
     key = "threshold",
@@ -41,13 +42,31 @@ public class NoDuplicateStringCheck implements EslintBasedCheck {
   )
   int threshold = DEFAULT_THRESHOLD;
 
+  @RuleProperty(
+    key = "ignoreStrings",
+    description = "Comma-separated list of strings that must be ignored.",
+    defaultValue = "" + DEFAULT_IGNORED_STRINGS
+  )
+  String ignoreStrings = DEFAULT_IGNORED_STRINGS;
+
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(threshold);
+    return Arrays.asList(new Config(threshold, ignoreStrings));
   }
 
   @Override
   public String eslintKey() {
     return "no-duplicate-string";
+  }
+
+  private static class Config {
+
+    public int threshold;
+    public String ignoreStrings;
+
+    public Config(int threshold, String ignoreStrings) {
+      this.threshold = threshold;
+      this.ignoreStrings = ignoreStrings;
+    }
   }
 }
