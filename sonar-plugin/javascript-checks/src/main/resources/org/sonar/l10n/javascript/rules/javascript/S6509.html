@@ -15,8 +15,7 @@ if (Boolean(foo)) {  // Noncompliant: redundant 'Boolean' call
 }
 </pre>
 <p>A redundant boolean cast affects code readability. Not only the condition becomes more verbose but it also misleads the reader who might question
-the intent behind the extra cast.</p>
-<p>The condition can be written without the Boolean cast.</p>
+the intent behind the extra cast. The condition can be written without the Boolean cast.</p>
 <pre>
 if (foo) {
     // ...
@@ -25,11 +24,11 @@ if (foo) {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean#boolean_coercion">MDN Boolean coercion</a>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean#boolean_coercion">MDN - Boolean coercion</a>
   </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion">MDN Type coercion</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">MDN Truthy</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">MDN Falsy</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion">MDN - Type coercion</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">MDN - Truthy</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">MDN - Falsy</a> </li>
 </ul>
 <h3>Articles &amp; blog posts</h3>
 <ul>

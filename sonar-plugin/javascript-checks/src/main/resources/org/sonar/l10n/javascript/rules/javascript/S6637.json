@@ -1,5 +1,5 @@
 {
-  "title": "Unnecessary calls to .bind() should not be used",
+  "title": "Unnecessary calls to \".bind()\" should not be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

@@ -1,5 +1,5 @@
 {
-  "title": "Collection and array contents should be used",
+  "title": "Collection contents should be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

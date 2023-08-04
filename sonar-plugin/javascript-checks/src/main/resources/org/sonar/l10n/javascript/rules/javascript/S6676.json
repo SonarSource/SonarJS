@@ -1,5 +1,5 @@
 {
-  "title": "Calls to .call() and .apply() methods should not be redundant",
+  "title": "Calls to \".call()\" and \".apply()\" methods should not be redundant",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

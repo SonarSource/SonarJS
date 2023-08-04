@@ -3,7 +3,7 @@
 href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">prototype chain</a>.</p>
 <p>When used on an array, it will compare against the indexes of the array, not the values. This is likely not to be the expected behavior.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-function func1() {
+function func() {
     const arr = ["a", "b", "c"];
 
     const expectedValue = "b";
@@ -22,7 +22,7 @@ function func() {
 
     const expectedValue = "b";
     if (arr.includes(expectedValue)) {
-        return expectedValue + " was found in the array";
+        return expectedValue + " found in the array";
     } else {
         return expectedValue + " not found";
     }

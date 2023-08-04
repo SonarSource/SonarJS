@@ -1,19 +1,19 @@
 <h2>Why is this an issue?</h2>
 <p>If the class declaration does not include a constructor, one is automatically created, so there is no need to provide an empty constructor, or one
 that just delegates to the parent class.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 class Foo {
     constructor() {}  // Noncompliant, empty
 }
 
 class Bar extends Foo {
-    constructor(params) { // Noncompliant, just delegates to the parent
+    constructor(params) { // Noncompliant: just delegates to the parent
         super(params);
     }
 }
 </pre>
 <p>Instead, you can safely remove the empty constructor without affecting the functionality.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 class Foo {}
 
 class Bar extends Foo {}

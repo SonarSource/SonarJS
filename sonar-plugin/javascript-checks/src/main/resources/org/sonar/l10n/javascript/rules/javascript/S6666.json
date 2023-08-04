@@ -1,5 +1,5 @@
 {
-  "title": "Spread syntax should be used instead of apply()",
+  "title": "Spread syntax should be used instead of \"apply()\"",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

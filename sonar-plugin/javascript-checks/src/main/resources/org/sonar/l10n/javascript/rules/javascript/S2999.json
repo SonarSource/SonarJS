@@ -1,5 +1,5 @@
 {
-  "title": "\"new\" operators should be used with functions",
+  "title": "\"new\" should only be used with functions and classes",
   "type": "BUG",
   "status": "ready",
   "remediation": {
