@@ -84,7 +84,7 @@ const loaders: { [key: string]: Function } = {
    * Loads internal rules
    *
    * Adds the rules from SonarJS plugin, i.e. rules in path
-   * /src/linting/eslint/rules
+   * /src/rules
    */
   internalRules(linter: Linter) {
     linter.defineRules(internalRules);

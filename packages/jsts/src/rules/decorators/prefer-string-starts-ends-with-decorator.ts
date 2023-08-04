@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { interceptReport } from './helpers';
 
 // Core implementation of this rule does not provide a message for quick fixes. Normally, we would
-// just map the rule id to a message in src/linting/eslint/linter/quickfixes/messages.ts. However,
+// just map the rule id to a message in src/linter/quickfixes/messages.ts. However,
 // here we need a different message per method, that is, String#startsWith and String#endsWith.
 export function decoratePreferStringStartsEndsWithDecorator(
   rule: Rule.RuleModule,
