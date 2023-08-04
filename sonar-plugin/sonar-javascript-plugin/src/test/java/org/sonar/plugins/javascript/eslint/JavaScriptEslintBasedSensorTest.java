@@ -78,6 +78,7 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.NoDuplicateStringCheck;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
@@ -505,7 +506,8 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(rules).hasSize(3);
 
     assertThat(rules.get(0).key).isEqualTo("no-duplicate-string");
-    assertThat(rules.get(0).configurations).containsExactly(3);
+    assertThat(new Gson().toJson(rules.get(0).configurations))
+      .isEqualTo("[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]");
 
     assertThat(rules.get(1).key).isEqualTo("max-switch-cases");
     assertThat(rules.get(1).configurations).containsExactly(42);
