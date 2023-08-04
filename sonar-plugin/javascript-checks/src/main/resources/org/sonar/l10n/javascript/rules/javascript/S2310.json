@@ -1,5 +1,5 @@
 {
-  "title": "Loop counters should not be assigned to from within the loop body",
+  "title": "Loop counters should not be assigned within the loop body",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

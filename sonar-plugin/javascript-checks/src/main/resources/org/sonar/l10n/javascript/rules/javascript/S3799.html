@@ -3,7 +3,7 @@
 concise and expressive by directly extracting values or properties needed from arrays or objects. However, it is possible to define an empty pattern
 that has no effect, where no variables are bound to the destructured values.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-var {a: {}} = myObj; // Noncompliant: this does not create any variable
+let {a: {}} = myObj; // Noncompliant: this does not create any variable
 function foo({p: []}) { // Noncompliant: this does not define any parameter
   // ...
 }

@@ -1,5 +1,5 @@
 {
-  "title": "Promise rejections should not be caught by \u0027try\u0027 block",
+  "title": "Promise rejections should not be caught by \u0027try\u0027 blocks",
   "type": "BUG",
   "status": "ready",
   "remediation": {
