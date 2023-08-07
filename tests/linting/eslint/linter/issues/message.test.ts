@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { convertMessage } from 'linting/eslint/linter/issues';
+import { convertMessage } from '@sonar/jsts/linter/issues';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools';
 

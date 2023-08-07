@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseHTML } from 'parsing/embedded';
-import { readFile } from 'helpers';
+import { parseHTML } from '@sonar/html/parser';
+import { readFile } from '@sonar/shared/helpers';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {

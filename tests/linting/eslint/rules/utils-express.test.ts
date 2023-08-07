@@ -19,7 +19,7 @@
  */
 import { Rule, RuleTester } from 'eslint';
 import * as estree from 'estree';
-import { Express, getObjectExpressionProperty } from 'linting/eslint/rules/helpers';
+import { Express, getObjectExpressionProperty } from '@sonar/jsts/rules/helpers';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (_context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

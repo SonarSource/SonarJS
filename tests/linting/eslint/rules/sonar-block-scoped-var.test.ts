@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/sonar-block-scoped-var';
+import { rule } from '@sonar/jsts/rules/sonar-block-scoped-var';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Variables should be used in the blocks where they are declared', rule, {

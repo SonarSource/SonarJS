@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNoLonelyIf } from 'linting/eslint/rules/decorators/no-lonely-if-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNoLonelyIf } from '@sonar/jsts/rules/decorators/no-lonely-if-decorator';
 
 const rule = decorateNoLonelyIf(eslintRules['no-lonely-if']);
 const ruleTester = new RuleTester();

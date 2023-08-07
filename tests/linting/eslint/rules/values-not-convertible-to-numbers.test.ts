@@ -23,7 +23,7 @@ import { TypeScriptRuleTester } from '../../../tools';
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from 'linting/eslint/rules/values-not-convertible-to-numbers';
+import { rule } from '@sonar/jsts/rules/values-not-convertible-to-numbers';
 
 ruleTesterTs.run(
   'Values not convertible to numbers should not be used in numeric comparisons [TS]',

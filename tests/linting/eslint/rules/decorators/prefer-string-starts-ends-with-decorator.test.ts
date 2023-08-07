@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decoratePreferStringStartsEndsWithDecorator } from 'linting/eslint/rules/decorators/prefer-string-starts-ends-with-decorator';
+import { decoratePreferStringStartsEndsWithDecorator } from '@sonar/jsts/rules/decorators/prefer-string-starts-ends-with-decorator';
 import { JavaScriptRuleTester } from '../../../../tools';
 
 const ruleTester = new JavaScriptRuleTester();

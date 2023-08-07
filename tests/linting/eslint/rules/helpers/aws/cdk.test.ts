@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AwsCdkTemplate } from 'linting/eslint/rules/helpers/aws/cdk';
+import { AwsCdkTemplate } from '@sonar/jsts/rules/helpers/aws/cdk';
 import { TypeScriptRuleTester } from '../../../../../tools';
 
 const rule = AwsCdkTemplate({

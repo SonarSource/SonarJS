@@ -19,29 +19,30 @@
  */
 import * as estree from 'estree';
 import { join } from 'path';
-import { buildSourceCodes, composeSyntheticFilePath } from 'parsing/embedded';
-import { APIError } from 'errors';
+import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/embedded';
+import { APIError } from '@sonar/shared/errors';
 import { embeddedInput } from '../../../../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
   it('should build source code from YAML lambda file', async () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
   it('should build source code from YAML serverless file', async () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     expect(sourceCodes).toHaveLength(1);
     expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
   it('should return YAML parsing errors on invalid YAML file', async () => {
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
-    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
+    expect(() => buildSourceCodes(analysisInput, parseAwsFromYaml)).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
@@ -50,7 +51,7 @@ describe('buildSourceCodes()', () => {
     const analysisInput = await embeddedInput({
       filePath: join(fixturesPath, 'invalid-plain-inline-js.yaml'),
     });
-    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
+    expect(() => buildSourceCodes(analysisInput, parseAwsFromYaml)).toThrow(
       APIError.parsingError(`Unexpected token ','. (7:22)`, { line: 7 }),
     );
   });
@@ -59,20 +60,20 @@ describe('buildSourceCodes()', () => {
     const analysisInput = await embeddedInput({
       filePath: join(fixturesPath, 'invalid-block-inline-js.yaml'),
     });
-    expect(() => buildSourceCodes(analysisInput, 'yaml')).toThrow(
+    expect(() => buildSourceCodes(analysisInput, parseAwsFromYaml)).toThrow(
       APIError.parsingError(`Unexpected token ','. (8:15)`, { line: 8 }),
     );
   });
 
   it('it should not build a source code for an unsupported format', async () => {
     const filePath = join(fixturesPath, 'unsupported-format.yaml');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     expect(sourceCodes).toHaveLength(0);
   });
 
   it('should fix plain-based format locations', async () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
 
     const {
       body: [ifStmt],
@@ -141,7 +142,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-folded-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     const {
       body: [ifStmt],
     } = ast;
@@ -209,7 +210,7 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-literal-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), 'yaml');
+    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     const {
       body: [ifStmt],
     } = ast;
@@ -279,7 +280,7 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
     const [firstExtendedSourceCode, secondExtendedSourceCode] = buildSourceCodes(
       await embeddedInput({ filePath }),
-      'yaml',
+      parseAwsFromYaml,
     );
     const firstFunctionName = composeSyntheticFilePath(filePath, 'SomeLambdaFunction');
     const secondFunctionName = composeSyntheticFilePath(filePath, 'SomeServerlessFunction');

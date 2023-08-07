@@ -19,7 +19,7 @@
  */
 import * as esprima from 'esprima';
 import * as estree from 'estree';
-import { Mocha } from 'linting/eslint/rules/helpers';
+import { Mocha } from '@sonar/jsts/rules/helpers';
 
 describe('Mocha.js', () => {
   it('should recognize test constructs', () => {

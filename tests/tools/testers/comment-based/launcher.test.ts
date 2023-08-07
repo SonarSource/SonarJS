@@ -35,13 +35,13 @@ import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { rules as internalRules } from 'linting/eslint';
-import { hasSonarRuntimeOption } from 'linting/eslint/linter/parameters';
-import { buildSourceCode } from 'parsing/jsts';
-import { FileType, JsTsLanguage } from 'helpers';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { rules as internalRules } from '@sonar/jsts';
+import { hasSonarRuntimeOption } from '@sonar/jsts/linter/parameters';
+import { buildSourceCode } from '@sonar/jsts';
+import { FileType, JsTsLanguage } from '@sonar/shared/helpers';
 import { extractExpectations } from './framework';
-import { decorateExternalRules } from 'linting/eslint/linter/decoration';
+import { decorateExternalRules } from '@sonar/jsts/linter/decoration';
 
 const fixtures = path.join(__dirname, '../../../linting/eslint/rules/comment-based');
 

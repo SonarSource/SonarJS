@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNoUnreachable } from 'linting/eslint/rules/decorators/no-unreachable-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNoUnreachable } from '@sonar/jsts/rules/decorators/no-unreachable-decorator';
 
 const ruleTester = new RuleTester();
 const rule = decorateNoUnreachable(eslintRules['no-unreachable']);

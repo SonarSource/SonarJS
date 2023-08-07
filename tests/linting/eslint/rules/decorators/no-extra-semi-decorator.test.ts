@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from '@sonar/jsts/rules/core';
 import {
   decorateNoExtraSemi,
   isProtectionSemicolon,
-} from 'linting/eslint/rules/decorators/no-extra-semi-decorator';
+} from '@sonar/jsts/rules/decorators/no-extra-semi-decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const rule = decorateNoExtraSemi(eslintRules['no-extra-semi']);

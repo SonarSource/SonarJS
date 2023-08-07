@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ErrorCode, APIError } from 'errors';
+import { ErrorCode, APIError } from '@sonar/shared/errors';
 import * as express from 'express';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from 'routing/errors';
+import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '@sonar/bridge/errors';
 
 describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;

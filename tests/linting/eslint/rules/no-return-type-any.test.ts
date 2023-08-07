@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-return-type-any';
+import { rule } from '@sonar/jsts/rules/no-return-type-any';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('Primitive return types should be used.', rule, {

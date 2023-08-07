@@ -18,10 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile, setContext } from 'helpers';
-import { buildSourceCode } from 'parsing/jsts';
-import { buildSourceCodes, EmbeddedJS, patchParsingErrorMessage } from 'parsing/embedded';
-import { JsTsAnalysisInput, EmbeddedAnalysisInput } from 'services/analysis';
+import { readFile, setContext } from '@sonar/shared/helpers';
+import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
+import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import {
+  buildSourceCodes,
+  EmbeddedAnalysisInput,
+  EmbeddedJS,
+  patchParsingErrorMessage,
+} from '@sonar/jsts/embedded';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {
@@ -41,7 +46,7 @@ describe('patchSourceCode', () => {
         filePath,
         fileContent: text,
       } as EmbeddedAnalysisInput,
-      'yaml',
+      parseAwsFromYaml,
     );
     expect(patchedSourceCode).toEqual(
       expect.objectContaining({
@@ -71,7 +76,7 @@ describe('patchSourceCode', () => {
     let fileContent = await readFile(filePath);
     const [patchedSourceCode] = buildSourceCodes(
       { filePath, fileContent } as EmbeddedAnalysisInput,
-      'yaml',
+      parseAwsFromYaml,
     );
     const patchedNodes = patchedSourceCode.ast[property];
 
@@ -91,7 +96,7 @@ describe('patchSourceCode', () => {
     let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
-      buildSourceCodes({ filePath, fileContent } as EmbeddedAnalysisInput, 'yaml');
+      buildSourceCodes({ filePath, fileContent } as EmbeddedAnalysisInput, parseAwsFromYaml);
     } catch (error) {
       patchedParsingError = error;
     }

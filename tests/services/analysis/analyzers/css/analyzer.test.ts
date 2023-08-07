@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeCSS, CssAnalysisInput } from 'services/analysis';
-import { RuleConfig } from 'linting/stylelint';
+import { analyzeCSS, CssAnalysisInput } from '@sonar/css';
+import { RuleConfig } from '@sonar/css/linter';
 import path from 'path';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 

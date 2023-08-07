@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { JavaScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/null-dereference';
+import { rule } from '@sonar/jsts/rules/null-dereference';
 
 const ruleTesterJsWithTypes = new JavaScriptRuleTester();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });

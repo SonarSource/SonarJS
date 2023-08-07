@@ -1,5 +1,5 @@
 {
-  "extends": "../src/tsconfig.json",
+  "extends": "../packages/tsconfig.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
@@ -7,12 +7,14 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "*": ["../src/*"]
+      "@sonar/jsts": ["../packages/jsts/src"],
+      "@sonar/jsts/embedded": ["../packages/jsts/src/embedded"],
+      "@sonar/shared/*": ["../packages/shared/src/*"]
     }
   },
   "references": [
     {
-      "path": "../src/tsconfig.json"
+      "path": "../packages/tsconfig.json"
     }
   ],
   "ts-node": {

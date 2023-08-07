@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/regex-complexity';
+import { rule } from '@sonar/jsts/rules/regex-complexity';
 
 const ruleTesterThreshold0 = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold0.run(

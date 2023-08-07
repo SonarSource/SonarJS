@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hrtime } from 'process';
-import { measureDuration } from 'services/monitoring';
+import { measureDuration } from '@sonar/jsts/monitoring';
 
 describe('measureDuration', () => {
   it('should measure the running time of a function', () => {

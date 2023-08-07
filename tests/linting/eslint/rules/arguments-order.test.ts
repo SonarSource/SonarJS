@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/arguments-order';
+import { rule } from '@sonar/jsts/rules/arguments-order';
 
 const eslintRuleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {

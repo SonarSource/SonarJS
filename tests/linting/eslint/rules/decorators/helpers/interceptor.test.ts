@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from 'linting/eslint/rules/decorators/helpers';
+import { interceptReport } from '@sonar/jsts/rules/decorators/helpers';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from 'linting/eslint/rules/no-parameter-reassignment';
+import { rule as noParameterReassignment } from '@sonar/jsts/rules/no-parameter-reassignment';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from 'linting/eslint/rules/no-implicit-dependencies';
+import { rule as noImplicitDependencies } from '@sonar/jsts/rules/no-implicit-dependencies';
 import * as path from 'path';
 
 describe('interceptReport', () => {

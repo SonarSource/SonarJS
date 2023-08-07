@@ -20,9 +20,9 @@
 import { Linter } from 'eslint';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../../../tools';
-import { transformMessages } from 'linting/eslint/linter/issues';
-import { rule as noDuplicateInComposite } from 'linting/eslint/rules/no-duplicate-in-composite';
-import { rule as noUnusedFunctionArgument } from 'linting/eslint/rules/no-unused-function-argument';
+import { transformMessages } from '@sonar/jsts/linter/issues';
+import { rule as noDuplicateInComposite } from '@sonar/jsts/rules/no-duplicate-in-composite';
+import { rule as noUnusedFunctionArgument } from '@sonar/jsts/rules/no-unused-function-argument';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {

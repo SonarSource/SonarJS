@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/use-type-alias';
+import { rule } from '@sonar/jsts/rules/use-type-alias';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

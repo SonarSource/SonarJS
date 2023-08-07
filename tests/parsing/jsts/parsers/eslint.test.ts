@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from 'parsing/jsts';
+import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
 import path from 'path';
-import { JsTsAnalysisInput } from 'services/analysis';
-import { JsTsLanguage, readFile } from 'helpers';
+import { JsTsLanguage, readFile } from '@sonar/shared/helpers';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

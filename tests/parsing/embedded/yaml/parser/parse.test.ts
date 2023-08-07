@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseYaml } from 'parsing/embedded';
-import { APIError } from 'errors';
-import { readFile } from 'helpers';
+import { parseYaml } from '@sonar/yaml/parser';
+import { APIError } from '@sonar/shared/errors';
+import { readFile } from '@sonar/shared/helpers';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};

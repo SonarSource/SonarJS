@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-incorrect-string-concat';
+import { rule } from '@sonar/jsts/rules/no-incorrect-string-concat';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 ruleTesterTs.run('', rule, {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from 'linting/eslint/rules/core';
+import { eslintRules } from '@sonar/jsts/rules/core';
 import { TypeScriptRuleTester } from '../../../../tools';
-import { decorateNoRedeclare } from 'linting/eslint/rules/decorators/no-redeclare-decorator';
+import { decorateNoRedeclare } from '@sonar/jsts/rules/decorators/no-redeclare-decorator';
 
 const ruleTester = new TypeScriptRuleTester();
 const rule = decorateNoRedeclare(eslintRules['no-redeclare']);

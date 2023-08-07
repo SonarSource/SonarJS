@@ -23,7 +23,7 @@ const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
-import { rule } from 'linting/eslint/rules/arrow-function-convention';
+import { rule } from '@sonar/jsts/rules/arrow-function-convention';
 
 ruleTester.run('Braces and parentheses should be used consistently with arrow functions', rule, {
   valid: [

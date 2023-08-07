@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BabelRuleTester, TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-dead-store';
+import { rule } from '@sonar/jsts/rules/no-dead-store';
 
 const babelRuleTester = BabelRuleTester();
 

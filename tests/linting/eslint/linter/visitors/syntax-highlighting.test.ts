@@ -21,7 +21,7 @@ import {
   getSyntaxHighlighting,
   SyntaxHighlight,
   TextType,
-} from 'linting/eslint/linter/visitors/syntax-highlighting';
+} from '@sonar/jsts/linter/visitors/syntax-highlighting';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/helpers';
 
