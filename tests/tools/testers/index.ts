@@ -19,5 +19,4 @@
  */
 export * from './babel';
 export * from './javascript';
-export * from './stylelint';
 export * from './typescript';

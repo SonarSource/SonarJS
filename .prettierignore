@@ -3,6 +3,8 @@ coverage
 sonarpedia.json
 lib
 
+packages/*/tests/**/fixtures
+
 tests/**/fixtures
 tests/linting/eslint/rules/comment-based
 

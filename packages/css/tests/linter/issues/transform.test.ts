@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as stylelint from 'stylelint';
-import { transform } from '@sonar/css/linter/issues';
+import { transform } from '../../../src/linter/issues';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {

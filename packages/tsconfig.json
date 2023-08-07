@@ -25,5 +25,6 @@
       "@sonar/shared/*": ["./shared/src/*"],
       "@sonar/yaml": ["./yaml/src"]
     }
-  }
+  },
+  "exclude": ["./*/tests/**"]
 }

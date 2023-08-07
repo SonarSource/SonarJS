@@ -20,7 +20,7 @@
 import path from 'path';
 import * as stylelint from 'stylelint';
 import { readFile } from '@sonar/shared/helpers';
-import { createStylelintConfig, LinterWrapper, RuleConfig } from '@sonar/css/linter';
+import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter';
 
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {
