@@ -1,15 +1,15 @@
 // https://typedoc.org/guides/options
 module.exports = {
   entryPoints: [
-    '../src/linting/eslint/rules/helpers/index.ts',
-    '../src/linting/eslint/rules/decorators/helpers/index.ts',
+    '../packages/jsts/src/rules/helpers/index.ts',
+    '../packages/jsts/src/rules/decorators/helpers/index.ts',
   ],
   name: 'SonarJS linter helper functions',
   out: './site',
   searchInComments: true,
   plugin: ['searchable-parameters-plugin'],
   readme: './main.md',
-  tsconfig: '../src/tsconfig.json',
+  tsconfig: '../packages/tsconfig.json',
   json: 'models/reflections.json',
   pretty: true,
   sidebarLinks: {
