@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { start } from 'server';
+import { start } from '@sonar/bridge/server';
 import { promisify } from 'util';
 import path from 'path';
-import { setContext } from 'helpers';
+import { setContext } from '@sonar/shared/helpers';
 import { AddressInfo } from 'net';
 import { request } from './tools';
 import http from 'http';

@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from 'helpers';
+import { setContext, toUnixPath } from '@sonar/shared/helpers';
 import http from 'http';
-import { initializeLinter } from 'linting/eslint';
+import { initializeLinter, createAndSaveProgram } from '@sonar/jsts';
 import path from 'path';
-import { start } from 'server';
-import { createAndSaveProgram } from 'services/program';
+import { start } from '@sonar/bridge/server';
 import { promisify } from 'util';
 import { request } from '../tools';
 import * as fs from 'fs';

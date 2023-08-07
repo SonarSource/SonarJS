@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNewCap } from 'linting/eslint/rules/decorators/new-cap-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNewCap } from '@sonar/jsts/rules/decorators/new-cap-decorator';
 
 const rule = decorateNewCap(eslintRules['new-cap']);
 const ruleTester = new RuleTester({

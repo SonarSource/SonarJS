@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/void-use';
+import { rule } from '@sonar/jsts/rules/void-use';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();

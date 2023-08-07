@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-hardcoded-ip';
+import { rule } from '@sonar/jsts/rules/no-hardcoded-ip';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 

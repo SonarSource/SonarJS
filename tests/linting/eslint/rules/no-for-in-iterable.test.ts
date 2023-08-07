@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-for-in-iterable';
+import { rule } from '@sonar/jsts/rules/no-for-in-iterable';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('"for in" should not be used with iterables [js]', rule, {

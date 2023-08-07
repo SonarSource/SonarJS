@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/updated-const-var';
+import { rule } from '@sonar/jsts/rules/updated-const-var';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Attempts should not be made to update "const" variables', rule, {

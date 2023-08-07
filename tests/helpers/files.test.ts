@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile } from 'helpers';
+import { readFile } from '@sonar/shared/helpers';
 
 describe('readFile', () => {
   it('should read a file', async () => {

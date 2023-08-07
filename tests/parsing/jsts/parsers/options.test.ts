@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildParserOptions } from 'parsing/jsts';
-import { createAndSaveProgram, getProgramById } from 'services/program';
+import { buildParserOptions, createAndSaveProgram, getProgramById } from '@sonar/jsts';
 import path from 'path';
 
 describe('buildParserOptions', () => {

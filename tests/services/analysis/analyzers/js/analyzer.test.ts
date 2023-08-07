@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext, toUnixPath } from 'helpers';
-import { initializeLinter, RuleConfig } from 'linting/eslint';
-import { analyzeJSTS, JsTsAnalysisOutput } from 'services/analysis';
-import { createAndSaveProgram } from 'services/program';
-import { APIError } from 'errors';
+import { setContext, toUnixPath } from '@sonar/shared/helpers';
+import { initializeLinter, RuleConfig } from '@sonar/jsts';
+import { analyzeJSTS, JsTsAnalysisOutput, createAndSaveProgram } from '@sonar/jsts';
+import { APIError } from '@sonar/shared/errors';
 import { jsTsInput } from '../../../../tools';
 
 describe('analyzeJSTS', () => {

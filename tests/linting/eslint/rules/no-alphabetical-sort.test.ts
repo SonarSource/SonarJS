@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-alphabetical-sort';
+import { rule } from '@sonar/jsts/rules/no-alphabetical-sort';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(`A compare function should be provided when using "Array.prototype.sort()"`, rule, {

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNoSelfCompare } from 'linting/eslint/rules/decorators/no-self-compare-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNoSelfCompare } from '@sonar/jsts/rules/decorators/no-self-compare-decorator';
 
 const rule = decorateNoSelfCompare(eslintRules['no-self-compare']);
 const ruleTester = new RuleTester();

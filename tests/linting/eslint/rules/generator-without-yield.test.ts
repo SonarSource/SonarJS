@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/generator-without-yield';
+import { rule } from '@sonar/jsts/rules/generator-without-yield';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const ruleTesterTs = new TypeScriptRuleTester();

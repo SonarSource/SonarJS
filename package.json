@@ -4,13 +4,13 @@
   "description": "SonarJS code analyzer",
   "scripts": {
     "build": "npm ci && npm run check-format && npm run clear && npm run compile",
-    "clear": "tsc -b src tests --clean",
+    "clear": "tsc -b packages tests --clean",
     "check-format": "prettier --list-different .",
     "test": "jest",
     "test-with-coverage": "jest --coverage",
     "ctest": "jest tests/tools/testers/comment-based/launcher.test.ts --verbose=false",
     "format": "prettier --write .",
-    "compile": "tsc -b src tests profiling",
+    "compile": "tsc -b packages tests profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
     "mvn-copy": "cd sonar-plugin && mkdirp sonar-javascript-plugin/target/classes && cp ../sonarjs-1.0.0.tgz sonar-javascript-plugin/target/classes",
     "build-plugin": "npm run build && npm run test-with-coverage && npm pack && npm run check-distribution && npm run mvn-copy",
@@ -137,11 +137,11 @@
     "bin/"
   ],
   "_moduleAliases": {
-    "errors": "lib/errors",
-    "helpers": "lib/helpers",
-    "linting": "lib/linting",
-    "parsing": "lib/parsing",
-    "routing": "lib/routing",
-    "services": "lib/services"
+    "@sonar/css": "lib/css/src",
+    "@sonar/html": "lib/html/src",
+    "@sonar/jsts": "lib/jsts/src",
+    "@sonar/jsts/embedded": "lib/jsts/src/embedded",
+    "@sonar/shared": "lib/shared/src",
+    "@sonar/yaml": "lib/yaml/src"
   }
 }

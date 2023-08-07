@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-unenclosed-multiline-block';
+import { rule } from '@sonar/jsts/rules/no-unenclosed-multiline-block';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();

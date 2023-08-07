@@ -19,7 +19,7 @@
  */
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitizeTypeScriptESLintRule } from 'linting/eslint/linter/decoration/sanitize';
+import { sanitizeTypeScriptESLintRule } from '@sonar/jsts/linter/decoration/sanitize';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../../../tools/helpers';
 

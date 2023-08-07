@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findExecutableLines } from 'linting/eslint/linter/visitors/metrics/executable-lines';
+import { findExecutableLines } from '@sonar/jsts/linter/visitors/metrics/executable-lines';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../../../../tools';
 

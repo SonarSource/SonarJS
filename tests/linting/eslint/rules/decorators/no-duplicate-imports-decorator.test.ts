@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { decorateNoDuplicateImports } from 'linting/eslint/rules/decorators/no-duplicate-imports-decorator';
+import { decorateNoDuplicateImports } from '@sonar/jsts/rules/decorators/no-duplicate-imports-decorator';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/no-try-promise';
+import { rule } from '@sonar/jsts/rules/no-try-promise';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {

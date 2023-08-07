@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/pseudo-random';
+import { rule } from '@sonar/jsts/rules/pseudo-random';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {

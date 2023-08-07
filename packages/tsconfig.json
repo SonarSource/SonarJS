@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "lib": ["ESNext"],
+    "declaration": true,
+    "outDir": "../lib",
+    "strict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["../node_modules/@types", "../typings"],
+    "baseUrl": ".",
+    "paths": {
+      "@sonar/css": ["./css/src"],
+      "@sonar/html": ["./html/src"],
+      "@sonar/jsts": ["./jsts/src"],
+      "@sonar/jsts/embedded": ["./jsts/src/embedded"],
+      "@sonar/shared/*": ["./shared/src/*"],
+      "@sonar/yaml": ["./yaml/src"]
+    }
+  }
+}

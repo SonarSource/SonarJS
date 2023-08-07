@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/chai-determinate-assertion';
+import { rule } from '@sonar/jsts/rules/chai-determinate-assertion';
 
 // Main test cases are in the file chai-determinate-assertion.js (comment-based)
 // Here we are testing that no issues are reported when no 'chai' import

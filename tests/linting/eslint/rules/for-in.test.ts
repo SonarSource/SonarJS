@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/for-in';
+import { rule } from '@sonar/jsts/rules/for-in';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('"for...in" loops should filter properties before acting on them', rule, {

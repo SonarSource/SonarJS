@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { StylelintRuleTester } from '../../../tools';
-import { messages, rule } from 'linting/stylelint/rules/function-calc-no-invalid';
+import { messages, rule } from '@sonar/css/rules/function-calc-no-invalid';
 
 const ruleTester = new StylelintRuleTester(rule);
 ruleTester.run('function-calc-no-invalid', {

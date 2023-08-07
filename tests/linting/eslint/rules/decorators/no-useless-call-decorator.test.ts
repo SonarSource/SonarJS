@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { eslintRules } from 'linting/eslint/rules/core';
-import { decorateNoUselessCall } from 'linting/eslint/rules/decorators/no-useless-call-decorator';
+import { eslintRules } from '@sonar/jsts/rules/core';
+import { decorateNoUselessCall } from '@sonar/jsts/rules/decorators/no-useless-call-decorator';
 
 const rule = decorateNoUselessCall(eslintRules['no-useless-call']);
 const ruleTester = new RuleTester({

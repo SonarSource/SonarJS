@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/inconsistent-function-call';
+import { rule } from '@sonar/jsts/rules/inconsistent-function-call';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Functions should not be called both with and without "new"', rule, {

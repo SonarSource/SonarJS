@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/bitwise-operators';
+import { rule } from '@sonar/jsts/rules/bitwise-operators';
 
 const ruleTesterJs = new RuleTester({
   parserOptions: {

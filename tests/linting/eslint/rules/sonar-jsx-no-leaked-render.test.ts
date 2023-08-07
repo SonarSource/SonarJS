@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/sonar-jsx-no-leaked-render';
+import { rule } from '@sonar/jsts/rules/sonar-jsx-no-leaked-render';
 import { TypeScriptRuleTester } from '../../../tools';
 
 const ruleTesterTs = new TypeScriptRuleTester();

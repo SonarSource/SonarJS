@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/updated-loop-counter';
+import { rule } from '@sonar/jsts/rules/updated-loop-counter';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTester.run('Loop counter should not be updated inside loop', rule, {

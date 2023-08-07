@@ -21,9 +21,9 @@ import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
   Issue,
-} from 'linting/eslint/linter/issues';
-import { rule as cognitiveComplexityRule } from 'linting/eslint/linter/custom-rules/cognitive-complexity';
-import { rule as symbolHighlightingRule } from 'linting/eslint/linter/custom-rules/symbol-highlighting';
+} from '@sonar/jsts/linter/issues';
+import { rule as cognitiveComplexityRule } from '@sonar/jsts/linter/custom-rules/cognitive-complexity';
+import { rule as symbolHighlightingRule } from '@sonar/jsts/linter/custom-rules/symbol-highlighting';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {

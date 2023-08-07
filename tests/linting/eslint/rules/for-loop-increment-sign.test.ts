@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/for-loop-increment-sign';
+import { rule } from '@sonar/jsts/rules/for-loop-increment-sign';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();

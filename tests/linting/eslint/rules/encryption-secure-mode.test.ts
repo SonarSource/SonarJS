@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/encryption-secure-mode';
+import { rule } from '@sonar/jsts/rules/encryption-secure-mode';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();

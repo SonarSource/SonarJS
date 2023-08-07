@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tools';
-import { rule } from 'linting/eslint/rules/insecure-cookie';
+import { rule } from '@sonar/jsts/rules/insecure-cookie';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const ruleTesterTs = new TypeScriptRuleTester();

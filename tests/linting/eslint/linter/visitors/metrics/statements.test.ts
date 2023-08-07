@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { countStatements } from 'linting/eslint/linter/visitors/metrics/statements';
+import { countStatements } from '@sonar/jsts/linter/visitors/metrics/statements';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../../tools';
 

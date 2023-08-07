@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'linting/eslint/rules/no-nested-assignment';
+import { rule } from '@sonar/jsts/rules/no-nested-assignment';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Assignments should not be made from within sub-expressions', rule, {
