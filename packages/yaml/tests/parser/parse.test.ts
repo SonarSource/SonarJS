@@ -18,49 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseHTML } from '@sonar/html/parser';
+import { parseYaml } from '../../src/parser';
+import { APIError } from '@sonar/shared/errors';
 import { readFile } from '@sonar/shared/helpers';
 
-describe('parseHtml', () => {
+function noOpPicker(_key: any, _node: any, _ancestors: any) {
+  return {};
+}
+
+describe('parseYaml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'multiple.html');
+    const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
     const fileContent = await readFile(filePath);
-    const embeddedJSs = parseHTML(fileContent);
-    expect(embeddedJSs).toHaveLength(2);
-    const [embeddedJS1, embeddedJS2] = embeddedJSs;
-    expect(embeddedJS1).toEqual(
+    const parsingContexts = [
+      {
+        predicate: (_key: any, node: any, _ancestors: any) => node.key.value === 'embedded',
+        picker: noOpPicker,
+      },
+    ];
+    const [embedded] = parseYaml(parsingContexts, fileContent);
+    expect(embedded).toEqual(
       expect.objectContaining({
         code: 'f(x)',
-        line: 4,
-        column: 9,
-        offset: 38,
-        lineStarts: [0, 16, 23, 30, 52, 53, 69, 70, 92, 100, 108],
-        text: fileContent,
-      }),
-    );
-    expect(embeddedJS2).toEqual(
-      expect.objectContaining({
-        code: 'g(x)',
-        line: 8,
-        column: 9,
-        offset: 78,
-        lineStarts: [0, 16, 23, 30, 52, 53, 69, 70, 92, 100, 108],
+        line: 2,
+        column: 13,
+        offset: 17,
+        lineStarts: [0, 5, 22, 27, 44],
         text: fileContent,
       }),
     );
   });
 
-  it('should ignore script tags with the "src" attribute', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'src.html');
+  it('should return parsing errors', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
     const fileContent = await readFile(filePath);
-    const embeddedJSs = parseHTML(fileContent);
-    expect(embeddedJSs).toHaveLength(0);
-  });
-
-  it('should ignore non-js script tags', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'non-js.html');
-    const fileContent = await readFile(filePath);
-    const embeddedJSs = parseHTML(fileContent);
-    expect(embeddedJSs).toHaveLength(0);
+    const parsingContexts = [
+      {
+        predicate: (_key: any, _node: any, _ancestors: any) => false,
+        picker: noOpPicker,
+      },
+    ];
+    expect(() => parseYaml(parsingContexts, fileContent)).toThrow(
+      APIError.parsingError('Missing closing "quote', { line: 2 }),
+    );
   });
 });

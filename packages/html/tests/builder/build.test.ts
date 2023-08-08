@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { parseHTML } from '@sonar/html/parser';
+import { parseHTML } from '../../src/parser';
 import { buildSourceCodes } from '@sonar/jsts/embedded';
-import { embeddedInput } from '../../../../tools';
+import { embeddedInput } from '../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');

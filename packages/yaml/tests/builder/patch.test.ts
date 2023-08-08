@@ -20,7 +20,7 @@
 import path from 'path';
 import { readFile, setContext } from '@sonar/shared/helpers';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import { parseAwsFromYaml } from '../../src/aws';
 import {
   buildSourceCodes,
   EmbeddedAnalysisInput,

@@ -19,10 +19,10 @@
  */
 import * as estree from 'estree';
 import { join } from 'path';
-import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import { parseAwsFromYaml } from '../../src/aws';
 import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { APIError } from '@sonar/shared/errors';
-import { embeddedInput } from '../../../../tools';
+import { embeddedInput } from '../tools';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');

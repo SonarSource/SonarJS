@@ -19,10 +19,10 @@
  */
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
-import { parseHTML } from '@sonar/html/parser';
+import { parseHTML } from '../../src/parser';
 import { analyzeEmbedded } from '@sonar/jsts/embedded';
 import { initializeLinter } from '@sonar/jsts';
-import { jsTsInput } from '../../../../tools';
+import { jsTsInput } from '../tools';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

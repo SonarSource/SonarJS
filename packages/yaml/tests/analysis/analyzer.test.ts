@@ -19,12 +19,12 @@
  */
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
-import { parseAwsFromYaml } from '@sonar/yaml/aws';
+import { parseAwsFromYaml } from '../../src/aws';
 import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
-import { embeddedInput } from '../../../../tools';
+import { embeddedInput } from '../tools';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
