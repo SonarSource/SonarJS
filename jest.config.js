@@ -1,5 +1,5 @@
 module.exports = {
-  collectCoverageFrom: ['packages/**/*.ts'],
+  collectCoverageFrom: ['packages/*/src/**/*.ts'],
   globals: {
     'ts-jest': {
       tsconfig: 'tests/tsconfig.json',
@@ -23,7 +23,7 @@ module.exports = {
     '^@sonar/yaml/(.*)$': '<rootDir>/packages/yaml/src/$1',
   },
   modulePathIgnorePatterns: [
-    '<rootDir>/tests/linting/eslint/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
+    '<rootDir>/packages/jsts/tests/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
   ],
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {

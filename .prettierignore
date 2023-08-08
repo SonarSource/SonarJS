@@ -4,9 +4,9 @@ sonarpedia.json
 lib
 
 packages/*/tests/**/fixtures
+packages/jsts/tests/rules/comment-based
 
 tests/**/fixtures
-tests/linting/eslint/rules/comment-based
 
 its/css-sources
 its/sources
