@@ -43,7 +43,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
-    type: c6id.2xlarge
+    type: c6id.4xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
@@ -152,7 +152,6 @@ plugin_qa_sq_dev_task:
   env:
     SQ_VERSION: DEV
 
-# Plugin QA for Windows is splint into 2 parts to make it faster
 plugin_qa_win_task:
   depends_on:
     - build
@@ -161,16 +160,13 @@ plugin_qa_win_task:
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
-    matrix:
-      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
-      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
