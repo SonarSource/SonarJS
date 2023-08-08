@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false
+  },
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    }
+  ],
+  "include": ["*/tests"],
+  "exclude": ["*/tests/**/fixtures", "*/tests/rules/comment-based"]
+}

@@ -1,15 +1,3 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "composite": false,
-    "noEmit": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false
-  },
-  "references": [
-    {
-      "path": "../../tsconfig.json"
-    }
-  ],
-  "exclude": ["**/fixtures/**"]
+  "extends": "../../tsconfig.test.json"
 }
