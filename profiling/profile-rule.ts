@@ -20,7 +20,7 @@
 import * as http from 'http';
 import path from 'path';
 import * as fs from 'fs';
-import { request } from '../tests/tools';
+import { request } from '../packages/bridge/tests/tools';
 
 const server = {
   // must be the same as the one used in ./server.js

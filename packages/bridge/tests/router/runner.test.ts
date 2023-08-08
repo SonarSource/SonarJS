@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { AnalysisOutput } from '@sonar/shared/types';
-import { runner } from '@sonar/bridge/router/runner';
+import { runner } from '../../src/router/runner';
 
 describe('runner', () => {
   it('should run an analysis', async () => {

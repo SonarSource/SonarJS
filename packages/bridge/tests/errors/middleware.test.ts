@@ -19,7 +19,7 @@
  */
 import { ErrorCode, APIError } from '@sonar/shared/errors';
 import * as express from 'express';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '@sonar/bridge/errors';
+import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors';
 
 describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;

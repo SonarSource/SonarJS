@@ -17,31 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Timeout from '@sonar/bridge/timeout/timeout';
-
-describe('timeout', () => {
-  it('should start the timeout', () => {
-    expect.assertions(1);
-
-    jest.useFakeTimers();
-
-    const fn = jest.fn();
-    const timeout = new Timeout(fn, 0);
-    timeout.start();
-
-    jest.advanceTimersByTime(1);
-
-    expect(fn).toHaveBeenCalled();
-  });
-
-  it('should stop the timeout', () => {
-    expect.assertions(1);
-
-    const fn = jest.fn();
-    const timeout = new Timeout(fn, 10_000);
-    timeout.start();
-    timeout.stop();
-
-    expect(fn).toHaveBeenCalledTimes(0);
-  });
-});
+export * from './request';
