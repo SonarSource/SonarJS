@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug } from '@sonar/shared/helpers';
+import { unicodeEscape } from '../../src/helpers';
 
-describe('debug', () => {
-  it('should log with a `DEBUG` prefix', () => {
-    console.log = jest.fn();
-    debug('hello, world!');
-    expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
+describe('unicodeEscape', () => {
+  it('should escape', () => {
+    expect(unicodeEscape(`test \u0000`)).toEqual('test \\u0000');
   });
 });

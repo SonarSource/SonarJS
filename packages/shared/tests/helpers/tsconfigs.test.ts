@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ProjectTSConfigs, setContext, toUnixPath } from '@sonar/shared/helpers';
+import { ProjectTSConfigs, setContext, toUnixPath } from '../../src/helpers';
 import path from 'path';
 
 describe('TSConfigs', () => {
