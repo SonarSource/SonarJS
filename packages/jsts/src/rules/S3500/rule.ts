@@ -21,8 +21,8 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from './helpers';
-import { SONAR_RUNTIME } from '../linter/parameters';
+import { toEncodedMessage } from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 export const rule: Rule.RuleModule = {
   meta: {

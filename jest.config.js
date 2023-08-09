@@ -12,6 +12,9 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],
   },
-  testMatch: ['<rootDir>/packages/*/tests/**/*.test.ts'],
+  testMatch: [
+    '<rootDir>/packages/*/tests/**/*.test.ts',
+    '<rootDir>/packages/*/src/rules/*/*.test.ts',
+  ],
   testTimeout: 20000,
 };
