@@ -6,8 +6,6 @@ lib
 packages/*/tests/**/fixtures
 packages/jsts/tests/rules/comment-based
 
-tests/**/fixtures
-
 its/css-sources
 its/sources
 its/typescript-test-sources
