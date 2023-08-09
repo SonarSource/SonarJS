@@ -161,7 +161,7 @@ plugin_qa_win_task:
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
-    CIRRUS_WORKING_DIR: D:/
+    CIRRUS_WORKING_DIR: /d/
     matrix:
       - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
