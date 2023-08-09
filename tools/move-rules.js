@@ -24,8 +24,10 @@ const path = require('path');
 const rootFolder = path.join(__dirname, '../');
 const rulesFolder = path.join(rootFolder, 'packages/jsts/src/rules');
 const testsFolder = path.join(rootFolder, 'packages/jsts/tests/rules');
+const cbtFolder = path.join(rootFolder, 'packages/jsts/tests/rules/comment-based');
 
 const ruleIndexTemplate = fs.readFileSync(path.join(__dirname, 'resources/rule.index_ts'), 'utf8');
+const cbtLaunchTemplate = fs.readFileSync(path.join(__dirname, 'resources/rule.launch_ts'), 'utf8');
 
 const localToFilename = {};
 const eslintToLocal = {};
@@ -90,10 +92,6 @@ fs.readdirSync(checksFolder).forEach(name => {
 
   indexFileContent = indexFileContent.replace(oldMap, newMap);
 
-  if (eslintId !== 'anchor-precedence') {
-    //    return;
-  }
-
   const ruleFile = path.join(rulesFolder, `${filename}.ts`);
 
   if (!fs.existsSync(ruleFile)) {
@@ -112,17 +110,29 @@ fs.readdirSync(checksFolder).forEach(name => {
 
   const testFile = path.join(testsFolder, `${filename}.test.ts`);
 
-  if (!fs.existsSync(testFile)) {
-    return;
+  if (fs.existsSync(testFile)) {
+    let testFileContent = fs.readFileSync(testFile, 'utf8');
+    testFileContent = testFileContent.replace(
+      /import \{ rule \} from [^;]+/,
+      "import { rule } from './'",
+    );
+    fs.writeFileSync(path.join(rulesFolder, sonarId, 'unit.test.ts'), testFileContent, 'utf8');
+    fs.rmSync(testFile);
   }
 
-  let testFileContent = fs.readFileSync(testFile, 'utf8');
-  testFileContent = testFileContent.replace(
-    /import \{ rule \} from [^;]+/,
-    "import { rule } from './'",
-  );
-  fs.writeFileSync(path.join(rulesFolder, sonarId, 'unit.test.ts'), testFileContent, 'utf8');
-  fs.rmSync(testFile);
+  const availableCBT = [];
+
+  ['js', 'ts', 'jsx', 'tsx', 'vue'].forEach(ext => {
+    const cbtFile = path.join(cbtFolder, `${filename}.${ext}`);
+    if (fs.existsSync(cbtFile)) {
+      availableCBT.push(ext);
+      fs.renameSync(cbtFile, path.join(rulesFolder, sonarId, `cb.fixture.${ext}`));
+    }
+  });
+
+  if (availableCBT.length) {
+    fs.writeFileSync(path.join(rulesFolder, sonarId, 'cb.test.ts'), cbtLaunchTemplate, 'utf8');
+  }
 });
 
 fs.writeFileSync(indexFile, indexFileContent, 'utf8');
