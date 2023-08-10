@@ -8,7 +8,6 @@
     "check-format": "prettier --list-different .",
     "test": "jest",
     "test-with-coverage": "jest --coverage",
-    "ctest": "jest tests/tools/testers/comment-based/launcher.test.ts --verbose=false",
     "format": "prettier --write .",
     "compile": "tsc -b packages packages/tsconfig.test.json profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",

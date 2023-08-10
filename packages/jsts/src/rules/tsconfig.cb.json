@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "allowJs": true
+  },
+  "include": [
+    "**/cb.fixture.js",
+    "**/cb.fixture.jsx",
+    "**/cb.fixture.ts",
+    "**/cb.fixture.tsx",
+    "**/cb.fixture.vue"
+  ]
+}

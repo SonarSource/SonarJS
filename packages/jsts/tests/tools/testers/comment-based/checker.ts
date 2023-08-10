@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /**
  * Comment-based Testing Framework Launcher
  *
@@ -33,50 +34,40 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
-import { rules as reactESLintRules } from 'eslint-plugin-react';
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { eslintRules } from '../../../../src/rules/core';
-import { rules as internalRules } from '../../../../src/rules';
 import { hasSonarRuntimeOption } from '../../../../src/linter/parameters';
 import { buildSourceCode } from '../../../../src/builders';
 import { FileType, JsTsLanguage } from '@sonar/shared/helpers';
 import { extractExpectations } from './framework';
-import { decorateExternalRules } from '../../../../src/linter/decoration';
 
-const fixtures = path.join(__dirname, '../../../rules/comment-based');
+/**
+ * Loading this file's `parseForESLint()` function into ESLint's rule tester.
+ */
+const ruleTester = new RuleTester({ parser: __filename });
 
-function extractRuleOptions(testFiles, rule) {
-  if (testFiles.includes(`${rule}.json`)) {
-    return JSON.parse(fs.readFileSync(path.join(fixtures, `${rule}.json`), { encoding: 'utf8' }));
-  }
-  return [];
-}
-
-function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTester) {
-  const testFiles = fs.readdirSync(fixtures);
-  for (const testFile of testFiles) {
-    const filename = path.join(fixtures, testFile);
-    const { ext, name } = path.parse(filename);
-    const rule = name.toLowerCase();
-    if (
-      ['.js', '.jsx', '.ts', '.tsx', '.vue'].includes(ext.toLowerCase()) &&
-      rules.hasOwnProperty(rule)
-    ) {
-      describe(`Running comment-based tests for rule ${rule} ${ext}`, () => {
-        const code = fs.readFileSync(filename, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
-        const { errors, output } = extractExpectations(
-          code,
-          filename,
-          hasSonarRuntimeOption(rules[rule], rule),
-        );
-        const options = extractRuleOptions(testFiles, rule);
-        const tests = {
-          valid: [],
-          invalid: [{ code, errors, filename, options, output }],
-        };
-        ruleTester.run(filename, rules[rule], tests);
-      });
+export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
+  const fixtures = [];
+  ['js', 'ts', 'jsx', 'tsx', 'vue'].forEach(ext => {
+    const fixture = path.join(ruleDir, `cb.fixture.${ext}`);
+    if (fs.existsSync(fixture)) {
+      fixtures.push(fixture);
     }
+  });
+
+  for (const fixture of fixtures) {
+    const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
+    const { errors, output } = extractExpectations(
+      code,
+      fixture,
+      hasSonarRuntimeOption(ruleModule, ruleId),
+    );
+
+    const options = extractRuleOptions(ruleDir);
+    const tests = {
+      valid: [],
+      invalid: [{ code, filename: fixture, errors, options, output }],
+    };
+
+    ruleTester.run(`Fixture ${fixture}`, ruleModule, tests);
   }
 }
 
@@ -90,7 +81,7 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+  const tsConfigs = [path.join(__dirname, '../../../../src/rules', 'tsconfig.cb.json')];
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),
@@ -105,6 +96,14 @@ export function parseForESLint(
   return Object.create(sourceCode, {
     services: { value: sourceCode.parserServices },
   });
+}
+
+function extractRuleOptions(ruleDir) {
+  const options = path.join(ruleDir, 'cb.options.json');
+  if (fs.existsSync(options)) {
+    return JSON.parse(fs.readFileSync(options, { encoding: 'utf8' }));
+  }
+  return [];
 }
 
 /**
@@ -123,15 +122,3 @@ function languageFromFile(fileContent: string, filePath: string): JsTsLanguage {
     return 'js';
   }
 }
-
-/**
- * Loading the above parseForESLint() function.
- */
-const ruleTester = new RuleTester({ parser: __filename });
-const externalRules = decorateExternalRules({
-  ...eslintRules,
-  ...typescriptESLintRules,
-  ...reactESLintRules,
-});
-
-runRuleTests({ ...externalRules, ...internalRules }, ruleTester);

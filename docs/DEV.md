@@ -264,12 +264,6 @@ some.faulty.code(); // Noncompliant [[qf1,qf2=0]]
 // edit@qf2 {{some.faulty && some.faulty.code();}}
 ```
 
-To execute a single comment-based test:
-
-```sh
-npm run ctest -- -t="no-invalid-something"
-```
-
 #### Ruling
 
 Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild the jar before that!).
