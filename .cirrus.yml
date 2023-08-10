@@ -167,10 +167,9 @@ plugin_qa_win_task:
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
   qa_script:
+    - wmic logicaldisk get caption, drivetype
     - source /c/buildTools-docker/bin/cirrus-env QA
-    - chdir /c/
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - chdir /d/
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
     - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
