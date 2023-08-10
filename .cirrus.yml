@@ -152,27 +152,17 @@ plugin_qa_sq_dev_task:
   env:
     SQ_VERSION: DEV
 
-# Plugin QA for Windows is splint into 2 parts to make it faster
-plugin_qa_win_task:
-  depends_on:
-    - build
+# Try to run on SSD
+plugin_win_ssd_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
-    matrix:
-      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
-      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
   qa_script:
     - wmic logicaldisk get caption, drivetype
     - wmic diskdrive list brief
-    - source /c/buildTools-docker/bin/cirrus-env QA
-    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    # building the custom plugin required for the further tests
-    - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
