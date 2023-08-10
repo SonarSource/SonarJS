@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import {
-  decorateNoEmptyFunction,
-  reportWithQuickFixIfApplicable,
-} from '../../../src/rules/decorators/no-empty-function-decorator';
+import { rule } from './';
+import { reportWithQuickFixIfApplicable } from './decorator';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },

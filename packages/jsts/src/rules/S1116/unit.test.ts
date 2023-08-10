@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import {
-  decorateNoExtraSemi,
-  isProtectionSemicolon,
-} from '../../../src/rules/decorators/no-extra-semi-decorator';
+import { rule } from './';
+import { isProtectionSemicolon } from './decorator';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 

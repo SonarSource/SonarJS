@@ -20,9 +20,9 @@
 import { Rule, RuleTester } from 'eslint';
 import { interceptReport } from '../../../../src/rules/decorators/helpers';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../../../src/rules/no-parameter-reassignment';
+import { rule as noParameterReassignment } from '../../../../src/rules/S1226';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../../../src/rules/no-implicit-dependencies';
+import { rule as noImplicitDependencies } from '../../../../src/rules/S4328';
 import * as path from 'path';
 
 describe('interceptReport', () => {

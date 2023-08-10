@@ -19,10 +19,10 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { rule as noLabelsRule } from '../../../src/rules/no-labels';
-import { rule as noExclusiveTests } from '../../../src/rules/no-exclusive-tests';
+import { rule as noLabelsRule } from '../../../src/rules/S1119';
+import { rule as noExclusiveTests } from '../../../src/rules/S6426';
 import { transformFixes } from '../../../src/linter/quickfixes';
-import { decorateNoEmptyFunction } from '../../../src/rules/decorators/no-empty-function-decorator';
+import { rule as noEmptyFunction } from '../../../src/rules/S1186';
 import { parseJavaScriptSourceFile } from '../../tools/helpers';
 
 describe('transformFixes', () => {
@@ -86,7 +86,7 @@ describe('transformFixes', () => {
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, decorateNoEmptyFunction(linter.getRules().get(ruleId)));
+    linter.defineRule(ruleId, noEmptyFunction);
 
     const [message] = linter.verify(sourceCode, { rules });
     expect(message).toEqual(expect.objectContaining({ ruleId }));

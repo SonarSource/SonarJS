@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester, Scope } from 'eslint';
-import { isParameterProperty, rule } from '../../src/rules/no-unused-function-argument';
+import { isParameterProperty, rule } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
