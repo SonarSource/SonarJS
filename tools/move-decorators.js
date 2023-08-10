@@ -23,27 +23,29 @@ const path = require('path');
 
 const rootFolder = path.join(__dirname, '../');
 const rulesFolder = path.join(rootFolder, 'packages/jsts/src/rules');
-const testsFolder = path.join(rootFolder, 'packages/jsts/tests/rules');
+const decoratorsFolder = path.join(rootFolder, 'packages/jsts/src/rules/decorators');
+const testsFolder = path.join(rootFolder, 'packages/jsts/tests/rules/decorators');
 const cbtFolder = path.join(rootFolder, 'packages/jsts/tests/rules/comment-based');
 
-const ruleIndexTemplate = fs.readFileSync(path.join(__dirname, 'resources/rule.index_ts'), 'utf8');
+const decoratedTemplate = fs.readFileSync(path.join(__dirname, 'resources/rule.decor_ts'), 'utf8');
 const cbtLaunchTemplate = fs.readFileSync(path.join(__dirname, 'resources/rule.launch_ts'), 'utf8');
 
 const localToFilename = {};
 const eslintToLocal = {};
 
-const indexFile = path.join(rulesFolder, 'index.ts');
+const indexFile = path.join(decoratorsFolder, 'index.ts');
 let indexFileContent = fs.readFileSync(indexFile, 'utf8');
+indexFileContent = indexFileContent.replace('semi: decorateSemi', "'semi': decorateSemi");
 
 indexFileContent.split('\n').forEach(line => {
-  if (line.match(/import \{ rule as (\w+) \} from '.\/([\w-]+)';/)) {
+  if (line.match(/import \{ (decorate\w+) \} from '.\/([\w-]+)';/)) {
     const localVar = RegExp.$1;
     const filename = RegExp.$2;
 
     localToFilename[localVar] = filename;
   }
 
-  if (line.match(/rules\['*([\w-]+)'*\] = (\w+);/)) {
+  if (line.match(/'([\w-]+)': (decorate\w+)/)) {
     const eslintId = RegExp.$1;
     const localVar = RegExp.$2;
 
@@ -82,40 +84,45 @@ fs.readdirSync(checksFolder).forEach(name => {
     return;
   }
 
-  const oldImport = `import { rule as ${localVar} } from './${filename}';`;
+  const oldImport = `import { ${localVar} } from './${filename}';`;
   const newImport = `import { rule as ${sonarId} } from './${sonarId}'; // ${eslintId}`;
 
   indexFileContent = indexFileContent.replace(oldImport, newImport);
 
-  const oldMap = `rules['${eslintId}'] = ${localVar};`;
+  const oldMap = `'${eslintId}': ${localVar},`;
   const newMap = `rules['${eslintId}'] = ${sonarId};`;
 
   indexFileContent = indexFileContent.replace(oldMap, newMap);
 
-  const ruleFile = path.join(rulesFolder, `${filename}.ts`);
+  const decoratorFile = path.join(decoratorsFolder, `${filename}.ts`);
 
-  if (!fs.existsSync(ruleFile)) {
+  if (!fs.existsSync(decoratorFile)) {
     return;
   }
 
-  let ruleFileContent = fs.readFileSync(ruleFile, 'utf8');
+  let decoratorContent = fs.readFileSync(decoratorFile, 'utf8');
 
-  ruleFileContent = ruleFileContent.replace(/ from '\.\.\//g, " from '../../");
-  ruleFileContent = ruleFileContent.replace(/ from '\.\//g, " from '../");
+  decoratorContent = decoratorContent.replace(/ from '\.\//g, " from '../");
+  decoratorContent = decoratorContent.replace(
+    /export function decorate\w+/,
+    'export function decorate',
+  );
+
+  let ruleIndex = decoratedTemplate.replace('__ESLINTID__', eslintId);
 
   fs.mkdirSync(path.join(rulesFolder, sonarId));
-  fs.writeFileSync(path.join(rulesFolder, sonarId, 'index.ts'), ruleIndexTemplate, 'utf8');
-  fs.writeFileSync(path.join(rulesFolder, sonarId, 'rule.ts'), ruleFileContent, 'utf8');
-  fs.rmSync(ruleFile);
+  fs.writeFileSync(path.join(rulesFolder, sonarId, 'index.ts'), ruleIndex, 'utf8');
+  fs.writeFileSync(path.join(rulesFolder, sonarId, 'decorator.ts'), decoratorContent, 'utf8');
+  fs.rmSync(decoratorFile);
 
   const testFile = path.join(testsFolder, `${filename}.test.ts`);
 
   if (fs.existsSync(testFile)) {
     let testFileContent = fs.readFileSync(testFile, 'utf8');
-    testFileContent = testFileContent.replace(
-      /import \{ rule \} from [^;]+/,
-      "import { rule } from './'",
-    );
+    testFileContent = testFileContent.replace(/import \{ eslintRules.+\n/, '');
+    testFileContent = testFileContent.replace(/import \{ decorate.+/, "import { rule } from './';");
+    testFileContent = testFileContent.replace(/const rule = decorate.+\n/, '');
+    testFileContent = testFileContent.replace("from '../../tools'", "from '../tools'");
     fs.writeFileSync(path.join(rulesFolder, sonarId, 'unit.test.ts'), testFileContent, 'utf8');
     fs.rmSync(testFile);
   }
@@ -123,7 +130,7 @@ fs.readdirSync(checksFolder).forEach(name => {
   const availableCBT = [];
 
   ['js', 'ts', 'jsx', 'tsx', 'vue'].forEach(ext => {
-    const cbtFile = path.join(cbtFolder, `${filename}.${ext}`);
+    const cbtFile = path.join(cbtFolder, `${eslintId}.${ext}`);
     if (fs.existsSync(cbtFile)) {
       availableCBT.push(ext);
       fs.renameSync(cbtFile, path.join(rulesFolder, sonarId, `cb.fixture.${ext}`));

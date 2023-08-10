@@ -26,5 +26,10 @@
       "@sonar/yaml": ["./yaml/src"]
     }
   },
-  "exclude": ["*/tests", "*/src/rules/tools", "*/src/rules/*/*.test.ts"]
+  "exclude": [
+    "*/tests",
+    "*/src/rules/tools",
+    "*/src/rules/*/*.test.ts",
+    "*/src/rules/*/*.fixture.*"
+  ]
 }
