@@ -154,6 +154,8 @@ plugin_qa_sq_dev_task:
 
 # Plugin QA for Windows is splint into 2 parts to make it faster
 plugin_qa_win_task:
+  depends_on:
+    - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   env:
