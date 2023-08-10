@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariablePropertyFromAssignment } from '../file-uploads';
+import { getVariablePropertyFromAssignment } from '../S2598/rule';
 import { parse } from 'bytes';
 import {
   getLhsVariable,

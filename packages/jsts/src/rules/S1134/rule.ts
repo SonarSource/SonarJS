@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1134/javascript
 
 import { Rule } from 'eslint';
-import { reportPatternInComment } from '../todo-tag';
+import { reportPatternInComment } from '../S1135/rule';
 
 const fixmePattern = 'fixme';
 

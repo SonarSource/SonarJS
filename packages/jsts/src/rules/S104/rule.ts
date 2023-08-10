@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getLocsNumber, getCommentLineNumbers } from '../sonar-max-lines-per-function';
+import { getLocsNumber, getCommentLineNumbers } from '../S138/rule';
 
 export const rule: Rule.RuleModule = {
   meta: {
