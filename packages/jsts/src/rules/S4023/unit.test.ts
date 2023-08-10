@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rule } from './';
 import { TypeScriptRuleTester } from '../tools';
 
