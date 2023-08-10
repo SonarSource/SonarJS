@@ -152,8 +152,8 @@ plugin_qa_sq_dev_task:
   env:
     SQ_VERSION: DEV
 
-# Try to run on SSD
-plugin_win_ssd_task:
+# Plugin QA for Windows is splint into 2 parts to make it faster
+plugin_qa_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   env:
