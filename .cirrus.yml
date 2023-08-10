@@ -161,13 +161,13 @@ plugin_qa_win_task:
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
-    CIRRUS_WORKING_DIR: /d/
     matrix:
       - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
   qa_script:
     - wmic logicaldisk get caption, drivetype
+    - wmic diskdrive list brief
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
