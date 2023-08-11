@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import { mergeRules } from '../decorators/helpers';
-import { rule as networkProtocolsRule } from '../no-clear-text-protocols.lib';
-import { rule as awsRule } from '../no-clear-text-protocols.aws';
+import { rule as networkProtocolsRule } from './rule.lib';
+import { rule as awsRule } from './rule.aws';
 
 export const rule: Rule.RuleModule = {
   meta: {

@@ -27,8 +27,8 @@ import {
   getObjectExpressionProperty,
   getParent,
   getFullyQualifiedName,
-} from './helpers';
-import { normalizeFQN } from './helpers/aws/cdk';
+} from '../helpers';
+import { normalizeFQN } from '../helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
