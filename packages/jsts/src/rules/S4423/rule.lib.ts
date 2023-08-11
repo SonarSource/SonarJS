@@ -25,7 +25,7 @@ import {
   getObjectExpressionProperty,
   getValueOfExpression,
   getFullyQualifiedName,
-} from './helpers';
+} from '../helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLSv1_2_method',

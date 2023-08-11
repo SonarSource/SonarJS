@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4423/javascript
 
 import { Rule } from 'eslint';
-import { rule as librariesRule } from '../weak-ssl.lib';
-import { rule as awsRule } from '../weak-ssl.aws';
+import { rule as librariesRule } from './rule.lib';
+import { rule as awsRule } from './rule.aws';
 import { mergeRules } from '../decorators/helpers';
 
 export const rule: Rule.RuleModule = {

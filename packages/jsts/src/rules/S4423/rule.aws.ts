@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4423/javascript
 
 import { Rule } from 'eslint';
-import { AwsCdkCheckArguments, AwsCdkTemplate } from './helpers/aws/cdk';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
