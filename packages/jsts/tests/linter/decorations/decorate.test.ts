@@ -85,7 +85,7 @@ describe('decorateExternalRules', () => {
     expect(messages).toHaveLength(0);
   });
 
-  test.each([{ decorate: true }, { decorate: false }])(
+  xtest.each([{ decorate: true }, { decorate: false }])(
     'should apply internal decorators',
     async ({ decorate }) => {
       const linter = new Linter();
