@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { rule as librariesRule } from './rule.lib';
 import { rule as awsRule } from './rule.aws';
-import { mergeRules } from '../decorators/helpers';
+import { mergeRules } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {

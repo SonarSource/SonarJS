@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from '../../../../src/rules/decorators/helpers';
+import { interceptReport } from '../../../../src/rules/helpers/decorators';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226';
 // Covers `getFilename`

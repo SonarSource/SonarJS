@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5332/javascript
 
 import { Rule } from 'eslint';
-import { mergeRules } from '../decorators/helpers';
+import { mergeRules } from '../helpers';
 import { rule as networkProtocolsRule } from './rule.lib';
 import { rule as awsRule } from './rule.aws';
 

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
-import { interceptReport, mergeRules } from '../decorators/helpers';
+import { interceptReport, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**

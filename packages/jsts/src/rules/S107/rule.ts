@@ -22,9 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { interceptReport, mergeRules } from '../decorators/helpers';
 import { eslintRules } from '../core';
-import { getFullyQualifiedName, isFunctionCall, isIdentifier } from '../helpers';
+import {
+  getFullyQualifiedName,
+  isFunctionCall,
+  isIdentifier,
+  interceptReport,
+  mergeRules,
+} from '../helpers';
 
 const eslintMaxParams = eslintRules['max-params'];
 

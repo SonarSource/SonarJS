@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { mergeRules } from '../decorators/helpers';
+import { mergeRules } from '../helpers';
 
 const constructorSuperRule = eslintRules['constructor-super'];
 const noThisBeforeSuperRule = eslintRules['no-this-before-super'];

@@ -22,8 +22,7 @@
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
-import { interceptReport, mergeRules } from '../decorators/helpers';
-import { isRequiredParserServices, isUnion } from '../helpers';
+import { isRequiredParserServices, isUnion, interceptReport, mergeRules } from '../helpers';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

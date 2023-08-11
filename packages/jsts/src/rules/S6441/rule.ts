@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { rule as detectReact } from '../helpers';
-import { mergeRules } from '../decorators/helpers';
+import { rule as detectReact, mergeRules } from '../helpers';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 

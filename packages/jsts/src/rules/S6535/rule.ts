@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { mergeRules } from '../decorators/helpers';
+import { mergeRules } from '../helpers';
 
 const noUselessEscapeRule = eslintRules['no-useless-escape'];
 const noNonoctalDecimalEscapeRule = eslintRules['no-nonoctal-decimal-escape'];

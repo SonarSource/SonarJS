@@ -30,7 +30,7 @@ import {
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { eslintRules } from '../core';
-import { interceptReport, mergeRules } from '../decorators/helpers';
+import { interceptReport, mergeRules } from '../helpers';
 
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
 

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { mergeRules } from '../decorators/helpers';
+import { mergeRules } from '../helpers';
 import {
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
