@@ -19,7 +19,6 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { sanitizeTypeScriptESLintRule } from '../../../linter/decoration';
 
 const NUM_ARGS_NODE_MESSAGE = 2;
 
@@ -47,7 +46,6 @@ export function interceptReport(
   onReport: ReportOverrider,
   contextOverrider?: ContextOverrider,
 ): Rule.RuleModule {
-  rule = sanitizeTypeScriptESLintRule(rule);
   return {
     // meta should be defined only when it's defined on original rule, otherwise RuleTester will fail
     ...(!!rule.meta && { meta: rule.meta }),
