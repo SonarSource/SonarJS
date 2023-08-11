@@ -24,7 +24,6 @@ import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
-import { decorateExternalRules } from './decoration';
 import { debug, getContext } from '@sonar/shared/helpers';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
@@ -70,7 +69,7 @@ const loaders: { [key: string]: Function } = {
         externalRules[name] = module;
       }
     }
-    linter.defineRules(decorateExternalRules(externalRules));
+    linter.defineRules(externalRules);
   },
   /**
    * Loads plugin rules
