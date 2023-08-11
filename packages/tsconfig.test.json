@@ -12,5 +12,10 @@
     }
   ],
   "include": ["*/tests", "*/src/rules/tools", "*/src/rules/*/*.test.ts"],
-  "exclude": ["*/tests/**/fixtures", "*/tests/rules/comment-based", "*/src/rules/*/*.fixture.*"]
+  "exclude": [
+    "*/tests/**/fixtures",
+    "*/tests/rules/comment-based",
+    "*/src/rules/*/*.fixture.*",
+    "*/src/rules/**/fixtures"
+  ]
 }
