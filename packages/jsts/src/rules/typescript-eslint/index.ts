@@ -17,4 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './decorate';
+import { Rule } from 'eslint';
+import { rules } from '@typescript-eslint/eslint-plugin';
+import { sanitize } from './sanitize';
+
+/**
+ * TypeScript ESLint rules that rely on type information fail at runtime because
+ * they unconditionally assume that TypeScript's type checker is available.
+ */
+const sanitized: Record<string, Rule.RuleModule> = {};
+for (const ruleKey of Object.keys(rules)) {
+  sanitized[ruleKey] = sanitize(rules[ruleKey]);
+}
+
+/**
+ * TypeScript ESLint rules.
+ */
+export const tsEslintRules = sanitized;

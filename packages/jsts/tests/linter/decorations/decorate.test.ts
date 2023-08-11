@@ -22,31 +22,13 @@ import { eslintRules } from '../../../src/rules/core';
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools';
+import { parseJavaScriptSourceFile } from '../../tools';
 import { decorateExternalRules } from '../../../src/linter/decoration';
 
 const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLintRules };
 const decoratedExternalRules = decorateExternalRules(externalRules);
 
 describe('decorateExternalRules', () => {
-  it('should sanitize TypeScript ESLint rules', async () => {
-    const linter = new Linter();
-    linter.defineRules(decoratedExternalRules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'decorate', 'sanitization.ts');
-    const tsConfigs = [];
-
-    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
-    expect(sourceCode.parserServices.hasFullTypeInformation).toBeDefined();
-    expect(sourceCode.parserServices.hasFullTypeInformation).toEqual(false);
-
-    const ruleId = 'prefer-readonly';
-    const rules = { [ruleId]: 'error' } as any;
-
-    const messages = linter.verify(sourceCode, { rules });
-    expect(messages).toHaveLength(0);
-  });
-
   test.each([{ decorate: true }, { decorate: false }])(
     'should apply internal decorators',
     async ({ decorate }) => {

@@ -37,7 +37,7 @@ import { Rule } from 'eslint';
  * @param rule a TypeScript ESLint rule to sanitize
  * @returns the sanitized rule
  */
-export function sanitizeTypeScriptESLintRule(rule: Rule.RuleModule): Rule.RuleModule {
+export function sanitize(rule: Rule.RuleModule): Rule.RuleModule {
   return {
     ...(!!rule.meta && { meta: rule.meta }),
     create(context: Rule.RuleContext) {

@@ -19,7 +19,7 @@
  */
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitizeTypeScriptESLintRule } from '../../../src/linter/decoration/sanitize';
+import { sanitize } from '../../../src/rules/typescript-eslint/sanitize';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers';
 
@@ -38,12 +38,12 @@ const cases = [
   },
 ];
 
-describe('sanitizeTypeScriptESLintRule', () => {
+describe('sanitize', () => {
   test.each(cases)(
     'should $action a sanitized rule raise issues when type information is $typing',
     async ({ tsConfigFiles, issues }) => {
       const ruleId = 'prefer-readonly';
-      const sanitizedRule = sanitizeTypeScriptESLintRule(typescriptESLintRules[ruleId]);
+      const sanitizedRule = sanitize(typescriptESLintRules[ruleId]);
 
       const linter = new Linter();
       linter.defineRule(ruleId, sanitizedRule);

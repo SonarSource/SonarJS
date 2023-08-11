@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { decorators } from '../../rules/decorators';
-import { eslintRules } from '../../rules/core';
-import { sanitizeTypeScriptESLintRule } from './sanitize';
+
 /**
  * Decorates external rules
  *
@@ -35,16 +33,6 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
   [name: string]: Rule.RuleModule;
 } {
   const decoratedRules = { ...externalRules };
-
-  /**
-   * TypeScript ESLint rules sanitization
-   *
-   * TypeScript ESLint rules that rely on type information fail at runtime because
-   * they unconditionally assume that TypeScript's type checker is available.
-   */
-  for (const ruleKey of Object.keys(typescriptESLintRules)) {
-    decoratedRules[ruleKey] = sanitizeTypeScriptESLintRule(decoratedRules[ruleKey]);
-  }
 
   /**
    * Decorate (TypeScript-) ESLint external rules
