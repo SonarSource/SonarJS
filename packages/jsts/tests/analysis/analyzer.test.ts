@@ -100,7 +100,7 @@ describe('analyzeJSTS', () => {
 
   it('should analyze Vue.js code', async () => {
     const rules = [
-      { key: 'no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'sonar-no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
@@ -112,7 +112,7 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-dupe-keys',
+        ruleId: 'sonar-no-dupe-keys',
       }),
     );
   });

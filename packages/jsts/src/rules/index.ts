@@ -26,7 +26,6 @@ import { rule as S6477 } from './S6477'; // jsx-key
 import { rule as S6481 } from './S6481'; // jsx-no-constructed-context-values
 import { rule as S2430 } from './S2430'; // new-cap
 import { rule as S6551 } from './S6551'; // no-base-to-string
-//import { decorateNoDupeKeys } from './no-dupe-keys-decorator';
 import { rule as S3863 } from './S3863'; // no-duplicate-imports
 import { rule as S108 } from './S108'; // no-empty
 import { rule as S1186 } from './S1186'; // no-empty-function
@@ -298,7 +297,6 @@ rules['jsx-key'] = S6477;
 rules['jsx-no-constructed-context-values'] = S6481;
 rules['new-cap'] = S2430;
 rules['no-base-to-string'] = S6551;
-//'no-dupe-keys': decorateNoDupeKeys,
 rules['no-duplicate-imports'] = S3863;
 rules['no-empty'] = S108;
 rules['no-empty-function'] = S1186;

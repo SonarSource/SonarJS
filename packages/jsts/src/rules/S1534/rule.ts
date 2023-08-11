@@ -24,8 +24,9 @@ import { eslintRules } from '../core';
 import { rules as typescriptRules } from '@typescript-eslint/eslint-plugin';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { mergeRules } from '../decorators/helpers';
+import { decorate } from './decorator';
 
-const noDupeKeysRule = eslintRules['no-dupe-keys'];
+const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
 const noDupeClassMembersRule = typescriptRules['no-dupe-class-members'];
 const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
@@ -36,6 +37,7 @@ export const rule: Rule.RuleModule = {
    * the message id from `no-dupe-class-members`, which is a bit more generic.
    */
   meta: {
+    hasSuggestions: true,
     messages: {
       ...noDupeClassMembersRule.meta!.messages,
       ...jsxNoDuplicatePropsRule.meta!.messages,

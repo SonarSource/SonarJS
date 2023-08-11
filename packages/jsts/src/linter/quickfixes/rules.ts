@@ -53,7 +53,6 @@ export const quickFixRules = new Set([
   'semi',
 
   // decorated eslint core
-  'no-dupe-keys',
   'no-duplicate-imports',
   'no-empty-function',
   'no-empty',
@@ -117,6 +116,7 @@ export const quickFixRules = new Set([
   'no-unused-function-argument',
   'prefer-promise-shorthand',
   'prefer-type-guard',
+  'sonar-no-dupe-keys',
   'sonar-no-misleading-character-class',
   'sonar-prefer-regexp-exec',
   'switch-without-default',

@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from '../../../src/rules/core';
-import { JavaScriptRuleTester } from '../../tools';
-import { decorateNoDupeKeys } from '../../../src/rules/decorators/no-dupe-keys-decorator';
+
+import { JavaScriptRuleTester } from '../tools';
+import { rule } from './';
 
 const ruleTester = new JavaScriptRuleTester();
-const rule = decorateNoDupeKeys(eslintRules['no-dupe-keys']);
-
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [
     {
