@@ -21,8 +21,7 @@
 
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
-import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
-import { sanitizeTypeScriptESLintRule } from '../../linter/decoration';
+import { tsEslintRules } from '../typescript-eslint';
 import { interceptReport, mergeRules } from '../decorators/helpers';
 import { isRequiredParserServices, isUnion } from '../helpers';
 
@@ -76,9 +75,9 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
  * rule is executed to prevent runtime errors. Furthermore, we need to decorate the rule so that
  * it raises issues at the same location, that is, the `switch` keyword.
  */
-const switchExhaustivenessRule = typeScriptESLintRules['switch-exhaustiveness-check'];
+const switchExhaustivenessRule = tsEslintRules['switch-exhaustiveness-check'];
 const decoratedSwitchExhaustivenessRule: Rule.RuleModule = interceptReport(
-  sanitizeTypeScriptESLintRule(switchExhaustivenessRule),
+  switchExhaustivenessRule,
   function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
     const switchNode = (descriptor as any).node.parent as estree.Node;
     const switchKeyword = getSwitchKeyword(switchNode, context);

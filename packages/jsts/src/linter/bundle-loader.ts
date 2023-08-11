@@ -19,9 +19,9 @@
  */
 import { Linter, Rule } from 'eslint';
 import { eslintRules } from '../rules/core';
+import { tsEslintRules } from '../rules/typescript-eslint';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { decorateExternalRules } from './decoration';
@@ -64,7 +64,7 @@ const loaders: { [key: string]: Function } = {
      * some reason a different behaviour is needed for a particular rule, one can
      * specify it in `decorateExternalRules`.
      */
-    const dependencies = [eslintRules, typescriptESLintRules, reactESLintRules];
+    const dependencies = [eslintRules, tsEslintRules, reactESLintRules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
         externalRules[name] = module;

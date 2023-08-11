@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules } from '@typescript-eslint/eslint-plugin';
+import { tsEslintRules } from '../typescript-eslint';
 import { decorate } from './decorator';
 
-export const rule = decorate(rules['prefer-enum-initializers']);
+export const rule = decorate(tsEslintRules['prefer-enum-initializers']);

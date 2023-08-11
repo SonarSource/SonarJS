@@ -21,13 +21,13 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { rules as typescriptRules } from '@typescript-eslint/eslint-plugin';
+import { tsEslintRules } from '../typescript-eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { mergeRules } from '../decorators/helpers';
 import { decorate } from './decorator';
 
 const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
-const noDupeClassMembersRule = typescriptRules['no-dupe-class-members'];
+const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];
 const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
 export const rule: Rule.RuleModule = {

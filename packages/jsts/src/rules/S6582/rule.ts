@@ -20,12 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6582/javascript
 
 import { Rule } from 'eslint';
-import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { tsEslintRules } from '../typescript-eslint';
 
 /**
  * Original rule 'prefer-optional-chain' from TypeScript ESLint.
  */
-const preferOptionalChainRule = typeScriptESLintRules['prefer-optional-chain'];
+const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 
 /**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.

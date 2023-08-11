@@ -20,10 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
 import { Rule } from 'eslint';
-import { rules as typeScriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
 import { interceptReport, mergeRules } from '../decorators/helpers';
-import { sanitizeTypeScriptESLintRule } from '../../linter/decoration';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**
@@ -37,9 +36,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
  */
 const flaggedNodeStarts = new Map();
 
-const noMisusedPromisesRule = sanitizeTypeScriptESLintRule(
-  typeScriptESLintRules['no-misused-promises'],
-);
+const noMisusedPromisesRule = tsEslintRules['no-misused-promises'];
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
