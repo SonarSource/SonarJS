@@ -35,15 +35,6 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
   [name: string]: Rule.RuleModule;
 } {
   const decoratedRules = { ...externalRules };
-  /**
-   * S1537 ('comma-dangle'), S3723 ('enforce-trailing-comma')
-   *
-   * S1537 and S3723 both depend on the same ESLint implementation but the
-   * plugin doesn't allow duplicates of the same rule key.
-   */
-  const commaDangleRuleId = 'comma-dangle';
-  const enforceTrailingCommaRuleId = 'enforce-trailing-comma';
-  decoratedRules[enforceTrailingCommaRuleId] = eslintRules[commaDangleRuleId];
 
   /**
    * S3696 ('no-throw-literal')

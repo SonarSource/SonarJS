@@ -37,6 +37,7 @@ import { rule as S2814 } from './S2814'; // no-redeclare
 import { rule as S6679 } from './S6679'; // no-self-compare
 import { rule as S4327 } from './S4327'; // no-this-alias
 import { rule as S3696 } from './S3696'; // no-throw-literal
+import { rule as S3723 } from './S3723'; // enforce-trailing-comma
 import { rule as S1763 } from './S1763'; // no-unreachable
 import { rule as S6478 } from './S6478'; // no-unstable-nested-components
 import { rule as S905 } from './S905'; // no-unused-expressions
@@ -390,6 +391,7 @@ rules['duplicates-in-character-class'] = S5869;
 rules['empty-string-repetition'] = S5842;
 rules['encryption'] = S4787;
 rules['encryption-secure-mode'] = S5542;
+rules['enforce-trailing-comma'] = S3723;
 rules['existing-groups'] = S6328;
 rules['expression-complexity'] = S1067;
 rules['file-header'] = S1451;

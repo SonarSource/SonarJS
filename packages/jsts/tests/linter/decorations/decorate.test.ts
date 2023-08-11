@@ -29,26 +29,6 @@ const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLint
 const decoratedExternalRules = decorateExternalRules(externalRules);
 
 describe('decorateExternalRules', () => {
-  test.each(['comma-dangle', 'enforce-trailing-comma'])(
-    'should make `enforce-trailing-comma` an alias for `comma-dangle`',
-    async ruleId => {
-      const linter = new Linter();
-      linter.defineRules(decoratedExternalRules);
-
-      const filePath = path.join(__dirname, 'fixtures', 'decorate', 'enforce-trailing-comma.js');
-      const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-      const rules = { [ruleId]: 'error' } as any;
-
-      const [message] = linter.verify(sourceCode, { rules });
-      expect(message).toEqual(
-        expect.objectContaining({
-          ruleId,
-        }),
-      );
-    },
-  );
-
   it('should replace TypeScript ESLint `no-throw-literal` with ESLint implementation', async () => {
     const linter = new Linter();
     linter.defineRules(decoratedExternalRules);
