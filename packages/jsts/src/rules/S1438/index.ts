@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from '../core';
+import { rules } from '@typescript-eslint/eslint-plugin';
 import { decorate } from './decorator';
 
-export const rule = decorate(eslintRules['semi']);
+export const rule = decorate(rules['semi']);
