@@ -21,10 +21,9 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
 
-const filename = path.join(
-  __dirname,
-  'fixtures/no-implicit-dependencies/package-json-project/file.js',
-);
+const fixtures = path.join(__dirname, 'fixtures');
+
+const filename = path.join(fixtures, 'package-json-project/file.js');
 const options = [];
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
@@ -91,10 +90,7 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
     {
       code: `import "dependency";`,
-      filename: path.join(
-        __dirname,
-        'fixtures/no-implicit-dependencies/bom-package-json-project/file.js',
-      ),
+      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
       options,
     },
     {
@@ -155,19 +151,13 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
     {
       code: `import "foo";`,
-      filename: path.join(
-        __dirname,
-        'fixtures/no-implicit-dependencies/empty-package-json-project/file.js',
-      ),
+      filename: path.join(fixtures, 'empty-package-json-project/file.js'),
       options,
       errors: 1,
     },
     {
       code: `import "foo";`,
-      filename: path.join(
-        __dirname,
-        'fixtures/no-implicit-dependencies/package-json-project/dir/subdir/file.js',
-      ),
+      filename: path.join(fixtures, 'package-json-project/dir/subdir/file.js'),
       options,
       errors: 1,
     },
@@ -185,10 +175,7 @@ const ruleTesterNestedPackage = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-const filenameNestedPackage = path.join(
-  __dirname,
-  'fixtures/no-implicit-dependencies/nested-package-json-project/dir/file.js',
-);
+const filenameNestedPackage = path.join(fixtures, 'nested-package-json-project/dir/file.js');
 
 ruleTesterNestedPackage.run('all levels of package.json should be considered', rule, {
   valid: [
@@ -216,18 +203,12 @@ const ruleTesterForPathMappings = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
-    tsconfigRootDir: path.join(
-      __dirname,
-      'fixtures/no-implicit-dependencies/ts-project-with-path-aliases',
-    ),
+    tsconfigRootDir: path.join(fixtures, 'ts-project-with-path-aliases'),
     project: './tsconfig.json',
   },
 });
 
-const filenameForFileWithPathMappings = path.join(
-  __dirname,
-  'fixtures/no-implicit-dependencies/ts-project-with-path-aliases/file.ts',
-);
+const filenameForFileWithPathMappings = path.join(fixtures, 'ts-project-with-path-aliases/file.ts');
 
 ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
   valid: [
@@ -271,18 +252,12 @@ const ruleTesterForBaseUrl = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
-    tsconfigRootDir: path.join(
-      __dirname,
-      'fixtures/no-implicit-dependencies/ts-project-with-base-url',
-    ),
+    tsconfigRootDir: path.join(fixtures, 'ts-project-with-base-url'),
     project: './tsconfig.json',
   },
 });
 
-const filenameForBaseUrl = path.join(
-  __dirname,
-  'fixtures/no-implicit-dependencies/ts-project-with-base-url/nested/file.ts',
-);
+const filenameForBaseUrl = path.join(fixtures, 'ts-project-with-base-url/nested/file.ts');
 
 ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
   valid: [
@@ -314,18 +289,12 @@ const ruleTesterForCatchAllExample = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
-    tsconfigRootDir: path.join(
-      __dirname,
-      'fixtures/no-implicit-dependencies/ts-project-with-catch-all-path-alias',
-    ),
+    tsconfigRootDir: path.join(fixtures, 'ts-project-with-catch-all-path-alias'),
     project: './tsconfig.json',
   },
 });
 
-const filenameCatchAllExample = path.join(
-  __dirname,
-  'fixtures/no-implicit-dependencies/ts-project-with-catch-all-path-alias/file.ts',
-);
+const filenameCatchAllExample = path.join(fixtures, 'ts-project-with-catch-all-path-alias/file.ts');
 
 ruleTesterForCatchAllExample.run(
   'Do not report when a path mapping with "*"-pattern is used',

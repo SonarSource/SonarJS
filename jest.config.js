@@ -6,7 +6,7 @@ module.exports = {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
   modulePathIgnorePatterns: [
-    '<rootDir>/packages/jsts/tests/rules/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
+    '<rootDir>/packages/jsts/src/rules/S4328/fixtures/bom-package-json-project/package.json',
   ],
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {

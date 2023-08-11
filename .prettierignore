@@ -5,6 +5,7 @@ lib
 
 packages/*/tests/**/fixtures
 packages/jsts/src/rules/*/*.fixture.*
+packages/jsts/src/rules/**/fixtures
 packages/jsts/tests/rules/comment-based
 
 its/css-sources
