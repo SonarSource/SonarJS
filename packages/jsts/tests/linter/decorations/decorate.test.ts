@@ -29,24 +29,6 @@ const externalRules = { ...eslintRules, ...typescriptESLintRules, ...reactESLint
 const decoratedExternalRules = decorateExternalRules(externalRules);
 
 describe('decorateExternalRules', () => {
-  it('should replace TypeScript ESLint `no-throw-literal` with ESLint implementation', async () => {
-    const linter = new Linter();
-    linter.defineRules(decoratedExternalRules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'decorate', 'no-throw-literal.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-    const ruleId = 'no-throw-literal';
-    const rules = { [ruleId]: 'error' } as any;
-
-    const [message] = linter.verify(sourceCode, { rules });
-    expect(message).toEqual(
-      expect.objectContaining({
-        ruleId,
-      }),
-    );
-  });
-
   it('should sanitize TypeScript ESLint rules', async () => {
     const linter = new Linter();
     linter.defineRules(decoratedExternalRules);

@@ -37,14 +37,6 @@ export function decorateExternalRules(externalRules: { [name: string]: Rule.Rule
   const decoratedRules = { ...externalRules };
 
   /**
-   * S3696 ('no-throw-literal')
-   *
-   * TypeScript ESLint implementation of no-throw-literal does not support JavaScript code.
-   */
-  const noThrowLiteralRuleId = 'no-throw-literal';
-  decoratedRules[noThrowLiteralRuleId] = eslintRules[noThrowLiteralRuleId];
-
-  /**
    * TypeScript ESLint rules sanitization
    *
    * TypeScript ESLint rules that rely on type information fail at runtime because
