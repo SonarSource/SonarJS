@@ -336,17 +336,18 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   ],
 });
 
+const project = path.join(__dirname, 'tsconfig.fixture.json');
+const filename = path.join(__dirname, 'unit.fixture.tsx');
+
 const ruleTesterJsxFactory = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
     ecmaFeatures: { jsx: true },
-    project: path.resolve(`${__dirname}/fixtures/unused-import/tsconfig.json`),
+    project,
   },
   parser: require.resolve('@typescript-eslint/parser'),
 });
-
-const filename = path.resolve(`${__dirname}/fixtures/unused-import/file.tsx`);
 
 ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored', rule, {
   valid: [
