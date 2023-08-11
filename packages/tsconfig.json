@@ -30,6 +30,7 @@
     "*/tests",
     "*/src/rules/tools",
     "*/src/rules/*/*.test.ts",
-    "*/src/rules/*/*.fixture.*"
+    "*/src/rules/*/*.fixture.*",
+    "*/src/rules/*/fixtures"
   ]
 }
