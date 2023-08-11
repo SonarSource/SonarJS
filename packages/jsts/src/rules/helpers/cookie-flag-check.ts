@@ -26,7 +26,7 @@ import {
   getObjectExpressionProperty,
   toEncodedMessage,
   getFullyQualifiedName,
-} from './helpers';
+} from '.';
 
 export class CookieFlagCheck {
   issueMessage: string;
