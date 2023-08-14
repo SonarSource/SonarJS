@@ -79,12 +79,13 @@
     <doclint>none</doclint>
 
     <!-- sonar analysis -->
-    <sonar.inclusions>packages/*/src</sonar.inclusions>
+    <sonar.sources>packages/bridge/src,packages/css/src,packages/html/src,packages/jsts/src,packages/shared/src,packages/shared/yaml/src</sonar.sources>
     <sonar.exclusions>packages/jsts/src/rules/*/*.test.ts,packages/jsts/src/rules/*/*.fixture.*,packages/jsts/src/rules/*/fixtures</sonar.exclusions>
-    <sonar.test.inclusions>packages/*/tests,packages/jsts/src/rules/*/*.test.ts</sonar.test.inclusions>
+    <sonar.tests>packages/bridge/tests,packages/css/tests,packages/html/tests,packages/jsts/tests,packages/shared/tests,packages/shared/yaml/tests</sonar.tests>
+    <sonar.test.inclusions>packages/jsts/src/rules/*/*.test.ts</sonar.test.inclusions>
     <sonar.test.exclusions>packages/*/tests/**/fixtures</sonar.test.exclusions>
     <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
-    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.json</sonar.typescript.tsconfigPath>
+    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
   </properties>
 
