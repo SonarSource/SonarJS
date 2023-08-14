@@ -22,8 +22,8 @@ import { rule } from './';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-// Main test cases are in the file no-same-argument-assert.js (comment-based)
-// Here we are testing that no issues are reported when no 'chai' import
+// Main test cases are in the file comment-based fixture file.
+// Here we are testing that no issues are reported when no 'chai' import.
 
 ruleTester.run('Assertions should not be given twice the same argument', rule, {
   valid: [

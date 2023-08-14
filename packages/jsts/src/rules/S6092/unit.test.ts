@@ -20,8 +20,8 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 
-// Main test cases are in the file chai-determinate-assertion.js (comment-based)
-// Here we are testing that no issues are reported when no 'chai' import
+// Main test cases are in the file comment-based fixture file.
+// Here we are testing that no issues are reported when no 'chai' import.
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTester.run('Assertions should not be given twice the same argument', rule, {
