@@ -18,19 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/**
- * Comment-based Testing Framework Launcher
- *
- * This file provides a launcher for the Comment-based Testing Framework, which relies
- * on Jest and ESLint's rule tester. Basically, it tests the rule implementation of each
- * test file in the `fixtures` of the current folder. To do so, it reads the file contents,
- * extracts from it the issue expectations, and use them as invalid test assertions with
- * ESLint's rule tester. To know which rule to test against a test file, the latter must
- * be named with the rule's name.
- *
- * @see package.json/ctest to test specific comment-based test files
- */
-
 import * as fs from 'fs';
 import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
@@ -44,6 +31,11 @@ import { extractExpectations } from './framework';
  */
 const ruleTester = new RuleTester({ parser: __filename });
 
+/**
+ * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
+ * These fixtures are to be found in the rule directory and should be named as `cb.fixture.<ext>`.
+ * The directory can include options (`cb.options.json`) to configure the rule behaviour.
+ */
 export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
   const fixtures = [];
   ['js', 'ts', 'jsx', 'tsx', 'vue'].forEach(ext => {
