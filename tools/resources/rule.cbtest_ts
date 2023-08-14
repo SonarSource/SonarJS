@@ -1,4 +1,4 @@
-/**
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,31 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+import { check } from '../tools';
+import { rule } from './';
+import path from 'path';
 
-import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import * as estree from 'estree';
+const sonarId = path.basename(__dirname);
 
-const message = `TODO: add message`;
-
-export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },  
-  create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {};
-  },
-};
+describe(`Rule ${sonarId}`, () => {
+  check(sonarId, rule, __dirname);
+});
