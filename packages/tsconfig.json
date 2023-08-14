@@ -10,7 +10,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "composite": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
@@ -26,12 +25,14 @@
       "@sonar/yaml": ["./yaml/src"]
     }
   },
-  "exclude": [
-    "*/tests",
-    "*/src/rules/tools",
-    "*/src/rules/*/*.test.ts",
-    "*/src/rules/*/*.fixture.*",
-    "*/src/rules/**/fixtures",
-    "*/src/rules/*/fixtures"
-  ]
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    }
+  ],
+  "files": [],
+  "include": []
 }

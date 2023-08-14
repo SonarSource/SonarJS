@@ -9,7 +9,7 @@
     "test": "jest",
     "test-with-coverage": "jest --coverage",
     "format": "prettier --write .",
-    "compile": "tsc -b packages packages/tsconfig.test.json profiling",
+    "compile": "tsc -b packages/tsconfig.app.json packages/tsconfig.test.json profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
     "mvn-copy": "cd sonar-plugin && mkdirp sonar-javascript-plugin/target/classes && cp ../sonarjs-1.0.0.tgz sonar-javascript-plugin/target/classes",
     "build-plugin": "npm run build && npm run test-with-coverage && npm pack && npm run check-distribution && npm run mvn-copy",
