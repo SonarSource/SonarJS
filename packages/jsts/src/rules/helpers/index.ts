@@ -32,5 +32,6 @@ export * from './quickfix';
 export * from './reaching-definitions';
 export * from './rule-detect-react';
 export * from './type';
+export * from './decorators';
 
 export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';

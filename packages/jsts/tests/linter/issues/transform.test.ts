@@ -21,8 +21,8 @@ import { Linter } from 'eslint';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools';
 import { transformMessages } from '../../../src/linter/issues';
-import { rule as noDuplicateInComposite } from '../../../src/rules/no-duplicate-in-composite';
-import { rule as noUnusedFunctionArgument } from '../../../src/rules/no-unused-function-argument';
+import { rule as noDuplicateInComposite } from '../../../src/rules/S4621';
+import { rule as noUnusedFunctionArgument } from '../../../src/rules/S1172';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {

@@ -94,9 +94,12 @@ npm run new-rule S1234 no-invalid-something [eslint]
 This script:
 
 - generates a Java check class for the rule `NoInvalidSomethingCheck.java`
-- generates a `no-invalid-something.ts` file for the rule implementation
-- generates a `comment-based/no-invalid-something.js` test file
-- updates the `index.ts` file to include the new rule
+- generates a `rules/S1234` folder
+- generates a `rules/S1234/index.ts` rule index file
+- generates a `rules/S1234/rule.ts` file for the rule implementation
+- generates a `rules/S1234/cb.fixture.js` comment-based test file (empty)
+- generates a `rules/S1234/cb.test.js` test launcher
+- updates the `rules/index.ts` file to include the new rule
 - updates the `CheckList.java` to include the new rule
 
 3. Update generated files
@@ -111,16 +114,16 @@ This script:
         "TYPESCRIPT"
       ]
      ```
-4. Implement the rule logic in `no-invalid-something.ts`
+4. Implement the rule logic in `S1234/rule.ts`
 
    - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   - Note that there are some helper functions in `src/linting/eslint/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
+   - Note that there are some helper functions in `src/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
    - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
 
 5. If possible, implement quick fixes for the rule:
-   - Add its rule key in `src/linting/eslint/linter/quickfixes/rules.ts`
-   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `src/linting/eslint/linter/quickfixes/messages.ts`.
-   - Add a code fixture that should provide a quickfix in `tests/linting/eslint/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
+   - Add its rule key in `src/linter/quickfixes/rules.ts`
+   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `src/linter/quickfixes/messages.ts`.
+   - Add a code fixture that should provide a quickfix in `tests/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
 
 ## Testing a rule
 
@@ -128,7 +131,7 @@ We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/
 
 ### Comment-based testing
 
-These tests are located in `tests/linting/eslint/rules/comment-based/` and they **MUST** be named after the rule they are testing (i.e. `semi.[(js|ts)x?]` to test ESLint `semi` rule). If options are to be passed to the tested rule, add a JSON file to the same directory following the same naming convention but with a `.json` extension (i.e. `semi.json`). The file must contain the array of options.
+These tests are located in the rule folder and they **MUST** be named `cb.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
 
 The contents of the test code have the following structure:
 
@@ -262,12 +265,6 @@ some.faulty.code(); // Noncompliant [[qf1,qf2=0]]
 // edit@qf1 {{some.faulty?.code();}}
 // fix@qf2 {{second alternative quickfix description}}
 // edit@qf2 {{some.faulty && some.faulty.code();}}
-```
-
-To execute a single comment-based test:
-
-```sh
-npm run ctest -- -t="no-invalid-something"
 ```
 
 #### Ruling

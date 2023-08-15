@@ -19,12 +19,11 @@
  */
 import { Linter, Rule } from 'eslint';
 import { eslintRules } from '../rules/core';
+import { tsEslintRules } from '../rules/typescript-eslint';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
-import { decorateExternalRules } from './decoration';
 import { debug, getContext } from '@sonar/shared/helpers';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
@@ -41,9 +40,7 @@ export function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)
 
 /**
  * Loaders for each of the predefined rules bundles. Each bundle comes with a
- * different data structure (array/record/object), plus on some cases
- * there are specifics that must be taken into account, like ignoring some
- * rules from some bundles or decorating them in order to be compatible.
+ * different data structure (array/record/object).
  */
 const loaders: { [key: string]: Function } = {
   /**
@@ -51,26 +48,22 @@ const loaders: { [key: string]: Function } = {
    *
    * The external ESLint-based rules include all the rules that are
    * not implemented internally, in other words, rules from external
-   * dependencies which include ESLint core rules. Furthermore, the
-   * returned rules are decorated either by internal decorators or by
-   * special decorations.
+   * dependencies which include ESLint core rules.
    */
   externalRules(linter: Linter) {
     const externalRules: { [key: string]: Rule.RuleModule } = {};
     /**
      * The order of defining rules from external dependencies is important here.
      * Core ESLint rules could be overridden by the implementation from specific
-     * dependencies, which should be the default behaviour in most cases. If for
-     * some reason a different behaviour is needed for a particular rule, one can
-     * specify it in `decorateExternalRules`.
+     * dependencies, which should be the default behaviour in most cases.
      */
-    const dependencies = [eslintRules, typescriptESLintRules, reactESLintRules];
+    const dependencies = [eslintRules, tsEslintRules, reactESLintRules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
         externalRules[name] = module;
       }
     }
-    linter.defineRules(decorateExternalRules(externalRules));
+    linter.defineRules(externalRules);
   },
   /**
    * Loads plugin rules

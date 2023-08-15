@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [],
+  "include": ["server.ts", "*/src/**/*.ts"],
+  "exclude": [
+    "*/src/rules/tools",
+    "*/src/rules/*/*.test.ts",
+    "*/src/rules/*/*.fixture.*",
+    "*/src/rules/*/fixtures"
+  ]
+}

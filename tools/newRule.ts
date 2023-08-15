@@ -22,14 +22,16 @@ import * as path from 'path';
 
 const rootFolder = path.join(__dirname, '../');
 const templatesFolder = path.join(rootFolder, 'tools/resources/');
+const ruleIndexPath = path.join(templatesFolder, 'rule.index_ts');
 const ruleTemplatePath = path.join(templatesFolder, 'rule.template_ts');
+const ruleCBTestPath = path.join(templatesFolder, 'rule.cbtest_ts');
 const javaRuleTemplatePath = path.join(templatesFolder, 'rule.template_java');
 const checkListPath = path.join(
   rootFolder,
   'sonar-plugin/javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java',
 );
 
-const mainPath = path.join(rootFolder, 'src/linting/eslint/rules/index.ts');
+const mainPath = path.join(rootFolder, 'packages/jsts/src/rules/index.ts');
 
 run();
 
@@ -69,24 +71,24 @@ function run() {
       return;
     }
 
+    const ruleFolder = path.join(rootFolder, `packages/jsts/src/rules`, rspecId);
+    try {
+      fs.mkdirSync(ruleFolder);
+    } catch {
+      // already exists
+    }
+
+    fs.copyFileSync(ruleIndexPath, path.join(ruleFolder, `index.ts`));
+
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___RULE_CLASS_NAME___'] = javaRuleClassName;
     ruleMetadata['___RULE_KEY___'] = rspecId;
 
-    inflateTemplate(
-      ruleTemplatePath,
-      path.join(rootFolder, `src/linting/eslint/rules/${ruleNameDash}.ts`),
-      ruleMetadata,
-    );
+    inflateTemplate(ruleTemplatePath, path.join(ruleFolder, `rule.ts`), ruleMetadata);
 
-    const testPath = path.join(rootFolder, `tests/linting/eslint/rules/comment-based`);
-    try {
-      fs.mkdirSync(testPath);
-    } catch {
-      // already exists
-    }
-    fs.writeFileSync(path.join(testPath, `${ruleNameDash}.js`), '');
+    fs.copyFileSync(ruleCBTestPath, path.join(ruleFolder, `cb.test.ts`));
+    fs.writeFileSync(path.join(ruleFolder, `cb.fixture.ts`), '');
   }
 
   /** Creates rule java source from template */
@@ -195,12 +197,12 @@ function run() {
     }
 
     const { head1, imports, head2, rules, tail } = parseMain();
-    const camelCaseRuleName = ruleNameDash.replace(/(-[a-z])/g, match => match[1].toUpperCase());
+    const comment = (s: String) => s.replace(/^.*;/, '');
 
-    imports.push(`import { rule as ${camelCaseRuleName} } from './${ruleNameDash}';`);
-    imports.sort();
+    imports.push(`import { rule as ${rspecId} } from './${rspecId}'; // ${ruleNameDash}`);
+    imports.sort((a, b) => comment(a).localeCompare(comment(b)));
 
-    rules.push(`rules['${ruleNameDash}'] = ${camelCaseRuleName};`);
+    rules.push(`rules['${ruleNameDash}'] = ${rspecId};`);
     rules.sort();
 
     fs.writeFileSync(mainPath, [...head1, ...imports, ...head2, ...rules, ...tail].join('\n'));

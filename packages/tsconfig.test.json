@@ -1,16 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": false,
     "noEmit": true,
     "strictNullChecks": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "composite": true
   },
   "references": [
     {
-      "path": "./tsconfig.json"
+      "path": "./tsconfig.app.json"
     }
   ],
-  "include": ["*/tests"],
-  "exclude": ["*/tests/**/fixtures", "*/tests/rules/comment-based"]
+  "include": ["*/tests", "*/src/rules/tools", "*/src/rules/*/*.test.ts"],
+  "exclude": ["*/tests/**/fixtures", "*/src/rules/*/*.fixture.*", "*/src/rules/*/fixtures"]
 }
