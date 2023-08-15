@@ -80,13 +80,13 @@
 
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
-    <sonar.inclusions>packages/*/src</sonar.inclusions>
+    <!-- <sonar.inclusions>packages/*/src</sonar.inclusions>
     <sonar.exclusions>packages/jsts/src/rules/*/*.test.ts,packages/jsts/src/rules/*/*.fixture.*,packages/jsts/src/rules/*/fixtures</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/*/tests,packages/jsts/src/rules/*/*.test.ts</sonar.test.inclusions>
-    <sonar.test.exclusions>packages/*/tests/**/fixtures</sonar.test.exclusions>
+    <sonar.test.exclusions>packages/*/tests/**/fixtures</sonar.test.exclusions> -->
     <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
-    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
+    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
   </properties>
 
