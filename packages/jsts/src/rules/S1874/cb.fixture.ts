@@ -45,7 +45,7 @@ d.m(); // Noncompliant
  * @deprecated since version 42
  */
 export class MyClass {
-    /** @deprecated */ 
+    /** @deprecated */
     deprecatedProperty: any;
     /** @deprecated with message */ oneMoreDeprecated: any;
     notDeprecated;
@@ -60,7 +60,7 @@ foo(myObj.notDeprecated);
 interface MyInterface extends MyClass {} // Noncompliant
 let myInterface: MyInterface;
 foo(myInterface.deprecatedProperty); // Noncompliant
-foo(myInterface.notDeprecated); 
+foo(myInterface.notDeprecated);
 
 (function ({deprecatedProperty, notDeprecated, oneMoreDeprecated: tmp}: MyInterface) {})  // Noncompliant 2
 (function ({foo: {deprecatedProperty, notDeprecated}}: {foo: MyInterface}) {}) // Noncompliant
@@ -72,7 +72,7 @@ let {deprecatedProperty, notDeprecated, oneMoreDeprecated} = myObj; // Noncompli
 let obj = { deprecatedProperty: 42, notDeprecated };
 
 /** @deprecated */
-let deprecatedVar; 
+let deprecatedVar;
 ({deprecatedProperty: deprecatedVar} = myObj);  // Noncompliant 2
 
 /* separator */
@@ -170,9 +170,9 @@ function someDeprecated(a: number | string): number | string {
     return a;
 }
 
-//someDeprecated('yolo'); // Noncompliant
-//someDeprecated(42); // OK
-//someDeprecated: // OK
+someDeprecated('yolo'); // Noncompliant
+someDeprecated(42); // OK
+someDeprecated: // OK
 
 /** @deprecated */ function allDeprecated(a: string): string;
 /** @deprecated */ function allDeprecated(a: number): number;
@@ -181,6 +181,6 @@ function allDeprecated(a: number | string): number | string {
     return a;
 }
 
-//allDeprecated('yolo'); // Noncompliant
-//allDeprecated(42); // Noncompliant
+allDeprecated('yolo'); // Noncompliant
+allDeprecated(42); // Noncompliant
 allDeprecated; // Noncompliant
