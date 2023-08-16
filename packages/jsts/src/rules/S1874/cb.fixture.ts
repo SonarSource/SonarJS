@@ -93,7 +93,7 @@ function fn() { }
 
 fn<number>();
 fn(1); // Noncompliant
-h(fn); // Noncompliant
+h(fn); // OK, not deprecated anymore because it has non-deprecated declarations
 
 /* separator */
 
@@ -142,7 +142,7 @@ deprecatedCallSignature2(); // Noncompliant
 /* separator */
 
 import * as allDeprecations from './cb.fixture.deprecations';
-z(allDeprecations.deprecatedFunction);// Noncompliant
+z(allDeprecations.deprecatedFunction); // OK, not deprecated anymore because it has non-deprecated declarations
 
 import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations';
 defaultImport(); // Noncompliant
@@ -184,3 +184,18 @@ function allDeprecated(a: number | string): number | string {
 allDeprecated('yolo'); // Noncompliant
 allDeprecated(42); // Noncompliant
 allDeprecated; // Noncompliant
+
+function multipleDeclarationsWithoutJsDoc(a: string): void;
+function multipleDeclarationsWithoutJsDoc(a: number): void;
+function multipleDeclarationsWithoutJsDoc(a: string | number): void {
+    a;
+}
+multipleDeclarationsWithoutJsDoc;
+
+/** hello */ function multipleDeclarationsWithoutTags(a: string): void;
+/** I have no tags */function multipleDeclarationsWithoutTags(a: number): void;
+/** me neither */ function multipleDeclarationsWithoutTags(a: string | number): void {
+    a;
+}
+multipleDeclarationsWithoutTags;
+

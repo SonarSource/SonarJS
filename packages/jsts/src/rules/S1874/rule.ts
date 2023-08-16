@@ -200,9 +200,13 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
   }
 
   for (const declaration of symbol.declarations as any) {
-    for (const jsdoc of declaration.jsDoc || []) {
-      // if a declaration has no JS doc or tags, it can't be deprecated
-      if (!jsdoc?.tags) {
+    // if a declaration has no JS doc, it can't be deprecated
+    if (!declaration.jsDoc) {
+      return undefined;
+    }
+    for (const jsdoc of declaration.jsDoc) {
+      // if a declaration has no or tags, it can't be deprecated
+      if (!jsdoc.tags) {
         return undefined;
       }
       if (!(jsdoc.tags as Array<any>).some(tag => tag.tagName.escapedText === 'deprecated')) {
