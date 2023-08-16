@@ -117,7 +117,7 @@ function getDeprecation(
     return undefined;
   }
 
-  return getJsDocDeprecation(symbol.getJsDocTags());
+  return getJsDocDeprecationFromSymbol(symbol);
 }
 
 function getSymbol(
@@ -181,6 +181,32 @@ function isCallExpression(
     }
   }
   return false;
+}
+
+/**
+ * Returns deprecation only if all declarations contain JS doc with the deprecated tag
+ *
+ * @param symbol
+ * @returns
+ */
+function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
+  // single declaration, we use the "standard" check
+  if (symbol?.declarations?.length === 1) {
+    return getJsDocDeprecation(symbol.getJsDocTags());
+  }
+
+  if (!symbol.declarations) return undefined;
+
+  for (const declaration of symbol.declarations as any) {
+    for (const jsdoc of declaration?.jsDoc || []) {
+      // if a declaration has no JS doc or tags, it can't be deprecated
+      if (!jsdoc || !jsdoc.tags) return undefined;
+      if (!(jsdoc.tags as Array<any>).some(tag => tag.tagName.escapedText === 'deprecated')) {
+        return undefined;
+      }
+    }
+  }
+  return new Deprecation();
 }
 
 function getJsDocDeprecation(tags: ts.JSDocTagInfo[]): Deprecation | undefined {

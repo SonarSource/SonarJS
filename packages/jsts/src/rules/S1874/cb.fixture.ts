@@ -160,3 +160,27 @@ const myObj2: DeprecatedClass = new DeprecatedClass();  // Noncompliant 2
 const myObj3: DeprecatedConstructorClass = new ClassWithDeprecatedConstructor(); // Noncompliant
 new ClassWithOneDeprecatedConstructor();
 new ClassWithOneDeprecatedConstructor(1); // Noncompliant
+
+// fixes issue #4008
+
+/** @deprecated */ function someDeprecated(a: string): string;
+/** @param a */ function someDeprecated(a: number): number;
+function someDeprecated(a: number | string): number | string {
+    if (typeof a === 'number') return a + 1;
+    return a;
+}
+
+//someDeprecated('yolo'); // Noncompliant
+//someDeprecated(42); // OK
+//someDeprecated: // OK
+
+/** @deprecated */ function allDeprecated(a: string): string;
+/** @deprecated */ function allDeprecated(a: number): number;
+function allDeprecated(a: number | string): number | string {
+    if (typeof a === 'number') return a + 1;
+    return a;
+}
+
+//allDeprecated('yolo'); // Noncompliant
+//allDeprecated(42); // Noncompliant
+allDeprecated; // Noncompliant
