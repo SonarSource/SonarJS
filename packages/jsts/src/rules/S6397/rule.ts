@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6397/javascript
 
 import { Rule } from 'eslint';
-import { CharacterClass, CharacterClassElement } from 'regexpp/ast';
+import { CharacterClass, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
 
 const FORBIDDEN_TYPES = [

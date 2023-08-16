@@ -28,7 +28,7 @@ import {
   isStringType,
 } from '../helpers';
 import * as estree from 'estree';
-import { RegExpValidator } from 'regexpp';
+import { RegExpValidator } from '@eslint-community/regexpp';
 
 const validator = new RegExpValidator();
 

@@ -27,8 +27,8 @@ import {
   getPatternFromNode,
   isRegExpConstructor,
 } from '../helpers/regex';
-import { RegExpValidator } from 'regexpp';
-import { Character, CharacterClassElement } from 'regexpp/ast';
+import { RegExpValidator } from '@eslint-community/regexpp';
+import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 

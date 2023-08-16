@@ -21,8 +21,8 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
-import { Backreference, CapturingGroup, RegExpLiteral } from 'regexpp/ast';
+import * as regexpp from '@eslint-community/regexpp';
+import { Backreference, CapturingGroup, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import {
   getLhsVariable,
   getUniqueWriteUsage,

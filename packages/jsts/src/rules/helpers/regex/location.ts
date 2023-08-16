@@ -19,7 +19,7 @@
  */
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
+import * as regexpp from '@eslint-community/regexpp';
 import { isRegexLiteral, isStringLiteral } from '../';
 import { getRegexpRange } from './range';
 

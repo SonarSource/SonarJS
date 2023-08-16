@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
-import { RegExpLiteral } from 'regexpp/ast';
+import * as regexpp from '@eslint-community/regexpp';
+import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { isRequiredParserServices } from '../helpers';
 import {
   GroupReference,

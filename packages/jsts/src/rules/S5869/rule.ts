@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5869/javascript
 
 import { Rule } from 'eslint';
-import { CharacterClass, Flags, Node, RegExpLiteral } from 'regexpp/ast';
+import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { toEncodedMessage } from '../helpers';
 import {
   createRegExpRule,

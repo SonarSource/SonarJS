@@ -19,8 +19,8 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
-import type { RegExpVisitor } from 'regexpp/visitor';
+import * as regexpp from '@eslint-community/regexpp';
+import type { RegExpVisitor } from '@eslint-community/regexpp/visitor';
 import { isStringRegexMethodCall } from './ast';
 import { getParsedRegex } from './extract';
 import { getRegexpLocation } from './location';

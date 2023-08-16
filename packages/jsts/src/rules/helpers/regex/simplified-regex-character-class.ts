@@ -24,8 +24,8 @@ import {
   CharacterSet,
   Flags,
   Node,
-} from 'regexpp/ast';
-import * as regexpp from 'regexpp';
+} from '@eslint-community/regexpp/ast';
+import * as regexpp from '@eslint-community/regexpp';
 import createTree from 'functional-red-black-tree';
 
 const MAX_CODE_POINT = 0x10ffff;

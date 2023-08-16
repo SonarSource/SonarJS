@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { last } from '../helpers';
 import { Alternation } from '../helpers/regex';
-import * as regexpp from 'regexpp';
+import * as regexpp from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {

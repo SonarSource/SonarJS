@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2639/javascript
 
 import { Rule } from 'eslint';
-import { CharacterClass } from 'regexpp/ast';
+import { CharacterClass } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = createRegExpRule(

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6324/javascript
 
 import { Rule } from 'eslint';
-import { Character } from 'regexpp/ast';
+import { Character } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
 
 const EXCEPTIONS = ['\t', '\n'];

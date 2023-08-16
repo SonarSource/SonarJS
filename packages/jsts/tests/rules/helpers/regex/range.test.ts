@@ -20,7 +20,7 @@
 import * as esprima from 'esprima';
 import * as estree from 'estree';
 import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers/regex';
-import * as regexpp from 'regexpp';
+import * as regexpp from '@eslint-community/regexpp';
 import { Rule, SourceCode } from 'eslint';
 import RuleContext = Rule.RuleContext;
 
