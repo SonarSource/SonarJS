@@ -190,31 +190,37 @@ function isCallExpression(
  * @returns
  */
 function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
-  // single declaration, we use the "standard" check
-  if (symbol?.declarations?.length === 1) {
-    return getJsDocDeprecation(symbol.getJsDocTags());
-  }
-
-  if (!symbol.declarations || symbol.declarations.length === 0) {
+  const declarations = symbol.getDeclarations();
+  if (!declarations || declarations.length === 0) {
     return undefined;
   }
 
-  for (const declaration of symbol.declarations as any) {
-    // if a declaration has no JS doc, it can't be deprecated
-    if (!declaration.jsDoc) {
-      return undefined;
-    }
-    for (const jsdoc of declaration.jsDoc) {
-      // if a declaration has no tags, it can't be deprecated
-      if (!jsdoc.tags) {
-        return undefined;
-      }
-      if (!(jsdoc.tags as Array<any>).some(tag => tag.tagName.escapedText === 'deprecated')) {
-        return undefined;
-      }
-    }
+  // single declaration, we use the "standard" check
+  if (declarations.length === 1) {
+    return getJsDocDeprecation(symbol.getJsDocTags());
   }
-  return new Deprecation();
+
+  if (
+    declarations.every(declaration => {
+      if ((declaration as any).body) {
+        // we don't require jsdoc in the implementation declaration
+        return true;
+      } else {
+        const tags: string[] = [];
+        const jsDoc = (declaration as any).jsDoc;
+        jsDoc?.forEach((jsdoc: any) => {
+          jsdoc.tags?.forEach((tag: any) => {
+            tags.push(tag.tagName.escapedText);
+          });
+        });
+        return tags.includes('deprecated');
+      }
+    })
+  ) {
+    return new Deprecation();
+  } else {
+    return undefined;
+  }
 }
 
 function getJsDocDeprecation(tags: ts.JSDocTagInfo[]): Deprecation | undefined {
