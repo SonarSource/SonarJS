@@ -205,7 +205,7 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
       return undefined;
     }
     for (const jsdoc of declaration.jsDoc) {
-      // if a declaration has no or tags, it can't be deprecated
+      // if a declaration has no tags, it can't be deprecated
       if (!jsdoc.tags) {
         return undefined;
       }

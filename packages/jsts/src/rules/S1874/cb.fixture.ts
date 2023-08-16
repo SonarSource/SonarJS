@@ -199,3 +199,10 @@ multipleDeclarationsWithoutJsDoc;
 }
 multipleDeclarationsWithoutTags;
 
+/** @param */ function multipleDeclarationsWithUnrelatedTags(a: string): void;
+/** @yolo */function multipleDeclarationsWithUnrelatedTags(a: number): void;
+function multipleDeclarationsWithUnrelatedTags(a: string | number): void {
+    a;
+}
+multipleDeclarationsWithUnrelatedTags;
+
