@@ -206,3 +206,6 @@ function multipleDeclarationsWithUnrelatedTags(a: string | number): void {
 }
 multipleDeclarationsWithUnrelatedTags;
 
+(function() {
+	return undefined; // OK
+}() );

@@ -195,7 +195,7 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
     return getJsDocDeprecation(symbol.getJsDocTags());
   }
 
-  if (!symbol.declarations) {
+  if (!symbol.declarations || symbol.declarations.length === 0) {
     return undefined;
   }
 
