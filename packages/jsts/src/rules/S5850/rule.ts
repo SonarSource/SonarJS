@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5850/javascript
 
 import { Rule } from 'eslint';
-import { AST } from 'regexpp';
+import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
 
 enum Position {

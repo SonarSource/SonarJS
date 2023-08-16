@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
+import * as regexpp from '@eslint-community/regexpp';
 import {
   Assertion,
   Backreference,
@@ -31,7 +31,7 @@ import {
   LookaroundAssertion,
   Pattern,
   Quantifier,
-} from 'regexpp/ast';
+} from '@eslint-community/regexpp/ast';
 import {
   getUniqueWriteUsage,
   isBinaryPlus,

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { AST } from 'regexpp';
+import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../../../../src/rules/helpers/regex';
 import { JavaScriptRuleTester } from '../../../tools';
 

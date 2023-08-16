@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5867/javascript
 
 import { Rule } from 'eslint';
-import { Character, Quantifier, RegExpLiteral } from 'regexpp/ast';
+import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { SourceLocation } from 'estree';
 import { toEncodedMessage } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';

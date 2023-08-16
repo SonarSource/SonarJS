@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5852/javascript
 
 import { Rule } from 'eslint';
-import { RegExpLiteral } from 'regexpp/ast';
+import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
 import { createRegExpRule } from '../helpers/regex';
 

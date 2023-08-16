@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
-import * as regexpp from 'regexpp';
+import * as regexpp from '@eslint-community/regexpp';
 import { Rule } from 'eslint';
 import {
   getSimpleRawStringValue,
