@@ -293,10 +293,6 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
         {
           suggestions: [
             {
-              desc: 'Add a comparator function to sort in ascending lexicographic order',
-              output: 'const array = ["foo", "bar"]; array.sort((a, b) => (a < b));',
-            },
-            {
               desc: 'Add a comparator function to sort in ascending language-sensitive order',
               output: 'const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));',
             },
@@ -611,11 +607,6 @@ ruleTester.run(
         errors: [
           {
             suggestions: [
-              {
-                desc: 'Add a comparator function to sort in ascending lexicographic order',
-                output:
-                  'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => (a < b));',
-              },
               {
                 desc: 'Add a comparator function to sort in ascending language-sensitive order',
                 output:
