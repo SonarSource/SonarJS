@@ -200,19 +200,18 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
     return getJsDocDeprecation(symbol.getJsDocTags());
   }
 
+  // this happens for class/prototype props with getters/setters
+  if (declarations.every(declaration => (declaration as any).body)) {
+    return undefined;
+  }
+
   if (
     declarations.every(declaration => {
       if ((declaration as any).body) {
         // we don't require jsdoc in the implementation declaration
         return true;
       } else {
-        const tags: string[] = [];
-        const jsDoc = (declaration as any).jsDoc;
-        jsDoc?.forEach((jsdoc: any) => {
-          jsdoc.tags?.forEach((tag: any) => {
-            tags.push(tag.tagName.escapedText);
-          });
-        });
+        const tags = collectTags(declaration);
         return tags.includes('deprecated');
       }
     })
@@ -220,6 +219,25 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
     return new Deprecation();
   } else {
     return undefined;
+  }
+
+  /**
+   * Collect the tags in the declaration.
+   * The structure of { jsDoc: [{ ... tags: [{ ... }]}] } is not stable
+   * so we have many possibly undefined props
+   *
+   * @param declaration
+   * @returns
+   */
+  function collectTags(declaration: any) {
+    const tags: string[] = [];
+    const jsDoc = declaration.jsDoc;
+    jsDoc?.forEach((jsdoc: any) => {
+      jsdoc.tags?.forEach((tag: any) => {
+        tags.push(tag.tagName.escapedText);
+      });
+    });
+    return tags;
   }
 }
 
