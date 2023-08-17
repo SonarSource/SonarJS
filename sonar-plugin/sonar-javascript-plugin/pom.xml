@@ -84,6 +84,10 @@
       <artifactId>sonarlint-plugin-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core</artifactId>
       <scope>test</scope>

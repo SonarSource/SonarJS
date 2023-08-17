@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -39,7 +40,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -59,7 +60,7 @@ class CoverageSensorTest {
   private File moduleBaseDir = new File("src/test/resources/coverage/").getAbsoluteFile();
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @BeforeEach
   public void init() throws FileNotFoundException {
@@ -181,6 +182,7 @@ class CoverageSensorTest {
 
   @Test
   void test_unresolved_path() {
+    logTester.setLevel(Level.INFO);
     settings.setProperty(
       JavaScriptPlugin.LCOV_REPORT_PATHS,
       "reports/report_with_unresolved_path.lcov"
@@ -188,20 +190,18 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
     String fileName =
       File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]"
       )
       .contains(
         "First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)"
       );
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("Using 'reports/report_with_unresolved_path.lcov' to resolve LCOV files");
   }
 
   @Test
   void test_unresolved_path_with_debug_log() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     settings.setProperty(
       JavaScriptPlugin.LCOV_REPORT_PATHS,
       "reports/report_with_unresolved_path.lcov"
@@ -209,11 +209,11 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
     String fileName =
       File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]"
       );
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Unresolved paths:\n" + "unresolved/file1.js\n" + "unresolved/file2.js");
   }
 
