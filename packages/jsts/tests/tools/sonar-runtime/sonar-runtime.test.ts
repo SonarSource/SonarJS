@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules } from '../../../src/rules';
 import { Linter } from 'eslint';
 import {
   rule as noMissingSonarRuntimeRule,
@@ -25,6 +24,7 @@ import {
 } from './rule/no-missing-sonar-runtime';
 import { parseTypeScriptSourceFile } from '../helpers';
 import path from 'path';
+import { readdir } from 'fs/promises';
 import { fileReadable } from '../helpers/files';
 
 /**
@@ -49,35 +49,37 @@ import { fileReadable } from '../helpers/files';
  * test fail, and the names of the problematical rules are reported.
  */
 describe('sonar-runtime', () => {
-  it('should be enabled for rules using secondary locations', () => {
+  it('should be enabled for rules using secondary locations', async () => {
     const misconfiguredRules = [];
 
     const linter = new Linter();
     linter.defineRule(noMissingSonarRuntimeRuleId, noMissingSonarRuntimeRule);
 
-    Object.keys(rules).forEach(async rule => {
-      const ruleFilePath = path.join(
-        __dirname,
-        '/../../../src/linting/eslint/rules/',
-        `${rule}.ts`,
-      );
-      if (!(await fileReadable(ruleFilePath))) {
-        throw new Error(
-          `The file '${ruleFilePath}' corresponding to rule name '${rule}' is missing. ` +
-            'A mismatch between the rule id and its corresponding file name?',
-        );
-      }
+    const rulesDir = path.join(__dirname, '/../../../src/rules/');
+    const rulesList = (await readdir(rulesDir)).filter(name => /S\d{3,4}/.test(name));
 
-      const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
+    let ruleImplementationsCount = 0;
 
-      const issues = linter.verify(ruleSourceCode, {
-        rules: { [noMissingSonarRuntimeRuleId]: 'error' },
-      });
-      if (issues.length > 0) {
-        misconfiguredRules.push(rule);
-      }
-    });
+    await Promise.all(
+      rulesList.map(async rule => {
+        const ruleFilePath = path.join(rulesDir, `${rule}/rule.ts`);
+        if (await fileReadable(ruleFilePath)) {
+          const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
 
+          const issues = linter.verify(ruleSourceCode, {
+            rules: { [noMissingSonarRuntimeRuleId]: 'error' },
+          });
+
+          if (issues.length > 0) {
+            misconfiguredRules.push(rule);
+          }
+
+          ++ruleImplementationsCount;
+        }
+      }),
+    );
+
+    expect(ruleImplementationsCount).toBeGreaterThan(200);
     expect(misconfiguredRules).toEqual([]);
   });
 });

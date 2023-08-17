@@ -43,13 +43,17 @@ export const rule: Rule.RuleModule = {
     let isSecondaryLocationEnabled = false;
     return {
       CallExpression: (node: estree.Node) => {
+        const { callee } = node as estree.CallExpression;
+        if (callee.type === 'Identifier' && callee.name === 'AwsIamPolicyTemplate') {
+          isSecondaryLocationEnabled = true;
+        }
+
         if (isSecondaryLocationUsed) {
           return;
         }
-        const { callee } = node as estree.CallExpression;
         if (callee.type === 'Identifier' && callee.name === 'toEncodedMessage') {
           isSecondaryLocationUsed =
-            getModuleNameOfImportedIdentifier(context, callee) === './helpers';
+            getModuleNameOfImportedIdentifier(context, callee) === '../helpers';
         }
       },
       ObjectExpression: (node: estree.Node) => {

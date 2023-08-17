@@ -28,7 +28,7 @@ ruleTester.run('sonar-runtime configuration for secondary locations', rule, {
     },
     {
       code: `
-        import { toEncodedMessage } from './helpers';`,
+        import { toEncodedMessage } from '../helpers';`,
     },
     {
       code: `
@@ -135,7 +135,7 @@ ruleTester.run('sonar-runtime configuration for secondary locations', rule, {
   invalid: [
     {
       code: `
-        import { toEncodedMessage } from './helpers';
+        import { toEncodedMessage } from '../helpers';
         /* ... */
         toEncodedMessage(whatever);`,
       errors: [
@@ -150,7 +150,7 @@ ruleTester.run('sonar-runtime configuration for secondary locations', rule, {
     },
     {
       code: `
-        import { toEncodedMessage } from './helpers';
+        import { toEncodedMessage } from '../helpers';
         /* ... */
         toEncodedMessage(whatever);
         toEncodedMessage(whatever);`,
