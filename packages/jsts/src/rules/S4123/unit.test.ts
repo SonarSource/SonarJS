@@ -122,6 +122,13 @@ ruleTester.run('await should only be used with promises.', rule, {
       }
       `,
     },
+    {
+      code: `
+      async function foo(x: unknown) {
+        await x;
+      }
+      `,
+    },
   ],
   invalid: [
     {

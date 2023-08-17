@@ -39,7 +39,12 @@ export const rule: Rule.RuleModule = {
             (node as estree.AwaitExpression).argument,
             services,
           );
-          if (!hasThenMethod(awaitedType) && !isAny(awaitedType) && !isUnion(awaitedType)) {
+          if (
+            !hasThenMethod(awaitedType) &&
+            !isAny(awaitedType) &&
+            !isUnknown(awaitedType) &&
+            !isUnion(awaitedType)
+          ) {
             context.report({
               messageId: 'refactorAwait',
               node,
@@ -61,6 +66,10 @@ function hasThenMethod(type: ts.Type) {
 
 function isAny(type: ts.Type) {
   return Boolean(type.flags & ts.TypeFlags.Any);
+}
+
+function isUnknown(type: ts.Type) {
+  return Boolean(type.flags & ts.TypeFlags.Unknown);
 }
 
 function isUnion(type: ts.Type) {
