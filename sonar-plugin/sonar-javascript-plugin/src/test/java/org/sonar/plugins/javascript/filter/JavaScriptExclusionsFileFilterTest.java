@@ -27,11 +27,12 @@ import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -51,7 +52,7 @@ class JavaScriptExclusionsFileFilterTest {
     "bundle. (Disable detection with sonar.javascript.detectBundles=false)";
 
   @RegisterExtension
-  LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @TempDir
   Path tempDir;

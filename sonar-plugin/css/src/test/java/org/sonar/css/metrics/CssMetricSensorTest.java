@@ -43,8 +43,8 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 
 class CssMetricSensorTest {
 

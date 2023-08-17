@@ -66,8 +66,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.BridgeServer;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 

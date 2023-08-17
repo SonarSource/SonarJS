@@ -56,7 +56,7 @@ class TypeScriptRulesDefinitionTest {
       new TypeScriptRulesDefinition(sonarRuntime)
     );
 
-    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("ts");
     assertThat(repository.rules()).hasSize(CheckList.getTypeScriptChecks().size());
 

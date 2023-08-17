@@ -47,7 +47,7 @@ class JavaScriptRulesDefinitionTest {
       new JavaScriptRulesDefinition(sonarRuntime)
     );
 
-    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("js");
     assertThat(repository.rules()).hasSize(CheckList.getJavaScriptChecks().size());
 

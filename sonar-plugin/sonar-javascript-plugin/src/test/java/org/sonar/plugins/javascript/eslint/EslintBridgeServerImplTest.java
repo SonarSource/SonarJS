@@ -52,6 +52,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -62,9 +63,9 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.BridgeServer.JsAnalysisRequest;
@@ -81,7 +82,7 @@ class BridgeServerImplTest {
   private final Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @TempDir
   Path moduleBase;

@@ -24,13 +24,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
@@ -64,21 +62,16 @@ class CheckListTest {
       }
     }
 
-    List<String> keys = new ArrayList<>();
-    List<Rule> rules = new AnnotationRuleParser()
-      .parse("repositoryKey", Collections.unmodifiableList(checks));
-    for (Rule rule : rules) {
-      keys.add(rule.getKey());
+    var keys = checks
+      .stream()
+      .map(c -> c.getAnnotation(org.sonar.check.Rule.class).key())
+      .collect(Collectors.toList());
+    for (var key : keys) {
       assertThat(
-        getClass()
-          .getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html")
+        getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + key + ".html")
       )
-        .overridingErrorMessage("No description for " + rule.getKey())
+        .overridingErrorMessage("No description for " + key)
         .isNotNull();
-
-      assertThat(rule.getDescription())
-        .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
-        .isNull();
     }
 
     // these rules have different implementation for TS and JS

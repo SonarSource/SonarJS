@@ -38,6 +38,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -57,8 +58,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
@@ -71,7 +71,7 @@ class YamlSensorTest {
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Mock
   private BridgeServer bridgeServerMock;
@@ -223,11 +223,11 @@ class YamlSensorTest {
     createInputFile(context);
     yamlSensor.execute(context);
 
-    final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
+    final var logAndArguments = logTester.getLogs(Level.ERROR).get(0);
 
     assertThat(logAndArguments.getFormattedMsg())
       .isEqualTo("Failure during analysis, bridgeServerMock command info");
-    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage())
+    assertThat(logAndArguments.getThrowable().getMessage())
       .isEqualTo("the bridge server is not answering");
   }
 
