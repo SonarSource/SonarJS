@@ -206,6 +206,25 @@ function multipleDeclarationsWithUnrelatedTags(a: string | number): void {
 }
 multipleDeclarationsWithUnrelatedTags;
 
+// edge case of implementation: symbol with a declarations array of length 0
 (function() {
 	return undefined; // OK
 }() );
+
+// edge case of implementation: symbol with 2 declarations containing a body
+const a = {
+	_: {
+		y: 0,
+	},
+
+	set y (value) {
+	},
+	get y () {
+		return this._.y;
+	},
+
+	// Method for creating a clone of this object
+	clone: function () {
+    this.y // OK
+	},
+};
