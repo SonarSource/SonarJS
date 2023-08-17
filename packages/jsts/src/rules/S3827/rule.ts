@@ -19,10 +19,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3827/javascript
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { AST } from 'vue-eslint-parser';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { findFirstMatchingAncestor, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+
+const vueMacroNames = new Set([
+  'defineProps',
+  'defineEmits',
+  'defineExpose',
+  'defineOptions',
+  'defineSlots',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -54,6 +63,11 @@ export const rule: Rule.RuleModule = {
             excludedNames.add(identifier.name);
             return;
           }
+          if (
+            isVueMacro(identifier as TSESTree.Identifier, globalScope.block as AST.ESLintProgram)
+          ) {
+            return;
+          }
           const undeclaredIndentifiers = undeclaredIdentifiersByName.get(identifier.name);
           if (undeclaredIndentifiers) {
             undeclaredIndentifiers.push(identifier);
@@ -82,4 +96,23 @@ function isWithinWithStatement(node: TSESTree.Node) {
 function hasTypeOfOperator(node: TSESTree.Node) {
   const parent = node.parent;
   return parent?.type === 'UnaryExpression' && parent.operator === 'typeof';
+}
+
+function isVueMacro(identifier: TSESTree.Identifier, block: AST.ESLintProgram) {
+  if (vueMacroNames.has(identifier.name) && block.templateBody) {
+    for (const element of block.templateBody.parent.children) {
+      if ('name' in element && element.name === 'script') {
+        for (const attribute of element.startTag.attributes) {
+          if (
+            attribute.key.name === 'setup' &&
+            element.range[0] <= identifier.range[0] &&
+            element.range[1] >= identifier.range[1]
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
 }
