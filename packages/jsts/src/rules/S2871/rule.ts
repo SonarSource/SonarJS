@@ -45,7 +45,6 @@ const compareBigIntFunctionPlaceholder = [
   '  }',
   '}',
 ];
-const defaultOrderPlaceholder = '(a, b) => (a < b)';
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
 export const rule: Rule.RuleModule = {
@@ -55,8 +54,6 @@ export const rule: Rule.RuleModule = {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
-      suggestLexicographicOrder:
-        'Add a comparator function to sort in ascending lexicographic order',
       suggestLanguageSensitiveOrder:
         'Add a comparator function to sort in ascending language-sensitive order',
     },
@@ -96,10 +93,6 @@ export const rule: Rule.RuleModule = {
           fix: fixer(call, ...compareBigIntFunctionPlaceholder),
         });
       } else if (isStringArray(type, services)) {
-        suggestions.push({
-          messageId: 'suggestLexicographicOrder',
-          fix: fixer(call, defaultOrderPlaceholder),
-        });
         suggestions.push({
           messageId: 'suggestLanguageSensitiveOrder',
           fix: fixer(call, languageSensitiveOrderPlaceholder),
