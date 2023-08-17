@@ -228,3 +228,6 @@ const a = {
     this.y // OK
 	},
 };
+
+// edge case: contains a declaration with no body and no jsDoc that we should not consider.
+window.pageXOffset // OK, I can't write a discriminant logic for this one that wouldn't conflict with others

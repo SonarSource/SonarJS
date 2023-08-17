@@ -196,7 +196,7 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
   }
 
   // single declaration, we use the "standard" check
-  if (declarations.length === 1) {
+  if (declarations.length <= 1) {
     return getJsDocDeprecation(symbol.getJsDocTags());
   }
 
@@ -207,13 +207,9 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
 
   if (
     declarations.every(declaration => {
-      if ((declaration as any).body) {
-        // we don't require jsdoc in the implementation declaration
-        return true;
-      } else {
-        const tags = collectTags(declaration);
-        return tags.includes('deprecated');
-      }
+      if (isIrrelevant(declaration)) return true;
+      const tags = collectTags(declaration);
+      return tags.includes('deprecated');
     })
   ) {
     return new Deprecation();
@@ -222,12 +218,21 @@ function getJsDocDeprecationFromSymbol(symbol: ts.Symbol) {
   }
 
   /**
+   * This also captures a valid TS signature without jsdoc and without body, which should be considered valid,
+   * but it can't discriminate against elements with weird declarations that also have no body and no jsDoc like window.pageXOffset
+   *
+   * @param declaration
+   */
+  function isIrrelevant(declaration: any) {
+    return declaration.body; // || (!declaration.body && !declaration.jsDoc);
+  }
+
+  /**
    * Collect the tags in the declaration.
    * The structure of { jsDoc: [{ ... tags: [{ ... }]}] } is not stable
    * so we have many possibly undefined props
    *
    * @param declaration
-   * @returns
    */
   function collectTags(declaration: any) {
     const tags: string[] = [];
