@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const undeclaredIndentifiers = undeclaredIdentifiersByName.get(identifier.name);
-          if (!!undeclaredIndentifiers) {
+          if (undeclaredIndentifiers) {
             undeclaredIndentifiers.push(identifier);
           } else {
             undeclaredIdentifiersByName.set(identifier.name, [identifier]);
@@ -65,7 +65,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             node: identifiers[0],
             message: toEncodedMessage(
-              `\"${name}\" does not exist. Change its name or declare it so that its usage doesn't result in a \"ReferenceError\".`,
+              `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
               identifiers.slice(1),
             ),
           });
