@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getFullyQualifiedName } from '../helpers';
+import {
+  isIdentifier,
+  getFullyQualifiedName,
+  isStaticTemplateLiteral,
+  isLiteral,
+} from '../helpers';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 
@@ -61,7 +66,7 @@ function checkOSCommand(context: Rule.RuleContext, call: estree.CallExpression) 
 
 function isQuestionable(method: string, [command, ...otherArguments]: Argument[]) {
   // if command is hardcoded => no issue
-  if (!command || command.type === 'Literal') {
+  if (!command || isLiteral(command) || isStaticTemplateLiteral(command)) {
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`

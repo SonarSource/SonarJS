@@ -64,6 +64,11 @@ ruleTester.run('Executing OS commands is security-sensitive', rule, {
         import * as cp from 'child_process';
         cp.spawn('echo child_process.exec ' + process.argv[2] + ' >> output.txt', { ...x });`,
     },
+    {
+      code: `
+        import { execSync } from 'child_process';
+        execSync(\`echo 'hello, world!'\`);`,
+    },
   ],
   invalid: [
     {
