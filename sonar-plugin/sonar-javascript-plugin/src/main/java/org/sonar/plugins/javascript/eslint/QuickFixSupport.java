@@ -37,7 +37,7 @@ class QuickFixSupport {
   }
 
   static void addQuickFixes(
-    EslintBridgeServer.Issue issue,
+    BridgeServer.Issue issue,
     NewSonarLintIssue sonarLintIssue,
     InputFile file
   ) {

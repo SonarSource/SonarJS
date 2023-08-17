@@ -37,7 +37,7 @@ abstract class AbstractAnalysis {
   static final String PROGRESS_REPORT_TITLE = "Progress of JavaScript/TypeScript analysis";
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
 
-  final EslintBridgeServer eslintBridgeServer;
+  final BridgeServer bridgeServer;
   final Monitoring monitoring;
   final AnalysisProcessor analysisProcessor;
   SensorContext context;
@@ -47,11 +47,11 @@ abstract class AbstractAnalysis {
   AnalysisMode analysisMode;
 
   AbstractAnalysis(
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     Monitoring monitoring,
     AnalysisProcessor analysisProcessor
   ) {
-    this.eslintBridgeServer = eslintBridgeServer;
+    this.bridgeServer = bridgeServer;
     this.monitoring = monitoring;
     this.analysisProcessor = analysisProcessor;
   }

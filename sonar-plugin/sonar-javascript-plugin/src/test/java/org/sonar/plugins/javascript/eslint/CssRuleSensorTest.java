@@ -66,8 +66,8 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.css.CssLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.BridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 class CssRuleSensorTest {
@@ -76,7 +76,7 @@ class CssRuleSensorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Mock
-  private EslintBridgeServer eslintBridgeServerMock;
+  private BridgeServer bridgeServerMock;
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -103,14 +103,14 @@ class CssRuleSensorTest {
   @BeforeEach
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
-    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
-    when(eslintBridgeServerMock.analyzeCss(any()))
+    when(bridgeServerMock.isAlive()).thenReturn(true);
+    when(bridgeServerMock.analyzeCss(any()))
       .thenReturn(
         response(
           "{ issues: [{\"line\":2,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
         )
       );
-    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
+    when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     tempFolder = new DefaultTempFolder(tempDir, true);
@@ -122,7 +122,7 @@ class CssRuleSensorTest {
     sensor =
       new CssRuleSensor(
         sonarRuntime,
-        eslintBridgeServerMock,
+        bridgeServerMock,
         new AnalysisWarningsWrapper(),
         new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
@@ -169,7 +169,7 @@ class CssRuleSensorTest {
     sensor =
       new CssRuleSensor(
         sonarRuntime,
-        eslintBridgeServerMock,
+        bridgeServerMock,
         new AnalysisWarningsWrapper(),
         new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
@@ -190,7 +190,7 @@ class CssRuleSensorTest {
     sensor =
       new CssRuleSensor(
         sonarRuntime,
-        eslintBridgeServerMock,
+        bridgeServerMock,
         new AnalysisWarningsWrapper(),
         new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
@@ -222,7 +222,7 @@ class CssRuleSensorTest {
     AnalysisResponse responseIssues = response(
       "{ issues: [{\"line\":2,\"ruleId\":\"color-no-invalid-hex\",\"message\":\"some message (color-no-invalid-hex)\"}]}"
     );
-    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
+    when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
     addInputFile("file-with-rule-id-message.css");
     sensor.execute(context);
@@ -268,7 +268,7 @@ class CssRuleSensorTest {
   void failed_server_should_log_warn_no_css() throws IOException {
     context.settings().setProperty("sonar.internal.analysis.failFast", "true");
     doThrow(new NodeCommandException("Exception Message"))
-      .when(eslintBridgeServerMock)
+      .when(bridgeServerMock)
       .startServerLazily(any());
     addInputFile("file.web");
 
@@ -281,7 +281,7 @@ class CssRuleSensorTest {
   @Test
   void failed_server_should_log_error_with_css() throws IOException {
     doThrow(new NodeCommandException("Exception Message"))
-      .when(eslintBridgeServerMock)
+      .when(bridgeServerMock)
       .startServerLazily(any());
     addInputFile("file.css");
 
@@ -303,10 +303,10 @@ class CssRuleSensorTest {
   @Test
   void analysis_stop_when_server_is_not_anymore_alive() {
     addInputFile("file.css");
-    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    when(bridgeServerMock.isAlive()).thenReturn(false);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failure during analysis, eslintBridgeServerMock command info");
+      .contains("Failure during analysis, bridgeServerMock command info");
   }
 
   @Test
@@ -326,7 +326,7 @@ class CssRuleSensorTest {
     AnalysisResponse responseIssues = response(
       "{ issues: [{\"line\":2,\"ruleId\":\"CssSyntaxError\",\"message\":\"Missed semicolon (CssSyntaxError)\"}]}"
     );
-    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
+    when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
     InputFile inputFile = addInputFile("syntax-error.css");
     InputFile inputFileNotCss = addInputFile("syntax-error.web");
@@ -343,7 +343,7 @@ class CssRuleSensorTest {
     AnalysisResponse responseIssues = response(
       "{ issues: [{\"line\":2,\"ruleId\":\"unknown-rule-key\",\"message\":\"Some message\"}]}"
     );
-    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
+    when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
     addInputFile("unknown-rule.css");
     sensor.execute(context);
@@ -367,7 +367,7 @@ class CssRuleSensorTest {
     ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(
       CssAnalysisRequest.class
     );
-    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
+    verify(bridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isNull();
   }
@@ -385,7 +385,7 @@ class CssRuleSensorTest {
     ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(
       CssAnalysisRequest.class
     );
-    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
+    verify(bridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content");
   }
@@ -398,7 +398,7 @@ class CssRuleSensorTest {
     ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(
       CssAnalysisRequest.class
     );
-    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
+    verify(bridgeServerMock).analyzeCss(capturedRequest.capture());
 
     assertThat(capturedRequest.getValue().fileContent).isNotNull();
   }

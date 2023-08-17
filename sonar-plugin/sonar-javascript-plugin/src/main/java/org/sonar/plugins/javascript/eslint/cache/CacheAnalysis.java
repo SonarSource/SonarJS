@@ -21,26 +21,26 @@ package org.sonar.plugins.javascript.eslint.cache;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 public class CacheAnalysis {
 
   private final List<String> ucfgPaths;
-  private final EslintBridgeServer.CpdToken[] cpdTokens;
+  private final BridgeServer.CpdToken[] cpdTokens;
 
-  public CacheAnalysis(@Nullable List<String> ucfgPaths, EslintBridgeServer.CpdToken[] cpdTokens) {
+  public CacheAnalysis(@Nullable List<String> ucfgPaths, BridgeServer.CpdToken[] cpdTokens) {
     this.ucfgPaths = ucfgPaths;
     this.cpdTokens = cpdTokens;
   }
 
   public static CacheAnalysis fromResponse(
     List<String> ucfgPaths,
-    EslintBridgeServer.CpdToken[] cpdTokens
+    BridgeServer.CpdToken[] cpdTokens
   ) {
     return new CacheAnalysis(ucfgPaths, cpdTokens);
   }
 
-  static CacheAnalysis fromCache(EslintBridgeServer.CpdToken[] cpdTokens) {
+  static CacheAnalysis fromCache(BridgeServer.CpdToken[] cpdTokens) {
     return new CacheAnalysis(null, cpdTokens);
   }
 
@@ -49,7 +49,7 @@ public class CacheAnalysis {
     return ucfgPaths;
   }
 
-  public EslintBridgeServer.CpdToken[] getCpdTokens() {
+  public BridgeServer.CpdToken[] getCpdTokens() {
     return cpdTokens;
   }
 }

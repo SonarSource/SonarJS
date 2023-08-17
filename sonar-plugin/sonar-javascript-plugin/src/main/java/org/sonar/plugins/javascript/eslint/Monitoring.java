@@ -106,7 +106,7 @@ public class Monitoring implements Startable {
     sensorMetric.fileCount++;
   }
 
-  public void stopFile(InputFile inputFile, int ncloc, EslintBridgeServer.Perf perf) {
+  public void stopFile(InputFile inputFile, int ncloc, BridgeServer.Perf perf) {
     if (!enabled) {
       return;
     }

@@ -62,7 +62,7 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 
 class HtmlSensorTest {
@@ -74,7 +74,7 @@ class HtmlSensorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Mock
-  private EslintBridgeServer eslintBridgeServerMock;
+  private BridgeServer bridgeServerMock;
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -97,9 +97,9 @@ class HtmlSensorTest {
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
 
-    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
-    when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
-    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
+    when(bridgeServerMock.isAlive()).thenReturn(true);
+    when(bridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
 
     context = SensorContextTester.create(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -130,13 +130,13 @@ class HtmlSensorTest {
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
-    when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
 
     HtmlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(2);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -183,11 +183,11 @@ class HtmlSensorTest {
       "web"
     );
 
-    when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
 
     HtmlSensor sensor = createSensor();
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(2)).analyzeHtml(any());
+    verify(bridgeServerMock, times(2)).analyzeHtml(any());
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmFile.uri());
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmlFile.uri());
     assertThat(logTester.logs(LoggerLevel.DEBUG))
@@ -196,7 +196,7 @@ class HtmlSensorTest {
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
-    when(eslintBridgeServerMock.analyzeHtml(any()))
+    when(bridgeServerMock.analyzeHtml(any()))
       .thenReturn(
         new Gson()
           .fromJson(
@@ -221,7 +221,7 @@ class HtmlSensorTest {
 
   @Test
   void should_not_explode_if_no_response() throws Exception {
-    when(eslintBridgeServerMock.analyzeHtml(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeHtml(any())).thenThrow(new IOException("error"));
 
     HtmlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -248,7 +248,7 @@ class HtmlSensorTest {
 
   @Test
   void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    when(bridgeServerMock.isAlive()).thenReturn(false);
 
     HtmlSensor HtmlSensor = createSensor();
     createInputFile(context);
@@ -257,14 +257,14 @@ class HtmlSensorTest {
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
 
     assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+      .isEqualTo("Failure during analysis, bridgeServerMock command info");
     assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage())
-      .isEqualTo("eslint-bridge server is not answering");
+      .isEqualTo("the bridge server is not answering");
   }
 
   @Test
   void log_debug_analyzed_filename() throws Exception {
-    when(eslintBridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
 
     HtmlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -329,7 +329,7 @@ class HtmlSensorTest {
   private HtmlSensor createSensor() {
     return new HtmlSensor(
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
-      eslintBridgeServerMock,
+      bridgeServerMock,
       new AnalysisWarningsWrapper(),
       monitoring,
       analysisProcessor

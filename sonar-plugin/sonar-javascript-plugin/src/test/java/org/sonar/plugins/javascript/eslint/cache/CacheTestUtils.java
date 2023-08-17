@@ -39,7 +39,7 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 public class CacheTestUtils {
 
@@ -49,12 +49,12 @@ public class CacheTestUtils {
   private CacheTestUtils() {}
 
   public static CpdSerializer.SerializationResult getSerializedCpdTokens(
-    List<EslintBridgeServer.CpdToken> cpdTokens
+    List<BridgeServer.CpdToken> cpdTokens
   ) throws IOException {
     return CpdSerializer.toBinary(new CpdData(cpdTokens));
   }
 
-  public static List<EslintBridgeServer.CpdToken> getCpdTokens() {
+  public static List<BridgeServer.CpdToken> getCpdTokens() {
     return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
   }
 

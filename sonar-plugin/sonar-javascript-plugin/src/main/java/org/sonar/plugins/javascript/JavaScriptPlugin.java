@@ -35,9 +35,9 @@ import org.sonar.plugins.javascript.eslint.AnalysisProcessor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.AnalysisWithProgram;
 import org.sonar.plugins.javascript.eslint.AnalysisWithWatchProgram;
+import org.sonar.plugins.javascript.eslint.BridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.CssRuleSensor;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.HtmlSensor;
 import org.sonar.plugins.javascript.eslint.JsTsChecks;
 import org.sonar.plugins.javascript.eslint.JsTsSensor;
@@ -136,7 +136,7 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptProfilesDefinition.class,
       NodeCommandBuilderImpl.class,
       ProcessWrapperImpl.class,
-      EslintBridgeServerImpl.class,
+      BridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
       JsTsSensor.class,

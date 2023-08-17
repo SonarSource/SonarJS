@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.eslint.cache;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 public class CpdDeserializer {
 
@@ -46,7 +46,7 @@ public class CpdDeserializer {
       stringTable = readStringTable();
 
       var sizeOfCpdTokens = readInt();
-      var cpdTokens = new ArrayList<EslintBridgeServer.CpdToken>(sizeOfCpdTokens);
+      var cpdTokens = new ArrayList<BridgeServer.CpdToken>(sizeOfCpdTokens);
 
       for (int i = 0; i < sizeOfCpdTokens; i++) {
         readCpdToken(cpdTokens);
@@ -62,9 +62,9 @@ public class CpdDeserializer {
     }
   }
 
-  private void readCpdToken(List<EslintBridgeServer.CpdToken> cpdTokens) throws IOException {
-    var cpdToken = new EslintBridgeServer.CpdToken();
-    var location = new EslintBridgeServer.Location();
+  private void readCpdToken(List<BridgeServer.CpdToken> cpdTokens) throws IOException {
+    var cpdToken = new BridgeServer.CpdToken();
+    var location = new BridgeServer.Location();
     location.setStartLine(readInt());
     location.setStartCol(readInt());
     location.setEndLine(readInt());

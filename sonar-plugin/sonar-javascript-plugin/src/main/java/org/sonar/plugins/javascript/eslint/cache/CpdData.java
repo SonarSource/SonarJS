@@ -20,17 +20,17 @@
 package org.sonar.plugins.javascript.eslint.cache;
 
 import java.util.List;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 class CpdData {
 
-  private final List<EslintBridgeServer.CpdToken> cpdTokens;
+  private final List<BridgeServer.CpdToken> cpdTokens;
 
-  CpdData(List<EslintBridgeServer.CpdToken> cpdTokens) {
+  CpdData(List<BridgeServer.CpdToken> cpdTokens) {
     this.cpdTokens = List.copyOf(cpdTokens);
   }
 
-  List<EslintBridgeServer.CpdToken> getCpdTokens() {
+  List<BridgeServer.CpdToken> getCpdTokens() {
     return cpdTokens;
   }
 }

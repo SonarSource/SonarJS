@@ -56,7 +56,7 @@ import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
-public class EslintBridgeServerImpl implements EslintBridgeServer {
+public class BridgeServerImpl implements BridgeServer {
 
   private enum Status {
     NOT_STARTED,
@@ -64,7 +64,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     STARTED,
   }
 
-  private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
+  private static final Logger LOG = Loggers.get(BridgeServerImpl.class);
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
@@ -75,7 +75,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
 
-  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
+  private static final String DEPLOY_LOCATION = "bridge-bundle";
 
   private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -95,7 +95,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private ScheduledFuture<?> heartbeatFuture;
 
   // Used by pico container for dependency injection
-  public EslintBridgeServerImpl(
+  public BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
     Bundle bundle,
     RulesBundles rulesBundles,
@@ -114,7 +114,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     );
   }
 
-  EslintBridgeServerImpl(
+  BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
     int timeoutSeconds,
     Bundle bundle,
@@ -170,8 +170,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     File scriptFile = new File(bundle.startServerScript());
     if (!scriptFile.exists()) {
       throw new NodeCommandException(
-        "Node.js script to start eslint-bridge server doesn't exist: " +
-        scriptFile.getAbsolutePath()
+        "Node.js script to start the bridge server doesn't exist: " + scriptFile.getAbsolutePath()
       );
     }
 
@@ -181,7 +180,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .collect(Collectors.joining(File.pathSeparator));
     initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
 
-    LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
+    LOG.debug("Starting Node.js process to start the bridge server at port " + port);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
@@ -280,7 +279,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     try {
       if (isAlive()) {
-        LOG.debug("eslint-bridge server is up, no need to start.");
+        LOG.debug("the bridge server is up, no need to start.");
         return;
       } else if (status == Status.STARTED) {
         status = Status.FAILED;
@@ -387,10 +386,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
       String msg =
-        "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
+        "the bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
         " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
       LOG.error(msg);
-      throw new IllegalStateException("eslint-bridge is unresponsive", e);
+      throw new IllegalStateException("the bridge is unresponsive", e);
     }
   }
 
@@ -460,7 +459,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public TsConfigFile loadTsConfig(String filename) {
-    EslintBridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
+    BridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
     if (tsConfigResponse.error != null) {
       LOG.error(tsConfigResponse.error);
     }
@@ -522,9 +521,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public String getCommandInfo() {
     if (nodeCommand == null) {
-      return "Node.js command to start eslint-bridge server was not built yet.";
+      return "Node.js command to start the bridge server was not built yet.";
     } else {
-      return "Node.js command to start eslint-bridge was: " + nodeCommand;
+      return "Node.js command to start the bridge was: " + nodeCommand;
     }
   }
 

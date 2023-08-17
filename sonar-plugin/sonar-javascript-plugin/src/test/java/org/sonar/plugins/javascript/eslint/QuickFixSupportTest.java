@@ -101,7 +101,7 @@ class QuickFixSupportTest {
   void test() {
     var context = createContext(Version.create(6, 3));
 
-    var response = new EslintBridgeServer.AnalysisResponse();
+    var response = new BridgeServer.AnalysisResponse();
     response.issues = List.of(issueWithQuickFix());
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
@@ -124,18 +124,18 @@ class QuickFixSupportTest {
       .containsExactly(1, 2, 3, 4);
   }
 
-  static EslintBridgeServer.Issue issueWithQuickFix() {
-    var quickFixEdit = new EslintBridgeServer.QuickFixEdit();
+  static BridgeServer.Issue issueWithQuickFix() {
+    var quickFixEdit = new BridgeServer.QuickFixEdit();
     quickFixEdit.text = ";";
-    quickFixEdit.loc = new EslintBridgeServer.IssueLocation();
+    quickFixEdit.loc = new BridgeServer.IssueLocation();
     quickFixEdit.loc.line = 1;
     quickFixEdit.loc.column = 2;
     quickFixEdit.loc.endLine = 3;
     quickFixEdit.loc.endColumn = 4;
-    var quickFix = new EslintBridgeServer.QuickFix();
+    var quickFix = new BridgeServer.QuickFix();
     quickFix.message = "QuickFix message";
     quickFix.edits = List.of(quickFixEdit);
-    var issue = new EslintBridgeServer.Issue();
+    var issue = new BridgeServer.Issue();
     issue.ruleId = "no-extra-semi";
     issue.line = 1;
     issue.column = 1;
@@ -149,7 +149,7 @@ class QuickFixSupportTest {
   @Test
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
-    var response = new EslintBridgeServer.AnalysisResponse();
+    var response = new BridgeServer.AnalysisResponse();
     response.issues = List.of(issueWithQuickFix());
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
@@ -164,7 +164,7 @@ class QuickFixSupportTest {
     var context = createContext(Version.create(6, 3));
     var issue = issueWithQuickFix();
     issue.quickFixes = null;
-    var response = new EslintBridgeServer.AnalysisResponse();
+    var response = new BridgeServer.AnalysisResponse();
     response.issues = List.of(issue);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);

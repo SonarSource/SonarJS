@@ -37,7 +37,7 @@ public class BundleImpl implements Bundle {
   private static final Logger LOG = Loggers.get(BundleImpl.class);
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
 
-  // this archive is created in eslint-bridge module
+  // this archive is created in the bridge module
   private static final String BUNDLE_LOCATION = "/sonarjs-1.0.0.tgz";
   private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server";
   private Path deployLocation;
@@ -54,10 +54,10 @@ public class BundleImpl implements Bundle {
   @Override
   public void deploy(Path deployLocation) throws IOException {
     PROFILER.startDebug("Deploying bundle");
-    LOG.debug("Deploying eslint-bridge into {}", deployLocation);
+    LOG.debug("Deploying the bridge into {}", deployLocation);
     InputStream bundle = getClass().getResourceAsStream(bundleLocation);
     if (bundle == null) {
-      throw new IllegalStateException("eslint-bridge not found in plugin jar");
+      throw new IllegalStateException("the bridge not found in plugin jar");
     }
     BundleUtils.extractFromClasspath(bundle, deployLocation);
     this.deployLocation = deployLocation;

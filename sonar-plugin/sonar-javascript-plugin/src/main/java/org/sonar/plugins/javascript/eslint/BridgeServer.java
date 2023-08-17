@@ -34,7 +34,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
-public interface EslintBridgeServer extends Startable {
+public interface BridgeServer extends Startable {
   void startServerLazily(SensorContext context) throws IOException;
 
   void initLinter(

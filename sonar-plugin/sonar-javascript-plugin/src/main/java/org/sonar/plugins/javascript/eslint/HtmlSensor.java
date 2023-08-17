@@ -32,7 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
@@ -49,14 +49,14 @@ public class HtmlSensor extends AbstractEslintSensor {
 
   public HtmlSensor(
     JsTsChecks checks,
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(eslintBridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring);
     this.analysisProcessor = processAnalysis;
     this.checks = checks;
   }
@@ -73,7 +73,7 @@ public class HtmlSensor extends AbstractEslintSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(
+      bridgeServer.initLinter(
         AnalysisMode.getHtmlFileRules(checks.eslintRules()),
         environments,
         globals,
@@ -85,14 +85,14 @@ public class HtmlSensor extends AbstractEslintSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (eslintBridgeServer.isAlive()) {
+        if (bridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
           var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
           if (cacheStrategy.isAnalysisRequired()) {
             analyze(inputFile, cacheStrategy);
           }
         } else {
-          throw new IllegalStateException("eslint-bridge server is not answering");
+          throw new IllegalStateException("the bridge server is not answering");
         }
       }
       success = true;
@@ -136,7 +136,7 @@ public class HtmlSensor extends AbstractEslintSensor {
         null,
         analysisMode.getLinterIdFor(file)
       );
-      var response = eslintBridgeServer.analyzeHtml(jsAnalysisRequest);
+      var response = bridgeServer.analyzeHtml(jsAnalysisRequest);
       analysisProcessor.processResponse(context, checks, file, response);
       cacheStrategy.writeAnalysisToCache(
         CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),

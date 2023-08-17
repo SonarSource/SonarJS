@@ -30,7 +30,7 @@ The Chrome dev tools allow you to see what functions took how much CPU time as:
 
 7. Launch the Analysis on ruling projects: `npm run profile <my-rule-id> <ts|all> <parallelism>`
    1. `ts` for TS-only projects, `all` for both JS and TS, JS-only by default.
-   2. `parallelism` sets the number of parallel files sent to the ESLint bridge for analysis. Defaults to 5.
+   2. `parallelism` sets the number of parallel files sent to the bridge for analysis. Defaults to 5.
 8. Press "Stop"
 9. View the profile
 10. Change the view from "Heavy (Bottom Up)" to "Tree (Top Down)" (on the top menu, above "Self Time")

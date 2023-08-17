@@ -52,9 +52,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * This test extracts eslint-bridge archive into tmp directory and starts eslint-bridge using node, then tries to analyze
+ * This test extracts the bridge archive into tmp directory and starts the bridge using node, then tries to analyze
  * small JS snippet.
- * The goal is to assert http API of eslint-bridge the way it is used by SonarLint in Visual Studio (i.e. without
+ * The goal is to assert http API of the bridge the way it is used by SonarLint in Visual Studio (i.e. without
  * Java plugin).
  * One optimization for SonarLint is, that we don't compute metrics when running under SonarLint.
  */
@@ -69,25 +69,25 @@ class SonarJsIntegrationTest {
   @Test
   void test() throws Exception {
     String filename = "sonarjs-1.0.0.tgz";
-    EslintBridge eslintBridge = new EslintBridge();
+    Bridge bridge = new Bridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
       Path fileToExtract = fileSystem.getPath(filename);
       extractArchive(fileToExtract, temp);
-      eslintBridge.start(temp);
-      assertStatus(eslintBridge);
-      eslintBridge.request(gson.toJson(InitLinter.build("sonar-no-unused-vars")), "init-linter");
-      assertAnalyzeJs(eslintBridge);
+      bridge.start(temp);
+      assertStatus(bridge);
+      bridge.request(gson.toJson(InitLinter.build("sonar-no-unused-vars")), "init-linter");
+      assertAnalyzeJs(bridge);
     } finally {
-      eslintBridge.stop();
+      bridge.stop();
     }
   }
 
-  private void assertAnalyzeJs(EslintBridge eslintBridge) throws IOException, InterruptedException {
+  private void assertAnalyzeJs(Bridge bridge) throws IOException, InterruptedException {
     AnalysisRequest r = new AnalysisRequest();
     r.fileContent =
       "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
-    String response = eslintBridge.request(gson.toJson(r), "analyze-js");
+    String response = bridge.request(gson.toJson(r), "analyze-js");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
     JsonArray issues = jsonObject.getAsJsonArray("issues");
     assertThat(issues).hasSize(3);
@@ -100,13 +100,13 @@ class SonarJsIntegrationTest {
     assertThat(metrics.get("nosonarLines").getAsJsonArray()).containsExactly(new JsonPrimitive(3));
   }
 
-  private void assertStatus(EslintBridge eslintBridge) {
+  private void assertStatus(Bridge bridge) {
     String[] response = new String[1];
     await()
       .atMost(30, SECONDS)
       .until(() -> {
         try {
-          response[0] = eslintBridge.status();
+          response[0] = bridge.status();
           return response[0].equals("OK!");
         } catch (IOException e) {
           Thread.sleep(100);
@@ -150,13 +150,13 @@ class SonarJsIntegrationTest {
     return entryPath;
   }
 
-  class EslintBridge {
+  class Bridge {
 
     int port;
     final HttpClient client;
     private Process process;
 
-    EslintBridge() {
+    Bridge() {
       this.client = HttpClient.newHttpClient();
     }
 

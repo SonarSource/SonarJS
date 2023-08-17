@@ -22,8 +22,8 @@ package org.sonar.plugins.javascript.eslint;
 import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
 import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
-import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
-import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
+import static org.sonar.plugins.javascript.eslint.BridgeServer.Issue;
+import static org.sonar.plugins.javascript.eslint.BridgeServer.IssueLocation;
 import static org.sonar.plugins.javascript.eslint.QuickFixSupport.addQuickFixes;
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
@@ -50,7 +50,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
@@ -136,13 +136,13 @@ public class AnalysisProcessor {
     }
   }
 
-  private void processParsingError(EslintBridgeServer.ParsingError parsingError) {
+  private void processParsingError(BridgeServer.ParsingError parsingError) {
     Integer line = parsingError.line;
     String message = parsingError.message;
 
     if (line != null) {
       LOG.error("Failed to parse file [{}] at line {}: {}", file, line, message);
-    } else if (parsingError.code == EslintBridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
+    } else if (parsingError.code == BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
@@ -179,9 +179,9 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlights(EslintBridgeServer.Highlight[] highlights) {
+  private void saveHighlights(BridgeServer.Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
-    for (EslintBridgeServer.Highlight highlight : highlights) {
+    for (BridgeServer.Highlight highlight : highlights) {
       highlighting.highlight(
         highlight.location.toTextRange(file),
         TypeOfText.valueOf(highlight.textType)
@@ -190,17 +190,17 @@ public class AnalysisProcessor {
     highlighting.save();
   }
 
-  private void saveHighlightedSymbols(EslintBridgeServer.HighlightedSymbol[] highlightedSymbols) {
+  private void saveHighlightedSymbols(BridgeServer.HighlightedSymbol[] highlightedSymbols) {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
-    for (EslintBridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
-      EslintBridgeServer.Location declaration = highlightedSymbol.declaration;
+    for (BridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
+      BridgeServer.Location declaration = highlightedSymbol.declaration;
       NewSymbol newSymbol = symbolTable.newSymbol(
         declaration.startLine,
         declaration.startCol,
         declaration.endLine,
         declaration.endCol
       );
-      for (EslintBridgeServer.Location reference : highlightedSymbol.references) {
+      for (BridgeServer.Location reference : highlightedSymbol.references) {
         newSymbol.newReference(
           reference.startLine,
           reference.startCol,
@@ -212,7 +212,7 @@ public class AnalysisProcessor {
     symbolTable.save();
   }
 
-  private void saveMetrics(EslintBridgeServer.Metrics metrics) {
+  private void saveMetrics(BridgeServer.Metrics metrics) {
     if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
       noSonarFilter.noSonarInFile(
         file,
@@ -250,19 +250,19 @@ public class AnalysisProcessor {
     context.<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
   }
 
-  private void saveCpd(EslintBridgeServer.CpdToken[] cpdTokens) {
+  private void saveCpd(BridgeServer.CpdToken[] cpdTokens) {
     if (file.type().equals(InputFile.Type.TEST) || contextUtils.isSonarLint()) {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;
     }
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
-    for (EslintBridgeServer.CpdToken cpdToken : cpdTokens) {
+    for (BridgeServer.CpdToken cpdToken : cpdTokens) {
       newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
     }
     newCpdTokens.save();
   }
 
-  void saveIssue(EslintBridgeServer.Issue issue) {
+  void saveIssue(BridgeServer.Issue issue) {
     var newIssue = context.newIssue();
     var location = newIssue.newLocation().on(file);
     if (issue.message != null) {

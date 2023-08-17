@@ -47,7 +47,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
     JsTsChecks checks,
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
     Monitoring monitoring,
@@ -56,7 +56,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   ) {
     this(
       checks,
-      eslintBridgeServer,
+      bridgeServer,
       analysisWarnings,
       tempFolder,
       monitoring,
@@ -68,7 +68,7 @@ public class JsTsSensor extends AbstractEslintSensor {
 
   public JsTsSensor(
     JsTsChecks checks,
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
     Monitoring monitoring,
@@ -76,7 +76,7 @@ public class JsTsSensor extends AbstractEslintSensor {
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
-    super(eslintBridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring);
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
@@ -103,7 +103,7 @@ public class JsTsSensor extends AbstractEslintSensor {
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+    bridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
 
     JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
     var tsConfigs = TsConfigProvider.getTsConfigs(
@@ -125,6 +125,6 @@ public class JsTsSensor extends AbstractEslintSensor {
   }
 
   private String createTsConfigFile(String content) throws IOException {
-    return eslintBridgeServer.createTsConfigFile(content).filename;
+    return bridgeServer.createTsConfigFile(content).filename;
   }
 }
