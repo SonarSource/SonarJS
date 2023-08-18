@@ -135,9 +135,9 @@ class AnalysisModeTest {
     var rules = rules("key1", "key2", "ucfg", "no-var");
     var filteredRules = AnalysisMode.getHtmlFileRules(rules);
     assertThat(filteredRules)
-      .hasSize(3)
+      .hasSize(2)
       .extracting(EslintRule::getKey)
-      .containsExactlyInAnyOrder("key1", "key2", "ucfg");
+      .containsExactlyInAnyOrder("key1", "key2");
   }
 
   private static List<EslintRule> rules(String... keys) {
