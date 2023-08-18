@@ -70,6 +70,7 @@ public final class OrchestratorStarter
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-blacklist-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-js.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-ts.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/resolve-json-module-profile.xml"))
     .build();
 
   private static volatile boolean started;
