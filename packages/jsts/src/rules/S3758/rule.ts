@@ -27,6 +27,8 @@ import {
   RequiredParserServices,
   getTypeFromTreeNode,
   isStringType,
+  isNumberType,
+  isBigIntType,
 } from '../helpers';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
@@ -98,7 +100,10 @@ function isConvertibleToNumber(typ: ts.Type, checker: ts.TypeChecker) {
   const valueOfSignatures = getValueOfSignatures(typ, checker);
   return (
     valueOfSignatures.length === 0 ||
-    valueOfSignatures.some(signature => isNumberLike(signature.getReturnType()))
+    valueOfSignatures.some(signature => {
+      const returnType = signature.getReturnType();
+      return isNumberType(returnType) || isBigIntType(returnType);
+    })
   );
 }
 
@@ -111,8 +116,4 @@ function getValueOfSignatures(typ: ts.Type, checker: ts.TypeChecker) {
   return declarations
     .map(declaration => checker.getTypeAtLocation(declaration).getCallSignatures())
     .reduce((result, decl) => result.concat(decl), []);
-}
-
-function isNumberLike(typ: ts.Type) {
-  return (typ.getFlags() & ts.TypeFlags.NumberLike) !== 0;
 }
