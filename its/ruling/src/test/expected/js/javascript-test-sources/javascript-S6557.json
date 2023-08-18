@@ -83,17 +83,29 @@
 206,
 211
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/context.js": [
+45
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/markdown.js": [
 100
 ],
 "javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
 149
 ],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test-main.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/http/test-main.js": [
+10
+],
 "javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
 345
 ],
 "javascript-test-sources:src/ecmascript6/router/src/router.js": [
 44
+],
+"javascript-test-sources:src/ecmascript6/router/test-main.js": [
+9
 ],
 "javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
 404
@@ -110,5 +122,11 @@
 ],
 "javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/links-mixin.js": [
 7
+],
+"javascript-test-sources:src/ecmascript6/templating/test/unit-test-main.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/test.js": [
+10
 ]
 }

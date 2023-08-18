@@ -1,8 +1,13 @@
 {
+"angular.js:docs/gulpfile.js": [
+90
+],
 "angular.js:src/Angular.js": [
 1109,
 1115,
-1264
+1264,
+1838,
+1843
 ],
 "angular.js:src/ng/animate.js": [
 227
