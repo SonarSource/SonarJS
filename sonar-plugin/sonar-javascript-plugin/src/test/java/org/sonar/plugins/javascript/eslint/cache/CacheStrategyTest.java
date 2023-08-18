@@ -68,13 +68,13 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 import org.sonar.plugins.javascript.eslint.PluginInfo;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  static final List<EslintBridgeServer.CpdToken> CPD_TOKENS = CacheTestUtils.getCpdTokens();
+  static final List<BridgeServer.CpdToken> CPD_TOKENS = CacheTestUtils.getCpdTokens();
   static final String PLUGIN_VERSION = "1.0.0";
 
   CacheAnalysisSerialization serialization;
@@ -234,7 +234,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
       inputFile
     );
 
@@ -287,7 +287,7 @@ class CacheStrategyTest {
     var generatedFiles = List.of("inexistent.ucfg");
     var cacheAnalysis = new CacheAnalysis(
       generatedFiles,
-      CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)
+      CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)
     );
     assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile))
       .isInstanceOf(UncheckedIOException.class);
@@ -328,7 +328,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      CacheAnalysis.fromResponse(null, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)),
+      CacheAnalysis.fromResponse(null, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -370,7 +370,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .collect(toList());
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -567,7 +567,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .collect(toList());
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -607,7 +607,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .collect(toList());
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(EslintBridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -621,7 +621,7 @@ class CacheStrategyTest {
     when(inputFile.toString()).thenReturn("test.js");
     assertThat(
       CacheStrategies.getLogMessage(
-        readAndWrite(CacheAnalysis.fromCache(new EslintBridgeServer.CpdToken[0]), serialization),
+        readAndWrite(CacheAnalysis.fromCache(new BridgeServer.CpdToken[0]), serialization),
         inputFile,
         "this is a test"
       )
@@ -714,7 +714,7 @@ class CacheStrategyTest {
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
     serialization.writeToCache(
-      CacheAnalysis.fromResponse(ucfgFiles, new EslintBridgeServer.CpdToken[0]),
+      CacheAnalysis.fromResponse(ucfgFiles, new BridgeServer.CpdToken[0]),
       inputFile
     );
     when(fileSystem.workDir()).thenReturn(workDir.toFile());

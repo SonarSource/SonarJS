@@ -33,7 +33,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 class CacheReporterTest {
 
@@ -106,7 +106,7 @@ class CacheReporterTest {
 
   private CacheStrategy createReadAndWrite() {
     return CacheStrategy.readAndWrite(
-      CacheAnalysis.fromCache(new EslintBridgeServer.CpdToken[0]),
+      CacheAnalysis.fromCache(new BridgeServer.CpdToken[0]),
       createSerialization()
     );
   }

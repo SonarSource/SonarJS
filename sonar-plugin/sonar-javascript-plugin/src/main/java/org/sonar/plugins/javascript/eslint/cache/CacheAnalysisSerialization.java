@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.BridgeServer;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
@@ -58,9 +58,7 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.readFromCache();
 
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(
-      cpdData.getCpdTokens().toArray(new EslintBridgeServer.CpdToken[0])
-    );
+    return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new BridgeServer.CpdToken[0]));
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {

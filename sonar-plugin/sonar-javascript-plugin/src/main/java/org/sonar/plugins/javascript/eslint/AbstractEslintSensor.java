@@ -37,7 +37,7 @@ public abstract class AbstractEslintSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
-  protected final EslintBridgeServer eslintBridgeServer;
+  protected final BridgeServer bridgeServer;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
   List<String> environments;
@@ -47,11 +47,11 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected ContextUtils contextUtils;
 
   protected AbstractEslintSensor(
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring
   ) {
-    this.eslintBridgeServer = eslintBridgeServer;
+    this.bridgeServer = bridgeServer;
     this.analysisWarnings = analysisWarnings;
     this.monitoring = monitoring;
   }
@@ -70,14 +70,14 @@ public abstract class AbstractEslintSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
-      eslintBridgeServer.startServerLazily(context);
+      bridgeServer.startServerLazily(context);
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
       LOG.debug(
-        "Skipping the start of eslint-bridge server " +
+        "Skipping the start of the bridge server " +
         "as it failed to start during the first analysis or it's not answering anymore"
       );
       LOG.debug("No rules will be executed");
@@ -93,7 +93,7 @@ public abstract class AbstractEslintSensor implements Sensor {
         );
       }
     } catch (Exception e) {
-      LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
+      LOG.error("Failure during analysis, " + bridgeServer.getCommandInfo(), e);
       if (contextUtils.failFast()) {
         throw new IllegalStateException(
           "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",

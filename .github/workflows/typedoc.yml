@@ -1,4 +1,4 @@
-name: 'Typedoc: site for helper function for the ESLint bridge'
+name: 'Typedoc: site for helper function for the bridge'
 on:
   push:
     branches:
@@ -22,4 +22,4 @@ jobs:
         branch: gh_pages
         folder: ./typedoc/site
         target-folder: ./typedoc
-        commit-message: "Update the ESLint bridge helper functions site"
+        commit-message: "Update the bridge helper functions site"

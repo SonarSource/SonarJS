@@ -51,7 +51,7 @@ public class NodeDeprecationWarning {
   /**
    * This version should be kept in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion.
    *
-   * The minor version is a requirement from the ESLint version that eslint-bridge uses.
+   * The minor version is a requirement from the ESLint version that the bridge uses.
    * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(14, 17, 0);

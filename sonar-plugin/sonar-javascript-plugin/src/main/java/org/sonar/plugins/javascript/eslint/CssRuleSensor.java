@@ -57,12 +57,12 @@ public class CssRuleSensor extends AbstractEslintSensor {
 
   public CssRuleSensor(
     SonarRuntime sonarRuntime,
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
     CheckFactory checkFactory
   ) {
-    super(eslintBridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring);
     this.sonarRuntime = sonarRuntime;
     this.cssRules = new CssRules(checkFactory);
   }
@@ -113,8 +113,8 @@ public class CssRuleSensor extends AbstractEslintSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (!eslintBridgeServer.isAlive()) {
-          throw new IllegalStateException("eslint-bridge server is not answering");
+        if (!bridgeServer.isAlive()) {
+          throw new IllegalStateException("the bridge server is not answering");
         }
 
         analyzeFile(inputFile, context, rules);
@@ -141,12 +141,12 @@ public class CssRuleSensor extends AbstractEslintSensor {
       String fileContent = contextUtils.shouldSendFileContent(inputFile)
         ? inputFile.contents()
         : null;
-      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(
+      BridgeServer.CssAnalysisRequest request = new BridgeServer.CssAnalysisRequest(
         new File(uri).getAbsolutePath(),
         fileContent,
         rules
       );
-      EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
+      BridgeServer.AnalysisResponse analysisResponse = bridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues.size());
       saveIssues(context, inputFile, analysisResponse.issues);
     } catch (IOException | RuntimeException e) {
@@ -157,9 +157,9 @@ public class CssRuleSensor extends AbstractEslintSensor {
   private void saveIssues(
     SensorContext context,
     InputFile inputFile,
-    List<EslintBridgeServer.Issue> issues
+    List<BridgeServer.Issue> issues
   ) {
-    for (EslintBridgeServer.Issue issue : issues) {
+    for (BridgeServer.Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId)) {

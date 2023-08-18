@@ -49,11 +49,11 @@ describe('server', () => {
     expect(console.log).toHaveBeenCalledTimes(2);
     expect(console.log).toHaveBeenNthCalledWith(
       1,
-      `DEBUG starting eslint-bridge server at port ${port}`,
+      `DEBUG starting the bridge server at port ${port}`,
     );
     expect(console.log).toHaveBeenNthCalledWith(
       2,
-      `DEBUG eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`,
+      `DEBUG the bridge server is running at port ${(server.address() as AddressInfo)?.port}`,
     );
 
     await close();
@@ -126,7 +126,7 @@ describe('server', () => {
     await closeRequest;
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server will shutdown');
+    expect(console.log).toHaveBeenCalledWith('DEBUG the bridge server will shutdown');
   });
 
   it('should timeout', async () => {
@@ -145,7 +145,7 @@ describe('server', () => {
     await new Promise(r => setTimeout(r, 600));
     expect(server.listening).toBeFalsy();
 
-    expect(console.log).toHaveBeenCalledWith('DEBUG eslint-bridge server closed');
+    expect(console.log).toHaveBeenCalledWith('DEBUG the bridge server closed');
   });
 });
 

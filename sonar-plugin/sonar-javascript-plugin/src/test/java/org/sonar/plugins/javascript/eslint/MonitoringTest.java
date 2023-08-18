@@ -90,7 +90,7 @@ class MonitoringTest {
     monitoring.startSensor(sensorContextTester, sensor);
     DefaultInputFile inputFile = TestInputFileBuilder.create("module", "path").build();
     monitoring.startFile(inputFile);
-    monitoring.stopFile(inputFile, 0, new EslintBridgeServer.Perf());
+    monitoring.stopFile(inputFile, 0, new BridgeServer.Perf());
     monitoring.stopSensor();
     monitoring.stop();
     Path metricsPath = monitoringPath.resolve("metrics.json");
@@ -103,7 +103,7 @@ class MonitoringTest {
     monitoring.startSensor(sensorContextTester, sensor);
     DefaultInputFile inputFile = TestInputFileBuilder.create("module", "path").build();
     monitoring.startFile(inputFile);
-    EslintBridgeServer.Perf perf = new EslintBridgeServer.Perf();
+    BridgeServer.Perf perf = new BridgeServer.Perf();
     perf.analysisTime = 2;
     perf.parseTime = 3;
     monitoring.stopFile(inputFile, 4, perf);
@@ -133,7 +133,7 @@ class MonitoringTest {
     DefaultInputFile file2 = TestInputFileBuilder.create("module", "file2").build();
     monitoring.startFile(file1);
     monitoring.startFile(file2);
-    EslintBridgeServer.Perf perf = new EslintBridgeServer.Perf();
+    BridgeServer.Perf perf = new BridgeServer.Perf();
     assertThatThrownBy(() -> monitoring.stopFile(file1, 0, perf))
       .isInstanceOf(IllegalStateException.class);
   }

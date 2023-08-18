@@ -62,7 +62,7 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.cache.CacheTestUtils;
 
 class YamlSensorTest {
@@ -74,7 +74,7 @@ class YamlSensorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Mock
-  private EslintBridgeServer eslintBridgeServerMock;
+  private BridgeServer bridgeServerMock;
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -97,9 +97,9 @@ class YamlSensorTest {
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
 
-    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
-    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
-    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
+    when(bridgeServerMock.isAlive()).thenReturn(true);
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
 
     context = SensorContextTester.create(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -130,13 +130,13 @@ class YamlSensorTest {
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
-    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
 
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(2);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -165,7 +165,7 @@ class YamlSensorTest {
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
-    when(eslintBridgeServerMock.analyzeYaml(any()))
+    when(bridgeServerMock.analyzeYaml(any()))
       .thenReturn(
         new Gson()
           .fromJson(
@@ -190,7 +190,7 @@ class YamlSensorTest {
 
   @Test
   void should_not_explode_if_no_response() throws Exception {
-    when(eslintBridgeServerMock.analyzeYaml(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeYaml(any())).thenThrow(new IOException("error"));
 
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -217,7 +217,7 @@ class YamlSensorTest {
 
   @Test
   void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    when(bridgeServerMock.isAlive()).thenReturn(false);
 
     YamlSensor yamlSensor = createSensor();
     createInputFile(context);
@@ -226,14 +226,14 @@ class YamlSensorTest {
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
 
     assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+      .isEqualTo("Failure during analysis, bridgeServerMock command info");
     assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage())
-      .isEqualTo("eslint-bridge server is not answering");
+      .isEqualTo("the bridge server is not answering");
   }
 
   @Test
   void log_debug_analyzed_filename() throws Exception {
-    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
 
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -244,7 +244,7 @@ class YamlSensorTest {
 
   @Test
   void ignore_yaml_files_without_nodejs_aws() throws Exception {
-    when(eslintBridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(new AnalysisResponse());
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context, "a: 1\nb: 'var a = 2;'");
     sensor.execute(context);
@@ -304,7 +304,7 @@ class YamlSensorTest {
   private YamlSensor createSensor() {
     return new YamlSensor(
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
-      eslintBridgeServerMock,
+      bridgeServerMock,
       new AnalysisWarningsWrapper(),
       monitoring,
       analysisProcessor

@@ -118,9 +118,9 @@ class SonarLintTest {
   @Test
   void should_start_node_server_once() throws Exception {
     analyze(FILE_PATH, "");
-    assertThat(logs).doesNotContain("eslint-bridge server is up, no need to start.");
+    assertThat(logs).doesNotContain("the bridge server is up, no need to start.");
     analyze(FILE_PATH, "");
-    assertThat(logs).contains("eslint-bridge server is up, no need to start.");
+    assertThat(logs).contains("the bridge server is up, no need to start.");
   }
 
   @Test
@@ -197,7 +197,7 @@ class SonarLintTest {
     assertThat(logs)
       .doesNotContain("Provided Node.js executable file does not exist.")
       .contains(
-        "Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore"
+        "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore"
       );
   }
 

@@ -34,7 +34,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -52,14 +52,14 @@ public class YamlSensor extends AbstractEslintSensor {
 
   public YamlSensor(
     JsTsChecks checks,
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(eslintBridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring);
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
   }
@@ -76,18 +76,18 @@ public class YamlSensor extends AbstractEslintSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      eslintBridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+      bridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException(
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (eslintBridgeServer.isAlive()) {
+        if (bridgeServer.isAlive()) {
           progressReport.nextFile(inputFile.absolutePath());
           analyze(inputFile);
         } else {
-          throw new IllegalStateException("eslint-bridge server is not answering");
+          throw new IllegalStateException("the bridge server is not answering");
         }
       }
       success = true;
@@ -162,7 +162,7 @@ public class YamlSensor extends AbstractEslintSensor {
           null,
           analysisMode.getLinterIdFor(file)
         );
-        var response = eslintBridgeServer.analyzeYaml(jsAnalysisRequest);
+        var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),

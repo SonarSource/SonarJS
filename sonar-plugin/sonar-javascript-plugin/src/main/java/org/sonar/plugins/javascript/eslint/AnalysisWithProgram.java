@@ -33,8 +33,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgram;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.eslint.BridgeServer.TsProgram;
+import org.sonar.plugins.javascript.eslint.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -49,12 +49,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public AnalysisWithProgram(
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     Monitoring monitoring,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(eslintBridgeServer, monitoring, analysisProcessor);
+    super(bridgeServer, monitoring, analysisProcessor);
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -77,7 +77,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         monitoring.startProgram(tsConfig);
         PROFILER.startInfo("Creating TypeScript program");
         LOG.info("TypeScript configuration file " + tsConfig);
-        var program = eslintBridgeServer.createProgram(new TsProgramRequest(tsConfig));
+        var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
         if (program.error != null) {
           LOG.error("Failed to create program: " + program.error);
           PROFILER.stopInfo();
@@ -93,7 +93,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         monitoring.stopProgram();
         analyzeProgram(program, analyzedFiles);
         workList.addAll(program.projectReferences);
-        eslintBridgeServer.deleteProgram(program);
+        bridgeServer.deleteProgram(program);
       }
       Set<InputFile> skippedFiles = new HashSet<>(inputFiles);
       skippedFiles.removeAll(analyzedFiles);
@@ -149,8 +149,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         "Analysis interrupted because the SensorContext is in cancelled state"
       );
     }
-    if (!eslintBridgeServer.isAlive()) {
-      throw new IllegalStateException("eslint-bridge server is not answering");
+    if (!bridgeServer.isAlive()) {
+      throw new IllegalStateException("the bridge server is not answering");
     }
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
@@ -160,7 +160,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var request = getJsAnalysisRequest(file, tsProgram, fileContent);
-        var response = eslintBridgeServer.analyzeWithProgram(request);
+        var response = bridgeServer.analyzeWithProgram(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
@@ -177,12 +177,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     }
   }
 
-  private EslintBridgeServer.JsAnalysisRequest getJsAnalysisRequest(
+  private BridgeServer.JsAnalysisRequest getJsAnalysisRequest(
     InputFile file,
     @Nullable TsProgram tsProgram,
     @Nullable String fileContent
   ) {
-    return new EslintBridgeServer.JsAnalysisRequest(
+    return new BridgeServer.JsAnalysisRequest(
       file.absolutePath(),
       file.type().toString(),
       inputFileLanguage(file),

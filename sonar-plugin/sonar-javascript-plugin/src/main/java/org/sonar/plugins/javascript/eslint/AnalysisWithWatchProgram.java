@@ -48,11 +48,11 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   private static final Logger LOG = Loggers.get(AnalysisWithWatchProgram.class);
 
   public AnalysisWithWatchProgram(
-    EslintBridgeServer eslintBridgeServer,
+    BridgeServer bridgeServer,
     Monitoring monitoring,
     AnalysisProcessor analysisProcessor
   ) {
-    super(eslintBridgeServer, monitoring, analysisProcessor);
+    super(bridgeServer, monitoring, analysisProcessor);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
             analyzeTsConfig(tsConfigFile, files);
           }
           // Clear Watch Program Cache. Useful only for SonarQube with Vue files. To be removed when only in SonarLint. Test Out of memory
-          eslintBridgeServer.newTsConfig();
+          bridgeServer.newTsConfig();
         }
       }
       success = true;
@@ -100,7 +100,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     while (!workList.isEmpty()) {
       String path = workList.pop();
       if (processed.add(path)) {
-        TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(path);
+        TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(path);
         tsConfigFiles.add(tsConfigFile);
         if (!tsConfigFile.projectReferences.isEmpty()) {
           LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.projectReferences);
@@ -119,12 +119,12 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           "Analysis interrupted because the SensorContext is in cancelled state"
         );
       }
-      if (eslintBridgeServer.isAlive()) {
+      if (bridgeServer.isAlive()) {
         monitoring.startFile(inputFile);
         analyze(inputFile, tsConfigFile);
         progressReport.nextFile(inputFile.absolutePath());
       } else {
-        throw new IllegalStateException("eslint-bridge server is not answering");
+        throw new IllegalStateException("the bridge server is not answering");
       }
     }
   }
@@ -138,7 +138,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         var tsConfigs = tsConfigFile == null
           ? Collections.<String>emptyList()
           : List.of(tsConfigFile.filename);
-        var request = new EslintBridgeServer.JsAnalysisRequest(
+        var request = new BridgeServer.JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
           inputFileLanguage(file),
@@ -149,8 +149,8 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           analysisMode.getLinterIdFor(file)
         );
         var response = isJavaScript(file)
-          ? eslintBridgeServer.analyzeJavaScript(request)
-          : eslintBridgeServer.analyzeTypeScript(request);
+          ? bridgeServer.analyzeJavaScript(request)
+          : bridgeServer.analyzeTypeScript(request);
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),

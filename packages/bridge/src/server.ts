@@ -38,9 +38,9 @@ const MAX_REQUEST_SIZE = '50mb';
 /**
  * The default timeout to shut down server if no request is received
  *
- * Normally, the Java plugin sends keepalive requests to the eslint-bridge
+ * Normally, the Java plugin sends keepalive requests to the bridge
  * If the Java plugin crashes, this timeout will run out and shut down
- * the eslint-bridge to prevent it from becoming an orphan process.
+ * the bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -68,7 +68,7 @@ export function start(
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   return new Promise(resolve => {
-    debug(`starting eslint-bridge server at port ${port}`);
+    debug(`starting the bridge server at port ${port}`);
 
     const app = express();
     const server = http.createServer(app);
@@ -93,19 +93,19 @@ export function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_request: express.Request, response: express.Response) => {
-      debug('eslint-bridge server will shutdown');
+      debug('the bridge server will shutdown');
       response.end(() => {
         server.close();
       });
     });
 
     server.on('close', () => {
-      debug('eslint-bridge server closed');
+      debug('the bridge server closed');
       orphanTimeout.stop();
     });
 
     server.on('error', (err: Error) => {
-      debug(`eslint-bridge server error: ${err}`);
+      debug(`the bridge server error: ${err}`);
     });
 
     server.on('listening', () => {
@@ -113,7 +113,7 @@ export function start(
        * Since we use 0 as the default port, Node.js assigns a random port to the server,
        * which we get using server.address().
        */
-      debug(`eslint-bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
+      debug(`the bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
       resolve(server);
     });
 
