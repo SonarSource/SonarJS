@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.TestUtils.sonarLintInputFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -136,7 +134,7 @@ class SonarLintTest {
   @Test
   void should_analyze_vue() throws IOException {
     String fileName = "file.vue";
-    Path filePath = TestUtils.projectDir("vue-js-project").toPath().resolve(fileName);
+    Path filePath = TestUtils.projectDir("vue-js-project").resolve(fileName);
 
     String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
@@ -147,7 +145,7 @@ class SonarLintTest {
   @Test
   void should_analyze_css() throws IOException {
     String fileName = "file.css";
-    Path filePath = TestUtils.projectDir("css-sonarlint-project").toPath().resolve(fileName);
+    Path filePath = TestUtils.projectDir("css-sonarlint-project").resolve(fileName);
 
     String content = Files.readString(filePath);
     List<Issue> issues = analyze(fileName, content);
@@ -163,16 +161,14 @@ class SonarLintTest {
     List<Issue> issues;
 
     fileName = "file.js";
-    content =
-      Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").resolve(fileName));
     issues = analyze(fileName, content);
     assertThat(issues)
       .extracting(Issue::getRuleKey)
       .contains("javascript:S2870", "javascript:S3504");
 
     fileName = "file.vue";
-    content =
-      Files.readString(TestUtils.projectDir("js-sonarlint-project").toPath().resolve(fileName));
+    content = Files.readString(TestUtils.projectDir("js-sonarlint-project").resolve(fileName));
     issues = analyze(fileName, content);
     assertThat(issues)
       .extracting(Issue::getRuleKey)
@@ -280,7 +276,7 @@ class SonarLintTest {
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
     Path path = baseDir.resolve(filePath);
     Files.writeString(path, sourceCode, StandardCharsets.UTF_8);
-    ClientInputFile inputFile = sonarLintInputFile(path, sourceCode);
+    ClientInputFile inputFile = TestUtils.sonarLintInputFile(path, sourceCode);
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir).addInputFile(inputFile).build(),
@@ -310,7 +306,7 @@ class SonarLintTest {
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addEnabledLanguage(Language.CSS)
-      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath())
+      .addPlugin(TestUtils.JAVASCRIPT_PLUGIN_LOCATION)
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)
