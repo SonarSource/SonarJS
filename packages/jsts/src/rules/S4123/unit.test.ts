@@ -122,6 +122,30 @@ ruleTester.run('await should only be used with promises.', rule, {
       }
       `,
     },
+    {
+      code: `
+      async function foo(x: unknown) {
+        await x;
+      }
+      `,
+    },
+    {
+      code: `
+      export class NoErrorThrownError extends Error {};
+      export class TestUtils {
+          public static getError = async (
+              call: () => PromiseLike<unknown> | unknown
+          ): Promise<TError> => {
+              try {
+                  await call();
+                  throw new NoErrorThrownError();
+              } catch (error) {
+                  return error as TError;
+              }
+          };
+      }
+      `,
+    },
   ],
   invalid: [
     {
