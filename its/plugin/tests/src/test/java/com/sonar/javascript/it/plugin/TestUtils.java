@@ -19,19 +19,13 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
 public class TestUtils {
 
@@ -86,65 +80,6 @@ public class TestUtils {
       );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
-    }
-  }
-
-  static ClientInputFile sonarLintInputFile(Path path, String content) throws IOException {
-    return createInputFile(path, content);
-  }
-
-  private static ClientInputFile createInputFile(Path file, String content) {
-    return new TestClientInputFile(file, content);
-  }
-
-  static class TestClientInputFile implements ClientInputFile {
-
-    private final String content;
-    private final Path path;
-
-    TestClientInputFile(Path path, String content) {
-      this.content = content;
-      this.path = path;
-    }
-
-    @Override
-    public String getPath() {
-      return path.toString();
-    }
-
-    @Override
-    public boolean isTest() {
-      return false;
-    }
-
-    @Override
-    public Charset getCharset() {
-      return StandardCharsets.UTF_8;
-    }
-
-    @Override
-    public <G> G getClientObject() {
-      return null;
-    }
-
-    @Override
-    public String contents() {
-      return content;
-    }
-
-    @Override
-    public String relativePath() {
-      return path.toString();
-    }
-
-    @Override
-    public URI uri() {
-      return path.toUri();
-    }
-
-    @Override
-    public InputStream inputStream() {
-      return new ByteArrayInputStream(content.getBytes(getCharset()));
     }
   }
 }

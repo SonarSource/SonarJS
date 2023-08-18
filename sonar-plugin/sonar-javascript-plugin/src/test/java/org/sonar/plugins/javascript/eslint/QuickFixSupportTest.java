@@ -116,10 +116,10 @@ class QuickFixSupportTest {
     var textEdit = qf.inputFileEdits().get(0).textEdits().get(0);
     assertThat(textEdit.range())
       .extracting(
-        r -> r.getStartLine(),
-        r -> r.getStartLineOffset(),
-        r -> r.getEndLine(),
-        r -> r.getEndLineOffset()
+        r -> r.start().line(),
+        r -> r.start().lineOffset(),
+        r -> r.end().line(),
+        r -> r.end().lineOffset()
       )
       .containsExactly(1, 2, 3, 4);
   }

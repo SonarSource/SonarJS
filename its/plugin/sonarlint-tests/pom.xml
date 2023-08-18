@@ -8,13 +8,16 @@
     <version>10.5.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>javascript-it-plugin-tests</artifactId>
-  <name>JavaScript :: IT :: Plugin :: Tests</name>
+  <artifactId>javascript-it-plugin-sonarlint-tests</artifactId>
+  <name>JavaScript :: IT :: Plugin :: SonarLint Tests</name>
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
   </properties>
 
+  <!--
+  This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
+  -->
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -27,26 +30,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-ws</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-plugin-api-impl</artifactId>
-      <scope>test</scope>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
@@ -56,14 +46,6 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
     </dependency>
   </dependencies>
 
