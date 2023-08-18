@@ -45,6 +45,7 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+        const maxParams = context.options[0] as number;
         if ('node' in descriptor) {
           const functionLike = descriptor.node as TSESTree.FunctionLike;
           if (!isException(functionLike)) {
@@ -53,11 +54,13 @@ export const rule: Rule.RuleModule = {
         }
 
         function isException(functionLike: TSESTree.FunctionLike) {
-          return hasOnlyParameterProperties(functionLike) || isAngularConstructor(functionLike);
+          return isBeyondMaxParams(functionLike) || isAngularConstructor(functionLike);
         }
 
-        function hasOnlyParameterProperties(functionLike: TSESTree.FunctionLike) {
-          return functionLike.params.every(param => param.type === 'TSParameterProperty');
+        function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
+          return (
+            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <= maxParams
+          );
         }
 
         function isAngularConstructor(functionLike: TSESTree.FunctionLike) {

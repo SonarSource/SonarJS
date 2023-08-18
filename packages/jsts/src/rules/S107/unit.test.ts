@@ -60,6 +60,10 @@ ruleTester.run(``, rule, {
       `,
       options: [MAX_PARAMS_3],
     },
+    {
+      code: `class C { constructor(private a: any, b: any, c: any, d: any) {} }`,
+      options: [MAX_PARAMS_3],
+    },
   ],
   invalid: [
     {
@@ -154,6 +158,11 @@ ruleTester.run(``, rule, {
       `,
       options: [MAX_PARAMS_3],
       errors: 4,
+    },
+    {
+      code: `class C { constructor(private a: any, b: any, c: any, d: any, e: any) {} }`,
+      options: [MAX_PARAMS_3],
+      errors: 1,
     },
   ],
 });

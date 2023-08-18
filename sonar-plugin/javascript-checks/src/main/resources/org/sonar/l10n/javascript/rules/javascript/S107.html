@@ -15,15 +15,15 @@ function doSomething(param1, param2, param3, param4) {
 }
 </pre>
 <h3>Exceptions</h3>
-<p>The rule ignores constructors where parameters are <strong>all</strong> parameter properties:</p>
+<p>The rule ignores TypeScript parameter properties when counting parameters:</p>
 <pre>
 class C {
   constructor(
-    private param1: number,
-    private param2: boolean,
-    private param3: string,
-    private param4: string[],
-    private param5: number | string
+    private param1: number,     // ignored
+    param2: boolean,            // counted
+    public param3: string,      // ignored
+    readonly param4: string[],  // ignored
+    param5: number | string     // counted
   ) {}
 }
 </pre>
