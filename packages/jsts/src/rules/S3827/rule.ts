@@ -24,12 +24,14 @@ import * as estree from 'estree';
 import { findFirstMatchingAncestor, toEncodedMessage, isInsideVueSetupScript } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
+// https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([
   'defineProps',
   'defineEmits',
   'defineExpose',
   'defineOptions',
   'defineSlots',
+  'withDefaults',
 ]);
 
 export const rule: Rule.RuleModule = {

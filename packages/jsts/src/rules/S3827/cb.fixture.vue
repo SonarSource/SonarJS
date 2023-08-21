@@ -6,7 +6,17 @@
 
   function someFunc(){}
 
-  const props = defineProps({ foo: String });
+  const props1 = defineProps({ foo: String });
+
+  interface Props {
+    msg?: string
+    labels?: string[]
+  }
+
+  const props2 = withDefaults(defineProps<Props>(), {
+    msg: 'hello',
+    labels: () => ['one', 'two']
+  })  
 
   const emit = defineEmits(['change', 'delete']);
 
