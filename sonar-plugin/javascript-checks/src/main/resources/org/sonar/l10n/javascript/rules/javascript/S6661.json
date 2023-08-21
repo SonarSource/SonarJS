@@ -1,5 +1,5 @@
 {
-  "title": "Object spread syntax should be used instead of Object.assign",
+  "title": "Object spread syntax should be used instead of \"Object.assign\"",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
