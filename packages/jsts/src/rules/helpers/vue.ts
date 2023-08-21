@@ -32,7 +32,7 @@ function isVueSetupScript(element: VChildElement): boolean {
 }
 
 export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext): boolean {
-  const doc: AST.VDocumentFragment = ctx.parserServices?.getDocumentFragment();
+  const doc: AST.VDocumentFragment = ctx.parserServices?.getDocumentFragment?.();
   const setupScript = doc?.children.find(isVueSetupScript);
   return (
     !!setupScript &&
