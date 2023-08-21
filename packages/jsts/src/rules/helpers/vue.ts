@@ -25,8 +25,8 @@ type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.V
 
 function isVueSetupScript(element: VChildElement): boolean {
   return (
-    element.type == 'VElement' &&
-    element.name == 'script' &&
+    element.type === 'VElement' &&
+    element.name === 'script' &&
     !!element.startTag.attributes.find(attr => attr.key.name === 'setup')
   );
 }
