@@ -17,22 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './ancestor';
-export * from './ast';
-export * from './chai';
-export * from './collection';
-export * from './express';
-export * from './file';
-export * from './globals';
-export * from './location';
-export * from './lva';
-export * from './mocha';
-export * from './module';
-export * from './quickfix';
-export * from './reaching-definitions';
-export * from './rule-detect-react';
-export * from './type';
-export * from './decorators';
-export * from './vue';
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { AST } from 'vue-eslint-parser';
 
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;
+
+function isVueSetupScript(element: VChildElement): boolean {
+  return (
+    element.type == 'VElement' &&
+    element.name == 'script' &&
+    !!element.startTag.attributes.find(attr => attr.key.name === 'setup')
+  );
+}
+
+export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext): boolean {
+  const doc: AST.VDocumentFragment = ctx.parserServices?.getDocumentFragment();
+  const setupScript = doc?.children.find(isVueSetupScript);
+  return (
+    !!setupScript &&
+    !!node.range &&
+    setupScript.range[0] <= node.range[0] &&
+    setupScript.range[1] >= node.range[1]
+  );
+}
