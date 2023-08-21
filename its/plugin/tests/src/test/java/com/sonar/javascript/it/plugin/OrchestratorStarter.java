@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -50,7 +51,7 @@ public final class OrchestratorStarter
     "sonar-javascript-plugin-*.jar"
   );
 
-  public static final Orchestrator ORCHESTRATOR = Orchestrator
+  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
     .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))

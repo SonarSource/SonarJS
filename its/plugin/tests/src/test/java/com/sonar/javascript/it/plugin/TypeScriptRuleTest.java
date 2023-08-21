@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -44,12 +45,12 @@ class TypeScriptRuleTest {
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
   static final String LITS_VERSION = "0.11.0.2659";
 
-  private static Orchestrator orchestrator;
+  private static OrchestratorExtension orchestrator;
 
   @BeforeAll
   public static void before() throws IOException, InterruptedException {
     orchestrator =
-      Orchestrator
+      OrchestratorExtension
         .builderEnv()
         .useDefaultAdminCredentialsForBuilds(true)
         .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))

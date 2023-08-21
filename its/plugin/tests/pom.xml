@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
+      <artifactId>sonar-orchestrator-junit5</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
