@@ -11,5 +11,18 @@
 "jquery:src/core/init.js": [
 31,
 32
+],
+"jquery:src/css.js": [
+212,
+281
+],
+"jquery:src/effects.js": [
+548
+],
+"jquery:src/event.js": [
+727
+],
+"jquery:src/serialize.js": [
+22
 ]
 }
