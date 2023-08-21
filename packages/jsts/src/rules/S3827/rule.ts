@@ -101,16 +101,25 @@ function hasTypeOfOperator(node: TSESTree.Node) {
 function isVueMacro(identifier: TSESTree.Identifier, block: AST.ESLintProgram) {
   if (vueMacroNames.has(identifier.name) && block.templateBody) {
     for (const element of block.templateBody.parent.children) {
-      if ('name' in element && element.name === 'script') {
-        for (const attribute of element.startTag.attributes) {
-          if (
-            attribute.key.name === 'setup' &&
-            element.range[0] <= identifier.range[0] &&
-            element.range[1] >= identifier.range[1]
-          ) {
-            return true;
-          }
-        }
+      if (isInsideVueSetup(identifier, element)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;
+
+function isInsideVueSetup(identifier: TSESTree.Identifier, element: VChildElement) {
+  if ('name' in element && element.name === 'script') {
+    for (const attribute of element.startTag.attributes) {
+      if (
+        attribute.key.name === 'setup' &&
+        element.range[0] <= identifier.range[0] &&
+        element.range[1] >= identifier.range[1]
+      ) {
+        return true;
       }
     }
   }
