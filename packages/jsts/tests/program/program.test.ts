@@ -356,4 +356,11 @@ describe('program', () => {
     expect(cache.programs.get(tsconfigPath).files).toContain(file2Path);
     expect(cache.lru.get().length).toEqual(1);
   });
+
+  it('should filter out JSON files on program creation', () => {
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'json'));
+    const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
+    const { files } = createProgram(tsConfig);
+    expect(files.some(file => file.endsWith('.json'))).toBe(false);
+  });
 });

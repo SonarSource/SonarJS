@@ -1,0 +1,5 @@
+[
+  {
+    "key": "value"
+  }
+] // S1116 should not raise

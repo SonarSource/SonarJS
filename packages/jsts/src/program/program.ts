@@ -229,7 +229,10 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
       projectReferences.push(sanitizedReference);
     }
   }
-  const files = program.getSourceFiles().map(sourceFile => sourceFile.fileName);
+  const files = program
+    .getSourceFiles()
+    .map(sourceFile => sourceFile.fileName)
+    .filter(fileName => !fileName.endsWith('.json'));
 
   return {
     files,
