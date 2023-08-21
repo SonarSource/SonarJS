@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.util.Collections;
@@ -41,7 +42,7 @@ class EslintCustomRulesTest {
 
   private static final String PLUGIN_ARTIFACT_ID = "eslint-custom-rules-plugin";
 
-  private static Orchestrator orchestrator;
+  private static OrchestratorExtension orchestrator;
 
   @BeforeAll
   public static void before() {
@@ -53,8 +54,8 @@ class EslintCustomRulesTest {
     orchestrator.stop();
   }
 
-  static Orchestrator initOrchestrator(String customRulesArtifactId) {
-    Orchestrator orchestrator = Orchestrator
+  static OrchestratorExtension initOrchestrator(String customRulesArtifactId) {
+    var orchestrator = OrchestratorExtension
       .builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
