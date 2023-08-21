@@ -20,24 +20,18 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6661/javascript
 
 import { Rule } from 'eslint';
+import { CallExpression } from 'estree';
 import { interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
       const { node, ...rest } = reportDescriptor;
-
-      if (node.type === 'CallExpression' && node.loc) {
-        const { start } = node.loc;
-
-        context.report({
-          loc: {
-            start,
-            end: { line: start.line, column: start.column + 'Object.assign'.length },
-          },
-          ...rest,
-        });
-      }
+      const call = node as CallExpression;
+      context.report({
+        node: call.callee,
+        ...rest,
+      });
     }
   });
 }
