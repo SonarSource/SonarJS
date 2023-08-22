@@ -17,22 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './ancestor';
-export * from './ast';
-export * from './chai';
-export * from './collection';
-export * from './express';
-export * from './file';
-export * from './globals';
-export * from './location';
-export * from './lva';
-export * from './mocha';
-export * from './module';
-export * from './quickfix';
-export * from './reaching-definitions';
-export * from './rule-detect-react';
-export * from './type';
-export * from './decorators';
-export * from './vue';
+import { check } from '../tools';
+import { rule } from './';
+import path from 'path';
 
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+const sonarId = path.basename(__dirname);
+
+describe(`Rule ${sonarId}`, () => {
+  check(sonarId, rule, __dirname);
+});

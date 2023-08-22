@@ -21,8 +21,18 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, toEncodedMessage } from '../helpers';
+import { findFirstMatchingAncestor, toEncodedMessage, isInsideVueSetupScript } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+
+// https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
+const vueMacroNames = new Set([
+  'defineProps',
+  'defineEmits',
+  'defineExpose',
+  'defineOptions',
+  'defineSlots',
+  'withDefaults',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -54,8 +64,11 @@ export const rule: Rule.RuleModule = {
             excludedNames.add(identifier.name);
             return;
           }
+          if (vueMacroNames.has(identifier.name) && isInsideVueSetupScript(identifier, context)) {
+            return;
+          }
           const undeclaredIndentifiers = undeclaredIdentifiersByName.get(identifier.name);
-          if (!!undeclaredIndentifiers) {
+          if (undeclaredIndentifiers) {
             undeclaredIndentifiers.push(identifier);
           } else {
             undeclaredIdentifiersByName.set(identifier.name, [identifier]);
@@ -65,7 +78,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             node: identifiers[0],
             message: toEncodedMessage(
-              `\"${name}\" does not exist. Change its name or declare it so that its usage doesn't result in a \"ReferenceError\".`,
+              `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
               identifiers.slice(1),
             ),
           });

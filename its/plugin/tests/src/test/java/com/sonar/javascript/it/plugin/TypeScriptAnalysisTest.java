@@ -304,4 +304,26 @@ class TypeScriptAnalysisTest {
     )
       .isEmpty();
   }
+
+  @Test
+  void should_ignore_json_files_resolved_as_modules() {
+    String projectKey = "resolve-json-module";
+    File dir = TestUtils.projectDir(projectKey);
+
+    SonarScanner build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir)
+      .setDebugLogs(true)
+      .setProperty("sonar.typescript.tsconfigPath", "tsconfig.json");
+
+    OrchestratorStarter.setProfile(projectKey, "resolve-json-module-profile", "ts");
+    orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactly(tuple(1, "typescript:S1128", "resolve-json-module:src/foo.ts"));
+  }
 }

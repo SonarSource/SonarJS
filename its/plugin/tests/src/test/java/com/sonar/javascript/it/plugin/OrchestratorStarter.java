@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -44,13 +45,13 @@ import org.sonarqube.ws.client.measures.ComponentRequest;
 public final class OrchestratorStarter
   implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
-  static final String SCANNER_VERSION = "4.7.0.2747";
+  static final String SCANNER_VERSION = "5.0.1.3006";
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
     "sonar-javascript-plugin-*.jar"
   );
 
-  public static final Orchestrator ORCHESTRATOR = Orchestrator
+  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
     .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -70,6 +71,7 @@ public final class OrchestratorStarter
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-blacklist-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-js.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-ts.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/resolve-json-module-profile.xml"))
     .build();
 
   private static volatile boolean started;

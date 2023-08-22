@@ -25,6 +25,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
 import com.sonar.orchestrator.container.Server;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.version.Version;
@@ -40,8 +41,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -62,9 +63,10 @@ class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   static final String LITS_VERSION = "0.11.0.2659";
-  static final String SCANNER_VERSION = "4.7.0.2747";
+  static final String SCANNER_VERSION = "5.0.1.3006";
 
-  public static final Orchestrator orchestrator = Orchestrator
+  @RegisterExtension
+  public static final OrchestratorExtension orchestrator = OrchestratorExtension
     .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -117,7 +119,6 @@ class JavaScriptRulingTest {
   @BeforeAll
   public static void setUp() throws Exception {
     cleanRootNodeModules();
-    orchestrator.start();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
         .add(
@@ -204,11 +205,6 @@ class JavaScriptRulingTest {
   private static void installScanner() {
     var installer = new SonarScannerInstaller(orchestrator.getConfiguration().locators());
     installer.install(Version.create(SCANNER_VERSION), null, Path.of("target").toFile(), false);
-  }
-
-  @AfterAll
-  static void afterAll() {
-    orchestrator.stop();
   }
 
   @ParameterizedTest

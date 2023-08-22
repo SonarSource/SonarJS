@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>resolve-json-module-profile</name>
+  <language>ts</language>
+  <rules>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S1128</key> <!-- unused imports -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S1116</key> <!-- empty statements -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

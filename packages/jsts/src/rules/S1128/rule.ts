@@ -23,7 +23,11 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isRequiredParserServices, removeNodeWithLeadingWhitespaces } from '../helpers';
+import {
+  isRequiredParserServices,
+  removeNodeWithLeadingWhitespaces,
+  isInsideVueSetupScript,
+} from '../helpers';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [
@@ -184,7 +188,7 @@ export const rule: Rule.RuleModule = {
             ({ id: unused }) =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
-              !vueIdentifiers.has(unused.name) &&
+              !(vueIdentifiers.has(unused.name) && isInsideVueSetupScript(unused, context)) &&
               !jsxFactories.has(unused.name) &&
               !jsDocComments.some(comment => comment.value.includes(unused.name)),
           )
@@ -207,11 +211,8 @@ export const rule: Rule.RuleModule = {
         {
           VElement: (node: AST.VElement) => {
             const { rawName } = node;
-            if (startsWithUpper(rawName)) {
-              vueIdentifiers.add(rawName);
-            } else if (isKebabCase(rawName)) {
-              vueIdentifiers.add(toPascalCase(rawName));
-            }
+            vueIdentifiers.add(toCamelCase(rawName));
+            vueIdentifiers.add(toPascalCase(rawName));
           },
           VDirectiveKey: (node: AST.VDirectiveKey) => {
             const {
@@ -233,23 +234,14 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function startsWithUpper(str: string) {
-  return str.charAt(0) === str.charAt(0).toUpperCase();
-}
-
-function isKebabCase(str: string) {
-  return str.includes('-');
-}
-
+// vue only capitalizes the char after '-'
 function toCamelCase(str: string) {
-  const pascalized = toPascalCase(str);
-  return pascalized[0].toLowerCase() + pascalized.slice(1);
+  return str.replace(/-\w/g, s => s[1].toUpperCase());
 }
 
 function toPascalCase(str: string) {
-  return str
-    .replace(/\w+/g, word => word[0].toUpperCase() + word.slice(1).toLowerCase())
-    .replace(/-/g, '');
+  const camelized = toCamelCase(str);
+  return camelized[0].toUpperCase() + camelized.slice(1);
 }
 
 function getSuggestion(

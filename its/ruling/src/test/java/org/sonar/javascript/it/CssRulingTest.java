@@ -23,17 +23,17 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.it.JavaScriptRulingTest.LITS_VERSION;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 class CssRulingTest {
@@ -42,7 +42,8 @@ class CssRulingTest {
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String PROJECT_KEY = "project";
 
-  public static final Orchestrator ORCHESTRATOR = Orchestrator
+  @RegisterExtension
+  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
     .builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
@@ -61,7 +62,6 @@ class CssRulingTest {
 
   @BeforeAll
   public static void prepare_quality_profile() throws IOException {
-    ORCHESTRATOR.start();
     ProfileGenerator.RulesConfiguration parameters = new ProfileGenerator.RulesConfiguration();
     String serverUrl = ORCHESTRATOR.getServer().getUrl();
     File profileFile = ProfileGenerator.generateProfile(
@@ -76,11 +76,6 @@ class CssRulingTest {
     loadEmptyProfile("web");
     loadEmptyProfile("js");
     loadEmptyProfile("ts");
-  }
-
-  @AfterAll
-  public static void afterAll() {
-    ORCHESTRATOR.stop();
   }
 
   private static void loadEmptyProfile(String language) throws IOException {

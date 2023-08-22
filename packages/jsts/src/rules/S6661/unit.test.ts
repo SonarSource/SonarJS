@@ -22,7 +22,7 @@ import { rule } from './';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
-ruleTester.run('Object spread syntax should be used instead of Object.assign', rule, {
+ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
   valid: [
     {
       code: `Object.assign(foo, bar);`,
@@ -50,6 +50,22 @@ ruleTester.run('Object spread syntax should be used instead of Object.assign', r
           endLine: 1,
           column: 11,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      code: `
+var assign = Object.assign;
+const b = assign({}, foo, bar);`,
+      output: `
+var assign = Object.assign;
+const b = { ...foo, ...bar};`,
+      errors: [
+        {
+          line: 3,
+          endLine: 3,
+          column: 11,
+          endColumn: 17,
         },
       ],
     },
