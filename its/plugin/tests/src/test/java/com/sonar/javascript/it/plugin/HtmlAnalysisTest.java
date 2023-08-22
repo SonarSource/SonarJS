@@ -25,6 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,14 +40,20 @@ public class HtmlAnalysisTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void should_raise_issues_in_html_files() {
+  void should_raise_issues_in_html_files() throws IOException {
     var projectKey = "html-project";
+    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey));
+      .setProjectDir(TestUtils.projectDir(projectKey))
+      .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty(
+        "sonar.javascript.monitoring.path",
+        perfMonitoringDir.toAbsolutePath().toString()
+      );
 
     OrchestratorStarter.setProfiles(
       projectKey,
@@ -67,6 +76,16 @@ public class HtmlAnalysisTest {
         tuple(4, "javascript:S3923"),
         tuple(7, "javascript:S3834")
       );
+    assertPerfMonitoringAvailable(perfMonitoringDir);
+  }
+
+  private void assertPerfMonitoringAvailable(Path perfMonitoringDir) throws IOException {
+    String content = Files.readString(perfMonitoringDir.resolve("metrics.json"));
+    assertThat(content)
+      .contains("\"ncloc\":4")
+      .containsPattern("\"parseTime\":\\d+")
+      .containsPattern("\"analysisTime\":\\d+")
+      .contains("\"component\":\"index.html\"");
   }
 
   @Test

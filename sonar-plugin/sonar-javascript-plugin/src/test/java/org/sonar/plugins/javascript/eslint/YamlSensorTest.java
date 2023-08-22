@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -87,11 +88,15 @@ class YamlSensorTest {
   @TempDir
   Path workDir;
 
-  private final Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
+  @TempDir
+  Path monitoringPath;
+
+  private Monitoring monitoring;
   private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   public void setUp() throws Exception {
+    monitoring = new Monitoring(new MapSettings().asConfig());
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -266,6 +271,39 @@ class YamlSensorTest {
     assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .doesNotContain("Processing cache analysis of file: " + file.uri());
+  }
+
+  @Test
+  void should_save_performance_metrics() throws Exception {
+    var expectedResponse = response(
+      "{ issues: []," +
+      "\"metrics\": { \"ncloc\": [1]}, " +
+      "\"perf\":{\"parseTime\":12,\"analysisTime\":40}" +
+      "}"
+    );
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
+
+    var settings = new MapSettings();
+    settings.setProperty("sonar.javascript.monitoring", true);
+    settings.setProperty("sonar.javascript.monitoring.path", monitoringPath.toString());
+    monitoring = new Monitoring(settings.asConfig());
+    analysisProcessor =
+      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    var path = "dir/file.yaml";
+    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    TestUtils
+      .createInputFile(context, getInputFileContent(), path)
+      .setStatus(InputFile.Status.SAME);
+    var sensor = createSensor();
+
+    sensor.execute(context);
+    // We need to call monitor.stop() by hand. In a Sonar product, this gets called somehow.
+    monitoring.stop();
+    var metrics = Files.readString(monitoringPath.resolve("metrics.json"));
+    assertThat(metrics)
+      .contains("\"ncloc\":1")
+      .contains("\"parseTime\":12")
+      .contains("\"analysisTime\":40");
   }
 
   private static JsTsChecks checks(String... ruleKeys) {
