@@ -276,8 +276,7 @@ class YamlSensorTest {
   @Test
   void should_save_performance_metrics() throws Exception {
     AnalysisResponse expectedResponse = response(
-      "{ issues: [" +
-      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}]," +
+      "{ issues: []," +
       "\"metrics\": { \"ncloc\": [1]}, " +
       "\"perf\":{\"parseTime\":12,\"analysisTime\":40}" +
       "}"
