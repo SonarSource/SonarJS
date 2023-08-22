@@ -63,7 +63,7 @@ class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   static final String LITS_VERSION = "0.11.0.2659";
-  static final String SCANNER_VERSION = "4.7.0.2747";
+  static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
   public static final OrchestratorExtension orchestrator = OrchestratorExtension
