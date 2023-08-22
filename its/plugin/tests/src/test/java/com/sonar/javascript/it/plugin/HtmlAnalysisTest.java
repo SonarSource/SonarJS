@@ -42,7 +42,7 @@ public class HtmlAnalysisTest {
   @Test
   void should_raise_issues_in_html_files() throws IOException {
     var projectKey = "html-project";
-    Path perfMonitoringDir = Path.of("target/monitoring/", projectKey);
+    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")

@@ -43,7 +43,7 @@ public class YamlAnalysisTest {
   void single_line_inline_aws_lambda_for_js() throws IOException {
     var projectKey = "yaml-aws-lambda-analyzed";
 
-    Path perfMonitoringDir = Path.of("target/monitoring/", projectKey);
+    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
 
     var build = getSonarScanner()
       .setProjectKey(projectKey)

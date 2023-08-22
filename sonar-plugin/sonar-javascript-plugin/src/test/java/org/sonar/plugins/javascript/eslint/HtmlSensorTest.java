@@ -297,7 +297,7 @@ class HtmlSensorTest {
 
   @Test
   void should_save_performance_metrics() throws Exception {
-    AnalysisResponse expectedResponse = response(
+    var expectedResponse = response(
       "{ issues: []," +
       "\"metrics\": { \"ncloc\": [1]}, " +
       "\"perf\":{\"parseTime\":12,\"analysisTime\":40}" +
@@ -305,7 +305,7 @@ class HtmlSensorTest {
     );
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
 
-    MapSettings settings = new MapSettings();
+    var settings = new MapSettings();
     settings.setProperty("sonar.javascript.monitoring", true);
     settings.setProperty("sonar.javascript.monitoring.path", monitoringDir.toString());
     monitoring = new Monitoring(settings.asConfig());
