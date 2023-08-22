@@ -53,8 +53,6 @@ export function getSyntaxHighlighting(sourceCode: SourceCode) {
   const { tokens, comments } = extractTokensAndComments(sourceCode);
   const highlights: SyntaxHighlight[] = [];
   for (const token of tokens) {
-    const node = sourceCode.getNodeByRangeIndex(token.range[0]);
-    node;
     switch (token.type as any) {
       case 'HTMLTagOpen':
       case 'HTMLTagClose':
