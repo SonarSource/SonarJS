@@ -151,6 +151,7 @@ public class YamlSensor extends AbstractEslintSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
+        monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var jsAnalysisRequest = new JsAnalysisRequest(
           file.absolutePath(),
