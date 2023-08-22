@@ -1,6 +1,12 @@
 {
   "title": "Shorthand properties that override related longhand properties should be avoided",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
