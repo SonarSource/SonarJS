@@ -23,7 +23,11 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isRequiredParserServices, removeNodeWithLeadingWhitespaces } from '../helpers';
+import {
+  isRequiredParserServices,
+  removeNodeWithLeadingWhitespaces,
+  isInsideVueSetupScript,
+} from '../helpers';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [
@@ -184,7 +188,7 @@ export const rule: Rule.RuleModule = {
             ({ id: unused }) =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
-              !vueIdentifiers.has(unused.name) &&
+              !(vueIdentifiers.has(unused.name) && isInsideVueSetupScript(unused, context)) &&
               !jsxFactories.has(unused.name) &&
               !jsDocComments.some(comment => comment.value.includes(unused.name)),
           )

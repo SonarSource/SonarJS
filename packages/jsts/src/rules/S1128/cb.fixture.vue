@@ -1,10 +1,14 @@
 <template>
+  <Comp />
   <Foo />
   <Foo v-one-two-three />
   <Foo v-four-five-six />
   <something/>
   <another-THING/>
 </template>
+<script lang="ts">
+  import Comp from './some.vue'; // Noncompliant
+</script>
 <script setup lang="ts">
   import Foo from './Foo.vue';
   import Bar from './Bar.vue'; // Noncompliant
