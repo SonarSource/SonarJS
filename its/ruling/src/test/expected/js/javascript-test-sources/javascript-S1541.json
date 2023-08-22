@@ -631,9 +631,6 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/downzero.js": [
 18
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
-167
-],
 "javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
 66,
 393

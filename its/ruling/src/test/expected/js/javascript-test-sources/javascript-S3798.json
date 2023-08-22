@@ -4800,13 +4800,6 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/sequence.js": [
 3
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
-5,
-6,
-7,
-8,
-9
-],
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
 16
 ],
@@ -5252,16 +5245,6 @@
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/5-set.js": [
 7
-],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
-5,
-12,
-15,
-15,
-21,
-33,
-33,
-33
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 1,

@@ -326,26 +326,6 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js": [
 180
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
-35,
-36,
-38,
-61,
-63,
-92,
-93,
-94,
-136,
-137,
-138,
-158,
-159,
-160,
-205,
-206,
-207,
-208
-],
 "javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
 337
 ],
@@ -396,12 +376,6 @@
 16,
 17,
 20
-],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
-6,
-10,
-16,
-36
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 18,

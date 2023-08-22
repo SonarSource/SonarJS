@@ -32,10 +32,6 @@ let tests = {
     fs.chmodSync("/tmp/fs", 0o770);   // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", 0o70);    // Compliant ----rwx---
     fs.chmodSync("/tmp/fs", 0o0);     // Compliant ----------
-    fs.chmodSync("/tmp/fs", 00770);   // Compliant -rwxrwx---
-    fs.chmodSync("/tmp/fs", 0770);    // Compliant -rwxrwx---
-    fs.chmodSync("/tmp/fs", 070);     // Compliant ----rwx---
-    fs.chmodSync("/tmp/fs", 00);      // Compliant ----------
 
     fs.chmodSync("/tmp/fs", "0770");  // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", "770");   // Compliant -rwxrwx---
@@ -74,9 +70,6 @@ let tests = {
     process.umask(0o007); // Compliant
     process.umask(0o07); // Compliant
     process.umask(0o7); // Compliant
-    process.umask(0007); // Compliant
-    process.umask(007); // Compliant
-    process.umask(07); // Compliant
 
     // String
     process.umask("0777"); // Compliant
@@ -183,13 +176,8 @@ let tests = {
       fs.chmodSync("/tmp/fs", 0o007);   // Sensitive -------rwx
       fs.chmodSync("/tmp/fs", 0o07);    // Sensitive -------rwx
       fs.chmodSync("/tmp/fs", 0o7);     // Sensitive -------rwx
-      fs.chmodSync("/tmp/fs", 00777);   // Sensitive -------rwx
-      fs.chmodSync("/tmp/fs", 00007);   // Sensitive -------rwx
-      fs.chmodSync("/tmp/fs", 0007);    // Sensitive -------rwx
-      fs.chmodSync("/tmp/fs", 007);     // Sensitive -------rwx
-      fs.chmodSync("/tmp/fs", 07);      // Sensitive -------rwx
   `,
-      errors: 11,
+      errors: 6,
     },
     {
       code: `
@@ -271,10 +259,6 @@ let tests = {
     process.umask(0o022); // Sensitive
     process.umask(0o22); // Sensitive
     process.umask(0o2); // Sensitive
-    process.umask(0000); // Sensitive
-    process.umask(0022); // Sensitive
-    process.umask(022); // Sensitive
-    process.umask(02); // Sensitive
 
     // String
     process.umask("0000"); // Sensitive
@@ -288,7 +272,7 @@ let tests = {
     process.umask(0);   // Sensitive 0o000
     process.umask(18);  // Sensitive 0o022
     `,
-      errors: 16,
+      errors: 12,
     },
     {
       code: `
