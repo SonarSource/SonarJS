@@ -1,6 +1,12 @@
 {
   "title": "Using clear-text protocols is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "tags": [
     "cwe"

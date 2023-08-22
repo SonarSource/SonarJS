@@ -1,6 +1,12 @@
 {
   "title": "XML parsers should not be vulnerable to XXE attacks",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

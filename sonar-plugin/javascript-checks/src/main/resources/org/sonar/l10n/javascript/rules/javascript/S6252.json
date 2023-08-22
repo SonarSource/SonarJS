@@ -1,6 +1,12 @@
 {
   "title": "Disabling versioning of S3 buckets is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

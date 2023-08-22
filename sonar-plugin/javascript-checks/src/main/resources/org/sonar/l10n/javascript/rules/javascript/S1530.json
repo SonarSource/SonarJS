@@ -1,6 +1,12 @@
 {
   "title": "Function declarations should not be made within blocks",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,12 @@
 {
   "title": "React Context Provider values should have stable identities",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "EFFICIENT"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

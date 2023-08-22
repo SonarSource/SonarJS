@@ -1,6 +1,12 @@
 {
   "title": "String literals should not be duplicated",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "DISTINCT"
+  },
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

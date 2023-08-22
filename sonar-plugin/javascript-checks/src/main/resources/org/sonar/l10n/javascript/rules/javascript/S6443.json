@@ -1,6 +1,12 @@
 {
   "title": "React state setter function should not be called with its matching state variable",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

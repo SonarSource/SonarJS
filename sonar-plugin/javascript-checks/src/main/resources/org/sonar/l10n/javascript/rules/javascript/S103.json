@@ -1,6 +1,12 @@
 {
   "title": "Lines should not be too long",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "FORMATTED"
+  },
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

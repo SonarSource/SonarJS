@@ -1,6 +1,12 @@
 {
   "title": "Strict equality operators should not be used with dissimilar types",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

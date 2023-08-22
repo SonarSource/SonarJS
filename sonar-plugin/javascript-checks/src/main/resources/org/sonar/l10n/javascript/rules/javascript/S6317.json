@@ -1,6 +1,12 @@
 {
   "title": "AWS IAM policies should not allow privilege escalation",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

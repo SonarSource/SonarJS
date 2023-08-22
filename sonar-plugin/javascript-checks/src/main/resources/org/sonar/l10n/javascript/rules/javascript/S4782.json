@@ -1,6 +1,12 @@
 {
   "title": "Optional property declarations should not use both \u0027?\u0027 and \u0027undefined\u0027 syntax",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

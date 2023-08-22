@@ -1,6 +1,12 @@
 {
   "title": "Disabling strict HTTP no-referrer policy is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

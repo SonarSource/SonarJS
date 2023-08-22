@@ -1,6 +1,12 @@
 {
   "title": "Track lack of copyright and license headers",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "LAWFUL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

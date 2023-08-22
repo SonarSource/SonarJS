@@ -1,6 +1,12 @@
 {
   "title": "Cryptographic keys should be robust",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

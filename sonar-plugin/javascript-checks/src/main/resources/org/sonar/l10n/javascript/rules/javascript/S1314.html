@@ -3,16 +3,16 @@
 have experience with them. They may not recognize octal values as such, mistaking them instead for decimal values.</p>
 <p>Additionally, these literals will throw SyntaxError in strict mode. 0-prefixed octal literals have been deprecated since ECMAScript 5 and should
 not be used in modern JavaScript code.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 const myNumber = 010; // Noncompliant: Deprecated format
 </pre>
 <p>Use decimal syntax when possible as it is more readable.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 const myNumber = 8;
 </pre>
 <p>If octal notation is required, use the standard syntax: a leading zero followed by a lowercase or uppercase Latin letter "O" (<code>0o</code> or
 <code>0O</code>).</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 const myNumber = 0o10;
 </pre>
 <h2>Resources</h2>

@@ -101,7 +101,7 @@ roots. Rather than disabling certificate validation in your code, you can add th
 <p>The certificate validation gets disabled by setting <code>rejectUnauthorized</code> to <code>false</code>. To enable validation set the value to
 <code>true</code> or do not set <code>rejectUnauthorized</code> at all to use the secure default value.</p>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre data-diff-id="11" data-diff-type="noncompliant">
 const request = require('request');
 
 let socket = request.get({
@@ -111,7 +111,7 @@ let socket = request.get({
 });
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre data-diff-id="11" data-diff-type="compliant">
 const request = require('request');
 
 let socket = request.get({

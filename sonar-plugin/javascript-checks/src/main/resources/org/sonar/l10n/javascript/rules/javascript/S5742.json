@@ -1,6 +1,12 @@
 {
   "title": "Disabling Certificate Transparency monitoring is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

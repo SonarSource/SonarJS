@@ -8,7 +8,7 @@ result.</p>
 <p>This rule will report when the condition has type <code>number</code> or <code>bigint</code>.</p>
 <p>In the case of React Native, the type <code>string</code> will also raise an error, as your render method will crash if you render <code>0</code>,
 <code>''</code>, or <code>NaN</code>.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function Profile(props) {
   return &lt;div&gt;
     &lt;h1&gt;{ props.username }&lt;/h1&gt;
@@ -17,7 +17,7 @@ function Profile(props) {
 }
 </pre>
 <p>Instead, make the left-hand side a boolean to avoid accidental renderings.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 function Profile(props) {
   return &lt;div&gt;
     &lt;h1&gt;{ props.username }&lt;/h1&gt;
@@ -27,7 +27,7 @@ function Profile(props) {
 </pre>
 <p>Another alternative to achieve conditional rendering is using the ternary operator (<code>myCondition ? &lt;MyElement /&gt; : null</code>), which
 is less error-prone in this case as both return values are explicit.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 function Profile(props) {
   return &lt;div&gt;
     &lt;h1&gt;{ props.username }&lt;/h1&gt;

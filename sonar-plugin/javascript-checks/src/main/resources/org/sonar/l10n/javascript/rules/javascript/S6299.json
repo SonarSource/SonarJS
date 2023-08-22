@@ -1,6 +1,12 @@
 {
   "title": "Disabling Vue.js built-in escaping is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "ready",
   "tags": [
     "cwe"

@@ -1,6 +1,13 @@
 {
   "title": "Formatting SQL queries is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -3,12 +3,9 @@
 <p>By default, JavaScript allows you to modify native object prototypes, such as <code>Array</code>, <code>String</code>, <code>Object</code>, and so
 on. This means you can add new properties or methods to native objects or override existing ones. While this flexibility can be useful in some
 instances, it can lead to unexpected behavior, bugs, and compatibility issues.</p>
-<p>The rule forbids extending or modifying native JavaScript objects or prototypes.</p>
-<h2>How to fix it</h2>
-<p>Prototypes of builtin objects should not be modified altogether.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<p>The rule forbids extending or modifying native JavaScript objects or prototypes, as prototypes of builtin objects should not be modified
+altogether.</p>
+<pre>
 Object.prototype.universe = 42;
 Object.defineProperty(Array.prototype, "size", { value: 0 });
 </pre>

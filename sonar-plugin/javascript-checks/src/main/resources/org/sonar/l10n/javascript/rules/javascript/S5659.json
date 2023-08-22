@@ -1,6 +1,12 @@
 {
   "title": "JWT should be signed and verified with strong cipher algorithms",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

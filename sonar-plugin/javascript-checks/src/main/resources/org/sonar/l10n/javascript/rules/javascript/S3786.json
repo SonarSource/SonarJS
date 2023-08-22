@@ -1,6 +1,12 @@
 {
   "title": "Template literal placeholder syntax should not be used in regular strings",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

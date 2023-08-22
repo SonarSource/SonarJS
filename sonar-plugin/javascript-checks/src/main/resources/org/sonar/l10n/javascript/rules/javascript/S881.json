@@ -1,6 +1,12 @@
 {
   "title": "Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

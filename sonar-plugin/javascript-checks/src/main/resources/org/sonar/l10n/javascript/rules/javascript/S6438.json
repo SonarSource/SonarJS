@@ -1,6 +1,12 @@
 {
   "title": "Comments inside JSX expressions should be enclosed in curly braces",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

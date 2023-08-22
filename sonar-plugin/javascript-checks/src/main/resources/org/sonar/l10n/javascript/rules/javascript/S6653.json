@@ -1,6 +1,12 @@
 {
   "title": "Use Object.hasOwn static method instead of hasOwnProperty",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

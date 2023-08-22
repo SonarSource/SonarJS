@@ -1,6 +1,12 @@
 {
   "title": "Using weak hashing algorithms is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "tags": [
     "cwe",

@@ -1,6 +1,12 @@
 {
   "title": "Empty collections should not be accessed or iterated",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

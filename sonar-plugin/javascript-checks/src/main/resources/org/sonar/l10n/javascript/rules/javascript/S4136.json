@@ -1,6 +1,12 @@
 {
   "title": "Method overloads should be grouped together",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "FORMATTED"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
