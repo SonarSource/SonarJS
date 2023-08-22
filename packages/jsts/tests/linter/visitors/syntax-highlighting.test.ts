@@ -23,7 +23,7 @@ import {
   TextType,
 } from '../../../src/linter/visitors/syntax-highlighting';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../tools/helpers';
+import { parseTypeScriptSourceFile } from '../../tools/helpers';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', async () => {
@@ -96,11 +96,25 @@ describe('getSyntaxHighlighting', () => {
       ]),
     );
   });
+
+  it('should highlight TypeScript-specific keywords', async () => {
+    expect(await highlighting('typescript.ts')).toEqual(
+      expect.arrayContaining([
+        highlight(1, 0, 1, 4, 'KEYWORD'), // type
+        highlight(2, 3, 2, 5, 'KEYWORD'), // as
+        highlight(4, 2, 4, 8, 'KEYWORD'), // public
+        highlight(5, 2, 5, 9, 'KEYWORD'), // private
+        highlight(7, 8, 7, 18, 'KEYWORD'), // implements
+        highlight(8, 0, 8, 9, 'KEYWORD'), // interface
+        highlight(9, 0, 9, 4, 'KEYWORD'), // enum
+      ]),
+    );
+  });
 });
 
 async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
   const filePath = path.join(__dirname, 'fixtures', 'syntax-highlighting', filename);
-  const sourceCode = await parseJavaScriptSourceFile(filePath);
+  const sourceCode = await parseTypeScriptSourceFile(filePath, []);
   return getSyntaxHighlighting(sourceCode).highlights;
 }
 
