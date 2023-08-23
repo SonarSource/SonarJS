@@ -33,18 +33,18 @@ type allOptional = {
 export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> {
   return {
     filePath: input.filePath,
-    fileContent: input.fileContent || (await readFile(input.filePath)),
-    fileType: input.fileType || 'MAIN',
+    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    fileType: input.fileType ?? 'MAIN',
     programId: input.programId,
-    linterId: input.linterId || 'default',
-    tsConfigs: input.tsConfigs || [],
+    linterId: input.linterId ?? 'default',
+    tsConfigs: input.tsConfigs ?? [],
   };
 }
 
 export async function embeddedInput(input: allOptional): Promise<EmbeddedAnalysisInput> {
   return {
     filePath: input.filePath,
-    fileContent: input.fileContent || (await readFile(input.filePath)),
-    linterId: input.linterId || 'default',
+    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    linterId: input.linterId ?? 'default',
   };
 }
