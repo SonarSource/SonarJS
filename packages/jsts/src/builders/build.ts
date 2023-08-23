@@ -36,10 +36,6 @@ import { Linter } from 'eslint';
 export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
 
-  if (!input.fileContent) {
-    throw new Error(`File contents are not available for ${input.filePath}`);
-  }
-
   if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescript-eslint
