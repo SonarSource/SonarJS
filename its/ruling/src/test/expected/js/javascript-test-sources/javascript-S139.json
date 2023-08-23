@@ -1032,6 +1032,13 @@
 13,
 19
 ],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
+6,
+10,
+15,
+16,
+36
+],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/Gruntfile.js": [
 8
 ],

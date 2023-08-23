@@ -3968,6 +3968,9 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/sequence.js": [
 0
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+0
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
 0
 ],
@@ -4482,6 +4485,9 @@
 0
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/5-set.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
 0
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/Gruntfile.js": [

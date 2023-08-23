@@ -1192,6 +1192,10 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/downzero.js": [
 14
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+36,
+61
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/shared/ghost-url.js": [
 20
 ],
@@ -1337,6 +1341,12 @@
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/4-default-params.js": [
 4
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
+6,
+10,
+16,
+36
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 25
