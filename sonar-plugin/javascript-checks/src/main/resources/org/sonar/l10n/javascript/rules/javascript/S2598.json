@@ -1,6 +1,12 @@
 {
   "title": "File uploads should be restricted",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -35,6 +41,10 @@
       "13.1.5"
     ]
   },
+  "educationPrinciples": [
+    "defense_in_depth",
+    "never_trust_user_input"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",

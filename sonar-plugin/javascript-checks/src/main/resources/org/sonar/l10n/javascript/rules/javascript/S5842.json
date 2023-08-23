@@ -1,6 +1,12 @@
 {
   "title": "Repeated patterns in regular expressions should not match the empty string",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

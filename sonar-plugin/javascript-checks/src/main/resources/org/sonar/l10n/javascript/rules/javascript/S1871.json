@@ -1,6 +1,12 @@
 {
   "title": "Two branches in a conditional structure should not have exactly the same implementation",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "DISTINCT"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

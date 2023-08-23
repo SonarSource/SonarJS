@@ -1,6 +1,12 @@
 {
   "title": "Parentheses should be used when negating \"in\" and \"instanceof\" operations",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

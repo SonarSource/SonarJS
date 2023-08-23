@@ -1,6 +1,12 @@
 {
   "title": "Encryption algorithms should be used with secure mode and padding scheme",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

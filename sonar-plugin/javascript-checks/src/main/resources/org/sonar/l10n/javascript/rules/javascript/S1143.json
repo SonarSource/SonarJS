@@ -1,6 +1,12 @@
 {
   "title": "Jump statements should not occur in \"finally\" blocks",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

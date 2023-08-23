@@ -1,6 +1,12 @@
 {
   "title": "Promise rejections should not be caught by \u0027try\u0027 blocks",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

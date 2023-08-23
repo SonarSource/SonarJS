@@ -1,6 +1,12 @@
 {
   "title": "Identical expressions should not be used on both sides of a binary operator",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

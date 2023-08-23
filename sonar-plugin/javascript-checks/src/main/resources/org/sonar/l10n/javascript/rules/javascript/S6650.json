@@ -1,6 +1,12 @@
 {
   "title": "Renaming import, export, and destructuring assignments should not be to the same name",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

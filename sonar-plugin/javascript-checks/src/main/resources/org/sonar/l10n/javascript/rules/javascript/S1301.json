@@ -1,6 +1,12 @@
 {
   "title": "\"switch\" statements should have at least 3 \"case\" clauses",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

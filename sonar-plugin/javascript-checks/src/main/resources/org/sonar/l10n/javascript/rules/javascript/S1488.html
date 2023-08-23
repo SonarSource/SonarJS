@@ -4,16 +4,37 @@
 variable is an internal implementation detail that is not exposed to the callers of the method. The method name should be sufficient for callers to
 know exactly what will be returned.</p>
 <h3>Noncompliant code example</h3>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function computeDurationInMilliseconds(hours, minutes, seconds) {
   let duration = (((hours * 60) + minutes) * 60 + seconds ) * 1000;
   return duration;
 }
 </pre>
 <h3>Compliant solution</h3>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 function computeDurationInMilliseconds(hours, minutes, seconds) {
   return (((hours * 60) + minutes) * 60 + seconds ) * 1000;
+}
+</pre>
+<h3>Noncompliant code example</h3>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+async function foo () {
+  try {
+    const result = await bar();
+    return result;
+  } catch (e) {
+    handleError(e);
+  }
+}
+</pre>
+<h3>Compliant solution</h3>
+<pre data-diff-id="2" data-diff-type="compliant">
+async function foo () {
+  try {
+    return await bar();
+  } catch (e) {
+    handleError(e);
+  }
 }
 </pre>
 

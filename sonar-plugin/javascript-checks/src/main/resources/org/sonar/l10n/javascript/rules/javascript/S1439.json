@@ -1,6 +1,12 @@
 {
   "title": "Only \"while\", \"do\", \"for\" and \"switch\" statements should be labelled",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

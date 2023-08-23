@@ -1,6 +1,13 @@
 {
   "title": "Dynamically executing code is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

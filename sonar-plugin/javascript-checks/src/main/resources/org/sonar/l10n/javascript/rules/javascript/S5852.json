@@ -1,6 +1,12 @@
 {
   "title": "Using slow regular expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "EFFICIENT"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

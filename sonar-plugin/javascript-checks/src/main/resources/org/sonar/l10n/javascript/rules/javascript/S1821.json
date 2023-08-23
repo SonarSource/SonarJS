@@ -1,6 +1,12 @@
 {
   "title": "\"switch\" statements should not be nested",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "FOCUSED"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,12 @@
 {
   "title": "Non-existent operators \u0027\u003d+\u0027, \u0027\u003d-\u0027 and \u0027\u003d!\u0027 should not be used",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

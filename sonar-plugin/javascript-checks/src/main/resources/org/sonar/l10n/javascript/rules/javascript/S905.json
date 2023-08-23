@@ -1,6 +1,12 @@
 {
   "title": "Non-empty statements should change control flow or have at least one side-effect",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

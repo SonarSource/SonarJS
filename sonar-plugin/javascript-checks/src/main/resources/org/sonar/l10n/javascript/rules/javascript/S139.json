@@ -1,6 +1,12 @@
 {
   "title": "Comments should not be located at the end of lines of code",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "FORMATTED"
+  },
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

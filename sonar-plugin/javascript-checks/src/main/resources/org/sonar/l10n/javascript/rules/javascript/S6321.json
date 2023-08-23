@@ -1,6 +1,12 @@
 {
   "title": "Administration services access should be restricted to specific IP addresses",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

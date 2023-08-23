@@ -1,6 +1,12 @@
 {
   "title": "Having a permissive Cross-Origin Resource Sharing policy is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "tags": [
     "cwe",

@@ -1,6 +1,12 @@
 {
   "title": "A \"while\" loop should be used instead of a \"for\" loop",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

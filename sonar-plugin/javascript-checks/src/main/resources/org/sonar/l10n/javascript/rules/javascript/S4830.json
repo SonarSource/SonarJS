@@ -1,6 +1,12 @@
 {
   "title": "Server certificates should be verified during SSL\/TLS connections",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

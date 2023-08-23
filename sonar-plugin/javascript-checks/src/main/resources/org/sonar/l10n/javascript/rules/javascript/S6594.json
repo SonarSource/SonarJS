@@ -1,6 +1,12 @@
 {
   "title": "\"RegExp.exec()\" should be preferred over \"String.match()\"",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
