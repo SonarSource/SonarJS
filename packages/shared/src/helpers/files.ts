@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fs from 'fs';
+import fs, { constants } from 'fs';
 import path from 'path';
 
 /**
@@ -103,5 +103,20 @@ export function addTsConfigIfDirectory(tsConfig: string) {
     return tsConfig;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Asynchronous check if file is readable.
+ *
+ * @param path the file path
+ * @returns true if file is readable. false otherwise
+ */
+export async function fileReadable(path: string) {
+  try {
+    await fs.promises.access(path, constants.R_OK);
+    return true;
+  } catch {
+    return false;
   }
 }

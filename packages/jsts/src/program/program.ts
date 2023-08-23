@@ -30,89 +30,18 @@
 
 import path from 'path';
 import ts from 'typescript';
-import {
-  addTsConfigIfDirectory,
-  debug,
-  readFileSync,
-  toUnixPath,
-  ProgramResult,
-  ProjectTSConfigs,
-} from '@sonar/shared/helpers';
+import { addTsConfigIfDirectory, debug, readFileSync, toUnixPath } from '@sonar/shared/helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 
-import { ProgramCache } from '@sonar/shared/helpers/cache';
-import { JsTsAnalysisInput } from '../analysis';
-
-export const programCache = new ProgramCache();
-let projectTSConfigs: ProjectTSConfigs;
-
-function getDefaultTSConfigs() {
-  if (!projectTSConfigs) {
-    projectTSConfigs = new ProjectTSConfigs();
-  }
-  return projectTSConfigs;
-}
-
-/**
- * Creates or gets the proper existing TypeScript's Program containing a given source file.
- * @param input JS/TS Analysis input request
- * @param cache the LRU cache object to use as cache
- * @param tsconfigs the TSConfigs DB instance to use
- * @returns the retrieved TypeScript's Program
- */
-export function getProgramForFile(
-  input: JsTsAnalysisInput,
-  cache = programCache,
-  tsconfigs?: ProjectTSConfigs,
-): ts.Program {
-  if (!tsconfigs) {
-    tsconfigs = getDefaultTSConfigs();
-  }
-  let newTsConfigs = false;
-  if (input.tsConfigs) {
-    newTsConfigs = tsconfigs.upsertTsConfigs(input.tsConfigs, input.forceUpdateTSConfigs);
-  }
-
-  // if at least a tsconfig changed, removed cache of programs, as files
-  // could now belong to another program
-  if (tsconfigs.reloadTsConfigs(input.forceUpdateTSConfigs) || newTsConfigs) {
-    programCache.clear();
-  }
-
-  const normalizedPath = toUnixPath(input.filePath);
-  for (const [tsConfigPath, programResult] of cache.programs) {
-    const tsConfig = tsconfigs.get(tsConfigPath);
-    if (
-      programResult.files.includes(normalizedPath) &&
-      (programResult.isFallbackProgram || tsConfig)
-    ) {
-      const program = programResult.program.deref();
-      if (program) {
-        cache.lru.set(program);
-        return program;
-      } else {
-        cache.programs.delete(tsConfigPath);
-      }
-    }
-  }
-  for (const tsconfig of tsconfigs.iterateTSConfigs(normalizedPath)) {
-    if (!cache.programs.has(tsconfig.filename)) {
-      const programResult = createProgram(tsconfig.filename, tsconfig.contents);
-      if (tsconfig.isFallbackTSConfig) {
-        programResult.isFallbackProgram = true;
-      }
-      cache.programs.set(tsconfig.filename, programResult);
-      if (programResult.files.includes(normalizedPath)) {
-        const program = programResult.program.deref()!;
-        cache.lru.set(program);
-        return program;
-      }
-    }
-  }
-  throw Error(`Could not create a program containing ${normalizedPath}`);
-}
+export type ProgramResult = {
+  files: string[];
+  projectReferences: string[];
+  missingTsConfig: boolean;
+  program: ts.Program;
+  programId?: string;
+};
 
 /**
  * Gets the files resolved by a TSConfig
@@ -238,11 +167,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
     files,
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
-    program: new WeakRef(program),
-    tsConfig: {
-      filename: tsConfig,
-      contents: tsconfigContents,
-    },
+    program,
   };
 }
 
@@ -272,11 +197,11 @@ function nextId() {
  *
  * To be removed once Java part does not handle program creation
  */
-export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
+export function createAndSaveProgram(tsConfig: string): ProgramResult {
   const program = createProgram(tsConfig);
 
   const programId = nextId();
-  programs.set(programId, program.program.deref()!);
+  programs.set(programId, program.program);
   debug(`program from ${tsConfig} with id ${programId} is created`);
   return { ...program, programId };
 }

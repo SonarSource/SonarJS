@@ -22,7 +22,7 @@ import { setContext } from '@sonar/shared/helpers';
 import { parseHTML } from '../../src/parser';
 import { analyzeEmbedded } from '@sonar/jsts/embedded';
 import { initializeLinter } from '@sonar/jsts';
-import { jsTsInput } from '../tools';
+import { jsTsInput } from '@sonar/shared/helpers';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

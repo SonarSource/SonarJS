@@ -41,6 +41,9 @@ export function buildSourceCodes(
   input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): ExtendedSourceCode[] {
+  if (!input.fileContent) {
+    throw new Error(`File contents are not available for ${input.filePath}`);
+  }
   const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);
   const extendedSourceCodes: ExtendedSourceCode[] = [];
   for (const embeddedJS of embeddedJSs) {
