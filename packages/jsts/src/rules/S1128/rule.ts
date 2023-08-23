@@ -211,8 +211,9 @@ export const rule: Rule.RuleModule = {
         {
           VElement: (node: AST.VElement) => {
             const { rawName } = node;
-            vueIdentifiers.add(toCamelCase(rawName));
-            vueIdentifiers.add(toPascalCase(rawName));
+            const name = rawName.split('.')[0];
+            vueIdentifiers.add(toCamelCase(name));
+            vueIdentifiers.add(toPascalCase(name));
           },
           VDirectiveKey: (node: AST.VDirectiveKey) => {
             const {

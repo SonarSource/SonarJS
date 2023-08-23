@@ -5,6 +5,7 @@
   <Foo v-four-five-six />
   <something/>
   <another-THING/>
+  <library.item/>
 </template>
 <script lang="ts">
   import Comp from './some.vue'; // Noncompliant
@@ -16,4 +17,5 @@
   import fourFiveSix from './OneTwoThree.vue';
   import something from './something';
   import AnotherTHING from './another';
+  import * as Library from './library';
 </script>
