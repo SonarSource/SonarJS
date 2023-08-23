@@ -328,11 +328,11 @@ class JsTsSensorTest {
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     createTsConfigFile();
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeWithProgram(captor.capture());
+    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent).isNull();
 
     var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
@@ -444,11 +444,11 @@ class JsTsSensorTest {
         )
       );
 
-    when(bridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
-    verify(bridgeServerMock, times(1)).analyzeWithProgram(captor.capture());
+    verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
       .containsExactlyInAnyOrder(file1.absolutePath());
@@ -496,11 +496,11 @@ class JsTsSensorTest {
         )
       );
 
-    when(bridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
-    verify(bridgeServerMock, times(4)).analyzeWithProgram(captor.capture());
+    verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
       .containsExactlyInAnyOrder(
@@ -547,7 +547,7 @@ class JsTsSensorTest {
         )
       );
 
-    when(bridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
       TsProgramRequest.class
@@ -658,7 +658,7 @@ class JsTsSensorTest {
   @Test
   void should_fail_fast() throws Exception {
     createTsConfigFile();
-    when(bridgeServerMock.analyzeWithProgram(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
     JsTsSensor sensor = createSensor();
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -723,7 +723,7 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeWithProgram(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());

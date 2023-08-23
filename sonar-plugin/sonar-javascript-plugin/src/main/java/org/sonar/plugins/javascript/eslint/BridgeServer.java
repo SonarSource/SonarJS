@@ -48,8 +48,6 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException;
-
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
