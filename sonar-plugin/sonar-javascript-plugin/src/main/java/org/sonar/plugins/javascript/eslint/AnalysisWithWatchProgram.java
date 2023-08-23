@@ -166,8 +166,4 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
   }
-
-  private boolean isJavaScript(InputFile file) {
-    return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
-  }
 }

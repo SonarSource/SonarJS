@@ -160,7 +160,11 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var request = getJsAnalysisRequest(file, tsProgram, fileContent);
-        var response = bridgeServer.analyzeWithProgram(request);
+
+        var response = isJavaScript(file)
+          ? bridgeServer.analyzeJavaScript(request)
+          : bridgeServer.analyzeTypeScript(request);
+
         analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
