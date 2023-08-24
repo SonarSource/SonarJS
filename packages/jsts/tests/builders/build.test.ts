@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from '@sonar/shared/helpers';
-import { buildSourceCode } from '../../src/builders';
-import { programCache } from '../../src/program';
+import { setContext } from '@sonar/shared/helpers';
+import { buildSourceCode } from '@sonar/jsts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools';
@@ -236,27 +235,6 @@ describe('buildSourceCode', () => {
     } = sourceCode as AST.ESLintExtendedProgram;
     expect(stmt.type).toEqual('ImportDeclaration');
     expect(templateBody).toBeDefined();
-  });
-
-  it('should create a program for excluded TypeScript file in another tsconfig.json', async () => {
-    const filePath = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'excluded.ts'));
-    const tsConfig = toUnixPath(path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json'));
-    const fakeTsConfig = `tsconfig-${toUnixPath(filePath)}.json`;
-
-    const analysisInput = await jsTsInput({
-      filePath,
-      tsConfigs: [tsConfig],
-      createProgram: true,
-      forceUpdateTSConfigs: true,
-    });
-
-    buildSourceCode(analysisInput, 'ts');
-
-    expect(programCache.programs.has(tsConfig)).toBeTruthy();
-    expect(programCache.programs.get(tsConfig).files).not.toContain(filePath);
-
-    expect(programCache.programs.has(fakeTsConfig)).toBeTruthy();
-    expect(programCache.programs.get(fakeTsConfig).files).toContain(filePath);
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {

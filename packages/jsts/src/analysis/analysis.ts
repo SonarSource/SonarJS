@@ -46,8 +46,6 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
   programId?: string;
-  createProgram?: boolean;
-  forceUpdateTSConfigs?: boolean;
 }
 
 /**

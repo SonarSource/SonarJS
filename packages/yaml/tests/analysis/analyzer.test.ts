@@ -24,7 +24,7 @@ import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/embedded'
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
-import { embeddedInput } from '../tools';
+import { embeddedInput } from '@sonar/shared/helpers';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

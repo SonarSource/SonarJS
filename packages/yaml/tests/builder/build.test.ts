@@ -22,7 +22,7 @@ import { join } from 'path';
 import { parseAwsFromYaml } from '../../src/aws';
 import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { APIError } from '@sonar/shared/errors';
-import { embeddedInput } from '../tools';
+import { embeddedInput } from '@sonar/shared/helpers';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');
