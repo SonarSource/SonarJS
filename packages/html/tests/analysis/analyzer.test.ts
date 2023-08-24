@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext } from '@sonar/shared/helpers';
+import { embeddedInput } from '../../../jsts/tests/tools';
 import { parseHTML } from '../../src/parser';
+import { setContext } from '@sonar/shared/helpers';
 import { analyzeEmbedded } from '@sonar/jsts/embedded';
 import { initializeLinter } from '@sonar/jsts';
-import { jsTsInput } from '@sonar/shared/helpers';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -42,7 +42,10 @@ describe('analyzeHTML', () => {
     ]);
     const {
       issues: [issue],
-    } = analyzeEmbedded(await jsTsInput({ filePath: join(fixturesPath, 'file.html') }), parseHTML);
+    } = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'file.html') }),
+      parseHTML,
+    );
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-all-duplicated-branches',
@@ -57,7 +60,7 @@ describe('analyzeHTML', () => {
   it('should not break when using a rule with a quickfix', async () => {
     initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
-      await jsTsInput({ filePath: join(fixturesPath, 'quickfix.html') }),
+      await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,
     );
 
@@ -90,7 +93,7 @@ describe('analyzeHTML', () => {
       },
     ]);
     const { issues } = analyzeEmbedded(
-      await jsTsInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
+      await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
       parseHTML,
     );
     expect(issues).toHaveLength(2);
@@ -117,7 +120,7 @@ describe('analyzeHTML', () => {
       { key: 'for-loop-increment-sign', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = analyzeEmbedded(
-      await jsTsInput({ filePath: join(fixturesPath, 'secondary.html') }),
+      await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
       parseHTML,
     );
     const {
@@ -140,7 +143,7 @@ describe('analyzeHTML', () => {
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = analyzeEmbedded(
-      await jsTsInput({ filePath: join(fixturesPath, 'regex.html') }),
+      await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
       parseHTML,
     );
     const {

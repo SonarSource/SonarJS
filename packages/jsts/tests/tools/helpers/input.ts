@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, readFile } from '@sonar/shared/helpers/index';
-import { EmbeddedAnalysisInput } from '@sonar/jsts/embedded';
-import { JsTsAnalysisInput } from '@sonar/jsts';
+import { FileType, readFile } from '@sonar/shared/helpers';
+import { EmbeddedAnalysisInput } from '../../../src/embedded';
+import { JsTsAnalysisInput } from '../../../src';
 
 type allOptional = {
   filePath: string;

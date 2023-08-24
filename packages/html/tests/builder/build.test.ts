@@ -19,8 +19,8 @@
  */
 import { join } from 'path';
 import { parseHTML } from '../../src/parser';
+import { embeddedInput } from '../../../jsts/tests/tools';
 import { buildSourceCodes } from '@sonar/jsts/embedded';
-import { embeddedInput } from '@sonar/shared/helpers';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');
