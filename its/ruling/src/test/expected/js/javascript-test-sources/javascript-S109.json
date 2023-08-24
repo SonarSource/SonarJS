@@ -92306,6 +92306,9 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/index.js": [
 93
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+147
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
 154,
 160,
@@ -93643,6 +93646,12 @@
 11,
 12,
 21
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
+13,
+13,
+13,
+13
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/8-iterators.js": [
 37

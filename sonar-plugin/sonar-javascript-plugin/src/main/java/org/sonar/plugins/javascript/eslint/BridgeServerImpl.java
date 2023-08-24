@@ -348,11 +348,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeWithProgram(JsAnalysisRequest request) throws IOException {
-    return response(request(GSON.toJson(request), "analyze-with-program"), request.filePath);
-  }
-
-  @Override
   public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath);

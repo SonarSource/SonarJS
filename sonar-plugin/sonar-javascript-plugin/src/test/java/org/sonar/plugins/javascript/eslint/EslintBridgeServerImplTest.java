@@ -298,7 +298,7 @@ class BridgeServerImplTest {
       programCreated.programId,
       DEFAULT_LINTER_ID
     );
-    assertThat(bridgeServer.analyzeWithProgram(request).issues).isEmpty();
+    assertThat(bridgeServer.analyzeTypeScript(request).issues).isEmpty();
 
     assertThat(bridgeServer.deleteProgram(programCreated)).isTrue();
   }

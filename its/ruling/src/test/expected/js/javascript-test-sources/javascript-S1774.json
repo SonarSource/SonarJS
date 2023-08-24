@@ -1722,6 +1722,10 @@
 10,
 14
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+5,
+192
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/shared/ghost-url.js": [
 56,
 57,

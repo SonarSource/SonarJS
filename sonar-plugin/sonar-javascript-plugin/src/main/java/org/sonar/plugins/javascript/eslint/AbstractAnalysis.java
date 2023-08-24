@@ -70,5 +70,9 @@ abstract class AbstractAnalysis {
     this.analysisMode = analysisMode;
   }
 
+  protected boolean isJavaScript(InputFile file) {
+    return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
+  }
+
   abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
 }

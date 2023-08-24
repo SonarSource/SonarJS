@@ -4912,6 +4912,12 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/sequence.js": [
 1
 ],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+1,
+2,
+3,
+4
+],
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
 5,
 6,
