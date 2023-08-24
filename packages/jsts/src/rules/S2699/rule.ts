@@ -22,20 +22,15 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { childrenOf } from '../../linter';
 import { Chai, isFunctionCall, Mocha, resolveFunction } from '../helpers';
+import { Sinon } from '../helpers/sinon';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    const testCases: Mocha.TestCase[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          testCases.push(testCase);
-        }
-      },
-      'Program:exit': () => {
-        if (Chai.isImported(context)) {
-          testCases.forEach(testCase => checkAssertions(testCase, context));
+          checkAssertions(testCase, context);
         }
       },
     };
@@ -45,7 +40,7 @@ export const rule: Rule.RuleModule = {
 function checkAssertions(testCase: Mocha.TestCase, context: Rule.RuleContext) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
-  visitor.visit(callback.body);
+  visitor.visit(context, callback.body);
   if (visitor.missingAssertions()) {
     context.report({ node, message: 'Add at least one assertion to this test case.' });
   }
@@ -60,22 +55,22 @@ class TestCaseAssertionVisitor {
     this.hasAssertions = false;
   }
 
-  visit(node: estree.Node) {
+  visit(context: Rule.RuleContext, node: estree.Node) {
     if (this.hasAssertions) {
       return;
     }
-    if (Chai.isAssertion(node)) {
+    if (Chai.isAssertion(context, node) || Sinon.isAssertion(context, node)) {
       this.hasAssertions = true;
       return;
     }
     if (isFunctionCall(node)) {
       const functionDef = resolveFunction(this.context, node.callee);
       if (functionDef) {
-        this.visit(functionDef.body);
+        this.visit(context, functionDef.body);
       }
     }
     for (const child of childrenOf(node, this.visitorKeys)) {
-      this.visit(child);
+      this.visit(context, child);
     }
   }
 
