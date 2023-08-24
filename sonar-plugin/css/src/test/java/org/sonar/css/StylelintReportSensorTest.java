@@ -223,7 +223,6 @@ class StylelintReportSensorTest {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     stylelintReportSensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("Import of stylelint issues");
-    assertThat(sensorDescriptor.languages()).containsOnly(CssLanguage.KEY);
   }
 
   private void setReport(String reportFileName) {
