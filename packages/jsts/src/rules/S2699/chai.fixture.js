@@ -1,6 +1,5 @@
 const chai = require('chai');
 const { assert, expect, should } = chai;
-const sinon = require('sinon');
 
 should();
 

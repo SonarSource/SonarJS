@@ -1,7 +1,8 @@
-import sinon from 'sinon';
+const sinon = require('sinon');
+const { assert } = sinon;
 
 describe('sinon test cases', () => {
-  const { assert } = sinon;
+
 
   it('assert.<method>', () => { // Compliant
     assert.called(spy);
