@@ -33,17 +33,17 @@ const ruleTester = new RuleTester({ parser: __filename });
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
- * These fixtures are to be found in the rule directory and should be named as `cb.fixture.<ext>`.
+ * These fixtures are to be found in the rule directory and should be named as `*.fixture.<ext>`.
  * The directory can include options (`cb.options.json`) to configure the rule behaviour.
  */
 export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
   const fixtures = [];
-  ['js', 'ts', 'jsx', 'tsx', 'vue'].forEach(ext => {
-    const fixture = path.join(ruleDir, `cb.fixture.${ext}`);
-    if (fs.existsSync(fixture)) {
+  for (const file of fs.readdirSync(ruleDir)) {
+    if (file.match(/\.fixture\.(js|ts|jsx|tsx|vue)$/)) {
+      const fixture = path.join(ruleDir, file);
       fixtures.push(fixture);
     }
-  });
+  }
 
   for (const fixture of fixtures) {
     const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
