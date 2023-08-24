@@ -25,8 +25,8 @@ export namespace Sinon {
   export function isImported(context: Rule.RuleContext): boolean {
     return (
       getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
+        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'sinon',
+      ) || getImportDeclarations(context).some(i => i.source.value === 'sinon')
     );
   }
 
