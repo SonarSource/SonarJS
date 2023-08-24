@@ -40,7 +40,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.StylelintReport.Issue;
@@ -137,14 +136,6 @@ public class StylelintReportSensor implements Sensor {
 
   private void saveStylelintIssue(SensorContext context, Issue issue, InputFile inputFile) {
     String stylelintKey = issue.rule;
-
-    RuleKey sonarKey = cssRules.getActiveSonarKey(stylelintKey);
-    if (sonarKey != null) {
-      String message =
-        "Stylelint issue for rule '{}' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ {})";
-      LOG.debug(message, stylelintKey, sonarKey.toString());
-      return;
-    }
 
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
