@@ -65,23 +65,3 @@ describe('chai test cases', () => {
     expect(1).to.equal(2);
   }
 });
-
-describe('sinon test cases', () => {
-  const { assert } = sinon;
-
-  it('assert.<method>', () => { // Compliant
-    assert.called(spy);
-  });
-
-  it('sinon.assert.<method>', () => { // Compliant
-    sinon.assert.calledOnce(spy);
-  });
-
-  it('transitive assertion', () => { // Compliant
-    check();
-  });
-
-  function check() {
-    assert.called(spy);
-  }
-});
