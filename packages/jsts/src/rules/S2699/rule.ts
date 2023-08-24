@@ -24,25 +24,42 @@ import { childrenOf } from '../../linter';
 import { Chai, isFunctionCall, Mocha, resolveFunction } from '../helpers';
 import { Sinon } from '../helpers/sinon';
 
+/**
+ * We assume that the user is using a single assertion library per file,
+ * this is why we are not saving if an assertion has been performed for
+ * libX and the imported library was libY.
+ */
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          checkAssertions(testCase, context);
+          checkAssertions(testCase, context, potentialIssues);
+        }
+      },
+      'Program:exit': () => {
+        if (Chai.isImported(context) || Sinon.isImported(context)) {
+          potentialIssues.forEach(issue => {
+            context.report(issue);
+          });
         }
       },
     };
   },
 };
 
-function checkAssertions(testCase: Mocha.TestCase, context: Rule.RuleContext) {
+function checkAssertions(
+  testCase: Mocha.TestCase,
+  context: Rule.RuleContext,
+  potentialIssues: Rule.ReportDescriptor[],
+) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
   visitor.visit(context, callback.body);
   if (visitor.missingAssertions()) {
-    context.report({ node, message: 'Add at least one assertion to this test case.' });
+    potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
   }
 }
 

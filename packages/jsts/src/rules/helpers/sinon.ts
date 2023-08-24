@@ -19,9 +19,17 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName } from '.';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from '.';
 
 export namespace Sinon {
+  export function isImported(context: Rule.RuleContext): boolean {
+    return (
+      getRequireCalls(context).some(
+        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
+      ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
+    );
+  }
+
   export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
     return isAssertUsage(context, node);
   }
