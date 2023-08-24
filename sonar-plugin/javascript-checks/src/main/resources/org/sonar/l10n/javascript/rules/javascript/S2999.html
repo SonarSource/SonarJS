@@ -6,7 +6,7 @@ properties. They are typically named with an initial capital letter to distingui
 <p>To create a new instance of an object using the constructor function, you use the <code>new</code> keyword before the function call.</p>
 <p>The <code>new</code> keyword should only be used with objects that define a constructor function. Attempting to use it with an object or a variable
 that is not a constructor will raise a <code>TypeError</code>.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function MyClass() {
   this.foo = 'bar';
 }
@@ -17,7 +17,7 @@ const obj1 = new someClass;    // Noncompliant: someClass is a variable
 const obj2 = new MyClass();    // Noncompliant if parameter considerJSDoc is true. Compliant when considerJSDoc is false
 </pre>
 <p>Always use the <code>new</code> keyword with constructor functions or classes.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 /**
  * @constructor
  */

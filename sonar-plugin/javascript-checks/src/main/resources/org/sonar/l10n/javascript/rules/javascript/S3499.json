@@ -1,6 +1,12 @@
 {
   "title": "Shorthand object properties should be grouped at the beginning or end of an object declaration",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

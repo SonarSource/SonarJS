@@ -1,6 +1,12 @@
 {
   "title": "All branches in a conditional structure should not have exactly the same implementation",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

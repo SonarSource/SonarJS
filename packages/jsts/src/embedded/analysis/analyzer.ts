@@ -19,10 +19,12 @@
  */
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { getLinter, Issue } from '../../linter';
-import { buildSourceCodes, LanguageParser } from '../builder';
+import { getLinter, Issue, LinterWrapper } from '../../linter';
+import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
 import { debug } from '@sonar/shared/helpers';
+import { measureDuration } from '../../monitoring';
+import { findNcloc } from '../../linter/visitors/metrics/ncloc';
 
 /**
  * Analyzes a file containing JS snippets
@@ -51,21 +53,50 @@ export function analyzeEmbedded(
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input, languageParser);
+  const building = () => buildSourceCodes(input, languageParser);
+  const { result: extendedSourceCodes, duration: parseTime } = measureDuration(building);
+  const analysis = () => analyzeFile(linter, extendedSourceCodes);
+  const { result: output, duration: analysisTime } = measureDuration(analysis);
+
+  return {
+    ...output,
+    perf: { parseTime, analysisTime },
+  };
+}
+
+/**
+ * Extracted logic from analyzeEmbedded() so we can compute metrics
+ *
+ * @param linter
+ * @param extendedSourceCodes
+ * @returns
+ */
+function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceCode[]) {
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
+  let ncloc: number[] = [];
   for (const extendedSourceCode of extendedSourceCodes) {
+    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(linter, extendedSourceCode);
+    ncloc = ncloc.concat(singleNcLoc);
+    const filteredIssues = removeNonJsIssues(extendedSourceCode, issues);
+    aggregatedIssues.push(...filteredIssues);
+    aggregatedUcfgPaths.push(...ucfgPaths);
+  }
+  return {
+    issues: aggregatedIssues,
+    ucfgPaths: aggregatedUcfgPaths,
+    metrics: { ncloc },
+  };
+
+  function analyzeSnippet(linter: LinterWrapper, extendedSourceCode: ExtendedSourceCode) {
     const { issues, ucfgPaths } = linter.lint(
       extendedSourceCode,
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
-    const filteredIssues = removeNonJsIssues(extendedSourceCode, issues);
-    aggregatedIssues.push(...filteredIssues);
-    aggregatedUcfgPaths.push(...ucfgPaths);
+    const ncloc = findNcloc(extendedSourceCode);
+    return { issues, ucfgPaths, ncloc };
   }
-
-  return { issues: aggregatedIssues, ucfgPaths: aggregatedUcfgPaths };
 
   /**
    * Filters out issues outside of JS code.

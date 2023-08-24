@@ -33,17 +33,20 @@ const APP_SET_NUM_ARGS = 2;
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      disclosingFingerprinting:
-        'Make sure disclosing the fingerprinting of this web technology is safe here.',
+      headerSet: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
+      headerDefault:
+        'This framework implicitly discloses version information by default. Make sure it is safe here.',
     },
   },
   create(context: Rule.RuleContext) {
     let appInstantiation: estree.Identifier | null = null;
     let isSafe = false;
+    let isExplicitelyUnsafe = false;
     return {
       Program() {
         appInstantiation = null;
         isSafe = false;
+        isExplicitelyUnsafe = true;
       },
       CallExpression: (node: estree.Node) => {
         if (!isSafe && appInstantiation) {
@@ -53,6 +56,7 @@ export const rule: Rule.RuleModule = {
             isDisabledXPoweredBy(callExpr, appInstantiation) ||
             isSetFalseXPoweredBy(callExpr, appInstantiation) ||
             isAppEscaping(callExpr, appInstantiation);
+          isExplicitelyUnsafe = isSetTrueXPoweredBy(callExpr, appInstantiation);
         }
       },
       VariableDeclarator: (node: estree.Node) => {
@@ -72,9 +76,13 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit'() {
         if (!isSafe && appInstantiation) {
+          let messageId = 'headerDefault';
+          if (isExplicitelyUnsafe) {
+            messageId = 'headerSet';
+          }
           context.report({
             node: appInstantiation,
-            messageId: 'disclosingFingerprinting',
+            messageId,
           });
         }
       },
@@ -113,16 +121,28 @@ function isSetFalseXPoweredBy(
   callExpression: estree.CallExpression,
   app: estree.Identifier,
 ): boolean {
+  return getSetTrueXPoweredByValue(callExpression, app) === false;
+}
+
+function isSetTrueXPoweredBy(
+  callExpression: estree.CallExpression,
+  app: estree.Identifier,
+): boolean {
+  return getSetTrueXPoweredByValue(callExpression, app) === true;
+}
+
+function getSetTrueXPoweredByValue(callExpression: estree.CallExpression, app: estree.Identifier) {
   if (isMethodInvocation(callExpression, app.name, 'set', APP_SET_NUM_ARGS)) {
     const [headerName, onOff] = callExpression.arguments;
-    return (
+    if (
       headerName.type === 'Literal' &&
       String(headerName.value).toLowerCase() === HEADER_X_POWERED_BY &&
-      onOff.type === 'Literal' &&
-      onOff.value === false
-    );
+      onOff.type === 'Literal'
+    ) {
+      return onOff.value;
+    }
   }
-  return false;
+  return undefined;
 }
 
 function isAppEscaping(callExpr: estree.CallExpression, app: estree.Identifier): boolean {

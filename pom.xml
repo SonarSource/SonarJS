@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.5.0-SNAPSHOT</version>
+  <version>10.6.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
@@ -240,21 +240,19 @@
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
           <includes>
-            <include>src/**/*.ts</include>
-            <include>src/**/*.tsx</include>
-            <include>tests/**/*.ts</include>
+            <include>packages/**/*.ts</include>
+            <include>packages/**/*.tsx</include>
             <include>profiling/**/*.ts</include>
             <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.template_java</include>
-            <include>tools/resources/rule.template_ts</include>
+            <include>tools/resources/rule.*</include>
           </includes>
           <mapping>
             <template_java>JAVADOC_STYLE</template_java>
             <template_ts>JAVADOC_STYLE</template_ts>
           </mapping>
           <excludes>
-            <exclude>tests/**/fixtures/**/*</exclude>
-            <exclude>tests/linting/**/comment-based/**/*</exclude>
+            <exclude>packages/**/fixtures/**/*</exclude>
+            <exclude>packages/**/*.fixture.*</exclude>
             <exclude>**/src/test/resources/**/*</exclude>
           </excludes>
         </configuration>

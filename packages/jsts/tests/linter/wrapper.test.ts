@@ -19,9 +19,9 @@
  */
 import path from 'path';
 import { JsTsLanguage, setContext } from '@sonar/shared/helpers';
-import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src/linter';
+import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools';
-import { fileReadable } from '../tools/helpers/files';
+import { fileReadable } from '@sonar/shared/helpers';
 
 describe('LinterWrapper', () => {
   beforeAll(() => {

@@ -1,6 +1,12 @@
 {
   "title": "\"for\" loop increment clauses should modify the loops\u0027 counters",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

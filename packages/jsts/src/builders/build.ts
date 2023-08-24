@@ -20,7 +20,7 @@
 import { debug, getContext, JsTsLanguage } from '@sonar/shared/helpers';
 import { JsTsAnalysisInput } from '../analysis';
 import { buildParserOptions, parseForESLint, parsers } from '../parsers';
-import { getProgramById, getProgramForFile } from '../program';
+import { getProgramById } from '../program';
 import { Linter } from 'eslint';
 
 /**
@@ -45,14 +45,6 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       project: input.tsConfigs,
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
-    if (
-      !options.programs &&
-      !shouldUseWatchProgram(input.filePath) &&
-      input.createProgram === true
-    ) {
-      const program = getProgramForFile(input);
-      options.programs = [program];
-    }
 
     try {
       return parseForESLint(
@@ -99,10 +91,6 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
      */
     throw moduleError;
   }
-}
-
-function shouldUseWatchProgram(file: string): boolean {
-  return getContext()?.sonarlint || isVueFile(file);
 }
 
 function shouldUseTypescriptParser(language: JsTsLanguage): boolean {

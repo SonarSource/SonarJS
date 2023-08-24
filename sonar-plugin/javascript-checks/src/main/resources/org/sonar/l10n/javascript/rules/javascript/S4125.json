@@ -1,6 +1,12 @@
 {
   "title": "\"typeof\" expressions should only be compared to valid values",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

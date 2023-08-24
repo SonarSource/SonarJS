@@ -19,9 +19,13 @@
  */
 import path from 'path';
 import { setContext, toUnixPath } from '@sonar/shared/helpers';
-import { initializeLinter, RuleConfig } from '../../src/linter';
-import { analyzeJSTS, JsTsAnalysisOutput } from '../../src/analysis';
-import { createAndSaveProgram } from '../../src/program';
+import {
+  initializeLinter,
+  RuleConfig,
+  analyzeJSTS,
+  JsTsAnalysisOutput,
+  createAndSaveProgram,
+} from '../../src';
 import { APIError } from '@sonar/shared/errors';
 import { jsTsInput } from '../tools';
 
@@ -887,34 +891,6 @@ describe('analyzeJSTS', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => analyzeJSTS(analysisInput, language)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
-    );
-  });
-
-  it('should find issues requiring typing in JavaScript', async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
-    initializeLinter(rules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'js_types', 'main.js');
-
-    const analysisWithProgram = await jsTsInput({ filePath, createProgram: true });
-
-    const {
-      issues: [issuesWithProject],
-    } = analyzeJSTS(analysisWithProgram, 'js');
-    expect(issuesWithProject).toEqual(
-      expect.objectContaining({
-        ruleId: 'strings-comparison',
-        line: 4,
-      }),
     );
   });
 });

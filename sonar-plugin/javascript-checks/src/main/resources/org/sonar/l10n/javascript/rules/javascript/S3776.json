@@ -1,6 +1,12 @@
 {
   "title": "Cognitive Complexity of functions should not be too high",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "FOCUSED"
+  },
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

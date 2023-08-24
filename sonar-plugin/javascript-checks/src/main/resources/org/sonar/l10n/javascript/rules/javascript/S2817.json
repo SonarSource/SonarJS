@@ -1,6 +1,12 @@
 {
   "title": "Web SQL databases should not be used",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

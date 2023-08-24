@@ -1,6 +1,12 @@
 {
   "title": "React\u0027s useState hook should not be used directly in the render function or body of a component",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

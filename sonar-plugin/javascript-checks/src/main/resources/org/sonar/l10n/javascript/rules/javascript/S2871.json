@@ -1,6 +1,12 @@
 {
   "title": "\"Array.prototype.sort()\" and \"Array.prototype.toSorted()\" should use a compare function",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

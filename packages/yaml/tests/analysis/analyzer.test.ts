@@ -20,11 +20,11 @@
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
 import { parseAwsFromYaml } from '../../src/aws';
+import { embeddedInput } from '../../../jsts/tests/tools';
 import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
-import { embeddedInput } from '../tools';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');
@@ -210,5 +210,22 @@ describe('analyzeYAML', () => {
     initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
     getLinter().linter.defineRule(rule.key, rule.module);
     analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
+  });
+
+  it('should measure analysis duration', async () => {
+    initializeLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
+    const {
+      perf: { parseTime, analysisTime },
+      metrics: { ncloc },
+    } = analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'monitoring.yaml') }),
+      parseAwsFromYaml,
+    );
+    expect(parseTime).toBeGreaterThan(0);
+    expect(analysisTime).toBeGreaterThan(0);
+    expect(ncloc).toHaveLength(1);
+    expect(ncloc[0]).toEqual(7);
   });
 });

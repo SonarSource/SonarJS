@@ -1,6 +1,12 @@
 {
   "title": "\"\u003d\u003d\u003d\" and \"!\u003d\u003d\" should be used instead of \"\u003d\u003d\" and \"!\u003d\"",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

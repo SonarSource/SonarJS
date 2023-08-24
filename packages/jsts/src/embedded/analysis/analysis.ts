@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Perf } from 'jsts/src/monitoring';
 import { Issue } from '../../linter';
 import { AnalysisInput, AnalysisOutput } from '@sonar/shared/types';
 
@@ -40,4 +41,9 @@ export interface EmbeddedAnalysisInput extends AnalysisInput {}
 export interface EmbeddedAnalysisOutput extends AnalysisOutput {
   issues: Issue[];
   ucfgPaths?: string[];
+  // We only need monitoring metrics for embedded languages. See AnalysisProcessor.java
+  perf: Perf;
+  metrics: {
+    ncloc: number[];
+  };
 }

@@ -47,7 +47,7 @@ plaintext can be recovered, companies face legal consequences, penalties, or vio
 href="https://nodejs.org/api/tls.html#tlscreatesecurecontextoptions">these options</a> are used and are used in other third-party libraries as
 well.</p>
 <p>The first is <code>secureProtocol</code>:</p>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre data-diff-id="11" data-diff-type="noncompliant">
 const https = require('node:https');
 const tls   = require('node:tls');
 
@@ -60,7 +60,7 @@ let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
 <p>The second is the combination of <code>minVersion</code> and <code>maxVerison</code>. Note that they cannot be specified along with the
 <code>secureProtocol</code> option:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
+<pre data-diff-id="12" data-diff-type="noncompliant">
 const https = require('node:https');
 const tls   = require('node:tls');
 
@@ -74,7 +74,7 @@ let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
 <p>And <code>secureOptions</code>, which in this example instructs the OpenSSL protocol to turn off some algorithms altogether. In general, this
 option might trigger side effects and should be used carefully, if used at all.</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
+<pre data-diff-id="13" data-diff-type="noncompliant">
 const https     = require('node:https');
 const tls       = require('node:tls');
 const constants = require('node:crypto'):
@@ -90,7 +90,7 @@ let req    = https.request(options, (res) =&gt; { });
 let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre data-diff-id="11" data-diff-type="compliant">
 const https = require('node:https');
 const tls   = require('node:tls');
 
@@ -101,7 +101,7 @@ let options = {
 let req    = https.request(options, (res) =&gt; { });
 let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
-<pre data-diff-id="2" data-diff-type="compliant">
+<pre data-diff-id="12" data-diff-type="compliant">
 const https = require('node:https');
 const tls   = require('node:tls');
 
@@ -114,7 +114,7 @@ let req    = https.request(options, (res) =&gt; { });
 let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
 <p>Here, the goal is to turn on only TLSv1.2 and higher, by turning off all lower versions:</p>
-<pre data-diff-id="3" data-diff-type="compliant">
+<pre data-diff-id="13" data-diff-type="compliant">
 const https = require('node:https');
 const tls   = require('node:tls');
 

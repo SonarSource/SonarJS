@@ -1,6 +1,12 @@
 {
   "title": "Assertions should be complete",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "TESTED"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

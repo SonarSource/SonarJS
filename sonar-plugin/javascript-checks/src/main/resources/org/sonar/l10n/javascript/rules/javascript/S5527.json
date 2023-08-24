@@ -1,6 +1,12 @@
 {
   "title": "Server hostnames should be verified during SSL\/TLS connections",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,12 @@
 {
   "title": "Initial values of parameters, caught exceptions, and loop variables should not be ignored",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

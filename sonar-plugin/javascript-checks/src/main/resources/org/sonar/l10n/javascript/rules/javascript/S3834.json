@@ -1,6 +1,12 @@
 {
   "title": "\"new\" operator should not be used with Symbol and BigInt",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

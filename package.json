@@ -71,7 +71,7 @@
     "eslint": "8.47.0",
     "eslint-plugin-react": "7.32.2",
     "eslint-plugin-react-hooks": "4.6.0",
-    "eslint-plugin-sonarjs": "0.20.0",
+    "eslint-plugin-sonarjs": "0.21.0",
     "express": "4.18.2",
     "functional-red-black-tree": "1.0.1",
     "htmlparser2": "9.0.0",
@@ -86,7 +86,7 @@
     "scslre": "0.2.0",
     "stylelint": "15.7.0",
     "tmp": "0.2.1",
-    "typescript": "5.0.4",
+    "typescript": "5.1.6",
     "vue-eslint-parser": "9.3.0",
     "yaml": "2.3.1"
   },

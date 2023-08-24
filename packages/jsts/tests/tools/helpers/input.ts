@@ -19,34 +19,32 @@
  */
 import { FileType, readFile } from '@sonar/shared/helpers';
 import { EmbeddedAnalysisInput } from '../../../src/embedded';
-import { JsTsAnalysisInput } from '../../../src/analysis';
+import { JsTsAnalysisInput } from '../../../src';
 
-export async function jsTsInput({
-  filePath = '',
-  fileContent = undefined,
-  fileType = 'MAIN' as FileType,
-  tsConfigs = [],
-  programId = undefined,
-  linterId = 'default',
-  createProgram = false,
-  forceUpdateTSConfigs = false,
-}): Promise<JsTsAnalysisInput> {
+type allOptional = {
+  filePath: string;
+  fileContent?: string;
+  fileType?: FileType;
+  tsConfigs?: string[];
+  programId?: string;
+  linterId?: string;
+};
+
+export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> {
   return {
-    filePath,
-    fileContent: fileContent || (await readFile(filePath)),
-    fileType,
-    programId,
-    linterId,
-    tsConfigs,
-    createProgram,
-    forceUpdateTSConfigs,
+    filePath: input.filePath,
+    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    fileType: input.fileType ?? 'MAIN',
+    programId: input.programId,
+    linterId: input.linterId ?? 'default',
+    tsConfigs: input.tsConfigs ?? [],
   };
 }
 
-export async function embeddedInput({
-  filePath = '',
-  fileContent = undefined,
-  linterId = 'default',
-}): Promise<EmbeddedAnalysisInput> {
-  return { filePath, fileContent: fileContent || (await readFile(filePath)), linterId };
+export async function embeddedInput(input: allOptional): Promise<EmbeddedAnalysisInput> {
+  return {
+    filePath: input.filePath,
+    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    linterId: input.linterId ?? 'default',
+  };
 }

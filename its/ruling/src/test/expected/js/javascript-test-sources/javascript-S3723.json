@@ -12811,10 +12811,6 @@
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/read-directory.js": [
 38
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
-15,
-212
-],
 "javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
 19,
 33,
@@ -14407,10 +14403,6 @@
 9,
 13,
 31
-],
-"javascript-test-sources:src/ecmascript6/ecmascript6-today/6-destructuring.js": [
-28,
-29
 ],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/Gruntfile.js": [
 8,

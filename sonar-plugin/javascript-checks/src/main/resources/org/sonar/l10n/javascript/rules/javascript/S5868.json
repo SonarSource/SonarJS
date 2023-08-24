@@ -1,6 +1,12 @@
 {
   "title": "Unicode Grapheme Clusters should be avoided inside regex character classes",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

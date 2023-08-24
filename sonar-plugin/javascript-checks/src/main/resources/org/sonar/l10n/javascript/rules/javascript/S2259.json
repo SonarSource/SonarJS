@@ -1,6 +1,12 @@
 {
   "title": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

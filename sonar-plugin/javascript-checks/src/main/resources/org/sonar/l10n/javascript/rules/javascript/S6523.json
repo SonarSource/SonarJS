@@ -1,6 +1,12 @@
 {
   "title": "Optional chaining should not be used if returning \"undefined\" throws an error",
   "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

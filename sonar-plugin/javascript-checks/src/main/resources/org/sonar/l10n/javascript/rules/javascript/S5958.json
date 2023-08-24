@@ -1,6 +1,12 @@
 {
   "title": "Tests should check which exception is thrown",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "TESTED"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
