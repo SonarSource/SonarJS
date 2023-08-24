@@ -170,7 +170,8 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
+            message:
+              'This framework implicitly discloses version information by default. Make sure it is safe here.',
             line: 3,
             endLine: 3,
             column: 15,
@@ -185,7 +186,8 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
+            message:
+              'This framework implicitly discloses version information by default. Make sure it is safe here.',
             line: 3,
             endLine: 3,
             column: 15,
@@ -199,7 +201,8 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
+            message:
+              'This framework implicitly discloses version information by default. Make sure it is safe here.',
             line: 2,
             endLine: 2,
             column: 15,
@@ -213,7 +216,15 @@ ruleTester.run(
         const app = express();
         app.set("x-powered-by", true); // Noncompliant
       `,
-        errors: 1,
+        errors: [
+          {
+            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
+            line: 3,
+            endLine: 3,
+            column: 15,
+            endColumn: 18,
+          },
+        ],
       },
       {
         code: `
