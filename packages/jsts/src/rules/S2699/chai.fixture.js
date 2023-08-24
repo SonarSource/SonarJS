@@ -4,7 +4,6 @@ const { assert, expect, should } = chai;
 should();
 
 describe('test cases', () => {
-
   it('no assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     alert('msg');
   });
@@ -21,6 +20,14 @@ describe('test cases', () => {
     alert('msg');
   });
 
+  function nocheck() {
+    alert('msg');
+  }
+
+  it('foo') // missing callback
+});
+
+describe('chai test cases', () => {
   it('expect', () => { // Compliant
     expect(1).to.equal(2);
   });
@@ -56,10 +63,4 @@ describe('test cases', () => {
   function check() {
     expect(1).to.equal(2);
   }
-
-  function nocheck() {
-    alert('msg');
-  }
-
-  it('foo') // missing callback
 });
