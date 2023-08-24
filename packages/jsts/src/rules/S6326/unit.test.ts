@@ -56,6 +56,12 @@ ruleTester.run('Regex with multiple spaces', rule, {
           endLine: 1,
           column: 3,
           endColumn: 6,
+          suggestions: [
+            {
+              desc: 'Use quantifier {3}',
+              output: `/a {3}b /`,
+            },
+          ],
         },
       ],
     },
