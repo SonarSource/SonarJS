@@ -20,11 +20,11 @@
 import { join } from 'path';
 import { setContext } from '@sonar/shared/helpers';
 import { parseAwsFromYaml } from '../../src/aws';
+import { embeddedInput } from '../../../jsts/tests/tools';
 import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/embedded';
 import { initializeLinter, getLinter } from '@sonar/jsts';
 import { APIError } from '@sonar/shared/errors';
 import { Rule } from 'eslint';
-import { embeddedInput } from '@sonar/shared/helpers';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

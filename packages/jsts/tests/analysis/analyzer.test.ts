@@ -25,7 +25,7 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
-} from '@sonar/jsts';
+} from '../../src';
 import { APIError } from '@sonar/shared/errors';
 import { jsTsInput } from '../tools';
 
