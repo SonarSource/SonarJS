@@ -336,8 +336,8 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   ],
 });
 
-const project = path.join(__dirname, 'tsconfig.fixture.json');
-const filename = path.join(__dirname, 'unit.fixture.tsx');
+const project = path.join(__dirname, 'fixtures', 'tsconfig.fixture.json');
+const filename = path.join(__dirname, 'fixtures', 'unit.fixture.tsx');
 
 const ruleTesterJsxFactory = new RuleTester({
   parserOptions: {
