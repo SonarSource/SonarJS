@@ -1,0 +1,13 @@
+[
+  {
+    "key": "react-hooks/rules-of-hooks",
+    "name": "enforces the Rules of Hooks",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>react-hooks/rules-of-hooks</code> at the <a href=\"https://reactjs.org/docs/hooks-rules.html\">eslint-plugin-react-hooks website</a>"
+  },
+  {
+    "key": "react-hooks/exhaustive-deps",
+    "name": "verifies the list of dependencies for Hooks like useEffect and similar",
+    "description": "See description of ESLint rule <code>react-hooks/exhaustive-deps</code> at the <a href=\"https://github.com/facebook/react/issues/14920\">eslint-plugin-react-hooks website</a>"
+  }
+]

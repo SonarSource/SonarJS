@@ -1,291 +1,1272 @@
 [
   {
-    "key": "vue/comment-directive",
-    "name": "Support comment-directives in <template>",
-    "description": "See description of ESLint rule <code>vue/comment-directive</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/comment-directive.md\">eslint-plugin-vue website</a>."
+    "key": "vue/array-bracket-newline",
+    "name": "Enforce linebreaks after opening and before closing array brackets in `<template>`",
+    "description": "See description of ESLint rule <code>vue/array-bracket-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/array-bracket-newline.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/jsx-uses-vars",
-    "name": "Prevent variables used in jsx to be marked as unused",
-    "description": "See description of ESLint rule <code>vue/jsx-uses-vars</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/jsx-uses-vars.md\">eslint-plugin-vue website</a>."
+    "key": "vue/array-bracket-spacing",
+    "name": "Enforce consistent spacing inside array brackets in `<template>`",
+    "description": "See description of ESLint rule <code>vue/array-bracket-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/array-bracket-spacing.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/no-async-in-computed-properties",
-    "type": "BUG",
-    "name": "Disallow asynchronous actions in computed properties",
-    "description": "See description of ESLint rule <code>vue/no-async-in-computed-properties</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-async-in-computed-properties.md\">eslint-plugin-vue website</a>."
+    "key": "vue/array-element-newline",
+    "name": "Enforce line breaks after each array element in `<template>`",
+    "description": "See description of ESLint rule <code>vue/array-element-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/array-element-newline.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/no-dupe-keys",
-    "type": "BUG",
-    "name": "Disallow duplication of field names",
-    "description": "See description of ESLint rule <code>vue/no-dupe-keys</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-dupe-keys.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-duplicate-attributes",
-    "type": "BUG",
-    "name": "Disallow duplication of attributes",
-    "description": "See description of ESLint rule <code>vue/no-duplicate-attributes</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-duplicate-attributes.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-parsing-error",
-    "type": "BUG",
-    "name": "Disallow parsing errors in <template>",
-    "description": "See description of ESLint rule <code>vue/no-parsing-error</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-parsing-error.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-reserved-keys",
-    "type": "BUG",
-    "name": "Disallow overwriting reserved keys",
-    "description": "See description of ESLint rule <code>vue/no-reserved-keys</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-reserved-keys.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-shared-component-data",
-    "type": "BUG",
-    "name": "Enforce component's data property to be a function",
-    "description": "See description of ESLint rule <code>vue/no-shared-component-data</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-shared-component-data.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-side-effects-in-computed-properties",
-    "type": "BUG",
-    "name": "Disallow side effects in computed properties",
-    "description": "See description of ESLint rule <code>vue/no-side-effects-in-computed-properties</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-side-effects-in-computed-properties.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-template-key",
-    "type": "BUG",
-    "name": "Disallow key attribute on <template>",
-    "description": "See description of ESLint rule <code>vue/no-template-key</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-template-key.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-textarea-mustache",
-    "type": "BUG",
-    "name": "Disallow mustaches in <textarea>",
-    "description": "See description of ESLint rule <code>vue/no-textarea-mustache</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-textarea-mustache.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-unused-vars",
-    "type": "BUG",
-    "name": "Disallow unused variable definitions of v-for directives or scope attributes",
-    "description": "See description of ESLint rule <code>vue/no-unused-vars</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-unused-vars.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-component-is",
-    "type": "BUG",
-    "name": "Require v-bind:is of <component> elements",
-    "description": "See description of ESLint rule <code>vue/require-component-is</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-component-is.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-render-return",
-    "type": "BUG",
-    "name": "Enforce render function to always return value",
-    "description": "See description of ESLint rule <code>vue/require-render-return</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-render-return.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-v-for-key",
-    "type": "BUG",
-    "name": "Require v-bind:key with v-for directives",
-    "description": "See description of ESLint rule <code>vue/require-v-for-key</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-v-for-key.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-valid-default-prop",
-    "type": "BUG",
-    "name": "Enforce props default values to be valid",
-    "description": "See description of ESLint rule <code>vue/require-valid-default-prop</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-valid-default-prop.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/return-in-computed-property",
-    "type": "BUG",
-    "name": "Enforce that a return statement is present in computed property",
-    "description": "See description of ESLint rule <code>vue/return-in-computed-property</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/return-in-computed-property.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-template-root",
-    "type": "BUG",
-    "name": "Enforce valid template root",
-    "description": "See description of ESLint rule <code>vue/valid-template-root</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-template-root.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-bind",
-    "type": "BUG",
-    "name": "Enforce valid v-bind directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-bind</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-bind.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-cloak",
-    "type": "BUG",
-    "name": "Enforce valid v-cloak directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-cloak</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-cloak.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-else-if",
-    "type": "BUG",
-    "name": "Enforce valid v-else-if directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-else-if</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-else-if.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-else",
-    "type": "BUG",
-    "name": "Enforce valid v-else directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-else</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-else.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-for",
-    "type": "BUG",
-    "name": "Enforce valid v-for directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-for</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-for.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-html",
-    "type": "BUG",
-    "name": "Enforce valid v-html directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-html</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-html.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-if",
-    "type": "BUG",
-    "name": "Enforce valid v-if directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-if</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-if.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-model",
-    "type": "BUG",
-    "name": "Enforce valid v-model directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-model</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-model.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-on",
-    "type": "BUG",
-    "name": "Enforce valid v-on directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-on</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-on.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-once",
-    "type": "BUG",
-    "name": "Enforce valid v-once directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-once</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-once.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-pre",
-    "type": "BUG",
-    "name": "Enforce valid v-pre directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-pre</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-pre.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-show",
-    "type": "BUG",
-    "name": "Enforce valid v-show directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-show</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-show.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/valid-v-text",
-    "type": "BUG",
-    "name": "Enforce valid v-text directives",
-    "description": "See description of ESLint rule <code>vue/valid-v-text</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/valid-v-text.md\">eslint-plugin-vue website</a>."
+    "key": "vue/arrow-spacing",
+    "name": "Enforce consistent spacing before and after the arrow in arrow functions in `<template>`",
+    "description": "See description of ESLint rule <code>vue/arrow-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/arrow-spacing.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/attribute-hyphenation",
-    "name": "Enforce attribute naming style in template",
-    "description": "See description of ESLint rule <code>vue/attribute-hyphenation</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/attribute-hyphenation.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/html-end-tags",
-    "name": "Enforce end tag style",
-    "description": "See description of ESLint rule <code>vue/html-end-tags</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-end-tags.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/html-indent",
-    "name": "Enforce consistent indentation in <template>",
-    "description": "See description of ESLint rule <code>vue/html-indent</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-indent.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/html-self-closing",
-    "name": "Enforce self-closing style",
-    "description": "See description of ESLint rule <code>vue/html-self-closing</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-self-closing.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/max-attributes-per-line",
-    "name": "Enforce the maximum number of attributes per line",
-    "description": "See description of ESLint rule <code>vue/max-attributes-per-line</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/max-attributes-per-line.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/mustache-interpolation-spacing",
-    "name": "Enforce unified spacing in mustache interpolations",
-    "description": "See description of ESLint rule <code>vue/mustache-interpolation-spacing</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/mustache-interpolation-spacing.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/name-property-casing",
-    "name": "Enforce specific casing for the name property in vue components",
-    "description": "See description of ESLint rule <code>vue/name-property-casing</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/name-property-casing.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/no-multi-spaces",
-    "name": "Disallow multiple spaces",
-    "description": "See description of ESLint rule <code>vue/no-multi-spaces</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-multi-spaces.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-default-prop",
-    "name": "Require default value for props",
-    "description": "See description of ESLint rule <code>vue/require-default-prop</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-default-prop.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/require-prop-types",
-    "name": "Require type definitions in props",
-    "description": "See description of ESLint rule <code>vue/require-prop-types</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/require-prop-types.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/v-bind-style",
-    "name": "Enforce v-bind directive style",
-    "description": "See description of ESLint rule <code>vue/v-bind-style</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/v-bind-style.md\">eslint-plugin-vue website</a>."
-  },
-  {
-    "key": "vue/v-on-style",
-    "name": "Enforce v-on directive style",
-    "description": "See description of ESLint rule <code>vue/v-on-style</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/v-on-style.md\">eslint-plugin-vue website</a>."
+    "name": "enforce attribute naming style on custom components in template",
+    "description": "See description of ESLint rule <code>vue/attribute-hyphenation</code> at the <a href=\"https://eslint.vuejs.org/rules/attribute-hyphenation.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/attributes-order",
-    "name": "Enforce order of attributes",
-    "description": "See description of ESLint rule <code>vue/attributes-order</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/attributes-order.md\">eslint-plugin-vue website</a>."
+    "name": "enforce order of attributes",
+    "description": "See description of ESLint rule <code>vue/attributes-order</code> at the <a href=\"https://eslint.vuejs.org/rules/attributes-order.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/html-quotes",
-    "name": "Enforce quotes style of html attributes",
-    "description": "See description of ESLint rule <code>vue/html-quotes</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-quotes.md\">eslint-plugin-vue website</a>."
+    "key": "vue/block-lang",
+    "name": "disallow use other than available `lang`",
+    "description": "See description of ESLint rule <code>vue/block-lang</code> at the <a href=\"https://eslint.vuejs.org/rules/block-lang.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/no-confusing-v-for-v-if",
-    "name": "Disallow confusing v-for and v-if on the same element",
-    "description": "See description of ESLint rule <code>vue/no-confusing-v-for-v-if</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/no-confusing-v-for-v-if.md\">eslint-plugin-vue website</a>."
+    "key": "vue/block-order",
+    "name": "enforce order of component top-level elements",
+    "description": "See description of ESLint rule <code>vue/block-order</code> at the <a href=\"https://eslint.vuejs.org/rules/block-order.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/order-in-components",
-    "name": "Enforce order of properties in components",
-    "description": "See description of ESLint rule <code>vue/order-in-components</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/order-in-components.md\">eslint-plugin-vue website</a>."
+    "key": "vue/block-spacing",
+    "name": "Disallow or enforce spaces inside of blocks after opening block and before closing block in `<template>`",
+    "description": "See description of ESLint rule <code>vue/block-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/block-spacing.html\">eslint-plugin-vue website</a>"
   },
   {
-    "key": "vue/this-in-template",
-    "name": "Enforce usage of this in template",
-    "description": "See description of ESLint rule <code>vue/this-in-template</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/this-in-template.md\">eslint-plugin-vue website</a>."
+    "key": "vue/block-tag-newline",
+    "name": "enforce line breaks after opening and before closing block-level tags",
+    "description": "See description of ESLint rule <code>vue/block-tag-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/block-tag-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/brace-style",
+    "name": "Enforce consistent brace style for blocks in `<template>`",
+    "description": "See description of ESLint rule <code>vue/brace-style</code> at the <a href=\"https://eslint.vuejs.org/rules/brace-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/camelcase",
+    "name": "Enforce camelcase naming convention in `<template>`",
+    "description": "See description of ESLint rule <code>vue/camelcase</code> at the <a href=\"https://eslint.vuejs.org/rules/camelcase.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/comma-dangle",
+    "name": "Require or disallow trailing commas in `<template>`",
+    "description": "See description of ESLint rule <code>vue/comma-dangle</code> at the <a href=\"https://eslint.vuejs.org/rules/comma-dangle.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/comma-spacing",
+    "name": "Enforce consistent spacing before and after commas in `<template>`",
+    "description": "See description of ESLint rule <code>vue/comma-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/comma-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/comma-style",
+    "name": "Enforce consistent comma style in `<template>`",
+    "description": "See description of ESLint rule <code>vue/comma-style</code> at the <a href=\"https://eslint.vuejs.org/rules/comma-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/comment-directive",
+    "name": "support comment-directives in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/comment-directive</code> at the <a href=\"https://eslint.vuejs.org/rules/comment-directive.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/component-api-style",
+    "name": "enforce component API style",
+    "description": "See description of ESLint rule <code>vue/component-api-style</code> at the <a href=\"https://eslint.vuejs.org/rules/component-api-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/component-definition-name-casing",
+    "name": "enforce specific casing for component definition name",
+    "description": "See description of ESLint rule <code>vue/component-definition-name-casing</code> at the <a href=\"https://eslint.vuejs.org/rules/component-definition-name-casing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/component-name-in-template-casing",
+    "name": "enforce specific casing for the component naming style in template",
+    "description": "See description of ESLint rule <code>vue/component-name-in-template-casing</code> at the <a href=\"https://eslint.vuejs.org/rules/component-name-in-template-casing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/component-options-name-casing",
+    "name": "enforce the casing of component name in `components` options",
+    "description": "See description of ESLint rule <code>vue/component-options-name-casing</code> at the <a href=\"https://eslint.vuejs.org/rules/component-options-name-casing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/component-tags-order",
+    "name": "enforce order of component top-level elements",
+    "description": "See description of ESLint rule <code>vue/component-tags-order</code> at the <a href=\"https://eslint.vuejs.org/rules/component-tags-order.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/custom-event-name-casing",
+    "name": "enforce specific casing for custom event name",
+    "description": "See description of ESLint rule <code>vue/custom-event-name-casing</code> at the <a href=\"https://eslint.vuejs.org/rules/custom-event-name-casing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/define-emits-declaration",
+    "name": "enforce declaration style of `defineEmits`",
+    "description": "See description of ESLint rule <code>vue/define-emits-declaration</code> at the <a href=\"https://eslint.vuejs.org/rules/define-emits-declaration.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/define-macros-order",
+    "name": "enforce order of `defineEmits` and `defineProps` compiler macros",
+    "description": "See description of ESLint rule <code>vue/define-macros-order</code> at the <a href=\"https://eslint.vuejs.org/rules/define-macros-order.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/define-props-declaration",
+    "name": "enforce declaration style of `defineProps`",
+    "description": "See description of ESLint rule <code>vue/define-props-declaration</code> at the <a href=\"https://eslint.vuejs.org/rules/define-props-declaration.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/dot-location",
+    "name": "Enforce consistent newlines before and after dots in `<template>`",
+    "description": "See description of ESLint rule <code>vue/dot-location</code> at the <a href=\"https://eslint.vuejs.org/rules/dot-location.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/dot-notation",
+    "name": "Enforce dot notation whenever possible in `<template>`",
+    "description": "See description of ESLint rule <code>vue/dot-notation</code> at the <a href=\"https://eslint.vuejs.org/rules/dot-notation.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/eqeqeq",
+    "name": "Require the use of `===` and `!==` in `<template>`",
+    "description": "See description of ESLint rule <code>vue/eqeqeq</code> at the <a href=\"https://eslint.vuejs.org/rules/eqeqeq.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/first-attribute-linebreak",
+    "name": "enforce the location of first attribute",
+    "description": "See description of ESLint rule <code>vue/first-attribute-linebreak</code> at the <a href=\"https://eslint.vuejs.org/rules/first-attribute-linebreak.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/func-call-spacing",
+    "name": "Require or disallow spacing between function identifiers and their invocations in `<template>`",
+    "description": "See description of ESLint rule <code>vue/func-call-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/func-call-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-button-has-type",
+    "name": "disallow usage of button without an explicit type attribute",
+    "description": "See description of ESLint rule <code>vue/html-button-has-type</code> at the <a href=\"https://eslint.vuejs.org/rules/html-button-has-type.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/html-closing-bracket-newline",
-    "name": "Require or disallow a line break before tag's closing brackets",
-    "description": "See description of ESLint rule <code>vue/html-closing-bracket-newline</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-closing-bracket-newline.md\">eslint-plugin-vue website</a>."
+    "name": "require or disallow a line break before tag's closing brackets",
+    "description": "See description of ESLint rule <code>vue/html-closing-bracket-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/html-closing-bracket-newline.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/html-closing-bracket-spacing",
-    "name": "Require or disallow a space before tag's closing brackets",
-    "description": "See description of ESLint rule <code>vue/html-closing-bracket-spacing</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/html-closing-bracket-spacing.md\">eslint-plugin-vue website</a>."
+    "name": "require or disallow a space before tag's closing brackets",
+    "description": "See description of ESLint rule <code>vue/html-closing-bracket-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/html-closing-bracket-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-comment-content-newline",
+    "name": "enforce unified line brake in HTML comments",
+    "description": "See description of ESLint rule <code>vue/html-comment-content-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/html-comment-content-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-comment-content-spacing",
+    "name": "enforce unified spacing in HTML comments",
+    "description": "See description of ESLint rule <code>vue/html-comment-content-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/html-comment-content-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-comment-indent",
+    "name": "enforce consistent indentation in HTML comments",
+    "description": "See description of ESLint rule <code>vue/html-comment-indent</code> at the <a href=\"https://eslint.vuejs.org/rules/html-comment-indent.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-end-tags",
+    "name": "enforce end tag style",
+    "description": "See description of ESLint rule <code>vue/html-end-tags</code> at the <a href=\"https://eslint.vuejs.org/rules/html-end-tags.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-indent",
+    "name": "enforce consistent indentation in `<template>`",
+    "description": "See description of ESLint rule <code>vue/html-indent</code> at the <a href=\"https://eslint.vuejs.org/rules/html-indent.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-quotes",
+    "name": "enforce quotes style of HTML attributes",
+    "description": "See description of ESLint rule <code>vue/html-quotes</code> at the <a href=\"https://eslint.vuejs.org/rules/html-quotes.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/html-self-closing",
+    "name": "enforce self-closing style",
+    "description": "See description of ESLint rule <code>vue/html-self-closing</code> at the <a href=\"https://eslint.vuejs.org/rules/html-self-closing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/jsx-uses-vars",
+    "name": "prevent variables used in JSX to be marked as unused",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/jsx-uses-vars</code> at the <a href=\"https://eslint.vuejs.org/rules/jsx-uses-vars.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/key-spacing",
+    "name": "Enforce consistent spacing between keys and values in object literal properties in `<template>`",
+    "description": "See description of ESLint rule <code>vue/key-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/key-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/keyword-spacing",
+    "name": "Enforce consistent spacing before and after keywords in `<template>`",
+    "description": "See description of ESLint rule <code>vue/keyword-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/keyword-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/match-component-file-name",
+    "name": "require component name property to match its file name",
+    "description": "See description of ESLint rule <code>vue/match-component-file-name</code> at the <a href=\"https://eslint.vuejs.org/rules/match-component-file-name.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/match-component-import-name",
+    "name": "require the registered component name to match the imported component name",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/match-component-import-name</code> at the <a href=\"https://eslint.vuejs.org/rules/match-component-import-name.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/max-attributes-per-line",
+    "name": "enforce the maximum number of attributes per line",
+    "description": "See description of ESLint rule <code>vue/max-attributes-per-line</code> at the <a href=\"https://eslint.vuejs.org/rules/max-attributes-per-line.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/max-len",
+    "name": "enforce a maximum line length in `.vue` files",
+    "description": "See description of ESLint rule <code>vue/max-len</code> at the <a href=\"https://eslint.vuejs.org/rules/max-len.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/max-lines-per-block",
+    "name": "enforce maximum number of lines in Vue SFC blocks",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/max-lines-per-block</code> at the <a href=\"https://eslint.vuejs.org/rules/max-lines-per-block.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/multi-word-component-names",
+    "name": "require component names to be always multi-word",
+    "description": "See description of ESLint rule <code>vue/multi-word-component-names</code> at the <a href=\"https://eslint.vuejs.org/rules/multi-word-component-names.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/multiline-html-element-content-newline",
+    "name": "require a line break before and after the contents of a multiline element",
+    "description": "See description of ESLint rule <code>vue/multiline-html-element-content-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/multiline-html-element-content-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/multiline-ternary",
+    "name": "Enforce newlines between operands of ternary expressions in `<template>`",
+    "description": "See description of ESLint rule <code>vue/multiline-ternary</code> at the <a href=\"https://eslint.vuejs.org/rules/multiline-ternary.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/mustache-interpolation-spacing",
+    "name": "enforce unified spacing in mustache interpolations",
+    "description": "See description of ESLint rule <code>vue/mustache-interpolation-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/mustache-interpolation-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/new-line-between-multi-line-property",
+    "name": "enforce new lines between multi-line properties in Vue components",
+    "description": "See description of ESLint rule <code>vue/new-line-between-multi-line-property</code> at the <a href=\"https://eslint.vuejs.org/rules/new-line-between-multi-line-property.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/next-tick-style",
+    "name": "enforce Promise or callback style in `nextTick`",
+    "description": "See description of ESLint rule <code>vue/next-tick-style</code> at the <a href=\"https://eslint.vuejs.org/rules/next-tick-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-arrow-functions-in-watch",
+    "name": "disallow using arrow functions to define watcher",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-arrow-functions-in-watch</code> at the <a href=\"https://eslint.vuejs.org/rules/no-arrow-functions-in-watch.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-async-in-computed-properties",
+    "name": "disallow asynchronous actions in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-async-in-computed-properties</code> at the <a href=\"https://eslint.vuejs.org/rules/no-async-in-computed-properties.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-bare-strings-in-template",
+    "name": "disallow the use of bare strings in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-bare-strings-in-template</code> at the <a href=\"https://eslint.vuejs.org/rules/no-bare-strings-in-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-boolean-default",
+    "name": "disallow boolean defaults",
+    "description": "See description of ESLint rule <code>vue/no-boolean-default</code> at the <a href=\"https://eslint.vuejs.org/rules/no-boolean-default.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-child-content",
+    "name": "disallow element's child contents which would be overwritten by a directive like `v-html` or `v-text`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-child-content</code> at the <a href=\"https://eslint.vuejs.org/rules/no-child-content.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-computed-properties-in-data",
+    "name": "disallow accessing computed properties in `data`.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-computed-properties-in-data</code> at the <a href=\"https://eslint.vuejs.org/rules/no-computed-properties-in-data.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-console",
+    "name": "Disallow the use of `console` in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-console</code> at the <a href=\"https://eslint.vuejs.org/rules/no-console.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-constant-condition",
+    "name": "Disallow constant expressions in conditions in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-constant-condition</code> at the <a href=\"https://eslint.vuejs.org/rules/no-constant-condition.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-custom-modifiers-on-v-model",
+    "name": "disallow custom modifiers on v-model used on the component",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-custom-modifiers-on-v-model</code> at the <a href=\"https://eslint.vuejs.org/rules/no-custom-modifiers-on-v-model.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-data-object-declaration",
+    "name": "disallow using deprecated object declaration on data (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-data-object-declaration</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-data-object-declaration.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-destroyed-lifecycle",
+    "name": "disallow using deprecated `destroyed` and `beforeDestroy` lifecycle hooks (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-destroyed-lifecycle</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-destroyed-lifecycle.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-dollar-listeners-api",
+    "name": "disallow using deprecated `$listeners` (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-dollar-listeners-api</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-dollar-listeners-api.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-dollar-scopedslots-api",
+    "name": "disallow using deprecated `$scopedSlots` (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-dollar-scopedslots-api</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-dollar-scopedslots-api.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-events-api",
+    "name": "disallow using deprecated events api (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-events-api</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-events-api.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-filter",
+    "name": "disallow using deprecated filters syntax (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-filter</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-filter.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-functional-template",
+    "name": "disallow using deprecated the `functional` template (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-functional-template</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-functional-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-html-element-is",
+    "name": "disallow using deprecated the `is` attribute on HTML elements (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-html-element-is</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-html-element-is.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-inline-template",
+    "name": "disallow using deprecated `inline-template` attribute (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-inline-template</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-inline-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-model-definition",
+    "name": "disallow deprecated `model` definition (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-model-definition</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-model-definition.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-props-default-this",
+    "name": "disallow deprecated `this` access in props default function (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-props-default-this</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-props-default-this.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-router-link-tag-prop",
+    "name": "disallow using deprecated `tag` property on `RouterLink` (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-router-link-tag-prop</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-router-link-tag-prop.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-scope-attribute",
+    "name": "disallow deprecated `scope` attribute (in Vue.js 2.5.0+)",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-scope-attribute</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-scope-attribute.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-slot-attribute",
+    "name": "disallow deprecated `slot` attribute (in Vue.js 2.6.0+)",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-slot-attribute</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-slot-attribute.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-slot-scope-attribute",
+    "name": "disallow deprecated `slot-scope` attribute (in Vue.js 2.6.0+)",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-slot-scope-attribute</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-slot-scope-attribute.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-v-bind-sync",
+    "name": "disallow use of deprecated `.sync` modifier on `v-bind` directive (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-v-bind-sync</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-v-bind-sync.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-v-is",
+    "name": "disallow deprecated `v-is` directive (in Vue.js 3.1.0+)",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-v-is</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-v-is.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-v-on-native-modifier",
+    "name": "disallow using deprecated `.native` modifiers (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-v-on-native-modifier</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-v-on-native-modifier.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-v-on-number-modifiers",
+    "name": "disallow using deprecated number (keycode) modifiers (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-v-on-number-modifiers</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-v-on-number-modifiers.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-deprecated-vue-config-keycodes",
+    "name": "disallow using deprecated `Vue.config.keyCodes` (in Vue.js 3.0.0+)",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-deprecated-vue-config-keycodes</code> at the <a href=\"https://eslint.vuejs.org/rules/no-deprecated-vue-config-keycodes.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-dupe-keys",
+    "name": "disallow duplication of field names",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-dupe-keys</code> at the <a href=\"https://eslint.vuejs.org/rules/no-dupe-keys.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-dupe-v-else-if",
+    "name": "disallow duplicate conditions in `v-if` / `v-else-if` chains",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-dupe-v-else-if</code> at the <a href=\"https://eslint.vuejs.org/rules/no-dupe-v-else-if.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-duplicate-attr-inheritance",
+    "name": "enforce `inheritAttrs` to be set to `false` when using `v-bind=\"$attrs\"`",
+    "description": "See description of ESLint rule <code>vue/no-duplicate-attr-inheritance</code> at the <a href=\"https://eslint.vuejs.org/rules/no-duplicate-attr-inheritance.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-duplicate-attributes",
+    "name": "disallow duplication of attributes",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-duplicate-attributes</code> at the <a href=\"https://eslint.vuejs.org/rules/no-duplicate-attributes.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-empty-component-block",
+    "name": "disallow the `<template>` `<script>` `<style>` block to be empty",
+    "description": "See description of ESLint rule <code>vue/no-empty-component-block</code> at the <a href=\"https://eslint.vuejs.org/rules/no-empty-component-block.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-empty-pattern",
+    "name": "Disallow empty destructuring patterns in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-empty-pattern</code> at the <a href=\"https://eslint.vuejs.org/rules/no-empty-pattern.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-export-in-script-setup",
+    "name": "disallow `export` in `<script setup>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-export-in-script-setup</code> at the <a href=\"https://eslint.vuejs.org/rules/no-export-in-script-setup.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-expose-after-await",
+    "name": "disallow asynchronously registered `expose`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-expose-after-await</code> at the <a href=\"https://eslint.vuejs.org/rules/no-expose-after-await.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-extra-parens",
+    "name": "Disallow unnecessary parentheses in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-extra-parens</code> at the <a href=\"https://eslint.vuejs.org/rules/no-extra-parens.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-invalid-model-keys",
+    "name": "require valid keys in model option",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-invalid-model-keys</code> at the <a href=\"https://eslint.vuejs.org/rules/no-invalid-model-keys.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-irregular-whitespace",
+    "name": "disallow irregular whitespace in `.vue` files",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-irregular-whitespace</code> at the <a href=\"https://eslint.vuejs.org/rules/no-irregular-whitespace.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-lifecycle-after-await",
+    "name": "disallow asynchronously registered lifecycle hooks",
+    "description": "See description of ESLint rule <code>vue/no-lifecycle-after-await</code> at the <a href=\"https://eslint.vuejs.org/rules/no-lifecycle-after-await.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-lone-template",
+    "name": "disallow unnecessary `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-lone-template</code> at the <a href=\"https://eslint.vuejs.org/rules/no-lone-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-loss-of-precision",
+    "name": "Disallow literal numbers that lose precision in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-loss-of-precision</code> at the <a href=\"https://eslint.vuejs.org/rules/no-loss-of-precision.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-multi-spaces",
+    "name": "disallow multiple spaces",
+    "description": "See description of ESLint rule <code>vue/no-multi-spaces</code> at the <a href=\"https://eslint.vuejs.org/rules/no-multi-spaces.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-multiple-objects-in-class",
+    "name": "disallow to pass multiple objects into array to class",
+    "description": "See description of ESLint rule <code>vue/no-multiple-objects-in-class</code> at the <a href=\"https://eslint.vuejs.org/rules/no-multiple-objects-in-class.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-multiple-slot-args",
+    "name": "disallow to pass multiple arguments to scoped slots",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-multiple-slot-args</code> at the <a href=\"https://eslint.vuejs.org/rules/no-multiple-slot-args.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-multiple-template-root",
+    "name": "disallow adding multiple root nodes to the template",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-multiple-template-root</code> at the <a href=\"https://eslint.vuejs.org/rules/no-multiple-template-root.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-mutating-props",
+    "name": "disallow mutation of component props",
+    "description": "See description of ESLint rule <code>vue/no-mutating-props</code> at the <a href=\"https://eslint.vuejs.org/rules/no-mutating-props.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-parsing-error",
+    "name": "disallow parsing errors in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-parsing-error</code> at the <a href=\"https://eslint.vuejs.org/rules/no-parsing-error.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-potential-component-option-typo",
+    "name": "disallow a potential typo in your component property",
+    "description": "See description of ESLint rule <code>vue/no-potential-component-option-typo</code> at the <a href=\"https://eslint.vuejs.org/rules/no-potential-component-option-typo.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-ref-as-operand",
+    "name": "disallow use of value wrapped by `ref()` (Composition API) as an operand",
+    "description": "See description of ESLint rule <code>vue/no-ref-as-operand</code> at the <a href=\"https://eslint.vuejs.org/rules/no-ref-as-operand.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-ref-object-destructure",
+    "name": "disallow usages of ref objects that can lead to loss of reactivity",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-ref-object-destructure</code> at the <a href=\"https://eslint.vuejs.org/rules/no-ref-object-destructure.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-ref-object-reactivity-loss",
+    "name": "disallow usages of ref objects that can lead to loss of reactivity",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-ref-object-reactivity-loss</code> at the <a href=\"https://eslint.vuejs.org/rules/no-ref-object-reactivity-loss.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-required-prop-with-default",
+    "name": "enforce props with default values to be optional",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-required-prop-with-default</code> at the <a href=\"https://eslint.vuejs.org/rules/no-required-prop-with-default.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-reserved-component-names",
+    "name": "disallow the use of reserved names in component definitions",
+    "description": "See description of ESLint rule <code>vue/no-reserved-component-names</code> at the <a href=\"https://eslint.vuejs.org/rules/no-reserved-component-names.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-reserved-keys",
+    "name": "disallow overwriting reserved keys",
+    "description": "See description of ESLint rule <code>vue/no-reserved-keys</code> at the <a href=\"https://eslint.vuejs.org/rules/no-reserved-keys.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-reserved-props",
+    "name": "disallow reserved names in props",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-reserved-props</code> at the <a href=\"https://eslint.vuejs.org/rules/no-reserved-props.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-block",
+    "name": "disallow specific block",
+    "description": "See description of ESLint rule <code>vue/no-restricted-block</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-block.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-call-after-await",
+    "name": "disallow asynchronously called restricted methods",
+    "description": "See description of ESLint rule <code>vue/no-restricted-call-after-await</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-call-after-await.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-class",
+    "name": "disallow specific classes in Vue components",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-restricted-class</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-class.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-component-names",
+    "name": "disallow specific component names",
+    "description": "See description of ESLint rule <code>vue/no-restricted-component-names</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-component-names.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-component-options",
+    "name": "disallow specific component option",
+    "description": "See description of ESLint rule <code>vue/no-restricted-component-options</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-component-options.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-custom-event",
+    "name": "disallow specific custom event",
+    "description": "See description of ESLint rule <code>vue/no-restricted-custom-event</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-custom-event.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-html-elements",
+    "name": "disallow specific HTML elements",
+    "description": "See description of ESLint rule <code>vue/no-restricted-html-elements</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-html-elements.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-props",
+    "name": "disallow specific props",
+    "description": "See description of ESLint rule <code>vue/no-restricted-props</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-props.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-static-attribute",
+    "name": "disallow specific attribute",
+    "description": "See description of ESLint rule <code>vue/no-restricted-static-attribute</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-static-attribute.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-syntax",
+    "name": "Disallow specified syntax in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-restricted-syntax</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-syntax.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-restricted-v-bind",
+    "name": "disallow specific argument in `v-bind`",
+    "description": "See description of ESLint rule <code>vue/no-restricted-v-bind</code> at the <a href=\"https://eslint.vuejs.org/rules/no-restricted-v-bind.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-root-v-if",
+    "name": "disallow `v-if` directives on root element",
+    "description": "See description of ESLint rule <code>vue/no-root-v-if</code> at the <a href=\"https://eslint.vuejs.org/rules/no-root-v-if.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-setup-props-destructure",
+    "name": "disallow usages that lose the reactivity of `props` passed to `setup`",
+    "description": "See description of ESLint rule <code>vue/no-setup-props-destructure</code> at the <a href=\"https://eslint.vuejs.org/rules/no-setup-props-destructure.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-setup-props-reactivity-loss",
+    "name": "disallow usages that lose the reactivity of `props` passed to `setup`",
+    "description": "See description of ESLint rule <code>vue/no-setup-props-reactivity-loss</code> at the <a href=\"https://eslint.vuejs.org/rules/no-setup-props-reactivity-loss.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-shared-component-data",
+    "name": "enforce component's data property to be a function",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-shared-component-data</code> at the <a href=\"https://eslint.vuejs.org/rules/no-shared-component-data.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-side-effects-in-computed-properties",
+    "name": "disallow side effects in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-side-effects-in-computed-properties</code> at the <a href=\"https://eslint.vuejs.org/rules/no-side-effects-in-computed-properties.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-spaces-around-equal-signs-in-attribute",
+    "name": "disallow spaces around equal signs in attribute",
+    "description": "See description of ESLint rule <code>vue/no-spaces-around-equal-signs-in-attribute</code> at the <a href=\"https://eslint.vuejs.org/rules/no-spaces-around-equal-signs-in-attribute.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-sparse-arrays",
+    "name": "Disallow sparse arrays in `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-sparse-arrays</code> at the <a href=\"https://eslint.vuejs.org/rules/no-sparse-arrays.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-static-inline-styles",
+    "name": "disallow static inline `style` attributes",
+    "description": "See description of ESLint rule <code>vue/no-static-inline-styles</code> at the <a href=\"https://eslint.vuejs.org/rules/no-static-inline-styles.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-template-key",
+    "name": "disallow `key` attribute on `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-template-key</code> at the <a href=\"https://eslint.vuejs.org/rules/no-template-key.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-template-shadow",
+    "name": "disallow variable declarations from shadowing variables declared in the outer scope",
+    "description": "See description of ESLint rule <code>vue/no-template-shadow</code> at the <a href=\"https://eslint.vuejs.org/rules/no-template-shadow.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-template-target-blank",
+    "name": "disallow target=\"_blank\" attribute without rel=\"noopener noreferrer\"",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-template-target-blank</code> at the <a href=\"https://eslint.vuejs.org/rules/no-template-target-blank.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-textarea-mustache",
+    "name": "disallow mustaches in `<textarea>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-textarea-mustache</code> at the <a href=\"https://eslint.vuejs.org/rules/no-textarea-mustache.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-this-in-before-route-enter",
+    "name": "disallow `this` usage in a `beforeRouteEnter` method",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-this-in-before-route-enter</code> at the <a href=\"https://eslint.vuejs.org/rules/no-this-in-before-route-enter.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-undef-components",
+    "name": "disallow use of undefined components in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-undef-components</code> at the <a href=\"https://eslint.vuejs.org/rules/no-undef-components.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-undef-properties",
+    "name": "disallow undefined properties",
+    "description": "See description of ESLint rule <code>vue/no-undef-properties</code> at the <a href=\"https://eslint.vuejs.org/rules/no-undef-properties.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-unsupported-features",
+    "name": "disallow unsupported Vue.js syntax on the specified version",
+    "description": "See description of ESLint rule <code>vue/no-unsupported-features</code> at the <a href=\"https://eslint.vuejs.org/rules/no-unsupported-features.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-unused-components",
+    "name": "disallow registering components that are not used inside templates",
+    "description": "See description of ESLint rule <code>vue/no-unused-components</code> at the <a href=\"https://eslint.vuejs.org/rules/no-unused-components.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-unused-properties",
+    "name": "disallow unused properties",
+    "description": "See description of ESLint rule <code>vue/no-unused-properties</code> at the <a href=\"https://eslint.vuejs.org/rules/no-unused-properties.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-unused-refs",
+    "name": "disallow unused refs",
+    "description": "See description of ESLint rule <code>vue/no-unused-refs</code> at the <a href=\"https://eslint.vuejs.org/rules/no-unused-refs.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-unused-vars",
+    "name": "disallow unused variable definitions of v-for directives or scope attributes",
+    "description": "See description of ESLint rule <code>vue/no-unused-vars</code> at the <a href=\"https://eslint.vuejs.org/rules/no-unused-vars.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-use-computed-property-like-method",
+    "name": "disallow use computed property like method",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-use-computed-property-like-method</code> at the <a href=\"https://eslint.vuejs.org/rules/no-use-computed-property-like-method.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-use-v-else-with-v-for",
+    "name": "disallow using `v-else-if`/`v-else` on the same element as `v-for`",
+    "description": "See description of ESLint rule <code>vue/no-use-v-else-with-v-for</code> at the <a href=\"https://eslint.vuejs.org/rules/no-use-v-else-with-v-for.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-use-v-if-with-v-for",
+    "name": "disallow using `v-if` on the same element as `v-for`",
+    "description": "See description of ESLint rule <code>vue/no-use-v-if-with-v-for</code> at the <a href=\"https://eslint.vuejs.org/rules/no-use-v-if-with-v-for.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-useless-concat",
+    "name": "Disallow unnecessary concatenation of literals or template literals in `<template>`",
+    "description": "See description of ESLint rule <code>vue/no-useless-concat</code> at the <a href=\"https://eslint.vuejs.org/rules/no-useless-concat.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-useless-mustaches",
+    "name": "disallow unnecessary mustache interpolations",
+    "description": "See description of ESLint rule <code>vue/no-useless-mustaches</code> at the <a href=\"https://eslint.vuejs.org/rules/no-useless-mustaches.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-useless-template-attributes",
+    "name": "disallow useless attribute on `<template>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-useless-template-attributes</code> at the <a href=\"https://eslint.vuejs.org/rules/no-useless-template-attributes.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-useless-v-bind",
+    "name": "disallow unnecessary `v-bind` directives",
+    "description": "See description of ESLint rule <code>vue/no-useless-v-bind</code> at the <a href=\"https://eslint.vuejs.org/rules/no-useless-v-bind.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-for-template-key-on-child",
+    "name": "disallow key of `<template v-for>` placed on child elements",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-v-for-template-key-on-child</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-for-template-key-on-child.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-for-template-key",
+    "name": "disallow `key` attribute on `<template v-for>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-v-for-template-key</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-for-template-key.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-html",
+    "name": "disallow use of v-html to prevent XSS attack",
+    "description": "See description of ESLint rule <code>vue/no-v-html</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-html.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-model-argument",
+    "name": "disallow adding an argument to `v-model` used in custom component",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-v-model-argument</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-model-argument.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-text-v-html-on-component",
+    "name": "disallow v-text / v-html on component",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/no-v-text-v-html-on-component</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-text-v-html-on-component.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-v-text",
+    "name": "disallow use of v-text",
+    "description": "See description of ESLint rule <code>vue/no-v-text</code> at the <a href=\"https://eslint.vuejs.org/rules/no-v-text.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/no-watch-after-await",
+    "name": "disallow asynchronously registered `watch`",
+    "description": "See description of ESLint rule <code>vue/no-watch-after-await</code> at the <a href=\"https://eslint.vuejs.org/rules/no-watch-after-await.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/object-curly-newline",
+    "name": "Enforce consistent line breaks after opening and before closing braces in `<template>`",
+    "description": "See description of ESLint rule <code>vue/object-curly-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/object-curly-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/object-curly-spacing",
+    "name": "Enforce consistent spacing inside braces in `<template>`",
+    "description": "See description of ESLint rule <code>vue/object-curly-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/object-curly-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/object-property-newline",
+    "name": "Enforce placing object properties on separate lines in `<template>`",
+    "description": "See description of ESLint rule <code>vue/object-property-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/object-property-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/object-shorthand",
+    "name": "Require or disallow method and property shorthand syntax for object literals in `<template>`",
+    "description": "See description of ESLint rule <code>vue/object-shorthand</code> at the <a href=\"https://eslint.vuejs.org/rules/object-shorthand.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/one-component-per-file",
+    "name": "enforce that each component should be in its own file",
+    "description": "See description of ESLint rule <code>vue/one-component-per-file</code> at the <a href=\"https://eslint.vuejs.org/rules/one-component-per-file.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/operator-linebreak",
+    "name": "Enforce consistent linebreak style for operators in `<template>`",
+    "description": "See description of ESLint rule <code>vue/operator-linebreak</code> at the <a href=\"https://eslint.vuejs.org/rules/operator-linebreak.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/order-in-components",
+    "name": "enforce order of properties in components",
+    "description": "See description of ESLint rule <code>vue/order-in-components</code> at the <a href=\"https://eslint.vuejs.org/rules/order-in-components.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/padding-line-between-blocks",
+    "name": "require or disallow padding lines between blocks",
+    "description": "See description of ESLint rule <code>vue/padding-line-between-blocks</code> at the <a href=\"https://eslint.vuejs.org/rules/padding-line-between-blocks.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/padding-line-between-tags",
+    "name": "require or disallow newlines between sibling tags in template",
+    "description": "See description of ESLint rule <code>vue/padding-line-between-tags</code> at the <a href=\"https://eslint.vuejs.org/rules/padding-line-between-tags.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/padding-lines-in-component-definition",
+    "name": "require or disallow padding lines in component definition",
+    "description": "See description of ESLint rule <code>vue/padding-lines-in-component-definition</code> at the <a href=\"https://eslint.vuejs.org/rules/padding-lines-in-component-definition.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-define-options",
+    "name": "enforce use of `defineOptions` instead of default export.",
+    "description": "See description of ESLint rule <code>vue/prefer-define-options</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-define-options.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-import-from-vue",
+    "name": "enforce import from 'vue' instead of import from '@vue/*'",
+    "description": "See description of ESLint rule <code>vue/prefer-import-from-vue</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-import-from-vue.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-prop-type-boolean-first",
+    "name": "enforce `Boolean` comes first in component prop types",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/prefer-prop-type-boolean-first</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-prop-type-boolean-first.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-separate-static-class",
+    "name": "require static class names in template to be in a separate `class` attribute",
+    "description": "See description of ESLint rule <code>vue/prefer-separate-static-class</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-separate-static-class.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-template",
+    "name": "Require template literals instead of string concatenation in `<template>`",
+    "description": "See description of ESLint rule <code>vue/prefer-template</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/prefer-true-attribute-shorthand",
+    "name": "require shorthand form attribute when `v-bind` value is `true`",
+    "description": "See description of ESLint rule <code>vue/prefer-true-attribute-shorthand</code> at the <a href=\"https://eslint.vuejs.org/rules/prefer-true-attribute-shorthand.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/prop-name-casing",
-    "name": "Enforce specific casing for the prop name in vue components",
-    "description": "See description of ESLint rule <code>vue/prop-name-casing</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/prop-name-casing.md\">eslint-plugin-vue website</a>."
+    "name": "enforce specific casing for the Prop name in Vue components",
+    "description": "See description of ESLint rule <code>vue/prop-name-casing</code> at the <a href=\"https://eslint.vuejs.org/rules/prop-name-casing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/quote-props",
+    "name": "Require quotes around object literal property names in `<template>`",
+    "description": "See description of ESLint rule <code>vue/quote-props</code> at the <a href=\"https://eslint.vuejs.org/rules/quote-props.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-component-is",
+    "name": "require `v-bind:is` of `<component>` elements",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/require-component-is</code> at the <a href=\"https://eslint.vuejs.org/rules/require-component-is.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-default-prop",
+    "name": "require default value for props",
+    "description": "See description of ESLint rule <code>vue/require-default-prop</code> at the <a href=\"https://eslint.vuejs.org/rules/require-default-prop.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-direct-export",
+    "name": "require the component to be directly exported",
+    "description": "See description of ESLint rule <code>vue/require-direct-export</code> at the <a href=\"https://eslint.vuejs.org/rules/require-direct-export.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-emit-validator",
+    "name": "require type definitions in emits",
+    "description": "See description of ESLint rule <code>vue/require-emit-validator</code> at the <a href=\"https://eslint.vuejs.org/rules/require-emit-validator.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-explicit-emits",
+    "name": "require `emits` option with name triggered by `$emit()`",
+    "description": "See description of ESLint rule <code>vue/require-explicit-emits</code> at the <a href=\"https://eslint.vuejs.org/rules/require-explicit-emits.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-expose",
+    "name": "require declare public properties using `expose`",
+    "description": "See description of ESLint rule <code>vue/require-expose</code> at the <a href=\"https://eslint.vuejs.org/rules/require-expose.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-macro-variable-name",
+    "name": "require a certain macro variable name",
+    "description": "See description of ESLint rule <code>vue/require-macro-variable-name</code> at the <a href=\"https://eslint.vuejs.org/rules/require-macro-variable-name.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-name-property",
+    "name": "require a name property in Vue components",
+    "description": "See description of ESLint rule <code>vue/require-name-property</code> at the <a href=\"https://eslint.vuejs.org/rules/require-name-property.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-prop-comment",
+    "name": "require props to have a comment",
+    "description": "See description of ESLint rule <code>vue/require-prop-comment</code> at the <a href=\"https://eslint.vuejs.org/rules/require-prop-comment.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-prop-type-constructor",
+    "name": "require prop type to be a constructor",
+    "description": "See description of ESLint rule <code>vue/require-prop-type-constructor</code> at the <a href=\"https://eslint.vuejs.org/rules/require-prop-type-constructor.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-prop-types",
+    "name": "require type definitions in props",
+    "description": "See description of ESLint rule <code>vue/require-prop-types</code> at the <a href=\"https://eslint.vuejs.org/rules/require-prop-types.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-render-return",
+    "name": "enforce render function to always return value",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/require-render-return</code> at the <a href=\"https://eslint.vuejs.org/rules/require-render-return.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-slots-as-functions",
+    "name": "enforce properties of `$slots` to be used as a function",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/require-slots-as-functions</code> at the <a href=\"https://eslint.vuejs.org/rules/require-slots-as-functions.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-toggle-inside-transition",
+    "name": "require control the display of the content inside `<transition>`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/require-toggle-inside-transition</code> at the <a href=\"https://eslint.vuejs.org/rules/require-toggle-inside-transition.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-typed-object-prop",
+    "name": "enforce adding type declarations to object props",
+    "description": "See description of ESLint rule <code>vue/require-typed-object-prop</code> at the <a href=\"https://eslint.vuejs.org/rules/require-typed-object-prop.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-typed-ref",
+    "name": "require `ref` and `shallowRef` functions to be strongly typed",
+    "description": "See description of ESLint rule <code>vue/require-typed-ref</code> at the <a href=\"https://eslint.vuejs.org/rules/require-typed-ref.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-v-for-key",
+    "name": "require `v-bind:key` with `v-for` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/require-v-for-key</code> at the <a href=\"https://eslint.vuejs.org/rules/require-v-for-key.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/require-valid-default-prop",
+    "name": "enforce props default values to be valid",
+    "description": "See description of ESLint rule <code>vue/require-valid-default-prop</code> at the <a href=\"https://eslint.vuejs.org/rules/require-valid-default-prop.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/return-in-computed-property",
+    "name": "enforce that a return statement is present in computed property",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/return-in-computed-property</code> at the <a href=\"https://eslint.vuejs.org/rules/return-in-computed-property.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/return-in-emits-validator",
+    "name": "enforce that a return statement is present in emits validator",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/return-in-emits-validator</code> at the <a href=\"https://eslint.vuejs.org/rules/return-in-emits-validator.html\">eslint-plugin-vue website</a>"
   },
   {
     "key": "vue/script-indent",
-    "name": "Enforce consistent indentation in <script>",
-    "description": "See description of ESLint rule <code>vue/script-indent</code> at the <a href=\"https://github.com/vuejs/eslint-plugin-vue/blob/HEAD/docs/rules/script-indent.md\">eslint-plugin-vue website</a>."
+    "name": "enforce consistent indentation in `<script>`",
+    "description": "See description of ESLint rule <code>vue/script-indent</code> at the <a href=\"https://eslint.vuejs.org/rules/script-indent.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/script-setup-uses-vars",
+    "name": "prevent `<script setup>` variables used in `<template>` to be marked as unused",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/script-setup-uses-vars</code> at the <a href=\"https://eslint.vuejs.org/rules/script-setup-uses-vars.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/singleline-html-element-content-newline",
+    "name": "require a line break before and after the contents of a singleline element",
+    "description": "See description of ESLint rule <code>vue/singleline-html-element-content-newline</code> at the <a href=\"https://eslint.vuejs.org/rules/singleline-html-element-content-newline.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/sort-keys",
+    "name": "enforce sort-keys in a manner that is compatible with order-in-components",
+    "description": "See description of ESLint rule <code>vue/sort-keys</code> at the <a href=\"https://eslint.vuejs.org/rules/sort-keys.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/space-in-parens",
+    "name": "Enforce consistent spacing inside parentheses in `<template>`",
+    "description": "See description of ESLint rule <code>vue/space-in-parens</code> at the <a href=\"https://eslint.vuejs.org/rules/space-in-parens.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/space-infix-ops",
+    "name": "Require spacing around infix operators in `<template>`",
+    "description": "See description of ESLint rule <code>vue/space-infix-ops</code> at the <a href=\"https://eslint.vuejs.org/rules/space-infix-ops.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/space-unary-ops",
+    "name": "Enforce consistent spacing before or after unary operators in `<template>`",
+    "description": "See description of ESLint rule <code>vue/space-unary-ops</code> at the <a href=\"https://eslint.vuejs.org/rules/space-unary-ops.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/static-class-names-order",
+    "name": "enforce static class names order",
+    "description": "See description of ESLint rule <code>vue/static-class-names-order</code> at the <a href=\"https://eslint.vuejs.org/rules/static-class-names-order.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/template-curly-spacing",
+    "name": "Require or disallow spacing around embedded expressions of template strings in `<template>`",
+    "description": "See description of ESLint rule <code>vue/template-curly-spacing</code> at the <a href=\"https://eslint.vuejs.org/rules/template-curly-spacing.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/this-in-template",
+    "name": "disallow usage of `this` in template",
+    "description": "See description of ESLint rule <code>vue/this-in-template</code> at the <a href=\"https://eslint.vuejs.org/rules/this-in-template.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/use-v-on-exact",
+    "name": "enforce usage of `exact` modifier on `v-on`",
+    "description": "See description of ESLint rule <code>vue/use-v-on-exact</code> at the <a href=\"https://eslint.vuejs.org/rules/use-v-on-exact.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-bind-style",
+    "name": "enforce `v-bind` directive style",
+    "description": "See description of ESLint rule <code>vue/v-bind-style</code> at the <a href=\"https://eslint.vuejs.org/rules/v-bind-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-for-delimiter-style",
+    "name": "enforce `v-for` directive's delimiter style",
+    "description": "See description of ESLint rule <code>vue/v-for-delimiter-style</code> at the <a href=\"https://eslint.vuejs.org/rules/v-for-delimiter-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-on-event-hyphenation",
+    "name": "enforce v-on event naming style on custom components in template",
+    "description": "See description of ESLint rule <code>vue/v-on-event-hyphenation</code> at the <a href=\"https://eslint.vuejs.org/rules/v-on-event-hyphenation.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-on-function-call",
+    "name": "enforce or forbid parentheses after method calls without arguments in `v-on` directives",
+    "description": "See description of ESLint rule <code>vue/v-on-function-call</code> at the <a href=\"https://eslint.vuejs.org/rules/v-on-function-call.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-on-handler-style",
+    "name": "enforce writing style for handlers in `v-on` directives",
+    "description": "See description of ESLint rule <code>vue/v-on-handler-style</code> at the <a href=\"https://eslint.vuejs.org/rules/v-on-handler-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-on-style",
+    "name": "enforce `v-on` directive style",
+    "description": "See description of ESLint rule <code>vue/v-on-style</code> at the <a href=\"https://eslint.vuejs.org/rules/v-on-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/v-slot-style",
+    "name": "enforce `v-slot` directive style",
+    "description": "See description of ESLint rule <code>vue/v-slot-style</code> at the <a href=\"https://eslint.vuejs.org/rules/v-slot-style.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-attribute-name",
+    "name": "require valid attribute names",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-attribute-name</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-attribute-name.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-define-emits",
+    "name": "enforce valid `defineEmits` compiler macro",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-define-emits</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-define-emits.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-define-options",
+    "name": "enforce valid `defineOptions` compiler macro",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-define-options</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-define-options.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-define-props",
+    "name": "enforce valid `defineProps` compiler macro",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-define-props</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-define-props.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-model-definition",
+    "name": "require valid keys in model option",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-model-definition</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-model-definition.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-next-tick",
+    "name": "enforce valid `nextTick` function calls",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-next-tick</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-next-tick.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-template-root",
+    "name": "enforce valid template root",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-template-root</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-template-root.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-bind-sync",
+    "name": "enforce valid `.sync` modifier on `v-bind` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-bind-sync</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-bind-sync.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-bind",
+    "name": "enforce valid `v-bind` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-bind</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-bind.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-cloak",
+    "name": "enforce valid `v-cloak` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-cloak</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-cloak.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-else-if",
+    "name": "enforce valid `v-else-if` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-else-if</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-else-if.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-else",
+    "name": "enforce valid `v-else` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-else</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-else.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-for",
+    "name": "enforce valid `v-for` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-for</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-for.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-html",
+    "name": "enforce valid `v-html` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-html</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-html.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-if",
+    "name": "enforce valid `v-if` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-if</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-if.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-is",
+    "name": "enforce valid `v-is` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-is</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-is.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-memo",
+    "name": "enforce valid `v-memo` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-memo</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-memo.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-model",
+    "name": "enforce valid `v-model` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-model</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-model.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-on",
+    "name": "enforce valid `v-on` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-on</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-on.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-once",
+    "name": "enforce valid `v-once` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-once</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-once.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-pre",
+    "name": "enforce valid `v-pre` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-pre</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-pre.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-show",
+    "name": "enforce valid `v-show` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-show</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-show.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-slot",
+    "name": "enforce valid `v-slot` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-slot</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-slot.html\">eslint-plugin-vue website</a>"
+  },
+  {
+    "key": "vue/valid-v-text",
+    "name": "enforce valid `v-text` directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>vue/valid-v-text</code> at the <a href=\"https://eslint.vuejs.org/rules/valid-v-text.html\">eslint-plugin-vue website</a>"
   }
 ]

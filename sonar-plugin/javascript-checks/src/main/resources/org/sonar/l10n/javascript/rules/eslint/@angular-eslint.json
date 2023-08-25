@@ -1,0 +1,174 @@
+[
+  {
+    "key": "@angular-eslint/component-class-suffix",
+    "name": "Classes decorated with @Component must have suffix \"Component\" (or custom) in their name. See more at https://angular.io/styleguide#style-02-03",
+    "description": "See description of ESLint rule <code>@angular-eslint/component-class-suffix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/component-class-suffix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/component-max-inline-declarations",
+    "name": "Enforces a maximum number of lines in inline template, styles and animations. See more at https://angular.io/guide/styleguide#style-05-04",
+    "description": "See description of ESLint rule <code>@angular-eslint/component-max-inline-declarations</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/component-max-inline-declarations.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/component-selector",
+    "name": "Component selectors should follow given naming rules. See more at https://angular.io/guide/styleguide#style-02-07, https://angular.io/guide/styleguide#style-05-02\n      and https://angular.io/guide/styleguide#style-05-03.",
+    "description": "See description of ESLint rule <code>@angular-eslint/component-selector</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/component-selector.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/contextual-decorator",
+    "name": "Ensures that classes use contextual decorators in its body",
+    "description": "See description of ESLint rule <code>@angular-eslint/contextual-decorator</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/contextual-decorator.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/contextual-lifecycle",
+    "name": "Ensures that lifecycle methods are used in a correct context",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@angular-eslint/contextual-lifecycle</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/contextual-lifecycle.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/directive-class-suffix",
+    "name": "Classes decorated with @Directive must have suffix \"Directive\" (or custom) in their name. See more at https://angular.io/styleguide#style-02-03",
+    "description": "See description of ESLint rule <code>@angular-eslint/directive-class-suffix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/directive-class-suffix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/directive-selector",
+    "name": "Directive selectors should follow given naming rules. See more at https://angular.io/guide/styleguide#style-02-06 and https://angular.io/guide/styleguide#style-02-08.",
+    "description": "See description of ESLint rule <code>@angular-eslint/directive-selector</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/directive-selector.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-attribute-decorator",
+    "name": "The @Attribute decorator is used to obtain a single value for an attribute. This is a much less common use-case than getting a stream of values (using @Input), so often the @Attribute decorator is mistakenly used when @Input was what was intended. This rule disallows usage of @Attribute decorator altogether in order to prevent these mistakes.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-attribute-decorator</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-attribute-decorator.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-conflicting-lifecycle",
+    "name": "Ensures that directives not implement conflicting lifecycle interfaces.",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-conflicting-lifecycle</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-conflicting-lifecycle.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-empty-lifecycle-method",
+    "name": "Disallows declaring empty lifecycle methods",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-empty-lifecycle-method</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-empty-lifecycle-method.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-forward-ref",
+    "name": "Disallows usage of `forwardRef` references for DI",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-forward-ref</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-forward-ref.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-host-metadata-property",
+    "name": "Disallows usage of the `host` metadata property. See more at https://angular.io/styleguide#style-06-03",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-host-metadata-property</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-host-metadata-property.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-input-prefix",
+    "name": "Ensures that input bindings, including aliases, are not named or prefixed by the configured disallowed prefixes",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-input-prefix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-input-prefix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-input-rename",
+    "name": "Ensures that input bindings are not aliased",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-input-rename</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-input-rename.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-inputs-metadata-property",
+    "name": "Disallows usage of the `inputs` metadata property. See more at https://angular.io/styleguide#style-05-12",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-inputs-metadata-property</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-inputs-metadata-property.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-lifecycle-call",
+    "name": "Disallows explicit calls to lifecycle methods",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-lifecycle-call</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-lifecycle-call.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-output-native",
+    "name": "Ensures that output bindings, including aliases, are not named as standard DOM events",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-output-native</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-output-native.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-output-on-prefix",
+    "name": "Ensures that output bindings, including aliases, are not named \"on\", nor prefixed with it. See more at https://angular.io/guide/styleguide#style-05-16",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-output-on-prefix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-output-on-prefix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-output-rename",
+    "name": "Ensures that output bindings are not aliased",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-output-rename</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-output-rename.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-outputs-metadata-property",
+    "name": "Disallows usage of the `outputs` metadata property. See more at https://angular.io/styleguide#style-05-12",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-outputs-metadata-property</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-outputs-metadata-property.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-pipe-impure",
+    "name": "Disallows the declaration of impure pipes",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-pipe-impure</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-pipe-impure.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/no-queries-metadata-property",
+    "name": "Disallows usage of the `queries` metadata property. See more at https://angular.io/styleguide#style-05-12.",
+    "description": "See description of ESLint rule <code>@angular-eslint/no-queries-metadata-property</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-queries-metadata-property.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/pipe-prefix",
+    "name": "Enforce consistent prefix for pipes.",
+    "description": "See description of ESLint rule <code>@angular-eslint/pipe-prefix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/pipe-prefix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/prefer-on-push-component-change-detection",
+    "name": "Ensures component's `changeDetection` is set to `ChangeDetectionStrategy.OnPush`",
+    "description": "See description of ESLint rule <code>@angular-eslint/prefer-on-push-component-change-detection</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-on-push-component-change-detection.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/prefer-output-readonly",
+    "name": "Prefer to declare `@Output` as `readonly` since they are not supposed to be reassigned",
+    "description": "See description of ESLint rule <code>@angular-eslint/prefer-output-readonly</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-output-readonly.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/prefer-standalone-component",
+    "name": "Ensures component `standalone` property is set to `true` in the component decorator",
+    "description": "See description of ESLint rule <code>@angular-eslint/prefer-standalone-component</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-standalone-component.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/relative-url-prefix",
+    "name": "The ./ and ../ prefix is standard syntax for relative URLs; don't depend on Angular's current ability to do without that prefix. See more at https://angular.io/styleguide#style-05-04",
+    "description": "See description of ESLint rule <code>@angular-eslint/relative-url-prefix</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/relative-url-prefix.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/require-localize-metadata",
+    "name": "Ensures that $localize tagged messages contain helpful metadata to aid with translations.",
+    "description": "See description of ESLint rule <code>@angular-eslint/require-localize-metadata</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/require-localize-metadata.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/sort-ngmodule-metadata-arrays",
+    "name": "Ensures ASC alphabetical order for `NgModule` metadata arrays for easy visual scanning",
+    "description": "See description of ESLint rule <code>@angular-eslint/sort-ngmodule-metadata-arrays</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/sort-ngmodule-metadata-arrays.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/use-component-selector",
+    "name": "Component selector must be declared",
+    "description": "See description of ESLint rule <code>@angular-eslint/use-component-selector</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/use-component-selector.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/use-component-view-encapsulation",
+    "name": "Disallows using `ViewEncapsulation.None`",
+    "description": "See description of ESLint rule <code>@angular-eslint/use-component-view-encapsulation</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/use-component-view-encapsulation.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/use-injectable-provided-in",
+    "name": "Using the `providedIn` property makes `Injectables` tree-shakable",
+    "description": "See description of ESLint rule <code>@angular-eslint/use-injectable-provided-in</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/use-injectable-provided-in.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/use-lifecycle-interface",
+    "name": "Ensures that classes implement lifecycle interfaces corresponding to the declared lifecycle methods. See more at https://angular.io/styleguide#style-09-01",
+    "description": "See description of ESLint rule <code>@angular-eslint/use-lifecycle-interface</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/use-lifecycle-interface.md\">@angular-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@angular-eslint/use-pipe-transform-interface",
+    "name": "Ensures that `Pipes` implement `PipeTransform` interface",
+    "description": "See description of ESLint rule <code>@angular-eslint/use-pipe-transform-interface</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/use-pipe-transform-interface.md\">@angular-eslint/eslint-plugin website</a>"
+  }
+]

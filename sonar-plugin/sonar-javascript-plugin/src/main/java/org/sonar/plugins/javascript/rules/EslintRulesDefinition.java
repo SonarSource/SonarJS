@@ -31,14 +31,19 @@ public class EslintRulesDefinition implements RulesDefinition {
   public static final String LINTER_NAME = "ESLint";
 
   private static final String[] ESLINT_PLUGINS = {
+    "@angular-eslint",
+    "@angular-eslint_template",
+    "@typescript-eslint",
     "angular",
     "core",
     "ember",
     "flowtype",
     "import",
     "jsx-a11y",
+    "node",
     "promise",
     "react",
+    "react-hooks",
     "sonarjs",
     "vue",
   };

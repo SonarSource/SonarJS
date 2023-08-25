@@ -38,17 +38,22 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.isExternal()).isTrue();
     assertThat(eslintRepo.name()).isEqualTo("ESLint");
     assertThat(eslintRepo.language()).isEqualTo("js");
-    assertThat(eslintRepo.rules()).hasSize(607);
+    assertThat(eslintRepo.rules()).hasSize(1177);
 
     // checking randoms rules from each ESLint plugin we support
+    assertThat(eslintRepo.rule("@angular-eslint/no-attribute-decorator")).isNotNull();
+    assertThat(eslintRepo.rule("@angular-eslint/template/valid-aria")).isNotNull();
+    assertThat(eslintRepo.rule("@typescript-eslint/member-delimiter-style")).isNotNull();
     assertThat(eslintRepo.rule("angular/function-type")).isNotNull();
     assertThat(eslintRepo.rule(/*core*/"no-useless-escape")).isNotNull();
     assertThat(eslintRepo.rule("ember/routes-segments-snake-case")).isNotNull();
     assertThat(eslintRepo.rule("flowtype/space-before-generic-bracket")).isNotNull();
     assertThat(eslintRepo.rule("import/order")).isNotNull();
     assertThat(eslintRepo.rule("jsx-a11y/anchor-is-valid")).isNotNull();
+    assertThat(eslintRepo.rule("node/no-path-concat")).isNotNull();
     assertThat(eslintRepo.rule("promise/no-return-wrap")).isNotNull();
     assertThat(eslintRepo.rule("react/no-find-dom-node")).isNotNull();
+    assertThat(eslintRepo.rule("react-hooks/rules-of-hooks")).isNotNull();
     assertThat(eslintRepo.rule("vue/v-on-style")).isNotNull();
     assertThat(eslintRepo.rule("sonarjs/no-duplicate-string")).isNotNull();
   }
