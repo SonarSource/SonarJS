@@ -183,6 +183,13 @@ class JsTsSensorTest {
     sensor.execute(context);
     verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.size());
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .contains(
+        String.format(
+          "Saving issue for rule no-all-duplicated-branches on file %s at line 1",
+          inputFile.absolutePath()
+        )
+      );
 
     Iterator<Issue> issues = context.allIssues().iterator();
     Issue firstIssue = issues.next();

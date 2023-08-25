@@ -175,7 +175,12 @@ public class AnalysisProcessor {
 
   private void saveIssues(List<Issue> issues) {
     for (Issue issue : issues) {
-      LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
+      LOG.debug(
+        "Saving issue for rule {} on file {} at line {}",
+        issue.ruleId,
+        file.absolutePath(),
+        issue.line
+      );
       saveIssue(issue);
     }
   }
