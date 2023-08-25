@@ -21,24 +21,58 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { mergeRules } from '../helpers';
+import { interceptReport, mergeRules } from '../helpers';
 
+/**
+ * We want to merge ESLint rules 'no-useless-escape' and 'no-nonoctal-decimal-escape'. However,
+ * both share a common message id 'escapeBackslash' but a different description for quickfixes.
+ * To prevent one overwritting the other, we need to decorate one and map the conflicting message
+ * id to a different one when intercepting a report.
+ *
+ * Here we arbitrarily choose to decorate 'no-nonoctal-decimal-escape'.
+ */
 const noUselessEscapeRule = eslintRules['no-useless-escape'];
 const noNonoctalDecimalEscapeRule = eslintRules['no-nonoctal-decimal-escape'];
 
+/**
+ * We replace the message id 'escapeBackslash' of 'no-nonoctal-decimal-escape' with 'otherEscapeBackslash'.
+ */
+noNonoctalDecimalEscapeRule.meta!.messages!['otherEscapeBackslash'] =
+  noNonoctalDecimalEscapeRule.meta!.messages!['escapeBackslash'];
+delete noNonoctalDecimalEscapeRule.meta!.messages!['escapeBackslash'];
+
+/**
+ * We decorate 'no-nonoctal-decimal-escape' to map suggestions with the message id 'escapeBackslash' to 'otherEscapeBackslash'.
+ */
+const decoratedNoNonoctalDecimalEscapeRule = decorateNoNonoctalDecimalEscape(
+  noNonoctalDecimalEscapeRule,
+);
+function decorateNoNonoctalDecimalEscape(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, descriptor) => {
+    const { suggest, ...rest } = descriptor;
+    suggest?.forEach(s => {
+      const suggestion = s as { messageId: string };
+      if (suggestion.messageId === 'escapeBackslash') {
+        suggestion.messageId = 'otherEscapeBackslash';
+      }
+    });
+    context.report({ suggest, ...rest });
+  });
+}
+
 export const rule: Rule.RuleModule = {
-  // meta of `no-useless-escape` and `no-nonoctal-decimal-escape` is required for issue messages and quickfixes
+  // meta of `no-useless-escape` and `no-nonoctal-decimal-escape` are required for issue messages and quickfixes
   meta: {
     hasSuggestions: true,
     messages: {
       ...noUselessEscapeRule.meta!.messages,
-      ...noNonoctalDecimalEscapeRule.meta!.messages,
+      ...decoratedNoNonoctalDecimalEscapeRule.meta!.messages,
     },
   },
   create(context: Rule.RuleContext) {
     const noUselessEscapeListener: Rule.RuleListener = noUselessEscapeRule.create(context);
-    const notThisBeforeSuperListener: Rule.RuleListener =
-      noNonoctalDecimalEscapeRule.create(context);
-    return mergeRules(noUselessEscapeListener, notThisBeforeSuperListener);
+    const decoratedNoNonoctalDecimalEscapeListener: Rule.RuleListener =
+      decoratedNoNonoctalDecimalEscapeRule.create(context);
+    return mergeRules(noUselessEscapeListener, decoratedNoNonoctalDecimalEscapeListener);
   },
 };
