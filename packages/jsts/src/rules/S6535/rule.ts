@@ -35,14 +35,14 @@ const noUselessEscapeRule = eslintRules['no-useless-escape'];
 const noNonoctalDecimalEscapeRule = eslintRules['no-nonoctal-decimal-escape'];
 
 /**
- * We replace the message id 'escapeBackslash' of 'no-nonoctal-decimal-escape' with 'otherEscapeBackslash'.
+ * We replace the message id 'escapeBackslash' of 'no-nonoctal-decimal-escape' with 'nonOctalEscapeBacklash'.
  */
-noNonoctalDecimalEscapeRule.meta!.messages!['otherEscapeBackslash'] =
+noNonoctalDecimalEscapeRule.meta!.messages!['nonOctalEscapeBacklash'] =
   noNonoctalDecimalEscapeRule.meta!.messages!['escapeBackslash'];
 delete noNonoctalDecimalEscapeRule.meta!.messages!['escapeBackslash'];
 
 /**
- * We decorate 'no-nonoctal-decimal-escape' to map suggestions with the message id 'escapeBackslash' to 'otherEscapeBackslash'.
+ * We decorate 'no-nonoctal-decimal-escape' to map suggestions with the message id 'escapeBackslash' to 'nonOctalEscapeBacklash'.
  */
 const decoratedNoNonoctalDecimalEscapeRule = decorateNoNonoctalDecimalEscape(
   noNonoctalDecimalEscapeRule,
@@ -53,7 +53,7 @@ function decorateNoNonoctalDecimalEscape(rule: Rule.RuleModule): Rule.RuleModule
     suggest?.forEach(s => {
       const suggestion = s as { messageId: string };
       if (suggestion.messageId === 'escapeBackslash') {
-        suggestion.messageId = 'otherEscapeBackslash';
+        suggestion.messageId = 'nonOctalEscapeBacklash';
       }
     });
     context.report({ suggest, ...rest });
