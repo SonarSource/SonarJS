@@ -24,10 +24,8 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
-@TypeScriptRule
 @Rule(key = "S2814")
 public class RedeclaredSymbolCheck implements EslintBasedCheck {
 

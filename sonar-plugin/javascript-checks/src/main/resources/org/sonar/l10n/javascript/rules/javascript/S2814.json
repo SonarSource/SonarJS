@@ -21,7 +21,6 @@
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JAVASCRIPT"
   ]
 }
