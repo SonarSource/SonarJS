@@ -45,8 +45,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     region: eu-central-1
     type: c6id.2xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
-    preemptible: false
-    use_ssd: true
 
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
