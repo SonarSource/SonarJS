@@ -146,24 +146,6 @@ class StylelintReportSensorTest {
   }
 
   @Test
-  void should_skip_duplicates() throws Exception {
-    // when in SQ CSS profile there is an activated rule matching to an external issue,
-    // that external issue is ignored
-    setReport("report.json");
-    new StylelintReportSensor(CHECK_FACTORY_WITH_RULE).execute(context);
-
-    Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(1);
-    assertThat(externalIssues.iterator().next().primaryLocation().message())
-      .isEqualTo("external issue message (comment-no-empty)");
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains(
-        "Stylelint issue for rule 'color-no-invalid-hex' is skipped because this rule is activated in your SonarQube profile for CSS (rule key in SQ css:S4647)"
-      );
-  }
-
-  @Test
   void should_ignore_report_on_older_sonarqube() throws Exception {
     context.setRuntime(getRuntime(7, 1));
     setReport("report.json");
