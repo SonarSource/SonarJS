@@ -32,7 +32,7 @@ public class EslintRulesDefinition implements RulesDefinition {
 
   private static final String[] ESLINT_PLUGINS = {
     "@angular-eslint",
-    "@angular-eslint_template",
+    "@angular-eslint-template",
     "@typescript-eslint",
     "angular",
     "core",
@@ -73,7 +73,11 @@ public class EslintRulesDefinition implements RulesDefinition {
 
   public static ExternalRuleLoader loader(String eslintKey) {
     if (eslintKey.contains("/")) {
-      String pluginName = eslintKey.split("/")[0];
+      String[] keyParts = eslintKey.split("/");
+      String pluginName = keyParts[0];
+      if (keyParts.length > 2) {
+        pluginName = keyParts[0] + "-" + keyParts[1];
+      }
       if (RULE_LOADERS.containsKey(pluginName)) {
         return RULE_LOADERS.get(pluginName);
       }

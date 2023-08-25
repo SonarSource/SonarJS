@@ -11,7 +11,7 @@
   },
   {
     "key": "@angular-eslint/component-selector",
-    "name": "Component selectors should follow given naming rules. See more at https://angular.io/guide/styleguide#style-02-07, https://angular.io/guide/styleguide#style-05-02\n      and https://angular.io/guide/styleguide#style-05-03.",
+    "name": "Component selectors should follow given naming rules. See more at https://angular.io/guide/styleguide#style-02-07, https://angular.io/guide/styleguide#style-05-02\n      and https://angular.io/guide/st",
     "description": "See description of ESLint rule <code>@angular-eslint/component-selector</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/component-selector.md\">@angular-eslint/eslint-plugin website</a>"
   },
   {
@@ -37,7 +37,7 @@
   },
   {
     "key": "@angular-eslint/no-attribute-decorator",
-    "name": "The @Attribute decorator is used to obtain a single value for an attribute. This is a much less common use-case than getting a stream of values (using @Input), so often the @Attribute decorator is mistakenly used when @Input was what was intended. This rule disallows usage of @Attribute decorator altogether in order to prevent these mistakes.",
+    "name": "The @Attribute decorator is used to obtain a single value for an attribute. This is a much less common use-case than getting a stream of values (using @Input), so often the @Attribute decorator is mis",
     "type": "BUG",
     "description": "See description of ESLint rule <code>@angular-eslint/no-attribute-decorator</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/no-attribute-decorator.md\">@angular-eslint/eslint-plugin website</a>"
   },

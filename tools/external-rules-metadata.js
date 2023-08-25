@@ -21,13 +21,15 @@
 // install eslint plugins before running this script:
 // npm i --no-save eslint-plugin-ember eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-node eslint-plugin-vue @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template
 
+const MAX_RULE_NAME_LENGTH = 200;
+
 const fs = require('fs');
 const path = require('path');
 const eslint = require('eslint');
 
 const plugins = {
   '@angular-eslint': '@angular-eslint/eslint-plugin',
-  '@angular-eslint_template': '@angular-eslint/eslint-plugin-template',
+  '@angular-eslint/template': '@angular-eslint/eslint-plugin-template',
   '@typescript-eslint': '@typescript-eslint/eslint-plugin',
   ember: 'eslint-plugin-ember',
   import: 'eslint-plugin-import',
@@ -40,9 +42,10 @@ const plugins = {
 };
 
 function saveMetadata(rules, pluginName) {
+  const sanitizedName = pluginName.replace('/', '-');
   const filename = path.resolve(
     __dirname,
-    `../sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/eslint/${pluginName}.json`,
+    `../sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/eslint/${sanitizedName}.json`,
   );
   fs.writeFileSync(filename, JSON.stringify(rules, null, 2), 'utf8');
 }
@@ -51,10 +54,10 @@ Object.entries(plugins).forEach(([pluginName, npmModuleName]) => {
   console.log(`Processing ${npmModuleName}`);
   const plugin = require(npmModuleName);
   const rules = Object.entries(plugin.rules).map(([key, rule]) => {
-    const ruleKey = `${pluginName.replace('_', '/')}/${key}`;
+    const ruleKey = `${pluginName}/${key}`;
     return {
       key: ruleKey,
-      name: rule.meta.docs.description,
+      name: rule.meta.docs?.description?.slice(0, MAX_RULE_NAME_LENGTH),
       type: rule.meta.type === 'problem' ? 'BUG' : undefined,
       description: `See description of ESLint rule <code>${ruleKey}</code> at the <a href="${rule.meta.docs.url}">${npmModuleName} website</a>`,
     };

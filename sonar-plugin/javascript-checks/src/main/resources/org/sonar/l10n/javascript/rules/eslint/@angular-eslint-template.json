@@ -46,7 +46,7 @@
   },
   {
     "key": "@angular-eslint/template/i18n",
-    "name": "Ensures following best practices for i18n. Checks for missing i18n attributes on elements and attributes containing texts. Can also check for texts without i18n attribute, elements that do not use custom ID (@@) feature and duplicate custom IDs",
+    "name": "Ensures following best practices for i18n. Checks for missing i18n attributes on elements and attributes containing texts. Can also check for texts without i18n attribute, elements that do not use cus",
     "description": "See description of ESLint rule <code>@angular-eslint/template/i18n</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/i18n.md\">@angular-eslint/eslint-plugin-template website</a>"
   },
   {
@@ -61,7 +61,7 @@
   },
   {
     "key": "@angular-eslint/template/mouse-events-have-key-events",
-    "name": "[Accessibility] Ensures that the mouse events `mouseout` and `mouseover` are accompanied by `focus` and `blur` events respectively. Coding for the keyboard is important for users with physical disabilities who cannot use a mouse, AT compatibility, and screenreader users. See more at https://www.w3.org/WAI/WCAG21/Understanding/keyboard",
+    "name": "[Accessibility] Ensures that the mouse events `mouseout` and `mouseover` are accompanied by `focus` and `blur` events respectively. Coding for the keyboard is important for users with physical disabil",
     "description": "See description of ESLint rule <code>@angular-eslint/template/mouse-events-have-key-events</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/mouse-events-have-key-events.md\">@angular-eslint/eslint-plugin-template website</a>"
   },
   {
