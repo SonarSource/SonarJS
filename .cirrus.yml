@@ -40,7 +40,7 @@ maven_cache_definition: &MAVEN_CACHE
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
-    image: base-windows-jdk17-v*
+    image: ami-0ca1f43eb959c8316
     platform: windows
     region: eu-central-1
     type: c6id.2xlarge
