@@ -19,6 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import path from 'path';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -31,6 +32,11 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
   valid: [
     {
       code: `let password = ""`,
+      options,
+    },
+    {
+      code: `let password = 'foo';`,
+      filename: path.join('some', 'L10n', 'path', 'file.js'),
       options,
     },
   ],
@@ -79,6 +85,12 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
     {
       code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
       options: ['token'],
+      errors: 1,
+    },
+    {
+      code: `let password = 'foo';`,
+      filename: path.join('some', 'random', 'path', 'file.js'),
+      options,
       errors: 1,
     },
   ],

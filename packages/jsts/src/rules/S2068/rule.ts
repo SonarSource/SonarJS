@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isStringLiteral } from '../helpers';
+import path from 'path';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -30,6 +31,12 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    const dir = path.dirname(context.physicalFilename);
+    const parts = dir.split(path.sep).map(part => part.toLowerCase());
+    if (parts.includes('l10n')) {
+      return {};
+    }
+
     const variableNames = context.options;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
