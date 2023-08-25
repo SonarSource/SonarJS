@@ -54,7 +54,7 @@ class CssStylelintReportTest {
       request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
       List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
 
-      assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(111, 81, 55, 58, 114);
+      assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(111, 81, 55, 58, 58, 114);
       assertThat(issuesList)
         .extracting("rule")
         .containsExactlyInAnyOrder(
@@ -62,7 +62,8 @@ class CssStylelintReportTest {
           "external_stylelint:no-missing-end-of-source-newline",
           "external_stylelint:rule-empty-line-before",
           "external_stylelint:selector-pseudo-element-colon-notation",
-          "css:S4658"
+          "css:S4658",
+          "external_stylelint:block-no-empty"
         );
     }
   }
