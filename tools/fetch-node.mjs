@@ -25,7 +25,7 @@ const DEFAULT_TARGET_DIR = path.join(
   'target',
 );
 
-const targetDir = PARAM_DIR || DEFAULT_TARGET_DIR;
+const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
 const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
