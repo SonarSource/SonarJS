@@ -3,11 +3,12 @@
         "browser": true,
         "es6": true
     },
-    "extends": "eslint:recommended",
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
     "parserOptions": {
         "sourceType": "module"
     },
-    "parser": "typescript-eslint-parser",
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
     "rules": {
         "linebreak-style": [
             "error",
