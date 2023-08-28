@@ -31,7 +31,7 @@ import { Sinon } from '../helpers/sinon';
  */
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    const visitedNodes = new Map();
+    const visitedNodes: Set<estree.Node> = new Set();
     const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
@@ -55,7 +55,7 @@ function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
   potentialIssues: Rule.ReportDescriptor[],
-  visitedNodes: Map<estree.Node, boolean>,
+  visitedNodes: Set<estree.Node>,
 ) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
@@ -74,11 +74,11 @@ class TestCaseAssertionVisitor {
     this.hasAssertions = false;
   }
 
-  visit(context: Rule.RuleContext, node: estree.Node, visitedNodes: Map<estree.Node, boolean>) {
-    if (visitedNodes.get(node)) {
+  visit(context: Rule.RuleContext, node: estree.Node, visitedNodes: Set<estree.Node>) {
+    if (visitedNodes.has(node)) {
       return;
     }
-    visitedNodes.set(node, true);
+    visitedNodes.add(node);
     if (this.hasAssertions) {
       return;
     }
