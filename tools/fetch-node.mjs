@@ -72,7 +72,7 @@ function copyRuntime(distroName, nodeDir, targetDir) {
 }
 
 /**
- * Removes the file extension from the archvie
+ * Removes the file extension from the archive
  *
  * @param {*} filename
  * @returns
@@ -130,9 +130,10 @@ async function downloadFile(url, file) {
 }
 
 /**
- * Extracts the file
+ * Extracts the file to the given directory
  *
  * @param {*} file
+ * @param {*} dir
  */
 async function extractFile(file, dir) {
   console.log(`Extracting ${file} to ${dir}`);
