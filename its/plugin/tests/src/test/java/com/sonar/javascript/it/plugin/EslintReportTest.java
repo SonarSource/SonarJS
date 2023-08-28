@@ -94,7 +94,7 @@ class EslintReportTest {
     assertThat(jsIssuesList)
       .extracting(Issue::getLine, Issue::getRule)
       .containsExactlyInAnyOrder(
-        tuple(1, "external_eslint_repo:no-unused-vars"),
+        tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
         tuple(3, "external_eslint_repo:semi"),
         tuple(5, "external_eslint_repo:semi"),
@@ -104,7 +104,7 @@ class EslintReportTest {
     assertThat(tsIssuesList)
       .extracting(Issue::getLine, Issue::getRule)
       .containsExactlyInAnyOrder(
-        tuple(1, "external_eslint_repo:no-unused-vars"),
+        tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
         tuple(3, "external_eslint_repo:semi"),
         tuple(5, "external_eslint_repo:semi"),

@@ -1,6 +1,6 @@
 function addOne(i: number) {
   if (i != NaN) {
-      return i ++
+    return i ++
   } else {
     return
   }
