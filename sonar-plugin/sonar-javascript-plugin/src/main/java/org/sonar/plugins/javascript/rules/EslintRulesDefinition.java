@@ -73,8 +73,13 @@ public class EslintRulesDefinition implements RulesDefinition {
 
   public static ExternalRuleLoader loader(String eslintKey) {
     if (eslintKey.contains("/")) {
-      String[] keyParts = eslintKey.split("/");
-      String pluginName = keyParts[0];
+      var keyParts = eslintKey.split("/");
+      var pluginName = keyParts[0];
+
+      /*  This is to handle `@angular-eslint/eslint-plugin-template` where the rule keys have 3 segments, 
+          like `@angular-eslint/template/banana-in-box`. Here the plugin name would be `@angular-eslint/template`, 
+          which is further sanitized to `@angular-eslint-template` to avoid `/` in the filename.      
+      */
       if (keyParts.length > 2) {
         pluginName = keyParts[0] + "-" + keyParts[1];
       }
