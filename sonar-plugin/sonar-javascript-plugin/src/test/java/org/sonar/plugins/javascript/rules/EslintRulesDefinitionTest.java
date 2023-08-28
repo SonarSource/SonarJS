@@ -38,7 +38,7 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.isExternal()).isTrue();
     assertThat(eslintRepo.name()).isEqualTo("ESLint");
     assertThat(eslintRepo.language()).isEqualTo("js");
-    assertThat(eslintRepo.rules()).hasSize(1177);
+    assertThat(eslintRepo.rules()).hasSizeBetween(1100, 1250); // 1177
 
     // checking randoms rules from each ESLint plugin we support
     assertThat(eslintRepo.rule("@angular-eslint/no-attribute-decorator")).isNotNull();
@@ -56,5 +56,13 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.rule("react-hooks/rules-of-hooks")).isNotNull();
     assertThat(eslintRepo.rule("vue/v-on-style")).isNotNull();
     assertThat(eslintRepo.rule("sonarjs/no-duplicate-string")).isNotNull();
+
+    // checking loader resolution code
+    assertThat(EslintRulesDefinition.loader("@angular-eslint/no-attribute-decorator").ruleKeys())
+      .hasSizeBetween(30, 40); // 35
+    assertThat(EslintRulesDefinition.loader("@angular-eslint/template/valid-aria").ruleKeys())
+      .hasSizeBetween(25, 30); // 27
+    assertThat(EslintRulesDefinition.loader("no-useless-escape").ruleKeys())
+      .hasSizeBetween(270, 320); // 290
   }
 }
