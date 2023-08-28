@@ -6,12 +6,20 @@ import decompressTarxz from 'decompress-tarxz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 
+/**
+ * Fetches node.js runtimes and downloads them to
+ * targetDir/classes/{distro.id}/node{.exe}
+ */
+
 const NODE_DISTROS_URLS = [
-  'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip',
-  'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.xz',
-  'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.xz',
+  { id: 'win-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip' },
+  { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.xz' },
+  { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.xz' },
   // unofficial-builds throttles downloads
-  'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.xz',
+  {
+    id: 'linux-x64-alpine',
+    url: 'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.xz',
+  },
 ];
 
 /**
@@ -29,25 +37,26 @@ const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
 const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
-for (const distroUrl of NODE_DISTROS_URLS) {
-  const filename = distroUrl.split(path.sep).at(-1);
+for (const distro of NODE_DISTROS_URLS) {
+  const filename = distro.url.split(path.sep).at(-1);
   const archiveFilename = path.join(nodeDir, filename);
-  await downloadFile(distroUrl, archiveFilename);
+  await downloadFile(distro.url, archiveFilename);
   await extractFile(archiveFilename, nodeDir);
 
   const distroName = removeExtension(filename);
-  copyRuntime(distroName, nodeDir, targetDir);
+  copyRuntime(distroName, distro.id, nodeDir, targetDir);
 }
 
 /**
  * Extracts runtime executable from nodeDir based on the distribution
- * and copies it in targetDir/classes/distroName/node{.exe}
+ * and copies it in targetDir/classes/distroId/node{.exe}
  *
  * @param {*} distroName
+ * @param {*} distroId
  * @param {*} nodeDir
  * @param {*} targetDir
  */
-function copyRuntime(distroName, nodeDir, targetDir) {
+function copyRuntime(distroName, distroId, nodeDir, targetDir) {
   console.log(`Copying runtime for ${distroName} from ${nodeDir} to ${targetDir}`);
   let nodeBin;
   if (distroName.includes('win-x64')) {
@@ -60,7 +69,7 @@ function copyRuntime(distroName, nodeDir, targetDir) {
     );
   }
   const nodeSource = path.join(nodeDir, distroName, nodeBin);
-  const classesDir = path.join(targetDir, 'classes', distroName);
+  const classesDir = path.join(targetDir, 'classes', distroId);
   fs.mkdirpSync(classesDir);
   const targetFile = path.join(classesDir, keepOnlyFile(nodeBin));
   console.log(`Copying runtime from ${nodeSource} to ${targetFile}`);
