@@ -31,12 +31,13 @@ import { Sinon } from '../helpers/sinon';
  */
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const visitedNodes = new Map();
     const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          checkAssertions(testCase, context, potentialIssues);
+          checkAssertions(testCase, context, potentialIssues, visitedNodes);
         }
       },
       'Program:exit': () => {
@@ -54,10 +55,11 @@ function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
   potentialIssues: Rule.ReportDescriptor[],
+  visitedNodes: Map<estree.Node, boolean>,
 ) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
-  visitor.visit(context, callback.body);
+  visitor.visit(context, callback.body, visitedNodes);
   if (visitor.missingAssertions()) {
     potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
   }
@@ -72,7 +74,11 @@ class TestCaseAssertionVisitor {
     this.hasAssertions = false;
   }
 
-  visit(context: Rule.RuleContext, node: estree.Node) {
+  visit(context: Rule.RuleContext, node: estree.Node, visitedNodes: Map<estree.Node, boolean>) {
+    if (visitedNodes.get(node)) {
+      return;
+    }
+    visitedNodes.set(node, true);
     if (this.hasAssertions) {
       return;
     }
@@ -83,11 +89,11 @@ class TestCaseAssertionVisitor {
     if (isFunctionCall(node)) {
       const functionDef = resolveFunction(this.context, node.callee);
       if (functionDef) {
-        this.visit(context, functionDef.body);
+        this.visit(context, functionDef.body, visitedNodes);
       }
     }
     for (const child of childrenOf(node, this.visitorKeys)) {
-      this.visit(context, child);
+      this.visit(context, child, visitedNodes);
     }
   }
 
