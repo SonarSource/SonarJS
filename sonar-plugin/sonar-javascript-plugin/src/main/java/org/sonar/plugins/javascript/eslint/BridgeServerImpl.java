@@ -80,7 +80,8 @@ public class BridgeServerImpl implements BridgeServer {
   private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
-  private final Bundle bundle;
+  private final Bundle embeddedBundle;
+  private final Bundle defaultBundle;
   private final String hostAddress;
   private int port;
   private NodeCommand nodeCommand;
@@ -97,7 +98,8 @@ public class BridgeServerImpl implements BridgeServer {
   // Used by pico container for dependency injection
   public BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
-    Bundle bundle,
+    Bundle embeddedBundle,
+    Bundle defaultBundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
@@ -106,7 +108,8 @@ public class BridgeServerImpl implements BridgeServer {
     this(
       nodeCommandBuilder,
       DEFAULT_TIMEOUT_SECONDS,
-      bundle,
+      embeddedBundle,
+      defaultBundle,
       rulesBundles,
       deprecationWarning,
       tempFolder,
@@ -117,7 +120,8 @@ public class BridgeServerImpl implements BridgeServer {
   BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
     int timeoutSeconds,
-    Bundle bundle,
+    Bundle embeddedBundle,
+    Bundle defaultBundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
@@ -125,7 +129,8 @@ public class BridgeServerImpl implements BridgeServer {
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
-    this.bundle = bundle;
+    this.embeddedBundle = embeddedBundle;
+    this.defaultBundle = defaultBundle;
     this.client =
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeoutSeconds)).build();
     this.rulesBundles = rulesBundles;
@@ -160,14 +165,14 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   void deploy() throws IOException {
-    bundle.deploy(deployLocation);
+    defaultBundle.deploy(deployLocation);
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
     PROFILER.startDebug("Starting server");
     port = findOpenPort();
 
-    File scriptFile = new File(bundle.startServerScript());
+    File scriptFile = new File(defaultBundle.startServerScript());
     if (!scriptFile.exists()) {
       throw new NodeCommandException(
         "Node.js script to start the bridge server doesn't exist: " + scriptFile.getAbsolutePath()
@@ -231,7 +236,8 @@ public class BridgeServerImpl implements BridgeServer {
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
-      .defaultPathResolver(bundle)
+      .embeddedPathResolver(embeddedBundle)
+      .defaultPathResolver(defaultBundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())

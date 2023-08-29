@@ -97,7 +97,8 @@ class BridgeServerImplTest {
 
   private SensorContextTester context;
   private BridgeServerImpl bridgeServer;
-  private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
+  private final TestDefaultBundle testDefaultBundle = new TestDefaultBundle(START_SERVER_SCRIPT);
+  private final TestEmbeddedBundle testEmbeddedBundle = new TestEmbeddedBundle(START_SERVER_SCRIPT);
 
   private final RulesBundles emptyRulesBundles = new RulesBundles();
   private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(
@@ -151,7 +152,8 @@ class BridgeServerImplTest {
       new BridgeServerImpl(
         nodeCommandBuilder,
         TEST_TIMEOUT_SECONDS,
-        testBundle,
+        testEmbeddedBundle,
+        testDefaultBundle,
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
@@ -655,6 +657,7 @@ class BridgeServerImplTest {
       new BridgeServerImpl(
         NodeCommand.builder(),
         mock(Bundle.class),
+        mock(Bundle.class),
         mock(RulesBundles.class),
         deprecationWarning,
         tempFolder,
@@ -716,7 +719,8 @@ class BridgeServerImplTest {
       new BridgeServerImpl(
         NodeCommand.builder(),
         TEST_TIMEOUT_SECONDS,
-        new TestBundle(START_SERVER_SCRIPT),
+        new TestEmbeddedBundle(START_SERVER_SCRIPT),
+        new TestDefaultBundle(START_SERVER_SCRIPT),
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
@@ -747,7 +751,8 @@ class BridgeServerImplTest {
       new BridgeServerImpl(
         NodeCommand.builder(),
         TEST_TIMEOUT_SECONDS,
-        new TestBundle(START_SERVER_SCRIPT),
+        new TestEmbeddedBundle(START_SERVER_SCRIPT),
+        new TestDefaultBundle(START_SERVER_SCRIPT),
         rulesBundles,
         deprecationWarning,
         tempFolder,
@@ -763,7 +768,8 @@ class BridgeServerImplTest {
     return new BridgeServerImpl(
       NodeCommand.builder(),
       TEST_TIMEOUT_SECONDS,
-      new TestBundle(startServerScript),
+      new TestEmbeddedBundle(START_SERVER_SCRIPT),
+      new TestDefaultBundle(startServerScript),
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
@@ -771,11 +777,11 @@ class BridgeServerImplTest {
     );
   }
 
-  static class TestBundle implements Bundle {
+  static class TestDefaultBundle implements Bundle {
 
     final String startServerScript;
 
-    TestBundle(String startServerScript) {
+    TestDefaultBundle(String startServerScript) {
       this.startServerScript = startServerScript;
     }
 
@@ -792,6 +798,31 @@ class BridgeServerImplTest {
     @Override
     public String resolve(String relativePath) {
       File file = new File("src/test/resources");
+      return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
+    }
+  }
+
+  static class TestEmbeddedBundle implements Bundle {
+
+    final String startServerScript;
+
+    TestEmbeddedBundle(String startServerScript) {
+      this.startServerScript = startServerScript;
+    }
+
+    @Override
+    public void deploy(Path deployLocation) {
+      // no-op for unit test
+    }
+
+    @Override
+    public String startServerScript() {
+      return "src/test/resources/mock-bridge/" + startServerScript;
+    }
+
+    @Override
+    public String resolve(String relativePath) {
+      File file = new File("target/classes");
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }
   }
