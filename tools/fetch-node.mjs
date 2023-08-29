@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import extract from 'extract-zip';
 import decompress from 'decompress';
 import decompressTarxz from 'decompress-tarxz';
+import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 
@@ -13,12 +14,12 @@ import * as stream from 'node:stream';
 
 const NODE_DISTROS_URLS = [
   { id: 'win-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip' },
-  { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.xz' },
-  { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.xz' },
+  { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.gz' }, //.xz' },
+  { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.gz' }, //.xz' },
   // unofficial-builds throttles downloads
   {
     id: 'linux-x64-alpine',
-    url: 'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.xz',
+    url: 'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.gz', //.xz'
   },
 ];
 
@@ -87,15 +88,17 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
  * @returns
  */
 function removeExtension(filename) {
+  let extensionLength;
   if (filename.endsWith('.zip')) {
-    return filename.slice(0, -4);
-  } else if (filename.endsWith('.tar.xz')) {
-    return filename.slice(0, -7);
+    extensionLength = 4;
+  } else if (filename.endsWith('.tar.xz') || filename.endsWith('.tar.gz')) {
+    extensionLength = 7;
   } else {
     throw new Error(
       `File extension removal not supported for file: ${filename}. Please implement for its extension`,
     );
   }
+  return filename.slice(0, -extensionLength);
 }
 
 /**
@@ -153,6 +156,12 @@ async function extractFile(file, dir) {
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
       plugins: [decompressTarxz()],
+    });
+  } else if (file.endsWith('.tar.gz')) {
+    // decompress tar gz doesn't support overwrites
+    deleteFolderIfExists(removeExtension(file));
+    await decompress(file, dir, {
+      plugins: [decompressTargz()],
     });
   } else {
     throw new Error(
