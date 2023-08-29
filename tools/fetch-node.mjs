@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
 import decompress from 'decompress';
-import decompressTarxz from 'decompress-tarxz';
+//import decompressTarxz from 'decompress-tarxz';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
@@ -151,12 +151,12 @@ async function extractFile(file, dir) {
   console.log(`Extracting ${file} to ${dir}`);
   if (file.endsWith('.zip')) {
     await extract(file, { dir });
-  } else if (file.endsWith('.tar.xz')) {
+    /* } else if (file.endsWith('.tar.xz')) {
     // decompress tar xz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
       plugins: [decompressTarxz()],
-    });
+    }); */
   } else if (file.endsWith('.tar.gz')) {
     // decompress tar gz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
