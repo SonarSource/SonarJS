@@ -46,8 +46,9 @@ public interface NodeCommandBuilder {
 
   NodeCommandBuilder errorConsumer(Consumer<String> consumer);
 
-  NodeCommandBuilder pathResolver(BundlePathResolver pathResolver);
+  NodeCommandBuilder defaultPathResolver(BundlePathResolver pathResolver);
 
+  NodeCommandBuilder embeddedPathResolver(BundlePathResolver pathResolver);
   NodeCommandBuilder env(Map<String, String> env);
 
   NodeCommand build() throws IOException;

@@ -80,7 +80,19 @@ class NodeCommandTest {
     NodeCommand nodeCommand = NodeCommand
       .builder()
       .script(resourceScript(PATH_TO_SCRIPT))
-      .pathResolver(getPathResolver())
+      .defaultPathResolver(getDefaultPathResolver())
+      .build();
+    nodeCommand.start();
+    int exitValue = nodeCommand.waitFor();
+    assertThat(exitValue).isEqualTo(0);
+  }
+
+  @Test
+  void test_with_custom_runtime() throws Exception {
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
+      .script(resourceScript(PATH_TO_SCRIPT))
+      .embeddedPathResolver(getEmbeddedPathResolver())
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -96,7 +108,7 @@ class NodeCommandTest {
       .script(resourceScript("files/error.js"))
       .outputConsumer(output::append)
       .errorConsumer(error::append)
-      .pathResolver(getPathResolver())
+      .defaultPathResolver(getDefaultPathResolver())
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -111,7 +123,7 @@ class NodeCommandTest {
         NodeCommand
           .builder()
           .minNodeVersion(Version.create(99, 0))
-          .pathResolver(getPathResolver())
+          .defaultPathResolver(getDefaultPathResolver())
           .build()
       )
       .isInstanceOf(NodeCommandException.class)
@@ -123,7 +135,10 @@ class NodeCommandTest {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
     assertThatThrownBy(() ->
-        NodeCommand.builder(mockProcessWrapper).pathResolver(p -> "/file/does/not/exist").build()
+        NodeCommand
+          .builder(mockProcessWrapper)
+          .defaultPathResolver(p -> "/file/does/not/exist")
+          .build()
       )
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Default Node.js executable for MacOS does not exist.");
@@ -135,7 +150,7 @@ class NodeCommandTest {
       .builder()
       .minNodeVersion(Version.create(1, 0))
       .script(resourceScript(PATH_TO_SCRIPT))
-      .pathResolver(getPathResolver())
+      .defaultPathResolver(getDefaultPathResolver())
       .build();
 
     nodeCommand.start();
@@ -164,7 +179,7 @@ class NodeCommandTest {
       .maxOldSpaceSize(2048)
       .nodeJsArgs("-p", request)
       .outputConsumer(output::append)
-      .pathResolver(getPathResolver())
+      .defaultPathResolver(getDefaultPathResolver())
       .build();
     command.start();
     command.waitFor();
@@ -338,7 +353,7 @@ class NodeCommandTest {
     NodeCommand nodeCommand = NodeCommand
       .builder(mockProcessWrapper)
       .script("script.js")
-      .pathResolver(getPathResolver())
+      .defaultPathResolver(getDefaultPathResolver())
       .build();
     nodeCommand.start();
     List<String> value = captureProcessWrapperArgument();
@@ -406,8 +421,13 @@ class NodeCommandTest {
     return new File(NodeCommandTest.class.getResource("/" + script).toURI()).getAbsolutePath();
   }
 
-  private static BundlePathResolver getPathResolver() {
+  private static BundlePathResolver getDefaultPathResolver() {
     File file = new File("src/test/resources");
+    return p -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
+  }
+
+  private static BundlePathResolver getEmbeddedPathResolver() {
+    var file = new File("target/classes");
     return p -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
   }
 }

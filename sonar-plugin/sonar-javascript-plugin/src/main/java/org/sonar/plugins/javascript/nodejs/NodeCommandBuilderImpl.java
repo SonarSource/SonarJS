@@ -49,6 +49,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   public static final String NODE_EXECUTABLE_DEFAULT = "node";
   private static final String NODE_EXECUTABLE_DEFAULT_MACOS =
     "package/node_modules/run-node/run-node";
+  private static final String NODE_EXECUTABLE_EMBEDDED_MACOS = "macos-arm64/node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
 
@@ -64,7 +65,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> outputConsumer = LOG::info;
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
-  private BundlePathResolver pathResolver;
+  private BundlePathResolver defaultPathResolver;
+  private BundlePathResolver embeddedPathResolver;
   private Version actualNodeVersion;
   private Map<String, String> env = Map.of();
 
@@ -121,8 +123,14 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   @Override
-  public NodeCommandBuilder pathResolver(BundlePathResolver pathResolver) {
-    this.pathResolver = pathResolver;
+  public NodeCommandBuilder defaultPathResolver(BundlePathResolver pathResolver) {
+    this.defaultPathResolver = pathResolver;
+    return this;
+  }
+
+  @Override
+  public NodeCommandBuilder embeddedPathResolver(BundlePathResolver pathResolver) {
+    this.embeddedPathResolver = pathResolver;
     return this;
   }
 
@@ -265,11 +273,19 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNodeOnMac() throws IOException {
+    if (embeddedPathResolver != null) {
+      var embeddedNode = embeddedPathResolver.resolve(NODE_EXECUTABLE_EMBEDDED_MACOS);
+      var file = new File(embeddedNode);
+      if (file.exists()) {
+        return embeddedNode;
+      }
+    }
+
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
     // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
     LOG.debug("Looking for Node.js in the PATH using run-node (macOS)");
-    String defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
-    File file = new File(defaultNode);
+    var defaultNode = defaultPathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
+    var file = new File(defaultNode);
     if (!file.exists()) {
       LOG.error(
         "Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'",

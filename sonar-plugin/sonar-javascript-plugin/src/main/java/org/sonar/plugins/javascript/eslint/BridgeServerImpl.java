@@ -231,7 +231,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
-      .pathResolver(bundle)
+      .defaultPathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
