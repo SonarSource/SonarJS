@@ -48,7 +48,7 @@ import org.sonar.css.StylelintRule;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-public class CssRuleSensor extends AbstractEslintSensor {
+public class CssRuleSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = Loggers.get(CssRuleSensor.class);
 

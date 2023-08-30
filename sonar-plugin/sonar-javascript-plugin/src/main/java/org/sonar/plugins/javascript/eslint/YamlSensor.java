@@ -39,7 +39,7 @@ import org.sonar.plugins.javascript.eslint.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-public class YamlSensor extends AbstractEslintSensor {
+public class YamlSensor extends AbstractBridgeSensor {
 
   public static final String LANGUAGE = "yaml";
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";

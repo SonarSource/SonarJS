@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -33,9 +32,9 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
-public abstract class AbstractEslintSensor implements Sensor {
+public abstract class AbstractBridgeSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
+  private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
 
   protected final BridgeServer bridgeServer;
   private final AnalysisWarningsWrapper analysisWarnings;
@@ -46,7 +45,7 @@ public abstract class AbstractEslintSensor implements Sensor {
   protected SensorContext context;
   protected ContextUtils contextUtils;
 
-  protected AbstractEslintSensor(
+  protected AbstractBridgeSensor(
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     Monitoring monitoring

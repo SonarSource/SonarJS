@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.eslint.cache.CacheStrategies;
 import org.sonar.plugins.javascript.eslint.cache.CacheStrategy;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-public class HtmlSensor extends AbstractEslintSensor {
+public class HtmlSensor extends AbstractBridgeSensor {
 
   public static final String LANGUAGE = "web";
 

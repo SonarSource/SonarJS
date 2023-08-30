@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
-public class JsTsSensor extends AbstractEslintSensor {
+public class JsTsSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = Loggers.get(JsTsSensor.class);
   private final TempFolder tempFolder;
