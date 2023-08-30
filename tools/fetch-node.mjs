@@ -39,7 +39,7 @@ const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
 for (const distro of NODE_DISTROS_URLS) {
-  const filename = distro.url.split(path.sep).at(-1);
+  const filename = distro.url.split('/').at(-1);
   const archiveFilename = path.join(nodeDir, filename);
   await downloadFile(distro.url, archiveFilename);
   await extractFile(archiveFilename, nodeDir);
