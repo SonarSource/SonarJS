@@ -172,13 +172,11 @@ async function extractFile(file, dir) {
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
       plugins: [decompressTargz()],
-      filter: currentFile => {
-        /**
-         * There are symlinks in the unix distros that raise an exception when running this on Windows
-         * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
-         */
-        return currentFile.path.endsWith('bin/node') || currentFile.path.endsWith('bin');
-      },
+      /**
+       * There are symlinks in the unix distros that raise an exception when running this on Windows
+       * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
+       */
+      filter: currentFile => currentFile.path.endsWith('bin/node'),
     });
   } else {
     throw new Error(
