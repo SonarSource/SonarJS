@@ -157,7 +157,8 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode()
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -661,7 +662,8 @@ class BridgeServerImplTest {
         mock(RulesBundles.class),
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode()
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -724,7 +726,8 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode()
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -756,7 +759,8 @@ class BridgeServerImplTest {
         rulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode()
       );
     bridgeServer.startServerLazily(context);
 
@@ -773,7 +777,8 @@ class BridgeServerImplTest {
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring
+      monitoring,
+      new EmbeddedNode()
     );
   }
 

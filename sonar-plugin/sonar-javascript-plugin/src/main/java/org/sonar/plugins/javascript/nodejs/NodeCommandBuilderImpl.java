@@ -27,6 +27,7 @@ import static java.util.Collections.singletonList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,6 +42,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.eslint.EmbeddedNode;
 
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
@@ -58,6 +60,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   );
 
   private final ProcessWrapper processWrapper;
+  private EmbeddedNode embeddedNode = new EmbeddedNode();
   private Version minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();
@@ -137,6 +140,12 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   @Override
   public NodeCommandBuilder env(Map<String, String> env) {
     this.env = Map.copyOf(env);
+    return this;
+  }
+
+  @Override
+  public NodeCommandBuilder embeddedNode(EmbeddedNode embeddedNode) {
+    this.embeddedNode = embeddedNode;
     return this;
   }
 
@@ -303,6 +312,10 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNodeOnWindows() throws IOException {
+    if (embeddedNode.isAvailable()) {
+      var embedded = embeddedNode.binary();
+      return embedded.toString();
+    }
     // Windows will search current directory in addition to the PATH variable, which is unsecure.
     // To avoid it we use where.exe to find node binary only in PATH. See SSF-181
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");

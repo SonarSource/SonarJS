@@ -90,7 +90,7 @@ public class BridgeServerImpl implements BridgeServer {
   private final NodeDeprecationWarning deprecationWarning;
   private final Path deployLocation;
   private final Monitoring monitoring;
-
+  private final EmbeddedNode embeddedNode;
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
@@ -103,7 +103,8 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring
+    Monitoring monitoring,
+    EmbeddedNode embeddedNode
   ) {
     this(
       nodeCommandBuilder,
@@ -113,7 +114,8 @@ public class BridgeServerImpl implements BridgeServer {
       rulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring
+      monitoring,
+      embeddedNode
     );
   }
 
@@ -125,7 +127,8 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring
+    Monitoring monitoring,
+    EmbeddedNode embeddedNode
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
@@ -139,6 +142,7 @@ public class BridgeServerImpl implements BridgeServer {
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.monitoring = monitoring;
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
+    this.embeddedNode = embeddedNode;
   }
 
   void heartbeat() {
@@ -166,6 +170,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   void deploy() throws IOException {
     defaultBundle.deploy(deployLocation);
+    embeddedNode.deployNode(deployLocation);
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
@@ -237,6 +242,7 @@ public class BridgeServerImpl implements BridgeServer {
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
       .embeddedPathResolver(embeddedBundle)
+      .embeddedNode(embeddedNode)
       .defaultPathResolver(defaultBundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
