@@ -57,7 +57,7 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(14);
     assertWarnings(
       "Using Node.js version 14 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. " +
-      "Please upgrade to a newer LTS version of Node.js [16, 18]"
+      "Please upgrade to a newer LTS version of Node.js [16, 18, 20]"
     );
   }
 
@@ -72,8 +72,8 @@ class NodeDeprecationWarningTest {
   void test_15() {
     deprecationWarning.logNodeDeprecation(15);
     assertWarnings(
-      "Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16, 18]",
-      "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18]"
+      "Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16, 18, 20]",
+      "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18, 20]"
     );
   }
 
@@ -81,8 +81,14 @@ class NodeDeprecationWarningTest {
   void test_17() {
     deprecationWarning.logNodeDeprecation(17);
     assertWarnings(
-      "Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18]"
+      "Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18, 20]"
     );
+  }
+
+  @Test
+  void test_20() {
+    deprecationWarning.logNodeDeprecation(20);
+    assertWarnings();
   }
 
   @Test
