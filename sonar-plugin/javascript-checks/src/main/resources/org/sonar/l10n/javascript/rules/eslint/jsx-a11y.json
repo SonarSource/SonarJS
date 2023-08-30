@@ -1,167 +1,197 @@
 [
   {
     "key": "jsx-a11y/accessible-emoji",
-    "name": "Enforce emojis are wrapped in and provide screenreader access",
-    "description": "See description of ESLint rule <code>jsx-a11y/accessible-emoji</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/accessible-emoji.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce emojis are wrapped in `<span>` and provide screenreader access.",
+    "description": "See description of ESLint rule <code>jsx-a11y/accessible-emoji</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/accessible-emoji.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/alt-text",
-    "name": "Enforce all elements that require alternative text have meaningful information to relay back to end user",
-    "description": "See description of ESLint rule <code>jsx-a11y/alt-text</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/alt-text.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce all elements that require alternative text have meaningful information to relay back to end user.",
+    "description": "See description of ESLint rule <code>jsx-a11y/alt-text</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/alt-text.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/anchor-ambiguous-text",
+    "name": "Enforce `<a>` text to not exactly match \"click here\", \"here\", \"link\", or \"a link\".",
+    "description": "See description of ESLint rule <code>jsx-a11y/anchor-ambiguous-text</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/anchor-ambiguous-text.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/anchor-has-content",
-    "name": "Enforce all anchors to contain accessible content",
-    "description": "See description of ESLint rule <code>jsx-a11y/anchor-has-content</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-has-content.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce all anchors to contain accessible content.",
+    "description": "See description of ESLint rule <code>jsx-a11y/anchor-has-content</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/anchor-has-content.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/anchor-is-valid",
-    "name": "Enforce all anchors are valid, navigable elements",
-    "description": "See description of ESLint rule <code>jsx-a11y/anchor-is-valid</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-is-valid.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce all anchors are valid, navigable elements.",
+    "description": "See description of ESLint rule <code>jsx-a11y/anchor-is-valid</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/anchor-is-valid.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/aria-activedescendant-has-tabindex",
-    "name": "Enforce elements with aria-activedescendant are tabbable",
-    "description": "See description of ESLint rule <code>jsx-a11y/aria-activedescendant-has-tabindex</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-activedescendant-has-tabindex.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce elements with aria-activedescendant are tabbable.",
+    "description": "See description of ESLint rule <code>jsx-a11y/aria-activedescendant-has-tabindex</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/aria-activedescendant-has-tabindex.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/aria-props",
-    "name": "Enforce all aria-* props are valid",
-    "description": "See description of ESLint rule <code>jsx-a11y/aria-props</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-props.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce all `aria-*` props are valid.",
+    "description": "See description of ESLint rule <code>jsx-a11y/aria-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/aria-props.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/aria-proptypes",
-    "name": "Enforce ARIA state and property values are valid",
-    "description": "See description of ESLint rule <code>jsx-a11y/aria-proptypes</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-proptypes.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce ARIA state and property values are valid.",
+    "description": "See description of ESLint rule <code>jsx-a11y/aria-proptypes</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/aria-proptypes.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/aria-role",
-    "name": "Enforce that elements with ARIA roles must use a valid, non-abstract ARIA role",
-    "description": "See description of ESLint rule <code>jsx-a11y/aria-role</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-role.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that elements with ARIA roles must use a valid, non-abstract ARIA role.",
+    "description": "See description of ESLint rule <code>jsx-a11y/aria-role</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/aria-role.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/aria-unsupported-elements",
-    "name": "Enforce that elements that do not support ARIA roles, states, and properties do not have those attributes",
-    "description": "See description of ESLint rule <code>jsx-a11y/aria-unsupported-elements</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-unsupported-elements.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that elements that do not support ARIA roles, states, and properties do not have those attributes.",
+    "description": "See description of ESLint rule <code>jsx-a11y/aria-unsupported-elements</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/aria-unsupported-elements.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/autocomplete-valid",
+    "name": "Enforce that autocomplete attributes are used correctly.",
+    "description": "See description of ESLint rule <code>jsx-a11y/autocomplete-valid</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/autocomplete-valid.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/click-events-have-key-events",
-    "name": "Enforce a clickable non-interactive element has at least one keyboard event listener",
-    "description": "See description of ESLint rule <code>jsx-a11y/click-events-have-key-events</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/click-events-have-key-events.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce a clickable non-interactive element has at least one keyboard event listener.",
+    "description": "See description of ESLint rule <code>jsx-a11y/click-events-have-key-events</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/click-events-have-key-events.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/control-has-associated-label",
+    "name": "Enforce that a control (an interactive element) has a text label.",
+    "description": "See description of ESLint rule <code>jsx-a11y/control-has-associated-label</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/control-has-associated-label.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/heading-has-content",
-    "name": "Enforce heading (h1, h2, etc) elements contain accessible content",
-    "description": "See description of ESLint rule <code>jsx-a11y/heading-has-content</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/heading-has-content.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce heading (`h1`, `h2`, etc) elements contain accessible content.",
+    "description": "See description of ESLint rule <code>jsx-a11y/heading-has-content</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/heading-has-content.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/html-has-lang",
-    "name": "Enforce <html>element has lang prop",
-    "description": "See description of ESLint rule <code>jsx-a11y/html-has-lang</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/html-has-lang.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce `<html>` element has `lang` prop.",
+    "description": "See description of ESLint rule <code>jsx-a11y/html-has-lang</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/html-has-lang.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/iframe-has-title",
-    "name": "Enforce iframe elements have a title attribute",
-    "description": "See description of ESLint rule <code>jsx-a11y/iframe-has-title</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/iframe-has-title.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce iframe elements have a title attribute.",
+    "description": "See description of ESLint rule <code>jsx-a11y/iframe-has-title</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/iframe-has-title.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/img-redundant-alt",
-    "name": "Enforce <img> alt prop does not contain the word\"image\", \"picture\", or \"photo\"",
-    "description": "See description of ESLint rule <code>jsx-a11y/img-redundant-alt</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/img-redundant-alt.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce `<img>` alt prop does not contain the word \"image\", \"picture\", or \"photo\".",
+    "description": "See description of ESLint rule <code>jsx-a11y/img-redundant-alt</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/img-redundant-alt.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/interactive-supports-focus",
-    "name": "Enforce that elements with interactive handlers like onClick must be focusable",
-    "description": "See description of ESLint rule <code>jsx-a11y/interactive-supports-focus</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/interactive-supports-focus.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that elements with interactive handlers like `onClick` must be focusable.",
+    "description": "See description of ESLint rule <code>jsx-a11y/interactive-supports-focus</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/interactive-supports-focus.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/label-has-associated-control",
+    "name": "Enforce that a `label` tag has a text label and an associated control.",
+    "description": "See description of ESLint rule <code>jsx-a11y/label-has-associated-control</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/label-has-associated-control.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/label-has-for",
-    "name": "Enforce that <label> elements have the htmlFor prop",
-    "description": "See description of ESLint rule <code>jsx-a11y/label-has-for</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/label-has-for.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that `<label>` elements have the `htmlFor` prop.",
+    "description": "See description of ESLint rule <code>jsx-a11y/label-has-for</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/label-has-for.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/lang",
-    "name": "Enforce lang attribute has a valid value",
-    "description": "See description of ESLint rule <code>jsx-a11y/lang</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/lang.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce lang attribute has a valid value.",
+    "description": "See description of ESLint rule <code>jsx-a11y/lang</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/lang.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/media-has-caption",
-    "name": "Enforces that <audio> and <video> elements must have a <track> for captions",
-    "description": "See description of ESLint rule <code>jsx-a11y/media-has-caption</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/media-has-caption.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforces that `<audio>` and `<video>` elements must have a `<track>` for captions.",
+    "description": "See description of ESLint rule <code>jsx-a11y/media-has-caption</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/media-has-caption.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/mouse-events-have-key-events",
-    "name": "Enforce that onMouseOver/onMouseOut are accompanied by onFocus/onBlur for keyboard-only users",
-    "description": "See description of ESLint rule <code>jsx-a11y/mouse-events-have-key-events</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/mouse-events-have-key-events.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that `onMouseOver`/`onMouseOut` are accompanied by `onFocus`/`onBlur` for keyboard-only users.",
+    "description": "See description of ESLint rule <code>jsx-a11y/mouse-events-have-key-events</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/mouse-events-have-key-events.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-access-key",
-    "name": "Enforce that the accessKey prop is not used on any element to avoid complications with keyboard commands used by a screenreader",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-access-key</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-access-key.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that the `accessKey` prop is not used on any element to avoid complications with keyboard commands used by a screenreader.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-access-key</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-access-key.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/no-aria-hidden-on-focusable",
+    "name": "Disallow `aria-hidden=\"true\"` from being set on focusable elements.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-aria-hidden-on-focusable</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-aria-hidden-on-focusable.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-autofocus",
-    "name": "Enforce autoFocus prop is not used",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-autofocus</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-autofocus.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce autoFocus prop is not used.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-autofocus</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-autofocus.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-distracting-elements",
-    "name": "Enforce distracting elements are not used",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-distracting-elements</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-distracting-elements.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce distracting elements are not used.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-distracting-elements</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-distracting-elements.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-interactive-element-to-noninteractive-role",
-    "name": "Interactive elements should not be assigned non-interactive roles",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-interactive-element-to-noninteractive-role</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-interactive-element-to-noninteractive-role.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Interactive elements should not be assigned non-interactive roles.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-interactive-element-to-noninteractive-role</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-interactive-element-to-noninteractive-role.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-noninteractive-element-interactions",
-    "name": "Non-interactive elements should not be assigned mouse or keyboard event listeners",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-element-interactions</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-noninteractive-element-interactions.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Non-interactive elements should not be assigned mouse or keyboard event listeners.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-element-interactions</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-noninteractive-element-interactions.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-noninteractive-element-to-interactive-role",
-    "name": "Non-interactive elements should not be assigned interactive roles",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-element-to-interactive-role</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-noninteractive-element-to-interactive-role.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Non-interactive elements should not be assigned interactive roles.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-element-to-interactive-role</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-noninteractive-element-to-interactive-role.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-noninteractive-tabindex",
-    "name": "tabIndex should only be declared on interactive elements",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-tabindex</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-noninteractive-tabindex.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "`tabIndex` should only be declared on interactive elements.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-noninteractive-tabindex</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-noninteractive-tabindex.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-onchange",
-    "name": "Enforce usage of onBlur over onChange on select menus for accessibility",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-onchange</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-onchange.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce usage of `onBlur` over `onChange` on select menus for accessibility.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-onchange</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-onchange.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-redundant-roles",
-    "name": "Enforce explicit role property is not the same as implicit/default role property on element",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-redundant-roles</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-redundant-roles.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce explicit role property is not the same as implicit/default role property on element.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-redundant-roles</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-redundant-roles.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/no-static-element-interactions",
-    "name": "Enforce that non-interactive, visible elements (such as <div>) that have click handlers use the role attribute",
-    "description": "See description of ESLint rule <code>jsx-a11y/no-static-element-interactions</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-static-element-interactions.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that non-interactive, visible elements (such as `<div>`) that have click handlers use the role attribute.",
+    "description": "See description of ESLint rule <code>jsx-a11y/no-static-element-interactions</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/no-static-element-interactions.md\">eslint-plugin-jsx-a11y website</a>"
+  },
+  {
+    "key": "jsx-a11y/prefer-tag-over-role",
+    "name": "Enforces using semantic DOM elements over the ARIA `role` property.",
+    "description": "See description of ESLint rule <code>jsx-a11y/prefer-tag-over-role</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/prefer-tag-over-role.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/role-has-required-aria-props",
-    "name": "Enforce that elements with ARIA roles must have all required attributes for that role",
-    "description": "See description of ESLint rule <code>jsx-a11y/role-has-required-aria-props</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/role-has-required-aria-props.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that elements with ARIA roles must have all required attributes for that role.",
+    "description": "See description of ESLint rule <code>jsx-a11y/role-has-required-aria-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/role-has-required-aria-props.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/role-supports-aria-props",
-    "name": "Enforce that elements with explicit or implicit roles defined contain only aria-* properties supported by that role",
-    "description": "See description of ESLint rule <code>jsx-a11y/role-supports-aria-props</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/role-supports-aria-props.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce that elements with explicit or implicit roles defined contain only `aria-*` properties supported by that `role`.",
+    "description": "See description of ESLint rule <code>jsx-a11y/role-supports-aria-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/role-supports-aria-props.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/scope",
-    "name": "Enforce scope prop is only used on <th> elements",
-    "description": "See description of ESLint rule <code>jsx-a11y/scope</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/scope.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce `scope` prop is only used on `<th>` elements.",
+    "description": "See description of ESLint rule <code>jsx-a11y/scope</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/scope.md\">eslint-plugin-jsx-a11y website</a>"
   },
   {
     "key": "jsx-a11y/tabindex-no-positive",
-    "name": "Enforce tabIndex value is not greater than zero.",
-    "description": "See description of ESLint rule <code>jsx-a11y/tabindex-no-positive</code> at the <a href=\"https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/tabindex-no-positive.md\">eslint-plugin-jsx-a11y website</a>."
+    "name": "Enforce `tabIndex` value is not greater than zero.",
+    "description": "See description of ESLint rule <code>jsx-a11y/tabindex-no-positive</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/tree/HEAD/docs/rules/tabindex-no-positive.md\">eslint-plugin-jsx-a11y website</a>"
   }
 ]

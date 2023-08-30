@@ -3,13 +3,13 @@
     "filePath": "src/file.js",
     "messages": [
       {
-        "ruleId": "no-unused-vars",
+        "ruleId": "@typescript-eslint/no-unused-vars",
         "severity": 2,
         "message": "'addOne' is defined but never used.",
         "line": 1,
         "column": 10,
         "nodeType": "Identifier",
-        "source": "function addOne(i) {",
+        "messageId": "unusedVar",
         "endLine": 1,
         "endColumn": 16
       },
@@ -20,7 +20,7 @@
         "line": 2,
         "column": 7,
         "nodeType": "BinaryExpression",
-        "source": "  if (i != NaN) {",
+        "messageId": "comparisonWithNaN",
         "endLine": 2,
         "endColumn": 15
       },
@@ -31,7 +31,9 @@
         "line": 3,
         "column": 18,
         "nodeType": "ReturnStatement",
-        "source": "      return i ++",
+        "messageId": "missingSemi",
+        "endLine": 4,
+        "endColumn": 1,
         "fix": {
           "range": [
             56,
@@ -47,7 +49,9 @@
         "line": 5,
         "column": 11,
         "nodeType": "ReturnStatement",
-        "source": "    return",
+        "messageId": "missingSemi",
+        "endLine": 6,
+        "endColumn": 1,
         "fix": {
           "range": [
             78,
@@ -63,7 +67,6 @@
         "line": 7,
         "column": 2,
         "nodeType": "EmptyStatement",
-        "source": "};",
         "messageId": "unexpected",
         "endLine": 7,
         "endColumn": 3,
@@ -76,23 +79,26 @@
         }
       }
     ],
+    "suppressedMessages": [],
     "errorCount": 5,
+    "fatalErrorCount": 0,
     "warningCount": 0,
     "fixableErrorCount": 3,
     "fixableWarningCount": 0,
-    "source": "function addOne(i) {\n  if (i != NaN) {\n      return i ++\n  } else {\n    return\n  }\n};\n"
+    "source": "function addOne(i) {\n  if (i != NaN) {\n      return i ++\n  } else {\n    return\n  }\n};\n",
+    "usedDeprecatedRules": []
   },
   {
     "filePath": "src/file.ts",
     "messages": [
       {
-        "ruleId": "no-unused-vars",
+        "ruleId": "@typescript-eslint/no-unused-vars",
         "severity": 2,
         "message": "'addOne' is defined but never used.",
         "line": 1,
         "column": 10,
         "nodeType": "Identifier",
-        "source": "function addOne(i: number) {",
+        "messageId": "unusedVar",
         "endLine": 1,
         "endColumn": 16
       },
@@ -103,7 +109,7 @@
         "line": 2,
         "column": 7,
         "nodeType": "BinaryExpression",
-        "source": "  if (i != NaN) {",
+        "messageId": "comparisonWithNaN",
         "endLine": 2,
         "endColumn": 15
       },
@@ -112,13 +118,15 @@
         "severity": 2,
         "message": "Missing semicolon.",
         "line": 3,
-        "column": 18,
+        "column": 16,
         "nodeType": "ReturnStatement",
-        "source": "      return i ++",
+        "messageId": "missingSemi",
+        "endLine": 4,
+        "endColumn": 1,
         "fix": {
           "range": [
-            64,
-            64
+            62,
+            62
           ],
           "text": ";"
         }
@@ -130,11 +138,13 @@
         "line": 5,
         "column": 11,
         "nodeType": "ReturnStatement",
-        "source": "    return",
+        "messageId": "missingSemi",
+        "endLine": 6,
+        "endColumn": 1,
         "fix": {
           "range": [
-            86,
-            86
+            84,
+            84
           ],
           "text": ";"
         }
@@ -146,23 +156,25 @@
         "line": 7,
         "column": 2,
         "nodeType": "EmptyStatement",
-        "source": "};",
         "messageId": "unexpected",
         "endLine": 7,
         "endColumn": 3,
         "fix": {
           "range": [
-            91,
-            93
+            89,
+            91
           ],
           "text": "}"
         }
       }
     ],
+    "suppressedMessages": [],
     "errorCount": 5,
+    "fatalErrorCount": 0,
     "warningCount": 0,
     "fixableErrorCount": 3,
     "fixableWarningCount": 0,
-    "source": "function addOne(i: number) {\n  if (i != NaN) {\n      return i ++\n  } else {\n    return\n  }\n};"
+    "source": "function addOne(i: number) {\n  if (i != NaN) {\n    return i ++\n  } else {\n    return\n  }\n};",
+    "usedDeprecatedRules": []
   }
 ]
