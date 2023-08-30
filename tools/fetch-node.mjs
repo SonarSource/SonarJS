@@ -12,7 +12,7 @@ import * as stream from 'node:stream';
  * targetDir/classes/{distro.id}/node{.exe}
  */
 
-const NODE_DISTROS_URLS = [
+const NODE_DISTROS = [
   { id: 'win-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip' },
   { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.gz' }, //.xz' },
   { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.gz' }, //.xz' },
@@ -38,7 +38,7 @@ const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
 const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
-for (const distro of NODE_DISTROS_URLS) {
+for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(nodeDir, filename);
   await downloadFile(distro.url, archiveFilename);
@@ -54,8 +54,8 @@ function getFilenameFromUrl(url) {
 }
 
 /**
- * Extracts runtime executable from nodeDir based on the distribution
- * and copies it in targetDir/classes/distroId/node{.exe}
+ * Copies the node runtime executable from nodeDir based on the distribution
+ * file organization into targetDir/classes/distroId/node{.exe}
  *
  * @param {*} distroName
  * @param {*} distroId
@@ -71,7 +71,7 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
     nodeBin = path.join('bin', 'node');
   } else {
     throw new Error(
-      `Distribution ${distroName} unkown. Implement support for its internal file structure`,
+      `Distribution ${distroName} unknown. Implement support for its internal file structure`,
     );
   }
   const nodeSource = path.join(nodeDir, distroName, nodeBin);
@@ -117,15 +117,15 @@ function removeExtension(filename) {
  * @returns
  */
 async function downloadFile(url, file) {
-  console.log(`Downloading ${url}`);
+  if (fs.existsSync(file)) {
+    console.log(`File ${file} already exists on disk. Skipping download.`);
+    return;
+  }
+  console.log(`Downloading ${url} to ${file}`);
   const res = await fetch(url);
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}`);
-  }
-
-  if (fs.existsSync(file)) {
-    return;
+    throw new Error(`Failed to download ${url}`);
   }
 
   const tempFile = `${file}.downloading`;
@@ -171,7 +171,7 @@ async function extractFile(file, dir) {
     });
   } else {
     throw new Error(
-      `decompression not supported for file: ${file}. Please implement decompression for its extension`,
+      `Extraction not supported for file: ${file}. Please implement extraction for its extension`,
     );
   }
   console.log('Extracted');
