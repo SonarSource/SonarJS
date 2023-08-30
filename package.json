@@ -18,7 +18,7 @@
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
-    "fetch-node": "ode tools/fetch-node.mjs"
+    "fetch-node": "node tools/fetch-node.mjs"
   },
   "repository": {
     "type": "git",
