@@ -15,9 +15,18 @@ import * as stream from 'node:stream';
 const NODE_VERSION = 'v20.5.1';
 
 const NODE_DISTROS = [
-  { id: 'win-x64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip` },
-  { id: 'macos-arm64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz` },
-  { id: 'linux-x64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz` },
+  {
+    id: 'win-x64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip`,
+  },
+  {
+    id: 'macos-arm64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz`,
+  },
+  {
+    id: 'linux-x64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz`,
+  },
   // unofficial-builds throttles downloads
   {
     id: 'linux-x64-alpine',
@@ -57,7 +66,7 @@ function getFilenameFromUrl(url) {
 
 /**
  * Copies the node runtime executable from nodeDir based on the distribution
- * file organization into targetDir/classes/distroId/node{.exe}
+ * file organization into `targetDir/classes/distroId/node{.exe}`
  *
  * @param {*} distroName
  * @param {*} distroId
@@ -159,21 +168,22 @@ async function extractFile(file, dir) {
   console.log(`Extracting ${file} to ${dir}`);
   if (file.endsWith('.zip')) {
     await extract(file, { dir });
-    /* } else if (file.endsWith('.tar.xz')) {
-    // decompress tar xz doesn't support overwrites
-    deleteFolderIfExists(removeExtension(file));
-    await decompress(file, dir, {
-      plugins: [decompressTarxz()],
-    }); */
   } else if (file.endsWith('.tar.gz')) {
     // decompress tar gz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
       plugins: [decompressTargz()],
+      filter: currentFile => {
+        /**
+         * There are symlinks in the unix distros that raise an exception when running this on Windows
+         * So we filter them out. We only need the binary which is in <distroFullName>/bin/node
+         */
+        return currentFile.path.endsWith('bin/node') || currentFile.path.endsWith('bin');
+      },
     });
   } else {
     throw new Error(
-      `Extraction not supported for file: ${file}. Please implement extraction for its extension`,
+      `Extraction not supported for file: ${file}. Please implement extraction for this extension`,
     );
   }
   console.log('Extracted');
