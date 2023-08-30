@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
 import decompress from 'decompress';
-//import decompressTarxz from 'decompress-tarxz';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
@@ -176,7 +175,7 @@ async function extractFile(file, dir) {
       filter: currentFile => {
         /**
          * There are symlinks in the unix distros that raise an exception when running this on Windows
-         * So we filter them out. We only need the binary which is in <distroFullName>/bin/node
+         * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
          */
         return currentFile.path.endsWith('bin/node') || currentFile.path.endsWith('bin');
       },
