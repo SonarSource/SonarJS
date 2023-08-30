@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "SonarJS code analyzer",
   "scripts": {
-    "build": "npm ci && npm run check-format && npm run clear && npm run compile",
+    "build": "npm run fetch-node && npm ci && npm run clear && npm run compile",
     "clear": "rimraf lib/*",
     "check-format": "prettier --list-different .",
     "test": "jest",
@@ -17,7 +17,8 @@
     "new-rule": "ts-node tools/newRule.ts",
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
-    "precommit": "pretty-quick --staged"
+    "precommit": "pretty-quick --staged",
+    "fetch-node": "ode tools/fetch-node.mjs"
   },
   "repository": {
     "type": "git",
