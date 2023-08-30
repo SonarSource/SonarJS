@@ -39,13 +39,18 @@ const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
 for (const distro of NODE_DISTROS_URLS) {
-  const filename = distro.url.split('/').at(-1);
+  const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(nodeDir, filename);
   await downloadFile(distro.url, archiveFilename);
   await extractFile(archiveFilename, nodeDir);
 
   const distroName = removeExtension(filename);
   copyRuntime(distroName, distro.id, nodeDir, targetDir);
+}
+
+function getFilenameFromUrl(url) {
+  const parts = url.split('/');
+  return parts[parts.length - 1];
 }
 
 /**
@@ -77,7 +82,8 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
   fs.copySync(nodeSource, targetFile, { overwrite: true });
 
   function keepOnlyFile(fullPath) {
-    return fullPath.split(path.sep).at(-1);
+    const parts = fullPath.split(path.sep);
+    return parts[parts.length - 1];
   }
 }
 
