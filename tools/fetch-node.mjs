@@ -12,14 +12,16 @@ import * as stream from 'node:stream';
  * targetDir/classes/{distro.id}/node{.exe}
  */
 
+const NODE_VERSION = 'v20.5.1';
+
 const NODE_DISTROS = [
-  { id: 'win-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip' },
-  { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.gz' }, //.xz' },
-  { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.gz' }, //.xz' },
+  { id: 'win-x64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip` },
+  { id: 'macos-arm64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz` },
+  { id: 'linux-x64', url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz` },
   // unofficial-builds throttles downloads
   {
     id: 'linux-x64-alpine',
-    url: 'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.gz', //.xz'
+    url: `https://unofficial-builds.nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64-musl.tar.gz`,
   },
 ];
 
