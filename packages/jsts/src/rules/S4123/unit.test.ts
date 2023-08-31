@@ -146,6 +146,14 @@ ruleTester.run('await should only be used with promises.', rule, {
       }
       `,
     },
+    {
+      code: `
+      class Foo {
+        then: Promise<Bar>;
+      }
+      function qux(): Foo {}
+      const baz = await qux();`,
+    },
   ],
   invalid: [
     {
