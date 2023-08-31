@@ -212,7 +212,11 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       emptyList(),
       output::append,
       LOG::error,
-      Map.of()
+      //Avoid default error message from run-node: https://github.com/sindresorhus/run-node#customizable-cache-path-and-error-message
+      Map.of(
+        "RUN_NODE_ERROR_MSG",
+        "Couldn't find the Node.js binary. Ensure you have Node.js installed."
+      )
     );
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
