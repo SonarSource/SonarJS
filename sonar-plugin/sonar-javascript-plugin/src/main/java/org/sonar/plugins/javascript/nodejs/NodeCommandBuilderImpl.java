@@ -27,7 +27,6 @@ import static java.util.Collections.singletonList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -282,12 +281,9 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNodeOnMac() throws IOException {
-    if (embeddedPathResolver != null) {
-      var embeddedNode = embeddedPathResolver.resolve(NODE_EXECUTABLE_EMBEDDED_MACOS);
-      var file = new File(embeddedNode);
-      if (file.exists()) {
-        return embeddedNode;
-      }
+    if (embeddedNode.isAvailable()) {
+      var embedded = embeddedNode.binary();
+      return embedded.toString();
     }
 
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured

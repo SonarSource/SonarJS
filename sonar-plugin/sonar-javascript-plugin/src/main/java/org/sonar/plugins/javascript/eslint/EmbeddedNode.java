@@ -72,17 +72,27 @@ public class EmbeddedNode {
     static Platform detect() {
       var osName = System.getProperty("os.name");
 
+      var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64()) {
         return WIN_X64;
       } else if (osName.toLowerCase(Locale.ROOT).contains("linux") && isX64()) {
         return LINUX_X64;
+      } else if (lowerCaseOsName.contains("mac os")) {
+        if (isARM64()) {
+          return MACOS_ARM64;
+        }
       }
       return null;
     }
 
     static boolean isX64() {
       var arch = System.getProperty("os.arch");
-      return arch.contains("64");
+      return arch.contains("amd64");
+    }
+
+    static boolean isARM64() {
+      var arch = System.getProperty("os.arch");
+      return arch.contains("aarch64");
     }
   }
 
