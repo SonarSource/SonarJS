@@ -47,9 +47,8 @@ public interface NodeCommandBuilder {
 
   NodeCommandBuilder errorConsumer(Consumer<String> consumer);
 
-  NodeCommandBuilder defaultPathResolver(BundlePathResolver pathResolver);
+  NodeCommandBuilder pathResolver(BundlePathResolver pathResolver);
 
-  NodeCommandBuilder embeddedPathResolver(BundlePathResolver pathResolver);
   NodeCommandBuilder env(Map<String, String> env);
 
   NodeCommandBuilder embeddedNode(EmbeddedNode embeddedNode);

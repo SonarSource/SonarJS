@@ -50,7 +50,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   public static final String NODE_EXECUTABLE_DEFAULT = "node";
   private static final String NODE_EXECUTABLE_DEFAULT_MACOS =
     "package/node_modules/run-node/run-node";
-  private static final String NODE_EXECUTABLE_EMBEDDED_MACOS = "macos-arm64/node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
 
@@ -67,8 +66,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> outputConsumer = LOG::info;
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
-  private BundlePathResolver defaultPathResolver;
-  private BundlePathResolver embeddedPathResolver;
+  private BundlePathResolver pathResolver;
   private Version actualNodeVersion;
   private Map<String, String> env = Map.of();
 
@@ -125,14 +123,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   @Override
-  public NodeCommandBuilder defaultPathResolver(BundlePathResolver pathResolver) {
-    this.defaultPathResolver = pathResolver;
-    return this;
-  }
-
-  @Override
-  public NodeCommandBuilder embeddedPathResolver(BundlePathResolver pathResolver) {
-    this.embeddedPathResolver = pathResolver;
+  public NodeCommandBuilder pathResolver(BundlePathResolver pathResolver) {
+    this.pathResolver = pathResolver;
     return this;
   }
 
@@ -285,12 +277,11 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       var embedded = embeddedNode.binary();
       return embedded.toString();
     }
-
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
     // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
     LOG.debug("Looking for Node.js in the PATH using run-node (macOS)");
-    var defaultNode = defaultPathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
-    var file = new File(defaultNode);
+    String defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
+    File file = new File(defaultNode);
     if (!file.exists()) {
       LOG.error(
         "Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'",
