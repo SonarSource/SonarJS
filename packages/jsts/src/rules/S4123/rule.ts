@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
             services,
           );
           if (
-            !hasThenMethod(awaitedType) &&
+            !isThenable(awaitedType) &&
             !isAny(awaitedType) &&
             !isUnknown(awaitedType) &&
             !isUnion(awaitedType)
@@ -57,10 +57,13 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasThenMethod(type: ts.Type) {
+function isThenable(type: ts.Type) {
   const thenProperty = type.getProperty('then');
   return thenProperty?.declarations?.some(
-    d => d.kind === ts.SyntaxKind.MethodSignature || d.kind === ts.SyntaxKind.MethodDeclaration,
+    d =>
+      d.kind === ts.SyntaxKind.MethodSignature ||
+      d.kind === ts.SyntaxKind.MethodDeclaration ||
+      d.kind === ts.SyntaxKind.PropertyDeclaration,
   );
 }
 
