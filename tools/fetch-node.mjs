@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
 import decompress from 'decompress';
-//import decompressTarxz from 'decompress-tarxz';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
@@ -12,14 +11,25 @@ import * as stream from 'node:stream';
  * targetDir/classes/{distro.id}/node{.exe}
  */
 
-const NODE_DISTROS_URLS = [
-  { id: 'win-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-win-x64.zip' },
-  { id: 'macos-arm64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-darwin-arm64.tar.gz' }, //.xz' },
-  { id: 'linux-x64', url: 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-linux-x64.tar.gz' }, //.xz' },
+const NODE_VERSION = 'v20.5.1';
+
+const NODE_DISTROS = [
+  {
+    id: 'win-x64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip`,
+  },
+  {
+    id: 'macos-arm64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz`,
+  },
+  {
+    id: 'linux-x64',
+    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz`,
+  },
   // unofficial-builds throttles downloads
   {
     id: 'linux-x64-alpine',
-    url: 'https://unofficial-builds.nodejs.org/download/release/v20.5.1/node-v20.5.1-linux-x64-musl.tar.gz', //.xz'
+    url: `https://unofficial-builds.nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64-musl.tar.gz`,
   },
 ];
 
@@ -38,8 +48,8 @@ const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
 const nodeDir = path.join(targetDir, 'node');
 fs.mkdirpSync(nodeDir);
 
-for (const distro of NODE_DISTROS_URLS) {
-  const filename = distro.url.split(path.sep).at(-1);
+for (const distro of NODE_DISTROS) {
+  const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(nodeDir, filename);
   await downloadFile(distro.url, archiveFilename);
   await extractFile(archiveFilename, nodeDir);
@@ -48,9 +58,14 @@ for (const distro of NODE_DISTROS_URLS) {
   copyRuntime(distroName, distro.id, nodeDir, targetDir);
 }
 
+function getFilenameFromUrl(url) {
+  const parts = url.split('/');
+  return parts[parts.length - 1];
+}
+
 /**
- * Extracts runtime executable from nodeDir based on the distribution
- * and copies it in targetDir/classes/distroId/node{.exe}
+ * Copies the node runtime executable from nodeDir based on the distribution
+ * file organization into `targetDir/classes/distroId/node{.exe}`
  *
  * @param {*} distroName
  * @param {*} distroId
@@ -66,7 +81,7 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
     nodeBin = path.join('bin', 'node');
   } else {
     throw new Error(
-      `Distribution ${distroName} unkown. Implement support for its internal file structure`,
+      `Distribution ${distroName} unknown. Implement support for its internal file structure`,
     );
   }
   const nodeSource = path.join(nodeDir, distroName, nodeBin);
@@ -77,7 +92,8 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
   fs.copySync(nodeSource, targetFile, { overwrite: true });
 
   function keepOnlyFile(fullPath) {
-    return fullPath.split(path.sep).at(-1);
+    const parts = fullPath.split(path.sep);
+    return parts[parts.length - 1];
   }
 }
 
@@ -111,15 +127,15 @@ function removeExtension(filename) {
  * @returns
  */
 async function downloadFile(url, file) {
-  console.log(`Downloading ${url}`);
+  if (fs.existsSync(file)) {
+    console.log(`File ${file} already exists on disk. Skipping download.`);
+    return;
+  }
+  console.log(`Downloading ${url} to ${file}`);
   const res = await fetch(url);
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}`);
-  }
-
-  if (fs.existsSync(file)) {
-    return;
+    throw new Error(`Failed to download ${url}`);
   }
 
   const tempFile = `${file}.downloading`;
@@ -151,21 +167,20 @@ async function extractFile(file, dir) {
   console.log(`Extracting ${file} to ${dir}`);
   if (file.endsWith('.zip')) {
     await extract(file, { dir });
-    /* } else if (file.endsWith('.tar.xz')) {
-    // decompress tar xz doesn't support overwrites
-    deleteFolderIfExists(removeExtension(file));
-    await decompress(file, dir, {
-      plugins: [decompressTarxz()],
-    }); */
   } else if (file.endsWith('.tar.gz')) {
     // decompress tar gz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
       plugins: [decompressTargz()],
+      /**
+       * There are symlinks in the unix distros that raise an exception when running this on Windows
+       * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
+       */
+      filter: currentFile => currentFile.path.endsWith('bin/node'),
     });
   } else {
     throw new Error(
-      `decompression not supported for file: ${file}. Please implement decompression for its extension`,
+      `Extraction not supported for file: ${file}. Please implement extraction for this extension`,
     );
   }
   console.log('Extracted');
