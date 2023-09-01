@@ -1,36 +1,50 @@
-<p>Disclosing technology fingerprints allows an attacker to gather information about the technologies used to develop the web application and to
-perform relevant security assessments more quickly (like the identification of known vulnerable components).</p>
+<p>Disclosure of version information, usually overlooked by developers but disclosed by default by the systems and frameworks in use, can pose a
+significant security risk depending on the production environement.</p>
+<p>Once this information is public, attackers can use it to identify potential security holes or vulnerabilities specific to that version.</p>
+<p>Furthermore, if the published version information indicates the use of outdated or unsupported software, it becomes easier for attackers to exploit
+known vulnerabilities. They can search for published vulnerabilities related to that version and launch attacks that specifically target those
+vulnerabilities.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The <code>x-powered-by</code> HTTP header or similar is used by the application. </li>
-  <li> Technologies used by the application are confidential and should not be easily guessed. </li>
+  <li> Version information is accessible to end users. </li>
+  <li> Internal systems do not benefit from timely patch management workflows. </li>
 </ul>
 <p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to not disclose technologies used on a website, with <code>x-powered-by</code> HTTP header for example.</p>
-<p>In addition, it’s better to completely disable this HTTP header rather than setting it a random value.</p>
+<p>In general, it is recommended to keep internal technical information within internal systems to control what attackers know about the underlying
+architectures. This is known as the "need to know" principle.</p>
+<p>The most effective solution is to remove version information disclosure from what end users can see, such as the "x-powered-by" header.<br> This
+can be achieved directly through the web application code, server (nginx, apache) or firewalls.</p>
+<p>Disabling the server signature provides additional protection by reducing the amount of information available to attackers. Note, however, that
+this does not provide as much protection as regular updates and patches.<br> Security by obscurity is the least foolproof solution of all. It should
+never be the only defense mechanism and should always be combined with other security measures.</p>
 <h2>Sensitive Code Example</h2>
-<p><a href="https://www.npmjs.com/package/express">Express.js</a> name is disclosed by default into the <code>x-powered-by</code> HTTP header:</p>
+<p>In <a href="https://www.npmjs.com/package/express">Express.js</a>, version information is disclosed by default in the <code>x-powered-by</code>
+HTTP header:</p>
 <pre>
 let express = require('express');
-let app = express(); // Sensitive
 
-app.get('/', function (req, res) {
-  res.send('hello')
+let example = express(); // Sensitive
+
+example.get('/', function (req, res) {
+  res.send('example')
 });
 </pre>
 <h2>Compliant Solution</h2>
 <p><code>x-powered-by</code> HTTP header should be disabled in <a href="https://www.npmjs.com/package/express">Express.js</a> with
-<code>app.disable</code> or with helmet <a href="https://www.npmjs.com/package/helmet">hidePoweredBy</a> middleware:</p>
+<code>app.disable</code>:</p>
 <pre>
 let express = require('express');
 
-let app1 = express();  // Compliant
-app1.disable("x-powered-by");
-
+let example = express();
+example.disable("x-powered-by");
+</pre>
+<p>Or with helmet’s <a href="https://www.npmjs.com/package/helmet">hidePoweredBy</a> middleware:</p>
+<pre>
 let helmet = require("helmet");
-let app2 = express(); // Compliant
-app2.use(helmet.hidePoweredBy());
+
+let example = express();
+example.use(helmet.hidePoweredBy());
 </pre>
 <h2>See</h2>
 <ul>
