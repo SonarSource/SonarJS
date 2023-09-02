@@ -1,3 +1,22 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
@@ -5,6 +24,8 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
+import { execSync } from 'node:child_process';
+import os from 'node:os';
 
 /**
  * Fetches node.js runtimes and downloads them to
@@ -55,7 +76,8 @@ for (const distro of NODE_DISTROS) {
   await extractFile(archiveFilename, nodeDir);
 
   const distroName = removeExtension(filename);
-  copyRuntime(distroName, distro.id, nodeDir, targetDir);
+  const runtime = copyRuntime(distroName, distro.id, nodeDir, targetDir);
+  compress(runtime);
 }
 
 function getFilenameFromUrl(url) {
@@ -90,6 +112,7 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
   const targetFile = path.join(classesDir, keepOnlyFile(nodeBin));
   console.log(`Copying runtime from ${nodeSource} to ${targetFile}`);
   fs.copySync(nodeSource, targetFile, { overwrite: true });
+  return targetFile;
 
   function keepOnlyFile(fullPath) {
     const parts = fullPath.split(path.sep);
@@ -210,5 +233,26 @@ function readTargetDirFromCLI() {
 
   function isAbsolutePath(folder) {
     return folder.startsWith(path.sep);
+  }
+}
+
+/**
+ * Compress the provided `filename` to `filename.xz`
+ *
+ * @param {*} filename
+ */
+function compress(filename) {
+  console.log(`Compressing ${filename}`);
+  const script = path.join(process.cwd(), 'tools', 'CompressXZ.java');
+
+  const pathToDep = path.join('.m2', 'repository', 'org', 'tukaani', 'xz', '1.9', 'xz-1.9.jar');
+  const dependency = isWindows()
+    ? path.join('%USERPROFILE%', pathToDep)
+    : path.join('~', pathToDep);
+
+  execSync(`java -cp ${dependency} ${script} ${filename}`, { stdio: 'inherit' });
+
+  function isWindows() {
+    return os.platform().startsWith('win');
   }
 }
