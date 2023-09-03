@@ -30,6 +30,8 @@ import os from 'node:os';
 /**
  * Fetches node.js runtimes and downloads them to
  * targetDir/classes/{distro.id}/node{.exe}
+ * and compresses them to
+ * targetDir/classes/{distro.id}/node{.exe}.xz
  */
 
 const NODE_VERSION = 'v20.5.1';
@@ -151,7 +153,7 @@ function removeExtension(filename) {
  */
 async function downloadFile(url, file) {
   if (fs.existsSync(file)) {
-    console.log(`File ${file} already exists on disk. Skipping download.`);
+    console.log(`Skipping download. File ${file} already exists on disk.`);
     return;
   }
   console.log(`Downloading ${url} to ${file}`);
