@@ -23,7 +23,10 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -32,6 +35,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+import org.tukaani.xz.XZInputStream;
 
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
@@ -120,6 +124,27 @@ public class EmbeddedNode {
       Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
     }
     isAvailable = true;
+  }
+
+  private void decompress(InputStream is, Path target) throws IOException {
+    try (
+      InputStream stream = new BufferedInputStream(is);
+      XZInputStream archive = new XZInputStream(stream);
+    ) {
+      int nextBytes;
+      byte[] buf = new byte[8 * 1024 * 1024];
+      try (OutputStream os = Files.newOutputStream(target)) {
+        while ((nextBytes = archive.read(buf)) > -1) {
+          System.out.println("read " + nextBytes + " bytes");
+          os.write(buf, 0, nextBytes);
+        }
+        stream.close();
+        if (platform != Platform.WIN_X64) {
+          Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
+        }
+        Files.setPosixFilePermissions(target, executable);
+      }
+    }
   }
 
   public Path binary() {
