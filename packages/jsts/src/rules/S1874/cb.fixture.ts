@@ -9,7 +9,7 @@ function foo(strings: TemplateStringsArray, ...values: any[]): string {
 foo``;
 foo`${'foo'}`;
 foo`${42}`;
-foo`${[1, 2, 3]}`; // Noncompliant FN
+foo`${[1, 2, 3]}`; // Noncompliant
 
 /* separator */
 
@@ -18,7 +18,7 @@ interface X {
     foo(pp: string): number;
 }
 function bar(x: X, p: string) {
-    x.foo(p); // Noncompliant {{'foo' is deprecated. use bar instead}}
+    x.foo(p); // Noncompliant {{The signature '(pp: string): number' of 'x.foo' is deprecated.}}
 //    ^^^
 }
 
@@ -81,7 +81,7 @@ let deprecatedVar;
 const const1 = 1,
     const2 = 2;
 
-h(const1 + const2); // Noncompliant
+h(const1 + const2); // Noncompliant 2
 export default const1;// Noncompliant
 
 /* separator */
@@ -93,7 +93,7 @@ function fn() { }
 
 fn<number>();
 fn(1); // Noncompliant
-h(fn); // Noncompliant
+h(fn);
 
 /* separator */
 
@@ -142,9 +142,9 @@ deprecatedCallSignature2(); // Noncompliant
 /* separator */
 
 import * as allDeprecations from './cb.fixture.deprecations';
-z(allDeprecations.deprecatedFunction);// Noncompliant
+z(allDeprecations.deprecatedFunction);
 
-import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations';
+import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations'; // Noncompliant 2
 defaultImport(); // Noncompliant
 deprecatedFunction(); // Noncompliant
 deprecatedFunction(1);
@@ -155,8 +155,32 @@ noDeprecated2(); // OK
 import * as deprecationsExport from './cb.fixture.deprecationsExport';
 z(deprecationsExport); // Noncompliant
 
-import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations"
+import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations" // Noncompliant
 const myObj2: DeprecatedClass = new DeprecatedClass();  // Noncompliant 2
 const myObj3: DeprecatedConstructorClass = new ClassWithDeprecatedConstructor(); // Noncompliant
 new ClassWithOneDeprecatedConstructor();
 new ClassWithOneDeprecatedConstructor(1); // Noncompliant
+
+/* i4008 */
+
+/** @deprecated */ function someDeprecated(a: string): string;
+/** @param a */ function someDeprecated(a: number): number;
+function someDeprecated(a: number | string): number | string {
+    if (typeof a === 'number') return a + 1;
+    return a;
+}
+
+someDeprecated('yolo'); // Noncompliant
+someDeprecated(42); // OK
+someDeprecated; // OK
+
+/** @deprecated */ function allDeprecated(a: string): string;
+/** @deprecated */ function allDeprecated(a: number): number;
+function allDeprecated(a: number | string): number | string {
+    if (typeof a === 'number') return a + 1;
+    return a;
+}
+
+allDeprecated('yolo'); // Noncompliant
+allDeprecated(42); // Noncompliant
+allDeprecated; // OK

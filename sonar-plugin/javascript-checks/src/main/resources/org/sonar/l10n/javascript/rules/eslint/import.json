@@ -1,205 +1,239 @@
 [
   {
-    "name": "Ensure imports point to a file/module that can be resolved",
     "key": "import/no-unresolved",
+    "name": "Ensure imports point to a file/module that can be resolved.",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-unresolved</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-unresolved.md\">eslint-plugin-import website</a>."
+    "description": "See description of ESLint rule <code>import/no-unresolved</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-unresolved.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Ensure named imports correspond to a named export in the remote file",
     "key": "import/named",
+    "name": "Ensure named imports correspond to a named export in the remote file.",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>import/named</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/named.md\">eslint-plugin-import website</a>."
+    "description": "See description of ESLint rule <code>import/named</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/named.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Ensure a default export is present, given a default import",
     "key": "import/default",
+    "name": "Ensure a default export is present, given a default import.",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>import/default</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/default.md\">eslint-plugin-import website</a>."
+    "description": "See description of ESLint rule <code>import/default</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/default.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Ensure imported namespaces contain dereferenced properties as they are dereferenced",
     "key": "import/namespace",
+    "name": "Ensure imported namespaces contain dereferenced properties as they are dereferenced.",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>import/namespace</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/namespace.md\">eslint-plugin-import website</a>."
+    "description": "See description of ESLint rule <code>import/namespace</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/namespace.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Restrict which files can be imported in a given folder",
-    "key": "import/no-restricted-paths",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-restricted-paths</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-restricted-paths.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid import of modules using absolute paths",
-    "key": "import/no-absolute-path",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-absolute-path</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-absolute-path.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid require() calls with expressions",
-    "key": "import/no-dynamic-require",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-dynamic-require</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-dynamic-require.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Prevent importing the submodules of other modules",
-    "key": "import/no-internal-modules",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-internal-modules</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-internal-modules.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid webpack loader syntax in imports",
-    "key": "import/no-webpack-loader-syntax",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-webpack-loader-syntax</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-webpack-loader-syntax.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid a module from importing itself",
-    "key": "import/no-self-import",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-self-import</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-self-import.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid a module from importing a module with a dependency path back to itself",
-    "key": "import/no-cycle",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-cycle</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-cycle.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Prevent unnecessary path segments in import and require statements",
-    "key": "import/no-useless-path-segments",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-useless-path-segments</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-useless-path-segments.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid importing modules from parent directories",
-    "key": "import/no-relative-parent-imports",
-    "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-relative-parent-imports</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-relative-parent-imports.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report any invalid exports, i.e. re-export of the same name",
-    "key": "import/export",
-    "description": "See description of ESLint rule <code>import/export</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/export.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report use of exported name as identifier of default export",
-    "key": "import/no-named-as-default",
-    "description": "See description of ESLint rule <code>import/no-named-as-default</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-named-as-default.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report use of exported name as property of default export",
-    "key": "import/no-named-as-default-member",
-    "description": "See description of ESLint rule <code>import/no-named-as-default-member</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-named-as-default-member.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report imported names marked with @deprecated documentation tag",
-    "key": "import/no-deprecated",
-    "description": "See description of ESLint rule <code>import/no-deprecated</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-deprecated.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid the use of extraneous packages",
-    "key": "import/no-extraneous-dependencies",
-    "description": "See description of ESLint rule <code>import/no-extraneous-dependencies</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-extraneous-dependencies.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid the use of mutable exports with var or let",
-    "key": "import/no-mutable-exports",
-    "description": "See description of ESLint rule <code>import/no-mutable-exports</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-mutable-exports.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report potentially ambiguous parse goal",
-    "key": "import/unambiguous",
-    "description": "See description of ESLint rule <code>import/unambiguous</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/unambiguous.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report CommonJS require calls and module.exports or exports.*",
-    "key": "import/no-commonjs",
-    "description": "See description of ESLint rule <code>import/no-commonjs</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-commonjs.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report AMD require and define calls",
-    "key": "import/no-amd",
-    "description": "See description of ESLint rule <code>import/no-amd</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-amd.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "No Node.js builtin modules",
-    "key": "import/no-nodejs-modules",
-    "description": "See description of ESLint rule <code>import/no-nodejs-modules</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-nodejs-modules.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Ensure all imports appear before other statements",
-    "key": "import/first",
-    "description": "See description of ESLint rule <code>import/first</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/first.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Ensure all exports appear after other statements",
-    "key": "import/exports-last",
-    "description": "See description of ESLint rule <code>import/exports-last</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/exports-last.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report repeated import of the same module in multiple places",
-    "key": "import/no-duplicates",
-    "description": "See description of ESLint rule <code>import/no-duplicates</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-duplicates.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Report namespace imports",
     "key": "import/no-namespace",
-    "description": "See description of ESLint rule <code>import/no-namespace</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-namespace.md\">eslint-plugin-import website</a>."
+    "name": "Forbid namespace (a.k.a. \"wildcard\" `*`) imports.",
+    "description": "See description of ESLint rule <code>import/no-namespace</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-namespace.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Ensure consistent use of file extension within the import path",
+    "key": "import/export",
+    "name": "Forbid any invalid exports, i.e. re-export of the same name.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/export</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/export.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-mutable-exports",
+    "name": "Forbid the use of mutable exports with `var` or `let`.",
+    "description": "See description of ESLint rule <code>import/no-mutable-exports</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-mutable-exports.md\">eslint-plugin-import website</a>"
+  },
+  {
     "key": "import/extensions",
-    "description": "See description of ESLint rule <code>import/extensions</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/extensions.md\">eslint-plugin-import website</a>."
+    "name": "Ensure consistent use of file extension within the import path.",
+    "description": "See description of ESLint rule <code>import/extensions</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/extensions.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Enforce a convention in module import order",
-    "key": "import/order",
-    "description": "See description of ESLint rule <code>import/order</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/order.md\">eslint-plugin-import website</a>."
+    "key": "import/no-restricted-paths",
+    "name": "Enforce which files can be imported in a given folder.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-restricted-paths</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-restricted-paths.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Enforce a newline after import statements",
-    "key": "import/newline-after-import",
-    "description": "See description of ESLint rule <code>import/newline-after-import</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/newline-after-import.md\">eslint-plugin-import website</a>."
+    "key": "import/no-internal-modules",
+    "name": "Forbid importing the submodules of other modules.",
+    "description": "See description of ESLint rule <code>import/no-internal-modules</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-internal-modules.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Prefer a default export if module exports a single name",
-    "key": "import/prefer-default-export",
-    "description": "See description of ESLint rule <code>import/prefer-default-export</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/prefer-default-export.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Limit the maximum number of dependencies a module can have",
-    "key": "import/max-dependencies",
-    "description": "See description of ESLint rule <code>import/max-dependencies</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/max-dependencies.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid unassigned imports",
-    "key": "import/no-unassigned-import",
-    "description": "See description of ESLint rule <code>import/no-unassigned-import</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-unassigned-import.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid named default exports",
-    "key": "import/no-named-default",
-    "description": "See description of ESLint rule <code>import/no-named-default</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-named-default.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid default exports",
-    "key": "import/no-default-export",
-    "description": "See description of ESLint rule <code>import/no-default-export</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-default-export.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Forbid anonymous values as default exports",
-    "key": "import/no-anonymous-default-export",
-    "description": "See description of ESLint rule <code>import/no-anonymous-default-export</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/no-anonymous-default-export.md\">eslint-plugin-import website</a>."
-  },
-  {
-    "name": "Prefer named exports to be grouped together in a single export declaration",
     "key": "import/group-exports",
-    "description": "See description of ESLint rule <code>import/group-exports</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/group-exports.md\">eslint-plugin-import website</a>."
+    "name": "Prefer named exports to be grouped together in a single export declaration",
+    "description": "See description of ESLint rule <code>import/group-exports</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/group-exports.md\">eslint-plugin-import website</a>"
   },
   {
-    "name": "Enforce a leading commentwith the webpackChunkName for dynamic imports",
+    "key": "import/no-relative-packages",
+    "name": "Forbid importing packages through relative paths.",
+    "description": "See description of ESLint rule <code>import/no-relative-packages</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-relative-packages.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-relative-parent-imports",
+    "name": "Forbid importing modules from parent directories.",
+    "description": "See description of ESLint rule <code>import/no-relative-parent-imports</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-relative-parent-imports.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/consistent-type-specifier-style",
+    "name": "Enforce or ban the use of inline type-only markers for named imports.",
+    "description": "See description of ESLint rule <code>import/consistent-type-specifier-style</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/consistent-type-specifier-style.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-self-import",
+    "name": "Forbid a module from importing itself.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-self-import</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-self-import.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-cycle",
+    "name": "Forbid a module from importing a module with a dependency path back to itself.",
+    "description": "See description of ESLint rule <code>import/no-cycle</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-cycle.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-named-default",
+    "name": "Forbid named default exports.",
+    "description": "See description of ESLint rule <code>import/no-named-default</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-named-default.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-named-as-default",
+    "name": "Forbid use of exported name as identifier of default export.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-named-as-default</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-named-as-default.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-named-as-default-member",
+    "name": "Forbid use of exported name as property of default export.",
+    "description": "See description of ESLint rule <code>import/no-named-as-default-member</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-named-as-default-member.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-anonymous-default-export",
+    "name": "Forbid anonymous values as default exports.",
+    "description": "See description of ESLint rule <code>import/no-anonymous-default-export</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-anonymous-default-export.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-unused-modules",
+    "name": "Forbid modules without exports, or exports without matching import in another module.",
+    "description": "See description of ESLint rule <code>import/no-unused-modules</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-unused-modules.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-commonjs",
+    "name": "Forbid CommonJS `require` calls and `module.exports` or `exports.*`.",
+    "description": "See description of ESLint rule <code>import/no-commonjs</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-commonjs.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-amd",
+    "name": "Forbid AMD `require` and `define` calls.",
+    "description": "See description of ESLint rule <code>import/no-amd</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-amd.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-duplicates",
+    "name": "Forbid repeated import of the same module in multiple places.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-duplicates</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-duplicates.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/first",
+    "name": "Ensure all imports appear before other statements.",
+    "description": "See description of ESLint rule <code>import/first</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/first.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/max-dependencies",
+    "name": "Enforce the maximum number of dependencies a module can have.",
+    "description": "See description of ESLint rule <code>import/max-dependencies</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/max-dependencies.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-extraneous-dependencies",
+    "name": "Forbid the use of extraneous packages.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-extraneous-dependencies</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-extraneous-dependencies.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-absolute-path",
+    "name": "Forbid import of modules using absolute paths.",
+    "description": "See description of ESLint rule <code>import/no-absolute-path</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-absolute-path.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-nodejs-modules",
+    "name": "Forbid Node.js builtin modules.",
+    "description": "See description of ESLint rule <code>import/no-nodejs-modules</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-nodejs-modules.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-webpack-loader-syntax",
+    "name": "Forbid webpack loader syntax in imports.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-webpack-loader-syntax</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-webpack-loader-syntax.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/order",
+    "name": "Enforce a convention in module import order.",
+    "description": "See description of ESLint rule <code>import/order</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/order.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/newline-after-import",
+    "name": "Enforce a newline after import statements.",
+    "description": "See description of ESLint rule <code>import/newline-after-import</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/newline-after-import.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/prefer-default-export",
+    "name": "Prefer a default export if module exports a single name or multiple names.",
+    "description": "See description of ESLint rule <code>import/prefer-default-export</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/prefer-default-export.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-default-export",
+    "name": "Forbid default exports.",
+    "description": "See description of ESLint rule <code>import/no-default-export</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-default-export.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-named-export",
+    "name": "Forbid named exports.",
+    "description": "See description of ESLint rule <code>import/no-named-export</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-named-export.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-dynamic-require",
+    "name": "Forbid `require()` calls with expressions.",
+    "description": "See description of ESLint rule <code>import/no-dynamic-require</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-dynamic-require.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/unambiguous",
+    "name": "Forbid potentially ambiguous parse goal (`script` vs. `module`).",
+    "description": "See description of ESLint rule <code>import/unambiguous</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/unambiguous.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-unassigned-import",
+    "name": "Forbid unassigned imports",
+    "description": "See description of ESLint rule <code>import/no-unassigned-import</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-unassigned-import.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-useless-path-segments",
+    "name": "Forbid unnecessary path segments in import and require statements.",
+    "description": "See description of ESLint rule <code>import/no-useless-path-segments</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-useless-path-segments.md\">eslint-plugin-import website</a>"
+  },
+  {
     "key": "import/dynamic-import-chunkname",
-    "description": "See description of ESLint rule <code>import/dynamic-import-chunkname</code> at the <a href=\"https://github.com/benmosher/eslint-plugin-import/blob/HEAD/docs/rules/dynamic-import-chunkname.md\">eslint-plugin-import website</a>."
+    "name": "Enforce a leading comment with the webpackChunkName for dynamic imports.",
+    "description": "See description of ESLint rule <code>import/dynamic-import-chunkname</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/dynamic-import-chunkname.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-import-module-exports",
+    "name": "Forbid import statements with CommonJS module.exports.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>import/no-import-module-exports</code> at the <a href=\"undefined\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-empty-named-blocks",
+    "name": "Forbid empty named import blocks.",
+    "description": "See description of ESLint rule <code>import/no-empty-named-blocks</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-empty-named-blocks.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/exports-last",
+    "name": "Ensure all exports appear after other statements.",
+    "description": "See description of ESLint rule <code>import/exports-last</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/exports-last.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/no-deprecated",
+    "name": "Forbid imported names marked with `@deprecated` documentation tag.",
+    "description": "See description of ESLint rule <code>import/no-deprecated</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.28.1/docs/rules/no-deprecated.md\">eslint-plugin-import website</a>"
+  },
+  {
+    "key": "import/imports-first",
+    "name": "Replaced by `import/first`.",
+    "description": "See description of ESLint rule <code>import/imports-first</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/7b25c1cb95ee18acc1531002fd343e1e6031f9ed/docs/rules/imports-first.md\">eslint-plugin-import website</a>"
   }
 ]

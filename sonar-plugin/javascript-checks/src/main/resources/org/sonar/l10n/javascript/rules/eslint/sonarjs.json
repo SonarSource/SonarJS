@@ -1,122 +1,177 @@
 [
   {
+    "key": "sonarjs/cognitive-complexity",
+    "name": "Cognitive Complexity of functions should not be too high",
+    "description": "See description of ESLint rule <code>sonarjs/cognitive-complexity</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/cognitive-complexity.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/elseif-without-else",
+    "name": "\"if ... else if\" constructs should end with \"else\" clauses",
+    "description": "See description of ESLint rule <code>sonarjs/elseif-without-else</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/elseif-without-else.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/max-switch-cases",
+    "name": "\"switch\" statements should not have too many \"case\" clauses",
+    "description": "See description of ESLint rule <code>sonarjs/max-switch-cases</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/max-switch-cases.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
     "key": "sonarjs/no-all-duplicated-branches",
     "name": "All branches in a conditional structure should not have exactly the same implementation",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-all-duplicated-branches</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-all-duplicated-branches.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-all-duplicated-branches</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-all-duplicated-branches.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-collapsible-if",
+    "name": "Collapsible \"if\" statements should be merged",
+    "description": "See description of ESLint rule <code>sonarjs/no-collapsible-if</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-collapsible-if.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-collection-size-mischeck",
+    "name": "Collection sizes and array length comparisons should make sense",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-collection-size-mischeck</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-collection-size-mischeck.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-duplicate-string",
+    "name": "String literals should not be duplicated",
+    "description": "See description of ESLint rule <code>sonarjs/no-duplicate-string</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-duplicate-string.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-duplicated-branches",
+    "name": "Two branches in a conditional structure should not have exactly the same implementation",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-duplicated-branches</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-duplicated-branches.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-element-overwrite",
     "name": "Collection elements should not be replaced unconditionally",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-element-overwrite</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-element-overwrite.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-element-overwrite</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-element-overwrite.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-empty-collection",
+    "name": "Empty collections should not be accessed or iterated",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-empty-collection</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-empty-collection.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-extra-arguments",
     "name": "Function calls should not pass extra arguments",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-extra-arguments</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-extra-arguments.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-extra-arguments</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-extra-arguments.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-gratuitous-expressions",
+    "name": "Boolean expressions should not be gratuitous",
+    "description": "See description of ESLint rule <code>sonarjs/no-gratuitous-expressions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-gratuitous-expressions.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-identical-conditions",
-    "name": "Related \"if/else if\" statements should not have the same condition",
+    "name": "Related \"if-else-if\" and \"switch-case\" statements should not have the same condition",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-identical-conditions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-conditions.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-identical-conditions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-conditions.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-identical-expressions",
     "name": "Identical expressions should not be used on both sides of a binary operator",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-identical-expressions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-expressions.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-identical-expressions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-expressions.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-identical-functions",
+    "name": "Functions should not have identical implementations",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-identical-functions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-functions.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-ignored-return",
+    "name": "Return values from functions without side effects should not be ignored",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-ignored-return</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-ignored-return.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-inverted-boolean-check",
+    "name": "Boolean checks should not be inverted",
+    "description": "See description of ESLint rule <code>sonarjs/no-inverted-boolean-check</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-inverted-boolean-check.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-nested-switch",
+    "name": "\"switch\" statements should not be nested",
+    "description": "See description of ESLint rule <code>sonarjs/no-nested-switch</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-nested-switch.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-nested-template-literals",
+    "name": "Template literals should not be nested",
+    "description": "See description of ESLint rule <code>sonarjs/no-nested-template-literals</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-nested-template-literals.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-one-iteration-loop",
     "name": "Loops with at most one iteration should be refactored",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-one-iteration-loop</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-one-iteration-loop.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-one-iteration-loop</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-one-iteration-loop.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-redundant-boolean",
+    "name": "Boolean literals should not be redundant",
+    "description": "See description of ESLint rule <code>sonarjs/no-redundant-boolean</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-redundant-boolean.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-redundant-jump",
+    "name": "Jump statements should not be redundant",
+    "description": "See description of ESLint rule <code>sonarjs/no-redundant-jump</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-redundant-jump.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-same-line-conditional",
+    "name": "Conditionals should start on new lines",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-same-line-conditional</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-same-line-conditional.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-small-switch",
+    "name": "\"switch\" statements should have at least 3 \"case\" clauses",
+    "description": "See description of ESLint rule <code>sonarjs/no-small-switch</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-small-switch.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/no-unused-collection",
+    "name": "Collection and array contents should be used",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/no-unused-collection</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-unused-collection.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-use-of-empty-return-value",
     "name": "The output of functions that don't return anything should not be used",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>sonarjs/no-use-of-empty-return-value</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-use-of-empty-return-value.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/cognitive-complexity",
-    "name": "Cognitive Complexity of functions should not be too high",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/cognitive-complexity</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/cognitive-complexity.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/max-switch-cases",
-    "name": "\"switch\" statements should not have too many \"case\" clauses",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/max-switch-cases</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/max-switch-cases.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-duplicate-string",
-    "name": "String literals should not be duplicated",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-duplicate-string</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-duplicate-string.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-duplicated-branches",
-    "name": "Two branches in a conditional structure should not have exactly the same implementation",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-duplicated-branches</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-duplicated-branches.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-identical-functions",
-    "name": "Functions should not have identical implementations",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-identical-functions</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-identical-functions.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-inverted-boolean-check",
-    "name": "Boolean checks should not be inverted",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-inverted-boolean-check</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-inverted-boolean-check.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-redundant-boolean",
-    "name": "Boolean literals should not be redundant",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-redundant-boolean</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-redundant-boolean.md\">eslint-plugin-sonarjs website</a>."
-  },
-  {
-    "key": "sonarjs/no-small-switch",
-    "name": "\"switch\" statements should have at least 3 \"case\" clauses",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-small-switch</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-small-switch.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-use-of-empty-return-value</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-use-of-empty-return-value.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/no-useless-catch",
     "name": "\"catch\" clauses should do more than rethrow",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/no-useless-catch</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-useless-catch.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/no-useless-catch</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/no-useless-catch.md\">eslint-plugin-sonarjs website</a>"
+  },
+  {
+    "key": "sonarjs/non-existent-operator",
+    "name": "Non-existent operators \"=+\", \"=-\" and \"=!\" should not be used",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>sonarjs/non-existent-operator</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/non-existent-operator.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/prefer-immediate-return",
     "name": "Local variables should not be declared and then immediately returned or thrown",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/prefer-immediate-return</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-immediate-return.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/prefer-immediate-return</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-immediate-return.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/prefer-object-literal",
     "name": "Object literal syntax should be used",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/prefer-object-literal</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-object-literal.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/prefer-object-literal</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-object-literal.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/prefer-single-boolean-return",
     "name": "Return of boolean expressions should not be wrapped into an \"if-then-else\" statement",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/prefer-single-boolean-return</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-single-boolean-return.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/prefer-single-boolean-return</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-single-boolean-return.md\">eslint-plugin-sonarjs website</a>"
   },
   {
     "key": "sonarjs/prefer-while",
     "name": "A \"while\" loop should be used instead of a \"for\" loop",
-    "type": "CODE_SMELL",
-    "description": "See description of ESLint rule <code>sonarjs/prefer-while</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-while.md\">eslint-plugin-sonarjs website</a>."
+    "description": "See description of ESLint rule <code>sonarjs/prefer-while</code> at the <a href=\"https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/prefer-while.md\">eslint-plugin-sonarjs website</a>"
   }
 ]

@@ -1,0 +1,214 @@
+[
+  {
+    "key": "node/callback-return",
+    "name": "require `return` statements after callbacks",
+    "description": "See description of ESLint rule <code>node/callback-return</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/callback-return.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/exports-style",
+    "name": "enforce either `module.exports` or `exports`",
+    "description": "See description of ESLint rule <code>node/exports-style</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/exports-style.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/file-extension-in-import",
+    "name": "enforce the style of file extensions in `import` declarations",
+    "description": "See description of ESLint rule <code>node/file-extension-in-import</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/file-extension-in-import.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/global-require",
+    "name": "require `require()` calls to be placed at top-level module scope",
+    "description": "See description of ESLint rule <code>node/global-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/global-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/handle-callback-err",
+    "name": "require error handling in callbacks",
+    "description": "See description of ESLint rule <code>node/handle-callback-err</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/handle-callback-err.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-callback-literal",
+    "name": "ensure Node.js-style error-first callback pattern is followed",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-callback-literal</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-callback-literal.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-deprecated-api",
+    "name": "disallow deprecated APIs",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-deprecated-api</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-deprecated-api.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-exports-assign",
+    "name": "disallow the assignment to `exports`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-exports-assign</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-exports-assign.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-extraneous-import",
+    "name": "disallow `import` declarations which import extraneous modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-extraneous-import</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-extraneous-import.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-extraneous-require",
+    "name": "disallow `require()` expressions which import extraneous modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-extraneous-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-extraneous-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-missing-import",
+    "name": "disallow `import` declarations which import non-existence modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-missing-import</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-missing-import.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-missing-require",
+    "name": "disallow `require()` expressions which import non-existence modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-missing-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-missing-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-mixed-requires",
+    "name": "disallow `require` calls to be mixed with regular variable declarations",
+    "description": "See description of ESLint rule <code>node/no-mixed-requires</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-mixed-requires.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-new-require",
+    "name": "disallow `new` operators with calls to `require`",
+    "description": "See description of ESLint rule <code>node/no-new-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-new-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-path-concat",
+    "name": "disallow string concatenation with `__dirname` and `__filename`",
+    "description": "See description of ESLint rule <code>node/no-path-concat</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-path-concat.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-process-env",
+    "name": "disallow the use of `process.env`",
+    "description": "See description of ESLint rule <code>node/no-process-env</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-process-env.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-process-exit",
+    "name": "disallow the use of `process.exit()`",
+    "description": "See description of ESLint rule <code>node/no-process-exit</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-process-exit.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-restricted-import",
+    "name": "disallow specified modules when loaded by `require`",
+    "description": "See description of ESLint rule <code>node/no-restricted-import</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-restricted-import.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-restricted-require",
+    "name": "disallow specified modules when loaded by `require`",
+    "description": "See description of ESLint rule <code>node/no-restricted-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-restricted-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-sync",
+    "name": "disallow synchronous methods",
+    "description": "See description of ESLint rule <code>node/no-sync</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-sync.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unpublished-bin",
+    "name": "disallow `bin` files that npm ignores",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unpublished-bin</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unpublished-bin.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unpublished-import",
+    "name": "disallow `import` declarations which import private modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unpublished-import</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unpublished-import.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unpublished-require",
+    "name": "disallow `require()` expressions which import private modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unpublished-require</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unpublished-require.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unsupported-features/es-builtins",
+    "name": "disallow unsupported ECMAScript built-ins on the specified version",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unsupported-features/es-builtins</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unsupported-features/es-builtins.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unsupported-features/es-syntax",
+    "name": "disallow unsupported ECMAScript syntax on the specified version",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unsupported-features/es-syntax</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unsupported-features/es-syntax.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unsupported-features/node-builtins",
+    "name": "disallow unsupported Node.js built-in APIs on the specified version",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unsupported-features/node-builtins</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unsupported-features/node-builtins.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/buffer",
+    "name": "enforce either `Buffer` or `require(\"buffer\").Buffer`",
+    "description": "See description of ESLint rule <code>node/prefer-global/buffer</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/buffer.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/console",
+    "name": "enforce either `console` or `require(\"console\")`",
+    "description": "See description of ESLint rule <code>node/prefer-global/console</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/console.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/process",
+    "name": "enforce either `process` or `require(\"process\")`",
+    "description": "See description of ESLint rule <code>node/prefer-global/process</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/process.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/text-decoder",
+    "name": "enforce either `TextDecoder` or `require(\"util\").TextDecoder`",
+    "description": "See description of ESLint rule <code>node/prefer-global/text-decoder</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/text-decoder.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/text-encoder",
+    "name": "enforce either `TextEncoder` or `require(\"util\").TextEncoder`",
+    "description": "See description of ESLint rule <code>node/prefer-global/text-encoder</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/text-encoder.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/url-search-params",
+    "name": "enforce either `URLSearchParams` or `require(\"url\").URLSearchParams`",
+    "description": "See description of ESLint rule <code>node/prefer-global/url-search-params</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/url-search-params.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-global/url",
+    "name": "enforce either `URL` or `require(\"url\").URL`",
+    "description": "See description of ESLint rule <code>node/prefer-global/url</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-global/url.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-promises/dns",
+    "name": "enforce `require(\"dns\").promises`",
+    "description": "See description of ESLint rule <code>node/prefer-promises/dns</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-promises/dns.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/prefer-promises/fs",
+    "name": "enforce `require(\"fs\").promises`",
+    "description": "See description of ESLint rule <code>node/prefer-promises/fs</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/prefer-promises/fs.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/process-exit-as-throw",
+    "name": "make `process.exit()` expressions the same code path as `throw`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/process-exit-as-throw</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/process-exit-as-throw.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/shebang",
+    "name": "suggest correct usage of shebang",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/shebang</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/shebang.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-hide-core-modules",
+    "name": "disallow third-party modules which are hiding core modules",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-hide-core-modules</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-hide-core-modules.md\">eslint-plugin-node website</a>"
+  },
+  {
+    "key": "node/no-unsupported-features",
+    "name": "disallow unsupported ECMAScript features on the specified version",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>node/no-unsupported-features</code> at the <a href=\"https://github.com/mysticatea/eslint-plugin-node/blob/v11.1.0/docs/rules/no-unsupported-features.md\">eslint-plugin-node website</a>"
+  }
+]

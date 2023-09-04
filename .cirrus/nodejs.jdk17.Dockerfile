@@ -5,6 +5,6 @@ USER root
 
 ARG NODE_VERSION=14
 
-RUN apt-get update && apt-get install -y nodejs=${NODE_VERSION}.*
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && apt-get install -y nodejs=${NODE_VERSION}.*
 
 USER sonarsource
