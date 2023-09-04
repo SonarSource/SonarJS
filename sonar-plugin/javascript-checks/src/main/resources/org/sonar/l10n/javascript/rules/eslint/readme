@@ -1,9 +1,16 @@
-eslint-plugin-react v7.10.0
-eslint-plugin-flowtype v2.50.0
-eslint-plugin-import v2.13.0
-eslint-plugin-promise v3.8.0
+# run tools/external-rules-metadata.js script to produce the rules metadata files
+
+@angular-eslint/eslint-plugin v16.1.1
+@angular-eslint/eslint-plugin-template v16.1.1
+@typescript-eslint/eslint-plugin v5.59.9
 eslint-plugin-angular v3.3.0
-eslint-plugin-vue v4.5.0
-eslint-plugin-ember v5.2.0
-eslint-plugin-jsx-a11y v6.1.0
-eslint-plugin-sonarjs v0.2.0 (to generate run `npx ts-node scripts/generate-rules-sonar-meta.ts <absolute path to file>` from eslint-plugin-sonarjs root)
+eslint-plugin-ember v11.11.1
+eslint-plugin-flowtype v2.50.0
+eslint-plugin-import v2.28.1
+eslint-plugin-jsx-a11y v6.7.1
+eslint-plugin-node v11.1.0
+eslint-plugin-promise v3.8.0
+eslint-plugin-react v7.32.2
+eslint-plugin-react-hooks v4.6.0
+eslint-plugin-sonarjs v0.21.0
+eslint-plugin-vue v9.17.0

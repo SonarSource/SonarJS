@@ -19,7 +19,7 @@
   "ruleSpecification": "RSPEC-6326",
   "sqKey": "S6326",
   "scope": "Main",
-  "quickfix": "targeted",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

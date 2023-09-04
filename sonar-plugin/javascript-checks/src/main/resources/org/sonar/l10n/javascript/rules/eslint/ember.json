@@ -1,140 +1,499 @@
 [
   {
     "key": "ember/alias-model-in-controller",
-    "name": "Enforces aliasing model in controller",
-    "description": "See description of ESLint rule <code>ember/alias-model-in-controller</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/alias-model-in-controller.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/closure-actions",
-    "name": "Enforces usage of closure actions",
-    "description": "See description of ESLint rule <code>ember/closure-actions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/closure-actions.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/named-functions-in-promises",
-    "name": "Enforces usage of named functions in promises",
-    "description": "See description of ESLint rule <code>ember/named-functions-in-promises</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/named-functions-in-promises.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/new-module-imports",
-    "name": "Use \"new module imports\" from ember rfc #176",
-    "description": "See description of ESLint rule <code>ember/new-module-imports</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/new-module-imports.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-empty-attrs",
-    "name": "Prevents usage of empty attributes in ember data models",
-    "description": "See description of ESLint rule <code>ember/no-empty-attrs</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-empty-attrs.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-function-prototype-extensions",
-    "name": "Prevents usage of ember's function prototype extensions",
-    "description": "See description of ESLint rule <code>ember/no-function-prototype-extensions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-function-prototype-extensions.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-global-jquery",
-    "name": "Prevents usage of global jquery object",
-    "description": "See description of ESLint rule <code>ember/no-global-jquery</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-global-jquery.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-jquery",
-    "name": "Disallow any usage of jquery",
-    "description": "See description of ESLint rule <code>ember/no-jquery</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-jquery.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-observers",
-    "name": "Prevents usage of observers",
-    "description": "See description of ESLint rule <code>ember/no-observers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-observers.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-old-shims",
-    "name": "Prevents usage of old shims for modules",
-    "description": "See description of ESLint rule <code>ember/no-old-shims</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-old-shims.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-on-calls-in-components",
-    "name": "Prevents usage of on calls in components",
-    "description": "See description of ESLint rule <code>ember/no-on-calls-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-on-calls-in-components.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/use-ember-get-and-set",
-    "name": "Enforces usage of ember.get and ember.set",
-    "description": "See description of ESLint rule <code>ember/use-ember-get-and-set</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/use-ember-get-and-set.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/jquery-ember-run",
-    "type": "BUG",
-    "name": "Prevents usage of jquery without ember run loop",
-    "description": "See description of ESLint rule <code>ember/jquery-ember-run</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/jquery-ember-run.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-attrs-in-components",
-    "type": "BUG",
-    "name": "Disallow usage of this.attrs in components",
-    "description": "See description of ESLint rule <code>ember/no-attrs-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-attrs-in-components.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-attrs-snapshot",
-    "type": "BUG",
-    "name": "Disallow use of attrs snapshot in didreceiveattrs and didupdateattrs",
-    "description": "See description of ESLint rule <code>ember/no-attrs-snapshot</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-attrs-snapshot.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-capital-letters-in-routes",
-    "type": "BUG",
-    "name": "Raise an error when there is a route with uppercased letters in router.js",
-    "description": "See description of ESLint rule <code>ember/no-capital-letters-in-routes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-capital-letters-in-routes.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-duplicate-dependent-keys",
-    "type": "BUG",
-    "name": "Disallow repeating dependent keys",
-    "description": "See description of ESLint rule <code>ember/no-duplicate-dependent-keys</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-duplicate-dependent-keys.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/no-side-effects",
-    "type": "BUG",
-    "name": "Warns about unexpected side effects in computed properties",
-    "description": "See description of ESLint rule <code>ember/no-side-effects</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-side-effects.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/require-super-in-init",
-    "type": "BUG",
-    "name": "Enforces super calls in init hooks",
-    "description": "See description of ESLint rule <code>ember/require-super-in-init</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/require-super-in-init.md\">eslint-plugin-ember website</a>."
-  },
-  {
-    "key": "ember/routes-segments-snake-case",
-    "type": "BUG",
-    "name": "Enforces usage of snake_cased dynamic segments in routes",
-    "description": "See description of ESLint rule <code>ember/routes-segments-snake-case</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/routes-segments-snake-case.md\">eslint-plugin-ember website</a>."
+    "name": "enforce aliasing model in controllers",
+    "description": "See description of ESLint rule <code>ember/alias-model-in-controller</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/alias-model-in-controller.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/avoid-leaking-state-in-ember-objects",
-    "name": "Avoids state leakage",
-    "description": "See description of ESLint rule <code>ember/avoid-leaking-state-in-ember-objects</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/avoid-leaking-state-in-ember-objects.md\">eslint-plugin-ember website</a>."
+    "name": "disallow state leakage",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/avoid-leaking-state-in-ember-objects</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/avoid-leaking-state-in-ember-objects.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/avoid-using-needs-in-controllers",
+    "name": "disallow using `needs` in controllers",
+    "description": "See description of ESLint rule <code>ember/avoid-using-needs-in-controllers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/avoid-using-needs-in-controllers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/classic-decorator-hooks",
+    "name": "enforce using correct hooks for both classic and non-classic classes",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/classic-decorator-hooks</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/classic-decorator-hooks.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/classic-decorator-no-classic-methods",
+    "name": "disallow usage of classic APIs such as `get`/`set` in classes that aren't explicitly decorated with `@classic`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/classic-decorator-no-classic-methods</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/classic-decorator-no-classic-methods.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/closure-actions",
+    "name": "enforce usage of closure actions",
+    "description": "See description of ESLint rule <code>ember/closure-actions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/closure-actions.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/computed-property-getters",
+    "name": "enforce the consistent use of getters in computed properties",
+    "description": "See description of ESLint rule <code>ember/computed-property-getters</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/computed-property-getters.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/jquery-ember-run",
+    "name": "disallow usage of jQuery without an Ember run loop",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/jquery-ember-run</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/jquery-ember-run.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/named-functions-in-promises",
+    "name": "enforce usage of named functions in promises",
+    "description": "See description of ESLint rule <code>ember/named-functions-in-promises</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/named-functions-in-promises.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/new-module-imports",
+    "name": "enforce using \"New Module Imports\" from Ember RFC #176",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/new-module-imports</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/new-module-imports.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-actions-hash",
+    "name": "disallow the actions hash in components, controllers, and routes",
+    "description": "See description of ESLint rule <code>ember/no-actions-hash</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-actions-hash.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-array-prototype-extensions",
+    "name": "disallow usage of Ember's `Array` prototype extensions",
+    "description": "See description of ESLint rule <code>ember/no-array-prototype-extensions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-array-prototype-extensions.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-arrow-function-computed-properties",
+    "name": "disallow arrow functions in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-arrow-function-computed-properties</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-arrow-function-computed-properties.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-assignment-of-untracked-properties-used-in-tracking-contexts",
+    "name": "disallow assignment of untracked properties that are used as computed property dependencies",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-assignment-of-untracked-properties-used-in-tracking-contexts</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-assignment-of-untracked-properties-used-in-tracking-contexts.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-at-ember-render-modifiers",
+    "name": "disallow importing from @ember/render-modifiers",
+    "description": "See description of ESLint rule <code>ember/no-at-ember-render-modifiers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-at-ember-render-modifiers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-attrs-in-components",
+    "name": "disallow usage of `this.attrs` in components",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-attrs-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-attrs-in-components.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-attrs-snapshot",
+    "name": "disallow use of attrs snapshot in the `didReceiveAttrs` and `didUpdateAttrs` component hooks",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-attrs-snapshot</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-attrs-snapshot.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-capital-letters-in-routes",
+    "name": "disallow routes with uppercased letters in router.js",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-capital-letters-in-routes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-capital-letters-in-routes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-classic-classes",
+    "name": "disallow \"classic\" classes in favor of native JS classes",
+    "description": "See description of ESLint rule <code>ember/no-classic-classes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-classic-classes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-classic-components",
+    "name": "enforce using Glimmer components",
+    "description": "See description of ESLint rule <code>ember/no-classic-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-classic-components.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-component-lifecycle-hooks",
+    "name": "disallow usage of \"classic\" ember component lifecycle hooks. Render modifiers or custom functional modifiers should be used instead.",
+    "description": "See description of ESLint rule <code>ember/no-component-lifecycle-hooks</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-component-lifecycle-hooks.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-computed-properties-in-native-classes",
+    "name": "disallow using computed properties in native classes",
+    "description": "See description of ESLint rule <code>ember/no-computed-properties-in-native-classes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-computed-properties-in-native-classes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-controller-access-in-routes",
+    "name": "disallow routes from accessing the controller outside of setupController/resetController",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-controller-access-in-routes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-controller-access-in-routes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-controllers",
+    "name": "disallow non-essential controllers",
+    "description": "See description of ESLint rule <code>ember/no-controllers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-controllers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-current-route-name",
+    "name": "disallow usage of the `currentRouteName()` test helper",
+    "description": "See description of ESLint rule <code>ember/no-current-route-name</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-current-route-name.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-deeply-nested-dependent-keys-with-each",
+    "name": "disallow usage of deeply-nested computed property dependent keys with `@each`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-deeply-nested-dependent-keys-with-each</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-deeply-nested-dependent-keys-with-each.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-deprecated-router-transition-methods",
+    "name": "enforce usage of router service transition methods",
+    "description": "See description of ESLint rule <code>ember/no-deprecated-router-transition-methods</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-deprecated-router-transition-methods.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-duplicate-dependent-keys",
+    "name": "disallow repeating computed property dependent keys",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-duplicate-dependent-keys</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-duplicate-dependent-keys.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-ember-super-in-es-classes",
+    "name": "disallow use of `this._super` in ES class methods",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-ember-super-in-es-classes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-ember-super-in-es-classes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-ember-testing-in-module-scope",
+    "name": "disallow use of `Ember.testing` in module scope",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-ember-testing-in-module-scope</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-ember-testing-in-module-scope.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-empty-attrs",
+    "name": "disallow usage of empty attributes in Ember Data models",
+    "description": "See description of ESLint rule <code>ember/no-empty-attrs</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-empty-attrs.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-empty-glimmer-component-classes",
+    "name": "disallow empty backing classes for Glimmer components",
+    "description": "See description of ESLint rule <code>ember/no-empty-glimmer-component-classes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-empty-glimmer-component-classes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-function-prototype-extensions",
+    "name": "disallow usage of Ember's `function` prototype extensions",
+    "description": "See description of ESLint rule <code>ember/no-function-prototype-extensions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-function-prototype-extensions.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-get-with-default",
+    "name": "disallow usage of the Ember's `getWithDefault` function",
+    "description": "See description of ESLint rule <code>ember/no-get-with-default</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-get-with-default.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-get",
+    "name": "require using ES5 getters instead of Ember's `get` / `getProperties` functions",
+    "description": "See description of ESLint rule <code>ember/no-get</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-get.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-global-jquery",
+    "name": "disallow usage of global jQuery object",
+    "description": "See description of ESLint rule <code>ember/no-global-jquery</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-global-jquery.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-html-safe",
+    "name": "disallow the use of `htmlSafe`",
+    "description": "See description of ESLint rule <code>ember/no-html-safe</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-html-safe.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-implicit-injections",
+    "name": "enforce usage of implicit service injections",
+    "description": "See description of ESLint rule <code>ember/no-implicit-injections</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-implicit-injections.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-implicit-service-injection-argument",
+    "name": "disallow omitting the injected service name argument",
+    "description": "See description of ESLint rule <code>ember/no-implicit-service-injection-argument</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-implicit-service-injection-argument.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-incorrect-calls-with-inline-anonymous-functions",
+    "name": "disallow inline anonymous functions as arguments to `debounce`, `once`, and `scheduleOnce`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-incorrect-calls-with-inline-anonymous-functions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-incorrect-calls-with-inline-anonymous-functions.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-incorrect-computed-macros",
+    "name": "disallow incorrect usage of computed property macros",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-incorrect-computed-macros</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-incorrect-computed-macros.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-invalid-debug-function-arguments",
+    "name": "disallow usages of Ember's `assert()` / `warn()` / `deprecate()` functions that have the arguments passed in the wrong order.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-invalid-debug-function-arguments</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-invalid-debug-function-arguments.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-invalid-dependent-keys",
+    "name": "disallow invalid dependent keys in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-invalid-dependent-keys</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-invalid-dependent-keys.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-invalid-test-waiters",
+    "name": "disallow incorrect usage of test waiter APIs",
+    "description": "See description of ESLint rule <code>ember/no-invalid-test-waiters</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-invalid-test-waiters.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-jquery",
+    "name": "disallow any usage of jQuery",
+    "description": "See description of ESLint rule <code>ember/no-jquery</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-jquery.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-legacy-test-waiters",
+    "name": "disallow the use of the legacy test waiter APIs",
+    "description": "See description of ESLint rule <code>ember/no-legacy-test-waiters</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-legacy-test-waiters.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-mixins",
+    "name": "disallow the usage of mixins",
+    "description": "See description of ESLint rule <code>ember/no-mixins</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-mixins.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-new-mixins",
+    "name": "disallow the creation of new mixins",
+    "description": "See description of ESLint rule <code>ember/no-new-mixins</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-new-mixins.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-noop-setup-on-error-in-before",
+    "name": "disallows using no-op setupOnerror in `before` or `beforeEach`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-noop-setup-on-error-in-before</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-noop-setup-on-error-in-before.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-observers",
+    "name": "disallow usage of observers",
+    "description": "See description of ESLint rule <code>ember/no-observers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-observers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-old-shims",
+    "name": "disallow usage of old shims for modules",
+    "description": "See description of ESLint rule <code>ember/no-old-shims</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-old-shims.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-on-calls-in-components",
+    "name": "disallow usage of `on` to call lifecycle hooks in components",
+    "description": "See description of ESLint rule <code>ember/no-on-calls-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-on-calls-in-components.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-pause-test",
+    "name": "disallow usage of the `pauseTest` helper in tests",
+    "description": "See description of ESLint rule <code>ember/no-pause-test</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-pause-test.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-private-routing-service",
+    "name": "disallow injecting the private routing service",
+    "description": "See description of ESLint rule <code>ember/no-private-routing-service</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-private-routing-service.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-proxies",
+    "name": "disallow using array or object proxies",
+    "description": "See description of ESLint rule <code>ember/no-proxies</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-proxies.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-replace-test-comments",
+    "name": "disallow 'Replace this with your real tests' comments in test files",
+    "description": "See description of ESLint rule <code>ember/no-replace-test-comments</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-replace-test-comments.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-restricted-property-modifications",
+    "name": "disallow modifying the specified properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-restricted-property-modifications</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-restricted-property-modifications.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-restricted-resolver-tests",
+    "name": "disallow the use of patterns that use the restricted resolver in tests",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-restricted-resolver-tests</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-restricted-resolver-tests.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-restricted-service-injections",
+    "name": "disallow injecting certain services under certain paths",
+    "description": "See description of ESLint rule <code>ember/no-restricted-service-injections</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-restricted-service-injections.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-runloop",
+    "name": "disallow usage of `@ember/runloop` functions",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-runloop</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-runloop.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-settled-after-test-helper",
+    "name": "disallow usage of `await settled()` right after test helper that calls it internally",
+    "description": "See description of ESLint rule <code>ember/no-settled-after-test-helper</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-settled-after-test-helper.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-shadow-route-definition",
+    "name": "enforce no route path definition shadowing",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-shadow-route-definition</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-shadow-route-definition.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-side-effects",
+    "name": "disallow unexpected side effects in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-side-effects</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-side-effects.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-string-prototype-extensions",
+    "name": "disallow usage of `String` prototype extensions",
+    "description": "See description of ESLint rule <code>ember/no-string-prototype-extensions</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-string-prototype-extensions.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-test-and-then",
+    "name": "disallow usage of the `andThen` test wait helper",
+    "description": "See description of ESLint rule <code>ember/no-test-and-then</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-test-and-then.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-test-import-export",
+    "name": "disallow importing of \"-test.js\" in a test file and exporting from a test file",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-test-import-export</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-test-import-export.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-test-module-for",
+    "name": "disallow usage of `moduleFor`, `moduleForComponent`, etc",
+    "description": "See description of ESLint rule <code>ember/no-test-module-for</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-test-module-for.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-test-support-import",
+    "name": "disallow importing of \"test-support\" files in production code.",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-test-support-import</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-test-support-import.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-test-this-render",
+    "name": "disallow usage of the `this.render` in tests, recommending to use @ember/test-helpers' `render` instead.",
+    "description": "See description of ESLint rule <code>ember/no-test-this-render</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-test-this-render.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-tracked-properties-from-args",
+    "name": "disallow creating @tracked properties from this.args",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/no-tracked-properties-from-args</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-tracked-properties-from-args.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-try-invoke",
+    "name": "disallow usage of the Ember's `tryInvoke` util",
+    "description": "See description of ESLint rule <code>ember/no-try-invoke</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-try-invoke.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-unnecessary-index-route",
+    "name": "disallow unnecessary `index` route definition",
+    "description": "See description of ESLint rule <code>ember/no-unnecessary-index-route</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-unnecessary-index-route.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-unnecessary-route-path-option",
+    "name": "disallow unnecessary usage of the route `path` option",
+    "description": "See description of ESLint rule <code>ember/no-unnecessary-route-path-option</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-unnecessary-route-path-option.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-unnecessary-service-injection-argument",
+    "name": "disallow unnecessary argument when injecting services",
+    "description": "See description of ESLint rule <code>ember/no-unnecessary-service-injection-argument</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-unnecessary-service-injection-argument.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-unused-services",
+    "name": "disallow unused service injections (see rule doc for limitations)",
+    "description": "See description of ESLint rule <code>ember/no-unused-services</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-unused-services.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/no-volatile-computed-properties",
+    "name": "disallow volatile computed properties",
+    "description": "See description of ESLint rule <code>ember/no-volatile-computed-properties</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/no-volatile-computed-properties.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/order-in-components",
-    "name": "Enforces proper order of properties in components",
-    "description": "See description of ESLint rule <code>ember/order-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-components.md\">eslint-plugin-ember website</a>."
+    "name": "enforce proper order of properties in components",
+    "description": "See description of ESLint rule <code>ember/order-in-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/order-in-components.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/order-in-controllers",
-    "name": "Enforces proper order of properties in controllers",
-    "description": "See description of ESLint rule <code>ember/order-in-controllers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-controllers.md\">eslint-plugin-ember website</a>."
+    "name": "enforce proper order of properties in controllers",
+    "description": "See description of ESLint rule <code>ember/order-in-controllers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/order-in-controllers.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/order-in-models",
-    "name": "Enforces proper order of properties in models",
-    "description": "See description of ESLint rule <code>ember/order-in-models</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-models.md\">eslint-plugin-ember website</a>."
+    "name": "enforce proper order of properties in models",
+    "description": "See description of ESLint rule <code>ember/order-in-models</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/order-in-models.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/order-in-routes",
-    "name": "Enforces proper order of properties in routes",
-    "description": "See description of ESLint rule <code>ember/order-in-routes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-routes.md\">eslint-plugin-ember website</a>."
+    "name": "enforce proper order of properties in routes",
+    "description": "See description of ESLint rule <code>ember/order-in-routes</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/order-in-routes.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/prefer-ember-test-helpers",
+    "name": "enforce usage of `@ember/test-helpers` methods over native window methods",
+    "description": "See description of ESLint rule <code>ember/prefer-ember-test-helpers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/prefer-ember-test-helpers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-computed-macros",
+    "name": "require using computed property macros when possible",
+    "description": "See description of ESLint rule <code>ember/require-computed-macros</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-computed-macros.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-computed-property-dependencies",
+    "name": "require dependencies to be declared statically in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/require-computed-property-dependencies</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-computed-property-dependencies.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-fetch-import",
+    "name": "enforce explicit import for `fetch()`",
+    "description": "See description of ESLint rule <code>ember/require-fetch-import</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-fetch-import.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-return-from-computed",
+    "name": "disallow missing return statements in computed properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/require-return-from-computed</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-return-from-computed.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-super-in-lifecycle-hooks",
+    "name": "require super to be called in lifecycle hooks",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/require-super-in-lifecycle-hooks</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-super-in-lifecycle-hooks.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-tagless-components",
+    "name": "disallow using the wrapper element of a component",
+    "description": "See description of ESLint rule <code>ember/require-tagless-components</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-tagless-components.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/require-valid-css-selector-in-test-helpers",
+    "name": "disallow using invalid CSS selectors in test helpers",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>ember/require-valid-css-selector-in-test-helpers</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/require-valid-css-selector-in-test-helpers.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/route-path-style",
+    "name": "enforce usage of kebab-case (instead of snake_case or camelCase) in route paths",
+    "description": "See description of ESLint rule <code>ember/route-path-style</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/route-path-style.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/routes-segments-snake-case",
+    "name": "enforce usage of snake_cased dynamic segments in routes",
+    "description": "See description of ESLint rule <code>ember/routes-segments-snake-case</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/routes-segments-snake-case.md\">eslint-plugin-ember website</a>"
   },
   {
     "key": "ember/use-brace-expansion",
-    "name": "Enforces usage of brace expansion",
-    "description": "See description of ESLint rule <code>ember/use-brace-expansion</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/use-brace-expansion.md\">eslint-plugin-ember website</a>."
+    "name": "enforce usage of brace expansion in computed property dependent keys",
+    "description": "See description of ESLint rule <code>ember/use-brace-expansion</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/use-brace-expansion.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/use-ember-data-rfc-395-imports",
+    "name": "enforce usage of `@ember-data/` package imports instead `ember-data`",
+    "description": "See description of ESLint rule <code>ember/use-ember-data-rfc-395-imports</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/use-ember-data-rfc-395-imports.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/use-ember-get-and-set",
+    "name": "enforce usage of `Ember.get` and `Ember.set`",
+    "description": "See description of ESLint rule <code>ember/use-ember-get-and-set</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/use-ember-get-and-set.md\">eslint-plugin-ember website</a>"
   }
 ]

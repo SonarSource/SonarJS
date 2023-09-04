@@ -2,386 +2,501 @@
   {
     "key": "react/boolean-prop-naming",
     "name": "Enforces consistent naming for boolean props",
-    "description": "See description of ESLint rule <code>react/boolean-prop-naming</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/boolean-prop-naming.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/boolean-prop-naming</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/boolean-prop-naming.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/button-has-type",
-    "name": "Forbid \"button\" element without an explicit \"type\" attribute",
-    "description": "See description of ESLint rule <code>react/button-has-type</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/button-has-type.md\">eslint-plugin-react website</a>."
+    "name": "Disallow usage of `button` elements without an explicit `type` attribute",
+    "description": "See description of ESLint rule <code>react/button-has-type</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/button-has-type.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/default-props-match-prop-types",
-    "name": "Prevent extraneous defaultProps on components",
-    "description": "See description of ESLint rule <code>react/default-props-match-prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/default-props-match-prop-types.md\">eslint-plugin-react website</a>."
+    "name": "Enforce all defaultProps have a corresponding non-required PropType",
+    "description": "See description of ESLint rule <code>react/default-props-match-prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/default-props-match-prop-types.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/destructuring-assignment",
-    "name": "Rule enforces consistent usage of destructuring assignment in component",
-    "description": "See description of ESLint rule <code>react/destructuring-assignment</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/destructuring-assignment.md\">eslint-plugin-react website</a>."
+    "name": "Enforce consistent usage of destructuring assignment of props, state, and context",
+    "description": "See description of ESLint rule <code>react/destructuring-assignment</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/destructuring-assignment.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/display-name",
-    "name": "Prevent missing displayName in a React component definition",
-    "description": "See description of ESLint rule <code>react/display-name</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/display-name.md\">eslint-plugin-react website</a>."
+    "name": "Disallow missing displayName in a React component definition",
+    "description": "See description of ESLint rule <code>react/display-name</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/display-name.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/forbid-component-props",
-    "name": "Forbid certain props on Components",
-    "description": "See description of ESLint rule <code>react/forbid-component-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-component-props.md\">eslint-plugin-react website</a>."
+    "name": "Disallow certain props on components",
+    "description": "See description of ESLint rule <code>react/forbid-component-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/forbid-component-props.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/forbid-dom-props",
-    "name": "Forbid certain props on DOM Nodes",
-    "description": "See description of ESLint rule <code>react/forbid-dom-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-dom-props.md\">eslint-plugin-react website</a>."
+    "name": "Disallow certain props on DOM Nodes",
+    "description": "See description of ESLint rule <code>react/forbid-dom-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/forbid-dom-props.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/forbid-elements",
-    "name": "Forbid certain elements",
-    "description": "See description of ESLint rule <code>react/forbid-elements</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-elements.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/forbid-prop-types",
-    "name": "Forbid certain propTypes",
-    "description": "See description of ESLint rule <code>react/forbid-prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-prop-types.md\">eslint-plugin-react website</a>."
+    "name": "Disallow certain elements",
+    "description": "See description of ESLint rule <code>react/forbid-elements</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/forbid-elements.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/forbid-foreign-prop-types",
-    "name": "Forbid foreign propTypes",
-    "description": "See description of ESLint rule <code>react/forbid-foreign-prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-foreign-prop-types.md\">eslint-plugin-react website</a>."
+    "name": "Disallow using another component's propTypes",
+    "description": "See description of ESLint rule <code>react/forbid-foreign-prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/forbid-foreign-prop-types.md\">eslint-plugin-react website</a>"
   },
   {
-    "key": "react/no-access-state-in-setstate",
-    "name": "Prevent using this.state inside this.setState",
-    "description": "See description of ESLint rule <code>react/no-access-state-in-setstate</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-access-state-in-setstate.md\">eslint-plugin-react website</a>."
+    "key": "react/forbid-prop-types",
+    "name": "Disallow certain propTypes",
+    "description": "See description of ESLint rule <code>react/forbid-prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/forbid-prop-types.md\">eslint-plugin-react website</a>"
   },
   {
-    "key": "react/no-array-index-key",
-    "name": "Prevent using Array index in key props",
-    "description": "See description of ESLint rule <code>react/no-array-index-key</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-array-index-key.md\">eslint-plugin-react website</a>."
+    "key": "react/function-component-definition",
+    "name": "Enforce a specific function type for function components",
+    "description": "See description of ESLint rule <code>react/function-component-definition</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/function-component-definition.md\">eslint-plugin-react website</a>"
   },
   {
-    "key": "react/no-children-prop",
-    "name": "Prevent passing children as props",
-    "description": "See description of ESLint rule <code>react/no-children-prop</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-children-prop.md\">eslint-plugin-react website</a>."
+    "key": "react/hook-use-state",
+    "name": "Ensure destructuring and symmetric naming of useState hook value and setter variables",
+    "description": "See description of ESLint rule <code>react/hook-use-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/hook-use-state.md\">eslint-plugin-react website</a>"
   },
   {
-    "key": "react/no-danger",
-    "name": "Prevent usage of dangerous JSX properties",
-    "description": "See description of ESLint rule <code>react/no-danger</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-danger.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-danger-with-children",
-    "name": "Prevent problem with children and props.dangerouslySetInnerHTML",
-    "description": "See description of ESLint rule <code>react/no-danger-with-children</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-danger-with-children.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-deprecated",
-    "name": "Prevent usage of deprecated methods, including component lifecyle methods",
-    "description": "See description of ESLint rule <code>react/no-deprecated</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-deprecated.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-did-mount-set-state",
-    "name": "Prevent usage of setState in componentDidMount",
-    "description": "See description of ESLint rule <code>react/no-did-mount-set-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-did-mount-set-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-did-update-set-state",
-    "name": "Prevent usage of setState in componentDidUpdate",
-    "description": "See description of ESLint rule <code>react/no-did-update-set-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-did-update-set-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-direct-mutation-state",
-    "name": "Prevent direct mutation of this.state",
-    "description": "See description of ESLint rule <code>react/no-direct-mutation-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-direct-mutation-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-find-dom-node",
-    "name": "Prevent usage of findDOMNode",
-    "description": "See description of ESLint rule <code>react/no-find-dom-node</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-find-dom-node.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-is-mounted",
-    "name": "Prevent usage of isMounted",
-    "description": "See description of ESLint rule <code>react/no-is-mounted</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-is-mounted.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-multi-comp",
-    "name": "Prevent multiple component definition per file",
-    "description": "See description of ESLint rule <code>react/no-multi-comp</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-multi-comp.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-redundant-should-component-update",
-    "name": "Prevent usage of shouldComponentUpdate when extending React.PureComponent",
-    "description": "See description of ESLint rule <code>react/no-redundant-should-component-update</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-redundant-should-component-update.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-render-return-value",
-    "name": "Prevent usage of the return value of React.render",
-    "description": "See description of ESLint rule <code>react/no-render-return-value</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-render-return-value.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-set-state",
-    "name": "Prevent usage of setState",
-    "description": "See description of ESLint rule <code>react/no-set-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-set-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-typos",
-    "name": "Prevent common casing typos",
-    "description": "See description of ESLint rule <code>react/no-typos</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-typos.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-string-refs",
-    "name": "Prevent using string references in ref attribute.",
-    "description": "See description of ESLint rule <code>react/no-string-refs</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-string-refs.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-this-in-sfc",
-    "name": "Prevent using this in stateless functional components",
-    "description": "See description of ESLint rule <code>react/no-this-in-sfc</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-this-in-sfc.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-unescaped-entities",
-    "name": "Prevent invalid characters from appearing in markup",
-    "description": "See description of ESLint rule <code>react/no-unescaped-entities</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unescaped-entities.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-unknown-property",
-    "name": "Prevent usage of unknown DOM property",
-    "description": "See description of ESLint rule <code>react/no-unknown-property</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unknown-property.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-unsafe",
-    "name": "Prevent usage of UNSAFE_ methods",
-    "description": "See description of ESLint rule <code>react/no-unsafe</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unsafe.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-unused-prop-types",
-    "name": "Prevent definitions of unused prop types",
-    "description": "See description of ESLint rule <code>react/no-unused-prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unused-prop-types.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-unused-state",
-    "name": "Prevent definitions of unused state properties",
-    "description": "See description of ESLint rule <code>react/no-unused-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unused-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/no-will-update-set-state",
-    "name": "Prevent usage of setState in componentWillUpdate",
-    "description": "See description of ESLint rule <code>react/no-will-update-set-state</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-will-update-set-state.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/prefer-es6-class",
-    "name": "Enforce ES5 or ES6 class for React Components",
-    "description": "See description of ESLint rule <code>react/prefer-es6-class</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prefer-es6-class.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/prefer-stateless-function",
-    "name": "Enforce stateless React Components to be written as a pure function",
-    "description": "See description of ESLint rule <code>react/prefer-stateless-function</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prefer-stateless-function.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/prop-types",
-    "name": "Prevent missing props validation in a React component definition",
-    "description": "See description of ESLint rule <code>react/prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prop-types.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/react-in-jsx-scope",
-    "name": "Prevent missing React when using JSX",
-    "description": "See description of ESLint rule <code>react/react-in-jsx-scope</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/react-in-jsx-scope.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/require-default-props",
-    "name": "Enforce a defaultProps definition for every prop that is not a required prop",
-    "description": "See description of ESLint rule <code>react/require-default-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-default-props.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/require-optimization",
-    "name": "Enforce React components to have a shouldComponentUpdate method",
-    "description": "See description of ESLint rule <code>react/require-optimization</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-optimization.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/require-render-return",
-    "name": "Enforce ES5 or ES6 class for returning value in render function",
-    "description": "See description of ESLint rule <code>react/require-render-return</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-render-return.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/self-closing-comp",
-    "name": "Prevent extra closing tags for components without children",
-    "description": "See description of ESLint rule <code>react/self-closing-comp</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/self-closing-comp.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/sort-comp",
-    "name": "Enforce component methods order",
-    "description": "See description of ESLint rule <code>react/sort-comp</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/sort-comp.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/sort-prop-types",
-    "name": "Enforce propTypes declarations alphabetical sorting",
-    "description": "See description of ESLint rule <code>react/sort-prop-types</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/sort-prop-types.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/style-prop-object",
-    "name": "Enforce style prop value being an object",
-    "description": "See description of ESLint rule <code>react/style-prop-object</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/style-prop-object.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/void-dom-elements-no-children",
-    "name": "Prevent void DOM elements (e.g. <img />, <br />) from receiving children JSX-specific rules",
-    "description": "See description of ESLint rule <code>react/void-dom-elements-no-children</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/void-dom-elements-no-children.md\">eslint-plugin-react website</a>."
+    "key": "react/iframe-missing-sandbox",
+    "name": "Enforce sandbox attribute on iframe elements",
+    "description": "See description of ESLint rule <code>react/iframe-missing-sandbox</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/iframe-missing-sandbox.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-boolean-value",
     "name": "Enforce boolean attributes notation in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-boolean-value</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-boolean-value.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-boolean-value</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-boolean-value.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-child-element-spacing",
-    "name": "Enforce or disallow spaces inside of curly braces in JSX attributes and expressions.",
-    "description": "See description of ESLint rule <code>react/jsx-child-element-spacing</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-child-element-spacing.md\">eslint-plugin-react website</a>."
+    "name": "Enforce or disallow spaces inside of curly braces in JSX attributes and expressions",
+    "description": "See description of ESLint rule <code>react/jsx-child-element-spacing</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-child-element-spacing.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-closing-bracket-location",
-    "name": "Validate closing bracket location in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-closing-bracket-location</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-closing-bracket-location.md\">eslint-plugin-react website</a>."
+    "name": "Enforce closing bracket location in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-closing-bracket-location</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-closing-bracket-location.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-closing-tag-location",
-    "name": "Validate closing tag location in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-closing-tag-location</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-closing-tag-location.md\">eslint-plugin-react website</a>."
+    "name": "Enforce closing tag location for multiline JSX",
+    "description": "See description of ESLint rule <code>react/jsx-closing-tag-location</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-closing-tag-location.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-curly-spacing",
     "name": "Enforce or disallow spaces inside of curly braces in JSX attributes and expressions",
-    "description": "See description of ESLint rule <code>react/jsx-curly-spacing</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-curly-spacing.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-curly-spacing</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-curly-spacing.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-curly-newline",
+    "name": "Enforce consistent linebreaks in curly braces in JSX attributes and expressions",
+    "description": "See description of ESLint rule <code>react/jsx-curly-newline</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-curly-newline.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-equals-spacing",
     "name": "Enforce or disallow spaces around equal signs in JSX attributes",
-    "description": "See description of ESLint rule <code>react/jsx-equals-spacing</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-equals-spacing.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-equals-spacing</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-equals-spacing.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-filename-extension",
-    "name": "Restrict file extensions that may contain JSX",
-    "description": "See description of ESLint rule <code>react/jsx-filename-extension</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-filename-extension.md\">eslint-plugin-react website</a>."
+    "name": "Disallow file extensions that may contain JSX",
+    "description": "See description of ESLint rule <code>react/jsx-filename-extension</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-filename-extension.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-first-prop-new-line",
-    "name": "Enforce position of the first prop in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-first-prop-new-line</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-first-prop-new-line.md\">eslint-plugin-react website</a>."
+    "name": "Enforce proper position of the first property in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-first-prop-new-line</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-first-prop-new-line.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-handler-names",
     "name": "Enforce event handler naming conventions in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-handler-names</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-handler-names.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-handler-names</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-handler-names.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-indent",
-    "name": "Validate JSX indentation",
-    "description": "See description of ESLint rule <code>react/jsx-indent</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-indent.md\">eslint-plugin-react website</a>."
+    "name": "Enforce JSX indentation",
+    "description": "See description of ESLint rule <code>react/jsx-indent</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-indent.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-indent-props",
-    "name": "Validate props indentation in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-indent-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-indent-props.md\">eslint-plugin-react website</a>."
+    "name": "Enforce props indentation in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-indent-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-indent-props.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-key",
-    "name": "Validate JSX has key prop when in array or iterator",
-    "description": "See description of ESLint rule <code>react/jsx-key</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-key.md\">eslint-plugin-react website</a>."
+    "name": "Disallow missing `key` props in iterators/collection literals",
+    "description": "See description of ESLint rule <code>react/jsx-key</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-key.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-max-depth",
-    "name": "Validate JSX maximum depth",
-    "description": "See description of ESLint rule <code>react/jsx-max-depth</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-max-depth.md\">eslint-plugin-react website</a>."
+    "name": "Enforce JSX maximum depth",
+    "description": "See description of ESLint rule <code>react/jsx-max-depth</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-max-depth.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-max-props-per-line",
-    "name": "Limit maximum of props on a single line in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-max-props-per-line</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-max-props-per-line.md\">eslint-plugin-react website</a>."
+    "name": "Enforce maximum of props on a single line in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-max-props-per-line</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-max-props-per-line.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-newline",
+    "name": "Require or prevent a new line after jsx elements and expressions.",
+    "description": "See description of ESLint rule <code>react/jsx-newline</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-newline.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-bind",
-    "name": "Prevent usage of .bind() and arrow functions in JSX props",
-    "description": "See description of ESLint rule <code>react/jsx-no-bind</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-bind.md\">eslint-plugin-react website</a>."
+    "name": "Disallow `.bind()` or arrow functions in JSX props",
+    "description": "See description of ESLint rule <code>react/jsx-no-bind</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-bind.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-comment-textnodes",
-    "name": "Prevent comments from being inserted as text nodes",
-    "description": "See description of ESLint rule <code>react/jsx-no-comment-textnodes</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-comment-textnodes.md\">eslint-plugin-react website</a>."
+    "name": "Disallow comments from being inserted as text nodes",
+    "description": "See description of ESLint rule <code>react/jsx-no-comment-textnodes</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-comment-textnodes.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-no-constructed-context-values",
+    "name": "Disallows JSX context provider values from taking values that will cause needless rerenders",
+    "description": "See description of ESLint rule <code>react/jsx-no-constructed-context-values</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-constructed-context-values.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-duplicate-props",
-    "name": "Prevent duplicate props in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-no-duplicate-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-duplicate-props.md\">eslint-plugin-react website</a>."
+    "name": "Disallow duplicate properties in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-no-duplicate-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-duplicate-props.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-no-leaked-render",
+    "name": "Disallow problematic leaked values from being rendered",
+    "description": "See description of ESLint rule <code>react/jsx-no-leaked-render</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-leaked-render.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-literals",
-    "name": "Prevent usage of unwrapped JSX strings",
-    "description": "See description of ESLint rule <code>react/jsx-no-literals</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-literals.md\">eslint-plugin-react website</a>."
+    "name": "Disallow usage of string literals in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-no-literals</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-literals.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-no-script-url",
+    "name": "Disallow usage of `javascript:` URLs",
+    "description": "See description of ESLint rule <code>react/jsx-no-script-url</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-script-url.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-target-blank",
-    "name": "Prevent usage of unsafe target='_blank'",
-    "description": "See description of ESLint rule <code>react/jsx-no-target-blank</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-target-blank.md\">eslint-plugin-react website</a>."
+    "name": "Disallow `target=\"_blank\"` attribute without `rel=\"noreferrer\"`",
+    "description": "See description of ESLint rule <code>react/jsx-no-target-blank</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-target-blank.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-no-useless-fragment",
+    "name": "Disallow unnecessary fragments",
+    "description": "See description of ESLint rule <code>react/jsx-no-useless-fragment</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-useless-fragment.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-one-expression-per-line",
+    "name": "Require one JSX element per line",
+    "description": "See description of ESLint rule <code>react/jsx-one-expression-per-line</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-one-expression-per-line.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-no-undef",
     "name": "Disallow undeclared variables in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-no-undef</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-undef.md\">eslint-plugin-react website</a>."
-  },
-  {
-    "key": "react/jsx-one-expression-per-line",
-    "name": "Limit to one expression per line in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-one-expression-per-line</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-one-expression-per-line.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-no-undef</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-no-undef.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-curly-brace-presence",
-    "name": "Enforce curly braces or disallow unnecessary curly braces in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-curly-brace-presence</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-curly-brace-presence.md\">eslint-plugin-react website</a>."
+    "name": "Disallow unnecessary JSX expressions when literals alone are sufficient or enforce JSX expressions on literals in JSX children or attributes",
+    "description": "See description of ESLint rule <code>react/jsx-curly-brace-presence</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-curly-brace-presence.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-pascal-case",
     "name": "Enforce PascalCase for user-defined JSX components",
-    "description": "See description of ESLint rule <code>react/jsx-pascal-case</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-pascal-case.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-pascal-case</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-pascal-case.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-fragments",
+    "name": "Enforce shorthand or standard form for React fragments",
+    "description": "See description of ESLint rule <code>react/jsx-fragments</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-fragments.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-props-no-multi-spaces",
     "name": "Disallow multiple spaces between inline JSX props",
-    "description": "See description of ESLint rule <code>react/jsx-props-no-multi-spaces</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-props-no-multi-spaces.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-props-no-multi-spaces</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-props-no-multi-spaces.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/jsx-props-no-spreading",
+    "name": "Disallow JSX prop spreading",
+    "description": "See description of ESLint rule <code>react/jsx-props-no-spreading</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-props-no-spreading.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-sort-default-props",
-    "name": "Enforce default props alphabetical sorting",
-    "description": "See description of ESLint rule <code>react/jsx-sort-default-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-sort-default-props.md\">eslint-plugin-react website</a>."
+    "name": "Enforce defaultProps declarations alphabetical sorting",
+    "description": "See description of ESLint rule <code>react/jsx-sort-default-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-sort-default-props.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-sort-props",
     "name": "Enforce props alphabetical sorting",
-    "description": "See description of ESLint rule <code>react/jsx-sort-props</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-sort-props.md\">eslint-plugin-react website</a>."
+    "description": "See description of ESLint rule <code>react/jsx-sort-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-sort-props.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-space-before-closing",
-    "name": "Validate spacing before closing bracket in JSX",
-    "description": "See description of ESLint rule <code>react/jsx-space-before-closing</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-space-before-closing.md\">eslint-plugin-react website</a>."
+    "name": "Enforce spacing before closing bracket in JSX",
+    "description": "See description of ESLint rule <code>react/jsx-space-before-closing</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-space-before-closing.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-tag-spacing",
-    "name": "Validate whitespace in and around the JSX opening and closing brackets",
-    "description": "See description of ESLint rule <code>react/jsx-tag-spacing</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-tag-spacing.md\">eslint-plugin-react website</a>."
+    "name": "Enforce whitespace in and around the JSX opening and closing brackets",
+    "description": "See description of ESLint rule <code>react/jsx-tag-spacing</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-tag-spacing.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-uses-react",
-    "name": "Prevent React to be incorrectly marked as unused",
-    "description": "See description of ESLint rule <code>react/jsx-uses-react</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-uses-react.md\">eslint-plugin-react website</a>."
+    "name": "Disallow React to be incorrectly marked as unused",
+    "description": "See description of ESLint rule <code>react/jsx-uses-react</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-uses-react.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-uses-vars",
-    "name": "Prevent variables used in JSX to be incorrectly marked as unused",
-    "description": "See description of ESLint rule <code>react/jsx-uses-vars</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-uses-vars.md\">eslint-plugin-react website</a>."
+    "name": "Disallow variables used in JSX to be incorrectly marked as unused",
+    "description": "See description of ESLint rule <code>react/jsx-uses-vars</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-uses-vars.md\">eslint-plugin-react website</a>"
   },
   {
     "key": "react/jsx-wrap-multilines",
-    "name": "Prevent missing parentheses around multilines JSX",
-    "description": "See description of ESLint rule <code>react/jsx-wrap-multilines</code> at the <a href=\"https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-wrap-multilines.md\">eslint-plugin-react website</a>."
+    "name": "Disallow missing parentheses around multiline JSX",
+    "description": "See description of ESLint rule <code>react/jsx-wrap-multilines</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/jsx-wrap-multilines.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-invalid-html-attribute",
+    "name": "Disallow usage of invalid attributes",
+    "description": "See description of ESLint rule <code>react/no-invalid-html-attribute</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-invalid-html-attribute.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-access-state-in-setstate",
+    "name": "Disallow when this.state is accessed within setState",
+    "description": "See description of ESLint rule <code>react/no-access-state-in-setstate</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-access-state-in-setstate.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-adjacent-inline-elements",
+    "name": "Disallow adjacent inline elements not separated by whitespace.",
+    "description": "See description of ESLint rule <code>react/no-adjacent-inline-elements</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-adjacent-inline-elements.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-array-index-key",
+    "name": "Disallow usage of Array index in keys",
+    "description": "See description of ESLint rule <code>react/no-array-index-key</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-array-index-key.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-arrow-function-lifecycle",
+    "name": "Lifecycle methods should be methods on the prototype, not class fields",
+    "description": "See description of ESLint rule <code>react/no-arrow-function-lifecycle</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-arrow-function-lifecycle.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-children-prop",
+    "name": "Disallow passing of children as props",
+    "description": "See description of ESLint rule <code>react/no-children-prop</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-children-prop.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-danger",
+    "name": "Disallow usage of dangerous JSX properties",
+    "description": "See description of ESLint rule <code>react/no-danger</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-danger.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-danger-with-children",
+    "name": "Disallow when a DOM element is using both children and dangerouslySetInnerHTML",
+    "description": "See description of ESLint rule <code>react/no-danger-with-children</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-danger-with-children.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-deprecated",
+    "name": "Disallow usage of deprecated methods",
+    "description": "See description of ESLint rule <code>react/no-deprecated</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-deprecated.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-did-mount-set-state",
+    "name": "Disallow usage of setState in componentDidMount",
+    "description": "See description of ESLint rule <code>react/no-did-mount-set-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-did-mount-set-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-did-update-set-state",
+    "name": "Disallow usage of setState in componentDidUpdate",
+    "description": "See description of ESLint rule <code>react/no-did-update-set-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-did-update-set-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-direct-mutation-state",
+    "name": "Disallow direct mutation of this.state",
+    "description": "See description of ESLint rule <code>react/no-direct-mutation-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-direct-mutation-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-find-dom-node",
+    "name": "Disallow usage of findDOMNode",
+    "description": "See description of ESLint rule <code>react/no-find-dom-node</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-find-dom-node.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-is-mounted",
+    "name": "Disallow usage of isMounted",
+    "description": "See description of ESLint rule <code>react/no-is-mounted</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-is-mounted.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-multi-comp",
+    "name": "Disallow multiple component definition per file",
+    "description": "See description of ESLint rule <code>react/no-multi-comp</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-multi-comp.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-namespace",
+    "name": "Enforce that namespaces are not used in React elements",
+    "description": "See description of ESLint rule <code>react/no-namespace</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-namespace.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-set-state",
+    "name": "Disallow usage of setState",
+    "description": "See description of ESLint rule <code>react/no-set-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-set-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-string-refs",
+    "name": "Disallow using string references",
+    "description": "See description of ESLint rule <code>react/no-string-refs</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-string-refs.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-redundant-should-component-update",
+    "name": "Disallow usage of shouldComponentUpdate when extending React.PureComponent",
+    "description": "See description of ESLint rule <code>react/no-redundant-should-component-update</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-redundant-should-component-update.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-render-return-value",
+    "name": "Disallow usage of the return value of ReactDOM.render",
+    "description": "See description of ESLint rule <code>react/no-render-return-value</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-render-return-value.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-this-in-sfc",
+    "name": "Disallow `this` from being used in stateless functional components",
+    "description": "See description of ESLint rule <code>react/no-this-in-sfc</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-this-in-sfc.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-typos",
+    "name": "Disallow common typos",
+    "description": "See description of ESLint rule <code>react/no-typos</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-typos.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unescaped-entities",
+    "name": "Disallow unescaped HTML entities from appearing in markup",
+    "description": "See description of ESLint rule <code>react/no-unescaped-entities</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unescaped-entities.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unknown-property",
+    "name": "Disallow usage of unknown DOM property",
+    "description": "See description of ESLint rule <code>react/no-unknown-property</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unknown-property.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unsafe",
+    "name": "Disallow usage of unsafe lifecycle methods",
+    "description": "See description of ESLint rule <code>react/no-unsafe</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unsafe.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unstable-nested-components",
+    "name": "Disallow creating unstable components inside components",
+    "description": "See description of ESLint rule <code>react/no-unstable-nested-components</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unstable-nested-components.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unused-class-component-methods",
+    "name": "Disallow declaring unused methods of component class",
+    "description": "See description of ESLint rule <code>react/no-unused-class-component-methods</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unused-class-component-methods.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unused-prop-types",
+    "name": "Disallow definitions of unused propTypes",
+    "description": "See description of ESLint rule <code>react/no-unused-prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unused-prop-types.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-unused-state",
+    "name": "Disallow definitions of unused state",
+    "description": "See description of ESLint rule <code>react/no-unused-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-unused-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-object-type-as-default-prop",
+    "name": "Disallow usage of referential-type variables as default param in functional component",
+    "description": "See description of ESLint rule <code>react/no-object-type-as-default-prop</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-object-type-as-default-prop.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/no-will-update-set-state",
+    "name": "Disallow usage of setState in componentWillUpdate",
+    "description": "See description of ESLint rule <code>react/no-will-update-set-state</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/no-will-update-set-state.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/prefer-es6-class",
+    "name": "Enforce ES5 or ES6 class for React Components",
+    "description": "See description of ESLint rule <code>react/prefer-es6-class</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/prefer-es6-class.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/prefer-exact-props",
+    "name": "Prefer exact proptype definitions",
+    "description": "See description of ESLint rule <code>react/prefer-exact-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/prefer-exact-props.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/prefer-read-only-props",
+    "name": "Enforce that props are read-only",
+    "description": "See description of ESLint rule <code>react/prefer-read-only-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/prefer-read-only-props.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/prefer-stateless-function",
+    "name": "Enforce stateless components to be written as a pure function",
+    "description": "See description of ESLint rule <code>react/prefer-stateless-function</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/prefer-stateless-function.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/prop-types",
+    "name": "Disallow missing props validation in a React component definition",
+    "description": "See description of ESLint rule <code>react/prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/prop-types.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/react-in-jsx-scope",
+    "name": "Disallow missing React when using JSX",
+    "description": "See description of ESLint rule <code>react/react-in-jsx-scope</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/react-in-jsx-scope.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/require-default-props",
+    "name": "Enforce a defaultProps definition for every prop that is not a required prop",
+    "description": "See description of ESLint rule <code>react/require-default-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/require-default-props.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/require-optimization",
+    "name": "Enforce React components to have a shouldComponentUpdate method",
+    "description": "See description of ESLint rule <code>react/require-optimization</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/require-optimization.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/require-render-return",
+    "name": "Enforce ES5 or ES6 class for returning value in render function",
+    "description": "See description of ESLint rule <code>react/require-render-return</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/require-render-return.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/self-closing-comp",
+    "name": "Disallow extra closing tags for components without children",
+    "description": "See description of ESLint rule <code>react/self-closing-comp</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/self-closing-comp.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/sort-comp",
+    "name": "Enforce component methods order",
+    "description": "See description of ESLint rule <code>react/sort-comp</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/sort-comp.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/sort-default-props",
+    "name": "Enforce defaultProps declarations alphabetical sorting",
+    "description": "See description of ESLint rule <code>react/sort-default-props</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/sort-default-props.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/sort-prop-types",
+    "name": "Enforce propTypes declarations alphabetical sorting",
+    "description": "See description of ESLint rule <code>react/sort-prop-types</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/sort-prop-types.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/state-in-constructor",
+    "name": "Enforce class component state initialization style",
+    "description": "See description of ESLint rule <code>react/state-in-constructor</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/state-in-constructor.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/static-property-placement",
+    "name": "Enforces where React component static properties should be positioned.",
+    "description": "See description of ESLint rule <code>react/static-property-placement</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/static-property-placement.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/style-prop-object",
+    "name": "Enforce style prop value is an object",
+    "description": "See description of ESLint rule <code>react/style-prop-object</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/style-prop-object.md\">eslint-plugin-react website</a>"
+  },
+  {
+    "key": "react/void-dom-elements-no-children",
+    "name": "Disallow void DOM elements (e.g. `<img />`, `<br />`) from receiving children",
+    "description": "See description of ESLint rule <code>react/void-dom-elements-no-children</code> at the <a href=\"https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/void-dom-elements-no-children.md\">eslint-plugin-react website</a>"
   }
 ]
