@@ -19,44 +19,34 @@
  */
 package org.sonarsource.javascript;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
-public class App {
+public class XZ {
+
+  private static final int COMPRESSION_LEVEL = 1;
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       System.out.println("Please provide at least 1 filename to compress using XZ");
       System.exit(1);
     }
-    var filenames = args;
-    for (String filename : filenames) {
+    for (var filename : args) {
       System.out.println("Compressing " + filename);
-      var file = new File(filename);
-      if (!file.exists()) {
+      var file = Path.of(filename);
+      if (!Files.exists(file)) {
         System.out.println("File " + filename + " does not exist.");
         System.exit(1);
       }
-      try (InputStream is = new BufferedInputStream(new FileInputStream(filename));) {
-        byte[] buf = new byte[8 * 1024 * 1024];
-        int nextBytes;
-
-        try (
-          FileOutputStream outfile = new FileOutputStream(filename + ".xz");
-          // TODO: set LZMA2Options arg to 9 for maximum space saving - maybe add this level as argv param
-          XZOutputStream outxz = new XZOutputStream(outfile, new LZMA2Options(1));
-        ) {
-          while ((nextBytes = is.read(buf)) > -1) {
-            System.out.println("read " + nextBytes + " bytes");
-            outxz.write(buf, 0, nextBytes);
-          }
-          is.close();
-        }
+      try (
+        var is = Files.newInputStream(file);
+        var outfile = Files.newOutputStream(Path.of(file + ".xz"));
+        // TODO: set LZMA2Options arg to 9 for maximum space saving - maybe add this level as argv param
+        var outxz = new XZOutputStream(outfile, new LZMA2Options(COMPRESSION_LEVEL))
+      ) {
+        is.transferTo(outxz);
       }
     }
   }
