@@ -247,10 +247,17 @@ function compress(filename) {
   console.log(`Compressing ${filename}`);
   const script = path.join(process.cwd(), 'tools', 'CompressXZ.java');
 
-  const pathToDep = path.join('.m2', 'repository', 'org', 'tukaani', 'xz', '1.9', 'xz-1.9.jar');
-  const dependency = isWindows()
-    ? path.join('%USERPROFILE%', pathToDep)
-    : path.join('~', pathToDep);
+  const rootFolder = isWindows() ? '%USERPROFILE%' : '~';
+  const dependency = path.join(
+    rootFolder,
+    '.m2',
+    'repository',
+    'org',
+    'tukaani',
+    'xz',
+    '1.9',
+    'xz-1.9.jar',
+  );
 
   execSync(`java -cp ${dependency} ${script} ${filename}`, { stdio: 'inherit' });
 
