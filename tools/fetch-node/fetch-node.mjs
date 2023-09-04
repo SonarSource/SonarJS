@@ -79,7 +79,7 @@ for (const distro of NODE_DISTROS) {
 
   const distroName = removeExtension(filename);
   const runtime = copyRuntime(distroName, distro.id, nodeDir, targetDir);
-  compress(runtime);
+  //compress(runtime);
 }
 
 function getFilenameFromUrl(url) {

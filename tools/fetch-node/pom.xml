@@ -45,7 +45,6 @@
           <version>3.1.0</version>
           <executions>
             <execution>
-
               <goals>
                 <goal>java</goal>
               </goals>
@@ -54,15 +53,16 @@
           <configuration>
             <mainClass>org.sonarsource.javascript.App</mainClass>
             <arguments>
-              <argument>argument1</argument>
-
+              <argument>../../sonar-plugin/sonar-javascript-plugin/target/classes/macos-arm64/node</argument>
+              <argument>../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64/node</argument>
+              <argument>../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64-alpine/node</argument>
+              <argument>../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
             </arguments>
             <systemProperties>
               <systemProperty>
                 <key>myproperty</key>
                 <value>myvalue</value>
               </systemProperty>
-              ...
             </systemProperties>
           </configuration>
         </plugin>

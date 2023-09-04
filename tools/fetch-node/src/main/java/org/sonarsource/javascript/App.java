@@ -31,29 +31,32 @@ public class App {
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      System.out.println("Please provide a filename to compress using XZ");
+      System.out.println("Please provide at least 1 filename to compress using XZ");
       System.exit(1);
     }
-    var filename = args[0];
-    var file = new File(filename);
-    if (!file.exists()) {
-      System.out.println("File " + filename + " does not exist.");
-      System.exit(1);
-    }
-    try (InputStream is = new BufferedInputStream(new FileInputStream(filename));) {
-      byte[] buf = new byte[8 * 1024 * 1024];
-      int nextBytes;
+    var filenames = args;
+    for (String filename : filenames) {
+      System.out.println("Compressing " + filename);
+      var file = new File(filename);
+      if (!file.exists()) {
+        System.out.println("File " + filename + " does not exist.");
+        System.exit(1);
+      }
+      try (InputStream is = new BufferedInputStream(new FileInputStream(filename));) {
+        byte[] buf = new byte[8 * 1024 * 1024];
+        int nextBytes;
 
-      try (
-        FileOutputStream outfile = new FileOutputStream(filename + ".xz");
-        // TODO: set LZMA2Options arg to 9 for maximum space saving - maybe add this level as argv param
-        XZOutputStream outxz = new XZOutputStream(outfile, new LZMA2Options(1));
-      ) {
-        while ((nextBytes = is.read(buf)) > -1) {
-          System.out.println("read " + nextBytes + " bytes");
-          outxz.write(buf, 0, nextBytes);
+        try (
+          FileOutputStream outfile = new FileOutputStream(filename + ".xz");
+          // TODO: set LZMA2Options arg to 9 for maximum space saving - maybe add this level as argv param
+          XZOutputStream outxz = new XZOutputStream(outfile, new LZMA2Options(1));
+        ) {
+          while ((nextBytes = is.read(buf)) > -1) {
+            System.out.println("read " + nextBytes + " bytes");
+            outxz.write(buf, 0, nextBytes);
+          }
+          is.close();
         }
-        is.close();
       }
     }
   }
