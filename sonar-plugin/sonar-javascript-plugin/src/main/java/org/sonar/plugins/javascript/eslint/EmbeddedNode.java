@@ -142,7 +142,6 @@ public class EmbeddedNode {
         if (platform != Platform.WIN_X64) {
           Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
         }
-        Files.setPosixFilePermissions(target, executable);
       }
     }
   }
