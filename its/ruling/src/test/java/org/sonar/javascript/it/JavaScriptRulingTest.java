@@ -252,6 +252,7 @@ class JavaScriptRulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
+      .setDebugLogs(true)
       .setProperty(
         "sonar.lits.dump.old",
         FileLocation
