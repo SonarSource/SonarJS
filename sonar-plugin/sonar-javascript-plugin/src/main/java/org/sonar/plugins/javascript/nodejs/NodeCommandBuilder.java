@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.eslint.EmbeddedNode;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
