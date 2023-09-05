@@ -53,6 +53,7 @@ class TestCodeAnalysisTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(sourceDir)
       .setTestDirs(testDir)
+      .setDebugLogs(true)
       .setProjectDir(TestUtils.projectDir(project));
 
     var jsProfile = ProfileGenerator.generateProfile(

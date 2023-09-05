@@ -23,10 +23,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -53,24 +50,27 @@ public class EmbeddedNode {
     String pathInJar() {
       switch (this) {
         case WIN_X64:
-          return "/win-x64/node.exe";
+          return "/win-x64/node.exe.xz";
         case LINUX_X64:
-          return "/linux-x64/node";
+          return "/linux-x64/node.xz";
         case MACOS_ARM64:
-          return "/macos-arm64/node";
+          return "/macos-arm64/node.xz";
         case LINUX_X64_ALPINE:
-          return "/linux-x64-alpine/node";
+          return "/linux-x64-alpine/node.xz";
         default:
           throw new IllegalArgumentException("Unexpected platform");
       }
     }
 
-    String binary() {
+    String binary(boolean withXZ) {
+      String bin;
+      String xz = ".xz";
       if (this == WIN_X64) {
-        return "node.exe";
+        bin = "node.exe";
       } else {
-        return "node";
+        bin = "node";
       }
+      return withXZ ? bin + xz : bin;
     }
 
     static Platform detect() {
@@ -109,6 +109,16 @@ public class EmbeddedNode {
   }
 
   void deployNode(Path deployLocation) throws IOException {
+    LOG.debug(
+      "Calling deployNode with " +
+      platform +
+      " and " +
+      isAvailable +
+      " for " +
+      System.getProperty("os.name") +
+      " - " +
+      System.getProperty("os.arch")
+    );
     if (platform == null || isAvailable) {
       return;
     }
@@ -117,36 +127,34 @@ public class EmbeddedNode {
     if (is == null) {
       return;
     }
-    var target = deployLocation.resolve(platform.binary());
+    var target = deployLocation.resolve(platform.binary(true));
     LOG.debug("Copy embedded node to {}", target);
     Files.copy(is, target);
-    if (platform != Platform.WIN_X64) {
-      Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
-    }
+    decompress(target);
     isAvailable = true;
   }
 
-  private void decompress(InputStream is, Path target) throws IOException {
+  private void decompress(Path source) throws IOException {
+    var sourceAsString = source.toString();
+    var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
+    if (Files.exists(target)) {
+      LOG.debug("Skipping decompression. " + target.toString() + " already exists.");
+      return;
+    }
+    LOG.debug("Decompressing " + source.toAbsolutePath() + " into " + target);
     try (
-      InputStream stream = new BufferedInputStream(is);
-      XZInputStream archive = new XZInputStream(stream);
+      var is = Files.newInputStream(source);
+      var archive = new XZInputStream(is);
+      var os = Files.newOutputStream(target);
     ) {
-      int nextBytes;
-      byte[] buf = new byte[8 * 1024 * 1024];
-      try (OutputStream os = Files.newOutputStream(target)) {
-        while ((nextBytes = archive.read(buf)) > -1) {
-          System.out.println("read " + nextBytes + " bytes");
-          os.write(buf, 0, nextBytes);
-        }
-        stream.close();
-        if (platform != Platform.WIN_X64) {
-          Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
-        }
+      archive.transferTo(os);
+      if (platform != Platform.WIN_X64) {
+        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
       }
     }
   }
 
   public Path binary() {
-    return deployLocation.resolve(platform.binary());
+    return deployLocation.resolve(platform.binary(false));
   }
 }
