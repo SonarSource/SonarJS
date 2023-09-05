@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "SonarJS code analyzer",
   "scripts": {
-    "build": "npm ci && npm run clear && npm run compile",
+    "build": "npm ci && npm run fetch-node && run clear && npm run compile",
     "clear": "rimraf lib/*",
     "check-format": "prettier --list-different .",
     "test": "jest",
