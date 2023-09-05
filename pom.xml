@@ -252,6 +252,9 @@
             <include>profiling/**/*.ts</include>
             <include>profiling/**/*.js</include>
             <include>tools/resources/rule.*</include>
+            <include>tools/**/*.mjs</include>
+            <include>tools/**/*.ts</include>
+            <include>tools/**/*.java</include>
           </includes>
           <mapping>
             <template_java>JAVADOC_STYLE</template_java>
