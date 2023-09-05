@@ -190,6 +190,7 @@ import { rule as S4623 } from './S4623'; // no-undefined-argument
 import { rule as S2138 } from './S2138'; // no-undefined-assignment
 import { rule as S2681 } from './S2681'; // no-unenclosed-multiline-block
 import { rule as S6486 } from './S6486'; // no-uniq-key
+import { rule as S6747 } from './S6747'; // no-unknown-property
 import { rule as S1763 } from './S1763'; // no-unreachable
 import { rule as S5042 } from './S5042'; // no-unsafe-unzip
 import { rule as S6478 } from './S6478'; // no-unstable-nested-components
@@ -461,6 +462,7 @@ rules['no-undefined-argument'] = S4623;
 rules['no-undefined-assignment'] = S2138;
 rules['no-unenclosed-multiline-block'] = S2681;
 rules['no-uniq-key'] = S6486;
+rules['no-unknown-property'] = S6747;
 rules['no-unreachable'] = S1763;
 rules['no-unsafe-unzip'] = S5042;
 rules['no-unstable-nested-components'] = S6478;
