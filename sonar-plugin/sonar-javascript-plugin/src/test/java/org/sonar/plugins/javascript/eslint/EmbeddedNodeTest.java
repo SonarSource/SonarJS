@@ -12,7 +12,4 @@ class EmbeddedNodeTest {
       assertThat(EmbeddedNode.Platform.detect()).isEqualTo(EmbeddedNode.Platform.MACOS_ARM64);
     }
   }
-
-  @Test
-  void should_decompress_the_runtime() {}
 }
