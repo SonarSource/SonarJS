@@ -1,9 +1,9 @@
 # Fetch node.js runtimes tooling
 
-## Fetch runtimes
+## Fetch runtimes and compress them
 
-- From the root of the project, run `npm run fetch-node`
+Run `npm run fetch-node`
 
 ## compress them
 
-- run `mvn exec:java`
+Run `mvn exec:java`

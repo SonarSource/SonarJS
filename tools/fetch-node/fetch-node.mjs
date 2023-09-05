@@ -74,7 +74,7 @@ for (const distro of NODE_DISTROS) {
   await extractFile(archiveFilename, nodeDir);
 
   const distroName = removeExtension(filename);
-  const runtime = copyRuntime(distroName, distro.id, nodeDir, targetDir);
+  copyRuntime(distroName, distro.id, nodeDir, targetDir);
 }
 
 function getFilenameFromUrl(url) {

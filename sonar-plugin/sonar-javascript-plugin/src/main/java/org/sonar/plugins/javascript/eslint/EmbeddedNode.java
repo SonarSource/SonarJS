@@ -62,15 +62,15 @@ public class EmbeddedNode {
       }
     }
 
-    String binary(boolean withXZ) {
-      String bin;
-      String xz = ".xz";
+    /**
+     * @return the correct binary name depending on the platform: `node` or `node.exe`
+     */
+    String binary() {
       if (this == WIN_X64) {
-        bin = "node.exe";
+        return "node.exe";
       } else {
-        bin = "node";
+        return "node";
       }
-      return withXZ ? bin + xz : bin;
     }
 
     static Platform detect() {
@@ -109,16 +109,6 @@ public class EmbeddedNode {
   }
 
   void deployNode(Path deployLocation) throws IOException {
-    LOG.debug(
-      "Calling deployNode with " +
-      platform +
-      " and " +
-      isAvailable +
-      " for " +
-      System.getProperty("os.name") +
-      " - " +
-      System.getProperty("os.arch")
-    );
     if (platform == null || isAvailable) {
       return;
     }
@@ -127,14 +117,23 @@ public class EmbeddedNode {
     if (is == null) {
       return;
     }
-    var target = deployLocation.resolve(platform.binary(true));
+    var target = deployLocation.resolve(platform.binary() + ".xz");
     LOG.debug("Copy embedded node to {}", target);
     Files.copy(is, target);
-    decompress(target);
+    extract(target);
     isAvailable = true;
   }
 
-  private void decompress(Path source) throws IOException {
+  /**
+   * Expects a path to a xz-compessed file ending in `.xz` like `node.xz` and
+   * extracts it into the same place as `node`.
+   *
+   * Skips extraction if target file already exists.
+   *
+   * @param source Path for the file to extract
+   * @throws IOException
+   */
+  private void extract(Path source) throws IOException {
     var sourceAsString = source.toString();
     var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
     if (Files.exists(target)) {
@@ -150,11 +149,16 @@ public class EmbeddedNode {
       archive.transferTo(os);
       if (platform != Platform.WIN_X64) {
         Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
+      } else {
+        LOG.debug("I'm on Windows, help me make this executable!");
       }
     }
   }
 
+  /**
+   * @return the path to the binary once it has been decompressed
+   */
   public Path binary() {
-    return deployLocation.resolve(platform.binary(false));
+    return deployLocation.resolve(platform.binary());
   }
 }
