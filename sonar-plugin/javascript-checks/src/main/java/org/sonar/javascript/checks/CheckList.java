@@ -233,6 +233,7 @@ public final class CheckList {
       NoConstantBinaryExpressionCheck.class,
       NoConstructorReturnCheck.class,
       NoControlRegexCheck.class,
+      NoDirectMutationStateCheck.class,
       NoDuplicateEnumValuesCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
