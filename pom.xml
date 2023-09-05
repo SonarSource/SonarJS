@@ -30,7 +30,7 @@
 
   <modules>
     <module>sonar-plugin</module>
-    <module>tools/fetch-node</module>
+    <module>tools</module>
     <!--
       its module is added via profile below
     -->

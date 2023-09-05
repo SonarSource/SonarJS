@@ -5,23 +5,27 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
-    <artifactId>javascript</artifactId>
+    <artifactId>tools</artifactId>
     <version>10.6.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>fetch-node</artifactId>
 
   <name>SonarQube JavaScript :: Fetch-node</name>
 
-  <properties>
-    <sonar.sources>src/main</sonar.sources>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.tukaani</groupId>
       <artifactId>xz</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
     </dependency>
   </dependencies>
 
@@ -47,12 +51,6 @@
               <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64-alpine/node</argument>
               <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
             </arguments>
-            <systemProperties>
-              <systemProperty>
-                <key>myproperty</key>
-                <value>myvalue</value>
-              </systemProperty>
-            </systemProperties>
           </configuration>
         </plugin>
 

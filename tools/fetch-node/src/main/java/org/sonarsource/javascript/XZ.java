@@ -34,7 +34,11 @@ public class XZ {
       System.out.println("Please provide at least 1 filename to compress using XZ");
       System.exit(1);
     }
-    for (var filename : args) {
+    compress(args);
+  }
+
+  public static void compress(String[] filenames) throws Exception {
+    for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
       if (!Files.exists(file)) {
