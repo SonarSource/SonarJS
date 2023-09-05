@@ -26,6 +26,7 @@ import org.tukaani.xz.XZOutputStream;
 
 public class XZ {
 
+  // TODO: set this to 9 for maximum space saving (it will be slower, so we keep it at 1 for development)
   private static final int COMPRESSION_LEVEL = 1;
 
   public static void main(String[] args) throws Exception {
@@ -43,7 +44,6 @@ public class XZ {
       try (
         var is = Files.newInputStream(file);
         var outfile = Files.newOutputStream(Path.of(file + ".xz"));
-        // TODO: set LZMA2Options arg to 9 for maximum space saving - maybe add this level as argv param
         var outxz = new XZOutputStream(outfile, new LZMA2Options(COMPRESSION_LEVEL))
       ) {
         is.transferTo(outxz);
