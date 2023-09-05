@@ -48,6 +48,11 @@ public class XZ {
       ) {
         is.transferTo(outxz);
       }
+      try {
+        Files.delete(file);
+      } catch (Exception e) {
+        System.out.println("Error while deleting file: " + e.getMessage());
+      }
     }
   }
 }
