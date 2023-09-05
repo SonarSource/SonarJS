@@ -24,14 +24,10 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
-import { execSync } from 'node:child_process';
-import os from 'node:os';
 
 /**
  * Fetches node.js runtimes and downloads them to
  * targetDir/classes/{distro.id}/node{.exe}
- * and compresses them to
- * targetDir/classes/{distro.id}/node{.exe}.xz
  */
 
 const NODE_VERSION = 'v20.5.1';
@@ -79,7 +75,6 @@ for (const distro of NODE_DISTROS) {
 
   const distroName = removeExtension(filename);
   const runtime = copyRuntime(distroName, distro.id, nodeDir, targetDir);
-  //compress(runtime);
 }
 
 function getFilenameFromUrl(url) {
@@ -235,33 +230,5 @@ function readTargetDirFromCLI() {
 
   function isAbsolutePath(folder) {
     return folder.startsWith(path.sep);
-  }
-}
-
-/**
- * Compress the provided `filename` to `filename.xz`
- *
- * @param {*} filename
- */
-function compress(filename) {
-  console.log(`Compressing ${filename}`);
-  const script = path.join(process.cwd(), 'tools', 'CompressXZ.java');
-
-  const rootFolder = isWindows() ? '%USERPROFILE%' : '~';
-  const dependency = path.join(
-    rootFolder,
-    '.m2',
-    'repository',
-    'org',
-    'tukaani',
-    'xz',
-    '1.9',
-    'xz-1.9.jar',
-  );
-
-  execSync(`java -cp ${dependency} ${script} ${filename}`, { stdio: 'inherit' });
-
-  function isWindows() {
-    return os.platform().startsWith('win');
   }
 }
