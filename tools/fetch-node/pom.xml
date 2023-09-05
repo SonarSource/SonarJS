@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>tools</artifactId>
-    <version>10.6.0-SNAPSHOT</version>
+    <version>10.7.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fetch-node</artifactId>

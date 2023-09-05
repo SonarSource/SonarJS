@@ -1,4 +1,4 @@
-package org.sonar.plugins.javascript.eslint;
+package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
