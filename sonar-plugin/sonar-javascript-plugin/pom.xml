@@ -6,7 +6,6 @@
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>sonar-plugin</artifactId>
     <version>10.6.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>sonar-javascript-plugin</artifactId>
