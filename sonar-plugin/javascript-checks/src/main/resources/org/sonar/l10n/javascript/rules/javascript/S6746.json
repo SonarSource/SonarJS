@@ -19,5 +19,9 @@
       "SECURITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
